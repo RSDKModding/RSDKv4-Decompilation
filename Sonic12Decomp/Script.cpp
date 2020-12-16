@@ -1,0 +1,4374 @@
+#include "RetroEngine.hpp"
+#include <cmath>
+
+ObjectScript objectScriptList[OBJECT_COUNT];
+ScriptPtr functionScriptList[FUNCTION_COUNT];
+
+int scriptData[SCRIPTDATA_COUNT];
+int jumpTableData[JUMPTABLE_COUNT];
+int jumpTableStack[JUMPSTACK_COUNT];
+int functionStack[FUNCSTACK_COUNT];
+int foreachStack[FOREACH_COUNT];
+
+int scriptCodePos     = 0;
+int jumpTablePos      = 0;
+int jumpTableStackPos = 0;
+int functionStackPos  = 0;
+int foreachStackPos  = 0;
+
+ScriptEngine scriptEng = ScriptEngine();
+char scriptText[0x100];
+
+int scriptDataPos       = 0;
+int scriptDataOffset    = 0;
+int jumpTableDataPos    = 0;
+int jumpTableDataOffset = 0;
+
+#define ALIAS_COUNT       (0x80)
+#define COMMONALIAS_COUNT (0x20)
+int aliasCount = 0;
+int lineID     = 0;
+
+struct AliasInfo {
+    AliasInfo()
+    {
+        StrCopy(name, "");
+        StrCopy(value, "");
+    }
+    AliasInfo(const char *aliasName, const char *aliasVal)
+    {
+        StrCopy(name, aliasName);
+        StrCopy(value, aliasVal);
+    }
+
+    char name[0x20];
+    char value[0x20];
+};
+
+struct FunctionInfo {
+    FunctionInfo()
+    {
+        StrCopy(name, "");
+        opcodeSize = 0;
+    }
+    FunctionInfo(const char *functionName, int opSize)
+    {
+        StrCopy(name, functionName);
+        opcodeSize = opSize;
+    }
+
+    char name[0x20];
+    int opcodeSize;
+};
+
+const char variableNames[][0x20] = {
+    "TempValue0",
+    "TempValue1",
+    "TempValue2",
+    "TempValue3",
+    "TempValue4",
+    "TempValue5",
+    "TempValue6",
+    "TempValue7",
+    "CheckResult",
+    "ArrayPos0",
+    "ArrayPos1",
+    "ArrayPos2",
+    "ArrayPos3",
+    "ArrayPos4",
+    "ArrayPos5",
+    "PlayerObjectPos",
+    "PlayerObjectCount",
+    "Global",
+    "ScriptData",
+    "Object.EntityNo",
+    "Object.TypeGroup",
+    "Object.Type",
+    "Object.PropertyValue",
+    "Object.XPos",
+    "Object.YPos",
+    "Object.iXPos",
+    "Object.iYPos",
+    "Object.XVelocity",
+    "Object.YVelocity",
+    "Object.Speed",
+    "Object.State",
+    "Object.Rotation",
+    "Object.Scale",
+    "Object.Priority",
+    "Object.DrawOrder",
+    "Object.Direction",
+    "Object.InkEffect",
+    "Object.Alpha",
+    "Object.Frame",
+    "Object.Animation",
+    "Object.PrevAnimation",
+    "Object.AnimationSpeed",
+    "Object.AnimationTimer",
+    "Object.Angle",
+    "Object.ValueF0",
+    "Object.LookPos",
+    "Object.CollisionMode",
+    "Object.CollisionPlane",
+    "Object.ControlMode",
+    "Object.ControlLock",
+    "Object.Pushing",
+    "Object.Visible",
+    "Object.TileCollisions",
+    "Object.ObjectInteractions",
+    "Object.Gravity",
+    "Object.Up",
+    "Object.Down",
+    "Object.Left",
+    "Object.Right",
+    "Object.JumpPress",
+    "Object.JumpHold",
+    "Object.TrackScroll",
+    "Object.Flailing0",
+    "Object.Flailing1",
+    "Object.Flailing2",
+    "Object.Flailing3",
+    "Object.Flailing4",
+    "Object.CollisionLeft",
+    "Object.CollisionTop",
+    "Object.CollisionRight",
+    "Object.CollisionBottom",
+    "Object.OutOfBounds",
+    "Object.SpriteSheet",
+    "Object.Value0",
+    "Object.Value1",
+    "Object.Value2",
+    "Object.Value3",
+    "Object.Value4",
+    "Object.Value5",
+    "Object.Value6",
+    "Object.Value7",
+    "Object.Value8",
+    "Object.Value9",
+    "Object.Value10",
+    "Object.Value11",
+    "Object.Value12",
+    "Object.Value13",
+    "Object.Value14",
+    "Object.Value15",
+    "Object.Value16",
+    "Object.Value17",
+    "Object.Value18",
+    "Object.Value19",
+    "Object.Value20",
+    "Object.Value21",
+    "Object.Value22",
+    "Object.Value23",
+    "Object.Value24",
+    "Object.Value25",
+    "Object.Value26",
+    "Object.Value27",
+    "Object.Value28",
+    "Object.Value29",
+    "Object.Value30",
+    "Object.Value31",
+    "Object.Value32",
+    "Object.Value33",
+    "Object.Value34",
+    "Object.Value35",
+    "Object.Value36",
+    "Object.Value37",
+    "Object.Value38",
+    "Object.Value39",
+    "Object.Value40",
+    "Object.Value41",
+    "Object.Value42",
+    "Object.Value43",
+    "Object.Value44",
+    "Object.Value45",
+    "Object.Value46",
+    "Object.Value47",
+    "Stage.State",
+    "Stage.ActiveList",
+    "Stage.ListPos",
+    "Stage.TimeEnabled",
+    "Stage.MilliSeconds",
+    "Stage.Seconds",
+    "Stage.Minutes",
+    "Stage.ActNo",
+    "Stage.PauseEnabled",
+    "Stage.ListSize",
+    "Stage.NewXBoundary1",
+    "Stage.NewXBoundary2",
+    "Stage.NewYBoundary1",
+    "Stage.NewYBoundary2",
+    "Stage.XBoundary1",
+    "Stage.XBoundary2",
+    "Stage.YBoundary1",
+    "Stage.YBoundary2",
+    "Stage.DeformationData0",
+    "Stage.DeformationData1",
+    "Stage.DeformationData2",
+    "Stage.DeformationData3",
+    "Stage.WaterLevel",
+    "Stage.ActiveLayer",
+    "Stage.MidPoint",
+    "Stage.PlayerListPos",
+    "Stage.DebugMode",
+    "Stage.ObjectEntityPos",
+    "Screen.CameraEnabled",
+    "Screen.CameraTarget",
+    "Screen.CameraStyle",
+    "Screen.CameraXPos",
+    "Screen.CameraYPos",
+    "Screen.DrawListSize",
+    "Screen.CenterX",
+    "Screen.CenterY",
+    "Screen.XSize",
+    "Screen.YSize",
+    "Screen.XOffset",
+    "Screen.YOffset",
+    "Screen.ShakeX",
+    "Screen.ShakeY",
+    "Screen.AdjustCameraY",
+    "TouchScreen.Down",
+    "TouchScreen.XPos",
+    "TouchScreen.YPos",
+    "Music.Volume",
+    "Music.CurrentTrack",
+    "Unknown",
+    "KeyDown.Up",
+    "KeyDown.Down",
+    "KeyDown.Left",
+    "KeyDown.Right",
+    "KeyDown.ButtonA",
+    "KeyDown.ButtonB",
+    "KeyDown.ButtonC",
+    "KeyDown.ButtonA2", // ButtonX?
+    "KeyDown.ButtonB2", // ButtonY?
+    "KeyDown.ButtonC2", // ButtonZ?
+    "KeyDown.ButtonA3",
+    "KeyDown.ButtonB3",
+    "KeyDown.Start",
+    "KeyDown.Start2",
+    "KeyPress.Up",
+    "KeyPress.Down",
+    "KeyPress.Left",
+    "KeyPress.Right",
+    "KeyPress.ButtonA",
+    "KeyPress.ButtonB",
+    "KeyPress.ButtonC",
+    "KeyPress.ButtonA2",
+    "KeyPress.ButtonB2",
+    "KeyPress.ButtonC2",
+    "KeyPress.ButtonA3",
+    "KeyPress.ButtonB3",
+    "KeyPress.Start",
+    "KeyPress.Start2",
+    "Menu1.Selection",
+    "Menu2.Selection",
+    "TileLayer.XSize",
+    "TileLayer.YSize",
+    "TileLayer.Type",
+    "TileLayer.Angle",
+    "TileLayer.XPos",
+    "TileLayer.YPos",
+    "TileLayer.ZPos",
+    "TileLayer.ParallaxFactor",
+    "TileLayer.ScrollSpeed",
+    "TileLayer.ScrollPos",
+    "TileLayer.DeformationOffset",
+    "TileLayer.DeformationOffsetW",
+    "HParallax.ParallaxFactor",
+    "HParallax.ScrollSpeed",
+    "HParallax.ScrollPos",
+    "VParallax.ParallaxFactor",
+    "VParallax.ScrollSpeed",
+    "VParallax.ScrollPos",
+    "3DScene.NoVertices",
+    "3DScene.NoFaces",
+    "3DScene.ProjectionX",
+    "3DScene.ProjectionY",
+    "3DScene.FogColor",
+    "3DScene.FogStrength",
+    "VertexBuffer.x",
+    "VertexBuffer.y",
+    "VertexBuffer.z",
+    "VertexBuffer.u",
+    "VertexBuffer.v",
+    "FaceBuffer.a",
+    "FaceBuffer.b",
+    "FaceBuffer.c",
+    "FaceBuffer.d",
+    "FaceBuffer.Flag",
+    "FaceBuffer.Color",
+    "SaveRAM",
+    "Engine.State",
+    "Engine.Language",
+    "Engine.OnlineActive",
+    "Engine.SFXVolume",
+    "Engine.BGMVolume",
+    "Engine.TrialMode",
+    "Engine.PlatformID",
+};
+
+const FunctionInfo functions[] = { FunctionInfo("End", 0),
+                                   FunctionInfo("Equal", 2),
+                                   FunctionInfo("Add", 2),
+                                   FunctionInfo("Sub", 2),
+                                   FunctionInfo("Inc", 1),
+                                   FunctionInfo("Dec", 1),
+                                   FunctionInfo("Mul", 2),
+                                   FunctionInfo("Div", 2),
+                                   FunctionInfo("ShR", 2),
+                                   FunctionInfo("ShL", 2),
+                                   FunctionInfo("And", 2),
+                                   FunctionInfo("Or", 2),
+                                   FunctionInfo("Xor", 2),
+                                   FunctionInfo("Mod", 2),
+                                   FunctionInfo("FlipSign", 1),
+                                   FunctionInfo("CheckEqual", 2),
+                                   FunctionInfo("CheckGreater", 2),
+                                   FunctionInfo("CheckLower", 2),
+                                   FunctionInfo("CheckNotEqual", 2),
+                                   FunctionInfo("IfEqual", 3),
+                                   FunctionInfo("IfGreater", 3),
+                                   FunctionInfo("IfGreaterOrEqual", 3),
+                                   FunctionInfo("IfLower", 3),
+                                   FunctionInfo("IfLowerOrEqual", 3),
+                                   FunctionInfo("IfNotEqual", 3),
+                                   FunctionInfo("else", 0),
+                                   FunctionInfo("endif", 0),
+                                   FunctionInfo("WEqual", 3),
+                                   FunctionInfo("WGreater", 3),
+                                   FunctionInfo("WGreaterOrEqual", 3),
+                                   FunctionInfo("WLower", 3),
+                                   FunctionInfo("WLowerOrEqual", 3),
+                                   FunctionInfo("WNotEqual", 3),
+                                   FunctionInfo("loop", 0),
+                                   FunctionInfo("foreachGroup", 3),
+                                   FunctionInfo("foreachObj", 3),
+                                   FunctionInfo("foreachLoop", 0),
+                                   FunctionInfo("switch", 2),
+                                   FunctionInfo("break", 0),
+                                   FunctionInfo("endswitch", 0),
+                                   FunctionInfo("Rand", 2),
+                                   FunctionInfo("Sin", 2),
+                                   FunctionInfo("Cos", 2),
+                                   FunctionInfo("Sin256", 2),
+                                   FunctionInfo("Cos256", 2),
+                                   FunctionInfo("ATan2", 3),
+                                   FunctionInfo("Interpolate", 4),
+                                   FunctionInfo("InterpolateXY", 7),
+                                   FunctionInfo("LoadSpriteSheet", 1),
+                                   FunctionInfo("RemoveSpriteSheet", 1),
+                                   FunctionInfo("DrawSprite", 1),
+                                   FunctionInfo("DrawSpriteXY", 3),
+                                   FunctionInfo("DrawSpriteScreenXY", 3),
+                                   FunctionInfo("DrawTintRect", 4),
+                                   FunctionInfo("DrawNumbers", 7),
+                                   FunctionInfo("DrawActName", 7),
+                                   FunctionInfo("DrawMenu", 3),
+                                   FunctionInfo("SpriteFrame", 6),
+                                   FunctionInfo("EditFrame", 7),
+                                   FunctionInfo("LoadPalette", 5),
+                                   FunctionInfo("RotatePalette", 4),
+                                   FunctionInfo("SetScreenFade", 4),
+                                   FunctionInfo("SetActivePalette", 3),
+                                   FunctionInfo("SetPaletteFade", 6),
+                                   FunctionInfo("SetPaletteEntry", 3),
+                                   FunctionInfo("GetPaletteEntry", 3),
+                                   FunctionInfo("CopyPalette", 5),
+                                   FunctionInfo("ClearScreen", 1),
+                                   FunctionInfo("DrawSpriteFX", 4),
+                                   FunctionInfo("DrawSpriteScreenFX", 4),
+                                   FunctionInfo("LoadAnimation", 1),
+                                   FunctionInfo("SetupMenu", 4),
+                                   FunctionInfo("AddMenuEntry", 3),
+                                   FunctionInfo("EditMenuEntry", 4),
+                                   FunctionInfo("LoadStage", 0),
+                                   FunctionInfo("DrawRect", 8),
+                                   FunctionInfo("ResetObjectEntity", 5),
+                                   FunctionInfo("PlayerObjectCollision", 0xB),
+                                   FunctionInfo("CreateTempObject", 4),
+                                   FunctionInfo("PlayerTileCollision", 0),
+                                   FunctionInfo("ProcessPlayerControl", 0),
+                                   FunctionInfo("ProcessObjectAnimation", 0),
+                                   FunctionInfo("DrawObjectAnimation", 0),
+                                   FunctionInfo("SetMusicTrack", 3),
+                                   FunctionInfo("PlayMusic", 1),
+                                   FunctionInfo("StopMusic", 0),
+                                   FunctionInfo("PauseMusic", 0),
+                                   FunctionInfo("ResumeMusic", 0),
+                                   FunctionInfo("SwapMusicTrack", 4),
+                                   FunctionInfo("PlaySfx", 2),
+                                   FunctionInfo("StopSfx", 1),
+                                   FunctionInfo("SetSfxAttributes", 3),
+                                   FunctionInfo("ObjectTileCollision", 4),
+                                   FunctionInfo("ObjectTileGrip", 4),
+                                   FunctionInfo("Not", 1),
+                                   FunctionInfo("Draw3DScene", 0),
+                                   FunctionInfo("SetIdentityMatrix", 1),
+                                   FunctionInfo("MatrixMultiply", 2),
+                                   FunctionInfo("MatrixTranslateXYZ", 4),
+                                   FunctionInfo("MatrixScaleXYZ", 4),
+                                   FunctionInfo("MatrixRotateX", 2),
+                                   FunctionInfo("MatrixRotateY", 2),
+                                   FunctionInfo("MatrixRotateZ", 2),
+                                   FunctionInfo("MatrixRotateXYZ", 4),
+                                   FunctionInfo("MatrixInverse", 1),
+                                   FunctionInfo("TransformVertices", 3),
+                                   FunctionInfo("CallFunction", 1),
+                                   FunctionInfo("EndFunction", 0),
+                                   FunctionInfo("SetLayerDeformation", 6),
+                                   FunctionInfo("CheckTouchRect", 4),
+                                   FunctionInfo("GetTileLayerEntry", 4),
+                                   FunctionInfo("SetTileLayerEntry", 4),
+                                   FunctionInfo("GetBit", 3),
+                                   FunctionInfo("SetBit", 3),
+                                   FunctionInfo("ClearDrawList", 1),
+                                   FunctionInfo("AddDrawListEntityRef", 2),
+                                   FunctionInfo("GetDrawListEntityRef", 3),
+                                   FunctionInfo("SetDrawListEntityRef", 3),
+                                   FunctionInfo("Get16x16TileInfo", 4),
+                                   FunctionInfo("Set16x16TileInfo", 4),
+                                   FunctionInfo("Copy16x16Tile", 2),
+                                   FunctionInfo("GetAnimationByName", 2),
+                                   FunctionInfo("ReadSaveRAM", 0),
+                                   FunctionInfo("WriteSaveRAM", 0),
+                                   FunctionInfo("LoadTextFile", 2),
+                                   FunctionInfo("GetTextInfo", 5),
+                                   FunctionInfo("GetVersionNumber", 2),
+                                   FunctionInfo("GetArrayValue", 3),
+                                   FunctionInfo("SetArrayValue", 3),
+                                   FunctionInfo("CheckStageFolder", 1),
+                                   FunctionInfo("Absolute", 1),
+                                   FunctionInfo("EngineCallback", 3),
+                                   FunctionInfo("CallEngineFunction1", 5),
+                                   FunctionInfo("CallEngineFunction2", 1),
+                                   FunctionInfo("SetObjectBorderX", 3),
+                                   FunctionInfo("GetObjectValue", 3),
+                                   FunctionInfo("SetObjectValue", 3),
+                                   FunctionInfo("CopyObject", 3) };
+
+AliasInfo aliases[0x80] = { AliasInfo("true", "1"),
+                            AliasInfo("false", "0"),
+                            AliasInfo("FX_SCALE", "0"),
+                            AliasInfo("FX_ROTATE", "1"),
+                            AliasInfo("FX_ROTOZOOM", "2"),
+                            AliasInfo("FX_INK", "3"),
+                            AliasInfo("PRESENTATION_STAGE", "0"),
+                            AliasInfo("REGULAR_STAGE", "1"),
+                            AliasInfo("BONUS_STAGE", "2"),
+                            AliasInfo("SPECIAL_STAGE", "3"),
+                            AliasInfo("MENU_1", "0"),
+                            AliasInfo("MENU_2", "1"),
+                            AliasInfo("C_TOUCH", "0"),
+                            AliasInfo("C_BOX", "1"),
+                            AliasInfo("C_BOX2", "2"),
+                            AliasInfo("C_PLATFORM", "3"),
+                            AliasInfo("MAT_WORLD", "0"),
+                            AliasInfo("MAT_VIEW", "1"),
+                            AliasInfo("MAT_TEMP", "2"),
+                            AliasInfo("FX_FLIP", "5"),
+                            AliasInfo("FACING_LEFT", "1"),
+                            AliasInfo("FACING_RIGHT", "0"),
+                            AliasInfo("STAGE_PAUSED", "2"),
+                            AliasInfo("STAGE_RUNNING", "1"),
+                            AliasInfo("RESET_GAME", "2"),
+                            AliasInfo("RETRO_WIN", "0"),
+                            AliasInfo("RETRO_OSX", "1"),
+                            AliasInfo("RETRO_XBOX_360", "2"),
+                            AliasInfo("RETRO_PS3", "3"),
+                            AliasInfo("RETRO_iOS", "4"),
+                            AliasInfo("RETRO_ANDROID", "5"),
+                            AliasInfo("RETRO_WP7", "6") };
+
+
+const char scriptEvaluationTokens[][0x4] = {
+    "=", "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=", "|=", "^=", "%=", "==", ">", ">=", "<", "<=", "!="
+};
+
+int scriptFunctionCount = 0;
+char scriptFunctionNames[FUNCTION_COUNT][0x20];
+
+enum ScriptReadModes { READMODE_NORMAL = 0, READMODE_STRING = 1, READMODE_COMMENTLINE = 2, READMODE_ENDLINE = 3, READMODE_EOF = 4 };
+enum ScriptParseModes { PARSEMODE_SCOPELESS = 0, PARSEMODE_PLATFORMSKIP = 1, PARSEMODE_FUNCTION = 2, PARSEMODE_SWITCHREAD = 3, PARSEMODE_ERROR = 0xFF };
+
+enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCONST = 3 };
+enum ScriptVarArrTypes { VARARR_NONE = 0, VARARR_ARRAY = 1, VARARR_ENTNOPLUS1 = 2, VARARR_ENTNOMINUS1 = 3 };
+
+enum ScrVar {
+    VAR_TEMPVALUE0,
+    VAR_TEMPVALUE1,
+    VAR_TEMPVALUE2,
+    VAR_TEMPVALUE3,
+    VAR_TEMPVALUE4,
+    VAR_TEMPVALUE5,
+    VAR_TEMPVALUE6,
+    VAR_TEMPVALUE7,
+    VAR_CHECKRESULT,
+    VAR_ARRAYPOS0,
+    VAR_ARRAYPOS1,
+    VAR_ARRAYPOS2,
+    VAR_ARRAYPOS3,
+    VAR_ARRAYPOS4,
+    VAR_ARRAYPOS5,
+    VAR_PLAYEROBJECTPOS,
+    VAR_PLAYEROBJECTCOUNT,
+    VAR_GLOBAL,
+    VAR_SCRIPTDATA,
+    VAR_OBJECTENTITYNO,
+    VAR_OBJECTTYPEGROUP,
+    VAR_OBJECTTYPE,
+    VAR_OBJECTPROPERTYVALUE,
+    VAR_OBJECTXPOS,
+    VAR_OBJECTYPOS,
+    VAR_OBJECTIXPOS,
+    VAR_OBJECTIYPOS,
+    VAR_OBJECTXVELOCITY,
+    VAR_OBJECTYVELOCITY,
+    VAR_OBJECTSPEED,
+    VAR_OBJECTSTATE,
+    VAR_OBJECTROTATION,
+    VAR_OBJECTSCALE,
+    VAR_OBJECTPRIORITY,
+    VAR_OBJECTDRAWORDER,
+    VAR_OBJECTDIRECTION,
+    VAR_OBJECTINKEFFECT,
+    VAR_OBJECTALPHA,
+    VAR_OBJECTFRAME,
+    VAR_OBJECTANIMATION,
+    VAR_OBJECTPREVANIMATION,
+    VAR_OBJECTANIMATIONSPEED,
+    VAR_OBJECTANIMATIONTIMER,
+    VAR_OBJECTANGLE,
+    VAR_OBJECTVALUEF0,
+    VAR_OBJECTLOOKPOS,
+    VAR_OBJECTCOLLISIONMODE,
+    VAR_OBJECTCOLLISIONPLANE,
+    VAR_OBJECTCONTROLMODE,
+    VAR_OBJECTCONTROLLOCK,
+    VAR_OBJECTPUSHING,
+    VAR_OBJECTVISIBLE,
+    VAR_OBJECTTILECOLLISIONS,
+    VAR_OBJECTOBJECTINTERACTIONS,
+    VAR_OBJECTGRAVITY,
+    VAR_OBJECTUP,
+    VAR_OBJECTDOWN,
+    VAR_OBJECTLEFT,
+    VAR_OBJECTRIGHT,
+    VAR_OBJECTJUMPPRESS,
+    VAR_OBJECTJUMPHOLD,
+    VAR_OBJECTTRACKSCROLL,
+    VAR_OBJECTFLAILING0,
+    VAR_OBJECTFLAILING1,
+    VAR_OBJECTFLAILING2,
+    VAR_OBJECTFLAILING3,
+    VAR_OBJECTFLAILING4,
+    VAR_OBJECTCOLLISIONLEFT,
+    VAR_OBJECTCOLLISIONTOP,
+    VAR_OBJECTCOLLISIONRIGHT,
+    VAR_OBJECTCOLLISIONBOTTOM,
+    VAR_OBJECTOUTOFBOUNDS,
+    VAR_OBJECTSPRITESHEET,
+    VAR_OBJECTVALUE0,
+    VAR_OBJECTVALUE1,
+    VAR_OBJECTVALUE2,
+    VAR_OBJECTVALUE3,
+    VAR_OBJECTVALUE4,
+    VAR_OBJECTVALUE5,
+    VAR_OBJECTVALUE6,
+    VAR_OBJECTVALUE7,
+    VAR_OBJECTVALUE8,
+    VAR_OBJECTVALUE9,
+    VAR_OBJECTVALUE10,
+    VAR_OBJECTVALUE11,
+    VAR_OBJECTVALUE12,
+    VAR_OBJECTVALUE13,
+    VAR_OBJECTVALUE14,
+    VAR_OBJECTVALUE15,
+    VAR_OBJECTVALUE16,
+    VAR_OBJECTVALUE17,
+    VAR_OBJECTVALUE18,
+    VAR_OBJECTVALUE19,
+    VAR_OBJECTVALUE20,
+    VAR_OBJECTVALUE21,
+    VAR_OBJECTVALUE22,
+    VAR_OBJECTVALUE23,
+    VAR_OBJECTVALUE24,
+    VAR_OBJECTVALUE25,
+    VAR_OBJECTVALUE26,
+    VAR_OBJECTVALUE27,
+    VAR_OBJECTVALUE28,
+    VAR_OBJECTVALUE29,
+    VAR_OBJECTVALUE30,
+    VAR_OBJECTVALUE31,
+    VAR_OBJECTVALUE32,
+    VAR_OBJECTVALUE33,
+    VAR_OBJECTVALUE34,
+    VAR_OBJECTVALUE35,
+    VAR_OBJECTVALUE36,
+    VAR_OBJECTVALUE37,
+    VAR_OBJECTVALUE38,
+    VAR_OBJECTVALUE39,
+    VAR_OBJECTVALUE40,
+    VAR_OBJECTVALUE41,
+    VAR_OBJECTVALUE42,
+    VAR_OBJECTVALUE43,
+    VAR_OBJECTVALUE44,
+    VAR_OBJECTVALUE45,
+    VAR_OBJECTVALUE46,
+    VAR_OBJECTVALUE47,
+    VAR_STAGESTATE,
+    VAR_STAGEACTIVELIST,
+    VAR_STAGELIST_STPOS,
+    VAR_STAGETIMEENABLED,
+    VAR_STAGEMILLISECONDS,
+    VAR_STAGESECONDS,
+    VAR_STAGEMINUTES,
+    VAR_STAGEACTNO,
+    VAR_STAGEPAUSEENABLED,
+    VAR_STAGELIST_STSIZE,
+    VAR_STAGENEWXBOUNDARY1,
+    VAR_STAGENEWXBOUNDARY2,
+    VAR_STAGENEWYBOUNDARY1,
+    VAR_STAGENEWYBOUNDARY2,
+    VAR_STAGEXBOUNDARY1,
+    VAR_STAGEXBOUNDARY2,
+    VAR_STAGEYBOUNDARY1,
+    VAR_STAGEYBOUNDARY2,
+    VAR_STAGEDEFORMATIONDATA0,
+    VAR_STAGEDEFORMATIONDATA1,
+    VAR_STAGEDEFORMATIONDATA2,
+    VAR_STAGEDEFORMATIONDATA3,
+    VAR_STAGEWATERLEVEL,
+    VAR_STAGEACTIVELAYER,
+    VAR_STAGEMIDPOINT,
+    VAR_STAGEPLAYERLISTPOS,
+    VAR_STAGEDEBUGMODE,
+    VAR_STAGEOBJECTENTITYPOS,
+    VAR_SCREENCAMERAENABLED,
+    VAR_SCREENCAMERATARGET,
+    VAR_SCREENCAMERASTYLE,
+    VAR_SCREENCAMERAXPOS,
+    VAR_SCREENCAMERAYPOS,
+    VAR_SCREENDRAWLISTSIZE,
+    VAR_SCREENCENTERX,
+    VAR_SCREENCENTERY,
+    VAR_SCREENXSIZE,
+    VAR_SCREENYSIZE,
+    VAR_SCREENXOFFSET,
+    VAR_SCREENYOFFSET,
+    VAR_SCREENSHAKEX,
+    VAR_SCREENSHAKEY,
+    VAR_SCREENADJUSTCAMERAY,
+    VAR_TOUCHSCREENDOWN,
+    VAR_TOUCHSCREENXPOS,
+    VAR_TOUCHSCREENYPOS,
+    VAR_MUSICVOLUME,
+    VAR_MUSICCURRENTTRACK,
+    VAR_UNKNOWN,
+    VAR_KEYDOWNUP,
+    VAR_KEYDOWNDOWN,
+    VAR_KEYDOWNLEFT,
+    VAR_KEYDOWNRIGHT,
+    VAR_KEYDOWNBUTTONA,
+    VAR_KEYDOWNBUTTONB,
+    VAR_KEYDOWNBUTTONC,
+    VAR_KEYDOWNBUTTONA2,
+    VAR_KEYDOWNBUTTONB2,
+    VAR_KEYDOWNBUTTONC2,
+    VAR_KEYDOWNBUTTONA3,
+    VAR_KEYDOWNBUTTONB3,
+    VAR_KEYDOWNSTART,
+    VAR_KEYDOWNSTART2,
+    VAR_KEYPRESSUP,
+    VAR_KEYPRESSDOWN,
+    VAR_KEYPRESSLEFT,
+    VAR_KEYPRESSRIGHT,
+    VAR_KEYPRESSBUTTONA,
+    VAR_KEYPRESSBUTTONB,
+    VAR_KEYPRESSBUTTONC,
+    VAR_KEYPRESSBUTTONA2,
+    VAR_KEYPRESSBUTTONB2,
+    VAR_KEYPRESSBUTTONC2,
+    VAR_KEYPRESSBUTTONA3,
+    VAR_KEYPRESSBUTTONB3,
+    VAR_KEYPRESSSTART,
+    VAR_KEYPRESSSTART2,
+    VAR_MENU1SELECTION,
+    VAR_MENU2SELECTION,
+    VAR_TILELAYERXSIZE,
+    VAR_TILELAYERYSIZE,
+    VAR_TILELAYERTYPE,
+    VAR_TILELAYERANGLE,
+    VAR_TILELAYERXPOS,
+    VAR_TILELAYERYPOS,
+    VAR_TILELAYERZPOS,
+    VAR_TILELAYERPARALLAXFACTOR,
+    VAR_TILELAYERSCROLLSPEED,
+    VAR_TILELAYERSCROLLPOS,
+    VAR_TILELAYERDEFORMATIONOFFSET,
+    VAR_TILELAYERDEFORMATIONOFFSETW,
+    VAR_HPARALLAXPARALLAXFACTOR,
+    VAR_HPARALLAXSCROLLSPEED,
+    VAR_HPARALLAXSCROLLPOS,
+    VAR_VPARALLAXPARALLAXFACTOR,
+    VAR_VPARALLAXSCROLLSPEED,
+    VAR_VPARALLAXSCROLLPOS,
+    VAR_3DSCENENOVERTICES,
+    VAR_3DSCENENOFACES,
+    VAR_3DSCENEPROJECTIONX,
+    VAR_3DSCENEPROJECTIONY,
+    VAR_3DSCENEFOGCOLOR,
+    VAR_3DSCENEFOGSTRENGTH,
+    VAR_VERTEXBUFFERX,
+    VAR_VERTEXBUFFERY,
+    VAR_VERTEXBUFFERZ,
+    VAR_VERTEXBUFFERU,
+    VAR_VERTEXBUFFERV,
+    VAR_FACEBUFFERA,
+    VAR_FACEBUFFERB,
+    VAR_FACEBUFFERC,
+    VAR_FACEBUFFERD,
+    VAR_FACEBUFFERFLAG,
+    VAR_FACEBUFFERCOLOR,
+    VAR_SAVERAM,
+    VAR_ENGINESTATE,
+    VAR_ENGINELANGUAGE,
+    VAR_ENGINEONLINEACTIVE,
+    VAR_ENGINESFXVOLUME,
+    VAR_ENGINEBGMVOLUME,
+    VAR_ENGINETRIALMODE,
+    VAR_ENGINEPLATFORMID,
+    VAR_MAX_CNT
+};
+
+enum ScrFunc {
+    FUNC_END,
+    FUNC_EQUAL,
+    FUNC_ADD,
+    FUNC_SUB,
+    FUNC_INC,
+    FUNC_DEC,
+    FUNC_MUL,
+    FUNC_DIV,
+    FUNC_SHR,
+    FUNC_SHL,
+    FUNC_AND,
+    FUNC_OR,
+    FUNC_XOR,
+    FUNC_MOD,
+    FUNC_FLIPSIGN,
+    FUNC_CHECKEQUAL,
+    FUNC_CHECKGREATER,
+    FUNC_CHECKLOWER,
+    FUNC_CHECKNOTEQUAL,
+    FUNC_IFEQUAL,
+    FUNC_IFGREATER,
+    FUNC_IFGREATEROREQUAL,
+    FUNC_IFLOWER,
+    FUNC_IFLOWEROREQUAL,
+    FUNC_IFNOTEQUAL,
+    FUNC_ELSE,
+    FUNC_ENDIF,
+    FUNC_WEQUAL,
+    FUNC_WGREATER,
+    FUNC_WGREATEROREQUAL,
+    FUNC_WLOWER,
+    FUNC_WLOWEROREQUAL,
+    FUNC_WNOTEQUAL,
+    FUNC_LOOP,
+    FUNC_FOREACHTYPEGROUP,
+    FUNC_FOREACHTYPENAME,
+    FUNC_FOREACHLOOP,
+    FUNC_SWITCH,
+    FUNC_BREAK,
+    FUNC_ENDSWITCH,
+    FUNC_RAND,
+    FUNC_SIN,
+    FUNC_COS,
+    FUNC_SIN256,
+    FUNC_COS256,
+    FUNC_ATAN2,
+    FUNC_INTERPOLATE,
+    FUNC_INTERPOLATEXY,
+    FUNC_LOADSPRITESHEET,
+    FUNC_REMOVESPRITESHEET,
+    FUNC_DRAWSPRITE,
+    FUNC_DRAWSPRITEXY,
+    FUNC_DRAWSPRITESCREENXY,
+    FUNC_DRAWTINTRECT,
+    FUNC_DRAWNUMBERS,
+    FUNC_DRAWACTNAME,
+    FUNC_DRAWMENU,
+    FUNC_SPRITEFRAME,
+    FUNC_EDITFRAME,
+    FUNC_LOADPALETTE,
+    FUNC_ROTATEPALETTE,
+    FUNC_SETSCREENFADE,
+    FUNC_SETACTIVEPALETTE,
+    FUNC_SETPALETTEFADE,
+    FUNC_SETPALETTEENTRY,
+    FUNC_GETPALETTEENTRY,
+    FUNC_COPYPALETTE,
+    FUNC_CLEARSCREEN,
+    FUNC_DRAWSPRITEFX,
+    FUNC_DRAWSPRITESCREENFX,
+    FUNC_LOADANIMATION,
+    FUNC_SETUPMENU,
+    FUNC_ADDMENUENTRY,
+    FUNC_EDITMENUENTRY,
+    FUNC_LOADSTAGE,
+    FUNC_DRAWRECT,
+    FUNC_RESETOBJECTENTITY,
+    FUNC_PLAYEROBJECTCOLLISION,
+    FUNC_CREATETEMPOBJECT,
+    FUNC_PLAYERTILECOLLISION,
+    FUNC_PROCESSPLAYERCONTROL,
+    FUNC_PROCESSOBJECTANIMATION,
+    FUNC_DRAWOBJECTANIMATION,
+    FUNC_SETMUSICTRACK,
+    FUNC_PLAYMUSIC,
+    FUNC_STOPMUSIC,
+    FUNC_PAUSEMUSIC,
+    FUNC_RESUMEMUSIC,
+    FUNC_SWAPMUSICTRACK,
+    FUNC_PLAYSFX,
+    FUNC_STOPSFX,
+    FUNC_SETSFXATTRIBUTES,
+    FUNC_OBJECTTILECOLLISION,
+    FUNC_OBJECTTILEGRIP,
+    FUNC_NOT,
+    FUNC_DRAW3DSCENE,
+    FUNC_SETIDENTITYMATRIX,
+    FUNC_MATRIXMULTIPLY,
+    FUNC_MATRIXTRANSLATEXYZ,
+    FUNC_MATRIXSCALEXYZ,
+    FUNC_MATRIXROTATEX,
+    FUNC_MATRIXROTATEY,
+    FUNC_MATRIXROTATEZ,
+    FUNC_MATRIXROTATEXYZ,
+    FUNC_MATRIXINVERSE,
+    FUNC_TRANSFORMVERTICES,
+    FUNC_CALLFUNCTION,
+    FUNC_ENDFUNCTION,
+    FUNC_SETLAYERDEFORMATION,
+    FUNC_CHECKTOUCHRECT,
+    FUNC_GETTILELAYERENTRY,
+    FUNC_SETTILELAYERENTRY,
+    FUNC_GETBIT,
+    FUNC_SETBIT,
+    FUNC_CLEARDRAWLIST,
+    FUNC_ADDDRAWLISTENTITYREF,
+    FUNC_GETDRAWLISTENTITYREF,
+    FUNC_SETDRAWLISTENTITYREF,
+    FUNC_GET16X16TILEINFO,
+    FUNC_SET16X16TILEINFO,
+    FUNC_COPY16X16TILE,
+    FUNC_GETANIMATIONBYNAME,
+    FUNC_READSAVERAM,
+    FUNC_WRITESAVERAM,
+    FUNC_LOADTEXTFILE,
+    FUNC_GETTEXTINFO,
+    FUNC_GETVERSIONNUMBER,
+    FUNC_GETARRAYVALUE,
+    FUNC_SETARRAYVALUE,
+    FUNC_CHECKSTAGEFOLDER,
+    FUNC_ABSOLUTE,
+    FUNC_ENGINECALLBACK,
+    FUNC_CALLENGINEFUNCTION,
+    FUNC_CALLENGINEFUNCTION2,
+    FUNC_SETOBJECTBORDERX,
+    FUNC_GETOBJECTVALUE,
+    FUNC_SETOBJECTVALUE,
+    FUNC_COPYOBJECT,
+    FUNC_MAX_CNT
+};
+
+void CheckAliasText(char *text)
+{
+    if (FindStringToken(text, "#alias", 1))
+        return;
+    int textPos     = 6;
+    int aliasStrPos = 0;
+    int aliasMatch  = 0;
+    while (aliasMatch < 2) {
+        if (aliasMatch) {
+            if (aliasMatch == 1) {
+                aliases[aliasCount].name[aliasStrPos] = text[textPos];
+                if (text[textPos]) {
+                    aliasStrPos++;
+                }
+                else {
+                    aliasStrPos = 0;
+                    ++aliasMatch;
+                }
+            }
+        }
+        else if (text[textPos] == ':') {
+            aliases[aliasCount].value[aliasStrPos]        = 0;
+            aliasStrPos                             = 0;
+            aliasMatch                              = 1;
+        }
+        else {
+            aliases[aliasCount].value[aliasStrPos++] = text[textPos];
+        }
+        ++textPos;
+    }
+    ++aliasCount;
+}
+void ConvertArithmaticSyntax(char *text)
+{
+    int token  = 0;
+    int offset = 0;
+    int findID = 0;
+    char dest[260];
+
+    for (int i = FUNC_EQUAL; i <= FUNC_MOD; ++i) {
+        findID = FindStringToken(text, scriptEvaluationTokens[i - 1], 1);
+        if (findID > -1) {
+            offset = findID;
+            token  = i;
+        }
+    }
+    if (token > 0) {
+        StrCopy(dest, functions[token].name);
+        StrAdd(dest, "(");
+        findID = StrLength(dest);
+        for (int i = 0; i < offset; ++i) dest[findID++] = text[i];
+        if (functions[token].opcodeSize > 1) {
+            dest[findID] = ',';
+            int len      = StrLength(scriptEvaluationTokens[token - 1]);
+            offset += len;
+            ++findID;
+            while (text[offset]) dest[findID++] = text[offset++];
+        }
+        dest[findID] = 0;
+        StrAdd(dest, ")");
+        StrCopy(text, dest);
+    }
+}
+void ConvertIfWhileStatement(char *text)
+{
+    char dest[260];
+    int compareOp  = -1;
+    int strPos     = 0;
+    int destStrPos = 0;
+    if (FindStringToken(text, "if", 1)) {
+        if (!FindStringToken(text, "while", 1)) {
+            for (int i = 0; i < 6; ++i) {
+                destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+                if (destStrPos > -1) {
+                    strPos = destStrPos;
+                    compareOp = i;
+                }
+            }
+            if (compareOp > -1) {
+                text[strPos] = ',';
+                StrCopy(dest, functions[compareOp + FUNC_WEQUAL].name);
+                StrAdd(dest, "(");
+                AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+                StrAdd(dest, ",");
+                destStrPos = StrLength(dest);
+                for (int i = 5; text[i]; ++i) {
+                    if (text[i] != '=' && text[i] != '(' && text[i] != ')')
+                        dest[destStrPos++] = text[i];
+                }
+                dest[destStrPos] = 0;
+                StrAdd(dest, ")");
+                StrCopy(text, dest);
+                jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
+                jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
+                jumpTableData[jumpTableDataPos++]   = 0;
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < 6; ++i) {
+            destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+            if (destStrPos > -1) {
+                strPos = destStrPos;
+                compareOp = i;
+            }
+        }
+        if (compareOp > -1) {
+            text[strPos] = ',';
+            StrCopy(dest, functions[compareOp + FUNC_IFEQUAL].name);
+            StrAdd(dest, "(");
+            AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+            StrAdd(dest, ",");
+            destStrPos = StrLength(dest);
+            for (int i = 2; text[i]; ++i) {
+                if (text[i] != '=' && text[i] != '(' && text[i] != ')')
+                    dest[destStrPos++] = text[i];
+            }
+            dest[destStrPos] = 0;
+            StrAdd(dest, ")");
+            StrCopy(text, dest);
+            jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
+            jumpTableData[jumpTableDataPos++]   = -1;
+            jumpTableData[jumpTableDataPos++]   = 0;
+        }
+    }
+}
+bool ConvertSwitchStatement(char *text)
+{
+    if (FindStringToken(text, "switch", 1))
+        return false;
+    char switchText[260];
+    StrCopy(switchText, "switch");
+    StrAdd(switchText, "(");
+    AppendIntegerToSting(switchText, jumpTableDataPos - jumpTableDataOffset);
+    StrAdd(switchText, ",");
+    int pos = StrLength(switchText);
+    for (int i = 6; text[i]; ++i) {
+        if (text[i] != '=' && text[i] != '(' && text[i] != ')')
+            switchText[pos++] = text[i];
+    }
+    switchText[pos] = 0;
+    StrAdd(switchText, ")");
+    StrCopy(text, switchText);
+    jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
+    jumpTableData[jumpTableDataPos++]   = 0x10000;
+    jumpTableData[jumpTableDataPos++]   = -0x10000;
+    jumpTableData[jumpTableDataPos++]   = -1;
+    jumpTableData[jumpTableDataPos++]   = 0;
+    return true;
+}
+void ConvertFunctionText(char *text)
+{
+    char strBuffer[128];
+    char funcName[132];
+    int opcode     = 0;
+    int opcodeSize = 0;
+    int textPos    = 0;
+    int namePos    = 0;
+    for (namePos = 0; text[namePos] != '(' && text[namePos]; ++namePos) funcName[namePos] = text[namePos];
+    funcName[namePos] = 0;
+    for (int i = 0; i < FUNC_MAX_CNT; ++i) {
+        if (StrComp(funcName, functions[i].name)) {
+            opcode     = i;
+            opcodeSize = functions[i].opcodeSize;
+            textPos    = StrLength(functions[i].name);
+            i          = FUNC_MAX_CNT;
+        }
+    }
+    if (opcode <= 0) {
+        SetupTextMenu(&gameMenu[0], 0);
+        AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+        AddTextMenuEntry(&gameMenu[0], " ");
+        AddTextMenuEntry(&gameMenu[0], "OPCODE NOT FOUND");
+        AddTextMenuEntry(&gameMenu[0], funcName);
+        Engine.gameMode = ENGINE_SCRIPTERROR;
+    }
+    else {
+        scriptData[scriptDataPos++] = opcode;
+        if (StrComp("else", functions[opcode].name))
+            jumpTableData[jumpTableStack[jumpTableStackPos]] = scriptDataPos - scriptDataOffset;
+
+        if (StrComp("endif", functions[opcode].name) == 1) {
+            int jPos                = jumpTableStack[jumpTableStackPos];
+            jumpTableData[jPos + 1] = scriptDataPos - scriptDataOffset;
+            if (jumpTableData[jPos] == -1)
+                jumpTableData[jPos] = (scriptDataPos - scriptDataOffset) - 1;
+            --jumpTableStackPos;
+        }
+
+        if (StrComp("endswitch", functions[opcode].name)) {
+            int jPos                = jumpTableStack[jumpTableStackPos];
+            jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
+            if (jumpTableData[jPos + 2] == -1) {
+                jumpTableData[jPos + 2] = (scriptDataPos - scriptDataOffset) - 1;
+                int *jData              = &jumpTableData[jPos + 4];
+                int caseCnt                = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
+
+                int jID = 0;
+                int jOffset = jPos + 4;
+                for (int c = 0; c < caseCnt; ++c) {
+                    if (jumpTableData[jOffset + c] < 0)
+                        jumpTableData[jOffset + c] = jumpTableData[jPos + 2];
+                }
+
+                
+                /* int jCnt                = (jumpTableData[jPos + 1] - jumpTableData[jPos] + ((jumpTableData[jPos + 1] - jumpTableData[jPos]) >> 31))
+                           ^ ((jumpTableData[jPos + 1] - jumpTableData[jPos]) >> 31);
+                do {
+                    if (*jData < 0)
+                        *jData = jumpTableData[jPos + 2];
+                    ++jID;
+                    ++jData;
+                } while (jID <= jCnt);*/
+            }
+            --jumpTableStackPos;
+        }
+
+        if (StrComp("loop", functions[opcode].name)) {
+            jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
+        }
+
+        for (int i = 0; i < opcodeSize; ++i) {
+            ++textPos;
+            int funcNamePos      = 0;
+            int value            = 0;
+            int scriptTextByteID = 0;
+            while (text[textPos] != ',' && text[textPos] != ')' && text[textPos]) {
+                if (value) {
+                    if (text[textPos] == ']')
+                        value = 0;
+                    else
+                        strBuffer[scriptTextByteID++] = text[textPos];
+                    ++textPos;
+                }
+                else {
+                    if (text[textPos] == '[')
+                        value = 1;
+                    else
+                        funcName[funcNamePos++] = text[textPos];
+                    ++textPos;
+                }
+            }
+            funcName[funcNamePos]       = 0;
+            strBuffer[scriptTextByteID] = 0;
+            // Eg: TempValue0 = FX_SCALE
+            for (int a = 0; a < aliasCount; ++a) {
+                if (StrComp(funcName, aliases[a].name)) {
+                    CopyAliasStr(funcName, aliases[a].value, 0);
+                    if (FindStringToken(aliases[a].value, "[", 1) > -1)
+                        CopyAliasStr(strBuffer, aliases[a].value, 1);
+                }
+            }
+            // Eg: TempValue0 = Game.Variable
+            for (int v = 0; v < GlobalVariablesCount; ++v) {
+                if (StrComp(funcName, GlobalVariableNames[v])) {
+                    StrCopy(funcName, "Global");
+                    strBuffer[0] = 0;
+                    AppendIntegerToSting(strBuffer, v);
+                }
+            }
+            // Eg: TempValue0 = Function1
+            for (int f = 0; f < scriptFunctionCount; ++f) {
+                if (StrComp(funcName, scriptFunctionNames[f])) {
+                    funcName[0] = 0;
+                    AppendIntegerToSting(funcName, f);
+                }
+            }
+            // Eg: TempValue0 = TypeName[PlayerObject]
+            if (StrComp(funcName, "TypeName")) {
+                funcName[0] = 0;
+                AppendIntegerToSting(funcName, 0); // ???
+                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                    if (StrComp(strBuffer, typeNames[o])) {
+                        funcName[0] = 0;
+                        AppendIntegerToSting(funcName, o);
+                    }
+                }
+            }
+            // Eg: TempValue0 = SfxName[Jump]
+            if (StrComp(funcName, "SfxName")) {
+                funcName[0] = 0;
+                AppendIntegerToSting(funcName, 0); // ???
+                for (int o = 0; o < SFX_COUNT; ++o) {
+                    if (StrComp(strBuffer, sfxNames[o])) {
+                        funcName[0] = 0;
+                        AppendIntegerToSting(funcName, o);
+                    }
+                }
+            }
+            if (ConvertStringToInteger(funcName, &value)) {
+                scriptData[scriptDataPos++] = SCRIPTVAR_INTCONST;
+                scriptData[scriptDataPos++] = value;
+            }
+            else if (funcName[0] == '"') {
+                scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
+                scriptData[scriptDataPos++] = StrLength(funcName) - 2;
+                int scriptTextPos           = 1;
+                scriptTextByteID            = 0;
+                while (scriptTextPos > -1) {
+                    switch (scriptTextByteID) {
+                        case 0:
+                            scriptData[scriptDataPos] = funcName[scriptTextPos] << 24;
+                            ++scriptTextByteID;
+                            break;
+                        case 1:
+                            scriptData[scriptDataPos] += funcName[scriptTextPos] << 16;
+                            ++scriptTextByteID;
+                            break;
+                        case 2:
+                            scriptData[scriptDataPos] += funcName[scriptTextPos] << 8;
+                            ++scriptTextByteID;
+                            break;
+                        case 3:
+                            scriptData[scriptDataPos++] += funcName[scriptTextPos];
+                            scriptTextByteID = 0;
+                            break;
+                        default: break;
+                    }
+                    if (funcName[scriptTextPos] == '"') {
+                        if (scriptTextByteID > 0)
+                            ++scriptDataPos;
+                        scriptTextPos = -1;
+                    }
+                    else {
+                        scriptTextPos++;
+                    }
+                }
+            }
+            else {
+                scriptData[scriptDataPos++] = SCRIPTVAR_VAR;
+                if (strBuffer[0]) {
+                    scriptData[scriptDataPos] = VARARR_ARRAY;
+                    if (strBuffer[0] == '+')
+                        scriptData[scriptDataPos] = VARARR_ENTNOPLUS1;
+                    if (strBuffer[0] == '-')
+                        scriptData[scriptDataPos] = VARARR_ENTNOMINUS1;
+                    ++scriptDataPos;
+                    if (strBuffer[0] == '-' || strBuffer[0] == '+') {
+                        for (int i = 0; i < StrLength(strBuffer); ++i) strBuffer[i] = strBuffer[i + 1];
+                    }
+                    if (ConvertStringToInteger(strBuffer, &value) == 1) {
+                        scriptData[scriptDataPos++] = 0;
+                        scriptData[scriptDataPos++] = value;
+                    }
+                    else {
+                        if (StrComp(strBuffer, "ArrayPos0"))
+                            value = 0;
+                        if (StrComp(strBuffer, "ArrayPos1"))
+                            value = 1;
+                        if (StrComp(strBuffer, "TempObjectPos"))
+                            value = 2;
+                        scriptData[scriptDataPos++] = 1;
+                        scriptData[scriptDataPos++] = value;
+                    }
+                }
+                else {
+                    scriptData[scriptDataPos++] = VARARR_NONE;
+                }
+                value = -1;
+                for (int i = 0; i < VAR_MAX_CNT; ++i) {
+                    if (StrComp(funcName, variableNames[i]))
+                        value = i;
+                }
+
+                if (value == -1 && Engine.gameMode != ENGINE_SCRIPTERROR) {
+                    SetupTextMenu(&gameMenu[0], 0);
+                    AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+                    AddTextMenuEntry(&gameMenu[0], " ");
+                    AddTextMenuEntry(&gameMenu[0], "OPERAND NOT FOUND");
+                    AddTextMenuEntry(&gameMenu[0], funcName);
+                    AddTextMenuEntry(&gameMenu[0], " ");
+                    AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
+                    funcName[0] = 0;
+                    AppendIntegerToSting(funcName, lineID);
+                    AddTextMenuEntry(&gameMenu[0], funcName);
+                    Engine.gameMode = ENGINE_SCRIPTERROR;
+                    value           = 0;
+                }
+                scriptData[scriptDataPos++] = value;
+            }
+        }
+    }
+}
+void CheckCaseNumber(char *text)
+{
+    if (FindStringToken(text, "case", 1))
+        return;
+
+    char dest[128];
+    int destStrPos = 0;
+    char caseChar  = text[4];
+    if (text[4]) {
+        int textPos    = 5;
+        do {
+            if (caseChar != ':')
+                dest[destStrPos++] = caseChar;
+            caseChar = text[textPos++];
+        } while (caseChar);
+    }
+    else {
+        destStrPos = 0;
+    }
+    dest[destStrPos] = 0;
+    int aliasVarID   = 0;
+    if (aliasCount) {
+        aliasVarID = 0;
+        do {
+            while (!StrComp(dest, aliases[aliasVarID].name)) {
+                if (aliasCount <= ++aliasVarID)
+                    goto CONV_VAL;
+            }
+            StrCopy(dest, aliases[aliasVarID++].value);
+        } while (aliasCount > aliasVarID);
+    }
+
+CONV_VAL:
+    if (ConvertStringToInteger(dest, &aliasVarID) != 1)
+        return;
+    int stackValue = jumpTableStack[jumpTableStackPos];
+    if (aliasVarID < jumpTableData[stackValue])
+        jumpTableData[stackValue] = aliasVarID;
+    stackValue++;
+    if (aliasVarID > jumpTableData[stackValue])
+        jumpTableData[stackValue] = aliasVarID;
+}
+bool ReadSwitchCase(char *text)
+{
+    char caseText[0x80];
+    if (FindStringToken(text, "case", 1)) {
+        if (FindStringToken(text, "default", 1)) {
+            return false;
+        }
+        else {
+            int jumpTablepos                = jumpTableStack[jumpTableStackPos];
+            jumpTableData[jumpTablepos + 2] = scriptDataPos - scriptDataOffset;
+            int cnt                         = abs(jumpTableData[jumpTablepos + 1] - jumpTableData[jumpTablepos]) + 1;
+
+            int jOffset = jumpTablepos + 4;
+            for (int i = 0; i < cnt; ++i) {
+                if (jumpTableData[jOffset + i] < 0)
+                    jumpTableData[jOffset + i] = scriptDataPos - scriptDataOffset;
+            }
+            return true;
+        }
+    }
+    else {
+        int textPos      = 4;
+        int caseStringPos = 0;
+        while (text[textPos]) {
+            if (text[textPos] != ':')
+                caseText[caseStringPos++] = text[textPos];
+            ++textPos;
+        }
+        caseText[caseStringPos] = 0;
+        for (int a = 0; a < aliasCount; ++a) {
+            if (StrComp(caseText, aliases[a].name))
+                StrCopy(caseText, aliases[a].value);
+        }
+
+        int val = 0;
+
+        int jPos    = jumpTableStack[jumpTableStackPos];
+        int jOffset = jPos + 4;
+        if (ConvertStringToInteger(caseText, &val))
+            jumpTableData[val - jumpTableData[jPos] + jOffset] = scriptDataPos - scriptDataOffset;
+        return true;
+    }
+    return false;
+}
+void AppendIntegerToSting(char *text, int value)
+{
+    int textPos = 0;
+    int flag    = 1;
+    while (true) {
+        if (!text[textPos])
+            break;
+        ++textPos;
+    }
+
+    int cnt = 0;
+    int v   = value;
+    while (v != 0) {
+        v /= 10;
+        cnt++;
+    } 
+
+    v = 0;
+    for (int i = cnt - 1; i >= 0; --i) {
+        v = value / pow(10, i);
+        v %= 10;
+
+        int strValue = v + '0';
+        if (strValue < '0' || strValue > '9') {
+            //what
+        }
+        text[textPos++] = strValue;
+    }
+    if (value == 0)
+        text[textPos++] = '0';
+    text[textPos] = 0;
+}
+bool ConvertStringToInteger(char *text, int *value)
+{
+    int charID   = 0;
+    bool negative = false;
+    *value       = 0;
+    if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
+        return false;
+    int strLength = StrLength(text) - 1;
+    int charVal   = 0;
+    if (*text == '-') {
+        negative = true;
+        charID   = 1;
+        --strLength;
+    }
+    else if (*text == '+') {
+        charID = 1;
+        --strLength;
+    }
+
+    while (strLength > -1) {
+        if (text[charID] < '0' || text[charID] > '9') {
+            return 0;
+        }
+        if (strLength <= 0) {
+            *value = text[charID] + *value - '0';
+        }
+        else {
+            int strlen = strLength + 1;
+            for (charVal = text[charID] - '0'; --strlen; charVal *= 10)
+                ;
+            *value += charVal;
+        }
+        --strLength;
+        ++charID;
+
+    }
+    if (negative)
+        *value = -*value;
+    return true;
+}
+void CopyAliasStr(char *dest, char *text, bool arrayIndex)
+{
+    int textPos     = 0;
+    int destPos     = 0;
+    bool arrayValue = false;
+    if (arrayIndex) {
+        while (text[textPos]) {
+            if (arrayValue) {
+                if (text[textPos] == ']')
+                    arrayValue = false;
+                else
+                    dest[destPos++] = text[textPos];
+                ++textPos;
+            }
+            else {
+                if (text[textPos] == '[')
+                    arrayValue = true;
+                ++textPos;
+            }
+        }
+    }
+    else {
+        while (text[textPos]) {
+            if (arrayValue) {
+                if (text[textPos] == ']')
+                    arrayValue = false;
+                ++textPos;
+            }
+            else {
+                if (text[textPos] == '[')
+                    arrayValue = true;
+                else
+                    dest[destPos++] = text[textPos];
+                ++textPos;
+            }
+        }
+    }
+    dest[destPos] = 0;
+}
+bool CheckOpcodeType(char *text)
+{
+    while (true) {
+        int c = *text;
+        if (!*text)
+            break;
+        ++text;
+        if (c == '(')
+            return false;
+    }
+    return true;
+}
+
+void ParseScriptFile(char *scriptName, int scriptID)
+{
+#if RSDK_DEBUG
+    printf("Parsing Scripts is not supported yet!\n");
+#endif
+    return;
+
+    jumpTableStackPos = 0;
+    lineID            = 0;
+    aliasCount        = COMMONALIAS_COUNT;
+    for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
+        StrCopy(aliases[i].name, "");
+        StrCopy(aliases[i].value, "");
+    }
+
+    char scriptPath[0x40];
+    StrCopy(scriptPath, "Data/Scripts/");
+    StrAdd(scriptPath, scriptName);
+    FileInfo info;
+    if (LoadFile(scriptPath, &info)) {
+        int readMode                      = READMODE_NORMAL;
+        int parseMode                     = PARSEMODE_SCOPELESS;
+        char prevChar                     = 0;
+        char curChar                      = 0;
+        int switchDeep                    = 0;
+        while (readMode < READMODE_EOF) {
+            int textPos = 0;
+            readMode    = READMODE_NORMAL;
+            while (readMode < READMODE_ENDLINE) {
+                prevChar = curChar;
+                FileRead(&curChar, 1);
+                if (readMode == READMODE_STRING) {
+                    if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
+                        if ((curChar == '\r' && prevChar != '\n') || curChar == '\n') {
+                            readMode            = READMODE_ENDLINE;
+                            scriptText[textPos] = 0;
+                        }
+                    }
+                    else if (curChar != '/' || textPos <= 0) {
+                        scriptText[textPos++] = curChar;
+                        if (curChar == '"')
+                            readMode = READMODE_NORMAL;
+                    }
+                    else if (curChar == '/' && prevChar == '/') {
+                        readMode              = READMODE_COMMENTLINE;
+                        scriptText[--textPos] = 0;
+                    }
+                    else {
+                        scriptText[textPos++] = curChar;
+                    }
+                }
+                else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
+                         || readMode >= READMODE_COMMENTLINE) {
+                    if ((curChar == '\r' && prevChar != '\n') || curChar == '\n') {
+                        readMode            = READMODE_ENDLINE;
+                        scriptText[textPos] = 0;
+                    }
+                }
+                else if (curChar != '/' || textPos <= 0) {
+                    scriptText[textPos++] = curChar;
+                    if (curChar == '"' && !readMode)
+                        readMode = READMODE_STRING;
+                }
+                else if (curChar == '/' && prevChar == '/') {
+                    readMode              = READMODE_COMMENTLINE;
+                    scriptText[--textPos] = 0;
+                }
+                else {
+                    scriptText[textPos++] = curChar;
+                }
+                if (ReachedEndOfFile()) {
+                    scriptText[textPos] = 0;
+                    readMode            = READMODE_EOF;
+                }
+            }
+
+            switch (parseMode) {
+                case PARSEMODE_SCOPELESS:
+                    ++lineID;
+                    CheckAliasText(scriptText);
+                    if (StrComp(scriptText, "subObjectMain")) {
+                        parseMode                                        = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                 = scriptDataPos;
+                        jumpTableDataOffset                              = jumpTableDataPos;
+                    }
+                    if (StrComp(scriptText, "subObjectDraw")) {
+                        parseMode                                        = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].subDraw.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                 = scriptDataPos;
+                        jumpTableDataOffset                              = jumpTableDataPos;
+                    }
+                    if (StrComp(scriptText, "subObjectStartup")) {
+                        parseMode                                           = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].subStartup.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                    = scriptDataPos;
+                        jumpTableDataOffset                                 = jumpTableDataPos;
+                    }
+                    if (FindStringToken(scriptText, "function", 1)) {
+                        if (FindStringToken(scriptText, "function", 1) == 1) {
+                            char funcName[0x20];
+                            for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
+                            funcName[textPos - 8] = 0;
+                            parseMode             = -1;
+                            for (textPos = 0; textPos < scriptFunctionCount; ++textPos) {
+                                if (StrComp(scriptText, scriptFunctionNames[textPos]) == 1)
+                                    parseMode = textPos;
+                            }
+                            if (scriptFunctionCount < FUNCTION_COUNT && parseMode == -1) {
+                                StrCopy(scriptFunctionNames[scriptFunctionCount], scriptText);
+                                ++scriptFunctionCount;
+                            }
+                            parseMode = PARSEMODE_SCOPELESS;
+                        }
+                    }
+                    else {
+                        char funcName[0x20];
+                        for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
+                        funcName[textPos - 8] = 0;
+                        parseMode             = -1;
+                        for (textPos = 0; textPos < scriptFunctionCount; ++textPos) {
+                            if (StrComp(funcName, scriptFunctionNames[textPos]))
+                                parseMode = textPos;
+                        }
+                        if (parseMode <= -1) {
+                            if (scriptFunctionCount >= FUNCTION_COUNT) {
+                                parseMode = PARSEMODE_SCOPELESS;
+                            }
+                            else {
+                                StrCopy(scriptFunctionNames[scriptFunctionCount], funcName);
+                                functionScriptList[scriptFunctionCount].scriptCodePtr = scriptDataPos;
+                                functionScriptList[scriptFunctionCount].jumpTablePtr  = jumpTableDataPos;
+                                scriptDataOffset                                      = scriptDataPos;
+                                jumpTableDataOffset                                   = jumpTableDataPos;
+                                parseMode                                             = PARSEMODE_FUNCTION;
+                                ++scriptFunctionCount;
+                            }
+                        }
+                        else {
+                            StrCopy(scriptFunctionNames[parseMode], funcName);
+                            functionScriptList[scriptFunctionCount].scriptCodePtr = scriptDataPos;
+                            functionScriptList[scriptFunctionCount].jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                      = scriptDataPos;
+                            jumpTableDataOffset                                   = jumpTableDataPos;
+                            parseMode                                             = PARSEMODE_FUNCTION;
+                        }
+                    }
+                    break;
+                case PARSEMODE_PLATFORMSKIP:
+                    ++lineID;
+                    if (!FindStringToken(scriptText, "#endplatform", 1))
+                        parseMode = PARSEMODE_FUNCTION;
+                    break;
+                case PARSEMODE_FUNCTION:
+                    ++lineID;
+                    if (scriptText[0]) {
+                        if (StrComp(scriptText, "endsub")) {
+                            scriptData[scriptDataPos++] = FUNC_END;
+                            parseMode                   = PARSEMODE_SCOPELESS;
+                        }
+                        else if (StrComp(scriptText, "endfunction")) {
+                            scriptData[scriptDataPos++] = FUNC_ENDFUNCTION;
+                            parseMode                   = PARSEMODE_SCOPELESS;
+                        }
+                        else if (FindStringToken(scriptText, "#platform:", 1)) {
+                            if (FindStringToken(scriptText, "#endplatform", 1) == -1) {
+                                ConvertIfWhileStatement(scriptText);
+                                if (ConvertSwitchStatement(scriptText)) {
+                                    parseMode    = PARSEMODE_SWITCHREAD;
+                                    info.readPos = GetFilePosition();
+                                    switchDeep   = 0;
+                                }
+                                ConvertArithmaticSyntax(scriptText);
+                                if (!ReadSwitchCase(scriptText)) {
+                                    ConvertFunctionText(scriptText);
+                                    if (Engine.gameMode == ENGINE_SCRIPTERROR) {
+                                        AddTextMenuEntry(&gameMenu[0], " ");
+                                        AddTextMenuEntry(&gameMenu[0], "ERROR IN");
+                                        AddTextMenuEntry(&gameMenu[0], scriptName);
+                                        parseMode = PARSEMODE_ERROR;
+                                    }
+                                }
+                            }
+                        }
+                        else if (FindStringToken(scriptText, Engine.gamePlatform, 1) == -1
+                                 && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
+                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1) {
+                            parseMode = PARSEMODE_PLATFORMSKIP;
+                        }
+                    }
+                    break;
+                case PARSEMODE_SWITCHREAD:
+                    if (!FindStringToken(scriptText, "switch", 1))
+                        ++switchDeep;
+                    if (switchDeep) {
+                        if (!FindStringToken(scriptText, "endswitch", 1))
+                            --switchDeep;
+                    }
+                    else if (FindStringToken(scriptText, "endswitch", 1)) {
+                        CheckCaseNumber(scriptText);
+                    }
+                    else {
+                        SetFilePosition(info.readPos);
+                        parseMode  = PARSEMODE_FUNCTION;
+                        int jPos   = jumpTableStack[jumpTableStackPos];
+                        switchDeep = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
+                        for (textPos = 0; textPos < switchDeep; ++textPos) jumpTableData[jumpTableDataPos++] = -1;
+                    }
+                    break;
+                default: break;
+            }
+        }
+
+        CloseFile();
+    }
+}
+void LoadBytecode(int stageListID, int scriptID)
+{
+    char scriptPath[0x40];
+    switch (stageListID) {
+        case STAGELIST_PRESENTATION:
+        case STAGELIST_REGULAR:
+        case STAGELIST_BONUS:
+        case STAGELIST_SPECIAL:
+            StrCopy(scriptPath, "ByteCode/");
+            StrAdd(scriptPath, stageList[stageListID][stageListPosition].folder);
+            StrAdd(scriptPath, ".bin");
+            break;
+        case 4: StrCopy(scriptPath, "ByteCode/GlobalCode.bin"); break;
+        default: break;
+    }
+
+    FileInfo info;
+    if (LoadFile(scriptPath, &info)) {
+        int fileBuffer = 0;
+        int *scrData   = &scriptData[scriptCodePos];
+        FileRead(&fileBuffer, 1);
+        int scriptDataCount = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        scriptDataCount += (fileBuffer << 8);
+        FileRead(&fileBuffer, 1);
+        scriptDataCount += (fileBuffer << 16);
+        FileRead(&fileBuffer, 1);
+        scriptDataCount += (fileBuffer << 24);
+
+        while (scriptDataCount > 0) {
+            FileRead(&fileBuffer, 1);
+            int buf = fileBuffer & 0x7F;
+            if (fileBuffer >= 0x80) {
+                while (buf > 0) {
+                    FileRead(&fileBuffer, 1);
+                    int data = fileBuffer;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 8;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 16;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 24;
+                    *scrData = data;
+                    ++scrData;
+                    ++scriptCodePos;
+                    --scriptDataCount;
+                    --buf;
+                }
+            }
+            else {
+                while (buf > 0) {
+                    FileRead(&fileBuffer, 1);
+                    *scrData = fileBuffer;
+                    ++scrData;
+                    ++scriptCodePos;
+                    --scriptDataCount;
+                    --buf;
+                }
+            }
+        }
+
+        int *jumpPtr = &jumpTableData[jumpTablePos];
+        FileRead(&fileBuffer, 1);
+        int jumpDataCnt = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        jumpDataCnt += fileBuffer << 8;
+        FileRead(&fileBuffer, 1);
+        jumpDataCnt += fileBuffer << 16;
+        FileRead(&fileBuffer, 1);
+        jumpDataCnt += fileBuffer << 24;
+
+        while (jumpDataCnt > 0) {
+            FileRead(&fileBuffer, 1);
+            int buf = fileBuffer & 0x7F;
+            if (fileBuffer >= 0x80) {
+                while (buf > 0) {
+                    FileRead(&fileBuffer, 1);
+                    int data = fileBuffer;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 8;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 16;
+                    FileRead(&fileBuffer, 1);
+                    data += fileBuffer << 24;
+                    *jumpPtr = data;
+                    ++jumpPtr;
+                    ++jumpTablePos;
+                    --jumpDataCnt;
+                    --buf;
+                }
+            }
+            else {
+                while (buf > 0) {
+                    FileRead(&fileBuffer, 1);
+                    *jumpPtr = fileBuffer;
+                    ++jumpPtr;
+                    ++jumpTablePos;
+                    --jumpDataCnt;
+                    --buf;
+                }
+            }
+        }
+        FileRead(&fileBuffer, 1);
+        int objectCount = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        objectCount += fileBuffer << 8;
+
+        int objType = scriptID;
+        for (int i = 0; i < objectCount; ++i) {
+
+            FileRead(&fileBuffer, 1);
+            int buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType].subMain.scriptCodePtr = buf + (fileBuffer << 24);
+
+            FileRead(&fileBuffer, 1);
+            buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType].subDraw.scriptCodePtr = buf + (fileBuffer << 24);
+
+            FileRead(&fileBuffer, 1);
+            buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType++].subStartup.scriptCodePtr = buf + (fileBuffer << 24);
+        }
+
+        objType = scriptID;
+        for (int i = 0; i < objectCount; ++i) {
+            FileRead(&fileBuffer, 1);
+            int buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType].subMain.jumpTablePtr = buf + (fileBuffer << 24);
+
+            FileRead(&fileBuffer, 1);
+            buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType].subDraw.jumpTablePtr = buf + (fileBuffer << 24);
+
+            FileRead(&fileBuffer, 1);
+            buf = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            buf += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            objectScriptList[objType++].subStartup.jumpTablePtr = buf + (fileBuffer << 24);
+        }
+
+        FileRead(&fileBuffer, 1);
+        int functionCount = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        functionCount += fileBuffer << 8;
+
+        for (int i = 0; i < functionCount; ++i) {
+            FileRead(&fileBuffer, 1);
+            int scrPos = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            scrPos += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            scrPos += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            functionScriptList[i].scriptCodePtr = scrPos + (fileBuffer << 24);
+        }
+
+        for (int i = 0; i < functionCount; ++i) {
+            FileRead(&fileBuffer, 1);
+            int jmpPos = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            jmpPos += (fileBuffer << 8);
+            FileRead(&fileBuffer, 1);
+            jmpPos += (fileBuffer << 16);
+            FileRead(&fileBuffer, 1);
+            functionScriptList[i].jumpTablePtr = jmpPos + (fileBuffer << 24);
+        }
+
+        CloseFile();
+    }
+}
+
+void ClearScriptData()
+{
+    memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
+    memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
+
+    scriptFrameCount = 0;
+    
+    scriptCodePos = 0;
+    jumpTablePos  = 0;
+    jumpTableStackPos = 0;
+    functionStackPos  = 0;
+
+    scriptDataPos       = 0;
+    scriptDataOffset    = 0;
+    jumpTableDataPos    = 0;
+    jumpTableDataOffset = 0;
+
+    scriptFunctionCount = 0;
+
+    aliasCount = COMMONALIAS_COUNT;
+    lineID = 0;
+
+    ClearAnimationData();
+
+    for (int o = 0; o < OBJECT_COUNT; ++o) {
+        ObjectScript *scriptInfo                       = &objectScriptList[o];
+        scriptInfo->subMain.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT - 1;
+        scriptInfo->subDraw.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
+        scriptInfo->subStartup.scriptCodePtr           = SCRIPTDATA_COUNT - 1;
+        scriptInfo->frameListOffset                    = 0;
+        scriptInfo->spriteSheetID                      = 0;
+        scriptInfo->animFile                           = GetDefaultAnimationRef();
+        typeNames[o][0]                                = 0;
+    }
+
+    for (int f = 0; f < FUNCTION_COUNT; ++f) {
+        functionScriptList[f].scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        functionScriptList[f].jumpTablePtr  = JUMPTABLE_COUNT - 1;
+    }
+
+    SetObjectTypeName((char *)"Blank Object", 0);
+}
+
+void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
+{
+    bool running         = true;
+    int scriptDataPtr    = scriptCodePtr;
+    int jumpTableDataPtr = jumpTablePtr;
+    jumpTableStackPos    = 0;
+    functionStackPos     = 0;
+    foreachStackPos     = 0;
+    while (running) {
+        int opcode           = scriptData[scriptDataPtr++];
+        int opcodeSize       = functions[opcode].opcodeSize;
+        int scriptCodeOffset = scriptDataPtr;
+
+        // Get Values
+        for (int i = 0; i < opcodeSize; ++i) {
+            int opcodeType = scriptData[scriptDataPtr++];
+
+            if (opcodeType == SCRIPTVAR_VAR) {
+                int arrayVal = 0;
+                switch (scriptData[scriptDataPtr++]) {
+                    case VARARR_NONE: arrayVal = objectLoop; break;
+                    case VARARR_ARRAY:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        else
+                            arrayVal = scriptData[scriptDataPtr++];
+                        break;
+                    case VARARR_ENTNOPLUS1:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                        else
+                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                        break;
+                    case VARARR_ENTNOMINUS1:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        else
+                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                        break;
+                    default: break;
+                }
+
+                // Variables
+                switch (scriptData[scriptDataPtr++]) {
+                    default: break;
+                    case VAR_TEMPVALUE0: scriptEng.operands[i] = scriptEng.tempValue[0]; break;
+                    case VAR_TEMPVALUE1: scriptEng.operands[i] = scriptEng.tempValue[1]; break;
+                    case VAR_TEMPVALUE2: scriptEng.operands[i] = scriptEng.tempValue[2]; break;
+                    case VAR_TEMPVALUE3: scriptEng.operands[i] = scriptEng.tempValue[3]; break;
+                    case VAR_TEMPVALUE4: scriptEng.operands[i] = scriptEng.tempValue[4]; break;
+                    case VAR_TEMPVALUE5: scriptEng.operands[i] = scriptEng.tempValue[5]; break;
+                    case VAR_TEMPVALUE6: scriptEng.operands[i] = scriptEng.tempValue[6]; break;
+                    case VAR_TEMPVALUE7: scriptEng.operands[i] = scriptEng.tempValue[7]; break;
+                    case VAR_CHECKRESULT: scriptEng.operands[i] = scriptEng.checkResult; break;
+                    case VAR_ARRAYPOS0: scriptEng.operands[i] = scriptEng.arrayPosition[0]; break;
+                    case VAR_ARRAYPOS1: scriptEng.operands[i] = scriptEng.arrayPosition[1]; break;
+                    case VAR_ARRAYPOS2: scriptEng.operands[i] = scriptEng.arrayPosition[2]; break;
+                    case VAR_ARRAYPOS3: scriptEng.operands[i] = scriptEng.arrayPosition[3]; break;
+                    case VAR_ARRAYPOS4: scriptEng.operands[i] = scriptEng.arrayPosition[4]; break;
+                    case VAR_ARRAYPOS5: scriptEng.operands[i] = scriptEng.arrayPosition[5]; break;
+                    case VAR_PLAYEROBJECTPOS: scriptEng.operands[i] = scriptEng.arrayPosition[6]; break;
+                    case VAR_PLAYEROBJECTCOUNT: scriptEng.operands[i] = scriptEng.arrayPosition[7]; break;
+                    case VAR_GLOBAL: scriptEng.operands[i] = GlobalVariables[arrayVal]; break;
+                    case VAR_SCRIPTDATA: scriptEng.operands[i] = scriptData[arrayVal]; break;
+                    case VAR_OBJECTENTITYNO: scriptEng.operands[i] = arrayVal; break;
+                    case VAR_OBJECTTYPEGROUP: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].typeGroup;
+                        break;
+                    }
+                    case VAR_OBJECTTYPE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].type;
+                        break;
+                    }
+                    case VAR_OBJECTPROPERTYVALUE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].propertyValue;
+                        break;
+                    }
+                    case VAR_OBJECTXPOS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos;
+                        break;
+                    }
+                    case VAR_OBJECTYPOS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos;
+                        break;
+                    }
+                    case VAR_OBJECTIXPOS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos >> 16;
+                        break;
+                    }
+                    case VAR_OBJECTIYPOS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
+                        break;
+                    }
+                    case VAR_OBJECTXVELOCITY: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].XVelocity;
+                        break;
+                    }
+                    case VAR_OBJECTYVELOCITY: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].YVelocity;
+                        break;
+                    }
+                    case VAR_OBJECTSPEED: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].speed;
+                        break;
+                    }
+                    case VAR_OBJECTSTATE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].state;
+                        break;
+                    }
+                    case VAR_OBJECTROTATION: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].rotation;
+                        break;
+                    }
+                    case VAR_OBJECTSCALE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].scale;
+                        break;
+                    }
+                    case VAR_OBJECTPRIORITY: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].priority;
+                        break;
+                    }
+                    case VAR_OBJECTDRAWORDER: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].drawOrder;
+                        break;
+                    }
+                    case VAR_OBJECTDIRECTION: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].direction;
+                        break;
+                    }
+                    case VAR_OBJECTINKEFFECT: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].inkEffect;
+                        break;
+                    }
+                    case VAR_OBJECTALPHA: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].alpha;
+                        break;
+                    }
+                    case VAR_OBJECTFRAME: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].frame;
+                        break;
+                    }
+                    case VAR_OBJECTANIMATION: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].animation;
+                        break;
+                    }
+                    case VAR_OBJECTPREVANIMATION: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].prevAnimation;
+                        break;
+                    }
+                    case VAR_OBJECTANIMATIONSPEED: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].animationSpeed;
+                        break;
+                    }
+                    case VAR_OBJECTANIMATIONTIMER: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].animationTimer;
+                        break;
+                    }
+                    case VAR_OBJECTANGLE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].angle;
+                        break;
+                    }
+                    case VAR_OBJECTVALUEF0: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].field_F0;
+                        break;
+                    }
+                    case VAR_OBJECTLOOKPOS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPos;
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONMODE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].collisionMode;
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONPLANE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].collisionPlane;
+                        break;
+                    }
+                    case VAR_OBJECTCONTROLMODE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].controlMode;
+                        break;
+                    }
+                    case VAR_OBJECTCONTROLLOCK: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].controlLock;
+                        break;
+                    }
+                    case VAR_OBJECTPUSHING: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].pushing;
+                        break;
+                    }
+                    case VAR_OBJECTVISIBLE: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].visible;
+                        break;
+                    }
+                    case VAR_OBJECTTILECOLLISIONS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].tileCollisions;
+                        break;
+                    }
+                    case VAR_OBJECTOBJECTINTERACTIONS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].objectInteractions;
+                        break;
+                    }
+                    case VAR_OBJECTGRAVITY: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].gravity;
+                        break;
+                    }
+                    case VAR_OBJECTUP: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].up;
+                        break;
+                    }
+                    case VAR_OBJECTDOWN: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].down;
+                        break;
+                    }
+                    case VAR_OBJECTLEFT: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].left;
+                        break;
+                    }
+                    case VAR_OBJECTRIGHT: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].right;
+                        break;
+                    }
+                    case VAR_OBJECTJUMPPRESS: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].jumpPress;
+                        break;
+                    }
+                    case VAR_OBJECTJUMPHOLD: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].jumpHold;
+                        break;
+                    }
+                    case VAR_OBJECTTRACKSCROLL: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].trackScroll;
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING0: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[0];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING1: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[1];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING2: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[2];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING3: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[3];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING4: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[4];
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONLEFT: {
+                        AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        if (animFile) {
+                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+
+                            scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].left[0];
+                        }
+                        else {
+                            scriptEng.operands[i] = 0;
+                        }
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONTOP: {
+                        AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        if (animFile) {
+                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+
+                            scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].top[0];
+                        }
+                        else {
+                            scriptEng.operands[i] = 0;
+                        }
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONRIGHT: {
+                        AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        if (animFile) {
+                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+
+                            scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].right[0];
+                        }
+                        else {
+                            scriptEng.operands[i] = 0;
+                        }
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONBOTTOM: {
+                        AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        if (animFile) {
+                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+
+                            scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].bottom[0];
+                        }
+                        else {
+                            scriptEng.operands[i] = 0;
+                        }
+                        break;
+                    }
+                    case VAR_OBJECTOUTOFBOUNDS: {
+                        int pos = objectEntityList[arrayVal].XPos >> 16;
+                        if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= OBJECT_BORDER_X2 + xScrollOffset) {
+                            scriptEng.operands[i] = 1;
+                        }
+                        else {
+                            int pos               = objectEntityList[arrayVal].YPos >> 16;
+                            scriptEng.operands[i] = pos <= yScrollOffset - 256 || pos >= yScrollOffset + 496;
+                        }
+                        break;
+                    }
+                    case VAR_OBJECTSPRITESHEET: {
+                        scriptEng.operands[i] = objectScriptList[objectEntityList[objectLoop].type].spriteSheetID;
+                        break;
+                    }
+                    case VAR_OBJECTVALUE0: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[0];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE1: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[1];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE2: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[2];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE3: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[3];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE4: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[4];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE5: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[5];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE6: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[6];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE7: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[7];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE8: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[8];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE9: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[9];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE10: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[10];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE11: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[11];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE12: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[12];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE13: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[13];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE14: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[14];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE15: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[15];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE16: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[16];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE17: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[17];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE18: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[18];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE19: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[19];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE20: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[20];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE21: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[21];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE22: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[22];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE23: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[23];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE24: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[24];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE25: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[25];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE26: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[26];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE27: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[27];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE28: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[28];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE29: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[29];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE30: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[30];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE31: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[31];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE32: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[32];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE33: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[33];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE34: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[34];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE35: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[35];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE36: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[36];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE37: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[37];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE38: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[38];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE39: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[39];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE40: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[40];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE41: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[41];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE42: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[42];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE43: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[43];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE44: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[44];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE45: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[45];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE46: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[46];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE47: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].values[47];
+                        break;
+                    }
+                    case VAR_STAGESTATE: scriptEng.operands[i] = stageMode; break;
+                    case VAR_STAGEACTIVELIST: scriptEng.operands[i] = activeStageList; break;
+                    case VAR_STAGELIST_STPOS: scriptEng.operands[i] = stageListPosition; break;
+                    case VAR_STAGETIMEENABLED: scriptEng.operands[i] = timeEnabled; break;
+                    case VAR_STAGEMILLISECONDS: scriptEng.operands[i] = stageMilliseconds; break;
+                    case VAR_STAGESECONDS: scriptEng.operands[i] = stageSeconds; break;
+                    case VAR_STAGEMINUTES: scriptEng.operands[i] = stageMinutes; break;
+                    case VAR_STAGEACTNO: scriptEng.operands[i] = actID; break;
+                    case VAR_STAGEPAUSEENABLED: scriptEng.operands[i] = pauseEnabled; break;
+                    case VAR_STAGELIST_STSIZE: scriptEng.operands[i] = stageListCount[activeStageList]; break;
+                    case VAR_STAGENEWXBOUNDARY1: scriptEng.operands[i] = newXBoundary1; break;
+                    case VAR_STAGENEWXBOUNDARY2: scriptEng.operands[i] = newXBoundary2; break;
+                    case VAR_STAGENEWYBOUNDARY1: scriptEng.operands[i] = newYBoundary1; break;
+                    case VAR_STAGENEWYBOUNDARY2: scriptEng.operands[i] = newYBoundary2; break;
+                    case VAR_STAGEXBOUNDARY1: scriptEng.operands[i] = xBoundary1; break;
+                    case VAR_STAGEXBOUNDARY2: scriptEng.operands[i] = xBoundary2; break;
+                    case VAR_STAGEYBOUNDARY1: scriptEng.operands[i] = yBoundary1; break;
+                    case VAR_STAGEYBOUNDARY2: scriptEng.operands[i] = yBoundary2; break;
+                    case VAR_STAGEDEFORMATIONDATA0: scriptEng.operands[i] = bgDeformationData0[arrayVal]; break;
+                    case VAR_STAGEDEFORMATIONDATA1: scriptEng.operands[i] = bgDeformationData1[arrayVal]; break;
+                    case VAR_STAGEDEFORMATIONDATA2: scriptEng.operands[i] = bgDeformationData2[arrayVal]; break;
+                    case VAR_STAGEDEFORMATIONDATA3: scriptEng.operands[i] = bgDeformationData3[arrayVal]; break;
+                    case VAR_STAGEWATERLEVEL: scriptEng.operands[i] = waterLevel; break;
+                    case VAR_STAGEACTIVELAYER: scriptEng.operands[i] = activeTileLayers[arrayVal]; break;
+                    case VAR_STAGEMIDPOINT: scriptEng.operands[i] = tLayerMidPoint; break;
+                    case VAR_STAGEPLAYERLISTPOS: scriptEng.operands[i] = playerListPos; break;
+                    case VAR_STAGEDEBUGMODE: scriptEng.operands[i] = debugMode; break;
+                    case VAR_STAGEOBJECTENTITYPOS: scriptEng.operands[i] = objectLoop; break;
+                    case VAR_SCREENCAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
+                    case VAR_SCREENCAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
+                    case VAR_SCREENCAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
+                    case VAR_SCREENCAMERAXPOS: scriptEng.operands[i] = cameraXPos; break;
+                    case VAR_SCREENCAMERAYPOS: scriptEng.operands[i] = cameraYPos; break;
+                    case VAR_SCREENDRAWLISTSIZE: scriptEng.operands[i] = drawListEntries[arrayVal].listSize; break;
+                    case VAR_SCREENCENTERX: scriptEng.operands[i] = SCREEN_CENTERX; break;
+                    case VAR_SCREENCENTERY: scriptEng.operands[i] = SCREEN_CENTERY; break;
+                    case VAR_SCREENXSIZE: scriptEng.operands[i] = SCREEN_XSIZE; break;
+                    case VAR_SCREENYSIZE: scriptEng.operands[i] = SCREEN_YSIZE; break;
+                    case VAR_SCREENXOFFSET: scriptEng.operands[i] = xScrollOffset; break;
+                    case VAR_SCREENYOFFSET: scriptEng.operands[i] = yScrollOffset; break;
+                    case VAR_SCREENSHAKEX: scriptEng.operands[i] = cameraShakeX; break;
+                    case VAR_SCREENSHAKEY: scriptEng.operands[i] = cameraShakeY; break;
+                    case VAR_SCREENADJUSTCAMERAY: scriptEng.operands[i] = cameraAdjustY; break;
+                    case VAR_TOUCHSCREENDOWN: scriptEng.operands[i] = touchDown[arrayVal]; break;
+                    case VAR_TOUCHSCREENXPOS: scriptEng.operands[i] = touchX[arrayVal]; break;
+                    case VAR_TOUCHSCREENYPOS: scriptEng.operands[i] = touchY[arrayVal]; break;
+                    case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
+                    case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
+                    case VAR_UNKNOWN: scriptEng.operands[i] = 0; break;
+                    case VAR_KEYDOWNUP: scriptEng.operands[i] = keyDown.up; break;
+                    case VAR_KEYDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
+                    case VAR_KEYDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
+                    case VAR_KEYDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
+                    case VAR_KEYDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
+                    case VAR_KEYDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
+                    case VAR_KEYDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
+                    case VAR_KEYDOWNBUTTONA2: scriptEng.operands[i] = keyDown.A; break;
+                    case VAR_KEYDOWNBUTTONB2: scriptEng.operands[i] = keyDown.B; break;
+                    case VAR_KEYDOWNBUTTONC2: scriptEng.operands[i] = keyDown.C; break;
+                    case VAR_KEYDOWNBUTTONA3: scriptEng.operands[i] = keyDown.A; break;
+                    case VAR_KEYDOWNBUTTONB3: scriptEng.operands[i] = keyDown.B; break;
+                    case VAR_KEYDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
+                    case VAR_KEYDOWNSTART2: scriptEng.operands[i] = keyDown.start; break;
+                    case VAR_KEYPRESSUP: scriptEng.operands[i] = keyPress.up; break;
+                    case VAR_KEYPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
+                    case VAR_KEYPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
+                    case VAR_KEYPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
+                    case VAR_KEYPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
+                    case VAR_KEYPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
+                    case VAR_KEYPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
+                    case VAR_KEYPRESSBUTTONA2: scriptEng.operands[i] = keyPress.A; break;
+                    case VAR_KEYPRESSBUTTONB2: scriptEng.operands[i] = keyPress.B; break;
+                    case VAR_KEYPRESSBUTTONC2: scriptEng.operands[i] = keyPress.C; break;
+                    case VAR_KEYPRESSBUTTONA3: scriptEng.operands[i] = keyPress.A; break;
+                    case VAR_KEYPRESSBUTTONB3: scriptEng.operands[i] = keyPress.B; break;
+                    case VAR_KEYPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
+                    case VAR_KEYPRESSSTART2: scriptEng.operands[i] = keyPress.start; break;
+                    case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
+                    case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
+                    case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].width; break;
+                    case VAR_TILELAYERYSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].height; break;
+                    case VAR_TILELAYERTYPE: scriptEng.operands[i] = stageLayouts[arrayVal].type; break;
+                    case VAR_TILELAYERANGLE: scriptEng.operands[i] = stageLayouts[arrayVal].angle; break;
+                    case VAR_TILELAYERXPOS: scriptEng.operands[i] = stageLayouts[arrayVal].XPos; break;
+                    case VAR_TILELAYERYPOS: scriptEng.operands[i] = stageLayouts[arrayVal].YPos; break;
+                    case VAR_TILELAYERZPOS: scriptEng.operands[i] = stageLayouts[arrayVal].ZPos; break;
+                    case VAR_TILELAYERPARALLAXFACTOR: scriptEng.operands[i] = stageLayouts[arrayVal].parallaxFactor; break;
+                    case VAR_TILELAYERSCROLLSPEED: scriptEng.operands[i] = stageLayouts[arrayVal].scrollSpeed; break;
+                    case VAR_TILELAYERSCROLLPOS: scriptEng.operands[i] = stageLayouts[arrayVal].scrollPos; break;
+                    case VAR_TILELAYERDEFORMATIONOFFSET: scriptEng.operands[i] = stageLayouts[arrayVal].deformationOffset; break;
+                    case VAR_TILELAYERDEFORMATIONOFFSETW: scriptEng.operands[i] = stageLayouts[arrayVal].deformationOffsetW; break;
+                    case VAR_HPARALLAXPARALLAXFACTOR: scriptEng.operands[i] = hParallax.parallaxFactor[arrayVal]; break;
+                    case VAR_HPARALLAXSCROLLSPEED: scriptEng.operands[i] = hParallax.scrollSpeed[arrayVal]; break;
+                    case VAR_HPARALLAXSCROLLPOS: scriptEng.operands[i] = hParallax.scrollPos[arrayVal]; break;
+                    case VAR_VPARALLAXPARALLAXFACTOR: scriptEng.operands[i] = vParallax.parallaxFactor[arrayVal]; break;
+                    case VAR_VPARALLAXSCROLLSPEED: scriptEng.operands[i] = vParallax.scrollSpeed[arrayVal]; break;
+                    case VAR_VPARALLAXSCROLLPOS: scriptEng.operands[i] = vParallax.scrollPos[arrayVal]; break;
+                    case VAR_3DSCENENOVERTICES: scriptEng.operands[i] = vertexCount; break;
+                    case VAR_3DSCENENOFACES: scriptEng.operands[i] = faceCount; break;
+                    case VAR_3DSCENEPROJECTIONX: scriptEng.operands[i] = projectionX; break;
+                    case VAR_3DSCENEPROJECTIONY: scriptEng.operands[i] = projectionY; break;
+                    case VAR_3DSCENEFOGCOLOR: scriptEng.operands[i] = fogColour; break;
+                    case VAR_3DSCENEFOGSTRENGTH: scriptEng.operands[i] = fogStrength; break;
+                    case VAR_VERTEXBUFFERX: scriptEng.operands[i] = vertexBuffer[arrayVal].x; break;
+                    case VAR_VERTEXBUFFERY: scriptEng.operands[i] = vertexBuffer[arrayVal].y; break;
+                    case VAR_VERTEXBUFFERZ: scriptEng.operands[i] = vertexBuffer[arrayVal].z; break;
+                    case VAR_VERTEXBUFFERU: scriptEng.operands[i] = vertexBuffer[arrayVal].u; break;
+                    case VAR_VERTEXBUFFERV: scriptEng.operands[i] = vertexBuffer[arrayVal].v; break;
+                    case VAR_FACEBUFFERA: scriptEng.operands[i] = faceBuffer[arrayVal].a; break;
+                    case VAR_FACEBUFFERB: scriptEng.operands[i] = faceBuffer[arrayVal].b; break;
+                    case VAR_FACEBUFFERC: scriptEng.operands[i] = faceBuffer[arrayVal].c; break;
+                    case VAR_FACEBUFFERD: scriptEng.operands[i] = faceBuffer[arrayVal].d; break;
+                    case VAR_FACEBUFFERFLAG: scriptEng.operands[i] = faceBuffer[arrayVal].flags; break;
+                    case VAR_FACEBUFFERCOLOR: scriptEng.operands[i] = faceBuffer[arrayVal].colour; break;
+                    case VAR_SAVERAM: scriptEng.operands[i] = saveRAM[arrayVal]; break;
+                    case VAR_ENGINESTATE: scriptEng.operands[i] = Engine.gameMode; break;
+                    case VAR_ENGINELANGUAGE: scriptEng.operands[i] = Engine.language; break;
+                    case VAR_ENGINEONLINEACTIVE: scriptEng.operands[i] = Engine.onlineActive; break;
+                    case VAR_ENGINESFXVOLUME: scriptEng.operands[i] = sfxVolume; break;
+                    case VAR_ENGINEBGMVOLUME: scriptEng.operands[i] = bgmVolume; break;
+                    case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
+                    case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_PLATFORM; break;
+                }
+            }
+            else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
+                scriptEng.operands[i] = scriptData[scriptDataPtr++];
+            }
+            else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
+                int charID         = 0;
+                byte byteID        = 0;
+                int strLen         = scriptData[scriptDataPtr++];
+                scriptText[strLen] = 0;
+                for (int c = 0; c < strLen; ++c) {
+                    switch (c % 4) {
+                        case 0: {
+                            scriptText[c] = scriptData[scriptDataPtr] >> 24;
+                            break;
+                        }
+                        case 1: {
+                            scriptText[c] = (0xFFFFFF & scriptData[scriptDataPtr]) >> 16;
+                            break;
+                        }
+                        case 2: {
+                            scriptText[c] = (0xFFFF & scriptData[scriptDataPtr]) >> 8;
+                            break;
+                        }
+                        case 3: {
+                            scriptText[c] = scriptData[scriptDataPtr++];
+                            break;
+                        }
+                        default: break;
+                    }
+                }
+                scriptDataPtr++;
+            }
+        }
+
+        ObjectScript *scriptInfo = &objectScriptList[objectEntityList[objectLoop].type];
+        Entity *entity           = &objectEntityList[objectLoop];
+        SpriteFrame *spriteFrame = nullptr;
+
+        // Functions
+        switch (opcode) {
+            default: break;
+            case FUNC_END: running = false; break;
+            case FUNC_EQUAL: scriptEng.operands[0] = scriptEng.operands[1]; break;
+            case FUNC_ADD: scriptEng.operands[0] += scriptEng.operands[1]; break;
+            case FUNC_SUB: scriptEng.operands[0] -= scriptEng.operands[1]; break;
+            case FUNC_INC: ++scriptEng.operands[0]; break;
+            case FUNC_DEC: --scriptEng.operands[0]; break;
+            case FUNC_MUL: scriptEng.operands[0] *= scriptEng.operands[1]; break;
+            case FUNC_DIV: scriptEng.operands[0] /= scriptEng.operands[1]; break;
+            case FUNC_SHR: scriptEng.operands[0] >>= scriptEng.operands[1]; break;
+            case FUNC_SHL: scriptEng.operands[0] <<= scriptEng.operands[1]; break;
+            case FUNC_AND: scriptEng.operands[0] &= scriptEng.operands[1]; break;
+            case FUNC_OR: scriptEng.operands[0] |= scriptEng.operands[1]; break;
+            case FUNC_XOR: scriptEng.operands[0] ^= scriptEng.operands[1]; break;
+            case FUNC_MOD: scriptEng.operands[0] %= scriptEng.operands[1]; break;
+            case FUNC_FLIPSIGN: scriptEng.operands[0] = -scriptEng.operands[0]; break;
+            case FUNC_CHECKEQUAL:
+                scriptEng.checkResult = scriptEng.operands[0] == scriptEng.operands[1];
+                opcodeSize            = 0;
+                break;
+            case FUNC_CHECKGREATER:
+                scriptEng.checkResult = scriptEng.operands[0] > scriptEng.operands[1];
+                opcodeSize            = 0;
+                break;
+            case FUNC_CHECKLOWER:
+                scriptEng.checkResult = scriptEng.operands[0] < scriptEng.operands[1];
+                opcodeSize            = 0;
+                break;
+            case FUNC_CHECKNOTEQUAL:
+                scriptEng.checkResult = scriptEng.operands[0] != scriptEng.operands[1];
+                opcodeSize            = 0;
+                break;
+            case FUNC_IFEQUAL:
+                if (scriptEng.operands[1] != scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_IFGREATER:
+                if (scriptEng.operands[1] <= scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_IFGREATEROREQUAL:
+                if (scriptEng.operands[1] < scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_IFLOWER:
+                if (scriptEng.operands[1] >= scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_IFLOWEROREQUAL:
+                if (scriptEng.operands[1] > scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_IFNOTEQUAL:
+                if (scriptEng.operands[1] == scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize                          = 0;
+                break;
+            case FUNC_ELSE:
+                opcodeSize    = 0;
+                scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--] + 1];
+                break;
+            case FUNC_ENDIF:
+                opcodeSize = 0;
+                --jumpTableStackPos;
+                break;
+            case FUNC_WEQUAL:
+                if (scriptEng.operands[1] != scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_WGREATER:
+                if (scriptEng.operands[1] <= scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_WGREATEROREQUAL:
+                if (scriptEng.operands[1] < scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_WLOWER:
+                if (scriptEng.operands[1] >= scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_WLOWEROREQUAL:
+                if (scriptEng.operands[1] > scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_WNOTEQUAL:
+                if (scriptEng.operands[1] == scriptEng.operands[2])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                else
+                    jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                opcodeSize = 0;
+                break;
+            case FUNC_LOOP:
+                opcodeSize    = 0;
+                scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
+                break;
+            case FUNC_FOREACHTYPEGROUP: {
+                int typeGroup = scriptEng.operands[1];
+                if (typeGroup < TYPEGROUP_COUNT) {
+                    int curStackPos               = foreachStackPos++;
+                    int nextStackPos              = foreachStackPos;
+                    int loop                      = foreachStack[foreachStackPos] + 1;
+                    foreachStack[foreachStackPos] = loop;
+                    if (loop >= objectTypeGroupList[typeGroup].listSize) {
+                        foreachStack[nextStackPos] = -1;
+                        foreachStackPos            = curStackPos;
+                        scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                        break;
+                    }
+                    scriptEng.operands[2]    = objectTypeGroupList[typeGroup].entityRefs[loop];
+                    int stackPos             = jumpTableStackPos + 1;
+                    jumpTableStack[stackPos] = scriptEng.operands[0];
+                    jumpTableStackPos        = stackPos;
+                }
+                break;
+            }
+            case FUNC_FOREACHTYPENAME: {
+                int objType = scriptEng.operands[1];
+                if (objType < OBJECT_COUNT) {
+                    bool loopFlag              = true;
+                    int curStackPos = foreachStackPos;
+                    int nextStackPos = ++foreachStackPos;
+                    int loop                   = foreachStack[nextStackPos] + 1;
+                    foreachStack[nextStackPos] = loop;
+
+                    if (scriptSub == SUB_SETUP) {
+                        while (loop < TEMPENTITY_START) {
+                            if (objType == objectEntityList[loop].type) {
+                                scriptEng.operands[2]               = loop;
+                                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                                // Finished loop
+                                goto FINISHED_FOREACH_LOOP;
+                            }
+                            foreachStack[nextStackPos] = ++loop;
+                        }
+                        opcodeSize                 = 0;
+                        foreachStack[nextStackPos] = -1;
+                        foreachStackPos            = curStackPos;
+                        scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    }
+                    else {
+                        while (true) {
+                            if (loop >= ENTITY_COUNT) {
+                                opcodeSize = 0;
+                                --foreachStackPos;
+                                foreachStack[nextStackPos] = -1;
+                                scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                                //Finished loop
+                                goto FINISHED_FOREACH_LOOP;
+                            }
+                            if (objType == objectEntityList[loop].type)
+                                break;
+                            foreachStack[nextStackPos] = ++loop;
+                        }
+                        scriptEng.operands[2]               = loop;
+                        jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                    }
+                }
+                FINISHED_FOREACH_LOOP:
+                break;
+            }
+            case FUNC_FOREACHLOOP:
+                opcodeSize    = 0;
+                scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
+                --foreachStackPos;
+                break;
+            case FUNC_SWITCH:
+                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                if (scriptEng.operands[1] < jumpTableData[jumpTablePtr + scriptEng.operands[0]]
+                    || scriptEng.operands[1] > jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1])
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 2];
+                else
+                    scriptDataPtr = scriptCodePtr
+                                    + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 4
+                                                    + (scriptEng.operands[1] - jumpTableData[jumpTablePtr + scriptEng.operands[0]])];
+                opcodeSize = 0;
+                break;
+            case FUNC_BREAK:
+                opcodeSize    = 0;
+                scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--] + 3];
+                break;
+            case FUNC_ENDSWITCH:
+                opcodeSize = 0;
+                --jumpTableStackPos;
+                break;
+            case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
+            case FUNC_SIN: {
+                scriptEng.operands[0] = sin512(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_COS: {
+                scriptEng.operands[0] = cos512(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_SIN256: {
+                scriptEng.operands[0] = sin256(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_COS256: {
+                scriptEng.operands[0] = cos256(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ATAN2: {
+                scriptEng.operands[0] = ArcTanLookup(scriptEng.operands[1], scriptEng.operands[2]);
+                break;
+            }
+            case FUNC_INTERPOLATE:
+                scriptEng.operands[0] =
+                    (scriptEng.operands[2] * (0x100 - scriptEng.operands[3]) + scriptEng.operands[3] * scriptEng.operands[1]) >> 8;
+                break;
+            case FUNC_INTERPOLATEXY:
+                scriptEng.operands[0] =
+                    (scriptEng.operands[3] * (0x100 - scriptEng.operands[6]) >> 8) + ((scriptEng.operands[6] * scriptEng.operands[2]) >> 8);
+                scriptEng.operands[1] =
+                    (scriptEng.operands[5] * (0x100 - scriptEng.operands[6]) >> 8) + (scriptEng.operands[6] * scriptEng.operands[4] >> 8);
+                break;
+            case FUNC_LOADSPRITESHEET:
+                opcodeSize                = 0;
+                scriptInfo->spriteSheetID = AddGraphicsFile(scriptText);
+                break;
+            case FUNC_REMOVESPRITESHEET:
+                opcodeSize = 0;
+                RemoveGraphicsFile(scriptText, -1);
+                break;
+            case FUNC_DRAWSPRITE:
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+                DrawSprite((entity->XPos >> 16) - xScrollOffset + spriteFrame->pivotX, (entity->YPos >> 16) - yScrollOffset + spriteFrame->pivotY,
+                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                break;
+            case FUNC_DRAWSPRITEXY:
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+                DrawSprite((scriptEng.operands[1] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                           (scriptEng.operands[2] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                           spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                break;
+            case FUNC_DRAWSPRITESCREENXY:
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY, spriteFrame->width,
+                           spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                break;
+            case FUNC_DRAWTINTRECT:
+                opcodeSize = 0;
+                DrawTintRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                break;
+            case FUNC_DRAWNUMBERS: {
+                opcodeSize = 0;
+                int i      = 10;
+                if (scriptEng.operands[6]) {
+                    while (scriptEng.operands[4] > 0) {
+                        int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
+                        spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
+                        DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
+                                   spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                        scriptEng.operands[1] -= scriptEng.operands[5];
+                        i *= 10;
+                        --scriptEng.operands[4];
+                    }
+                }
+                else {
+                    int extra = 10;
+                    if (scriptEng.operands[3])
+                        extra = 10 * scriptEng.operands[3];
+                    while (scriptEng.operands[4] > 0) {
+                        if (extra >= i) {
+                            int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
+                            spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
+                            DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
+                                       spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                        }
+                        scriptEng.operands[1] -= scriptEng.operands[5];
+                        i *= 10;
+                        --scriptEng.operands[4];
+                    }
+                }
+                break;
+            }
+            case FUNC_DRAWACTNAME: {
+                opcodeSize = 0;
+                switch (scriptEng.operands[3]) {
+                    case 1: {
+                        int charID = 0;
+                        if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
+                            int character = titleCardText[charID];
+                            if (character == ' ')
+                                character = 0;
+                            if (character == '-')
+                                character = 0;
+                            if (character > '/' && character < ':')
+                                character -= 22;
+                            if (character > '9' && character < 'f')
+                                character -= 'A';
+                            if (character <= -1) {
+                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                            }
+                            else {
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                character += scriptEng.operands[0];
+                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                            }
+                            scriptEng.operands[0] = scriptEng.operands[0] + 26;
+                            charID++;
+                        }
+                        while (titleCardText[charID] != 0) {
+                            if (titleCardText[charID] != '-') {
+                                int character = titleCardText[charID];
+                                if (character == ' ')
+                                    character = 0;
+                                if (character == '-')
+                                    character = 0;
+                                if (character > '/' && character < ':')
+                                    character -= 22;
+                                if (character > '9' && character < 'f')
+                                    character -= 'A';
+                                if (character <= -1) {
+                                    scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                                }
+                                else {
+                                    spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                    character += scriptEng.operands[0];
+                                    DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                               spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                               scriptInfo->spriteSheetID);
+                                    scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                                }
+                                charID++;
+                            }
+                        }
+                        break;
+                    }
+                    case 2: {
+                        int charID = titleCardWord2;
+                        if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
+                            int character = titleCardText[charID];
+                            if (character == ' ')
+                                character = 0;
+                            if (character == '-')
+                                character = 0;
+                            if (character > '/' && character < ':')
+                                character -= 22;
+                            if (character > '9' && character < 'f')
+                                character -= 'A';
+                            if (character <= -1) {
+                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                            }
+                            else {
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                character += scriptEng.operands[0];
+                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                            }
+                            scriptEng.operands[0] += 26;
+                            charID++;
+                        }
+                        while (titleCardText[charID] != 0) {
+                            int character = titleCardText[charID];
+                            if (character == ' ')
+                                character = 0;
+                            if (character == '-')
+                                character = 0;
+                            if (character > '/' && character < ':')
+                                character -= 22;
+                            if (character > '9' && character < 'f')
+                                character -= 'A';
+                            if (character <= -1) {
+                                scriptEng.operands[1] = scriptEng.operands[1] + scriptEng.operands[5] + scriptEng.operands[6];
+                            }
+                            else {
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                character += scriptEng.operands[0];
+                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                            }
+                            charID++;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            case FUNC_DRAWMENU:
+                opcodeSize        = 0;
+                textMenuSurfaceNo = scriptInfo->spriteSheetID;
+                DrawTextMenu(&gameMenu[scriptEng.operands[0]], scriptEng.operands[1], scriptEng.operands[2]);
+                break;
+            case FUNC_SPRITEFRAME:
+                opcodeSize = 0;
+                if (scriptSub == SUB_SETUP && scriptFrameCount < SPRITEFRAME_COUNT) {
+                    scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
+                    scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
+                    scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];
+                    scriptFrames[scriptFrameCount].height = scriptEng.operands[3];
+                    scriptFrames[scriptFrameCount].sprX   = scriptEng.operands[4];
+                    scriptFrames[scriptFrameCount].sprY   = scriptEng.operands[5];
+                    ++scriptFrameCount;
+                }
+                break;
+            case FUNC_EDITFRAME: {
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+
+                spriteFrame->pivotX = scriptEng.operands[1];
+                spriteFrame->pivotY = scriptEng.operands[2];
+                spriteFrame->width  = scriptEng.operands[3];
+                spriteFrame->height = scriptEng.operands[4];
+                spriteFrame->sprX   = scriptEng.operands[5];
+                spriteFrame->sprY   = scriptEng.operands[6];
+            } break;
+            case FUNC_LOADPALETTE:
+                opcodeSize = 0;
+                LoadPalette(scriptText, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4]);
+                break;
+            case FUNC_ROTATEPALETTE:
+                opcodeSize = 0;
+                RotatePalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                break;
+            case FUNC_SETSCREENFADE:
+                opcodeSize = 0;
+                SetFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                break;
+            case FUNC_SETACTIVEPALETTE:
+                opcodeSize = 0;
+                SetActivePalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
+                break;
+            case FUNC_SETPALETTEFADE:
+                opcodeSize = 0;
+                SetLimitedFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                               scriptEng.operands[5]);
+                break;
+            case FUNC_SETPALETTEENTRY:
+                opcodeSize = 0;
+                SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
+                break;
+            case FUNC_GETPALETTEENTRY:
+                opcodeSize = 0;
+                scriptEng.operands[2] = GetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1]);
+                break;
+            case FUNC_COPYPALETTE:
+                opcodeSize = 0;
+                CopyPalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4]);
+                break;
+            case FUNC_CLEARSCREEN:
+                opcodeSize = 0;
+                ClearScreen(scriptEng.operands[0]);
+                break;
+            case FUNC_DRAWSPRITEFX:
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+                switch (scriptEng.operands[1]) {
+                    default: break;
+                    case FX_SCALE:
+                        DrawSpriteScaled(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                         (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY, entity->scale,
+                                         entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                         scriptInfo->spriteSheetID);
+                        break;
+                    case FX_ROTATE:
+                        DrawSpriteRotated(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                          (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                          spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
+                                          scriptInfo->spriteSheetID);
+                        break;
+                    case FX_ROTOZOOM:
+                        DrawSpriteRotozoom(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                           (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                           spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
+                                           entity->scale, scriptInfo->spriteSheetID);
+                        break;
+                    case FX_INK:
+                        switch (entity->inkEffect) {
+                            case INK_NONE:
+                                DrawSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                           (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                           spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                break;
+                            case INK_BLEND:
+                                DrawBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                break;
+                            case INK_ALPHA:
+                                DrawAlphaBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                       (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                       spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                       scriptInfo->spriteSheetID);
+                                break;
+                            case INK_ADD:
+                                DrawAdditiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                          (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                          spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                          scriptInfo->spriteSheetID);
+                                break;
+                            case INK_SUB:
+                                DrawSubtractiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                             (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                             scriptInfo->spriteSheetID);
+                                break;
+                        }
+                        break;
+                    case FX_TINT:
+                        if (entity->inkEffect == INK_ALPHA) {
+                            DrawScaledTintMask(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                               (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                               entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                               spriteFrame->sprY, scriptInfo->spriteSheetID);
+                        }
+                        else {
+                            DrawSpriteScaled(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                             (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY, entity->scale,
+                                             entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                             scriptInfo->spriteSheetID);
+                        }
+                        break;
+                    case FX_FLIP:
+                        switch (entity->direction) {
+                            default:
+                            case FLIP_NONE:
+                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE, scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_X:
+                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
+                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_Y:
+                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                  (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
+                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y,
+                                                  scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_XY:
+                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
+                                                  (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
+                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY,
+                                                  scriptInfo->spriteSheetID);
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case FUNC_DRAWSPRITESCREENFX:
+                opcodeSize  = 0;
+                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
+                switch (scriptEng.operands[1]) {
+                    default: break;
+                    case FX_SCALE:
+                        DrawSpriteScaled(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                         entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                         scriptInfo->spriteSheetID);
+                        break;
+                    case FX_ROTATE:
+                        DrawSpriteRotated(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                          spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
+                                          scriptInfo->spriteSheetID);
+                        break;
+                    case FX_ROTOZOOM:
+                        DrawSpriteRotozoom(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                           -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
+                                           entity->rotation, entity->scale, scriptInfo->spriteSheetID);
+                        break;
+                    case FX_INK:
+                        switch (entity->inkEffect) {
+                            case INK_NONE:
+                                DrawSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                break;
+                            case INK_BLEND:
+                                DrawBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                  scriptInfo->spriteSheetID);
+                                break;
+                            case INK_ALPHA:
+                                DrawAlphaBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                       spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                       scriptInfo->spriteSheetID);
+                                break;
+                            case INK_ADD:
+                                DrawAdditiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                          spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                          entity->alpha, scriptInfo->spriteSheetID);
+                                break;
+                            case INK_SUB:
+                                DrawSubtractiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                             spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                             entity->alpha, scriptInfo->spriteSheetID);
+                                break;
+                        }
+                        break;
+                    case FX_TINT:
+                        if (entity->inkEffect == INK_ALPHA) {
+                            DrawScaledTintMask(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                               -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
+                                               spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                        }
+                        else {
+                            DrawSpriteScaled(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                             -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
+                                             spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                        }
+                        break;
+                    case FX_FLIP:
+                        switch (entity->direction) {
+                            default:
+                            case FLIP_NONE:
+                                DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
+                                                  scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_X:
+                                DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
+                                                  scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_Y:
+                                DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
+                                                  scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
+                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y, scriptInfo->spriteSheetID);
+                                break;
+                            case FLIP_XY:
+                                DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
+                                                  scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
+                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY, scriptInfo->spriteSheetID);
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case FUNC_LOADANIMATION:
+                opcodeSize           = 0;
+                scriptInfo->animFile = AddAnimationFile(scriptText);
+                break;
+            case FUNC_SETUPMENU: {
+                opcodeSize     = 0;
+                TextMenu *menu = &gameMenu[scriptEng.operands[0]];
+                SetupTextMenu(menu, scriptEng.operands[1]);
+                menu->selectionCount = scriptEng.operands[2];
+                menu->alignment      = scriptEng.operands[3];
+                break;
+            }
+            case FUNC_ADDMENUENTRY: {
+                opcodeSize                           = 0;
+                TextMenu *menu                       = &gameMenu[scriptEng.operands[0]];
+                menu->entryHighlight[menu->rowCount] = scriptEng.operands[2];
+                AddTextMenuEntry(menu, scriptText);
+                break;
+            }
+            case FUNC_EDITMENUENTRY: {
+                opcodeSize     = 0;
+                TextMenu *menu = &gameMenu[scriptEng.operands[0]];
+                EditTextMenuEntry(menu, scriptText, scriptEng.operands[2]);
+                menu->entryHighlight[scriptEng.operands[2]] = scriptEng.operands[3];
+                break;
+            }
+            case FUNC_LOADSTAGE:
+                opcodeSize = 0;
+                stageMode  = STAGEMODE_LOAD;
+                break;
+            case FUNC_DRAWRECT:
+                opcodeSize = 0;
+                DrawRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                              scriptEng.operands[5], scriptEng.operands[6], scriptEng.operands[7]);
+                break;
+            case FUNC_RESETOBJECTENTITY: {
+                opcodeSize            = 0;
+                Entity *newEnt        = &objectEntityList[scriptEng.operands[0]];
+                memset(newEnt, 0, sizeof(Entity));
+                newEnt->type          = scriptEng.operands[1];
+                newEnt->propertyValue = scriptEng.operands[2];
+                newEnt->XPos          = scriptEng.operands[3];
+                newEnt->YPos          = scriptEng.operands[4];
+                newEnt->direction     = FLIP_NONE;
+                newEnt->priority      = PRIORITY_ACTIVE_BOUNDS;
+                newEnt->drawOrder     = 3;
+                newEnt->scale         = 512;
+                newEnt->inkEffect          = INK_NONE;
+                newEnt->objectInteractions = 1;
+                newEnt->visible            = 1;
+                newEnt->tileCollisions     = 1;
+                break;
+            }
+            case FUNC_PLAYEROBJECTCOLLISION:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    default: break;
+                    case C_TOUCH:
+                        TouchCollision(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                       scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
+                                       scriptEng.operands[9], scriptEng.operands[10]);
+                        break;
+                    case C_BOX:
+                        BoxCollision(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                     scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
+                                     scriptEng.operands[9], scriptEng.operands[10]);
+                        break;
+                    case C_BOX2:
+                        BoxCollision2(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                      scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
+                                      scriptEng.operands[9], scriptEng.operands[10]);
+                        break;
+                    case C_PLATFORM:
+                        PlatformCollision(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3],
+                                          scriptEng.operands[4], scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]],
+                                          scriptEng.operands[7], scriptEng.operands[8], scriptEng.operands[9], scriptEng.operands[10]);
+                        break;
+                }
+                break;
+            case FUNC_CREATETEMPOBJECT: {
+                opcodeSize = 0;
+                if (objectEntityList[scriptEng.arrayPosition[8]].type > 0 && ++scriptEng.arrayPosition[8] == ENTITY_COUNT)
+                    scriptEng.arrayPosition[8] = TEMPENTITY_START;
+                Entity *temp         = &objectEntityList[scriptEng.arrayPosition[8]];
+                memset(temp, 0, sizeof(Entity));
+                temp->type           = scriptEng.operands[0];
+                temp->propertyValue  = scriptEng.operands[1];
+                temp->XPos           = scriptEng.operands[2];
+                temp->YPos           = scriptEng.operands[3];
+                temp->direction      = FLIP_NONE;
+                temp->priority       = PRIORITY_ACTIVE;
+                temp->drawOrder      = 3;
+                temp->scale          = 512;
+                temp->inkEffect            = INK_NONE;
+                temp->objectInteractions   = 1;
+                temp->visible              = 1;
+                temp->tileCollisions       = 1;
+                break;
+            }
+            case FUNC_PLAYERTILECOLLISION:
+                opcodeSize = 0;
+                if (entity->tileCollisions) {
+                    ProcessPlayerTileCollisions(entity);
+                }
+                else {
+                    entity->XPos += entity->XVelocity;
+                    entity->YPos += entity->YVelocity;
+                }
+                break;
+            case FUNC_PROCESSPLAYERCONTROL:
+                opcodeSize = 0;
+                ProcessPlayerControl(entity);
+                break;
+            case FUNC_PROCESSOBJECTANIMATION:
+                ProcessObjectAnimation(scriptInfo, entity);
+                opcodeSize = 0;
+                break;
+            case FUNC_DRAWOBJECTANIMATION:
+                opcodeSize = 0;
+                if (entity->visible)
+                    DrawObjectAnimation(scriptInfo, entity, (entity->XPos >> 16) - xScrollOffset, (entity->YPos >> 16) - yScrollOffset);
+                break;
+            case FUNC_SETMUSICTRACK:
+                opcodeSize = 0;
+                if (scriptEng.operands[2] <= 1)
+                    SetMusicTrack(scriptText, scriptEng.operands[1], scriptEng.operands[2], 0);
+                else
+                    SetMusicTrack(scriptText, scriptEng.operands[1], true, scriptEng.operands[2]);
+                break;
+            case FUNC_PLAYMUSIC:
+                opcodeSize = 0;
+                PlayMusic(scriptEng.operands[0]);
+                break;
+            case FUNC_STOPMUSIC:
+                opcodeSize = 0;
+                StopMusic();
+                break;
+            case FUNC_PAUSEMUSIC:
+                opcodeSize = 0;
+                PauseSound();
+                break;
+            case FUNC_RESUMEMUSIC:
+                opcodeSize = 0;
+                ResumeSound();
+                break;
+            case FUNC_SWAPMUSICTRACK:
+                opcodeSize = 0;
+                if (scriptEng.operands[2] <= 1)
+                    SwapMusicTrack(scriptText, scriptEng.operands[1], 0, scriptEng.operands[3]);
+                else
+                    SwapMusicTrack(scriptText, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                break;
+            case FUNC_PLAYSFX:
+                opcodeSize = 0;
+                PlaySfx(scriptEng.operands[0], scriptEng.operands[1]);
+                break;
+            case FUNC_STOPSFX:
+                opcodeSize = 0;
+                StopSfx(scriptEng.operands[0]);
+                break;
+            case FUNC_SETSFXATTRIBUTES:
+                opcodeSize = 0;
+                SetSfxAttributes(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
+                break;
+            case FUNC_OBJECTTILECOLLISION:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    default: break;
+                    case CSIDE_FLOOR: ObjectFloorCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_LWALL: ObjectLWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_RWALL: ObjectRWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                }
+                break;
+            case FUNC_OBJECTTILEGRIP:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    default: break;
+                    case CSIDE_FLOOR: ObjectFloorGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_LWALL: ObjectLWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_RWALL: ObjectRWallGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case CSIDE_ROOF: ObjectRoofGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                }
+                break;
+            case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;
+            case FUNC_DRAW3DSCENE:
+                opcodeSize = 0;
+                transformVertexBuffer();
+                sort3DDrawList();
+                draw3DScene(scriptInfo->spriteSheetID);
+                break;
+            case FUNC_SETIDENTITYMATRIX:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: setIdentityMatrix(&matWorld); break;
+                    case MAT_VIEW: setIdentityMatrix(&matView); break;
+                    case MAT_TEMP: setIdentityMatrix(&matTemp); break;
+                }
+                break;
+            case FUNC_MATRIXMULTIPLY:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD:
+                        switch (scriptEng.operands[1]) {
+                            case MAT_WORLD: matrixMultiply(&matWorld, &matWorld); break;
+                            case MAT_VIEW: matrixMultiply(&matWorld, &matView); break;
+                            case MAT_TEMP: matrixMultiply(&matWorld, &matTemp); break;
+                        }
+                        break;
+                    case MAT_VIEW:
+                        switch (scriptEng.operands[1]) {
+                            case MAT_WORLD: matrixMultiply(&matView, &matWorld); break;
+                            case MAT_VIEW: matrixMultiply(&matView, &matView); break;
+                            case MAT_TEMP: matrixMultiply(&matView, &matTemp); break;
+                        }
+                        break;
+                    case MAT_TEMP:
+                        switch (scriptEng.operands[1]) {
+                            case MAT_WORLD: matrixMultiply(&matTemp, &matWorld); break;
+                            case MAT_VIEW: matrixMultiply(&matTemp, &matView); break;
+                            case MAT_TEMP: matrixMultiply(&matTemp, &matTemp); break;
+                        }
+                        break;
+                }
+                break;
+            case FUNC_MATRIXTRANSLATEXYZ:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixTranslateXYZ(&matWorld, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_TEMP: matrixTranslateXYZ(&matView, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_VIEW: matrixTranslateXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                }
+                break;
+            case FUNC_MATRIXSCALEXYZ:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixScaleXYZ(&matWorld, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_VIEW: matrixScaleXYZ(&matView, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_TEMP: matrixScaleXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                }
+                break;
+            case FUNC_MATRIXROTATEX:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixRotateX(&matWorld, scriptEng.operands[1]); break;
+                    case MAT_VIEW: matrixRotateX(&matView, scriptEng.operands[1]); break;
+                    case MAT_TEMP: matrixRotateX(&matTemp, scriptEng.operands[1]); break;
+                }
+                break;
+            case FUNC_MATRIXROTATEY:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixRotateY(&matWorld, scriptEng.operands[1]); break;
+                    case MAT_VIEW: matrixRotateY(&matView, scriptEng.operands[1]); break;
+                    case MAT_TEMP: matrixRotateY(&matTemp, scriptEng.operands[1]); break;
+                }
+                break;
+            case FUNC_MATRIXROTATEZ:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixRotateZ(&matWorld, scriptEng.operands[1]); break;
+                    case MAT_VIEW: matrixRotateZ(&matView, scriptEng.operands[1]); break;
+                    case MAT_TEMP: matrixRotateZ(&matTemp, scriptEng.operands[1]); break;
+                }
+                break;
+            case FUNC_MATRIXROTATEXYZ:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixRotateXYZ(&matWorld, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_VIEW: matrixRotateXYZ(&matView, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_TEMP: matrixRotateXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                }
+                break;
+            case FUNC_MATRIXINVERSE:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: matrixInverse(&matWorld); break;
+                    case MAT_VIEW: matrixInverse(&matView); break;
+                    case MAT_TEMP: matrixInverse(&matTemp); break;
+                }
+                break;
+            case FUNC_TRANSFORMVERTICES:
+                opcodeSize = 0;
+                switch (scriptEng.operands[0]) {
+                    case MAT_WORLD: transformVerticies(&matWorld, scriptEng.operands[1], scriptEng.operands[2]); break;
+                    case MAT_VIEW: transformVerticies(&matView, scriptEng.operands[1], scriptEng.operands[2]); break;
+                    case MAT_TEMP: transformVerticies(&matTemp, scriptEng.operands[1], scriptEng.operands[2]); break;
+                }
+                break;
+            case FUNC_CALLFUNCTION: {
+                opcodeSize                        = 0;
+                functionStack[functionStackPos++] = scriptDataPtr;
+                functionStack[functionStackPos++] = jumpTablePtr;
+                functionStack[functionStackPos++] = scriptCodePtr;
+                scriptCodePtr                     = functionScriptList[scriptEng.operands[0]].scriptCodePtr;
+                jumpTablePtr                      = functionScriptList[scriptEng.operands[0]].jumpTablePtr;
+                scriptDataPtr                     = scriptCodePtr;
+            } break;
+            case FUNC_ENDFUNCTION:
+                opcodeSize    = 0;
+                scriptCodePtr = functionStack[--functionStackPos];
+                jumpTablePtr  = functionStack[--functionStackPos];
+                scriptDataPtr = functionStack[--functionStackPos];
+                break;
+            case FUNC_SETLAYERDEFORMATION:
+                opcodeSize = 0;
+                SetLayerDeformation(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                    scriptEng.operands[5]);
+                break;
+            case FUNC_CHECKTOUCHRECT:
+                opcodeSize            = 0;
+                scriptEng.checkResult = -1;
+                for (int f = 0; f < touches; ++f) {
+                    if (touchDown[f] && touchX[f] > scriptEng.operands[0] && touchX[f] < scriptEng.operands[2] && touchY[f] > scriptEng.operands[1]
+                        && touchY[f] < scriptEng.operands[3]) {
+                        scriptEng.checkResult = f;
+                    }
+                }
+                break;
+            case FUNC_GETTILELAYERENTRY:
+                scriptEng.operands[0] = stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]];
+                break;
+            case FUNC_SETTILELAYERENTRY:
+                stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]] = scriptEng.operands[0];
+                break;
+            case FUNC_GETBIT: scriptEng.operands[0] = (scriptEng.operands[1] & (1 << scriptEng.operands[2])) >> scriptEng.operands[2]; break;
+            case FUNC_SETBIT:
+                if (scriptEng.operands[2] <= 0)
+                    scriptEng.operands[0] &= ~(1 << scriptEng.operands[1]);
+                else
+                    scriptEng.operands[0] |= 1 << scriptEng.operands[1];
+                break;
+            case FUNC_CLEARDRAWLIST:
+                opcodeSize                                      = 0;
+                drawListEntries[scriptEng.operands[0]].listSize = 0;
+                break;
+            case FUNC_ADDDRAWLISTENTITYREF: {
+                opcodeSize                                              = 0;
+                drawListEntries[scriptEng.operands[0]].entityRefs[drawListEntries[scriptEng.operands[0]].listSize++] = scriptEng.operands[1];
+                break;
+            }
+            case FUNC_GETDRAWLISTENTITYREF: scriptEng.operands[0] = drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]]; break;
+            case FUNC_SETDRAWLISTENTITYREF:
+                opcodeSize                                      = 0;
+                drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]] = scriptEng.operands[0];
+                break;
+            case FUNC_GET16X16TILEINFO: {
+                scriptEng.operands[4] = scriptEng.operands[1] >> 7;
+                scriptEng.operands[5] = scriptEng.operands[2] >> 7;
+                scriptEng.operands[6] = stageLayouts[0].tiles[scriptEng.operands[4] + (scriptEng.operands[5] << 8)] << 6;
+                scriptEng.operands[6] += ((scriptEng.operands[1] & 0x7F) >> 4) + 8 * ((scriptEng.operands[2] & 0x7F) >> 4);
+                int index = tiles128x128.tileIndex[scriptEng.operands[6]];
+                switch (scriptEng.operands[3]) {
+                    case TILEINFO_INDEX: scriptEng.operands[0] = tiles128x128.tileIndex[scriptEng.operands[6]]; break;
+                    case TILEINFO_DIRECTION: scriptEng.operands[0] = tiles128x128.direction[scriptEng.operands[6]]; break;
+                    case TILEINFO_VISUALPLANE: scriptEng.operands[0] = tiles128x128.visualPlane[scriptEng.operands[6]]; break;
+                    case TILEINFO_SOLIDITYA: scriptEng.operands[0] = tiles128x128.collisionFlags[0][scriptEng.operands[6]]; break;
+                    case TILEINFO_SOLIDITYB: scriptEng.operands[0] = tiles128x128.collisionFlags[1][scriptEng.operands[6]]; break;
+                    case TILEINFO_FLAGSA: scriptEng.operands[0] = collisionMasks[0].flags[index]; break;
+                    case TILEINFO_ANGLEA: scriptEng.operands[0] = collisionMasks[0].angles[index]; break;
+                    case TILEINFO_FLAGSB: scriptEng.operands[0] = collisionMasks[1].flags[index]; break;
+                    case TILEINFO_ANGLEB: scriptEng.operands[0] = collisionMasks[1].angles[index]; break;
+                    default: break;
+                }
+                break;
+            }
+            case FUNC_SET16X16TILEINFO: {
+                scriptEng.operands[4] = scriptEng.operands[1] >> 7;
+                scriptEng.operands[5] = scriptEng.operands[2] >> 7;
+                scriptEng.operands[6] = stageLayouts[0].tiles[scriptEng.operands[4] + (scriptEng.operands[5] << 8)] << 6;
+                scriptEng.operands[6] += ((scriptEng.operands[1] & 0x7F) >> 4) + 8 * ((scriptEng.operands[2] & 0x7F) >> 4);
+                switch (scriptEng.operands[3]) {
+                    case TILEINFO_INDEX:
+                        tiles128x128.tileIndex[scriptEng.operands[6]]  = scriptEng.operands[0];
+                        tiles128x128.gfxDataPos[scriptEng.operands[6]] = scriptEng.operands[0] << 8;
+                        break;
+                    case TILEINFO_DIRECTION: tiles128x128.direction[scriptEng.operands[6]] = scriptEng.operands[0]; break;
+                    case TILEINFO_VISUALPLANE: tiles128x128.visualPlane[scriptEng.operands[6]] = scriptEng.operands[0]; break;
+                    case TILEINFO_SOLIDITYA: tiles128x128.collisionFlags[0][scriptEng.operands[6]] = scriptEng.operands[0]; break;
+                    case TILEINFO_SOLIDITYB: tiles128x128.collisionFlags[1][scriptEng.operands[6]] = scriptEng.operands[0]; break;
+                    case TILEINFO_FLAGSA: collisionMasks[1].flags[tiles128x128.tileIndex[scriptEng.operands[6]]] = scriptEng.operands[0]; break;
+                    case TILEINFO_ANGLEA: collisionMasks[1].angles[tiles128x128.tileIndex[scriptEng.operands[6]]] = scriptEng.operands[0]; break;
+                    default: break;
+                }
+                break;
+            }
+            case FUNC_COPY16X16TILE:
+                opcodeSize = 0;
+                Copy16x16Tile(scriptEng.operands[0], scriptEng.operands[1]);
+                break;
+            case FUNC_GETANIMATIONBYNAME: {
+                AnimationFile *animFile = scriptInfo->animFile;
+                scriptEng.operands[0]   = -1;
+                int id                  = 0;
+                while (scriptEng.operands[0] == -1) {
+                    SpriteAnimation *anim = &animationList[animFile->aniListOffset + id];
+                    if (StrComp(scriptText, anim->name))
+                        scriptEng.operands[0] = id;
+                    else if (++id == animFile->animCount)
+                        scriptEng.operands[0] = 0;
+                }
+                break;
+            }
+            case FUNC_READSAVERAM:
+                opcodeSize            = 0;
+                scriptEng.checkResult = ReadSaveRAMData();
+                break;
+            case FUNC_WRITESAVERAM:
+                opcodeSize            = 0;
+                scriptEng.checkResult = WriteSaveRAMData();
+                break;
+            case FUNC_LOADTEXTFILE: {
+                opcodeSize     = 0;
+                TextMenu *menu = &gameMenu[scriptEng.operands[0]];
+                LoadTextFile(menu, scriptText, 0);
+                break;
+            }
+            case FUNC_GETTEXTINFO: {
+                TextMenu *menu = &gameMenu[scriptEng.operands[1]];
+                switch (scriptEng.operands[2]) {
+                    case TEXTINFO_TEXTDATA:
+                        scriptEng.operands[0] = menu->textData[menu->entryStart[scriptEng.operands[3]] + scriptEng.operands[4]];
+                        break;
+                    case TEXTINFO_TEXTSIZE: scriptEng.operands[0] = menu->entrySize[scriptEng.operands[3]]; break;
+                    case TEXTINFO_ROWCOUNT: scriptEng.operands[0] = menu->rowCount; break;
+                }
+                break;
+            }
+            case FUNC_GETVERSIONNUMBER: {
+                opcodeSize                           = 0;
+                TextMenu *menu                       = &gameMenu[scriptEng.operands[0]];
+                menu->entryHighlight[menu->rowCount] = scriptEng.operands[1];
+                AddTextMenuEntry(menu, Engine.gameVersion);
+                break;
+            }
+            case FUNC_GETARRAYVALUE: {
+                if (scriptEng.operands[1] >= 0) {
+                    int pos = scriptEng.operands[2];
+                    if (scriptEng.operands[1] < scriptData[pos])
+                        scriptEng.operands[0] = scriptData[pos + scriptEng.operands[1] + 1];
+                }
+                break;
+            }
+            case FUNC_SETARRAYVALUE: {
+                opcodeSize = 0;
+                if (scriptEng.operands[1] >= 0) {
+                    int pos = scriptEng.operands[2];
+                    if (scriptEng.operands[1] < scriptData[pos])
+                        scriptData[pos + scriptEng.operands[1] + 1] = scriptEng.operands[0];
+                }
+                break;
+            }
+            case FUNC_CHECKSTAGEFOLDER:
+                opcodeSize            = 0;
+                scriptEng.checkResult = StrComp(stageList[activeStageList][stageListPosition].folder, scriptText);
+                break;
+            case FUNC_ABSOLUTE: {
+                scriptEng.operands[0] = abs(scriptEng.operands[0]);
+                break;
+            }
+            case FUNC_ENGINECALLBACK:
+                opcodeSize = 0;
+                if (scriptEng.operands[0] <= 0xFu)
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], scriptText);
+                break;
+            case FUNC_CALLENGINEFUNCTION:
+            case FUNC_CALLENGINEFUNCTION2:
+                opcodeSize = 0;
+                if (scriptEng.operands[0] <= 0xFu)
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], scriptText);
+                break;
+            case FUNC_SETOBJECTBORDERX: {
+                opcodeSize       = 0;
+                int offset       = (scriptEng.operands[0] >> 1) - SCREEN_CENTERX;
+                OBJECT_BORDER_X1 = offset + 0x80;
+                OBJECT_BORDER_X2 = scriptEng.operands[0] + 0x80 - offset;
+                OBJECT_BORDER_X3 = offset + 0x20;
+                OBJECT_BORDER_X4 = scriptEng.operands[0] + 0x20 - offset;
+                break;
+            }
+            case FUNC_GETOBJECTVALUE: {
+                int valID = scriptEng.operands[1];
+                if (valID <= 47)
+                    scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[valID];
+                break;
+            }
+            case FUNC_SETOBJECTVALUE: {
+                opcodeSize = 0;
+                int valID = scriptEng.operands[1];
+                if (valID <= 47)
+                    objectEntityList[scriptEng.operands[2]].values[valID] = scriptEng.operands[0];
+                break;
+            }
+            case FUNC_COPYOBJECT: {
+                //TODO:
+                opcodeSize = 0;
+                int cnt        = scriptEng.operands[2];
+                if (cnt > 0) {
+                
+                    for (int e = 0; e < cnt; ++e) {
+                    }
+                }
+            }
+        }
+
+        // Set Values
+        if (opcodeSize > 0)
+            scriptDataPtr -= scriptDataPtr - scriptCodeOffset;
+        for (int i = 0; i < opcodeSize; ++i) {
+            int opcodeType = scriptData[scriptDataPtr++];
+            if (opcodeType == SCRIPTVAR_VAR) {
+                int arrayVal = 0;
+                switch (scriptData[scriptDataPtr++]) { // variable
+                    case VARARR_NONE: arrayVal = objectLoop; break;
+                    case VARARR_ARRAY:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        else
+                            arrayVal = scriptData[scriptDataPtr++];
+                        break;
+                    case VARARR_ENTNOPLUS1:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                        else
+                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                        break;
+                    case VARARR_ENTNOMINUS1:
+                        if (scriptData[scriptDataPtr++] == 1)
+                            arrayVal = objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        else
+                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                        break;
+                    default: break;
+                }
+
+                // Variables
+                switch (scriptData[scriptDataPtr++]) {
+                    default: break;
+                    case VAR_TEMPVALUE0: scriptEng.tempValue[0] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE1: scriptEng.tempValue[1] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE2: scriptEng.tempValue[2] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE3: scriptEng.tempValue[3] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE4: scriptEng.tempValue[4] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE5: scriptEng.tempValue[5] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE6: scriptEng.tempValue[6] = scriptEng.operands[i]; break;
+                    case VAR_TEMPVALUE7: scriptEng.tempValue[7] = scriptEng.operands[i]; break;
+                    case VAR_CHECKRESULT: scriptEng.checkResult = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS0: scriptEng.arrayPosition[0] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS1: scriptEng.arrayPosition[1] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS2: scriptEng.arrayPosition[2] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS3: scriptEng.arrayPosition[3] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS4: scriptEng.arrayPosition[4] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS5: scriptEng.arrayPosition[5] = scriptEng.operands[i]; break;
+                    case VAR_PLAYEROBJECTPOS: scriptEng.arrayPosition[6] = scriptEng.operands[i]; break;
+                    case VAR_PLAYEROBJECTCOUNT: scriptEng.arrayPosition[7] = scriptEng.operands[i]; break;
+                    case VAR_GLOBAL: GlobalVariables[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_SCRIPTDATA: scriptData[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_OBJECTENTITYNO: break;
+                    case VAR_OBJECTTYPEGROUP: {
+                        objectEntityList[arrayVal].typeGroup = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTTYPE: {
+                        objectEntityList[arrayVal].type = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTPROPERTYVALUE: {
+                        objectEntityList[arrayVal].propertyValue = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTXPOS: {
+                        objectEntityList[arrayVal].XPos = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTYPOS: {
+                        objectEntityList[arrayVal].YPos = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTIXPOS: {
+                        objectEntityList[arrayVal].XPos = scriptEng.operands[i] << 16;
+                        break;
+                    }
+                    case VAR_OBJECTIYPOS: {
+                        objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
+                        break;
+                    }
+                    case VAR_OBJECTXVELOCITY: {
+                        objectEntityList[arrayVal].XVelocity = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTYVELOCITY: {
+                        objectEntityList[arrayVal].YVelocity = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTSPEED: {
+                        objectEntityList[arrayVal].speed = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTSTATE: {
+                        objectEntityList[arrayVal].state = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTROTATION: {
+                        objectEntityList[arrayVal].rotation = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTSCALE: {
+                        objectEntityList[arrayVal].scale = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTPRIORITY: {
+                        objectEntityList[arrayVal].priority = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTDRAWORDER: {
+                        objectEntityList[arrayVal].drawOrder = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTDIRECTION: {
+                        objectEntityList[arrayVal].direction = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTINKEFFECT: {
+                        objectEntityList[arrayVal].inkEffect = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTALPHA: {
+                        objectEntityList[arrayVal].alpha = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFRAME: {
+                        objectEntityList[arrayVal].frame = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTANIMATION: {
+                        objectEntityList[arrayVal].animation = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTPREVANIMATION: {
+                        objectEntityList[arrayVal].prevAnimation = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTANIMATIONSPEED: {
+                        objectEntityList[arrayVal].animationSpeed = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTANIMATIONTIMER: {
+                        objectEntityList[arrayVal].animationTimer = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTANGLE: {
+                        objectEntityList[arrayVal].angle = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUEF0: {
+                        objectEntityList[arrayVal].field_F0 = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTLOOKPOS: {
+                        objectEntityList[arrayVal].lookPos = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONMODE: {
+                        objectEntityList[arrayVal].collisionMode = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONPLANE: {
+                        objectEntityList[arrayVal].collisionPlane = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTCONTROLMODE: {
+                        objectEntityList[arrayVal].controlMode = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTCONTROLLOCK: {
+                        objectEntityList[arrayVal].controlLock = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTPUSHING: {
+                        objectEntityList[arrayVal].pushing = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVISIBLE: {
+                        objectEntityList[arrayVal].visible = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTTILECOLLISIONS: {
+                        objectEntityList[arrayVal].tileCollisions = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTOBJECTINTERACTIONS: {
+                        objectEntityList[arrayVal].objectInteractions = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTGRAVITY: {
+                        objectEntityList[arrayVal].gravity = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTUP: {
+                        objectEntityList[arrayVal].up = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTDOWN: {
+                        objectEntityList[arrayVal].down = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTLEFT: {
+                        objectEntityList[arrayVal].left = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTRIGHT: {
+                        objectEntityList[arrayVal].right = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTJUMPPRESS: {
+                        objectEntityList[arrayVal].jumpPress = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTJUMPHOLD: {
+                        objectEntityList[arrayVal].jumpHold = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTTRACKSCROLL: {
+                        objectEntityList[arrayVal].trackScroll = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING0: {
+                        objectEntityList[arrayVal].flailing[0] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING1: {
+                        objectEntityList[arrayVal].flailing[1] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING2: {
+                        objectEntityList[arrayVal].flailing[2] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING3: {
+                        objectEntityList[arrayVal].flailing[3] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTFLAILING4: {
+                        objectEntityList[arrayVal].flailing[4] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONLEFT: {
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONTOP: {
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONRIGHT: {
+                        break;
+                    }
+                    case VAR_OBJECTCOLLISIONBOTTOM: {
+                        break;
+                    }
+                    case VAR_OBJECTOUTOFBOUNDS: {
+                        break;
+                    }
+                    case VAR_OBJECTSPRITESHEET: {
+                        objectScriptList[objectEntityList[objectLoop].type].spriteSheetID = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE0: {
+                        objectEntityList[arrayVal].values[0] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE1: {
+                        objectEntityList[arrayVal].values[1] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE2: {
+                        objectEntityList[arrayVal].values[2] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE3: {
+                        objectEntityList[arrayVal].values[3] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE4: {
+                        objectEntityList[arrayVal].values[4] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE5: {
+                        objectEntityList[arrayVal].values[5] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE6: {
+                        objectEntityList[arrayVal].values[6] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE7: {
+                        objectEntityList[arrayVal].values[7] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE8: {
+                        objectEntityList[arrayVal].values[8] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE9: {
+                        objectEntityList[arrayVal].values[9] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE10: {
+                        objectEntityList[arrayVal].values[10] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE11: {
+                        objectEntityList[arrayVal].values[11] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE12: {
+                        objectEntityList[arrayVal].values[12] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE13: {
+                        objectEntityList[arrayVal].values[13] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE14: {
+                        objectEntityList[arrayVal].values[14] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE15: {
+                        objectEntityList[arrayVal].values[15] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE16: {
+                        objectEntityList[arrayVal].values[16] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE17: {
+                        objectEntityList[arrayVal].values[17] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE18: {
+                        objectEntityList[arrayVal].values[18] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE19: {
+                        objectEntityList[arrayVal].values[19] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE20: {
+                        objectEntityList[arrayVal].values[20] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE21: {
+                        objectEntityList[arrayVal].values[21] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE22: {
+                        objectEntityList[arrayVal].values[22] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE23: {
+                        objectEntityList[arrayVal].values[23] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE24: {
+                        objectEntityList[arrayVal].values[24] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE25: {
+                        objectEntityList[arrayVal].values[25] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE26: {
+                        objectEntityList[arrayVal].values[26] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE27: {
+                        objectEntityList[arrayVal].values[27] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE28: {
+                        objectEntityList[arrayVal].values[28] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE29: {
+                        objectEntityList[arrayVal].values[29] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE30: {
+                        objectEntityList[arrayVal].values[30] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE31: {
+                        objectEntityList[arrayVal].values[31] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE32: {
+                        objectEntityList[arrayVal].values[32] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE33: {
+                        objectEntityList[arrayVal].values[33] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE34: {
+                        objectEntityList[arrayVal].values[34] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE35: {
+                        objectEntityList[arrayVal].values[35] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE36: {
+                        objectEntityList[arrayVal].values[36] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE37: {
+                        objectEntityList[arrayVal].values[37] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE38: {
+                        objectEntityList[arrayVal].values[38] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE39: {
+                        objectEntityList[arrayVal].values[39] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE40: {
+                        objectEntityList[arrayVal].values[40] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE41: {
+                        objectEntityList[arrayVal].values[41] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE42: {
+                        objectEntityList[arrayVal].values[42] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE43: {
+                        objectEntityList[arrayVal].values[43] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE44: {
+                        objectEntityList[arrayVal].values[44] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE45: {
+                        objectEntityList[arrayVal].values[45] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE46: {
+                        objectEntityList[arrayVal].values[46] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_OBJECTVALUE47: {
+                        objectEntityList[arrayVal].values[47] = scriptEng.operands[i];
+                        break;
+                    }
+                    case VAR_STAGESTATE: stageMode = scriptEng.operands[i]; break;
+                    case VAR_STAGEACTIVELIST: activeStageList = scriptEng.operands[i]; break;
+                    case VAR_STAGELIST_STPOS: stageListPosition = scriptEng.operands[i]; break;
+                    case VAR_STAGETIMEENABLED: timeEnabled = scriptEng.operands[i]; break;
+                    case VAR_STAGEMILLISECONDS: stageMilliseconds = scriptEng.operands[i]; break;
+                    case VAR_STAGESECONDS: stageSeconds = scriptEng.operands[i]; break;
+                    case VAR_STAGEMINUTES: stageMinutes = scriptEng.operands[i]; break;
+                    case VAR_STAGEACTNO: actID = scriptEng.operands[i]; break;
+                    case VAR_STAGEPAUSEENABLED: pauseEnabled = scriptEng.operands[i]; break;
+                    case VAR_STAGELIST_STSIZE: stageListCount[activeStageList] = scriptEng.operands[i]; break;
+                    case VAR_STAGENEWXBOUNDARY1: newXBoundary1 = scriptEng.operands[i]; break;
+                    case VAR_STAGENEWXBOUNDARY2: newXBoundary2 = scriptEng.operands[i]; break;
+                    case VAR_STAGENEWYBOUNDARY1: newYBoundary1 = scriptEng.operands[i]; break;
+                    case VAR_STAGENEWYBOUNDARY2: newYBoundary2 = scriptEng.operands[i]; break;
+                    case VAR_STAGEXBOUNDARY1: xBoundary1 = scriptEng.operands[i]; break;
+                    case VAR_STAGEXBOUNDARY2: xBoundary2 = scriptEng.operands[i]; break;
+                    case VAR_STAGEYBOUNDARY1: yBoundary1 = scriptEng.operands[i]; break;
+                    case VAR_STAGEYBOUNDARY2: yBoundary2 = scriptEng.operands[i]; break;
+                    case VAR_STAGEDEFORMATIONDATA0: bgDeformationData0[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_STAGEDEFORMATIONDATA1: bgDeformationData1[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_STAGEDEFORMATIONDATA2: bgDeformationData2[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_STAGEDEFORMATIONDATA3: bgDeformationData3[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_STAGEWATERLEVEL: waterLevel = scriptEng.operands[i]; break;
+                    case VAR_STAGEACTIVELAYER: activeTileLayers[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_STAGEMIDPOINT: tLayerMidPoint = scriptEng.operands[i]; break;
+                    case VAR_STAGEPLAYERLISTPOS: playerListPos = scriptEng.operands[i]; break;
+                    case VAR_STAGEDEBUGMODE: debugMode = scriptEng.operands[i]; break;
+                    case VAR_STAGEOBJECTENTITYPOS: objectLoop = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERAENABLED: cameraEnabled = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERATARGET: cameraTarget = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERASTYLE: cameraStyle = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERAXPOS: cameraXPos = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERAYPOS: cameraYPos = scriptEng.operands[i]; break;
+                    case VAR_SCREENDRAWLISTSIZE: drawListEntries[arrayVal].listSize = scriptEng.operands[i]; break;
+                    case VAR_SCREENCENTERX:  break;
+                    case VAR_SCREENCENTERY:  break;
+                    case VAR_SCREENXSIZE:  break;
+                    case VAR_SCREENYSIZE:  break;
+                    case VAR_SCREENXOFFSET: xScrollOffset = scriptEng.operands[i]; break;
+                    case VAR_SCREENYOFFSET: yScrollOffset = scriptEng.operands[i]; break;
+                    case VAR_SCREENSHAKEX: cameraShakeX = scriptEng.operands[i]; break;
+                    case VAR_SCREENSHAKEY: cameraShakeY = scriptEng.operands[i]; break;
+                    case VAR_SCREENADJUSTCAMERAY: cameraAdjustY = scriptEng.operands[i]; break;
+                    case VAR_TOUCHSCREENDOWN:  break;
+                    case VAR_TOUCHSCREENXPOS:  break;
+                    case VAR_TOUCHSCREENYPOS: ;break;
+                    case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
+                    case VAR_MUSICCURRENTTRACK:  break;
+                    case VAR_UNKNOWN:  break;
+                    case VAR_KEYDOWNUP: keyDown.up = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONA2: keyDown.A = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONB2: keyDown.B = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONC2: keyDown.C = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONA3: keyDown.A = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONB3: keyDown.B = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSTART2: keyDown.start = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSUP: keyPress.up = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONA2: keyPress.A = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONB2: keyPress.B = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONC2: keyPress.C = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONA3: keyPress.A = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONB3: keyPress.B = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSTART2: keyPress.start = scriptEng.operands[i]; break;
+                    case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
+                    case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].width = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERYSIZE: stageLayouts[arrayVal].height = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERTYPE: stageLayouts[arrayVal].type = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERANGLE: stageLayouts[arrayVal].angle = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERXPOS: stageLayouts[arrayVal].XPos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERYPOS: stageLayouts[arrayVal].YPos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERZPOS: stageLayouts[arrayVal].ZPos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERPARALLAXFACTOR: stageLayouts[arrayVal].parallaxFactor = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERSCROLLSPEED: stageLayouts[arrayVal].scrollSpeed = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERSCROLLPOS: stageLayouts[arrayVal].scrollPos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERDEFORMATIONOFFSET: stageLayouts[arrayVal].deformationOffset = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERDEFORMATIONOFFSETW: stageLayouts[arrayVal].deformationOffsetW = scriptEng.operands[i]; break;
+                    case VAR_HPARALLAXPARALLAXFACTOR: hParallax.parallaxFactor[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_HPARALLAXSCROLLSPEED: hParallax.scrollSpeed[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_HPARALLAXSCROLLPOS: hParallax.scrollPos[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_VPARALLAXPARALLAXFACTOR: vParallax.parallaxFactor[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_VPARALLAXSCROLLSPEED: vParallax.scrollSpeed[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_VPARALLAXSCROLLPOS: vParallax.scrollPos[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_3DSCENENOVERTICES: vertexCount = scriptEng.operands[i]; break;
+                    case VAR_3DSCENENOFACES: faceCount = scriptEng.operands[i]; break;
+                    case VAR_3DSCENEPROJECTIONX: projectionX = scriptEng.operands[i]; break;
+                    case VAR_3DSCENEPROJECTIONY: projectionY = scriptEng.operands[i]; break;
+                    case VAR_3DSCENEFOGCOLOR: fogColour = scriptEng.operands[i]; break;
+                    case VAR_3DSCENEFOGSTRENGTH: fogStrength = scriptEng.operands[i]; break;
+                    case VAR_VERTEXBUFFERX: vertexBuffer[arrayVal].x = scriptEng.operands[i]; break;
+                    case VAR_VERTEXBUFFERY: vertexBuffer[arrayVal].y = scriptEng.operands[i]; break;
+                    case VAR_VERTEXBUFFERZ: vertexBuffer[arrayVal].z = scriptEng.operands[i]; break;
+                    case VAR_VERTEXBUFFERU: vertexBuffer[arrayVal].u = scriptEng.operands[i]; break;
+                    case VAR_VERTEXBUFFERV: vertexBuffer[arrayVal].v = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERA: faceBuffer[arrayVal].a = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERB: faceBuffer[arrayVal].b = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERC: faceBuffer[arrayVal].c = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERD: faceBuffer[arrayVal].d = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERFLAG: faceBuffer[arrayVal].flags = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERCOLOR: faceBuffer[arrayVal].colour = scriptEng.operands[i]; break;
+                    case VAR_SAVERAM: saveRAM[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_ENGINESTATE: Engine.gameMode = scriptEng.operands[i]; break;
+                    case VAR_ENGINELANGUAGE: Engine.language = scriptEng.operands[i]; break;
+                    case VAR_ENGINEONLINEACTIVE: Engine.onlineActive = scriptEng.operands[i]; break;
+                    case VAR_ENGINESFXVOLUME: sfxVolume = scriptEng.operands[i]; SetGameVolumes(bgmVolume,sfxVolume); break;
+                    case VAR_ENGINEBGMVOLUME: bgmVolume = scriptEng.operands[i]; SetGameVolumes(bgmVolume,sfxVolume); break;
+                    case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
+                    case VAR_ENGINEPLATFORMID:  break;
+                }
+            }
+            else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
+                scriptDataPtr++;
+            }
+            else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
+                int byteID = 0;
+                int strLen = scriptData[scriptDataPtr++];
+                for (int c = 0; c < strLen; ++c) {
+                    switch (c % 4) {
+                        case 0: break;
+                        case 1: break;
+                        case 2: break;
+                        case 3: ++scriptDataPtr; break;
+                        default: break;
+                    }
+                }
+                scriptDataPtr++;
+            }
+        }
+    }
+}
