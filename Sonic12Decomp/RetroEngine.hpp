@@ -30,7 +30,13 @@ typedef unsigned long long ulong;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 
+#if defined _WIN32
 #define RETRO_PLATFORM (RETRO_WIN)
+#elif defined __APPLE__
+#define RETRO_PLATFORM (RETRO_OSX)
+#else
+#define RETRO_PLATFORM (RETRO_WIN)
+#endif
 
 #if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
 #define RETRO_USING_SDL (1)
@@ -76,8 +82,9 @@ enum RetroBytecodeFormat {
 #if RETRO_PLATFORM == RETRO_WIN
 #include <SDL.h>
 #include <vorbis/vorbisfile.h>
-#include <theora/theora.h>
-#include <theoraplay.h>
+#elif RETRO_PLATFORM == RETRO_OSX
+#include <SDL2/SDL.h>
+#include <Vorbis/vorbisfile.h>
 #endif
 
 //Utils
@@ -98,7 +105,6 @@ enum RetroBytecodeFormat {
 #include "Script.hpp"
 #include "Sprite.hpp"
 #include "Text.hpp"
-#include "Video.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
 
@@ -167,7 +173,6 @@ public:
     //const char *GameHapticSetting = "Use_Haptics";
 
     ushort *frameBuffer = nullptr;
-    uint *videoFrameBuffer = nullptr;
 
     bool isFullScreen = false;
 
@@ -181,7 +186,6 @@ public:
     SDL_Window *window        = nullptr;
     SDL_Renderer *renderer    = nullptr;
     SDL_Texture *screenBuffer = nullptr;
-    SDL_Texture *videoBuffer = nullptr;
 
     SDL_Event sdlEvents;
 #endif

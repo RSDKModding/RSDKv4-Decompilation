@@ -26,11 +26,8 @@ const int LOADING_IMAGE = 0;
 const int LOAD_COMPLETE = 1;
 const int LZ_MAX_CODE   = 4095;
 const int LZ_BITS       = 12;
-const int FLUSH_OUTPUT  = 4096;
 const int FIRST_CODE    = 4097;
 const int NO_SUCH_CODE  = 4098;
-const int HT_SIZE       = 8192;
-const int HT_KEY_MASK   = 8191;
 
 struct GifDecoder gifDecoder;
 int codeMasks[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095 };
@@ -229,9 +226,8 @@ int AddGraphicsFile(const char *filePath)
     switch (fileExtension) {
         case 'f': LoadGIFFile(sheetPath, sheetID); break;
         case 'p': LoadBMPFile(sheetPath, sheetID); break;
-        case 'r': LoadPVRFile(sheetPath, sheetID); break; // Lite & sega forever ver only
-        case 'v': LoadRSVFile(sheetPath, sheetID); break;
-        case 'x': LoadGFXFile(sheetPath, sheetID); break; // Not in lite/sf ver
+        case 'r': LoadPVRFile(sheetPath, sheetID); break;
+        case 'x': LoadGFXFile(sheetPath, sheetID); break;
     }
 
     return sheetID;
@@ -425,47 +421,6 @@ int LoadGFXFile(const char *filePath, byte sheetID)
             w >>= 1;
             ++surface->widthShift;
         }
-        if (gfxDataPosition >= 0x400000)
-            gfxDataPosition = 0;
-
-        CloseFile();
-        return true;
-    }
-    return false;
-}
-int LoadRSVFile(const char *filePath, byte sheetID)
-{
-    FileInfo info;
-    if (LoadFile(filePath, &info)) {
-        GFXSurface *surface = &gfxSurface[sheetID];
-        StrCopy(surface->fileName, filePath);
-
-        videoData         = sheetID;
-        currentVideoFrame = 0;
-
-        int fileBuffer = 0;
-
-        FileRead(&fileBuffer, 1);
-        videoFrameCount = fileBuffer;
-        FileRead(&fileBuffer, 1);
-        videoFrameCount += fileBuffer << 8;
-
-        FileRead(&fileBuffer, 1);
-        videoWidth = fileBuffer;
-        FileRead(&fileBuffer, 1);
-        videoWidth += fileBuffer << 8;
-
-        FileRead(&fileBuffer, 1);
-        videoHeight = fileBuffer;
-        FileRead(&fileBuffer, 1);
-        videoHeight += fileBuffer << 8;
-
-        videoFilePos   = GetFilePosition();
-        videoPlaying   = true;
-        surface->height       = videoWidth;
-        surface->width        = videoHeight;
-        surface->dataPosition = gfxDataPosition;
-        gfxDataPosition += surface->width * surface->height;
         if (gfxDataPosition >= 0x400000)
             gfxDataPosition = 0;
 

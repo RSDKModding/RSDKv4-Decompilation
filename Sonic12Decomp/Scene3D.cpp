@@ -239,7 +239,6 @@ void transformVerticies(Matrix *matrix, int startIndex, int endIndex)
         return;
 
     int inVertexID  = 0;
-    int outVertexID = 0;
     do {
         int vx       = vertexBuffer[inVertexID].x;
         int vy       = vertexBuffer[inVertexID].y;
@@ -393,7 +392,7 @@ void processScanEdge(Vertex *vertA, Vertex *vertB)
 void processScanEdgeUV(Vertex *vertA, Vertex *vertB)
 {
     int bottom, top;
-    int fullX, fullY, fullU, fullV;
+    int fullX, fullU, fullV;
     int trueX, trueU, trueV, yDifference;
 
     if (vertA->y == vertB->y)

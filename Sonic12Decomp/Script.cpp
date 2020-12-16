@@ -1076,25 +1076,13 @@ void ConvertFunctionText(char *text)
             jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos + 2] == -1) {
                 jumpTableData[jPos + 2] = (scriptDataPos - scriptDataOffset) - 1;
-                int *jData              = &jumpTableData[jPos + 4];
                 int caseCnt                = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
 
-                int jID = 0;
                 int jOffset = jPos + 4;
                 for (int c = 0; c < caseCnt; ++c) {
                     if (jumpTableData[jOffset + c] < 0)
                         jumpTableData[jOffset + c] = jumpTableData[jPos + 2];
                 }
-
-                
-                /* int jCnt                = (jumpTableData[jPos + 1] - jumpTableData[jPos] + ((jumpTableData[jPos + 1] - jumpTableData[jPos]) >> 31))
-                           ^ ((jumpTableData[jPos + 1] - jumpTableData[jPos]) >> 31);
-                do {
-                    if (*jData < 0)
-                        *jData = jumpTableData[jPos + 2];
-                    ++jID;
-                    ++jData;
-                } while (jID <= jCnt);*/
             }
             --jumpTableStackPos;
         }
@@ -1354,7 +1342,6 @@ bool ReadSwitchCase(char *text)
 void AppendIntegerToSting(char *text, int value)
 {
     int textPos = 0;
-    int flag    = 1;
     while (true) {
         if (!text[textPos])
             break;
@@ -1942,7 +1929,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
 {
     bool running         = true;
     int scriptDataPtr    = scriptCodePtr;
-    int jumpTableDataPtr = jumpTablePtr;
+    //int jumpTableDataPtr = jumpTablePtr;
     jumpTableStackPos    = 0;
     functionStackPos     = 0;
     foreachStackPos     = 0;
@@ -2574,8 +2561,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 scriptEng.operands[i] = scriptData[scriptDataPtr++];
             }
             else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
-                int charID         = 0;
-                byte byteID        = 0;
                 int strLen         = scriptData[scriptDataPtr++];
                 scriptText[strLen] = 0;
                 for (int c = 0; c < strLen; ++c) {
@@ -2754,7 +2739,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_FOREACHTYPENAME: {
                 int objType = scriptEng.operands[1];
                 if (objType < OBJECT_COUNT) {
-                    bool loopFlag              = true;
                     int curStackPos = foreachStackPos;
                     int nextStackPos = ++foreachStackPos;
                     int loop                   = foreachStack[nextStackPos] + 1;
@@ -4356,7 +4340,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 scriptDataPtr++;
             }
             else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
-                int byteID = 0;
                 int strLen = scriptData[scriptDataPtr++];
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {

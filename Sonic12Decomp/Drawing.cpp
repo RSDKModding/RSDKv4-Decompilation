@@ -99,20 +99,12 @@ void RenderRenderDevice()
     int pitch = 0;
     SDL_SetRenderTarget(Engine.renderer, NULL);
     ushort *pixels = NULL;
-    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
-        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-        memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
-        SDL_UnlockTexture(Engine.screenBuffer);
+    
+    SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
+    memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
+    SDL_UnlockTexture(Engine.screenBuffer);
 
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, &destScreenPos);
-    }
-    else {
-        SDL_LockTexture(Engine.videoBuffer, NULL, (void **)&pixels, &pitch);
-        memcpy(pixels, Engine.videoFrameBuffer, pitch * videoHeight);
-        SDL_UnlockTexture(Engine.videoBuffer);
-
-        SDL_RenderCopy(Engine.renderer, Engine.videoBuffer, NULL, &destScreenPos);
-    }
+    SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, &destScreenPos);
 
     SDL_RenderPresent(Engine.renderer);
 #endif
@@ -768,7 +760,6 @@ void DrawHLineScrollLayer(int layerID)
 void DrawVLineScrollLayer(int layerID)
 {
     TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
-    int screenwidth16       = (SCREEN_XSIZE >> 4) - 1;
     int layerwidth          = layer->width;
     int layerheight         = layer->height;
     bool aboveMidPoint      = layerID >= tLayerMidPoint;
@@ -820,7 +811,6 @@ void DrawVLineScrollLayer(int layerID)
         tileXPos += layerheight << 7;
     byte *scrollIndex = &lineScroll[tileXPos];
     int tileX16       = tileXPos & 0xF;
-    int chunkY        = tileXPos >> 7;
     int tileX         = (tileXPos & 0x7F) >> 4;
 
     // Draw Above Water (if applicable)
@@ -1356,11 +1346,11 @@ void Draw3DSkyLayer(int layerID)
     }
 
     //TODO(?): this is run only when the code above is drawn to a "HQ" framebuffer
-    if (false) {
-        frameBufferPtr = &Engine.frameBuffer[132 * SCREEN_XSIZE];
-        int cnt    = 108 * SCREEN_XSIZE;
-        while (cnt--) *frameBufferPtr++ = 0xF81Fu; //Magenta
-    }
+    //if (false) {
+    //    frameBufferPtr = &Engine.frameBuffer[132 * SCREEN_XSIZE];
+    //    int cnt    = 108 * SCREEN_XSIZE;
+    //    while (cnt--) *frameBufferPtr++ = 0xF81Fu; //Magenta
+    //}
 }
 
 void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A)
@@ -1491,7 +1481,7 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
     GFXSurface *surface    = &gfxSurface[sheetID];
     int pitch              = SCREEN_XSIZE - width;
     int gfxwidth           = surface->width;
-    byte *lineBuffer       = &gfxLineBuffer[trueYPos];
+    //byte *lineBuffer       = &gfxLineBuffer[trueYPos];
     byte *gfxData          = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
     ushort *frameBufferPtr = &Engine.frameBuffer[trueXPos + SCREEN_XSIZE * trueYPos];
     if (direction == FLIP_X) {

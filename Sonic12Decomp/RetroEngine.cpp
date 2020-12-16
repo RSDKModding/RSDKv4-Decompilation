@@ -196,10 +196,6 @@ void RetroEngine::Run()
                             break;
                         case ENGINE_PAUSE: break;
                         case ENGINE_WAIT: break;
-                        case ENGINE_VIDEOWAIT:
-                            if (ProcessVideo() == 1)
-                                gameMode = ENGINE_MAINGAME;
-                            break;
                         default: break;
                     }
 
@@ -223,7 +219,6 @@ void RetroEngine::Run()
 void RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    FileInfo infoStore;
     int fileBuffer  = 0;
     int fileBuffer2 = 0;
     char strBuffer[0x40];
@@ -391,7 +386,6 @@ void RetroEngine::LoadLeaderboardsMenu() { ReadUserdata(); }
 
 void RetroEngine::Callback(int callbackID)
 {
-    int test = 0;
     switch (callbackID) {
         default:
 #if RSDK_DEBUG

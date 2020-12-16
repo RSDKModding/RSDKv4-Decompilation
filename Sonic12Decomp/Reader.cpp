@@ -114,7 +114,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
             cFileHandle = fopen(rsdkName, "rb");
             fseek(cFileHandle, 0, SEEK_END);
-            fileSize       = ftell(cFileHandle);
+            fileSize       = (int)ftell(cFileHandle);
 
             vFileSize = file->filesize;
             virtualFileOffset = file->offset;
@@ -162,7 +162,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         }
         virtualFileOffset = 0;
         fseek(cFileHandle, 0, SEEK_END);
-        fileInfo->fileSize = ftell(cFileHandle);
+        fileInfo->fileSize = (int)ftell(cFileHandle);
         fileSize = fileInfo->vfileSize = fileInfo->fileSize;
         fseek(cFileHandle, 0, SEEK_SET);
         readPos = 0;
@@ -297,7 +297,7 @@ void SetFileInfo(FileInfo *fileInfo)
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
         fseek(cFileHandle, 0, SEEK_END);
-        fileSize = ftell(cFileHandle);
+        fileSize = (int)ftell(cFileHandle);
         readPos  = fileInfo->readPos;
         fseek(cFileHandle, readPos, SEEK_SET);
         FillFileBuffer();
@@ -405,7 +405,7 @@ bool ReachedEndOfFile()
 size_t FileRead2(FileInfo *info, void *dest, int size)
 {
     byte *data = (byte *)dest;
-    int rPos   = GetFilePosition2(info);
+    int rPos   = (int)GetFilePosition2(info);
     memset(data, 0, size);
 
     if (rPos <= info->vfileSize) {

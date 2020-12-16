@@ -650,7 +650,6 @@ void LoadActLayout()
         newYBoundary2 = stageLayouts[0].height << 7;
 
         memset(stageLayouts[0].tiles, 0, TILELAYER_CHUNK_MAX * sizeof(ushort));
-        byte *lineScrollPtr = stageLayouts[0].lineScroll;
         memset(stageLayouts[0].lineScroll, 0, 0x7FFF);
 
         for (int y = 0; y < stageLayouts[0].height; ++y) {
