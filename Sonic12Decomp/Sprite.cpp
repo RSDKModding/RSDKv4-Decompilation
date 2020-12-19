@@ -227,7 +227,6 @@ int AddGraphicsFile(const char *filePath)
         case 'f': LoadGIFFile(sheetPath, sheetID); break;
         case 'p': LoadBMPFile(sheetPath, sheetID); break;
         case 'r': LoadPVRFile(sheetPath, sheetID); break;
-        case 'x': LoadGFXFile(sheetPath, sheetID); break;
     }
 
     return sheetID;
@@ -367,61 +366,6 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         if (gfxDataPosition <= 0x3FFFFF)
             ReadGifPictureData(surface->width, surface->height, interlaced, graphicData, surface->dataPosition);
         else
-            gfxDataPosition = 0;
-
-        CloseFile();
-        return true;
-    }
-    return false;
-}
-int LoadGFXFile(const char *filePath, byte sheetID)
-{
-    FileInfo info;
-    if (LoadFile(filePath, &info)) {
-        GFXSurface *surface = &gfxSurface[sheetID];
-        StrCopy(surface->fileName, filePath);
-
-        int fileBuffer = 0;
-        FileRead(&fileBuffer, 1);
-        surface->width = fileBuffer << 8;
-        FileRead(&fileBuffer, 1);
-        surface->width += fileBuffer;
-        FileRead(&fileBuffer, 1);
-        surface->height = fileBuffer << 8;
-        FileRead(&fileBuffer, 1);
-        surface->height += fileBuffer;
-
-        byte clr[3];
-        for (int i = 0; i < 0xFF; ++i) FileRead(&clr, 3); // Palette
-
-        surface->dataPosition = gfxDataPosition;
-        byte *gfxData         = &graphicData[surface->dataPosition];
-        byte buf[3];
-        while (true) {
-            FileRead(&buf[0], 1);
-            if (buf[0] == 0xFF) {
-                FileRead(&buf[1], 1);
-                if (buf[1] == 0xFF) {
-                    break;
-                }
-                else {
-                    FileRead(&buf[2], 1);
-                    for (int i = 0; i < buf[2]; ++i) *gfxData++ = buf[1];
-                }
-            }
-            else {
-                *gfxData++ = buf[0];
-            }
-        }
-
-        gfxDataPosition += surface->height * surface->width;
-        surface->widthShift = 0;
-        int w               = surface->width;
-        while (w > 1) {
-            w >>= 1;
-            ++surface->widthShift;
-        }
-        if (gfxDataPosition >= 0x400000)
             gfxDataPosition = 0;
 
         CloseFile();

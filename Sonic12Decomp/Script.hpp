@@ -7,7 +7,7 @@
 
 #define JUMPSTACK_COUNT (0x400)
 #define FUNCSTACK_COUNT (0x400)
-#define FOREACH_COUNT (0x400)
+#define FORSTACK_COUNT (0x400)
 
 struct ScriptPtr {
     int scriptCodePtr;
@@ -44,7 +44,7 @@ extern int jumpTableData[JUMPTABLE_COUNT];
 
 extern int jumpTableStack[JUMPSTACK_COUNT];
 extern int functionStack[FUNCSTACK_COUNT];
-extern int foreachStack[FOREACH_COUNT];
+extern int foreachStack[FORSTACK_COUNT];
 
 extern int scriptCodePos; //Bytecode reading offset
 extern int jumpTablePos;  //Bytecode reading offset

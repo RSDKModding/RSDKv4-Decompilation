@@ -1,6 +1,11 @@
 #include "RetroEngine.hpp"
 
-int(__cdecl *nativeFunction[16])(int, void *);
+int globalVariablesCount;
+int globalVariables[GLOBALVAR_COUNT];
+char globalVariableNames[GLOBALVAR_COUNT][0x20];
+
+int (*nativeFunction[16])(int, void *);
+int nativeFunctionCount = 0;
 
 char gamePath[0x100];
 int saveRAM[SAVEDATA_MAX];
@@ -13,8 +18,15 @@ void InitUserdata()
     sprintf(gamePath, "%s", "");
 
     char buffer[0x100];
+#if RETRO_PLATFORM == RETRO_OSX
+    if (!usingCWD)
+        sprintf(buffer, "%s/settings.ini", getResourcesPath());
+    else
+        sprintf(buffer, "%ssettings.ini", gamePath);
+#else
     sprintf(buffer, "%ssettings.ini", gamePath);
-    FILE *file = fopen(buffer, "rb");
+#endif
+    FileIO *file = fOpen(buffer, "rb");
     if (!file) {
         IniParser ini;
 
@@ -53,7 +65,7 @@ void InitUserdata()
         ini.Write("settings.ini");
     }
     else {
-        fclose(file);
+        fClose(file);
         IniParser ini("settings.ini");
 
         if (!ini.GetBool("Dev", "DevMenu", &Engine.devMenu))
@@ -117,47 +129,53 @@ void InitUserdata()
     }
     SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
 
+#if RETRO_PLATFORM == RETRO_OSX
+    if (!usingCWD)
+        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+    else
+        sprintf(buffer, "%suserdata.bin", gamePath);
+#else
     sprintf(buffer, "%suserdata.bin", gamePath);
-    file = fopen(buffer, "rb");
+#endif
+    file = fOpen(buffer, "rb");
     if (file) {
-        fclose(file);
+        fClose(file);
         ReadUserdata();
     }
     else {
         WriteUserdata();
     }
-
-    sprintf(achievements[0].name, "%s", "88 Miles Per Hour");
-    sprintf(achievements[1].name, "%s", "Just One Hug is Enough");
-    sprintf(achievements[2].name, "%s", "Paradise Found");
-    sprintf(achievements[3].name, "%s", "Take the High Road");
-    sprintf(achievements[4].name, "%s", "King of the Rings");
-    sprintf(achievements[5].name, "%s", "Statue Saviour");
-    sprintf(achievements[6].name, "%s", "Heavy Metal");
-    sprintf(achievements[7].name, "%s", "All Stages Clear");
-    sprintf(achievements[8].name, "%s", "Treasure Hunter");
-    sprintf(achievements[9].name, "%s", "Dr Eggman Got Served");
-    sprintf(achievements[10].name, "%s", "Just In Time");
-    sprintf(achievements[11].name, "%s", "Saviour of the Planet");
 }
 
 void writeSettings() {
     IniParser ini;
 
+    ini.SetComment("Dev", "DevMenuComment", "Enable this flag to activate dev menu via the ESC key");
     ini.SetBool("Dev", "DevMenu", Engine.devMenu);
+    ini.SetComment("Dev", "SCComment", "Sets the starting category ID");
     ini.SetBool("Dev", "StartingCategory", Engine.startList);
+    ini.SetComment("Dev", "SSComment", "Sets the starting scene ID");
     ini.SetBool("Dev", "StartingScene", Engine.startStage);
+    ini.SetComment("Dev", "FFComment", "Determines how fast the game will be when fastforwarding is active");
     ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed);
 
+    ini.SetComment("Game", "LangComment", "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP)");
     ini.SetInteger("Game", "Language", Engine.language);
 
+    ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "Fullscreen", Engine.fullScreen);
+    ini.SetComment("Window", "BLComment", "Determines if the window will be borderless or not");
     ini.SetBool("Window", "Borderless", Engine.borderless);
+    ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
     ini.SetBool("Window", "VSync", Engine.vsync);
+    ini.SetComment("Window", "WSComment", "How big the window will be");
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
+    ini.SetComment("Window", "SWComment", "How wide the base screen will be in pixels");
     ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE);
+    ini.SetComment("Window", "RRComment", "Determines the target FPS");
     ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
 
+    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
     ini.SetInteger("Keyboard 1", "Up", inputDevice[0].keyMappings);
     ini.SetInteger("Keyboard 1", "Down", inputDevice[1].keyMappings);
     ini.SetInteger("Keyboard 1", "Left", inputDevice[2].keyMappings);
@@ -167,6 +185,7 @@ void writeSettings() {
     ini.SetInteger("Keyboard 1", "C", inputDevice[6].keyMappings);
     ini.SetInteger("Keyboard 1", "Start", inputDevice[7].keyMappings);
 
+    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
     ini.SetInteger("Controller 1", "Up", inputDevice[0].contMappings);
     ini.SetInteger("Controller 1", "Down", inputDevice[1].contMappings);
     ini.SetInteger("Controller 1", "Left", inputDevice[2].contMappings);
@@ -176,28 +195,58 @@ void writeSettings() {
     ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings);
 
+    // Not yet implemented
+    ini.SetComment("Keyboard 2", "IK2Warning", "Not Yet Implemented");
+    ini.SetComment("Keyboard 2", "IK2Comment", "Keyboard Mappings for P2 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
+    ini.SetInteger("Keyboard 2", "Up", -1);
+    ini.SetInteger("Keyboard 2", "Down", -1);
+    ini.SetInteger("Keyboard 2", "Left", -1);
+    ini.SetInteger("Keyboard 2", "Right", -1);
+    ini.SetInteger("Keyboard 2", "A", -1);
+    ini.SetInteger("Keyboard 2", "B", -1);
+    ini.SetInteger("Keyboard 2", "C", -1);
+    ini.SetInteger("Keyboard 2", "Start", -1);
+
+    ini.SetComment("Controller 2", "IC2Warning", "Not Yet Implemented");
+    ini.SetComment("Controller 2", "IC2Comment", "Controller Mappings for P2 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
+    ini.SetInteger("Controller 2", "Up", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "Down", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "Left", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "Right", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "A", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "B", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "C", SDL_CONTROLLER_BUTTON_INVALID);
+    ini.SetInteger("Controller 2", "Start", SDL_CONTROLLER_BUTTON_INVALID);
+
     ini.Write("settings.ini");
 }
 
 void ReadUserdata()
 {
     char buffer[0x100];
+#if RETRO_PLATFORM == RETRO_OSX
+    if (!usingCWD)
+        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+    else
+        sprintf(buffer, "%suserdata.bin", gamePath);
+#else
     sprintf(buffer, "%suserdata.bin", gamePath);
-    FILE *userFile = fopen(buffer, "rb");
+#endif
+    FileIO *userFile = fOpen(buffer, "rb");
     if (!userFile)
         return;
 
     int buf = 0;
     for (int a = 0; a < ACHIEVEMENT_MAX; ++a) {
-        fread(&buffer, 4, 1, userFile);
+        fRead(&buffer, 4, 1, userFile);
         achievements[a].status = buf;
     }
     for (int l = 0; l < LEADERBOARD_MAX; ++l) {
-        fread(&buffer, 4, 1, userFile);
+        fRead(&buffer, 4, 1, userFile);
         leaderboard[l].status = buf;
     }
 
-    fclose(userFile);
+    fClose(userFile);
 
     if (Engine.onlineActive) {
         // Load from online
@@ -207,17 +256,179 @@ void ReadUserdata()
 void WriteUserdata()
 {
     char buffer[0x100];
+#if RETRO_PLATFORM == RETRO_OSX
+    if (!usingCWD)
+        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+    else
+        sprintf(buffer, "%suserdata.bin", gamePath);
+#else
     sprintf(buffer, "%suserdata.bin", gamePath);
-    FILE *userFile = fopen(buffer, "wb");
+#endif
+    FileIO *userFile = fOpen(buffer, "wb");
     if (!userFile)
         return;
 
-    for (int a = 0; a < ACHIEVEMENT_MAX; ++a) fwrite(&achievements[a].status, 4, 1, userFile);
-    for (int l = 0; l < LEADERBOARD_MAX; ++l) fwrite(&leaderboard[l].status, 4, 1, userFile);
+    for (int a = 0; a < ACHIEVEMENT_MAX; ++a) fWrite(&achievements[a].status, 4, 1, userFile);
+    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboard[l].status, 4, 1, userFile);
 
-    fclose(userFile);
+    fClose(userFile);
 
     if (Engine.onlineActive) {
         // Load from online
     }
+}
+
+void AwardAchievement(int id, int status)
+{
+    if (id < 0 || id >= ACHIEVEMENT_MAX)
+        return;
+
+#if RSDK_DEBUG
+    if (status == 100)
+        printLog("Achieved achievement: %s (%d)!", achievements[id].name, status);
+#endif
+
+    achievements[id].status = status;
+
+    if (Engine.onlineActive) {
+        // Set Achievement online
+    }
+    WriteUserdata();
+}
+
+int SetAchievement(int achievementID, void* achDone)
+{
+    int achievementDone = (int)achDone;
+    if (!Engine.trialMode && !debugMode) {
+        AwardAchievement(achievementID, achievementDone);
+        return 1;
+    }
+    return 0;
+}
+int SetLeaderboard(int leaderboardID, void *res)
+{
+    int result = (int)res;
+    if (!Engine.trialMode && !debugMode) {
+#if RSDK_DEBUG
+        printLog("Set leaderboard (%d) value to %d", leaderboard, result);
+#endif
+        switch (leaderboardID) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+            case 20:
+            case 21:
+                leaderboard[leaderboardID].status = result;
+                WriteUserdata();
+                return 1;
+        }
+    }
+    return 0;
+}
+
+int Connect2PVS(int a1, void *a2)
+{
+#if RSDK_DEBUG 
+    printLog("Attempting to connect to 2P game (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int Disconnect2PVS(int a1, void *a2)
+{
+#if RSDK_DEBUG 
+    printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int SendEntity(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to send entity (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int SendValue(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to send value (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int ReceiveEntity(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to receive entity (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int ReceiveValue(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to receive value (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+int TransmitGlobal(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to transmit global (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        return 1;
+    }
+    return 0;
+}
+
+int ShowPromoPopup(int a1, void *a2)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to show promo popup (%d) (%p)", a1, a2);
+#endif
+    if (Engine.onlineActive) {
+        //Do online code
+        return 1;
+    }
+    return 0;
 }

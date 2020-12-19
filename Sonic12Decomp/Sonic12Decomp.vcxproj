@@ -72,22 +72,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\x86\</OutDir>
+    <OutDir>$(SolutionDir)build\x86\Debug\</OutDir>
     <TargetName>RSDKvB</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\x64\</OutDir>
+    <OutDir>$(SolutionDir)build\x64\Debug\</OutDir>
     <TargetName>RSDKvB_64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\x86\</OutDir>
+    <OutDir>$(SolutionDir)build\x86\Release\</OutDir>
     <TargetName>RSDKvB</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\x64\</OutDir>
+    <OutDir>$(SolutionDir)build\x64\Release\</OutDir>
     <TargetName>RSDKvB_64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -163,7 +163,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\dependencies\all\theoraplay\theoraplay.c" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -185,11 +184,8 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Text.cpp" />
-    <ClCompile Include="Video.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\dependencies\all\theoraplay\theoraplay.h" />
-    <ClInclude Include="..\dependencies\all\theoraplay\theoraplay_cvtrgb.h" />
     <ClInclude Include="Animation.hpp" />
     <ClInclude Include="Audio.hpp" />
     <ClInclude Include="Collision.hpp" />
@@ -211,7 +207,6 @@
     <ClInclude Include="String.hpp" />
     <ClInclude Include="Text.hpp" />
     <ClInclude Include="Userdata.hpp" />
-    <ClInclude Include="Video.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Sonic12Decomp.rc" />

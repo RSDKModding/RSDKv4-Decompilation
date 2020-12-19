@@ -16,13 +16,16 @@ void initDevMenu()
     SetActivePalette(0, 0, 256);
     textMenuSurfaceNo = 0;
     LoadGIFFile("Data/Game/SystemText.gif", 0);
-    SetPaletteEntry(0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(0xFF, 0xFF, 0xFF, 0xFF);
+    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
+    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     stageMode = DEVMENU_MAIN;
     SetupTextMenu(&gameMenu[0], 0);
     AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
     AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], "Sonic 1 Version");
+    char version[0x80];
+    StrCopy(version, Engine.gameWindowText);
+    StrAdd(version, " Version");
+    AddTextMenuEntry(&gameMenu[0], version);
     AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
     AddTextMenuEntry(&gameMenu[0], " ");
     AddTextMenuEntry(&gameMenu[0], " ");
@@ -54,8 +57,8 @@ void initErrorMessage()
     SetActivePalette(0, 0, 256);
     textMenuSurfaceNo = 0;
     LoadGIFFile("Data/Game/SystemText.gif", 0);
-    SetPaletteEntry(0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(0xFF, 0xFF, 0xFF, 0xFF);
+    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
+    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     gameMenu[0].alignment        = 2;
     gameMenu[0].selectionCount   = 1;
     gameMenu[0].selection1       = 0;
@@ -305,6 +308,7 @@ void processStageSelect()
                 AddTextMenuEntry(&gameMenu[0], "   BONUS");
                 gameMenu[0].alignment      = 0;
                 gameMenu[0].selection2     = (activeStageList << 1) + 3;
+                gameMenu[0].selection2     = gameMenu[0].selection2 == 7 ? 9 : gameMenu[0].selection2 == 9 ? 7 : gameMenu[0].selection2;
                 gameMenu[0].selectionCount = 2;
                 stageMode                  = DEVMENU_STAGELISTSEL;
             }

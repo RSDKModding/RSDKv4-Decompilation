@@ -8,7 +8,7 @@ int scriptData[SCRIPTDATA_COUNT];
 int jumpTableData[JUMPTABLE_COUNT];
 int jumpTableStack[JUMPSTACK_COUNT];
 int functionStack[FUNCSTACK_COUNT];
-int foreachStack[FOREACH_COUNT];
+int foreachStack[FORSTACK_COUNT];
 
 int scriptCodePos     = 0;
 int jumpTablePos      = 0;
@@ -441,7 +441,7 @@ const FunctionInfo functions[] = { FunctionInfo("End", 0),
                                    FunctionInfo("EngineCallback", 3),
                                    FunctionInfo("CallEngineFunction1", 5),
                                    FunctionInfo("CallEngineFunction2", 1),
-                                   FunctionInfo("SetObjectBorderX", 3),
+                                   FunctionInfo("SetObjectBorderX", 1),
                                    FunctionInfo("GetObjectValue", 3),
                                    FunctionInfo("SetObjectValue", 3),
                                    FunctionInfo("CopyObject", 3) };
@@ -1123,8 +1123,8 @@ void ConvertFunctionText(char *text)
                 }
             }
             // Eg: TempValue0 = Game.Variable
-            for (int v = 0; v < GlobalVariablesCount; ++v) {
-                if (StrComp(funcName, GlobalVariableNames[v])) {
+            for (int v = 0; v < globalVariablesCount; ++v) {
+                if (StrComp(funcName, globalVariableNames[v])) {
                     StrCopy(funcName, "Global");
                     strBuffer[0] = 0;
                     AppendIntegerToSting(strBuffer, v);
@@ -1465,7 +1465,7 @@ bool CheckOpcodeType(char *text)
 void ParseScriptFile(char *scriptName, int scriptID)
 {
 #if RSDK_DEBUG
-    printf("Parsing Scripts is not supported yet!\n");
+    printLog("Parsing scripts is not supported yet!");
 #endif
     return;
 
@@ -1885,6 +1885,10 @@ void ClearScriptData()
     memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
     memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
 
+    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
+    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
+    memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
+
     scriptFrameCount = 0;
     
     scriptCodePos = 0;
@@ -1900,7 +1904,11 @@ void ClearScriptData()
     scriptFunctionCount = 0;
 
     aliasCount = COMMONALIAS_COUNT;
-    lineID = 0;
+    lineID     = 0;
+
+    //memset(vertexBuffer, 0, VERTEXBUFFER_SIZE * sizeof(Vertex));
+    //memset(vertexBufferT, 0, VERTEXBUFFER_SIZE * sizeof(Vertex));
+    //memset(faceBuffer, 0, FACEBUFFER_SIZE * sizeof(Face));
 
     ClearAnimationData();
 
@@ -1911,6 +1919,7 @@ void ClearScriptData()
         scriptInfo->subDraw.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
         scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
         scriptInfo->subStartup.scriptCodePtr           = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT - 1;
         scriptInfo->frameListOffset                    = 0;
         scriptInfo->spriteSheetID                      = 0;
         scriptInfo->animFile                           = GetDefaultAnimationRef();
@@ -1922,7 +1931,7 @@ void ClearScriptData()
         functionScriptList[f].jumpTablePtr  = JUMPTABLE_COUNT - 1;
     }
 
-    SetObjectTypeName((char *)"Blank Object", 0);
+    SetObjectTypeName("Blank Object", OBJ_TYPE_BLANKOBJECT);
 }
 
 void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
@@ -1933,6 +1942,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
     jumpTableStackPos    = 0;
     functionStackPos     = 0;
     foreachStackPos     = 0;
+
     while (running) {
         int opcode           = scriptData[scriptDataPtr++];
         int opcodeSize       = functions[opcode].opcodeSize;
@@ -1987,7 +1997,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ARRAYPOS5: scriptEng.operands[i] = scriptEng.arrayPosition[5]; break;
                     case VAR_PLAYEROBJECTPOS: scriptEng.operands[i] = scriptEng.arrayPosition[6]; break;
                     case VAR_PLAYEROBJECTCOUNT: scriptEng.operands[i] = scriptEng.arrayPosition[7]; break;
-                    case VAR_GLOBAL: scriptEng.operands[i] = GlobalVariables[arrayVal]; break;
+                    case VAR_GLOBAL: scriptEng.operands[i] = globalVariables[arrayVal]; break;
                     case VAR_SCRIPTDATA: scriptEng.operands[i] = scriptData[arrayVal]; break;
                     case VAR_OBJECTENTITYNO: scriptEng.operands[i] = arrayVal; break;
                     case VAR_OBJECTTYPEGROUP: {
@@ -2719,65 +2729,73 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_FOREACHTYPEGROUP: {
                 int typeGroup = scriptEng.operands[1];
                 if (typeGroup < TYPEGROUP_COUNT) {
-                    int curStackPos               = foreachStackPos++;
-                    int nextStackPos              = foreachStackPos;
-                    int loop                      = foreachStack[foreachStackPos] + 1;
+                    int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
                     if (loop >= objectTypeGroupList[typeGroup].listSize) {
-                        foreachStack[nextStackPos] = -1;
-                        foreachStackPos            = curStackPos;
-                        scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                        opcodeSize                 = 0;
+                        foreachStack[foreachStackPos--] = -1;
+                        scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                         break;
                     }
-                    scriptEng.operands[2]    = objectTypeGroupList[typeGroup].entityRefs[loop];
-                    int stackPos             = jumpTableStackPos + 1;
-                    jumpTableStack[stackPos] = scriptEng.operands[0];
-                    jumpTableStackPos        = stackPos;
+                    else {
+                        scriptEng.operands[2]               = objectTypeGroupList[typeGroup].entityRefs[loop];
+                        jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                    }
+                }
+                else {
+                    opcodeSize    = 0;
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                 }
                 break;
             }
             case FUNC_FOREACHTYPENAME: {
                 int objType = scriptEng.operands[1];
                 if (objType < OBJECT_COUNT) {
-                    int curStackPos = foreachStackPos;
-                    int nextStackPos = ++foreachStackPos;
-                    int loop                   = foreachStack[nextStackPos] + 1;
-                    foreachStack[nextStackPos] = loop;
+                    int loop                   = foreachStack[++foreachStackPos] + 1;
+                    foreachStack[foreachStackPos] = loop;
 
                     if (scriptSub == SUB_SETUP) {
-                        while (loop < TEMPENTITY_START) {
-                            if (objType == objectEntityList[loop].type) {
+                        while (true) {
+                            if (loop >= TEMPENTITY_START) {
+                                opcodeSize                      = 0;
+                                foreachStack[foreachStackPos--] = -1;
+                                int off                         = jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                                scriptDataPtr                   = scriptCodePtr + off;
+                                break;
+                            }
+                            else if (objType == objectEntityList[loop].type) {
                                 scriptEng.operands[2]               = loop;
                                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
-                                // Finished loop
-                                goto FINISHED_FOREACH_LOOP;
+                                break;
                             }
-                            foreachStack[nextStackPos] = ++loop;
+                            else {
+                                foreachStack[foreachStackPos] = ++loop;
+                            }
                         }
-                        opcodeSize                 = 0;
-                        foreachStack[nextStackPos] = -1;
-                        foreachStackPos            = curStackPos;
-                        scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                     }
                     else {
                         while (true) {
                             if (loop >= ENTITY_COUNT) {
-                                opcodeSize = 0;
-                                --foreachStackPos;
-                                foreachStack[nextStackPos] = -1;
-                                scriptDataPtr              = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
-                                //Finished loop
-                                goto FINISHED_FOREACH_LOOP;
-                            }
-                            if (objType == objectEntityList[loop].type)
+                                opcodeSize                      = 0;
+                                foreachStack[foreachStackPos--] = -1;
+                                scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                                 break;
-                            foreachStack[nextStackPos] = ++loop;
+                            }
+                            else if (objType == objectEntityList[loop].type) {
+                                scriptEng.operands[2]               = loop;
+                                jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
+                                break;
+                            }
+                            else {
+                                foreachStack[foreachStackPos] = ++loop;
+                            }
                         }
-                        scriptEng.operands[2]               = loop;
-                        jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                     }
                 }
-                FINISHED_FOREACH_LOOP:
+                else {
+                    opcodeSize                      = 0;
+                    scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                }
                 break;
             }
             case FUNC_FOREACHLOOP:
@@ -2900,7 +2918,43 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
             case FUNC_DRAWACTNAME: {
                 opcodeSize = 0;
-                switch (scriptEng.operands[3]) {
+                switch (scriptEng.operands[3]) { //Alignment
+                    case 0: {
+                        int charID = 0;
+                        for (charID = 0;; ++charID) {
+                            int nextChar = titleCardText[charID + 1];
+                            if (nextChar == '-' || !nextChar)
+                                break;
+                        }
+
+                        while (charID >= 0) {
+                            if (titleCardText[charID] != '-') {
+                                int character = titleCardText[charID];
+                                if (character == ' ')
+                                    character = -1;
+                                if (character == '-')
+                                    character = 0;
+                                if (character > '/' && character < ':')
+                                    character -= 22;
+                                if (character > '9' && character < 'f')
+                                    character -= 'A';
+                                if (character <= -1) {
+                                    scriptEng.operands[1] -= scriptEng.operands[5] + scriptEng.operands[6];
+                                }
+                                else {
+                                    spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                    scriptEng.operands[1] -= (scriptEng.operands[6] + spriteFrame->width);
+
+                                    character += scriptEng.operands[0];
+                                    DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                               spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                               scriptInfo->spriteSheetID);
+                                }
+                                charID--;
+                            }
+                        }
+                        break;
+                    }
                     case 1: {
                         int charID = 0;
                         if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
@@ -3059,7 +3113,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
                 break;
             case FUNC_GETPALETTEENTRY:
-                opcodeSize = 0;
                 scriptEng.operands[2] = GetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1]);
                 break;
             case FUNC_COPYPALETTE:
@@ -3291,21 +3344,21 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                               scriptEng.operands[5], scriptEng.operands[6], scriptEng.operands[7]);
                 break;
             case FUNC_RESETOBJECTENTITY: {
-                opcodeSize            = 0;
-                Entity *newEnt        = &objectEntityList[scriptEng.operands[0]];
+                opcodeSize     = 0;
+                Entity *newEnt = &objectEntityList[scriptEng.operands[0]];
                 memset(newEnt, 0, sizeof(Entity));
-                newEnt->type          = scriptEng.operands[1];
-                newEnt->propertyValue = scriptEng.operands[2];
-                newEnt->XPos          = scriptEng.operands[3];
-                newEnt->YPos          = scriptEng.operands[4];
-                newEnt->direction     = FLIP_NONE;
-                newEnt->priority      = PRIORITY_ACTIVE_BOUNDS;
-                newEnt->drawOrder     = 3;
-                newEnt->scale         = 512;
+                newEnt->type               = scriptEng.operands[1];
+                newEnt->propertyValue      = scriptEng.operands[2];
+                newEnt->XPos               = scriptEng.operands[3];
+                newEnt->YPos               = scriptEng.operands[4];
+                newEnt->direction          = FLIP_NONE;
+                newEnt->priority           = PRIORITY_ACTIVE_BOUNDS;
+                newEnt->drawOrder          = 3;
+                newEnt->scale              = 512;
                 newEnt->inkEffect          = INK_NONE;
-                newEnt->objectInteractions = 1;
-                newEnt->visible            = 1;
-                newEnt->tileCollisions     = 1;
+                newEnt->objectInteractions = true;
+                newEnt->visible            = true;
+                newEnt->tileCollisions     = true;
                 break;
             }
             case FUNC_PLAYEROBJECTCOLLISION:
@@ -3336,22 +3389,22 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             case FUNC_CREATETEMPOBJECT: {
                 opcodeSize = 0;
-                if (objectEntityList[scriptEng.arrayPosition[8]].type > 0 && ++scriptEng.arrayPosition[8] == ENTITY_COUNT)
+                if (objectEntityList[scriptEng.arrayPosition[8]].type > OBJ_TYPE_BLANKOBJECT && ++scriptEng.arrayPosition[8] == ENTITY_COUNT)
                     scriptEng.arrayPosition[8] = TEMPENTITY_START;
                 Entity *temp         = &objectEntityList[scriptEng.arrayPosition[8]];
                 memset(temp, 0, sizeof(Entity));
-                temp->type           = scriptEng.operands[0];
-                temp->propertyValue  = scriptEng.operands[1];
-                temp->XPos           = scriptEng.operands[2];
-                temp->YPos           = scriptEng.operands[3];
-                temp->direction      = FLIP_NONE;
-                temp->priority       = PRIORITY_ACTIVE;
-                temp->drawOrder      = 3;
-                temp->scale          = 512;
-                temp->inkEffect            = INK_NONE;
-                temp->objectInteractions   = 1;
-                temp->visible              = 1;
-                temp->tileCollisions       = 1;
+                temp->type               = scriptEng.operands[0];
+                temp->propertyValue      = scriptEng.operands[1];
+                temp->XPos               = scriptEng.operands[2];
+                temp->YPos               = scriptEng.operands[3];
+                temp->direction          = FLIP_NONE;
+                temp->priority           = PRIORITY_ACTIVE;
+                temp->drawOrder          = 3;
+                temp->scale              = 512;
+                temp->inkEffect          = INK_NONE;
+                temp->objectInteractions = true;
+                temp->visible            = true;
+                temp->tileCollisions     = true;
                 break;
             }
             case FUNC_PLAYERTILECOLLISION:
@@ -3369,8 +3422,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 ProcessPlayerControl(entity);
                 break;
             case FUNC_PROCESSOBJECTANIMATION:
-                ProcessObjectAnimation(scriptInfo, entity);
                 opcodeSize = 0;
+                ProcessObjectAnimation(scriptInfo, entity);
                 break;
             case FUNC_DRAWOBJECTANIMATION:
                 opcodeSize = 0;
@@ -3386,7 +3439,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             case FUNC_PLAYMUSIC:
                 opcodeSize = 0;
-                PlayMusic(scriptEng.operands[0]);
+                PlayMusic(scriptEng.operands[0], 0);
                 break;
             case FUNC_STOPMUSIC:
                 opcodeSize = 0;
@@ -3539,9 +3592,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_TRANSFORMVERTICES:
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
-                    case MAT_WORLD: transformVerticies(&matWorld, scriptEng.operands[1], scriptEng.operands[2]); break;
-                    case MAT_VIEW: transformVerticies(&matView, scriptEng.operands[1], scriptEng.operands[2]); break;
-                    case MAT_TEMP: transformVerticies(&matTemp, scriptEng.operands[1], scriptEng.operands[2]); break;
+                    case MAT_WORLD: transformVertices(&matWorld, scriptEng.operands[1], scriptEng.operands[2]); break;
+                    case MAT_VIEW: transformVertices(&matView, scriptEng.operands[1], scriptEng.operands[2]); break;
+                    case MAT_TEMP: transformVertices(&matTemp, scriptEng.operands[1], scriptEng.operands[2]); break;
                 }
                 break;
             case FUNC_CALLFUNCTION: {
@@ -3578,6 +3631,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 scriptEng.operands[0] = stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]];
                 break;
             case FUNC_SETTILELAYERENTRY:
+                opcodeSize                                                                                       = 0;
                 stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]] = scriptEng.operands[0];
                 break;
             case FUNC_GETBIT: scriptEng.operands[0] = (scriptEng.operands[1] & (1 << scriptEng.operands[2])) >> scriptEng.operands[2]; break;
@@ -3622,6 +3676,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             }
             case FUNC_SET16X16TILEINFO: {
+                opcodeSize            = 0;
                 scriptEng.operands[4] = scriptEng.operands[1] >> 7;
                 scriptEng.operands[5] = scriptEng.operands[2] >> 7;
                 scriptEng.operands[6] = stageLayouts[0].tiles[scriptEng.operands[4] + (scriptEng.operands[5] << 8)] << 6;
@@ -3669,7 +3724,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-                LoadTextFile(menu, scriptText, 0);
+                LoadTextFile(menu, scriptText);
                 break;
             }
             case FUNC_GETTEXTINFO: {
@@ -3691,19 +3746,23 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             }
             case FUNC_GETARRAYVALUE: {
-                if (scriptEng.operands[1] >= 0) {
-                    int pos = scriptEng.operands[2];
-                    if (scriptEng.operands[1] < scriptData[pos])
-                        scriptEng.operands[0] = scriptData[pos + scriptEng.operands[1] + 1];
+                int arrPos = scriptEng.operands[1];
+                if (arrPos >= 0) {
+                    int pos     = scriptEng.operands[2];
+                    int arrSize = scriptData[pos];
+                    if (arrPos < arrSize)
+                        scriptEng.operands[0] = scriptData[pos + arrPos + 1];
                 }
                 break;
             }
             case FUNC_SETARRAYVALUE: {
                 opcodeSize = 0;
-                if (scriptEng.operands[1] >= 0) {
-                    int pos = scriptEng.operands[2];
-                    if (scriptEng.operands[1] < scriptData[pos])
-                        scriptData[pos + scriptEng.operands[1] + 1] = scriptEng.operands[0];
+                int arrPos = scriptEng.operands[1];
+                if (arrPos >= 0) {
+                    int pos     = scriptEng.operands[2];
+                    int arrSize = scriptData[pos];
+                    if (arrPos < arrSize)
+                        scriptData[pos + arrPos + 1] = scriptEng.operands[0];
                 }
                 break;
             }
@@ -3718,13 +3777,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_ENGINECALLBACK:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], scriptText);
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], (void *)scriptEng.operands[2]);
                 break;
             case FUNC_CALLENGINEFUNCTION:
             case FUNC_CALLENGINEFUNCTION2:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], scriptText);
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], (void*)scriptEng.operands[2]);
                 break;
             case FUNC_SETOBJECTBORDERX: {
                 opcodeSize       = 0;
@@ -3749,13 +3808,20 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             }
             case FUNC_COPYOBJECT: {
-                //TODO:
-                opcodeSize = 0;
-                int cnt        = scriptEng.operands[2];
-                if (cnt > 0) {
-                
-                    for (int e = 0; e < cnt; ++e) {
-                    }
+                opcodeSize   = 0;
+                int cnt      = scriptEng.operands[2];
+                int endIndex = scriptEng.operands[1];
+                int startID  = scriptEng.operands[0];
+                int nextID   = scriptEng.operands[0] + 1;
+                int dif      = endIndex - scriptEng.operands[0];
+                Entity *src  = &objectEntityList[endIndex];
+                for (int e = 0; e < cnt; ++e) {
+                    Entity *dst = &src[startID + endIndex];
+                    ++src;
+                    memcpy(dst, src, sizeof(Entity));
+                    scriptEng.operands[0] = nextID;
+                    scriptEng.operands[2] = cnt;
+                    scriptEng.operands[1] = nextID++ + dif;
                 }
             }
         }
@@ -3810,7 +3876,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ARRAYPOS5: scriptEng.arrayPosition[5] = scriptEng.operands[i]; break;
                     case VAR_PLAYEROBJECTPOS: scriptEng.arrayPosition[6] = scriptEng.operands[i]; break;
                     case VAR_PLAYEROBJECTCOUNT: scriptEng.arrayPosition[7] = scriptEng.operands[i]; break;
-                    case VAR_GLOBAL: GlobalVariables[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_GLOBAL: globalVariables[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_SCRIPTDATA: scriptData[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_OBJECTENTITYNO: break;
                     case VAR_OBJECTTYPEGROUP: {
@@ -4226,10 +4292,30 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGENEWXBOUNDARY2: newXBoundary2 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY1: newYBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY2: newYBoundary2 = scriptEng.operands[i]; break;
-                    case VAR_STAGEXBOUNDARY1: xBoundary1 = scriptEng.operands[i]; break;
-                    case VAR_STAGEXBOUNDARY2: xBoundary2 = scriptEng.operands[i]; break;
-                    case VAR_STAGEYBOUNDARY1: yBoundary1 = scriptEng.operands[i]; break;
-                    case VAR_STAGEYBOUNDARY2: yBoundary2 = scriptEng.operands[i]; break;
+                    case VAR_STAGEXBOUNDARY1:
+                        if (xBoundary1 != scriptEng.operands[i]) {
+                            xBoundary1    = scriptEng.operands[i];
+                            newXBoundary1 = scriptEng.operands[i];
+                        }
+                        break;
+                    case VAR_STAGEXBOUNDARY2:
+                        if (xBoundary2 != scriptEng.operands[i]) {
+                            xBoundary2    = scriptEng.operands[i];
+                            newXBoundary2 = scriptEng.operands[i];
+                        }
+                        break;
+                    case VAR_STAGEYBOUNDARY1:
+                        if (yBoundary1 != scriptEng.operands[i]) {
+                            yBoundary1    = scriptEng.operands[i];
+                            newYBoundary1 = scriptEng.operands[i];
+                        }
+                        break;
+                    case VAR_STAGEYBOUNDARY2:
+                        if (yBoundary2 != scriptEng.operands[i]) {
+                            yBoundary2    = scriptEng.operands[i];
+                            newYBoundary2 = scriptEng.operands[i];
+                        }
+                        break;
                     case VAR_STAGEDEFORMATIONDATA0: bgDeformationData0[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_STAGEDEFORMATIONDATA1: bgDeformationData1[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_STAGEDEFORMATIONDATA2: bgDeformationData2[arrayVal] = scriptEng.operands[i]; break;
@@ -4246,21 +4332,21 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_SCREENCAMERAXPOS: cameraXPos = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERAYPOS: cameraYPos = scriptEng.operands[i]; break;
                     case VAR_SCREENDRAWLISTSIZE: drawListEntries[arrayVal].listSize = scriptEng.operands[i]; break;
-                    case VAR_SCREENCENTERX:  break;
-                    case VAR_SCREENCENTERY:  break;
-                    case VAR_SCREENXSIZE:  break;
-                    case VAR_SCREENYSIZE:  break;
+                    case VAR_SCREENCENTERX: break;
+                    case VAR_SCREENCENTERY: break;
+                    case VAR_SCREENXSIZE: break;
+                    case VAR_SCREENYSIZE: break;
                     case VAR_SCREENXOFFSET: xScrollOffset = scriptEng.operands[i]; break;
                     case VAR_SCREENYOFFSET: yScrollOffset = scriptEng.operands[i]; break;
                     case VAR_SCREENSHAKEX: cameraShakeX = scriptEng.operands[i]; break;
                     case VAR_SCREENSHAKEY: cameraShakeY = scriptEng.operands[i]; break;
                     case VAR_SCREENADJUSTCAMERAY: cameraAdjustY = scriptEng.operands[i]; break;
-                    case VAR_TOUCHSCREENDOWN:  break;
-                    case VAR_TOUCHSCREENXPOS:  break;
-                    case VAR_TOUCHSCREENYPOS: ;break;
+                    case VAR_TOUCHSCREENDOWN: break;
+                    case VAR_TOUCHSCREENXPOS: break;
+                    case VAR_TOUCHSCREENYPOS: break;
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
-                    case VAR_MUSICCURRENTTRACK:  break;
-                    case VAR_UNKNOWN:  break;
+                    case VAR_MUSICCURRENTTRACK: break;
+                    case VAR_UNKNOWN: break;
                     case VAR_KEYDOWNUP: keyDown.up = scriptEng.operands[i]; break;
                     case VAR_KEYDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
                     case VAR_KEYDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
@@ -4330,8 +4416,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ENGINESTATE: Engine.gameMode = scriptEng.operands[i]; break;
                     case VAR_ENGINELANGUAGE: Engine.language = scriptEng.operands[i]; break;
                     case VAR_ENGINEONLINEACTIVE: Engine.onlineActive = scriptEng.operands[i]; break;
-                    case VAR_ENGINESFXVOLUME: sfxVolume = scriptEng.operands[i]; SetGameVolumes(bgmVolume,sfxVolume); break;
-                    case VAR_ENGINEBGMVOLUME: bgmVolume = scriptEng.operands[i]; SetGameVolumes(bgmVolume,sfxVolume); break;
+                    case VAR_ENGINESFXVOLUME:
+                        sfxVolume = scriptEng.operands[i];
+                        SetGameVolumes(bgmVolume, sfxVolume);
+                        break;
+                    case VAR_ENGINEBGMVOLUME:
+                        bgmVolume = scriptEng.operands[i];
+                        SetGameVolumes(bgmVolume, sfxVolume);
+                        break;
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
                     case VAR_ENGINEPLATFORMID:  break;
                 }

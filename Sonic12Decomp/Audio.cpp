@@ -5,14 +5,14 @@ int globalSFXCount = 0;
 int stageSFXCount  = 0;
 
 int masterVolume  = MAX_VOLUME;
-int trackID     = -1;
-int sfxVolume   = MAX_VOLUME;
+int trackID       = -1;
+int sfxVolume     = MAX_VOLUME;
 int bgmVolume     = MAX_VOLUME;
 bool audioEnabled = false;
 
 int nextChannelPos = 0;
 bool musicEnabled  = 0;
-int musicStatus    = 0;
+int musicStatus    = MUSIC_STOPPED;
 int musicStartPos  = 0;
 int musicRatio     = 0;
 TrackInfo musicTracks[TRACK_COUNT];
@@ -54,11 +54,11 @@ int InitAudioPlayback()
     }
     else {
 #if RSDK_DEBUG
-        printf("Unable to open audio device: %s\n", SDL_GetError());
+        printLog("Unable to open audio device: %s", SDL_GetError());
 #endif
         return false;
     }
-    #endif
+#endif
 
     FileInfo info;
     FileInfo infoStore;
@@ -96,22 +96,15 @@ int InitAudioPlayback()
 
         int varCount = 0;
         FileRead(&varCount, 1);
-        GlobalVariablesCount = varCount;
+        globalVariablesCount = varCount;
         for (int v = 0; v < varCount; ++v) {
             // Read Variable Name
             FileRead(&fileBuffer, 1);
-            FileRead(&GlobalVariableNames[v], fileBuffer);
-            GlobalVariableNames[v][fileBuffer] = 0;
+            FileRead(&globalVariableNames[v], fileBuffer);
+            globalVariableNames[v][fileBuffer] = 0;
 
             // Read Variable Value
-            FileRead(&fileBuffer2, 1);
-            GlobalVariables[v] = fileBuffer2 << 0;
-            FileRead(&fileBuffer2, 1);
-            GlobalVariables[v] += fileBuffer2 << 8;
-            FileRead(&fileBuffer2, 1);
-            GlobalVariables[v] += fileBuffer2 << 16;
-            FileRead(&fileBuffer2, 1);
-            GlobalVariables[v] += fileBuffer2 << 24;
+            FileRead(&fileBuffer2, 4);
         }
 
         // Read SFX
@@ -166,7 +159,6 @@ int readVorbisStream(void *dst, uint size)
     return tot;
 }
 
-
 int trackRequestMoreData(uint samples, uint amount)
 {
     int out   = amount / 2;
@@ -175,7 +167,7 @@ int trackRequestMoreData(uint samples, uint amount)
     if (avail < out * 2) {
 
         int numSamples = 0;
-        numSamples = readVorbisStream(musInfo.extraBuffer, (musInfo.spec.format & 0xFF) / 8 * samples * musInfo.spec.channels);
+        numSamples     = readVorbisStream(musInfo.extraBuffer, (musInfo.spec.format & 0xFF) / 8 * samples * musInfo.spec.channels);
 
         if (numSamples == 0)
             return 0;
@@ -196,7 +188,6 @@ int trackRequestMoreData(uint samples, uint amount)
 }
 #endif
 
-
 void ProcessMusicStream(void *data, Uint8 *stream, int len)
 {
     if (!musInfo.loaded)
@@ -205,7 +196,7 @@ void ProcessMusicStream(void *data, Uint8 *stream, int len)
         case MUSIC_READY:
         case MUSIC_PLAYING: {
 #if RETRO_USING_SDL
-            int bytes        = trackRequestMoreData(AUDIO_SAMPLES, len * 2);
+            int bytes = trackRequestMoreData(AUDIO_SAMPLES, len * 2);
             if (bytes > 0) {
                 int vol = (bgmVolume * masterVolume) / MAX_VOLUME;
                 ProcessAudioMixing(NULL, stream, musInfo.buffer, audioDeviceFormat.format, len, vol, true);
@@ -283,9 +274,9 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
 
     ChannelInfo *snd = (ChannelInfo *)sfx;
 
-    float panL     = 0;
-    float panR     = 0;
-    int i          = 0;
+    float panL = 0;
+    float panR = 0;
+    int i      = 0;
     if (!music)
         panL = snd->pan;
     else
@@ -606,7 +597,7 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
         } break;
         default:
 #if RSDK_DEBUG
-            printf("Unknown audio format: %d", format);
+            printLog("Unknown audio format: %d", format);
 #endif
             return;
     }
@@ -636,13 +627,34 @@ long tellVorbis(void *ptr)
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
     return GetFilePosition2(&info->fileInfo);
 }
-int closeVorbis(void *ptr)
+int closeVorbis(void *ptr) { return CloseFile2((FileInfo *)ptr); }
+
+size_t readVorbis_Sfx(void *mem, size_t size, size_t nmemb, void *ptr)
 {
-    return CloseFile2();
+    FileInfo *info = (FileInfo *)ptr;
+    return FileRead2(info, mem, (int)(size * nmemb));
 }
+int seekVorbis_Sfx(void *ptr, ogg_int64_t offset, int whence)
+{
+    FileInfo *info = (FileInfo *)ptr;
+    switch (whence) {
+        case SEEK_SET: whence = 0; break;
+        case SEEK_CUR: whence = (int)GetFilePosition2(info); break;
+        case SEEK_END: whence = info->vfileSize; break;
+        default: break;
+    }
+    SetFilePosition2(info, (int)(whence + offset));
+    return (int)GetFilePosition2(info) <= info->vfileSize;
+}
+long tellVorbis_Sfx(void *ptr)
+{
+    FileInfo *info = (FileInfo *)ptr;
+    return GetFilePosition2(info);
+}
+int closeVorbis_Sfx(void *ptr) { return CloseFile2((FileInfo *)ptr); }
 #endif
 
-void SetMusicTrack(char *filePath, byte trackID, bool loop, uint loopPoint)
+void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint)
 {
     TrackInfo *track = &musicTracks[trackID];
     StrCopy(track->fileName, "Data/Music/");
@@ -651,8 +663,7 @@ void SetMusicTrack(char *filePath, byte trackID, bool loop, uint loopPoint)
     track->loopPoint = loopPoint;
 }
 
-
-void SwapMusicTrack(char *filePath, byte trackID, uint loopPoint, uint musicRatio)
+void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio)
 {
     if (StrLength(filePath) <= 0) {
         StopMusic();
@@ -663,13 +674,14 @@ void SwapMusicTrack(char *filePath, byte trackID, uint loopPoint, uint musicRati
         StrAdd(track->fileName, filePath);
         track->trackLoop = true;
         track->loopPoint = loopPoint;
-        musicStartPos    = 1;
-        PlayMusic(trackID);
+        musicRatio       = ratio;
+        PlayMusic(trackID, 1);
     }
 }
 
-bool PlayMusic(int track)
+bool PlayMusic(int track, int musStartPos)
 {
+    musicStartPos = musStartPos;
     if (track < 0 || track >= TRACK_COUNT) {
         StopMusic();
         return false;
@@ -682,12 +694,21 @@ bool PlayMusic(int track)
         return false;
     }
 
-    if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
-        if (musInfo.loaded)
-            StopMusic();
+    if (musInfo.loaded && !musicStartPos)
+        StopMusic();
 
-        cFileHandleStream = cFileHandle;
-        cFileHandle       = nullptr;
+    SDL_LockAudio();
+
+    int oldPos = 0;
+    int oldTotal = 0;
+    if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
+        oldPos = (ulong)ov_pcm_tell(&musInfo.vorbisFile);
+        oldTotal = (ulong)ov_pcm_total(&musInfo.vorbisFile, -1);
+    }
+
+    if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
+        musInfo.fileInfo.cFileHandle = cFileHandle;
+        cFileHandle                  = nullptr;
 
         musInfo.currentTrack = trackPtr;
         musInfo.loaded       = true;
@@ -707,7 +728,7 @@ bool PlayMusic(int track)
         }
 
         musInfo.vorbBitstream = -1;
-        musInfo.vorbisFile.vi   = ov_info(&musInfo.vorbisFile, -1);
+        musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
 
         memset(&musInfo.spec, 0, sizeof(SDL_AudioSpec));
 
@@ -721,10 +742,10 @@ bool PlayMusic(int track)
         musInfo.audioLen = musInfo.spec.size = (int)(samples * musInfo.spec.channels * 2);
 
         musInfo.stream = SDL_NewAudioStream(musInfo.spec.format, musInfo.spec.channels, musInfo.spec.freq, audioDeviceFormat.format,
-                                      audioDeviceFormat.channels, audioDeviceFormat.freq);
+                                            audioDeviceFormat.channels, audioDeviceFormat.freq);
         if (!musInfo.stream) {
 #if RSDK_DEBUG
-            printf("Failed to create stream: %s", SDL_GetError());
+            printLog("Failed to create stream: %s", SDL_GetError());
 #endif
         }
 
@@ -732,15 +753,40 @@ bool PlayMusic(int track)
         musInfo.extraBuffer = new byte[AUDIO_BUFFERSIZE];
 #endif
 
-        musicStatus = MUSIC_PLAYING;
+        if (musicStartPos) {
+            float newPos = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+            musicStartPos = fmod(newPos, samples);
+
+            ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
+        }
+
+        musicStatus  = MUSIC_PLAYING;
         masterVolume = MAX_VOLUME;
         trackID      = track;
+        SDL_UnlockAudio();
         return true;
     }
+    SDL_UnlockAudio();
     return false;
 }
 
-void LoadSfx(char *filePath, byte sfxID) {
+#if RSDK_DEBUG
+void SetSfxName(const char *sfxName, int sfxID)
+{
+    int sfxNameID   = 0;
+    int soundNameID = 0;
+    while (sfxName[sfxNameID]) {
+        if (sfxName[sfxNameID] != ' ')
+            sfxNames[sfxID][soundNameID++] = sfxName[sfxNameID];
+        ++sfxNameID;
+    }
+    sfxNames[sfxID][soundNameID] = 0;
+    printLog("Set SFX (%d) name to: %s", sfxID, sfxName);
+}
+#endif
+
+void LoadSfx(char *filePath, byte sfxID)
+{
     FileInfo info;
     char fullPath[0x80];
 
@@ -748,54 +794,153 @@ void LoadSfx(char *filePath, byte sfxID) {
     StrAdd(fullPath, filePath);
 
     if (LoadFile(fullPath, &info)) {
-        byte *sfx      = new byte[info.vfileSize];
-        FileRead(sfx, info.vfileSize);
-        CloseFile();
+        byte type = fullPath[StrLength(fullPath) - 3];
+        if (type == 'w') {
+            byte *sfx = new byte[info.vfileSize];
+            FileRead(sfx, info.vfileSize);
+            CloseFile();
 
-        SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
-        if (src == NULL) {
+            SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
+            if (src == NULL) {
 #if RSDK_DEBUG
-            printf("Unable to open sfx: %s\n", info.fileName);
-#endif
-        }
-        else {
-            SDL_AudioSpec wav_spec;
-            uint wav_length;
-            byte *wav_buffer;
-            SDL_AudioSpec *wav = SDL_LoadWAV_RW(src, 0, &wav_spec, &wav_buffer, &wav_length);
-
-            SDL_RWclose(src);
-            delete[] sfx;
-            if (wav == NULL) {
-#if RSDK_DEBUG
-                printf("Unable to read sfx: %s\n", info.fileName);
+                printLog("Unable to open sfx: %s", info.fileName);
 #endif
             }
             else {
-                SDL_AudioCVT convert;
-                if (SDL_BuildAudioCVT(&convert, wav->format, wav->channels, wav->freq, audioDeviceFormat.format, audioDeviceFormat.channels,
-                                      audioDeviceFormat.freq)
-                    > 0) {
-                    convert.buf = (byte *)malloc(wav_length * convert.len_mult);
-                    convert.len = wav_length;
-                    memcpy(convert.buf, wav_buffer, wav_length);
-                    SDL_ConvertAudio(&convert);
+                SDL_AudioSpec wav_spec;
+                uint wav_length;
+                byte *wav_buffer;
+                SDL_AudioSpec *wav = SDL_LoadWAV_RW(src, 0, &wav_spec, &wav_buffer, &wav_length);
 
-                    StrCopy(sfxList[sfxID].name, filePath);
-                    sfxList[sfxID].buffer = convert.buf;
-                    sfxList[sfxID].length = convert.len_cvt;
-                    sfxList[sfxID].loaded = true;
-                    SDL_FreeWAV(wav_buffer);
+                SDL_RWclose(src);
+                delete[] sfx;
+                if (wav == NULL) {
+#if RSDK_DEBUG
+                    printLog("Unable to read sfx: %s", info.fileName);
+#endif
                 }
                 else {
-                    StrCopy(sfxList[sfxID].name, filePath);
-                    sfxList[sfxID].buffer = wav_buffer;
-                    sfxList[sfxID].length = wav_length;
-                    sfxList[sfxID].loaded = true;
+                    SDL_AudioCVT convert;
+                    if (SDL_BuildAudioCVT(&convert, wav->format, wav->channels, wav->freq, audioDeviceFormat.format, audioDeviceFormat.channels,
+                                          audioDeviceFormat.freq)
+                        > 0) {
+                        convert.buf = (byte *)malloc(wav_length * convert.len_mult);
+                        convert.len = wav_length;
+                        memcpy(convert.buf, wav_buffer, wav_length);
+                        SDL_ConvertAudio(&convert);
+
+                        StrCopy(sfxList[sfxID].name, filePath);
+                        sfxList[sfxID].buffer = convert.buf;
+                        sfxList[sfxID].length = convert.len_cvt;
+                        sfxList[sfxID].loaded = true;
+                        SDL_FreeWAV(wav_buffer);
+                    }
+                    else {
+                        StrCopy(sfxList[sfxID].name, filePath);
+                        sfxList[sfxID].buffer = wav_buffer;
+                        sfxList[sfxID].length = wav_length;
+                        sfxList[sfxID].loaded = true;
+                    }
                 }
             }
+        }
+        else if (type == 'o') {
+            // ogg sfx :(
+            OggVorbis_File vf;
+            ov_callbacks callbacks = OV_CALLBACKS_NOCLOSE;
+            vorbis_info *vinfo;
+            byte *buf;
+            SDL_AudioSpec spec;
+            int bitstream = -1;
+            long samplesize;
+            long samples;
+            int read, toRead;
+            bool wasError = true;
 
-        
+            callbacks.read_func  = readVorbis_Sfx;
+            callbacks.seek_func  = seekVorbis_Sfx;
+            callbacks.tell_func  = tellVorbis_Sfx;
+            callbacks.close_func = closeVorbis_Sfx;
+
+            info.cFileHandle = cFileHandle;
+            cFileHandle      = nullptr;
+
+            // GetFileInfo(&info);
+            int error = ov_open_callbacks(&info, &vf, NULL, 0, callbacks);
+            if (error != 0) {
+                ov_clear(&vf);
+#if RSDK_DEBUG
+                printLog("failed to load ogg sfx!");
+#endif
+                return;
+            }
+
+            vinfo = ov_info(&vf, -1);
+
+            byte *audioBuf = NULL;
+            uint audioLen  = 0;
+            memset(&spec, 0, sizeof(SDL_AudioSpec));
+
+            spec.format   = AUDIO_S16;
+            spec.channels = vinfo->channels;
+            spec.freq     = (int)vinfo->rate;
+            spec.samples  = 4096; /* buffer size */
+
+            samples = (long)ov_pcm_total(&vf, -1);
+
+            audioLen = spec.size = (Uint32)(samples * spec.channels * 2);
+            audioBuf             = (byte *)malloc(audioLen);
+            buf                  = audioBuf;
+            toRead               = audioLen;
+
+            for (read = (int)ov_read(&vf, (char *)buf, toRead, 0, 2, 1, &bitstream); read > 0;
+                 read = (int)ov_read(&vf, (char *)buf, toRead, 0, 2, 1, &bitstream)) {
+                if (read < 0) {
+                    free(audioBuf);
+                    ov_clear(&vf);
+#if RSDK_DEBUG
+                    printLog("failed to read ogg sfx!");
+#endif
+                    return;
+                }
+                toRead -= read;
+                buf += read;
+            }
+
+            ov_clear(&vf);
+
+            /* Don't return a buffer that isn't a multiple of samplesize */
+            samplesize = ((spec.format & 0xFF) / 8) * spec.channels;
+            audioLen &= ~(samplesize - 1);
+
+            SDL_AudioCVT convert;
+            if (SDL_BuildAudioCVT(&convert, spec.format, spec.channels, spec.freq, audioDeviceFormat.format, audioDeviceFormat.channels,
+                                  audioDeviceFormat.freq)
+                > 0) {
+                convert.buf = (byte *)malloc(audioLen * convert.len_mult);
+                convert.len = audioLen;
+                memcpy(convert.buf, audioBuf, audioLen);
+                SDL_ConvertAudio(&convert);
+
+                StrCopy(sfxList[sfxID].name, filePath);
+                sfxList[sfxID].buffer = convert.buf;
+                sfxList[sfxID].length = convert.len_cvt;
+                sfxList[sfxID].loaded = true;
+                free(audioBuf);
+            }
+            else {
+                StrCopy(sfxList[sfxID].name, filePath);
+                sfxList[sfxID].buffer = audioBuf;
+                sfxList[sfxID].length = audioLen;
+                sfxList[sfxID].loaded = true;
+            }
+        }
+        else {
+            // wtf lol
+            CloseFile();
+#if RSDK_DEBUG
+            printLog("Sfx format not supported!");
+#endif
         }
     }
 }
@@ -809,10 +954,10 @@ void PlaySfx(int sfx, bool loop)
         }
     }
 
-    ChannelInfo *sfxInfo      = &sfxChannels[sfxChannelID];
+    ChannelInfo *sfxInfo  = &sfxChannels[sfxChannelID];
     sfxInfo->sfxID        = sfx;
-    sfxInfo->samplePtr        = sfxList[sfx].buffer;
-    sfxInfo->sampleLength     = sfxList[sfx].length;
+    sfxInfo->samplePtr    = sfxList[sfx].buffer;
+    sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loop;
     sfxInfo->pan          = 0;
     if (nextChannelPos == CHANNEL_COUNT)
@@ -820,21 +965,25 @@ void PlaySfx(int sfx, bool loop)
 }
 void SetSfxAttributes(int sfx, int loopCount, char pan)
 {
-    for (int i = 0; i < 4; ++i) {
+    int sfxChannel = -1;
+    for (int i = 0; i < CHANNEL_COUNT; ++i) {
         if (sfxChannels[i].sfxID == sfx) {
             nextChannelPos = i;
+            sfxChannel     = i;
             break;
         }
     }
+    if (sfxChannel == -1)
+        return; //wasn't found
 
-    ChannelInfo *sfxInfo  = &sfxChannels[nextChannelPos++];
+    ChannelInfo *sfxInfo = &sfxChannels[nextChannelPos++];
     if (sfxInfo->sfxID != -1)
         StopSfx(sfxInfo->sfxID);
-    sfxInfo->samplePtr  = sfxList[sfx].buffer;
+    sfxInfo->samplePtr    = sfxList[sfx].buffer;
     sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loopCount == -1 ? sfxInfo->loopSFX : loopCount;
-    sfxInfo->pan  = pan;
-    sfxInfo->sfxID   = sfx;
+    sfxInfo->pan          = pan;
+    sfxInfo->sfxID        = sfx;
 
     if (nextChannelPos == CHANNEL_COUNT)
         nextChannelPos = 0;

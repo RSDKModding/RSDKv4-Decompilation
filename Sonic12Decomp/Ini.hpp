@@ -4,14 +4,30 @@
 class IniParser
 {
 public:
-    struct ConfigItems {
-        char section[60];
-        bool hasSection;
-        char key[60];
-        char value[60];
+    enum ItemType {
+        INI_ITEM_STRING,
+        INI_ITEM_INT,
+        INI_ITEM_BOOL,
+        INI_ITEM_COMMENT,
     };
 
-    IniParser() {}
+    struct ConfigItem {
+        ConfigItem()
+        {
+            sprintf(section, "");
+            sprintf(key, "");
+            sprintf(value, "");
+            hasSection = false;
+            type       = INI_ITEM_STRING;
+        }
+        char section[0x20];
+        bool hasSection = false;
+        char key[0x40];
+        char value[0x60];
+        byte type = INI_ITEM_STRING;
+    };
+
+    IniParser() { memset(items, 0, 0x80 * sizeof(ConfigItem)); }
     IniParser(const char *filename);
 
     int GetString(const char *section, const char *key, char *dest);
@@ -20,10 +36,10 @@ public:
     int SetString(const char *section, const char *key, char *value);
     int SetInteger(const char *section, const char *key, int value);
     int SetBool(const char *section, const char *key, bool value);
+    int SetComment(const char *section, const char *key, const char *comment);
     void Write(const char *filename);
 
-
-    ConfigItems item[80];
+    ConfigItem items[0x80];
 
     int count = 0;
 };

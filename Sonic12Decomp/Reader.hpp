@@ -1,6 +1,24 @@
 #ifndef READER_H
 #define READER_H
 
+#if RETRO_USING_SDL
+#define FileIO                                          SDL_RWops
+#define fOpen(path, mode)                               SDL_RWFromFile(path, mode)
+#define fRead(buffer, elementSize, elementCount, file)  SDL_RWread(file, buffer, elementSize, elementCount)
+#define fSeek(file, offset, whence)                     SDL_RWseek(file, offset, whence)
+#define fTell(file)                                     SDL_RWtell(file)
+#define fClose(file)                                    SDL_RWclose(file)
+#define fWrite(buffer, elementSize, elementCount, file) SDL_RWwrite(file, buffer, elementSize, elementCount)
+#else
+#define FileIO                                          FILE
+#define fOpen(path, mode)                               fopen(path, mode)
+#define fRead(buffer, elementSize, elementCount, file)  fread(buffer, elementSize, elementCount, file)
+#define fSeek(file, offset, whence)                     fseek(file, offset, whence)
+#define fTell(file)                                     ftell(file)
+#define fClose(file)                                    fclose(file)
+#define fWrite(buffer, elementSize, elementCount, file) fwrite(buffer, elementSize, elementCount, file)
+#endif
+
 struct FileInfo {
     char fileName[0x100];
     int fileSize;
@@ -13,6 +31,7 @@ struct FileInfo {
     byte eStringNo;
     byte eNybbleSwap;
     bool useEncryption;
+    FileIO *cFileHandle;
 };
 
 struct RSDKFileInfo {
@@ -47,8 +66,7 @@ extern byte eNybbleSwap;
 extern byte encryptionStringA[0x10];
 extern byte encryptionStringB[0x10];
 
-extern FILE *cFileHandle;
-extern FILE *cFileHandleStream;
+extern FileIO *cFileHandle;
 
 inline void CopyFilePath(char *dest, const char *src)
 {
@@ -69,7 +87,7 @@ inline bool CloseFile()
 {
     int result = 0;
     if (cFileHandle)
-        result = fclose(cFileHandle);
+        result = fClose(cFileHandle);
 
     cFileHandle = NULL;
     return result;
@@ -86,7 +104,7 @@ inline size_t FillFileBuffer()
     else 
         readSize = fileSize - readPos;
 
-    size_t result = fread(fileBuffer, 1u, readSize, cFileHandle);
+    size_t result = fRead(fileBuffer, 1u, readSize, cFileHandle);
     readPos += readSize;
     bufferPosition = 0;
     return result;
@@ -94,7 +112,7 @@ inline size_t FillFileBuffer()
 
 inline void GetFileInfo(FileInfo *fileInfo)
 {
-    StrCopy(fileInfo->fileName, fileName);
+    fileInfo->fileName[0]        = 0;
     fileInfo->bufferPosition    = bufferPosition;
     fileInfo->readPos           = readPos - readSize;
     fileInfo->fileSize          = fileSize;
@@ -113,13 +131,13 @@ bool ReachedEndOfFile();
 
 
 size_t FileRead2(FileInfo *info, void *dest, int size); // For Music Streaming
-inline bool CloseFile2()
+inline bool CloseFile2(FileInfo *info)
 {
     int result = 0;
-    if (cFileHandleStream)
-        result = fclose(cFileHandleStream);
+    if (info->cFileHandle)
+        result = fClose(info->cFileHandle);
 
-    cFileHandleStream = NULL;
+    info->cFileHandle = NULL;
     return result;
 }
 size_t GetFilePosition2(FileInfo *info);

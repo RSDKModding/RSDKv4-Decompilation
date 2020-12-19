@@ -31,49 +31,74 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
 
 inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 {
-    if (newActivePal < PALETTE_COUNT) {
-        byte *LineBuffer = &gfxLineBuffer[startLine];
-        while (++startLine < endLine) *LineBuffer++ = newActivePal;
-    }
+    if (newActivePal < PALETTE_COUNT)
+        while (startLine++ < endLine) gfxLineBuffer[startLine % SCREEN_YSIZE] = newActivePal;
+
     activePalette   = fullPalette[gfxLineBuffer[0]];
     activePalette32 = fullPalette32[gfxLineBuffer[0]];
 }
 
-inline void SetPaletteEntry(byte paletteIndex, byte r, byte g, byte b)
+inline void SetPaletteEntry(byte paletteIndex, byte index, byte r, byte g, byte b)
 {
-    activePalette[paletteIndex]     = ((int)b >> 3) | 32 * ((int)g >> 2) | ((ushort)((int)r >> 3) << 11);
-    activePalette32[paletteIndex].r = r;
-    activePalette32[paletteIndex].g = g;
-    activePalette32[paletteIndex].b = b;
+    if (paletteIndex != 0xFF) {
+        fullPalette[paletteIndex][index]     = ((int)b >> 3) | 32 * ((int)g >> 2) | ((ushort)((int)r >> 3) << 11);
+        fullPalette32[paletteIndex][index].r = r;
+        fullPalette32[paletteIndex][index].g = g;
+        fullPalette32[paletteIndex][index].b = b;
+    }
+    else {
+        activePalette[index]     = ((int)b >> 3) | 32 * ((int)g >> 2) | ((ushort)((int)r >> 3) << 11);
+        activePalette32[index].r = r;
+        activePalette32[index].g = g;
+        activePalette32[index].b = b;
+    }
 }
 
 inline void SetPaletteEntryPacked(byte paletteIndex, byte index, uint colour)
 {
-    fullPalette[paletteIndex][index] = ((byte)(colour >> 0) >> 3) | 32 * ((byte)(colour >> 8) >> 2) | ((ushort)((byte)(colour >> 16) >> 3) << 11);
-    //activePalette32[paletteIndex].r = r;
-    //activePalette32[paletteIndex].g = g;
-    //activePalette32[paletteIndex].b = b;
+    fullPalette[paletteIndex][index]     = ((byte)(colour >> 0) >> 3) | 32 * ((byte)(colour >> 8) >> 2) | ((ushort)((byte)(colour >> 16) >> 3) << 11);
+    fullPalette32[paletteIndex][index].r = (byte)(colour >> 16);
+    fullPalette32[paletteIndex][index].g = (byte)(colour >> 8);
+    fullPalette32[paletteIndex][index].b = (byte)(colour >> 0);
 }
 
-inline uint GetPaletteEntryPacked(byte paletteIndex, byte index) { return fullPalette[paletteIndex][index]; }
+inline uint GetPaletteEntryPacked(byte paletteIndex, byte index)
+{
+    PaletteEntry clr = fullPalette32[paletteIndex][index];
+    return (clr.r << 16) | (clr.g << 8) | (clr.b);
+}
 
 inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinationPalette, byte destPaletteStart, byte count)
 {
-    if (sourcePalette < PALETTE_COUNT && destinationPalette < PALETTE_COUNT)
-        for (int i = 0; i < count; ++i) fullPalette[destinationPalette][srcPaletteStart + i] = fullPalette[sourcePalette][destPaletteStart + i];
+    if (sourcePalette < PALETTE_COUNT && destinationPalette < PALETTE_COUNT) {
+        for (int i = 0; i < count; ++i) {
+            fullPalette[destinationPalette][srcPaletteStart + i]   = fullPalette[sourcePalette][destPaletteStart + i];
+            fullPalette32[destinationPalette][srcPaletteStart + i] = fullPalette32[sourcePalette][destPaletteStart + i];
+        }
+    }
 }
 
 inline void RotatePalette(int palID, byte startIndex, byte endIndex, bool right)
 {
     if (right) {
-        ushort startClr = fullPalette[palID][endIndex];
-        for (int i = endIndex; i > startIndex; --i) activePalette[i] = activePalette[i - 1];
+        ushort startClr         = fullPalette[palID][endIndex];
+        PaletteEntry startClr32 = fullPalette32[palID][startIndex];
+        for (int i = endIndex; i > startIndex; --i) {
+            fullPalette[palID][i] = fullPalette[palID][i - 1];
+            fullPalette32[palID][i] = fullPalette32[palID][i - 1];
+        }
         fullPalette[palID][startIndex] = startClr;
+        fullPalette32[palID][endIndex] = startClr32;
     }
     else {
         ushort startClr = fullPalette[palID][startIndex];
-        for (int i = startIndex; i < endIndex; ++i) activePalette[i] = activePalette[i + 1];
+        PaletteEntry startClr32 = fullPalette32[palID][startIndex];
+        for (int i = startIndex; i < endIndex; ++i) {
+            fullPalette[palID][i] = fullPalette[palID][i + 1];
+            fullPalette32[palID][i] = fullPalette32[palID][i + 1];
+        }
         fullPalette[palID][endIndex] = startClr;
+        fullPalette32[palID][endIndex] = startClr32;
     }
 }
 

@@ -98,7 +98,9 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos);
 
 void DrawFace(void *v, uint colour);
+void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
+void DrawTexturedFace2(void *v, byte sheetID);
 
 void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount);
 
@@ -106,6 +108,5 @@ void DrawTextMenu(void *menu, int XPos, int YPos);
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawStageTextEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawBlendedTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
-void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount);
 
 #endif // !DRAWING_H

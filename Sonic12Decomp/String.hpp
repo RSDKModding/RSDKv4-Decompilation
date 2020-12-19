@@ -1,6 +1,79 @@
 #ifndef STRING_H
 #define STRING_H
 
+#define STRSTORAGE_SIZE (1000)
+#define STRING_SIZE (0x200)
+
+#define CREDITS_LIST_SIZE (0x200)
+
+extern ushort *strPressStart;
+extern ushort *strTouchToStart;
+extern ushort *strStartGame;
+extern ushort *strTimeAttack;
+extern ushort *strAchievements;
+extern ushort *strLeaderboards;
+extern ushort *strHelpAndOptions;
+extern ushort *strSoundTest;
+extern ushort *strSaveSelect;
+extern ushort *strPlayerSelect;
+extern ushort *strNoSave;
+extern ushort *strNewGame;
+extern ushort *strDelete;
+extern ushort *strDeleteMessage;
+extern ushort *strYes;
+extern ushort *strNo;
+extern ushort *strSonic;
+extern ushort *strTails;
+extern ushort *strKnuckles;
+extern ushort *strPause;
+extern ushort *strContinue;
+extern ushort *strRestart;
+extern ushort *strExit;
+extern ushort *strDevMenu;
+extern ushort *strRestartMessage;
+extern ushort *strExitMessage;
+extern ushort *strNSRestartMessage;
+extern ushort *strNSExitMessage;
+extern ushort *strExitGame;
+extern ushort *strNetworkMessage;
+extern ushort *strStageList[8];
+extern ushort *strSaveStageList[26];
+extern ushort *strNewBestTime;
+extern ushort *strRecords;
+extern ushort *strNextAct;
+extern ushort *strPlay;
+extern ushort *strTotalTime;
+extern ushort *strInstructions;
+extern ushort *strSettings;
+extern ushort *strStaffCredits;
+extern ushort *strAbout;
+extern ushort *strMusic;
+extern ushort *strSoundFX;
+extern ushort *strSpindash;
+extern ushort *strBoxArt;
+extern ushort *strControls;
+extern ushort *strOn;
+extern ushort *strOff;
+extern ushort *strCustomizeDPad;
+extern ushort *strDPadSize;
+extern ushort *strDPadOpacity;
+extern ushort *strHelpText1;
+extern ushort *strHelpText2;
+extern ushort *strHelpText3;
+extern ushort *strHelpText4;
+extern ushort *strHelpText5;
+extern ushort *strVersionName;
+extern ushort *strPrivacy;
+extern ushort *strTerms;
+
+extern ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
+extern int stringStorePos;
+
+extern int creditsListSize;
+extern const ushort *strCreditsList[CREDITS_LIST_SIZE];
+extern byte creditsType[CREDITS_LIST_SIZE];
+extern float creditsAdvanceY[CREDITS_LIST_SIZE];
+
 inline void StrCopy(char *dest, const char *src)
 {
     int i = 0;
@@ -54,6 +127,7 @@ inline int StrLength(const char *string)
     return len;
 }
 int FindStringToken(const char *string, const char *token, char stopID);
+int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopID);
 
 inline void StringLowerCase(char *dest, const char *src)
 {
@@ -82,5 +156,91 @@ inline void StringLowerCase(char *dest, const char *src)
 void ConvertIntegerToString(char *text, int value);
 
 void GenerateMD5FromString(const char *string, int len, byte *buffer);
+
+void InitLocalizedStrings();
+ushort *ReadLocalizedString(const char *stringName, const char *language, const char *filePath);
+
+inline void ReadStringLine(char *text)
+{
+    char curChar = 0;
+
+    int textPos = 0;
+    while (true) {
+        FileRead(&curChar, 1);
+        if (curChar == '\t' || curChar == ' ')
+            break;
+        if (curChar == '\r' || curChar == '\n')
+            break;
+        if (curChar != ';')
+            text[textPos++] = curChar;
+
+        if (ReachedEndOfFile()) {
+            text[textPos] = 0;
+            return;
+        }
+    }
+    if (curChar != '\n' && curChar != '\r') {
+        if (ReachedEndOfFile()) {
+            text[textPos] = 0;
+            return;
+        }
+    }
+
+    text[textPos] = 0;
+    if (ReachedEndOfFile())
+        text[textPos] = 0;
+}
+
+inline void ReadStringLineUnicode(ushort *text)
+{
+    int curChar = 0;
+    byte fileBuffer[2];
+
+    int textPos = 0;
+    while (true) {
+        FileRead(fileBuffer, 2);
+        curChar = fileBuffer[0] + (fileBuffer[1] << 8);
+        if (curChar != ' ' && curChar != '\t') {
+            if (curChar == '\r')
+                break;
+            if (curChar != ';')
+                text[textPos++] = curChar;
+        }
+        else if (curChar == '\n' || curChar == '\r')
+            break;
+
+        if (ReachedEndOfFile()) {
+            text[textPos] = 0;
+            return;
+        }
+    }
+    text[textPos] = 0;
+    if (ReachedEndOfFile())
+        text[textPos] = 0;
+}
+
+void ReadCreditsList(const char *filePath);
+inline void ReadCreditsLine(char *line)
+{
+    byte fileBuffer = 0;
+
+    int strPos = 0;
+    while (true) {
+        FileRead(&fileBuffer, 1);
+        if (fileBuffer == '\r')
+            break;
+        line[strPos++] = fileBuffer;
+        if (ReachedEndOfFile()) {
+            line[strPos] = 0;
+            return;
+        }
+    }
+    FileRead(&fileBuffer, 1);
+    line[strPos] = 0;
+    if (ReachedEndOfFile()) {
+        line[strPos] = 0;
+        return;
+    }
+}
 
 #endif // !STRING_H

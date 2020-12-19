@@ -50,20 +50,24 @@ enum RetroLanguages {
     RETRO_IT = 2,
     RETRO_DE = 3,
     RETRO_ES = 4,
-    RETRO_JP = 5
+    RETRO_JP = 5,
+    RETRO_PT = 6,
+    RETRO_RU = 7,
+    RETRO_KO = 8,
+    RETRO_ZH = 9,
+    RETRO_ZS = 10,
 };
 
 enum RetroStates {
-    ENGINE_DEVMENU         = 0,
-    ENGINE_MAINGAME        = 1,
-    ENGINE_INITDEVMENU     = 2,
-    ENGINE_EXITGAME        = 3,
-    ENGINE_SCRIPTERROR     = 4,
-    ENGINE_ENTER_HIRESMODE = 5,
-    ENGINE_EXIT_HIRESMODE  = 6,
-    ENGINE_PAUSE           = 7,
-    ENGINE_WAIT            = 8,
-    ENGINE_VIDEOWAIT       = 9,
+    ENGINE_DEVMENU     = 0,
+    ENGINE_MAINGAME    = 1,
+    ENGINE_INITDEVMENU = 2,
+    ENGINE_WAIT        = 3,
+    ENGINE_SCRIPTERROR = 4,
+    ENGINE_INITPAUSE   = 5,
+    ENGINE_EXITPAUSE   = 6,
+    ENGINE_7           = 7,
+    ENGINE_8           = 8,
 };
 
 //enum RetroEngineCallbacks {
@@ -91,8 +95,8 @@ enum RetroBytecodeFormat {
 #include "Ini.hpp"
 
 #include "Math.hpp"
-#include "String.hpp"
 #include "Reader.hpp"
+#include "String.hpp"
 #include "Animation.hpp"
 #include "Audio.hpp"
 #include "Input.hpp"
@@ -110,8 +114,6 @@ enum RetroBytecodeFormat {
 
 //Native Entities
 #include "RetroGameLoop.hpp"
-
-#define GLOBALVAR_COUNT (0x100)
 
 class RetroEngine
 {
@@ -149,13 +151,6 @@ public:
 
     void LoadGameConfig(const char *Filepath);
 
-    void AwardAchievement(int id, int status);
-
-    void SetAchievement(int achievementID, int achievementDone);
-    void SetLeaderboard(int leaderboardID, int result);
-    void LoadAchievementsMenu();
-    void LoadLeaderboardsMenu();
-
     int callbackMessage = 0;
     int prevMessage     = 0;
     int waitValue       = 0;
@@ -192,8 +187,4 @@ public:
 };
 
 extern RetroEngine Engine;
-
-extern int GlobalVariablesCount;
-extern int GlobalVariables[GLOBALVAR_COUNT];
-extern char GlobalVariableNames[GLOBALVAR_COUNT][0x20];
 #endif // !RETROENGINE_H

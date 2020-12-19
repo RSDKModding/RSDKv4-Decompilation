@@ -16,10 +16,11 @@ enum CollisionModes {
 };
 
 enum CollisionSolidity {
-    SOLID_ALL  = 0,
-    SOLID_TOP  = 1,
-    SOLID_LRB  = 2,
-    SOLID_NONE = 3,
+    SOLID_ALL        = 0,
+    SOLID_TOP        = 1,
+    SOLID_LRB        = 2,
+    SOLID_NONE       = 3,
+    SOLID_TOP_NOGRIP = 4,
 };
 
 enum ObjectCollisionTypes {
@@ -42,7 +43,9 @@ extern int collisionTop;
 extern int collisionRight;
 extern int collisionBottom;
 
-extern CollisionSensor sensors[6];
+extern int collisionTolerance;
+
+extern CollisionSensor sensors[7];
 
 void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startYPos);
 void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startXPos);

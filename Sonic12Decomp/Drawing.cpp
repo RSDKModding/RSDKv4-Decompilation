@@ -35,17 +35,15 @@ int InitRenderDevice()
 
     if (!Engine.window) {
 #if RSDK_DEBUG
-        printf("ERROR: failed to create window!\n");
+        printLog("ERROR: failed to create window!");
 #endif
-        Engine.gameMode = ENGINE_EXITGAME;
         return 0;
     }
 
     if (!Engine.renderer) {
 #if RSDK_DEBUG
-        printf("ERROR: failed to create renderer!\n");
+        printLog("ERROR: failed to create renderer!");
 #endif
-        Engine.gameMode = ENGINE_EXITGAME;
         return 0;
     }
 
@@ -56,7 +54,7 @@ int InitRenderDevice()
 
 #if RSDK_DEBUG
     if (!Engine.screenBuffer) {
-        printf("ERROR: failed to create screen buffer!\nerror msg: %s\n", SDL_GetError());
+        printLog("ERROR: failed to create screen buffer!\nerror msg: %s", SDL_GetError());
         return 0;
     }
 #endif
@@ -86,9 +84,6 @@ int InitRenderDevice()
 }
 void RenderRenderDevice()
 {
-    if (Engine.gameMode == ENGINE_EXITGAME)
-        return;
-
 #if RETRO_USING_SDL
     SDL_Rect destScreenPos;
     destScreenPos.x = 0;
@@ -157,15 +152,15 @@ void ClearScreen(byte index)
 void SetScreenSize(int width, int height)
 {
     SCREEN_XSIZE        = width;
-    SCREEN_CENTERX      = (width / 2);
+    SCREEN_CENTERX      = width / 2;
     SCREEN_SCROLL_LEFT  = SCREEN_CENTERX - 8;
     SCREEN_SCROLL_RIGHT = SCREEN_CENTERX + 8;
     OBJECT_BORDER_X2    = width + 0x80;
 
-    // SCREEN_YSIZE               = height;
-    // SCREEN_CENTERY             = (height / 2);
-    // SCREEN_SCROLL_UP    = (height / 2) - 8;
-    // SCREEN_SCROLL_DOWN  = (height / 2) + 8;
+    // SCREEN_YSIZE       = height;
+    // SCREEN_CENTERY     = (height / 2);
+    // SCREEN_SCROLL_UP   = (height / 2) - 8;
+    // SCREEN_SCROLL_DOWN = (height / 2) + 8;
     // OBJECT_BORDER_Y2   = height + 0x100;
 }
 
@@ -181,7 +176,7 @@ void DrawObjectList(int Layer)
         }
     }
 }
-void DrawStageGFX(void)
+void DrawStageGFX()
 {
     waterDrawPos = waterLevel - yScrollOffset;
     if (waterDrawPos < 0)
@@ -190,57 +185,96 @@ void DrawStageGFX(void)
     if (waterDrawPos > SCREEN_YSIZE)
         waterDrawPos = SCREEN_YSIZE;
 
-    DrawObjectList(0);
-    if (activeTileLayers[0] < LAYER_COUNT) {
-        switch (stageLayouts[activeTileLayers[0]].type) {
-            case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
-            case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
-            case LAYER_3DFLOOR: Draw3DFloorLayer(0); break;
-            case LAYER_3DSKY: Draw3DSkyLayer(0); break;
-            default: break;
+    if (tLayerMidPoint <= 2) {
+        DrawObjectList(0);
+        if (activeTileLayers[0] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[0]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(0); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(0); break;
+                default: break;
+            }
+        }
+
+        DrawObjectList(1);
+        if (activeTileLayers[1] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[1]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(1); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(1); break;
+                default: break;
+            }
+        }
+
+        DrawObjectList(2);
+        DrawObjectList(3);
+        DrawObjectList(4);
+        if (activeTileLayers[2] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[2]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(2); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(2); break;
+                default: break;
+            }
         }
     }
-
-    DrawObjectList(1);
-    if (activeTileLayers[1] < LAYER_COUNT) {
-        switch (stageLayouts[activeTileLayers[1]].type) {
-            case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
-            case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
-            case LAYER_3DFLOOR: Draw3DFloorLayer(1); break;
-            case LAYER_3DSKY: Draw3DSkyLayer(1); break;
-            default: break;
+    else if (tLayerMidPoint < 6) {
+        DrawObjectList(0);
+        if (activeTileLayers[0] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[0]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(0); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(0); break;
+                default: break;
+            }
         }
+
+        DrawObjectList(1);
+        if (activeTileLayers[1] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[1]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(1); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(1); break;
+                default: break;
+            }
+        }
+
+        DrawObjectList(2);
+        if (activeTileLayers[2] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[2]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(2); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(2); break;
+                default: break;
+            }
+        }
+        DrawObjectList(3);
+        DrawObjectList(4);
     }
 
-    DrawObjectList(2);
-    if (activeTileLayers[2] < LAYER_COUNT) {
-        switch (stageLayouts[activeTileLayers[2]].type) {
-            case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
-            case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
-            case LAYER_3DFLOOR: Draw3DFloorLayer(2); break;
-            case LAYER_3DSKY: Draw3DSkyLayer(2); break;
-            default: break;
+    if (tLayerMidPoint < 6) {
+        if (activeTileLayers[3] < LAYER_COUNT) {
+            switch (stageLayouts[activeTileLayers[3]].type) {
+                case LAYER_HSCROLL: DrawHLineScrollLayer(3); break;
+                case LAYER_VSCROLL: DrawVLineScrollLayer(3); break;
+                case LAYER_3DFLOOR: Draw3DFloorLayer(3); break;
+                case LAYER_3DSKY: Draw3DSkyLayer(3); break;
+                default: break;
+            }
         }
+
+        DrawObjectList(5);
+        DrawObjectList(6);
     }
 
-    DrawObjectList(3);
-    DrawObjectList(4);
-    if (activeTileLayers[3] < LAYER_COUNT) {
-        switch (stageLayouts[activeTileLayers[3]].type) {
-            case LAYER_HSCROLL: DrawHLineScrollLayer(3); break;
-            case LAYER_VSCROLL: DrawVLineScrollLayer(3); break;
-            case LAYER_3DFLOOR: Draw3DFloorLayer(3); break;
-            case LAYER_3DSKY: Draw3DSkyLayer(3); break;
-            default: break;
-        }
-    }
-
-    DrawObjectList(5);
-    DrawObjectList(6);
-
-    if (fadeMode > 0) {
+    if (fadeMode > 0)
         DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, fadeR, fadeG, fadeB, fadeA);
-    }
 }
 
 int tileXPos[PARALLAX_COUNT];
@@ -309,7 +343,9 @@ void DrawHLineScrollLayer(int layerID)
     int drawableLines[2] = { waterDrawPos, SCREEN_YSIZE - waterDrawPos };
     for (int i = 0; i < 2; ++i) {
         while (drawableLines[i]--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int chunkX             = tileXPos[*scrollIndex];
             if (i == 0) {
                 if (hParallax.deform[*scrollIndex])
@@ -805,7 +841,8 @@ void DrawVLineScrollLayer(int layerID)
     }
 
     ushort *frameBufferPtr = Engine.frameBuffer;
-    activePalette = fullPalette[gfxLineBuffer[0]];
+    activePalette          = fullPalette[gfxLineBuffer[0]];
+    activePalette32        = fullPalette32[gfxLineBuffer[0]];
     int tileXPos           = xscrollOffset % (layerheight << 7);
     if (tileXPos < 0)
         tileXPos += layerheight << 7;
@@ -1269,8 +1306,11 @@ void Draw3DFloorLayer(int layerID)
     int layerXPos           = layer->XPos >> 4;
     int ZBuffer             = layerZPos >> 4;
     for (int i = 4; i < 112; ++i) {
-        if (!(i & 1))
-            activePalette = fullPalette[*linePtr++];
+        if (!(i & 1)) {
+            activePalette   = fullPalette[*linePtr];
+            activePalette32 = fullPalette32[*linePtr];
+            linePtr++;
+        }
         int XBuffer            = layerYPos / (i << 9) * -cosValue >> 8;
         int YBuffer            = sinValue * (layerYPos / (i << 9)) >> 8;
         int XPos               = layerXPos + (3 * sinValue * (layerYPos / (i << 9)) >> 2) - XBuffer * SCREEN_CENTERX;
@@ -1312,8 +1352,11 @@ void Draw3DSkyLayer(int layerID)
     int layerXPos           = layer->XPos >> 4;
     int layerZPos           = layer->ZPos >> 4;
     for (int i = TILE_SIZE / 2; i < SCREEN_YSIZE - TILE_SIZE; ++i) {
-        if (!(i & 1))
-            activePalette  = fullPalette[*linePtr++];
+        if (!(i & 1)) {
+            activePalette   = fullPalette[*linePtr];
+            activePalette32 = fullPalette32[*linePtr];
+            linePtr++;
+        }
         int xBuffer    = layerYPos / (i << 8) * -cosValue >> 9;
         int yBuffer    = sinValue * (layerYPos / (i << 8)) >> 9;
         int XPos       = layerXPos + (3 * sinValue * (layerYPos / (i << 8)) >> 2) - xBuffer * SCREEN_XSIZE;
@@ -1557,7 +1600,8 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
     while (height--) {
         activePalette   = fullPalette[*lineBuffer];
-        activePalette32 = fullPalette32[*lineBuffer++];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
         int w                    = width;
         while (w--) {
             if (*gfxDataPtr > 0)
@@ -1611,7 +1655,9 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
 
             while (height--) {
-                activePalette = fullPalette[*lineBuffer++];
+                activePalette   = fullPalette[*lineBuffer];
+                activePalette32 = fullPalette32[*lineBuffer];
+                lineBuffer++;
                 int w                  = width;
                 while (w--) {
                     if (*gfxData > 0)
@@ -1630,7 +1676,9 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             gfxData        = &graphicData[widthFlip - 1 + sprX + surface->width * sprY + surface->dataPosition];
             frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
             while (height--) {
-                activePalette = fullPalette[*lineBuffer++];
+                activePalette   = fullPalette[*lineBuffer];
+                activePalette32 = fullPalette32[*lineBuffer];
+                lineBuffer++;
                 int w                  = width;
                 while (w--) {
                     if (*gfxData > 0)
@@ -1650,7 +1698,9 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             gfxData        = &graphicData[sprX + surface->width * (sprY + heightFlip - 1) + surface->dataPosition];
             frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
             while (height--) {
-                activePalette = fullPalette[*lineBuffer++];
+                activePalette   = fullPalette[*lineBuffer];
+                activePalette32 = fullPalette32[*lineBuffer];
+                lineBuffer++;
                 int w                  = width;
                 while (w--) {
                     if (*gfxData > 0)
@@ -1669,7 +1719,9 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             gfxData        = &graphicData[widthFlip - 1 + sprX + surface->width * (sprY + heightFlip - 1) + surface->dataPosition];
             frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
             while (height--) {
-                activePalette = fullPalette[*lineBuffer++];
+                activePalette   = fullPalette[*lineBuffer];
+                activePalette32 = fullPalette32[*lineBuffer];
+                lineBuffer++;
                 int w                  = width;
                 while (w--) {
                     if (*gfxData > 0)
@@ -1740,7 +1792,9 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
         byte *gfxDataPtr = &gfxData[widthM1];
         int gfxPitch     = 0;
         while (height--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int roundXPos          = roundedXPos;
             int w                  = width;
             while (w--) {
@@ -1763,7 +1817,9 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
         int gfxPitch = 0;
         int h        = height;
         while (h--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int roundXPos          = roundedXPos;
             int w                  = width;
             while (w--) {
@@ -1881,7 +1937,9 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
         int drawX = sprXPos - (cosine * startX - sine * startY) - 0x100;
         int drawY = cosine * startY + sprYPos + sine * startX;
         while (maxY--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int finalX             = drawX;
             int finalY             = drawY;
             int w                  = maxX;
@@ -1904,7 +1962,9 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
         int drawX = sprXPos + cosine * startX - sine * startY;
         int drawY = cosine * startY + sprYPos + sine * startX;
         while (maxY--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int finalX             = drawX;
             int finalY             = drawY;
             int w                  = maxX;
@@ -2029,7 +2089,9 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
         int drawX = sprXPos - (cosine * startX - sine * startY) - (truescale >> 1);
         int drawY = cosine * startY + sprYPos + sine * startX;
         while (maxY--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int finalX             = drawX;
             int finalY             = drawY;
             int w                  = maxX;
@@ -2052,7 +2114,9 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
         int drawX = sprXPos + cosine * startX - sine * startY;
         int drawY = cosine * startY + sprYPos + sine * startX;
         while (maxY--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int finalX             = drawX;
             int finalY             = drawY;
             int w                  = maxX;
@@ -2099,7 +2163,9 @@ void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int 
     byte *gfxData          = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
     while (height--) {
-        activePalette = fullPalette[*lineBuffer++];
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
         int w                  = width;
         while (w--) {
             if (*gfxData > 0)
@@ -2140,7 +2206,9 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
     if (alpha == 0xFF) {
         while (height--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int w                  = width;
             while (w--) {
                 if (*gfxData > 0)
@@ -2154,7 +2222,9 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
     }
     else {
         while (height--) {
-            activePalette = fullPalette[*lineBuffer++];
+            activePalette   = fullPalette[*lineBuffer];
+            activePalette32 = fullPalette32[*lineBuffer];
+            lineBuffer++;
             int w                  = width;
             while (w--) {
                 if (*gfxData > 0) {
@@ -2204,7 +2274,9 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
 
     while (height--) {
-        activePalette = fullPalette[*lineBuffer++];
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
         int w                  = width;
         while (w--) {
             if (*gfxData > 0) {
@@ -2267,7 +2339,9 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
 
     while (height--) {
-        activePalette = fullPalette[*lineBuffer++];
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
         int w                  = width;
         while (w--) {
             if (*gfxData > 0) {
@@ -2522,6 +2596,109 @@ void DrawFace(void *v, uint colour)
         }
     }
 }
+void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
+{
+    Vertex *verts = (Vertex *)v;
+
+    if (alpha < 1)
+        return;
+    if (alpha > 0xFF)
+        alpha = 0xFF;
+    if (verts[0].x < 0 && verts[1].x < 0 && verts[2].x < 0 && verts[3].x < 0)
+        return;
+    if (verts[0].x > SCREEN_XSIZE && verts[1].x > SCREEN_XSIZE && verts[2].x > SCREEN_XSIZE && verts[3].x > SCREEN_XSIZE)
+        return;
+    if (verts[0].y < 0 && verts[1].y < 0 && verts[2].y < 0 && verts[3].y < 0)
+        return;
+    if (verts[0].y > SCREEN_YSIZE && verts[1].y > SCREEN_YSIZE && verts[2].y > SCREEN_YSIZE && verts[3].y > SCREEN_YSIZE)
+        return;
+    if (verts[0].x == verts[1].x && verts[1].x == verts[2].x && verts[2].x == verts[3].x)
+        return;
+    if (verts[0].y == verts[1].y && verts[1].y == verts[2].y && verts[2].y == verts[3].y)
+        return;
+
+    int vertexA = 0;
+    int vertexB = 1;
+    int vertexC = 2;
+    int vertexD = 3;
+    if (verts[1].y < verts[0].y) {
+        vertexA = 1;
+        vertexB = 0;
+    }
+    if (verts[2].y < verts[vertexA].y) {
+        int temp = vertexA;
+        vertexA  = 2;
+        vertexC  = temp;
+    }
+    if (verts[3].y < verts[vertexA].y) {
+        int temp = vertexA;
+        vertexA  = 3;
+        vertexD  = temp;
+    }
+    if (verts[vertexC].y < verts[vertexB].y) {
+        int temp = vertexB;
+        vertexB  = vertexC;
+        vertexC  = temp;
+    }
+    if (verts[vertexD].y < verts[vertexB].y) {
+        int temp = vertexB;
+        vertexB  = vertexD;
+        vertexD  = temp;
+    }
+    if (verts[vertexD].y < verts[vertexC].y) {
+        int temp = vertexC;
+        vertexC  = vertexD;
+        vertexD  = temp;
+    }
+
+    int faceTop    = verts[vertexA].y;
+    int faceBottom = verts[vertexD].y;
+    if (faceTop < 0)
+        faceTop = 0;
+    if (faceBottom > SCREEN_YSIZE)
+        faceBottom = SCREEN_YSIZE;
+    for (int i = faceTop; i < faceBottom; ++i) {
+        faceLineStart[i] = 100000;
+        faceLineEnd[i]   = -100000;
+    }
+
+    processScanEdge(&verts[vertexA], &verts[vertexB]);
+    processScanEdge(&verts[vertexA], &verts[vertexC]);
+    processScanEdge(&verts[vertexA], &verts[vertexD]);
+    processScanEdge(&verts[vertexB], &verts[vertexC]);
+    processScanEdge(&verts[vertexC], &verts[vertexD]);
+    processScanEdge(&verts[vertexB], &verts[vertexD]);
+
+    ushort colour16 = ((int)(byte)colour >> 3) | 32 * (((colour >> 8) & 0xFF) >> 2) | ((ushort)(((colour >> 16) & 0xFF) >> 3) << 11);
+    ushort fogColour16 = ((int)(byte)fogColour >> 3) | 32 * (((fogColour >> 8) & 0xFF) >> 2) | ((ushort)(((fogColour >> 16) & 0xFF) >> 3) << 11);
+
+    ushort *frameBufferPtr = &Engine.frameBuffer[SCREEN_XSIZE * faceTop];
+    while (faceTop < faceBottom) {
+        int startX = faceLineStart[faceTop];
+        int endX   = faceLineEnd[faceTop];
+        if (startX >= SCREEN_XSIZE || endX <= 0) {
+            frameBufferPtr += SCREEN_XSIZE;
+        }
+        else {
+            if (startX < 0)
+                startX = 0;
+            if (endX > SCREEN_XSIZE - 1)
+                endX = SCREEN_XSIZE - 1;
+            ushort *fbPtr = &frameBufferPtr[startX];
+            frameBufferPtr += SCREEN_XSIZE;
+            int vertexwidth = endX - startX + 1;
+            while (vertexwidth--) {
+                short *blendTableA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
+                short *blendTableB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
+                *fbPtr             = (blendTableA[fogColour16 & (BLENDTABLE_XSIZE - 1)] + blendTableB[colour16 & (BLENDTABLE_XSIZE - 1)])
+                         | ((blendTableA[(fogColour16 & 0x7E0) >> 6] + blendTableB[(colour16 & 0x7E0) >> 6]) << 6)
+                         | ((blendTableA[(fogColour16 & 0xF800) >> 11] + blendTableB[(colour16 & 0xF800) >> 11]) << 11);
+                ++fbPtr;
+            }
+        }
+        ++faceTop;
+    }
+}
 void DrawTexturedFace(void *v, byte sheetID)
 {
     Vertex *verts = (Vertex *)v;
@@ -2596,7 +2773,9 @@ void DrawTexturedFace(void *v, byte sheetID)
     int shiftwidth         = gfxSurface[sheetID].widthShift;
     byte *lineBuffer       = &gfxLineBuffer[faceTop];
     while (faceTop < faceBottom) {
-        activePalette = fullPalette[*lineBuffer++];
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
         int startX             = faceLineStart[faceTop];
         int endX               = faceLineEnd[faceTop];
         int UPos               = faceLineStartU[faceTop];
@@ -2643,32 +2822,127 @@ void DrawTexturedFace(void *v, byte sheetID)
         ++faceTop;
     }
 }
-
-void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount)
+void DrawTexturedFace2(void *v, byte sheetID)
 {
-    TextMenu *tMenu = (TextMenu *)menu;
-    int Y           = YPos << 9;
-    if (rowCount < 0)
-        rowCount = tMenu->rowCount;
-    if (rowStart + rowCount > tMenu->rowCount) 
-        rowCount = tMenu->rowCount - rowStart;
+    Vertex *verts = (Vertex *)v;
 
-    while (rowCount > 0) {
-        int charID = 0;
-        int i      = tMenu->entrySize[rowStart];
-        int X      = XPos << 9;
-        while (i > 0) {
-            char c               = tMenu->textData[tMenu->entryStart[rowStart] + charID];
-            FontCharacter *fChar = &fontCharacterList[c];
-            DrawSpriteScaled(FLIP_NONE, X >> 5, Y >> 5, -fChar->pivotX, -fChar->pivotY, scale, scale, fChar->width, fChar->height,
-                                      fChar->srcX, fChar->srcY, textMenuSurfaceNo);
-            X += fChar->xAdvance * scale;
-            charID++;
-            i--;
+    if (verts[0].x < 0 && verts[1].x < 0 && verts[2].x < 0 && verts[3].x < 0)
+        return;
+    if (verts[0].x > SCREEN_XSIZE && verts[1].x > SCREEN_XSIZE && verts[2].x > SCREEN_XSIZE && verts[3].x > SCREEN_XSIZE)
+        return;
+    if (verts[0].y < 0 && verts[1].y < 0 && verts[2].y < 0 && verts[3].y < 0)
+        return;
+    if (verts[0].y > SCREEN_YSIZE && verts[1].y > SCREEN_YSIZE && verts[2].y > SCREEN_YSIZE && verts[3].y > SCREEN_YSIZE)
+        return;
+    if (verts[0].x == verts[1].x && verts[1].x == verts[2].x && verts[2].x == verts[3].x)
+        return;
+    if (verts[0].y == verts[1].y && verts[1].y == verts[2].y && verts[2].y == verts[3].y)
+        return;
+
+    int vertexA = 0;
+    int vertexB = 1;
+    int vertexC = 2;
+    int vertexD = 3;
+    if (verts[1].y < verts[0].y) {
+        vertexA = 1;
+        vertexB = 0;
+    }
+    if (verts[2].y < verts[vertexA].y) {
+        int temp = vertexA;
+        vertexA  = 2;
+        vertexC  = temp;
+    }
+    if (verts[3].y < verts[vertexA].y) {
+        int temp = vertexA;
+        vertexA  = 3;
+        vertexD  = temp;
+    }
+    if (verts[vertexC].y < verts[vertexB].y) {
+        int temp = vertexB;
+        vertexB  = vertexC;
+        vertexC  = temp;
+    }
+    if (verts[vertexD].y < verts[vertexB].y) {
+        int temp = vertexB;
+        vertexB  = vertexD;
+        vertexD  = temp;
+    }
+    if (verts[vertexD].y < verts[vertexC].y) {
+        int temp = vertexC;
+        vertexC  = vertexD;
+        vertexD  = temp;
+    }
+
+    int faceTop    = verts[vertexA].y;
+    int faceBottom = verts[vertexD].y;
+    if (faceTop < 0)
+        faceTop = 0;
+    if (faceBottom > SCREEN_YSIZE)
+        faceBottom = SCREEN_YSIZE;
+    for (int i = faceTop; i < faceBottom; ++i) {
+        faceLineStart[i] = 100000;
+        faceLineEnd[i]   = -100000;
+    }
+
+    processScanEdgeUV(&verts[vertexA], &verts[vertexB]);
+    processScanEdgeUV(&verts[vertexA], &verts[vertexC]);
+    processScanEdgeUV(&verts[vertexA], &verts[vertexD]);
+    processScanEdgeUV(&verts[vertexB], &verts[vertexC]);
+    processScanEdgeUV(&verts[vertexC], &verts[vertexD]);
+    processScanEdgeUV(&verts[vertexB], &verts[vertexD]);
+
+    ushort *frameBufferPtr = &Engine.frameBuffer[SCREEN_XSIZE * faceTop];
+    byte *sheetPtr         = &graphicData[gfxSurface[sheetID].dataPosition];
+    int shiftwidth         = gfxSurface[sheetID].widthShift;
+    byte *lineBuffer       = &gfxLineBuffer[faceTop];
+    while (faceTop < faceBottom) {
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
+        int startX    = faceLineStart[faceTop];
+        int endX      = faceLineEnd[faceTop];
+        int UPos      = faceLineStartU[faceTop];
+        int VPos      = faceLineStartV[faceTop];
+        if (startX >= SCREEN_XSIZE || endX <= 0) {
+            frameBufferPtr += SCREEN_XSIZE;
         }
-        Y += spacing * scale;
-        rowStart++;
-        rowCount--;
+        else {
+            int posDifference = endX - startX;
+            int bufferedUPos  = 0;
+            int bufferedVPos  = 0;
+            if (endX == startX) {
+                bufferedUPos = 0;
+                bufferedVPos = 0;
+            }
+            else {
+                bufferedUPos = (faceLineEndU[faceTop] - UPos) / posDifference;
+                bufferedVPos = (faceLineEndV[faceTop] - VPos) / posDifference;
+            }
+            if (endX > SCREEN_XSIZE - 1)
+                posDifference = (SCREEN_XSIZE - 1) - startX;
+            if (startX < 0) {
+                posDifference += startX;
+                UPos -= startX * bufferedUPos;
+                VPos -= startX * bufferedVPos;
+                startX = 0;
+            }
+            ushort *fbPtr = &frameBufferPtr[startX];
+            frameBufferPtr += SCREEN_XSIZE;
+            int counter = posDifference + 1;
+            while (counter--) {
+                if (UPos < 0)
+                    UPos = 0;
+                if (VPos < 0)
+                    VPos = 0;
+                ushort index = sheetPtr[(VPos >> 16 << shiftwidth) + (UPos >> 16)];
+                if (index > 0)
+                    *fbPtr = ((activePalette[index] & 0xF7BC) >> 1) + ((*fbPtr & 0xF7BC) >> 1);
+                fbPtr++;
+                UPos += bufferedUPos;
+                VPos += bufferedVPos;
+            }
+        }
+        ++faceTop;
     }
 }
 

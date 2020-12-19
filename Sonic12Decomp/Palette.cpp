@@ -31,21 +31,15 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
 
         byte colour[3];
         if (paletteID) {
-            for (int i = startIndex; i < endIndex; i++) {
+            for (int i = startIndex; i < endIndex; ++i) {
                 FileRead(&colour, 3);
-                fullPalette[paletteID][startPaletteIndex]     = (ushort)((colour[2] >> 3) | 32 * (colour[1] >> 2) | ((colour[0] >> 3) << 11));
-                fullPalette32[paletteID][startPaletteIndex].r   = colour[0];
-                fullPalette32[paletteID][startPaletteIndex].g   = colour[1];
-                fullPalette32[paletteID][startPaletteIndex++].b = colour[2];
+                SetPaletteEntry(paletteID, startPaletteIndex++, colour[0], colour[1], colour[2]);
             }
         }
         else {
-            for (int i = startIndex; i < endIndex; i++) {
+            for (int i = startIndex; i < endIndex; ++i) {
                 FileRead(&colour, 3);
-                activePalette[startPaletteIndex]       = (ushort)((colour[2] >> 3) | 32 * (colour[1] >> 2) | ((colour[0] >> 3) << 11));
-                activePalette32[startPaletteIndex].r   = colour[0];
-                activePalette32[startPaletteIndex].g   = colour[1];
-                activePalette32[startPaletteIndex++].b = colour[2];
+                SetPaletteEntry(-1, startPaletteIndex++, colour[0], colour[1], colour[2]);
             }
         }
         CloseFile();

@@ -17,8 +17,8 @@ enum FaceFlags {
 
 enum MatrixTypes {
     MAT_WORLD = 0,
-    MAT_VIEW = 1,
-    MAT_TEMP = 2,
+    MAT_VIEW  = 1,
+    MAT_TEMP  = 2,
 };
 
 struct Matrix {
@@ -38,7 +38,7 @@ struct Face {
     int b;
     int c;
     int d;
-    int colour;
+    uint colour;
     int flags;
 };
 
@@ -83,7 +83,7 @@ void matrixRotateZ(Matrix *matrix, int rotationZ);
 void matrixRotateXYZ(Matrix *matrix, int rotationX, int rotationY, int rotationZ);
 void matrixInverse(Matrix *matrix);
 void transformVertexBuffer();
-void transformVerticies(Matrix *matrix, int startIndex, int endIndex);
+void transformVertices(Matrix *matrix, int startIndex, int endIndex);
 void sort3DDrawList();
 void draw3DScene(int spriteSheetID);
 

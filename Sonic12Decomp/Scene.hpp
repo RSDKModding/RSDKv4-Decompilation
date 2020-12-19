@@ -81,7 +81,7 @@ struct CollisionMasks {
     char lWallMasks[TILE_COUNT * TILE_SIZE];
     char rWallMasks[TILE_COUNT * TILE_SIZE];
     char roofMasks[TILE_COUNT * TILE_SIZE];
-    int angles[TILE_COUNT];
+    uint angles[TILE_COUNT];
     byte flags[TILE_COUNT];
 };
 
@@ -243,9 +243,10 @@ inline void Copy16x16Tile(ushort dest, ushort src)
 
 void SetLayerDeformation(int deformID, int deformationA, int deformationB, int deformType, int deformOffset, int deformCount);
 
-void SetPlayerScreenPosition(Entity *Player);
-void SetPlayerScreenPositionCDStyle(Entity *Player);
-void SetPlayerHLockedScreenPosition(Entity *Player);
-void SetPlayerLockedScreenPosition(Entity *Player);
+void SetPlayerScreenPosition(Entity *target);
+void SetPlayerScreenPositionCDStyle(Entity *target);
+void SetPlayerHLockedScreenPosition(Entity *target);
+void SetPlayerLockedScreenPosition(Entity *target);
+void SetPlayerScreenPositionFixed(Entity *target);
 
 #endif // !SCENE_H

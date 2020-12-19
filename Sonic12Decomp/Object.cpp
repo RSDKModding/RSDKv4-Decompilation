@@ -4,16 +4,17 @@
 // Native Objects
 int nativeEntityPos;
 
-int activeEntityList[ACTIVE_NATIVEENTITY_COUNT];
+int activeEntityList[NATIVEENTITY_COUNT];
+int objectRemoveFlag[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
 int nativeEntityCount;
 
 int nativeEntityCountBackup;
-int backupEntityList[ACTIVE_NATIVEENTITY_COUNT];
+int backupEntityList[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBackup[NATIVEENTITY_COUNT];
 
 int nativeEntityCountBackupS;
-int backupEntityListS[ACTIVE_NATIVEENTITY_COUNT];
+int backupEntityListS[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 
 //Game Objects
@@ -39,14 +40,18 @@ int playerListPos          = 0;
 
 void ProcessStartupObjects()
 {
-    scriptFrameCount           = 0;
+    scriptFrameCount = 0;
     ClearAnimationData();
-    scriptEng.arrayPosition[2] = TEMPENTITY_START;
+    scriptEng.arrayPosition[8] = TEMPENTITY_START;
     OBJECT_BORDER_X1           = 0x80;
     OBJECT_BORDER_X3           = 0x20;
     OBJECT_BORDER_X2           = SCREEN_XSIZE + 0x80;
     OBJECT_BORDER_X4           = SCREEN_XSIZE + 0x20;
     Entity *entity             = &objectEntityList[TEMPENTITY_START];
+
+    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
+    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
+
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];
         objectLoop                  = TEMPENTITY_START;
@@ -54,6 +59,7 @@ void ProcessStartupObjects()
         scriptInfo->frameListOffset = scriptFrameCount;
         scriptInfo->spriteSheetID   = 0;
         entity->type                = i;
+
         if (scriptData[scriptInfo->subStartup.scriptCodePtr] > 0)
             ProcessScript(scriptInfo->subStartup.scriptCodePtr, scriptInfo->subStartup.jumpTablePtr, SUB_SETUP);
         scriptInfo->frameCount = scriptFrameCount - scriptInfo->frameListOffset;
@@ -65,28 +71,26 @@ void ProcessStartupObjects()
 void ProcessObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
-    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
 
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         processObjectFlag[objectLoop] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectLoop];
+        x              = entity->XPos >> 16;
+        y              = entity->YPos >> 16;
+
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                x      = entity->XPos >> 16;
-                y      = entity->YPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset
                          && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
-            case PRIORITY_ACTIVE: processObjectFlag[objectLoop] = true; break;
-            case PRIORITY_ACTIVE_PAUSED: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE:
+            case PRIORITY_ACTIVE_PAUSED:
+            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                x      = entity->XPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
             case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                x = entity->XPos >> 16;
-                y = entity->YPos >> 16;
                 if (x <= xScrollOffset - OBJECT_BORDER_X1 || x >= OBJECT_BORDER_X2 + xScrollOffset
                     || y <= yScrollOffset - OBJECT_BORDER_Y1 || y >= yScrollOffset + OBJECT_BORDER_Y2) {
                     processObjectFlag[objectLoop] = false;
@@ -98,14 +102,8 @@ void ProcessObjects()
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                x      = entity->XPos >> 16;
-                y      = entity->YPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                 && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
-                break;
-            case PRIORITY_ACTIVE_XBOUNDS_SMALL:
-                x      = entity->XPos >> 16;
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset;
                 break;
             default: break;
         }
@@ -120,11 +118,19 @@ void ProcessObjects()
         }
     }
     
+    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
+
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
-            if (entity->typeGroup < TYPEGROUP_COUNT)
-                objectTypeGroupList[entity->typeGroup].entityRefs[objectTypeGroupList[entity->typeGroup].listSize++] = objectLoop;
+        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+            if (entity->typeGroup < OBJECT_COUNT) {
+                TypeGroupList *list = &objectTypeGroupList[objectEntityList[objectLoop].type];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
+            else {
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
         }
     }
 
@@ -149,31 +155,29 @@ void ProcessPausedObjects()
 }
 
 
-void ProcessFrozenObjects() {
+void ProcessFrozenObjects()
+{
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
-    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
 
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         processObjectFlag[objectLoop] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectLoop];
+        x              = entity->XPos >> 16;
+        y              = entity->YPos >> 16;
+
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                x                             = entity->XPos >> 16;
-                y                             = entity->YPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset
                                                 && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
             case PRIORITY_ACTIVE: 
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE_XBOUNDS_SMALL: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                x                             = entity->XPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
             case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                x = entity->XPos >> 16;
-                y = entity->YPos >> 16;
                 if (x <= xScrollOffset - OBJECT_BORDER_X1 || x >= OBJECT_BORDER_X2 + xScrollOffset || y <= yScrollOffset - OBJECT_BORDER_Y1
                     || y >= yScrollOffset + OBJECT_BORDER_Y2) {
                     processObjectFlag[objectLoop] = false;
@@ -185,15 +189,13 @@ void ProcessFrozenObjects() {
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                x                             = entity->XPos >> 16;
-                y                             = entity->YPos >> 16;
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                 && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
             default: break;
         }
 
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
+        if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
@@ -203,57 +205,81 @@ void ProcessFrozenObjects() {
         }
     }
 
+    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
+
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
-            if (entity->typeGroup < TYPEGROUP_COUNT)
-                objectTypeGroupList[entity->typeGroup].entityRefs[objectTypeGroupList[entity->typeGroup].listSize++] = objectLoop;
+        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+            if (entity->typeGroup < OBJECT_COUNT) {
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].type];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
+            else {
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
         }
     }
 }
 void Process2PObjects() {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
-    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
+
+    Entity *entityP1 = &objectEntityList[0];
+    int XPosP1       = entityP1->XPos;
+    int YPosP1       = entityP1->YPos;
+    Entity *entityP2 = &objectEntityList[1];
+    int XPosP2       = entityP2->XPos;
+    int YPosP2       = entityP2->YPos;
 
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         processObjectFlag[objectLoop] = false;
         int x = 0, y = 0;
+
         Entity *entity = &objectEntityList[objectLoop];
+        x              = entity->XPos;
+        y              = entity->YPos;
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                x                             = entity->XPos >> 16;
-                y                             = entity->YPos >> 16;
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset
-                                                && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
-                break;
-            case PRIORITY_ACTIVE: processObjectFlag[objectLoop] = true; break;
-            case PRIORITY_ACTIVE_PAUSED: processObjectFlag[objectLoop] = true; break;
-            case PRIORITY_ACTIVE_XBOUNDS:
-                x                             = entity->XPos >> 16;
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
-                break;
-            case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                x = entity->XPos >> 16;
-                y = entity->YPos >> 16;
-                if (x <= xScrollOffset - OBJECT_BORDER_X1 || x >= OBJECT_BORDER_X2 + xScrollOffset || y <= yScrollOffset - OBJECT_BORDER_Y1
-                    || y >= yScrollOffset + OBJECT_BORDER_Y2) {
-                    processObjectFlag[objectLoop] = false;
-                    entity->type                  = OBJ_TYPE_BLANKOBJECT;
+                if (x < XPosP1 - 0x1FFFFFF || x > XPosP1 + 0x1FFFFFF || (y < YPosP1 - 0x17FFFFF) || y > YPosP1 + 0x17FFFFF) {
+                    if (x < XPosP2 - 0x1FFFFFF || x > XPosP2 + 0x1FFFFFF || (y < YPosP2 - 0x17FFFFF) || y > YPosP2 + 0x17FFFFF) {
+                        processObjectFlag[objectLoop] = false;
+                    }
+                    else {
+                        processObjectFlag[objectLoop] = true;
+                    }
                 }
                 else {
                     processObjectFlag[objectLoop] = true;
                 }
                 break;
+            case PRIORITY_ACTIVE:
+            case PRIORITY_ACTIVE_PAUSED:
+            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE_XBOUNDS:
+                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
+                break;
+            case PRIORITY_ACTIVE_BOUNDS_REMOVE:
+                if ((x >= XPosP1 - 0x1FFFFFF && x <= XPosP1 + 0x1FFFFFF) || (x >= XPosP2 - 0x1FFFFFF && x <= XPosP2 + 0x1FFFFFF)) {
+                    processObjectFlag[objectLoop] = true;
+                }
+                else {
+                    entity->type                  = OBJ_TYPE_BLANKOBJECT;
+                    processObjectFlag[objectLoop] = false;
+                }
+                break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                x                             = entity->XPos >> 16;
-                y                             = entity->YPos >> 16;
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
-                                                && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
-                break;
-            case PRIORITY_ACTIVE_XBOUNDS_SMALL:
-                x                             = entity->XPos >> 16;
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset;
+                if (x < XPosP1 - 0x17FFFFF || x > XPosP1 + 0x17FFFFF || (y < YPosP1 - 0xFFFFFF) || y > YPosP1 + 0xFFFFFF) {
+                    if (x < XPosP2 - 0x17FFFFF || x > XPosP2 + 0x17FFFFF || (y < YPosP2 - 0xFFFFFF) || y > YPosP2 + 0xFFFFFF) {
+                        processObjectFlag[objectLoop] = false;
+                    }
+                    else {
+                        processObjectFlag[objectLoop] = true;
+                    }
+                }
+                else {
+                    processObjectFlag[objectLoop] = true;
+                }
                 break;
             default: break;
         }
@@ -268,53 +294,156 @@ void Process2PObjects() {
         }
     }
 
+    for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
+
     for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
         Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
-            if (entity->typeGroup < TYPEGROUP_COUNT)
-                objectTypeGroupList[entity->typeGroup].entityRefs[objectTypeGroupList[entity->typeGroup].listSize++] = objectLoop;
+        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+            if (entity->typeGroup < OBJECT_COUNT) {
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].type];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
+            else {
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
+                list->entityRefs[list->listSize++] = objectLoop;
+            }
         }
     }
 }
 
-void ProcessPlayerControl(Entity *Player)
+#if RSDK_DEBUG
+void SetObjectTypeName(const char *objectName, int objectID)
 {
-    if (Player->controlMode) {
+    int objNameID  = 0;
+    int typeNameID = 0;
+    while (objectName[objNameID]) {
+        if (objectName[objNameID] != ' ')
+            typeNames[objectID][typeNameID++] = objectName[objNameID];
+        ++objNameID;
+    }
+    typeNames[objectID][typeNameID] = 0;
+    printLog("Set Object (%d) name to: %s", objectID, objectName);
+}
+#endif
+
+void ProcessPlayerControl(Entity *player)
+{
+    if (player->controlMode) {
         return;
     }
 
-    Player->up   = keyDown.up;
-    Player->down = keyDown.down;
+    player->up   = keyDown.up;
+    player->down = keyDown.down;
     if (!keyDown.left || !keyDown.right) {
-        Player->left  = keyDown.left;
-        Player->right = keyDown.right;
+        player->left  = keyDown.left;
+        player->right = keyDown.right;
     }
     else {
-        Player->left  = false;
-        Player->right = false;
+        player->left  = false;
+        player->right = false;
     }
-    Player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
-    Player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
+    player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
+    player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
 }
 
 void InitNativeObjectSystem() {
+    InitLocalizedStrings();
+    nativeEntityCount = 0;
+    memset(objectEntityBank, 0, NATIVEENTITY_COUNT * sizeof(NativeEntity));
+    ReadSaveRAMData();
+    if (!saveRAM[32]) // if new save
+    {
+        saveRAM[32] = 1; // Not new save
+        saveRAM[33] = MAX_VOLUME;
+        saveRAM[34] = MAX_VOLUME;
+        saveRAM[35] = 1;
+        saveRAM[36] = 0; // Box-Region
+        saveRAM[37] = 64;
+        saveRAM[38] = 160;
+        saveRAM[39] = 56;
+        saveRAM[40] = 184;
+        saveRAM[41] = -56;
+        saveRAM[42] = 188;
+        saveRAM[43] = 0;
+        saveRAM[44] = 0;
+        saveRAM[45] = 0;
+        WriteSaveRAMData();
+    }
 
+    if (!saveRAM[33])
+        musicEnabled = 0;
+    //if (!saveRAM[39])
+    //    _mm_storeu_si128((__m128i *)&saveRAM[39], _mm_load_si128((const __m128i *)&xmmword_8C670));
+    //globalBoxRegion[0] = saveRAM[36];
+    SetGameVolumes(saveRAM[33], saveRAM[34]);
+    //CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
+    CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
 }
-void CreateNativeObject(void (*create)(void* objPtr), void (*main)(void* objPtr)) {
-
+NativeEntity* CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr)) {
+    if (!nativeEntityCount) {
+        NativeEntity *entity = objectEntityBank;
+        memset(objectEntityBank, 0, sizeof(NativeEntity));
+        entity->createPtr   = objCreate;
+        entity->mainPtr     = objMain;
+        activeEntityList[0] = 0;
+        nativeEntityCount++;
+        if (entity->createPtr)
+            entity->createPtr(entity);
+        return entity;
+    }
+    else if (nativeEntityCount >= 0xFF) {
+        //TODO
+        return NULL;
+    }
+    else {
+        NativeEntity *entity = objectEntityBank;
+        int slot           = 0;
+        while (entity->mainPtr) {
+            ++entity;
+            ++slot;
+            if (slot >= NATIVEENTITY_COUNT)
+                return entity;
+        }
+        memset(entity, 0, sizeof(NativeEntity));
+        entity->slotID             = slot;
+        entity->objectID                      = nativeEntityCount;
+        entity->createPtr                     = objCreate;
+        entity->mainPtr                       = objMain;
+        activeEntityList[nativeEntityCount++] = slot;
+        if (entity->createPtr)
+            entity->createPtr(entity);
+        return entity;
+    }
 }
-void RemoveNativeObject(NativeEntity* NativeEntry) {
-
+void RemoveNativeObject(NativeEntity* entity) {
+    if (nativeEntityCount <= 0) {
+        objectRemoveFlag[entity->slotID] = 1;
+    }
+    else {
+        memset(objectRemoveFlag, 0, nativeEntityCount);
+        int slotStore                    = 0;
+        objectRemoveFlag[entity->slotID] = 1;
+        int curSlot                      = 0;
+        do {
+            if (!objectRemoveFlag[curSlot]) {
+                if (curSlot != slotStore) {
+                    int store                   = activeEntityList[curSlot];
+                    objectRemoveFlag[slotStore] = 0;
+                    activeEntityList[slotStore] = store;
+                }
+                ++slotStore;
+            }
+            ++curSlot;
+        } while (curSlot != nativeEntityCount);
+        nativeEntityCount = curSlot - 1;
+    }
 }
 void ProcessNativeObjects() {
     //ResetRenderStates();
-    nativeEntityPos = 0;
-    if (nativeEntityCount > 0) {
-        do {
-            NativeEntity* entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
-            entity->Main(entity);
-            ++nativeEntityPos;
-        } while (nativeEntityCount > nativeEntityPos);
+    for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
+        NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
+        entity->mainPtr(entity);
+        ++nativeEntityPos;
     }
     //RenderScene()
 }

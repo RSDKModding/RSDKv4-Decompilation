@@ -3,7 +3,7 @@
 
 #define TRACK_COUNT (0x10)
 #define SFX_COUNT (0x100)
-#define CHANNEL_COUNT (0x4)
+#define CHANNEL_COUNT (0x8) //4 in the original, 8 for convenience
 
 #define MAX_VOLUME (100)
 
@@ -90,9 +90,6 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
-        //CloseFile2();
-        //MEM_ZERO(musInfo.fileInfo);
-
         if (musInfo.buffer)
             delete[] musInfo.buffer;
         if (musInfo.extraBuffer)
@@ -129,13 +126,15 @@ inline void freeMusInfo()
 }
 #endif
 
-void SetMusicTrack(char *filePath, byte trackID, bool loop, uint loopPoint);
-void SwapMusicTrack(char *filePath, byte trackID, uint loopPoint, uint musicRatio);
-bool PlayMusic(int track);
+void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint);
+void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio);
+bool PlayMusic(int track, int musStartPos);
 inline void StopMusic()
 {
     musicStatus = MUSIC_STOPPED;
+    SDL_LockAudio();
     freeMusInfo();
+    SDL_UnlockAudio();
 }
 
 void LoadSfx(char *filePath, byte sfxID);
@@ -151,8 +150,8 @@ inline void StopSfx(int sfx)
 }
 void SetSfxAttributes(int sfx, int loopCount, char pan);
 
+#if !RSDK_DEBUG
 inline void SetSfxName(const char* sfxName, int sfxID) {
-
     int sfxNameID  = 0;
     int soundNameID = 0;
     while (sfxName[sfxNameID]) {
@@ -162,6 +161,9 @@ inline void SetSfxName(const char* sfxName, int sfxID) {
     }
     sfxNames[sfxID][soundNameID] = 0;
 }
+#else
+void SetSfxName(const char *sfxName, int sfxID);
+#endif
 
 inline void SetMusicVolume(int volume)
 {
