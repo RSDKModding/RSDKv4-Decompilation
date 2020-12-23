@@ -26,7 +26,7 @@ void RetroGameLoop_Main(void *objPtr)
             stageMode    = STAGEMODE_UNKNOWN; // temp until/if nativeObjs are done
             pauseEnabled = true;
             PauseSound();
-            ClearNativeObjects();
+            //ClearNativeObjects();
             // CreateNativeObject(MenuBG_Create, MenuBG_Main);
             // CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
@@ -38,7 +38,7 @@ void RetroGameLoop_Main(void *objPtr)
             break;
         case ENGINE_7:
             ClearScreen(1);
-            RestoreNativeObjects();
+            //RestoreNativeObjects();
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 #if RSDK_DEBUG
             printLog("GameMode 7 Called"); // End Game?
@@ -48,7 +48,9 @@ void RetroGameLoop_Main(void *objPtr)
             stageMode         = STAGEMODE_LOAD;
             Engine.gameMode   = ENGINE_MAINGAME;
             break;
-        case ENGINE_8: ClearScreen(1); RestoreNativeObjects();
+        case ENGINE_8: 
+            ClearScreen(1); 
+            //RestoreNativeObjects();
 #if RSDK_DEBUG
             printLog("GameMode 8 Called");
 #endif

@@ -274,21 +274,21 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
 
     ChannelInfo *snd = (ChannelInfo *)sfx;
 
-    float panL = 0;
-    float panR = 0;
+    float panL = 0.0;
+    float panR = 0.0;
     int i      = 0;
     if (!music)
         panL = snd->pan;
     else
-        panL = 0;
+        panL = 0.0;
 
     if (panL < 0) {
         panL = abs(panL / 100.0f);
-        panR = 0;
+        panR = 0.0;
     }
     else {
         panR = abs(panL / 100.0f);
-        panL = 0;
+        panL = 0.0;
     }
 
     switch (format) {
@@ -946,13 +946,15 @@ void LoadSfx(char *filePath, byte sfxID)
 }
 void PlaySfx(int sfx, bool loop)
 {
-    int sfxChannelID = nextChannelPos++;
+    int sfxChannelID = -1;
     for (int c = 0; c < CHANNEL_COUNT; ++c) {
         if (sfxChannels[c].sfxID == sfx) {
             sfxChannelID = c;
             break;
         }
     }
+    if (sfxChannelID == -1)
+        sfxChannelID = nextChannelPos++;
 
     ChannelInfo *sfxInfo  = &sfxChannels[sfxChannelID];
     sfxInfo->sfxID        = sfx;
@@ -967,7 +969,7 @@ void SetSfxAttributes(int sfx, int loopCount, char pan)
 {
     int sfxChannel = -1;
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
-        if (sfxChannels[i].sfxID == sfx) {
+        if (sfxChannels[i].sfxID == sfx || sfxChannels[i].sfxID == -1) {
             nextChannelPos = i;
             sfxChannel     = i;
             break;

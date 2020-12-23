@@ -74,9 +74,10 @@ enum RetroStates {
 //
 //};
 
-enum RetroBytecodeFormat {
-    BYTECODE_MOBILE = 0,
-    BYTECODE_PC     = 1,
+enum RetroGameType {
+    GAME_UNKNOWN = 0,
+    GAME_SONIC1  = 1,
+    GAME_SONIC2  = 2,
 };
 
 // General Defines
@@ -146,10 +147,12 @@ public:
     bool masterPaused    = false;
     bool frameStep       = false;
 
+    bool showPaletteOverlay = false;
+
     void Init();
     void Run();
 
-    void LoadGameConfig(const char *Filepath);
+    bool LoadGameConfig(const char *Filepath);
 
     int callbackMessage = 0;
     int prevMessage     = 0;
@@ -161,11 +164,13 @@ public:
     const char *gameVersion       = "1.0.0";
     const char *gamePlatform      = "Standard";
     const char *gameRenderType    = "SW_Rendering";
-    const char *gameHapticSetting = "Use_Haptics"; //" No_Haptics "; //No Haptics is default for pc but people with controllers exist
+    const char *gameHapticSetting = "Use_Haptics";
     //Mobile settings
     //const char *GamePlatform = "Mobile";
     //const char *GameRenderType = "HW_Rendering";
     //const char *GameHapticSetting = "Use_Haptics";
+
+    int gameType = GAME_UNKNOWN;
 
     ushort *frameBuffer = nullptr;
 

@@ -369,6 +369,8 @@ void InitNativeObjectSystem() {
         saveRAM[45] = 0;
         WriteSaveRAMData();
     }
+    saveRAM[33] = bgmVolume;
+    saveRAM[34] = sfxVolume;
 
     if (!saveRAM[33])
         musicEnabled = 0;

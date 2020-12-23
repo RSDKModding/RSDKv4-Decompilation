@@ -16,6 +16,8 @@ extern ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
 extern ushort *activePalette; // Ptr to the 256 colour set thats active
 extern PaletteEntry *activePalette32;
 
+extern PaletteEntry colourIndexes[PALETTE_SIZE];
+
 extern byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
 
 extern int fadeMode;
@@ -110,6 +112,6 @@ inline void SetFade(byte R, byte G, byte B, ushort A)
     fadeB    = B;
     fadeA    = A > 0xFF ? 0xFF : A;
 }
-void SetLimitedFade(uint paletteIndex, byte srcPaletteA, int srcPaletteB, ushort blendAmount, int startIndex, int endIndex);
+void SetLimitedFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex, int endIndex);
 
 #endif // !PALETTE_H

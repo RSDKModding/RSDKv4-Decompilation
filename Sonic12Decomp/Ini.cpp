@@ -5,11 +5,11 @@
 IniParser::IniParser(const char *filename)
 {
     memset(items, 0, 0x80 * sizeof(ConfigItem));
-    char buf[0x80];
+    char buf[0x100];
     char section[0x40];
     bool hasSection = false;
     char key[0x40];
-    char value[0x40];
+    char value[0x100];
 
     count = 0;
 
@@ -100,6 +100,22 @@ int IniParser::GetInteger(const char *section, const char *key, int *dest)
 
     return 0;
 }
+int IniParser::GetFloat(const char *section, const char *key, float *dest)
+{
+    if (count == 0)
+        return 0;
+
+    for (int x = 0; x < count; x++) {
+        if (!strcmp(section, items[x].section)) {
+            if (!strcmp(key, items[x].key)) {
+                *dest = atof(items[x].value);
+                return 1;
+            }
+        }
+    }
+
+    return 0.0f;
+}
 int IniParser::GetBool(const char *section, const char *key, bool *dest)
 {
     if (count == 0)
@@ -155,6 +171,26 @@ int IniParser::SetInteger(const char *section, const char *key, int value)
     strcpy(items[where].key, key);
     sprintf(items[where].value, "%d", value);
     items[where].type = INI_ITEM_INT;
+    return 1;
+}
+int IniParser::SetFloat(const char *section, const char *key, float value)
+{
+    int where = -1;
+    for (int x = 0; x < count; x++) {
+        if (strcmp(section, items[x].section) == 0) {
+            if (strcmp(key, items[x].key) == 0) {
+                where = x;
+                break;
+            }
+        }
+    }
+    if (where < 0)
+        where = count++;
+
+    strcpy(items[where].section, section);
+    strcpy(items[where].key, key);
+    sprintf(items[where].value, "%f", value);
+    items[where].type = INI_ITEM_FLOAT;
     return 1;
 }
 int IniParser::SetBool(const char *section, const char *key, bool value)
@@ -243,8 +279,10 @@ void IniParser::Write(const char *filename)
         for (int i = 0; i < count; ++i) {
             if (strcmp(sections[s], items[i].section) == 0) {
                 switch (items[i].type) {
+                    default:
                     case INI_ITEM_STRING:
                     case INI_ITEM_INT:
+                    case INI_ITEM_FLOAT:
                     case INI_ITEM_BOOL:
                         sprintf(buffer, "%s=%s\n", items[i].key, items[i].value);
                         fWrite(&buffer, 1, StrLength(buffer), f);

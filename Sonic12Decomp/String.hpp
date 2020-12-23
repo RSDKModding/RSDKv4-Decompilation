@@ -14,6 +14,7 @@ extern ushort *strAchievements;
 extern ushort *strLeaderboards;
 extern ushort *strHelpAndOptions;
 extern ushort *strSoundTest;
+extern ushort *str2PlayerVS;
 extern ushort *strSaveSelect;
 extern ushort *strPlayerSelect;
 extern ushort *strNoSave;
@@ -201,8 +202,14 @@ inline void ReadStringLineUnicode(ushort *text)
         FileRead(fileBuffer, 2);
         curChar = fileBuffer[0] + (fileBuffer[1] << 8);
         if (curChar != ' ' && curChar != '\t') {
-            if (curChar == '\r')
-                break;
+            if (curChar == '\r') {
+                int pos = GetFilePosition();
+                FileRead(fileBuffer, 2);
+                curChar = fileBuffer[0] + (fileBuffer[1] << 8);
+                if (curChar == '\n')
+                    break;
+                SetFilePosition(pos);
+            }
             if (curChar != ';')
                 text[textPos++] = curChar;
         }

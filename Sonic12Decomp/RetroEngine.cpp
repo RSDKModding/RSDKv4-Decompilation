@@ -92,20 +92,36 @@ bool processEvents()
                             SDL_RestoreWindow(Engine.window);
                         }
                         break;
+                    case SDLK_F10:
+                        if (Engine.devMenu)
+                            Engine.showPaletteOverlay ^= 1;
+                        break;
 #if RETRO_PLATFORM == RETRO_OSX
-                    case SDLK_TAB: Engine.gameSpeed = Engine.fastForwardSpeed; break;
+                    case SDLK_TAB:
+                        if (Engine.devMenu)
+                            Engine.gameSpeed = Engine.fastForwardSpeed;
+                        break;
                     case SDLK_F6:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
                         break;
-                    case SDLK_F7: Engine.masterPaused ^= 1; break;
+                    case SDLK_F7:
+                        if (Engine.devMenu)
+                            Engine.masterPaused ^= 1;
+                        break;
 #else
-                    case SDLK_BACKSPACE: Engine.gameSpeed = Engine.fastForwardSpeed; break;
+                    case SDLK_BACKSPACE:
+                        if (Engine.devMenu)
+                            Engine.gameSpeed = Engine.fastForwardSpeed;
+                        break;
                     case SDLK_F11:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
                         break;
-                    case SDLK_F12: Engine.masterPaused ^= 1; break;
+                    case SDLK_F12:
+                        if (Engine.devMenu)
+                            Engine.masterPaused ^= 1;
+                        break;
 #endif
                 }
                 break;
@@ -138,14 +154,51 @@ void RetroEngine::Init()
 
     gameMode = ENGINE_MAINGAME;
     running  = false;
-    LoadGameConfig("Data/Game/GameConfig.bin");
-    if (InitRenderDevice()) {
-        if (InitAudioPlayback()) {
-            InitFirstStage();
-            ClearScriptData();
-            initialised = true;
-            running     = true;
+    if (LoadGameConfig("Data/Game/GameConfig.bin")) {
+        if (InitRenderDevice()) {
+            if (InitAudioPlayback()) {
+                InitFirstStage();
+                ClearScriptData();
+                initialised = true;
+                running     = true;
+            }
         }
+    }
+
+    if (StrComp(gameWindowText, "Sonic 1")) {
+        gameType = GAME_SONIC1;
+    }
+    if (StrComp(gameWindowText, "Sonic 2")) {
+        gameType = GAME_SONIC2;
+    }
+
+    if (Engine.gameType == GAME_SONIC1) {
+        StrCopy(achievements[5].name, "Ring King");
+        StrCopy(achievements[0].name, "Blast Processing");
+        StrCopy(achievements[1].name, "Ramp Ring Acrobatics");
+        StrCopy(achievements[2].name, "Secret of Marble Zone");
+        StrCopy(achievements[3].name, "Block Buster");
+        StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
+        StrCopy(achievements[6].name, "Flawless Pursuit");
+        StrCopy(achievements[7].name, "Bombs Away");
+        StrCopy(achievements[8].name, "Chaos Connoisseur");
+        StrCopy(achievements[9].name, "Hidden Transporter");
+        StrCopy(achievements[10].name, "One For the Road");
+        StrCopy(achievements[11].name, "Beat The Clock");
+    }
+    else if (Engine.gameType == GAME_SONIC2) {
+        StrCopy(achievements[0].name, "Quick Run");
+        StrCopy(achievements[1].name, "100% Chemical Free");
+        StrCopy(achievements[2].name, "Early Bird Special");
+        StrCopy(achievements[3].name, "Superstar");
+        StrCopy(achievements[4].name, "Hit it Big");
+        StrCopy(achievements[5].name, "Bop Non-stop");
+        StrCopy(achievements[6].name, "Perfectionist");
+        StrCopy(achievements[7].name, "A Secret Revealed");
+        StrCopy(achievements[8].name, "Head 2 Head");
+        StrCopy(achievements[9].name, "Metropolis Master");
+        StrCopy(achievements[10].name, "Scrambled Egg");
+        StrCopy(achievements[11].name, "Beat the Clock");
     }
 }
 
@@ -186,14 +239,15 @@ void RetroEngine::Run()
 #endif
 }
 
-void RetroEngine::LoadGameConfig(const char *filePath)
+bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
     int fileBuffer  = 0;
     int fileBuffer2 = 0;
     char strBuffer[0x40];
 
-    if (LoadFile(filePath, &info)) {
+    bool loaded = LoadFile(filePath, &info);
+    if (loaded) {
         FileRead(&fileBuffer, 1);
         FileRead(gameWindowText, fileBuffer);
         gameWindowText[fileBuffer] = 0;
@@ -312,6 +366,8 @@ void RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
+
+    return loaded;
 }
 
 void RetroEngine::Callback(int callbackID)

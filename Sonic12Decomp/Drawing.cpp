@@ -136,6 +136,12 @@ void GenerateBlendLookupTable(void)
             tintValue = 31;
         tintLookupTable[i] = 0x841 * tintValue;
     }
+
+    for (int c = 0; c < 0x100; ++c) {
+        colourIndexes[c].r   = (c & 0xFFF8) << 8;
+        colourIndexes[c].g = (c & 0xFFFC) << 3;
+        colourIndexes[c].b   = c >> 3;
+    }
 }
 
 void ClearScreen(byte index)
@@ -271,6 +277,18 @@ void DrawStageGFX()
 
         DrawObjectList(5);
         DrawObjectList(6);
+    }
+
+    if (Engine.showPaletteOverlay) {
+        for (int p = 0; p < PALETTE_COUNT; ++p) {
+            int x = (SCREEN_XSIZE - (0xF << 3));
+            int y = (SCREEN_YSIZE - (0xF << 2));
+            for (int c = 0; c < PALETTE_SIZE; ++c) {
+                DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
+                              y + ((c >> 4) << 1) + ((p / (PALETTE_COUNT / 2)) * (2 * 16)), 2, 2, fullPalette32[p][c].r, fullPalette32[p][c].g,
+                              fullPalette32[p][c].b, 0xFF);
+            }
+        }
     }
 
     if (fadeMode > 0)

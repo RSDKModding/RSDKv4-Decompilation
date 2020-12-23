@@ -8,6 +8,7 @@ ushort *strAchievements     = NULL;
 ushort *strLeaderboards     = NULL;
 ushort *strHelpAndOptions   = NULL;
 ushort *strSoundTest        = NULL;
+ushort *str2PlayerVS        = NULL;
 ushort *strSaveSelect       = NULL;
 ushort *strPlayerSelect     = NULL;
 ushort *strNoSave           = NULL;
@@ -293,6 +294,7 @@ void InitLocalizedStrings() {
     strLeaderboards   = ReadLocalizedString("Leaderboards", langStr, "Data/Game/StringList.txt");
     strHelpAndOptions = ReadLocalizedString("HelpAndOptions", langStr, "Data/Game/StringList.txt");
     strSoundTest      = ReadLocalizedString("SoundTest", langStr, "Data/Game/StringList.txt");
+    str2PlayerVS      = ReadLocalizedString("TwoPlayerVS", langStr, "Data/Game/StringList.txt");
     strSaveSelect     = ReadLocalizedString("SaveSelect", langStr, "Data/Game/StringList.txt");
     strPlayerSelect   = ReadLocalizedString("PlayerSelect", langStr, "Data/Game/StringList.txt");
     strNoSave         = ReadLocalizedString("NoSave", langStr, "Data/Game/StringList.txt");
@@ -461,6 +463,14 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     if (curChar != '\t' && curChar != '\r') {
                         stringStorage[stringStorePos][charID++] = 0;
                         CloseFile();
+
+#if RSDK_DEBUG
+                        endLine = false;
+                        printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
+                        printLog(stringStorage[stringStorePos]);
+                        endLine = true;
+#endif
+
                         return stringStorage[stringStorePos++];
                     }
                     if (curChar == '\t') {
@@ -482,8 +492,6 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                         if (curChar == '\r' || curChar == '\n') {
                             flag     = 0;
                             readMode = 1;
-                            stringStorePos++;
-                            charID = 0;
                         }
                     }
                     break;
@@ -492,6 +500,9 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
         CloseFile();
     }
 
+#if RSDK_DEBUG
+    printLog("Failed to load string... (%s, %s)", language, stringName);
+#endif
     return NULL;
 }
 

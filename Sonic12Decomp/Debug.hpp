@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #if RSDK_DEBUG
+extern bool endLine;
 inline void printLog(const char *msg, ...)
 {
     char buffer[0x100];
@@ -10,8 +11,14 @@ inline void printLog(const char *msg, ...)
     va_list args;
     va_start(args, msg);
     vsprintf(buffer, msg, args);
-    printf("%s\n", buffer);
-    sprintf(buffer, "%s\n", buffer);
+    if (endLine) {
+        printf("%s\n", buffer);
+        sprintf(buffer, "%s\n", buffer);
+    }
+    else {
+        printf("%s", buffer);
+        sprintf(buffer, "%s", buffer);
+    }
 
     char pathBuffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
@@ -28,6 +35,41 @@ inline void printLog(const char *msg, ...)
         fClose(file);
     }
 }
+
+inline void printLog(const ushort *msg)
+{
+    int mPos = 0;
+    while (msg[mPos]) {
+        printf("%lc", (wint_t)msg[mPos]);
+        mPos++;
+    }
+    if (endLine)
+        printf("\n");
+
+     char pathBuffer[0x100];
+#if RETRO_PLATFORM == RETRO_OSX
+    if (!usingCWD)
+        sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
+    else
+        sprintf(pathBuffer, "%slog.txt", gamePath);
+#else
+    sprintf(pathBuffer, "%slog.txt", gamePath);
+#endif
+    mPos         = 0;
+    FileIO *file = fOpen(pathBuffer, "a");
+    if (file) {
+        while (msg[mPos]) {
+            fWrite(&msg[mPos], 2, 1, file);
+            mPos++;
+        }
+
+        ushort el = '\n';
+        if (endLine)
+            fWrite(&el, 2, 1, file);
+        fClose(file);
+    }
+}
+
 #endif
 
 enum DevMenuMenus {

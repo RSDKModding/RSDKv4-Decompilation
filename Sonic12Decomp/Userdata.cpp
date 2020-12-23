@@ -44,6 +44,9 @@ void InitUserdata()
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = 424);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 
+        ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
+        ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
+
         ini.SetInteger("Keyboard 1", "Up", inputDevice[0].keyMappings = SDL_SCANCODE_UP);
         ini.SetInteger("Keyboard 1", "Down", inputDevice[1].keyMappings = SDL_SCANCODE_DOWN);
         ini.SetInteger("Keyboard 1", "Left", inputDevice[2].keyMappings = SDL_SCANCODE_LEFT);
@@ -92,6 +95,25 @@ void InitUserdata()
             SCREEN_XSIZE = 424;
         if (!ini.GetInteger("Window", "Refresh Rate", &Engine.refreshRate))
             Engine.refreshRate = 60;
+
+        float bv = 0, sv = 0;
+        if (!ini.GetFloat("Audio", "BGMVolume", &bv))
+            bv = 1.0f;
+        if (!ini.GetFloat("Audio", "SFXVolume", &sv))
+            sv = 1.0f;
+
+        bgmVolume = bv * MAX_VOLUME;
+        sfxVolume = sv * MAX_VOLUME;
+
+        if (bgmVolume > MAX_VOLUME)
+            bgmVolume = MAX_VOLUME;
+        if (bgmVolume < 0)
+            bgmVolume = 0;
+
+        if (sfxVolume > MAX_VOLUME)
+            sfxVolume = MAX_VOLUME;
+        if (sfxVolume < 0)
+            sfxVolume = 0;
 
         if (!ini.GetInteger("Keyboard 1", "Up", &inputDevice[0].keyMappings))
             inputDevice[0].keyMappings = SDL_SCANCODE_UP;
@@ -159,7 +181,7 @@ void writeSettings() {
     ini.SetComment("Dev", "FFComment", "Determines how fast the game will be when fastforwarding is active");
     ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed);
 
-    ini.SetComment("Game", "LangComment", "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP)");
+    ini.SetComment("Game", "LangComment", "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
@@ -174,6 +196,9 @@ void writeSettings() {
     ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE);
     ini.SetComment("Window", "RRComment", "Determines the target FPS");
     ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
+
+    ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
+    ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
     ini.SetInteger("Keyboard 1", "Up", inputDevice[0].keyMappings);
@@ -238,11 +263,11 @@ void ReadUserdata()
 
     int buf = 0;
     for (int a = 0; a < ACHIEVEMENT_MAX; ++a) {
-        fRead(&buffer, 4, 1, userFile);
+        fRead(&buf, 4, 1, userFile);
         achievements[a].status = buf;
     }
     for (int l = 0; l < LEADERBOARD_MAX; ++l) {
-        fRead(&buffer, 4, 1, userFile);
+        fRead(&buf, 4, 1, userFile);
         leaderboard[l].status = buf;
     }
 
