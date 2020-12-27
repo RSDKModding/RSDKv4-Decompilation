@@ -24,7 +24,7 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define ALIAS_COUNT       (0x80)
+#define ALIAS_COUNT       (0x100)
 #define COMMONALIAS_COUNT (0x20)
 int aliasCount = 0;
 int lineID     = 0;
@@ -43,6 +43,49 @@ struct AliasInfo {
 
     char name[0x20];
     char value[0x20];
+};
+
+#define STATICVAR_COUNT (0x100)
+#define ARRVAR_COUNT (0x100)
+#define ARRAY_VALUE_COUNT (0x100)
+
+struct StaticInfo {
+    StaticInfo()
+    {
+        StrCopy(name, "");
+        value = 0;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    StaticInfo(const char *aliasName, int val)
+    {
+        StrCopy(name, aliasName);
+        value = val;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+
+    char name[0x20];
+    int value;
+    int dataPos;
+};
+
+struct ArrInfo {
+    ArrInfo()
+    {
+        StrCopy(name, "");
+        valueCount = 0;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    ArrInfo(const char *aliasName, int valCnt)
+    {
+        StrCopy(name, aliasName);
+        valueCount = valCnt;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+
+    char name[0x20];
+    int valueCount;
+    StaticInfo values[ARRAY_VALUE_COUNT];
+    int dataPos;
 };
 
 struct FunctionInfo {
@@ -479,6 +522,10 @@ AliasInfo aliases[0x80] = { AliasInfo("true", "1"),
                             AliasInfo("RETRO_ANDROID", "5"),
                             AliasInfo("RETRO_WP7", "6") };
 
+StaticInfo staticVariables[STATICVAR_COUNT];
+ArrInfo arrayVariables[ARRVAR_COUNT];
+int staticVarCount = 0;
+int arrVarCount = 0;
 
 const char scriptEvaluationTokens[][0x4] = {
     "=", "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=", "|=", "^=", "%=", "==", ">", ">=", "<", "<=", "!="
@@ -914,6 +961,130 @@ void CheckAliasText(char *text)
     }
     ++aliasCount;
 }
+void CheckStaticText(char *text)
+{
+    if (FindStringToken(text, "#static", 1))
+        return;
+    int textPos     = 6;
+    int staticStrPos = 0;
+    int staticMatch  = 0;
+    char strBuffer[0x10];
+    while (staticMatch < 2) {
+        if (staticMatch == 1) {
+            staticVariables[staticVarCount].name[staticStrPos] = text[textPos];
+            if (text[textPos]) {
+                staticStrPos++;
+            }
+            else {
+                staticVariables[staticVarCount].dataPos = scriptDataPos;
+                scriptData[scriptDataPos++] = staticVariables[staticVarCount].value;
+                staticStrPos = 0;
+                ++staticMatch;
+            }
+        }
+        else if (text[textPos] == ':') {
+            strBuffer[staticStrPos]                  = 0;
+            staticStrPos                             = 0;
+            staticMatch                              = 1;
+            ConvertStringToInteger(strBuffer, &staticVariables[staticVarCount].value);
+        }
+        else {
+            strBuffer[staticStrPos++] = text[textPos];
+        }
+        ++textPos;
+    }
+    ++staticVarCount;
+}
+void CheckArrayText(char *text)
+{
+    if (FindStringToken(text, "#array", 1))
+        return;
+    int textPos     = 6;
+    int arrayStrPos = 0;
+    int arrayMatch  = 0;
+    int arrayMode = 0;
+    char strBuffer[0x10];
+    while (arrayMatch < 2) {
+        if (arrayMatch == 1) {
+            switch (arrayMode) {
+                case 1: {
+                    if (text[textPos] == ']') {
+                        strBuffer[arrayStrPos] = 0;
+                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].valueCount);
+                        
+                        arrayVariables[arrVarCount].dataPos = scriptDataPos;
+                        scriptData[scriptDataPos++] = arrayVariables[arrVarCount].valueCount;
+                        for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
+                            arrayVariables[arrVarCount].values[v].value = 0;
+                            
+                            arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
+                            scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
+                        }
+                    }
+                    else {
+                        strBuffer[arrayStrPos] = text[textPos];
+                        arrayStrPos++;
+                    }
+                    break;
+                }
+                case 2: {
+                    if (text[textPos] == ')') {
+                        strBuffer[arrayStrPos] = 0;
+                        int cnt = arrayVariables[arrVarCount].valueCount;
+                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
+                        arrayVariables[arrVarCount].valueCount++;
+                        
+                        arrayVariables[arrVarCount].dataPos = scriptDataPos;
+                        scriptData[scriptDataPos++] = arrayVariables[arrVarCount].valueCount;
+                        for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
+                            arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
+                            scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
+                        }
+                    }
+                    else if (text[textPos] == ',') {
+                        strBuffer[arrayStrPos] = 0;
+                        int cnt = arrayVariables[arrVarCount].valueCount;
+                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
+                        arrayVariables[arrVarCount].valueCount++;
+                        
+                        strBuffer[0] = 0;
+                        arrayStrPos = 0;
+                    }
+                    else {
+                        strBuffer[arrayStrPos] = text[textPos];
+                        arrayStrPos++;
+                    }
+                    break;
+                }
+            }
+        }
+        else if (text[textPos] == ':') {
+            arrayVariables[aliasCount].name[arrayStrPos]        = 0;
+            arrayVariables[arrVarCount].valueCount = 0;
+            arrayStrPos                                         = 0;
+            arrayMatch                                          = 1;
+            textPos++;
+            if (text[textPos] == '[') {
+                arrayMode = 1;
+            }
+            else if (text[textPos] == '(') {
+                arrayMode = 2;
+            }
+        }
+        else {
+            arrayVariables[arrVarCount].name[arrayStrPos] = text[textPos];
+            if (text[textPos]) {
+                arrayStrPos++;
+            }
+            else {
+                arrayStrPos = 0;
+                ++arrayMatch;
+            }
+        }
+        ++textPos;
+    }
+    ++arrVarCount;
+}
 void ConvertArithmaticSyntax(char *text)
 {
     int token  = 0;
@@ -1034,7 +1205,7 @@ bool ConvertSwitchStatement(char *text)
 }
 void ConvertFunctionText(char *text)
 {
-    char strBuffer[128];
+    char arrayStr[0x80];
     char funcName[132];
     int opcode     = 0;
     int opcodeSize = 0;
@@ -1101,7 +1272,7 @@ void ConvertFunctionText(char *text)
                     if (text[textPos] == ']')
                         value = 0;
                     else
-                        strBuffer[scriptTextByteID++] = text[textPos];
+                        arrayStr[scriptTextByteID++] = text[textPos];
                     ++textPos;
                 }
                 else {
@@ -1113,21 +1284,35 @@ void ConvertFunctionText(char *text)
                 }
             }
             funcName[funcNamePos]       = 0;
-            strBuffer[scriptTextByteID] = 0;
+            arrayStr[scriptTextByteID] = 0;
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
                 if (StrComp(funcName, aliases[a].name)) {
                     CopyAliasStr(funcName, aliases[a].value, 0);
                     if (FindStringToken(aliases[a].value, "[", 1) > -1)
-                        CopyAliasStr(strBuffer, aliases[a].value, 1);
+                        CopyAliasStr(arrayStr, aliases[a].value, 1);
+                }
+            }
+            for (int s = 0; s < staticVarCount; ++s) {
+                if (StrComp(funcName, staticVariables[s].name)) {
+                    funcName[0] = 0;
+                    AppendIntegerToSting(funcName, staticVariables[s].dataPos);
+                    arrayStr[0] = 0;
+                }
+            }
+            for (int a = 0; a < arrVarCount; ++a) {
+                if (StrComp(funcName, arrayVariables[a].name)) {
+                    funcName[0] = 0;
+                    AppendIntegerToSting(funcName, arrayVariables[a].dataPos);
+                    arrayStr[0] = 0;
                 }
             }
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariablesCount; ++v) {
                 if (StrComp(funcName, globalVariableNames[v])) {
                     StrCopy(funcName, "Global");
-                    strBuffer[0] = 0;
-                    AppendIntegerToSting(strBuffer, v);
+                    arrayStr[0] = 0;
+                    AppendIntegerToSting(arrayStr, v);
                 }
             }
             // Eg: TempValue0 = Function1
@@ -1140,9 +1325,9 @@ void ConvertFunctionText(char *text)
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
-                AppendIntegerToSting(funcName, 0); // ???
+                AppendIntegerToSting(funcName, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (StrComp(strBuffer, typeNames[o])) {
+                    if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToSting(funcName, o);
                     }
@@ -1151,14 +1336,16 @@ void ConvertFunctionText(char *text)
             // Eg: TempValue0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
-                AppendIntegerToSting(funcName, 0); // ???
+                AppendIntegerToSting(funcName, 0);
                 for (int o = 0; o < SFX_COUNT; ++o) {
-                    if (StrComp(strBuffer, sfxNames[o])) {
+                    if (StrComp(arrayStr, sfxNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToSting(funcName, o);
                     }
                 }
             }
+            
+            //Storing Values
             if (ConvertStringToInteger(funcName, &value)) {
                 scriptData[scriptDataPos++] = SCRIPTVAR_INTCONST;
                 scriptData[scriptDataPos++] = value;
@@ -1200,26 +1387,26 @@ void ConvertFunctionText(char *text)
             }
             else {
                 scriptData[scriptDataPos++] = SCRIPTVAR_VAR;
-                if (strBuffer[0]) {
+                if (arrayStr[0]) {
                     scriptData[scriptDataPos] = VARARR_ARRAY;
-                    if (strBuffer[0] == '+')
+                    if (arrayStr[0] == '+')
                         scriptData[scriptDataPos] = VARARR_ENTNOPLUS1;
-                    if (strBuffer[0] == '-')
+                    if (arrayStr[0] == '-')
                         scriptData[scriptDataPos] = VARARR_ENTNOMINUS1;
                     ++scriptDataPos;
-                    if (strBuffer[0] == '-' || strBuffer[0] == '+') {
-                        for (int i = 0; i < StrLength(strBuffer); ++i) strBuffer[i] = strBuffer[i + 1];
+                    if (arrayStr[0] == '-' || arrayStr[0] == '+') {
+                        for (int i = 0; i < StrLength(arrayStr); ++i) arrayStr[i] = arrayStr[i + 1];
                     }
-                    if (ConvertStringToInteger(strBuffer, &value) == 1) {
+                    if (ConvertStringToInteger(arrayStr, &value) == 1) {
                         scriptData[scriptDataPos++] = 0;
                         scriptData[scriptDataPos++] = value;
                     }
                     else {
-                        if (StrComp(strBuffer, "ArrayPos0"))
+                        if (StrComp(arrayStr, "ArrayPos0"))
                             value = 0;
-                        if (StrComp(strBuffer, "ArrayPos1"))
+                        if (StrComp(arrayStr, "ArrayPos1"))
                             value = 1;
-                        if (StrComp(strBuffer, "TempObjectPos"))
+                        if (StrComp(arrayStr, "TempObjectPos"))
                             value = 2;
                         scriptData[scriptDataPos++] = 1;
                         scriptData[scriptDataPos++] = value;
@@ -1464,21 +1651,31 @@ bool CheckOpcodeType(char *text)
 
 void ParseScriptFile(char *scriptName, int scriptID)
 {
-#if RSDK_DEBUG
-    printLog("Parsing scripts is not supported yet!");
-#endif
-    return;
-
     jumpTableStackPos = 0;
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
+    staticVarCount = 0;
+    arrVarCount = 0;
+    
+    for (int i = 0; i < ARRVAR_COUNT; ++i) {
+        StrCopy(arrayVariables[i].name, "");
+        arrayVariables[i].valueCount = 0;
+        arrayVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    
+    for (int i = 0; i < STATICVAR_COUNT; ++i) {
+        StrCopy(staticVariables[i].name, "");
+        staticVariables[i].value = 0;
+        staticVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    
     for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
         StrCopy(aliases[i].name, "");
         StrCopy(aliases[i].value, "");
     }
 
     char scriptPath[0x40];
-    StrCopy(scriptPath, "Data/Scripts/");
+    StrCopy(scriptPath, "Scripts/");
     StrAdd(scriptPath, scriptName);
     FileInfo info;
     if (LoadFile(scriptPath, &info)) {
@@ -1542,6 +1739,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 case PARSEMODE_SCOPELESS:
                     ++lineID;
                     CheckAliasText(scriptText);
+                    CheckStaticText(scriptText);
+                    CheckArrayText(scriptText);
                     if (StrComp(scriptText, "subObjectMain")) {
                         parseMode                                        = PARSEMODE_FUNCTION;
                         objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
@@ -1634,7 +1833,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                 ConvertIfWhileStatement(scriptText);
                                 if (ConvertSwitchStatement(scriptText)) {
                                     parseMode    = PARSEMODE_SWITCHREAD;
-                                    info.readPos = GetFilePosition();
+                                    info.readPos = (int)GetFilePosition();
                                     switchDeep   = 0;
                                 }
                                 ConvertArithmaticSyntax(scriptText);
@@ -2564,7 +2763,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ENGINESFXVOLUME: scriptEng.operands[i] = sfxVolume; break;
                     case VAR_ENGINEBGMVOLUME: scriptEng.operands[i] = bgmVolume; break;
                     case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
-                    case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_PLATFORM; break;
+                    case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_PLATTYPE; break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3777,13 +3976,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_ENGINECALLBACK:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], (void *)scriptEng.operands[2]);
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
             case FUNC_CALLENGINEFUNCTION:
             case FUNC_CALLENGINEFUNCTION2:
                 opcodeSize = 0;
+                
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], (void*)scriptEng.operands[2]);
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
             case FUNC_SETOBJECTBORDERX: {
                 opcodeSize       = 0;

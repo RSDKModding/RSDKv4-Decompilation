@@ -251,11 +251,11 @@ void ReadUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
     if (!usingCWD)
-        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+        sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
-        sprintf(buffer, "%suserdata.bin", gamePath);
+        sprintf(buffer, "%sUData.bin", gamePath);
 #else
-    sprintf(buffer, "%suserdata.bin", gamePath);
+    sprintf(buffer, "%sUData.bin", gamePath);
 #endif
     FileIO *userFile = fOpen(buffer, "rb");
     if (!userFile)
@@ -283,11 +283,11 @@ void WriteUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
     if (!usingCWD)
-        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+        sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
-        sprintf(buffer, "%suserdata.bin", gamePath);
+        sprintf(buffer, "%sUData.bin", gamePath);
 #else
-    sprintf(buffer, "%suserdata.bin", gamePath);
+    sprintf(buffer, "%sUData.bin", gamePath);
 #endif
     FileIO *userFile = fOpen(buffer, "wb");
     if (!userFile)
@@ -323,7 +323,7 @@ void AwardAchievement(int id, int status)
 
 int SetAchievement(int achievementID, void* achDone)
 {
-    int achievementDone = (int)achDone;
+    int achievementDone = static_cast<int>(reinterpret_cast<intptr_t>(achDone));
     if (!Engine.trialMode && !debugMode) {
         AwardAchievement(achievementID, achievementDone);
         return 1;
@@ -332,7 +332,7 @@ int SetAchievement(int achievementID, void* achDone)
 }
 int SetLeaderboard(int leaderboardID, void *res)
 {
-    int result = (int)res;
+    int result = static_cast<int>(reinterpret_cast<intptr_t>(res));
     if (!Engine.trialMode && !debugMode) {
 #if RSDK_DEBUG
         printLog("Set leaderboard (%d) value to %d", leaderboard, result);

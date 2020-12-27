@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C962191825898A9300B47AB3"
-               BuildableName = "RSDKvB.app"
-               BlueprintName = "RSDKvB"
-               ReferencedContainer = "container:RSDKvB.xcodeproj">
+               BuildableName = "RSDKv4.app"
+               BlueprintName = "RSDKv4"
+               ReferencedContainer = "container:RSDKv4.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,11 +45,17 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C962191825898A9300B47AB3"
-            BuildableName = "RSDKvB.app"
-            BlueprintName = "RSDKvB"
-            ReferencedContainer = "container:RSDKvB.xcodeproj">
+            BuildableName = "RSDKv4.app"
+            BlueprintName = "RSDKv4"
+            ReferencedContainer = "container:RSDKv4.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "usingCWD"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -62,9 +68,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C962191825898A9300B47AB3"
-            BuildableName = "RSDKvB.app"
-            BlueprintName = "RSDKvB"
-            ReferencedContainer = "container:RSDKvB.xcodeproj">
+            BuildableName = "RSDKv4.app"
+            BlueprintName = "RSDKv4"
+            ReferencedContainer = "container:RSDKv4.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

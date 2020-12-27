@@ -65,11 +65,11 @@ inline bool ReadSaveRAMData()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
     if (!usingCWD)
-        sprintf(buffer, "%s/savedata.sav", getResourcesPath());
+        sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
-        sprintf(buffer, "%ssavedata.sav", gamePath);
+        sprintf(buffer, "%sSData.bin", gamePath);
 #else
-    sprintf(buffer, "%ssavedata.sav", gamePath);
+    sprintf(buffer, "%sSData.bin", gamePath);
 #endif
     FileIO *saveFile = fOpen(buffer, "rb");
     if (!saveFile)
@@ -84,11 +84,11 @@ inline bool WriteSaveRAMData()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
     if (!usingCWD)
-        sprintf(buffer, "%s/savedata.sav", getResourcesPath());
+        sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
-        sprintf(buffer, "%ssavedata.sav", gamePath);
+        sprintf(buffer, "%sSData.bin", gamePath);
 #else
-    sprintf(buffer, "%ssavedata.sav", gamePath);
+    sprintf(buffer, "%sSData.bin", gamePath);
 #endif
 
     FileIO *saveFile = fOpen(buffer, "wb");

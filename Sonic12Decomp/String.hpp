@@ -203,7 +203,7 @@ inline void ReadStringLineUnicode(ushort *text)
         curChar = fileBuffer[0] + (fileBuffer[1] << 8);
         if (curChar != ' ' && curChar != '\t') {
             if (curChar == '\r') {
-                int pos = GetFilePosition();
+                int pos = (int)GetFilePosition();
                 FileRead(fileBuffer, 2);
                 curChar = fileBuffer[0] + (fileBuffer[1] << 8);
                 if (curChar == '\n')

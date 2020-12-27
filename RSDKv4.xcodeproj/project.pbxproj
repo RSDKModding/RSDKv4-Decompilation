@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		C962193925898B0B00B47AB3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C962193625898B0A00B47AB3 /* Assets.xcassets */; };
-		C962193A25898B0B00B47AB3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C962193725898B0A00B47AB3 /* Info.plist */; };
 		C962193E25898B6000B47AB3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C962193C25898B6000B47AB3 /* Main.storyboard */; };
 		C962196C25898BF600B47AB3 /* Audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962195625898BF500B47AB3 /* Audio.cpp */; };
 		C962196D25898BF600B47AB3 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C962195725898BF500B47AB3 /* Debug.cpp */; };
@@ -36,6 +35,8 @@
 		C96219922589B50100B47AB3 /* Ogg.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C96219902589B50100B47AB3 /* Ogg.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C96219942589B51000B47AB3 /* Vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C96219932589B51000B47AB3 /* Vorbis.framework */; };
 		C96219952589B51000B47AB3 /* Vorbis.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C96219932589B51000B47AB3 /* Vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C96219AA25947B0200B47AB3 /* cocoaHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = C96219A925947B0200B47AB3 /* cocoaHelpers.mm */; };
+		C96219B025947CC300B47AB3 /* RetroGameLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -55,9 +56,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C962191925898A9300B47AB3 /* RSDKvB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSDKvB.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C962191925898A9300B47AB3 /* RSDKv4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSDKv4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C962193625898B0A00B47AB3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = dependencies/mac/Assets.xcassets; sourceTree = SOURCE_ROOT; };
-		C962193725898B0A00B47AB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = dependencies/mac/Info.plist; sourceTree = SOURCE_ROOT; };
 		C962193D25898B6000B47AB3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = dependencies/mac/Base.lproj/Main.storyboard; sourceTree = SOURCE_ROOT; };
 		C962194125898BCD00B47AB3 /* Text.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Text.hpp; path = Sonic12Decomp/Text.hpp; sourceTree = SOURCE_ROOT; };
 		C962194225898BCD00B47AB3 /* Script.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Script.hpp; path = Sonic12Decomp/Script.hpp; sourceTree = SOURCE_ROOT; };
@@ -104,6 +104,10 @@
 		C96219902589B50100B47AB3 /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogg.framework; path = dependencies/mac/libogg/macosx/Ogg.framework; sourceTree = "<group>"; };
 		C96219932589B51000B47AB3 /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = dependencies/mac/libvorbis/macosx/Vorbis.framework; sourceTree = "<group>"; };
 		C96219962589B51E00B47AB3 /* Theora.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Theora.framework; path = dependencies/mac/libtheora/macosx/Theora.framework; sourceTree = "<group>"; };
+		C96219A825947AF700B47AB3 /* cocoaHelpers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cocoaHelpers.hpp; path = dependencies/mac/cocoaHelpers.hpp; sourceTree = SOURCE_ROOT; };
+		C96219A925947B0200B47AB3 /* cocoaHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = cocoaHelpers.mm; path = dependencies/mac/cocoaHelpers.mm; sourceTree = SOURCE_ROOT; };
+		C96219AE25947CB700B47AB3 /* RetroGameLoop.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RetroGameLoop.hpp; path = Sonic12Decomp/RetroGameLoop.hpp; sourceTree = SOURCE_ROOT; };
+		C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RetroGameLoop.cpp; path = Sonic12Decomp/RetroGameLoop.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,7 +127,7 @@
 		C962191025898A9300B47AB3 = {
 			isa = PBXGroup;
 			children = (
-				C962191B25898A9300B47AB3 /* RSDKvB */,
+				C962191B25898A9300B47AB3 /* RSDKv4 */,
 				C962191A25898A9300B47AB3 /* Products */,
 				C96219822589B10600B47AB3 /* Frameworks */,
 			);
@@ -132,26 +136,27 @@
 		C962191A25898A9300B47AB3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C962191925898A9300B47AB3 /* RSDKvB.app */,
+				C962191925898A9300B47AB3 /* RSDKv4.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C962191B25898A9300B47AB3 /* RSDKvB */ = {
+		C962191B25898A9300B47AB3 /* RSDKv4 */ = {
 			isa = PBXGroup;
 			children = (
 				C962194025898B6E00B47AB3 /* Header Files */,
 				C962193F25898B6700B47AB3 /* Source Files */,
 				C962193C25898B6000B47AB3 /* Main.storyboard */,
 				C962193625898B0A00B47AB3 /* Assets.xcassets */,
-				C962193725898B0A00B47AB3 /* Info.plist */,
 			);
-			path = RSDKvB;
+			path = RSDKv4;
 			sourceTree = "<group>";
 		};
 		C962193F25898B6700B47AB3 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				C96219AB25947C8F00B47AB3 /* Native Objects */,
+				C96219A725947AE900B47AB3 /* Cocoa Helpers */,
 				C962195B25898BF500B47AB3 /* Animation.cpp */,
 				C962195625898BF500B47AB3 /* Audio.cpp */,
 				C962196A25898BF600B47AB3 /* Collision.cpp */,
@@ -179,6 +184,8 @@
 		C962194025898B6E00B47AB3 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				C96219AC25947CA100B47AB3 /* Native Objects */,
+				C96219A625947AE100B47AB3 /* Cocoa Helpers */,
 				C962195525898BCE00B47AB3 /* Animation.hpp */,
 				C962194325898BCD00B47AB3 /* Audio.hpp */,
 				C962194625898BCD00B47AB3 /* Collision.hpp */,
@@ -215,12 +222,44 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C96219A625947AE100B47AB3 /* Cocoa Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C96219A825947AF700B47AB3 /* cocoaHelpers.hpp */,
+			);
+			name = "Cocoa Helpers";
+			sourceTree = "<group>";
+		};
+		C96219A725947AE900B47AB3 /* Cocoa Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C96219A925947B0200B47AB3 /* cocoaHelpers.mm */,
+			);
+			name = "Cocoa Helpers";
+			sourceTree = "<group>";
+		};
+		C96219AB25947C8F00B47AB3 /* Native Objects */ = {
+			isa = PBXGroup;
+			children = (
+				C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */,
+			);
+			name = "Native Objects";
+			sourceTree = "<group>";
+		};
+		C96219AC25947CA100B47AB3 /* Native Objects */ = {
+			isa = PBXGroup;
+			children = (
+				C96219AE25947CB700B47AB3 /* RetroGameLoop.hpp */,
+			);
+			name = "Native Objects";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C962191825898A9300B47AB3 /* RSDKvB */ = {
+		C962191825898A9300B47AB3 /* RSDKv4 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C962193325898A9400B47AB3 /* Build configuration list for PBXNativeTarget "RSDKvB" */;
+			buildConfigurationList = C962193325898A9400B47AB3 /* Build configuration list for PBXNativeTarget "RSDKv4" */;
 			buildPhases = (
 				C962191525898A9300B47AB3 /* Sources */,
 				C962191625898A9300B47AB3 /* Frameworks */,
@@ -231,9 +270,9 @@
 			);
 			dependencies = (
 			);
-			name = RSDKvB;
-			productName = "Sonic CD";
-			productReference = C962191925898A9300B47AB3 /* RSDKvB.app */;
+			name = RSDKv4;
+			productName = RSDKv4;
+			productReference = C962191925898A9300B47AB3 /* RSDKv4.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -250,7 +289,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C962191425898A9300B47AB3 /* Build configuration list for PBXProject "RSDKvB" */;
+			buildConfigurationList = C962191425898A9300B47AB3 /* Build configuration list for PBXProject "RSDKv4" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -263,7 +302,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C962191825898A9300B47AB3 /* RSDKvB */,
+				C962191825898A9300B47AB3 /* RSDKv4 */,
 			);
 		};
 /* End PBXProject section */
@@ -274,7 +313,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C962193E25898B6000B47AB3 /* Main.storyboard in Resources */,
-				C962193A25898B0B00B47AB3 /* Info.plist in Resources */,
 				C962193925898B0B00B47AB3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,9 +334,11 @@
 				C962197625898BF600B47AB3 /* Scene3D.cpp in Sources */,
 				C962197D25898BF600B47AB3 /* Object.cpp in Sources */,
 				C962197125898BF600B47AB3 /* Animation.cpp in Sources */,
+				C96219B025947CC300B47AB3 /* RetroGameLoop.cpp in Sources */,
 				C962197225898BF600B47AB3 /* Drawing.cpp in Sources */,
 				C962198125898BF600B47AB3 /* Reader.cpp in Sources */,
 				C962197E25898BF600B47AB3 /* Math.cpp in Sources */,
+				C96219AA25947B0200B47AB3 /* cocoaHelpers.mm in Sources */,
 				C962197025898BF600B47AB3 /* Sprite.cpp in Sources */,
 				C962196C25898BF600B47AB3 /* Audio.cpp in Sources */,
 				C962197F25898BF600B47AB3 /* Text.cpp in Sources */,
@@ -420,6 +460,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -455,7 +496,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Rubberduckycooly.RSDKvB;
+				PRODUCT_BUNDLE_IDENTIFIER = Rubberduckycooly.RSDKv4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -481,7 +522,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Rubberduckycooly.RSDKvB;
+				PRODUCT_BUNDLE_IDENTIFIER = Rubberduckycooly.RSDKv4;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -489,7 +530,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C962191425898A9300B47AB3 /* Build configuration list for PBXProject "RSDKvB" */ = {
+		C962191425898A9300B47AB3 /* Build configuration list for PBXProject "RSDKv4" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C962193125898A9400B47AB3 /* Debug */,
@@ -498,7 +539,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C962193325898A9400B47AB3 /* Build configuration list for PBXNativeTarget "RSDKvB" */ = {
+		C962193325898A9400B47AB3 /* Build configuration list for PBXNativeTarget "RSDKv4" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C962193425898A9400B47AB3 /* Debug */,

@@ -699,11 +699,11 @@ bool PlayMusic(int track, int musStartPos)
 
     SDL_LockAudio();
 
-    int oldPos = 0;
-    int oldTotal = 0;
+    uint oldPos = 0;
+    uint oldTotal = 0;
     if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
-        oldPos = (ulong)ov_pcm_tell(&musInfo.vorbisFile);
-        oldTotal = (ulong)ov_pcm_total(&musInfo.vorbisFile, -1);
+        oldPos = (uint)ov_pcm_tell(&musInfo.vorbisFile);
+        oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
     }
 
     if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
@@ -855,7 +855,6 @@ void LoadSfx(char *filePath, byte sfxID)
             long samplesize;
             long samples;
             int read, toRead;
-            bool wasError = true;
 
             callbacks.read_func  = readVorbis_Sfx;
             callbacks.seek_func  = seekVorbis_Sfx;

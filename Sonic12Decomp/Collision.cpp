@@ -2196,7 +2196,6 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
     }
 
     int rx = otherEntity->XPos >> 16 << 16;
-    int ry = otherEntity->YPos >> 16 << 16;
 
     if (spd <= abs(otherEntity->YVelocity)) {
         sensors[0].collided = false;
@@ -2503,7 +2502,6 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     scriptEng.checkResult = false;    
 
     int rx = otherEntity->XPos >> 16 << 16;
-    int ry = otherEntity->YPos >> 16 << 16;
 
     int leftDif = thisLeft - otherEntity->XPos;
     if (thisEntity->XPos <= otherEntity->XPos)

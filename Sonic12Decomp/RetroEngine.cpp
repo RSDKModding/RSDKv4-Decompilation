@@ -1,5 +1,7 @@
 #include "RetroEngine.hpp"
 
+bool usingCWD = false;
+
 RetroEngine Engine = RetroEngine();
 
 bool processEvents()
@@ -96,11 +98,11 @@ bool processEvents()
                         if (Engine.devMenu)
                             Engine.showPaletteOverlay ^= 1;
                         break;
-#if RETRO_PLATFORM == RETRO_OSX
-                    case SDLK_TAB:
+                    case SDLK_BACKSPACE:
                         if (Engine.devMenu)
                             Engine.gameSpeed = Engine.fastForwardSpeed;
                         break;
+#if RETRO_PLATFORM == RETRO_OSX
                     case SDLK_F6:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
@@ -110,10 +112,6 @@ bool processEvents()
                             Engine.masterPaused ^= 1;
                         break;
 #else
-                    case SDLK_BACKSPACE:
-                        if (Engine.devMenu)
-                            Engine.gameSpeed = Engine.fastForwardSpeed;
-                        break;
                     case SDLK_F11:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
@@ -129,11 +127,7 @@ bool processEvents()
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default:
                         break;
-#if RETRO_PLATFORM == RETRO_OSX
-                    case SDLK_TAB: Engine.gameSpeed = 1; break;
-#else
                     case SDLK_BACKSPACE: Engine.gameSpeed = 1; break;
-#endif
                 }
                 break;
             case SDL_QUIT: return false;

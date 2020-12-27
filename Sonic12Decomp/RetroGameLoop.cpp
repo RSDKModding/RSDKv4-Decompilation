@@ -5,7 +5,7 @@ void RetroGameLoop_Create(void *objPtr) {
 }
 void RetroGameLoop_Main(void *objPtr)
 {
-    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
+    //NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU: processStageSelect(); break;

@@ -67,6 +67,8 @@ extern int aliasCount;
 extern int lineID;
 
 void CheckAliasText(char *text);
+void CheckStaticText(char *text);
+void CheckArrayText(char *text);
 void ConvertArithmaticSyntax(char *text);
 void ConvertIfWhileStatement(char *text);
 bool ConvertSwitchStatement(char *text);

@@ -25,7 +25,7 @@ IniParser::IniParser(const char *filename)
 #endif
 
     FileIO *f;
-    if ((f = fOpen(pathBuffer, "rb")) == NULL) {
+    if ((f = fOpen(pathBuffer, "r")) == NULL) {
 #if RSDK_DEBUG
         printLog("ERROR: Couldn't open file '%s'!", filename);
 #endif

@@ -290,6 +290,21 @@ void FileRead(void *dest, int size)
     }
 }
 
+void GetFileInfo(FileInfo *fileInfo)
+{
+    StrCopy(fileInfo->fileName, fileName);
+    fileInfo->bufferPosition    = bufferPosition;
+    fileInfo->readPos           = readPos - readSize;
+    fileInfo->fileSize          = fileSize;
+    fileInfo->vfileSize          = vFileSize;
+    fileInfo->virtualFileOffset = virtualFileOffset;
+    fileInfo->eStringPosA       = eStringPosA;
+    fileInfo->eStringPosB       = eStringPosB;
+    fileInfo->eStringNo         = eStringNo;
+    fileInfo->eNybbleSwap       = eNybbleSwap;
+    fileInfo->useEncryption     = useEncryption;
+}
+
 void SetFileInfo(FileInfo *fileInfo)
 {
     if (Engine.usingDataFile) {

@@ -30,12 +30,24 @@ typedef unsigned long long ulong;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 
+// Platform types
+#define RETRO_STANDARD      (0)
+#define RETRO_MOBILE        (1)
+
 #if defined _WIN32
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #elif defined __APPLE__
+#if __IPHONEOS__
+#define RETRO_PLATTYPE (RETRO_iOS)
+#define RETRO_PLATTYPE (RETRO_MOBILE)
+#else
 #define RETRO_PLATFORM (RETRO_OSX)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
+#endif
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
 
 #if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
@@ -90,7 +102,11 @@ enum RetroGameType {
 #elif RETRO_PLATFORM == RETRO_OSX
 #include <SDL2/SDL.h>
 #include <Vorbis/vorbisfile.h>
+
+#include "cocoaHelpers.hpp"
 #endif
+
+extern bool usingCWD;
 
 //Utils
 #include "Ini.hpp"

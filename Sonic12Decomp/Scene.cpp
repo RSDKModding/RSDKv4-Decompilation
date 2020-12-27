@@ -1569,8 +1569,6 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
 }
 void SetPlayerHLockedScreenPosition(Entity *target)
 {
-
-    int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
 
     if (newYBoundary1 > yBoundary1) {
