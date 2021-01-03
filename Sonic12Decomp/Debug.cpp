@@ -553,6 +553,8 @@ void processStartMenu() {
                     SetupTextMenu(&gameMenu[0], 0);
                     AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
                     SetupTextMenu(&gameMenu[1], 0);
+                    AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
+                    AddTextMenuEntry(&gameMenu[1], "");
                     AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
                     AddTextMenuEntry(&gameMenu[1], "");
                     AddTextMenuEntryW(&gameMenu[1], strNoSave);
@@ -685,6 +687,63 @@ void processStartMenu() {
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.start || keyPress.A) {
                 if (gameMenu[1].selection1 == 0) {
+                    SetupTextMenu(&gameMenu[0], 0);
+                    AddTextMenuEntry(&gameMenu[0], "GAME OPTIONS");
+                    SetupTextMenu(&gameMenu[1], 0);
+                    if (Engine.gameType == GAME_SONIC1) {
+                        if (GetGlobalVariableByName("options.spindash"))
+                            AddTextMenuEntry(&gameMenu[1], "SPINDASH: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "SPINDASH: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.speedCap"))
+                            AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.airSpeedCap"))
+                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.spikeBehaviour"))
+                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+
+                        char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
+                        AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
+                    }
+                    else {
+                        if (GetGlobalVariableByName("options.airSpeedCap"))
+                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.tailsFlight"))
+                        AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.superTails"))
+                            AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+                        if (GetGlobalVariableByName("options.spikeBehaviour"))
+                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
+                        else
+                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
+                        AddTextMenuEntry(&gameMenu[1], "");
+
+                        char itemBoxTypes[4][0x20] = { "ITEM TYPE: S2", "ITEM TYPE: S2+S3", "ITEM TYPE: RANDOM", "ITEM TYPE: RANDOM+S3" };
+                        AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
+                    }
+
+                    stageMode = STARTMENU_GAMEOPTS;
+                }
+                else if (gameMenu[1].selection1 == 2) {
                     if (!gameMenu[1].selection2) {
                         SetTextMenuEntry(&gameMenu[1], "CANCEL", 0);
                         gameMenu[1].selection2 ^= 1;
@@ -695,7 +754,7 @@ void processStartMenu() {
                     }
                 }
                 else {
-                    int saveSlot = (gameMenu[1].selection1 / 2) - 2;
+                    int saveSlot = (gameMenu[1].selection1 - 5) / 2;
                     if (!gameMenu[1].selection2) {
                         if (saveSlot >= 0 && saveSlot < 4) {
                             if (saveRAM[8 * saveSlot + 4]) {
@@ -826,6 +885,8 @@ void processStartMenu() {
                 SetupTextMenu(&gameMenu[1], 0);
                 StrCopyW(strBuffer, "");
                 StrAddW(strBuffer, strNoSave);
+                AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
+                AddTextMenuEntry(&gameMenu[1], "");
                 AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
                 AddTextMenuEntry(&gameMenu[1], "");
                 AddTextMenuEntryW(&gameMenu[1], strBuffer);
@@ -852,6 +913,152 @@ void processStartMenu() {
                 gameMenu[1].alignment      = 0;
                 gameMenu[1].selectionCount = 1;
                 gameMenu[1].selection1     = 0;
+                stageMode                  = STARTMENU_SAVESEL;
+            }
+            break;
+        }
+        case STARTMENU_GAMEOPTS: {
+            if (keyPress.down)
+                gameMenu[1].selection1 += 2;
+            if (keyPress.up)
+                gameMenu[1].selection1 -= 2;
+            if (gameMenu[1].selection1 >= gameMenu[1].rowCount)
+                gameMenu[1].selection1 = 0;
+
+            if (gameMenu[1].selection1 < 0)
+                gameMenu[1].selection1 = gameMenu[1].rowCount - 1;
+
+            DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
+            DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
+            if (keyPress.left || keyPress.right) {
+                if (Engine.gameType == GAME_SONIC1) {
+                    switch (gameMenu[1].selection1) {
+                        case 0: // Spindash
+                            SetGlobalVariableByName("options.spindash", GetGlobalVariableByName("options.spindash") ^ 1);
+                            if (GetGlobalVariableByName("options.spindash"))
+                                SetTextMenuEntry(&gameMenu[1], "SPINDASH: ENABLED", 0);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "SPINDASH: DISABLED", 0);
+                            break;
+                        case 2: // Ground Spd Cap
+                            SetGlobalVariableByName("options.speedCap", GetGlobalVariableByName("options.speedCap") ^ 1);
+                            if (GetGlobalVariableByName("options.speedCap"))
+                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED", 0);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED", 0);
+                            break;
+                        case 4: // Air Spd Cap
+                            SetGlobalVariableByName("options.airSpeedCap", GetGlobalVariableByName("options.airSpeedCap") ^ 1);
+                            if (GetGlobalVariableByName("options.airSpeedCap"))
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED", 0);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED", 0);
+                            break;
+                        case 6: // S1 Spikes
+                            SetGlobalVariableByName("options.spikeBehavior", GetGlobalVariableByName("options.speedcap") ^ 1);
+                            if (GetGlobalVariableByName("options.spikeBehavior"))
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED", 0);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED", 0);
+                            break;
+                        case 8:
+                            if (keyPress.left) {
+                                int var = (GetGlobalVariableByName("options.shieldType") - 1);
+                                if (var < 0)
+                                    var = 3;
+                                SetGlobalVariableByName("options.shieldType", var);
+                            }
+                            else
+                                SetGlobalVariableByName("options.shieldType", (GetGlobalVariableByName("options.shieldType") + 1) % 4);
+
+                            int type                   = GetGlobalVariableByName("options.shieldType");
+                            char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
+                            SetTextMenuEntry(&gameMenu[1], itemBoxTypes[type], 8);
+                            break;
+                    }
+                }
+                else {
+                    switch (gameMenu[1].selection1) {
+                        case 0:
+                            SetGlobalVariableByName("options.airSpeedCap", GetGlobalVariableByName("options.airSpeedCap") ^ 1);
+                            if (GetGlobalVariableByName("options.airSpeedCap"))
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED", 0);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED", 0);
+                            break;
+                        case 2:
+                            SetGlobalVariableByName("options.tailsFlight", GetGlobalVariableByName("options.tailsFlight") ^ 1);
+                            if (GetGlobalVariableByName("options.tailsFlight"))
+                                SetTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: ENABLED", 2);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: DISABLED", 2);
+                            break;
+                        case 4:
+                            SetGlobalVariableByName("options.superTails", GetGlobalVariableByName("options.superTails") ^ 1);
+                            if (GetGlobalVariableByName("options.superTails"))
+                                SetTextMenuEntry(&gameMenu[1], "SUPER TAILS: ENABLED", 4);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "SUPER TAILS: DISABLED", 4);
+                            break;
+                        case 6:
+                            SetGlobalVariableByName("options.spikeBehavior", GetGlobalVariableByName("options.spikeBehavior") ^ 1);
+                            if (GetGlobalVariableByName("options.spikeBehavior"))
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED", 6);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED", 6);
+                            break;
+                        case 8: {
+                            if (keyPress.left) {
+                                int var = (GetGlobalVariableByName("options.shieldType") - 1);
+                                if (var < 0)
+                                    var = 3;
+                                SetGlobalVariableByName("options.shieldType", var);
+                            }
+                            else
+                                SetGlobalVariableByName("options.shieldType", (GetGlobalVariableByName("options.shieldType") + 1) % 4);
+
+                            int type = GetGlobalVariableByName("options.shieldType");
+                            char itemBoxTypes[4][0x20] = { "ITEM TYPE: S2", "ITEM TYPE: S2+S3", "ITEM TYPE: RANDOM", "ITEM TYPE: RANDOM+S3" };
+                            SetTextMenuEntry(&gameMenu[1], itemBoxTypes[type], 8);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (keyPress.B) {
+                ushort strBuffer[0x100];
+                SetupTextMenu(&gameMenu[0], 0);
+                AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
+                SetupTextMenu(&gameMenu[1], 0);
+                AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
+                AddTextMenuEntry(&gameMenu[1], "");
+                AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
+                AddTextMenuEntry(&gameMenu[1], "");
+                AddTextMenuEntryW(&gameMenu[1], strNoSave);
+
+                for (int s = 0; s < 4; ++s) {
+                    AddTextMenuEntry(&gameMenu[1], "");
+
+                    StrCopyW(strBuffer, "SAVE ");
+                    AppendIntegerToStingW(strBuffer, s + 1);
+                    StrAddW(strBuffer, " - ");
+                    if (saveRAM[s * 4 + 4]) {
+                        StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
+                        StrAddW(strBuffer, " - ");
+                        StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
+                        StrAddW(strBuffer, " ");
+                        AppendIntegerToStingW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                    }
+                    else {
+                        StrAddW(strBuffer, strNewGame);
+                    }
+
+                    AddTextMenuEntryW(&gameMenu[1], strBuffer);
+                }
+                gameMenu[1].alignment      = 0;
+                gameMenu[1].selectionCount = 1;
+                gameMenu[1].selection1     = 0;
+                gameMenu[1].selection2     = 0;
                 stageMode                  = STARTMENU_SAVESEL;
             }
             break;

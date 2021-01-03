@@ -33,7 +33,7 @@ void RetroGameLoop_Main(void *objPtr)
             PauseSound();
             //ClearNativeObjects();
             // CreateNativeObject(MenuBG_Create, MenuBG_Main);
-            CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+            //CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
             ClearScreen(1);
