@@ -435,9 +435,12 @@ void initStartMenu(int mode) {
 
         int result = GetGlobalVariableByName("timeAttack.result");
         if (result < saveRAM[3 * listPos + 0x40]) {
+            saveRAM[3 * listPos + 0x42] = saveRAM[3 * listPos + 0x41];
+            saveRAM[3 * listPos + 0x41] = saveRAM[3 * listPos + 0x40];
             saveRAM[3 * listPos + 0x40] = result;
         }
         else if (result < saveRAM[3 * listPos + 0x41]) {
+            saveRAM[3 * listPos + 0x42] = saveRAM[3 * listPos + 0x41];
             saveRAM[3 * listPos + 0x41] = result;
         }
         else if (result < saveRAM[3 * listPos + 0x42]) {
