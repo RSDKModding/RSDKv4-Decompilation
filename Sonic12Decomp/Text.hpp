@@ -23,6 +23,12 @@ struct TextMenu {
     char timer;
 };
 
+enum TextMenuAlignments {
+    MENU_ALIGN_LEFT,
+    MENU_ALIGN_RIGHT,
+    MENU_ALIGN_CENTER,
+};
+
 extern TextMenu gameMenu[TEXTMENU_COUNT];
 extern int textMenuSurfaceNo;
 
