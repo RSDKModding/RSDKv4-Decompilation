@@ -94,6 +94,45 @@ bool processEvents()
                             SDL_RestoreWindow(Engine.window);
                         }
                         break;
+                    case SDLK_F1:
+                        if (Engine.devMenu) {
+                            activeStageList   = 0;
+                            stageListPosition = 0;
+                            stageMode         = STAGEMODE_LOAD;
+                            Engine.gameMode   = ENGINE_MAINGAME;
+                        }
+                        break;
+                    case SDLK_F2:
+                        if (Engine.devMenu) {
+                            stageListPosition--;
+                            if (stageListPosition < 0) {
+                                activeStageList--;
+
+                                if (activeStageList < 0) {
+                                    activeStageList = 3;
+                                }
+                                stageListPosition = stageListCount[activeStageList] - 1;
+                            }
+                            stageMode       = STAGEMODE_LOAD;
+                            Engine.gameMode = ENGINE_MAINGAME;
+                        }
+                        break;
+                    case SDLK_F3:
+                        if (Engine.devMenu) {
+                            stageListPosition++;
+                            if (stageListPosition >= stageListCount[activeStageList]) {
+                                activeStageList++;
+
+                                stageListPosition = 0;
+
+                                if (activeStageList >= 4) {
+                                    activeStageList = 0;
+                                }
+                            }
+                            stageMode       = STAGEMODE_LOAD;
+                            Engine.gameMode = ENGINE_MAINGAME;
+                        }
+                        break;
                     case SDLK_F10:
                         if (Engine.devMenu)
                             Engine.showPaletteOverlay ^= 1;
@@ -159,10 +198,11 @@ void RetroEngine::Init()
         }
     }
 
-    if (StrComp(gameWindowText, "Sonic 1")) {
+    gameType = GAME_UNKNOWN;
+    if (strstr(gameWindowText, "Sonic 1")) {
         gameType = GAME_SONIC1;
     }
-    if (StrComp(gameWindowText, "Sonic 2")) {
+    if (strstr(gameWindowText, "Sonic 2")) {
         gameType = GAME_SONIC2;
     }
 
@@ -194,6 +234,7 @@ void RetroEngine::Init()
         StrCopy(achievements[10].name, "Scrambled Egg");
         StrCopy(achievements[11].name, "Beat the Clock");
     }
+    initStartMenu(0);
 }
 
 void RetroEngine::Run()

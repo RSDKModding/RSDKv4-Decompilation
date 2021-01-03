@@ -3,6 +3,8 @@
 TextMenu gameMenu[TEXTMENU_COUNT];
 int textMenuSurfaceNo = 0;
 
+char playerListText[0x80][0x20];
+
 void LoadTextFile(TextMenu *menu, const char *filePath)
 {
     FileInfo info;
@@ -53,11 +55,42 @@ void AddTextMenuEntry(TextMenu *menu, const char *text)
     }
     menu->rowCount++;
 }
+void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
+{
+    menu->entryStart[menu->rowCount] = menu->textDataPos;
+    menu->entrySize[menu->rowCount]  = 0;
+    for (int i = 0; i < StrLengthW(text);) {
+        if (text[i] != '\0') {
+            menu->textData[menu->textDataPos++] = text[i];
+            menu->entrySize[menu->rowCount]++;
+            ++i;
+        }
+        else {
+            break;
+        }
+    }
+    menu->rowCount++;
+}
 void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
     menu->entryStart[rowID] = menu->textDataPos;
     menu->entrySize[rowID]  = 0;
     for (int i = 0; i < StrLength(text);) {
+        if (text[i] != '\0') {
+            menu->textData[menu->textDataPos++] = text[i];
+            menu->entrySize[rowID]++;
+            ++i;
+        }
+        else {
+            break;
+        }
+    }
+}
+void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
+{
+    menu->entryStart[rowID] = menu->textDataPos;
+    menu->entrySize[rowID]  = 0;
+    for (int i = 0; i < StrLengthW(text);) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
             menu->entrySize[rowID]++;
@@ -155,8 +188,10 @@ void LoadConfigListText(TextMenu *menu, int listNo)
             FileRead(&strBuf, strLen);
             strBuf[strLen] = '\0';
 
-            if (listNo == 0) //Player List
+            if (listNo == 0) { // Player List
                 AddTextMenuEntry(menu, strBuf);
+                StrCopy(playerListText[p], strBuf);
+            }
         }
 
         // Categories

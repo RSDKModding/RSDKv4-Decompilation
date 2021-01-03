@@ -83,6 +83,6 @@ void SetLimitedFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
                    | colourIndexes[(blendAmount * (*srcB << 3) + trueAlpha * (*srcA << 3)) >> 8].b;
             ++srcA;
             ++dst;
-        } while (--length);
+        } while (length--);
     }
 }

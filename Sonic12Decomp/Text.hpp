@@ -26,12 +26,16 @@ struct TextMenu {
 extern TextMenu gameMenu[TEXTMENU_COUNT];
 extern int textMenuSurfaceNo;
 
+extern char playerListText[0x80][0x20];
+
 void LoadTextFile(TextMenu *menu, const char *filePath);
 void LoadConfigListText(TextMenu *menu, int listNo);
 
 void SetupTextMenu(TextMenu *menu, int rowCount);
 void AddTextMenuEntry(TextMenu *menu, const char *text);
+void AddTextMenuEntryW(TextMenu *menu, const ushort *text);
 void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID);
+void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID);
 void EditTextMenuEntry(TextMenu *menu, const char *text, int rowID);
 
 #endif // !TEXTSYSTEM_H

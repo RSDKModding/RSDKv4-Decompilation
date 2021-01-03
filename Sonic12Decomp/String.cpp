@@ -61,6 +61,8 @@ ushort *strVersionName      = NULL;
 ushort *strPrivacy          = NULL;
 ushort *strTerms            = NULL;
 
+int stageStrCount = 0;
+
 ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
 int stringStorePos = 0;
 
@@ -357,6 +359,7 @@ void InitLocalizedStrings() {
     strSaveStageList[23] = ReadLocalizedString("SaveStageName24", "en", "Data/Game/StringList.txt");
     strSaveStageList[24] = ReadLocalizedString("SaveStageName25", "en", "Data/Game/StringList.txt");
     strSaveStageList[25] = ReadLocalizedString("SaveStageName26", "en", "Data/Game/StringList.txt");
+    stageStrCount        = 26;
     strNewBestTime       = ReadLocalizedString("NewBestTime", langStr, "Data/Game/StringList.txt");
     strRecords           = ReadLocalizedString("Records", langStr, "Data/Game/StringList.txt");
     strNextAct           = ReadLocalizedString("NextAct", langStr, "Data/Game/StringList.txt");
@@ -488,10 +491,12 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     FileRead(fileBuffer, 2);
                     curChar = fileBuffer[0] + (fileBuffer[1] << 8);
                     if (curChar != '\t') {
-                        stringStorage[stringStorePos][charID++] = curChar;
                         if (curChar == '\r' || curChar == '\n') {
                             flag     = 0;
                             readMode = 1;
+                        }
+                        else {
+                            stringStorage[stringStorePos][charID++] = curChar;
                         }
                     }
                     break;

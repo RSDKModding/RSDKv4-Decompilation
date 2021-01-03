@@ -80,8 +80,22 @@ enum DevMenuMenus {
     DEVMENU_SCRIPTERROR,
 };
 
+enum StartMenuMenus {
+    STARTMENU_MAIN,
+    STARTMENU_SAVESEL,
+    STARTMENU_PLAYERSEL,
+    STARTMENU_TASTAGESEL,
+    STARTMENU_TACONFIRMSEL,
+    STARTMENU_ACHIEVEMENTS,
+    STARTMENU_LEADERBOARDS,
+};
+
 void initDevMenu();
 void initErrorMessage();
 void processStageSelect();
+
+// added due to lack of normal main menu
+void initStartMenu(int mode);
+void processStartMenu(); 
 
 #endif //!DEBUG_H

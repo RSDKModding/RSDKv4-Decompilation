@@ -56,6 +56,21 @@ typedef unsigned long long ulong;
 #define RETRO_USING_SDL (0)
 #endif
 
+#define RETRO_GAME_STANDARD (0)
+#define RETRO_GAME_MOBILE   (1)
+
+#if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
+#define RETRO_GAMEPLATFORM (RETRO_GAME_MOBILE)
+#else
+#define RETRO_GAMEPLATFORM (RETRO_GAME_STANDARD)
+#endif
+
+#define RETRO_SW_RENDER  (0)
+#define RETRO_HW_RENDER  (1)
+#define RETRO_RENDERTYPE (RETRO_SW_RENDER)
+
+#define RETRO_USE_HAPTICS (1)
+
 enum RetroLanguages {
     RETRO_EN = 0,
     RETRO_FR = 1,
@@ -78,8 +93,8 @@ enum RetroStates {
     ENGINE_SCRIPTERROR = 4,
     ENGINE_INITPAUSE   = 5,
     ENGINE_EXITPAUSE   = 6,
-    ENGINE_7           = 7,
-    ENGINE_8           = 8,
+    ENGINE_ENDGAME           = 7,
+    ENGINE_FINISHTA           = 8,
 };
 
 //enum RetroEngineCallbacks {
@@ -131,6 +146,7 @@ extern bool usingCWD;
 
 //Native Entities
 #include "RetroGameLoop.hpp"
+#include "PauseMenu.hpp"
 
 class RetroEngine
 {
@@ -175,16 +191,28 @@ public:
     int waitValue       = 0;
     void Callback(int callbackID);
 
+    bool finishedStartMenu = false;
+
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
     const char *gameVersion       = "1.0.0";
-    const char *gamePlatform      = "Standard";
-    const char *gameRenderType    = "SW_Rendering";
-    const char *gameHapticSetting = "Use_Haptics";
-    //Mobile settings
-    //const char *GamePlatform = "Mobile";
-    //const char *GameRenderType = "HW_Rendering";
-    //const char *GameHapticSetting = "Use_Haptics";
+#if RETRO_GAMEPLATFORM == RETRO_GAME_STANDARD
+    const char *gamePlatform = "STANDARD";
+#elif RETRO_GAMEPLATFORM == RETRO_GAME_MOBILE
+    const char *gamePlatform   = "MOBILE";
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
+    const char *gameRenderType = "SW_RENDERING";
+#elif RETRO_RENDERTYPE == RETRO_HW_RENDER
+    const char *gameRenderType = "HW_RENDERING";
+#endif
+
+#if RETRO_USE_HAPTICS
+    const char *gameHapticSetting = "USE_F_FEEDBACK"; // NO_F_FEEDBACK is default, but people with controllers exist
+#else
+    const char *gameHapticSetting = "NO_F_FEEDBACK"; 
+#endif
 
     int gameType = GAME_UNKNOWN;
 

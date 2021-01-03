@@ -67,6 +67,8 @@ extern ushort *strVersionName;
 extern ushort *strPrivacy;
 extern ushort *strTerms;
 
+extern int stageStrCount;
+
 extern ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
 extern int stringStorePos;
 
@@ -128,6 +130,105 @@ inline int StrLength(const char *string)
     return len;
 }
 int FindStringToken(const char *string, const char *token, char stopID);
+
+inline void StrCopyW(ushort *dest, const ushort *src)
+{
+    int i = 0;
+
+    for (; src[i]; ++i) dest[i] = src[i];
+
+    dest[i] = 0;
+}
+
+
+inline void StrAddW(ushort *dest, const ushort *src)
+{
+    int destStrPos = 0;
+    int srcStrPos  = 0;
+    while (dest[destStrPos]) ++destStrPos;
+    while (true) {
+        if (!src[srcStrPos]) {
+            break;
+        }
+        dest[destStrPos++] = src[srcStrPos++];
+    }
+    dest[destStrPos] = 0;
+}
+inline void StrCopyW(ushort *dest, const char *src)
+{
+    int i = 0;
+
+    for (; src[i]; ++i) dest[i] = src[i];
+
+    dest[i] = 0;
+}
+
+inline void StrAddW(ushort *dest, const char *src)
+{
+    int destStrPos = 0;
+    int srcStrPos  = 0;
+    while (dest[destStrPos]) ++destStrPos;
+    while (true) {
+        if (!src[srcStrPos]) {
+            break;
+        }
+        dest[destStrPos++] = src[srcStrPos++];
+    }
+    dest[destStrPos] = 0;
+}
+
+inline bool StrCompW(const ushort *stringA, const ushort *stringB)
+{
+    bool match    = true;
+    bool finished = false;
+    while (!finished) {
+        if (*stringA == *stringB || *stringA == *stringB + ' ' || *stringA == *stringB - ' ') {
+            if (*stringA) {
+                ++stringA;
+                ++stringB;
+            }
+            else {
+                finished = true;
+            }
+        }
+        else {
+            match    = false;
+            finished = true;
+        }
+    }
+    return match;
+}
+
+inline bool StrCompW(const ushort *stringA, const char *stringB)
+{
+    bool match    = true;
+    bool finished = false;
+    while (!finished) {
+        if (*stringA == *stringB || *stringA == *stringB + ' ' || *stringA == *stringB - ' ') {
+            if (*stringA) {
+                ++stringA;
+                ++stringB;
+            }
+            else {
+                finished = true;
+            }
+        }
+        else {
+            match    = false;
+            finished = true;
+        }
+    }
+    return match;
+}
+
+inline int StrLengthW(const ushort *string)
+{
+    int len = 0;
+    for (len = 0; string[len]; len++)
+        ;
+    return len;
+}
+
 int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopID);
 
 inline void StringLowerCase(char *dest, const char *src)

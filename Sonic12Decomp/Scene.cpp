@@ -93,10 +93,27 @@ void InitFirstStage(void)
     activePalette32   = fullPalette32[0];
     stageMode         = STAGEMODE_LOAD;
     Engine.gameMode   = ENGINE_MAINGAME;
-    //activeStageList   = 0;
-    //stageListPosition = 0;
     activeStageList   = Engine.startList;
     stageListPosition = Engine.startStage;
+}
+
+void InitStartingStage(int list, int stage, int player) {
+    xScrollOffset = 0;
+    yScrollOffset = 0;
+    StopMusic();
+    StopAllSfx();
+    ReleaseStageSfx();
+    fadeMode      = 0;
+    playerListPos = player;
+    ClearGraphicsData();
+    ClearAnimationData();
+    ResetCurrentStageFolder();
+    activeStageList   = list;
+    activePalette     = fullPalette[0];
+    activePalette32   = fullPalette32[0];
+    stageMode         = STAGEMODE_LOAD;
+    Engine.gameMode   = ENGINE_MAINGAME;
+    stageListPosition = stage;
 }
 
 void ProcessStage(void)
@@ -146,7 +163,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == 60) {
+                if (++frameCounter == Engine.refreshRate) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -154,7 +171,7 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / 60;
+                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
             ProcessObjects();
@@ -247,7 +264,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == 60) {
+                if (++frameCounter == Engine.refreshRate) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -255,7 +272,7 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / 60;
+                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
             Process2PObjects();
@@ -291,7 +308,7 @@ void ProcessStage(void)
                 keyPress.C = false;
 
                 if (timeEnabled) {
-                    if (++frameCounter == 60) {
+                    if (++frameCounter == Engine.refreshRate) {
                         frameCounter = 0;
                         if (++stageSeconds > 59) {
                             stageSeconds = 0;
@@ -299,7 +316,7 @@ void ProcessStage(void)
                                 stageMinutes = 0;
                         }
                     }
-                    stageMilliseconds = 100 * frameCounter / 60;
+                    stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
                 }
 
                 ProcessObjects();
@@ -397,7 +414,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == 60) {
+                if (++frameCounter == Engine.refreshRate) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -405,7 +422,7 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / 60;
+                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
             Process2PObjects();

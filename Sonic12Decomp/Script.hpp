@@ -71,11 +71,13 @@ void CheckStaticText(char *text);
 void CheckArrayText(char *text);
 void ConvertArithmaticSyntax(char *text);
 void ConvertIfWhileStatement(char *text);
+void ConvertForeachStatement(char *text);
 bool ConvertSwitchStatement(char *text);
 void ConvertFunctionText(char *text);
 void CheckCaseNumber(char *text);
 bool ReadSwitchCase(char *text);
 void AppendIntegerToSting(char *text, int value);
+void AppendIntegerToStingW(ushort *text, int value);
 bool ConvertStringToInteger(char *text, int *value);
 void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 bool CheckOpcodeType(char *text); // Never actually used

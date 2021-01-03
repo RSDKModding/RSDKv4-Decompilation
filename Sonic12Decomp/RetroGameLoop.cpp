@@ -9,7 +9,12 @@ void RetroGameLoop_Main(void *objPtr)
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU: processStageSelect(); break;
-        case ENGINE_MAINGAME: ProcessStage(); break;
+        case ENGINE_MAINGAME:
+            if (Engine.finishedStartMenu)
+                ProcessStage();
+            else
+                processStartMenu();
+            break;
         case ENGINE_INITDEVMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             initDevMenu();
@@ -28,7 +33,7 @@ void RetroGameLoop_Main(void *objPtr)
             PauseSound();
             //ClearNativeObjects();
             // CreateNativeObject(MenuBG_Create, MenuBG_Main);
-            // CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+            CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
             ClearScreen(1);
@@ -36,28 +41,18 @@ void RetroGameLoop_Main(void *objPtr)
             stageMode    = STAGEMODE_NORMAL;
             pauseEnabled = false;
             break;
-        case ENGINE_7:
+        case ENGINE_ENDGAME:
             ClearScreen(1);
             //RestoreNativeObjects();
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RSDK_DEBUG
-            printLog("GameMode 7 Called"); // End Game?
-#endif
             activeStageList   = 0;
             stageListPosition = 0;
-            stageMode         = STAGEMODE_LOAD;
-            Engine.gameMode   = ENGINE_MAINGAME;
+            initStartMenu(0);
             break;
-        case ENGINE_8: 
+        case ENGINE_FINISHTA: 
             ClearScreen(1); 
             //RestoreNativeObjects();
-#if RSDK_DEBUG
-            printLog("GameMode 8 Called");
-#endif
-            activeStageList   = 0;
-            stageListPosition = 0;
-            stageMode         = STAGEMODE_LOAD;
-            Engine.gameMode   = ENGINE_MAINGAME;
+            initStartMenu(1);
             break;
         default:
 #if RSDK_DEBUG
