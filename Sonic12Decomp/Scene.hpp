@@ -195,6 +195,7 @@ extern byte tilesetGFXData[TILESET_SIZE];
 extern ushort tile3DFloorBuffer[0x13334];
 
 void InitFirstStage();
+void InitStartingStage(int list, int stage, int player);
 void ProcessStage();
 
 void ProcessParallaxAutoScroll();

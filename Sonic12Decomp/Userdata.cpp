@@ -153,11 +153,11 @@ void InitUserdata()
 
 #if RETRO_PLATFORM == RETRO_OSX
     if (!usingCWD)
-        sprintf(buffer, "%s/userdata.bin", getResourcesPath());
+        sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
-        sprintf(buffer, "%suserdata.bin", gamePath);
+        sprintf(buffer, "%sUData.bin", gamePath);
 #else
-    sprintf(buffer, "%suserdata.bin", gamePath);
+    sprintf(buffer, "%sUData.bin", gamePath);
 #endif
     file = fOpen(buffer, "rb");
     if (file) {
@@ -219,29 +219,6 @@ void writeSettings() {
     ini.SetInteger("Controller 1", "B", inputDevice[5].contMappings);
     ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings);
-
-    // Not yet implemented
-    ini.SetComment("Keyboard 2", "IK2Warning", "Not Yet Implemented");
-    ini.SetComment("Keyboard 2", "IK2Comment", "Keyboard Mappings for P2 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
-    ini.SetInteger("Keyboard 2", "Up", -1);
-    ini.SetInteger("Keyboard 2", "Down", -1);
-    ini.SetInteger("Keyboard 2", "Left", -1);
-    ini.SetInteger("Keyboard 2", "Right", -1);
-    ini.SetInteger("Keyboard 2", "A", -1);
-    ini.SetInteger("Keyboard 2", "B", -1);
-    ini.SetInteger("Keyboard 2", "C", -1);
-    ini.SetInteger("Keyboard 2", "Start", -1);
-
-    ini.SetComment("Controller 2", "IC2Warning", "Not Yet Implemented");
-    ini.SetComment("Controller 2", "IC2Comment", "Controller Mappings for P2 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
-    ini.SetInteger("Controller 2", "Up", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "Down", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "Left", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "Right", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "A", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "B", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "C", SDL_CONTROLLER_BUTTON_INVALID);
-    ini.SetInteger("Controller 2", "Start", SDL_CONTROLLER_BUTTON_INVALID);
 
     ini.Write("settings.ini");
 }
@@ -309,7 +286,7 @@ void AwardAchievement(int id, int status)
         return;
 
 #if RSDK_DEBUG
-    if (status == 100)
+    if (status == 100 && status != achievements[id].status)
         printLog("Achieved achievement: %s (%d)!", achievements[id].name, status);
 #endif
 

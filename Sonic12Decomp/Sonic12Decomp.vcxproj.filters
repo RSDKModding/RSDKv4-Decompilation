@@ -84,6 +84,9 @@
     <ClInclude Include="RetroGameLoop.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
+    <ClInclude Include="PauseMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RetroGameLoop.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenu.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,8 +24,8 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define ALIAS_COUNT       (0x100)
-#define COMMONALIAS_COUNT (0x20)
+#define COMMONALIAS_COUNT (0x4A)
+#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0xE0)
 int aliasCount = 0;
 int lineID     = 0;
 
@@ -386,7 +386,7 @@ const FunctionInfo functions[] = { FunctionInfo("End", 0),
                                    FunctionInfo("loop", 0),
                                    FunctionInfo("foreachGroup", 3),
                                    FunctionInfo("foreachObj", 3),
-                                   FunctionInfo("foreachLoop", 0),
+                                   FunctionInfo("floop", 0),
                                    FunctionInfo("switch", 2),
                                    FunctionInfo("break", 0),
                                    FunctionInfo("endswitch", 0),
@@ -481,46 +481,95 @@ const FunctionInfo functions[] = { FunctionInfo("End", 0),
                                    FunctionInfo("SetArrayValue", 3),
                                    FunctionInfo("CheckStageFolder", 1),
                                    FunctionInfo("Absolute", 1),
+                                   FunctionInfo("EngineCallbackFunc", 1),
                                    FunctionInfo("EngineCallback", 3),
-                                   FunctionInfo("CallEngineFunction1", 5),
-                                   FunctionInfo("CallEngineFunction2", 1),
+                                   FunctionInfo("EngineCallbackExt", 5),
                                    FunctionInfo("SetObjectBorderX", 1),
                                    FunctionInfo("GetObjectValue", 3),
                                    FunctionInfo("SetObjectValue", 3),
-                                   FunctionInfo("CopyObject", 3) };
+                                   FunctionInfo("CopyObject", 3),
+                                   FunctionInfo("HapticEffect", 3),
+                                   FunctionInfo("Unknown", 0) };
 
-AliasInfo aliases[0x80] = { AliasInfo("true", "1"),
-                            AliasInfo("false", "0"),
-                            AliasInfo("FX_SCALE", "0"),
-                            AliasInfo("FX_ROTATE", "1"),
-                            AliasInfo("FX_ROTOZOOM", "2"),
-                            AliasInfo("FX_INK", "3"),
-                            AliasInfo("PRESENTATION_STAGE", "0"),
-                            AliasInfo("REGULAR_STAGE", "1"),
-                            AliasInfo("BONUS_STAGE", "2"),
-                            AliasInfo("SPECIAL_STAGE", "3"),
-                            AliasInfo("MENU_1", "0"),
-                            AliasInfo("MENU_2", "1"),
-                            AliasInfo("C_TOUCH", "0"),
-                            AliasInfo("C_BOX", "1"),
-                            AliasInfo("C_BOX2", "2"),
-                            AliasInfo("C_PLATFORM", "3"),
-                            AliasInfo("MAT_WORLD", "0"),
-                            AliasInfo("MAT_VIEW", "1"),
-                            AliasInfo("MAT_TEMP", "2"),
-                            AliasInfo("FX_FLIP", "5"),
-                            AliasInfo("FACING_LEFT", "1"),
-                            AliasInfo("FACING_RIGHT", "0"),
-                            AliasInfo("STAGE_PAUSED", "2"),
-                            AliasInfo("STAGE_RUNNING", "1"),
-                            AliasInfo("RESET_GAME", "2"),
-                            AliasInfo("RETRO_WIN", "0"),
-                            AliasInfo("RETRO_OSX", "1"),
-                            AliasInfo("RETRO_XBOX_360", "2"),
-                            AliasInfo("RETRO_PS3", "3"),
-                            AliasInfo("RETRO_iOS", "4"),
-                            AliasInfo("RETRO_ANDROID", "5"),
-                            AliasInfo("RETRO_WP7", "6") };
+AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
+                                   AliasInfo("false", "0"),
+                                   AliasInfo("FX_SCALE", "0"),
+                                   AliasInfo("FX_ROTATE", "1"),
+                                   AliasInfo("FX_ROTOZOOM", "2"),
+                                   AliasInfo("FX_INK", "3"),
+                                   AliasInfo("PRESENTATION_STAGE", "0"),
+                                   AliasInfo("REGULAR_STAGE", "1"),
+                                   AliasInfo("BONUS_STAGE", "2"),
+                                   AliasInfo("SPECIAL_STAGE", "3"),
+                                   AliasInfo("MENU_1", "0"),
+                                   AliasInfo("MENU_2", "1"),
+                                   AliasInfo("C_TOUCH", "0"),
+                                   AliasInfo("C_BOX", "1"),
+                                   AliasInfo("C_BOX2", "2"),
+                                   AliasInfo("C_PLATFORM", "3"),
+                                   AliasInfo("MAT_WORLD", "0"),
+                                   AliasInfo("MAT_VIEW", "1"),
+                                   AliasInfo("MAT_TEMP", "2"),
+                                   AliasInfo("FX_FLIP", "5"),
+                                   AliasInfo("FACING_LEFT", "1"),
+                                   AliasInfo("FACING_RIGHT", "0"),
+                                   AliasInfo("STAGE_PAUSED", "2"),
+                                   AliasInfo("STAGE_RUNNING", "1"),
+                                   AliasInfo("RESET_GAME", "2"),
+                                   AliasInfo("RETRO_STANDARD", "0"),
+                                   AliasInfo("RETRO_MOBILE", "1"),
+                                   AliasInfo("INK_NONE", "0"),
+                                   AliasInfo("INK_BLEND", "1"),
+                                   AliasInfo("INK_ALPHA", "2"),
+                                   AliasInfo("INK_ADD", "3"),
+                                   AliasInfo("INK_SUB", "4"),
+                                   AliasInfo("CSIDE_FLOOR", "0"),
+                                   AliasInfo("CSIDE_LWALL", "1"),
+                                   AliasInfo("CSIDE_RWALL", "2"),
+                                   AliasInfo("CSIDE_ROOF", "3"),
+                                   AliasInfo("CMODE_FLOOR", "0"),
+                                   AliasInfo("CMODE_LWALL", "1"),
+                                   AliasInfo("CMODE_ROOF", "2"),
+                                   AliasInfo("CMODE_RWALL", "3"),
+                                   AliasInfo("PATH_A", "0"),
+                                   AliasInfo("PATH_B", "1"),
+                                   AliasInfo("GRAVITY_GROUND", "0"),
+                                   AliasInfo("GRAVITY_AIR", "0"),
+                                   AliasInfo("FACE_TEXTURED_3D", "0"),
+                                   AliasInfo("FACE_TEXTURED_2D", "1"),
+                                   AliasInfo("FACE_COLOURED_3D", "2"),
+                                   AliasInfo("FACE_COLOURED_2D", "3"),
+                                   AliasInfo("FACE_FADED", "4"),
+                                   AliasInfo("FACE_TEXTURED_C", "5"),
+                                   AliasInfo("FACE_TEXTURED_D", "6"),
+                                   AliasInfo("FACE_SPRITE_3D", "7"),
+                                   AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
+                                   AliasInfo("PRIORITY_ACTIVE", "1"),
+                                   AliasInfo("PRIORITY_ACTIVE_PAUSED", "2"),
+                                   AliasInfo("PRIORITY_XBOUNDS", "3"),
+                                   AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
+                                   AliasInfo("PRIORITY_INACTIVE", "5"),
+                                   AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
+                                   AliasInfo("PRIORITY_UNKNOWN", "7"),
+                                   AliasInfo("TILEINFO_INDEX", "0"),
+                                   AliasInfo("TILEINFO_DIRECTION", "1"),
+                                   AliasInfo("TILEINFO_VISUALPLANE", "2"),
+                                   AliasInfo("TILEINFO_SOLIDITYA", "3"),
+                                   AliasInfo("TILEINFO_SOLIDITYB", "4"),
+                                   AliasInfo("TILEINFO_FLAGSA", "5"),
+                                   AliasInfo("TILEINFO_ANGLEA", "6"),
+                                   AliasInfo("TILEINFO_FLAGSB", "7"),
+                                   AliasInfo("TILEINFO_ANGLEB", "8"),
+                                   AliasInfo("TEXTINFO_TEXTDATA", "0"),
+                                   AliasInfo("TEXTINFO_TEXTSIZE", "1"),
+                                   AliasInfo("TEXTINFO_ROWCOUNT", "1"),
+                                   AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
+                                   AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
+                                   AliasInfo("TILELAYER_NOSCROLL", "0"),
+                                   AliasInfo("TILELAYER_HSCROLL", "1"),
+                                   AliasInfo("TILELAYER_VSCROLL", "2"),
+                                   AliasInfo("TILELAYER_3DFLOOR", "3"),
+                                   AliasInfo("TILELAYER_3DSKY", "4") };
 
 StaticInfo staticVariables[STATICVAR_COUNT];
 ArrInfo arrayVariables[ARRVAR_COUNT];
@@ -919,9 +968,9 @@ enum ScrFunc {
     FUNC_SETARRAYVALUE,
     FUNC_CHECKSTAGEFOLDER,
     FUNC_ABSOLUTE,
+    FUNC_ENGINECALLBACKFUNC,
     FUNC_ENGINECALLBACK,
-    FUNC_CALLENGINEFUNCTION,
-    FUNC_CALLENGINEFUNCTION2,
+    FUNC_ENGINECALLBACKEXT,
     FUNC_SETOBJECTBORDERX,
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
@@ -963,7 +1012,7 @@ void CheckAliasText(char *text)
 }
 void CheckStaticText(char *text)
 {
-    if (FindStringToken(text, "#static", 1))
+    if (FindStringToken(text, "#constant", 1))
         return;
     int textPos     = 6;
     int staticStrPos = 0;
@@ -1020,6 +1069,7 @@ void CheckArrayText(char *text)
                             arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
                             scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
                         }
+                        arrayMatch = 2;
                     }
                     else {
                         strBuffer[arrayStrPos] = text[textPos];
@@ -1040,6 +1090,7 @@ void CheckArrayText(char *text)
                             arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
                             scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
                         }
+                        arrayMatch = 2;
                     }
                     else if (text[textPos] == ',') {
                         strBuffer[arrayStrPos] = 0;
@@ -1179,6 +1230,49 @@ void ConvertIfWhileStatement(char *text)
         }
     }
 }
+void ConvertForeachStatement(char *text)
+{
+    if (FindStringToken(text, "foreach", 1))
+        return;
+    char dest[260];
+    int compareOp  = -1;
+    int destStrPos = 0;
+
+    if (!FindStringToken(text, "foreachTypeGroup", 1)) { //foreach TypeGroup[
+        StrCopy(dest, functions[FUNC_FOREACHTYPEGROUP].name);
+        StrAdd(dest, "(");
+        AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+        StrAdd(dest, ",");
+        destStrPos = StrLength(dest);
+        for (int i = 7; text[i]; ++i) {
+            if (text[i] != '(' && text[i] != ')')
+                dest[destStrPos++] = text[i];
+        }
+        dest[destStrPos] = 0;
+        StrAdd(dest, ")");
+        StrCopy(text, dest);
+        jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
+        jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
+        jumpTableData[jumpTableDataPos++]   = 0;
+    }
+    else { //foreach TypeName[
+        StrCopy(dest, functions[FUNC_FOREACHTYPENAME].name);
+        StrAdd(dest, "(");
+        AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+        StrAdd(dest, ",");
+        destStrPos = StrLength(dest);
+        for (int i = 7; text[i]; ++i) {
+            if (text[i] != '(' && text[i] != ')')
+                dest[destStrPos++] = text[i];
+        }
+        dest[destStrPos] = 0;
+        StrAdd(dest, ")");
+        StrCopy(text, dest);
+        jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
+        jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
+        jumpTableData[jumpTableDataPos++]   = 0;
+    }
+}
 bool ConvertSwitchStatement(char *text)
 {
     if (FindStringToken(text, "switch", 1))
@@ -1262,6 +1356,10 @@ void ConvertFunctionText(char *text)
             jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
         }
 
+        if (StrComp("floop", functions[opcode].name)) {
+            jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
+        }
+
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
             int funcNamePos      = 0;
@@ -1293,13 +1391,15 @@ void ConvertFunctionText(char *text)
                         CopyAliasStr(arrayStr, aliases[a].value, 1);
                 }
             }
+            // Eg: TempValue0 = constant0
             for (int s = 0; s < staticVarCount; ++s) {
                 if (StrComp(funcName, staticVariables[s].name)) {
-                    funcName[0] = 0;
-                    AppendIntegerToSting(funcName, staticVariables[s].dataPos);
+                    StrCopy(funcName, "ScriptData");
                     arrayStr[0] = 0;
+                    AppendIntegerToSting(arrayStr, staticVariables[s].dataPos);
                 }
             }
+            // Eg: =GetArrayValue(TempValue0, 1, array0)
             for (int a = 0; a < arrVarCount; ++a) {
                 if (StrComp(funcName, arrayVariables[a].name)) {
                     funcName[0] = 0;
@@ -1331,6 +1431,16 @@ void ConvertFunctionText(char *text)
                         funcName[0] = 0;
                         AppendIntegerToSting(funcName, o);
                     }
+                }
+            }
+            // Eg: TempValue0 = TypeGroup[0]
+            if (StrComp(funcName, "TypeGroup")) {
+                funcName[0] = 0;
+                AppendIntegerToSting(funcName, 0);
+                int typeGroup = 0;
+                if (ConvertStringToInteger(arrayStr, &typeGroup)) {
+                    funcName[0] = 0;
+                    AppendIntegerToSting(funcName, typeGroup);
                 }
             }
             // Eg: TempValue0 = SfxName[Jump]
@@ -1557,10 +1667,42 @@ void AppendIntegerToSting(char *text, int value)
         text[textPos++] = '0';
     text[textPos] = 0;
 }
+void AppendIntegerToStingW(ushort *text, int value)
+{
+    int textPos = 0;
+    while (true) {
+        if (!text[textPos])
+            break;
+        ++textPos;
+    }
+
+    int cnt = 0;
+    int v   = value;
+    while (v != 0) {
+        v /= 10;
+        cnt++;
+    }
+
+    v = 0;
+    for (int i = cnt - 1; i >= 0; --i) {
+        v = value / pow(10, i);
+        v %= 10;
+
+        int strValue = v + '0';
+        if (strValue < '0' || strValue > '9') {
+            // what
+        }
+        text[textPos++] = strValue;
+    }
+    if (value == 0)
+        text[textPos++] = '0';
+    text[textPos] = 0;
+}
 bool ConvertStringToInteger(char *text, int *value)
 {
     int charID   = 0;
     bool negative = false;
+    int base      = 10;
     *value       = 0;
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
@@ -1576,8 +1718,16 @@ bool ConvertStringToInteger(char *text, int *value)
         --strLength;
     }
 
+    if (text[charID] == '0') {
+        if (text[charID + 1] == 'x' || text[charID + 1] == 'X') {
+            charID += 2;
+            strLength -= 2;
+            base = 0x10;
+        }
+    }
+
     while (strLength > -1) {
-        if (text[charID] < '0' || text[charID] > '9') {
+        if (text[charID] < '0' || text[charID] > (base == 10 ? '9' : (base == 0x10 ? 'F' : '1'))) {
             return 0;
         }
         if (strLength <= 0) {
@@ -1585,7 +1735,19 @@ bool ConvertStringToInteger(char *text, int *value)
         }
         else {
             int strlen = strLength + 1;
-            for (charVal = text[charID] - '0'; --strlen; charVal *= 10)
+            charVal    = 0;
+            if (text[charID] >= '0' && text[charID] <= '9') {
+                charVal = text[charID] - '0';
+            }
+            else if (text[charID] >= 'a' && text[charID] <= 'f') {
+                charVal = text[charID] - 'a';
+                charVal += 10;
+            }
+            else if (text[charID] >= 'A' && text[charID] <= 'F') {
+                charVal = text[charID] - 'A';
+                charVal += 10;
+            }
+            for (; --strlen; charVal *= base)
                 ;
             *value += charVal;
         }
@@ -1654,20 +1816,6 @@ void ParseScriptFile(char *scriptName, int scriptID)
     jumpTableStackPos = 0;
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
-    staticVarCount = 0;
-    arrVarCount = 0;
-    
-    for (int i = 0; i < ARRVAR_COUNT; ++i) {
-        StrCopy(arrayVariables[i].name, "");
-        arrayVariables[i].valueCount = 0;
-        arrayVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
-    }
-    
-    for (int i = 0; i < STATICVAR_COUNT; ++i) {
-        StrCopy(staticVariables[i].name, "");
-        staticVariables[i].value = 0;
-        staticVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
-    }
     
     for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
         StrCopy(aliases[i].name, "");
@@ -1692,7 +1840,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 FileRead(&curChar, 1);
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                        if ((curChar == '\r' && prevChar != '\n') || curChar == '\n') {
+                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
                         }
@@ -1712,7 +1860,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\r' && prevChar != '\n') || curChar == '\n') {
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;
                     }
@@ -1765,15 +1913,15 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     if (FindStringToken(scriptText, "function", 1)) {
                         if (FindStringToken(scriptText, "function", 1) == 1) {
                             char funcName[0x20];
-                            for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
-                            funcName[textPos - 8] = 0;
-                            parseMode             = -1;
-                            for (textPos = 0; textPos < scriptFunctionCount; ++textPos) {
-                                if (StrComp(scriptText, scriptFunctionNames[textPos]) == 1)
-                                    parseMode = textPos;
+                            for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
+                            funcName[textPos - 9] = 0;
+                            int funcID            = -1;
+                            for (int f = 0; f < scriptFunctionCount; ++f) {
+                                if (StrComp(scriptText, scriptFunctionNames[f]))
+                                    funcID = f;
                             }
-                            if (scriptFunctionCount < FUNCTION_COUNT && parseMode == -1) {
-                                StrCopy(scriptFunctionNames[scriptFunctionCount], scriptText);
+                            if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
+                                StrCopy(scriptFunctionNames[scriptFunctionCount], funcName);
                                 ++scriptFunctionCount;
                             }
                             parseMode = PARSEMODE_SCOPELESS;
@@ -1783,12 +1931,12 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         char funcName[0x20];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
-                        parseMode             = -1;
-                        for (textPos = 0; textPos < scriptFunctionCount; ++textPos) {
-                            if (StrComp(funcName, scriptFunctionNames[textPos]))
-                                parseMode = textPos;
+                        int funcID            = -1;
+                        for (int f = 0; f < scriptFunctionCount; ++f) {
+                            if (StrComp(funcName, scriptFunctionNames[f]))
+                                funcID = f;
                         }
-                        if (parseMode <= -1) {
+                        if (funcID <= -1) {
                             if (scriptFunctionCount >= FUNCTION_COUNT) {
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
@@ -1831,6 +1979,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         else if (FindStringToken(scriptText, "#platform:", 1)) {
                             if (FindStringToken(scriptText, "#endplatform", 1) == -1) {
                                 ConvertIfWhileStatement(scriptText);
+                                ConvertForeachStatement(scriptText);
                                 if (ConvertSwitchStatement(scriptText)) {
                                     parseMode    = PARSEMODE_SWITCHREAD;
                                     info.readPos = (int)GetFilePosition();
@@ -1850,7 +1999,10 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         }
                         else if (FindStringToken(scriptText, Engine.gamePlatform, 1) == -1
                                  && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
-                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1) {
+#if RETRO_USE_HAPTICS
+                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1) 
+#endif
+                        {
                             parseMode = PARSEMODE_PLATFORMSKIP;
                         }
                     }
@@ -2105,9 +2257,21 @@ void ClearScriptData()
     aliasCount = COMMONALIAS_COUNT;
     lineID     = 0;
 
-    //memset(vertexBuffer, 0, VERTEXBUFFER_SIZE * sizeof(Vertex));
-    //memset(vertexBufferT, 0, VERTEXBUFFER_SIZE * sizeof(Vertex));
-    //memset(faceBuffer, 0, FACEBUFFER_SIZE * sizeof(Face));
+    
+    staticVarCount = 0;
+    arrVarCount    = 0;
+
+    for (int i = 0; i < ARRVAR_COUNT; ++i) {
+        StrCopy(arrayVariables[i].name, "");
+        arrayVariables[i].valueCount = 0;
+        arrayVariables[i].dataPos    = SCRIPTDATA_COUNT - 1;
+    }
+
+    for (int i = 0; i < STATICVAR_COUNT; ++i) {
+        StrCopy(staticVariables[i].name, "");
+        staticVariables[i].value   = 0;
+        staticVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
+    }
 
     ClearAnimationData();
 
@@ -3973,13 +4137,19 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 scriptEng.operands[0] = abs(scriptEng.operands[0]);
                 break;
             }
-            case FUNC_ENGINECALLBACK:
+            case FUNC_ENGINECALLBACKFUNC:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                    nativeFunction[scriptEng.operands[0]](0x00, reinterpret_cast<void *>(static_cast<intptr_t>(0x00)));
                 break;
-            case FUNC_CALLENGINEFUNCTION:
-            case FUNC_CALLENGINEFUNCTION2:
+            case FUNC_ENGINECALLBACK:
+                opcodeSize = 0;
+
+                if (scriptEng.operands[0] <= 0xFu)
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
+                                                          reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                break;
+            case FUNC_ENGINECALLBACKEXT:
                 opcodeSize = 0;
                 
                 if (scriptEng.operands[0] <= 0xFu)

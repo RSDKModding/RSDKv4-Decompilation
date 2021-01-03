@@ -200,6 +200,7 @@
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Palette.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="RetroEngine.cpp" />
     <ClCompile Include="RetroGameLoop.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Drawing.hpp" />
     <ClInclude Include="Ini.hpp" />
+    <ClInclude Include="PauseMenu.hpp" />
     <ClInclude Include="Reader.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RetroGameLoop.hpp" />
