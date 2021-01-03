@@ -166,12 +166,6 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         fSeek(cFileHandle, 0, SEEK_SET);
         readPos = 0;
         fileInfo->readPos           = readPos;
-        fileInfo->virtualFileOffset = 0;
-        fileInfo->eStringNo         = 0;
-        fileInfo->eStringPosB       = 0;
-        fileInfo->eStringPosA       = 0;
-        fileInfo->eNybbleSwap       = 0;
-        fileInfo->bufferPosition    = 0;
         bufferPosition              = 0;
         readSize                    = 0;
 

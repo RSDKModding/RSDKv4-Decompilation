@@ -1,8 +1,7 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by SonicCDDecomp.rc
+// Used by Sonic12Decomp.rc
 //
-#define IDI_ICON1                       101
 
 // Next default values for new objects
 // 
