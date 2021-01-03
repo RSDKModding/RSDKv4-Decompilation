@@ -206,6 +206,28 @@ void RetroEngine::Init()
         gameType = GAME_SONIC2;
     }
 
+    
+    ReadSaveRAMData();
+    if (saveRAM[0x100] != Engine.gameType) {
+        saveRAM[0x100] = Engine.gameType;
+    }
+    else {
+        if (Engine.gameType == GAME_SONIC1) {
+            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+        else {
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+    }
+
     if (Engine.gameType == GAME_SONIC1) {
         StrCopy(achievements[5].name, "Ring King");
         StrCopy(achievements[0].name, "Blast Processing");

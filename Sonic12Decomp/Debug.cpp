@@ -379,6 +379,7 @@ void initStartMenu(int mode) {
     LoadGIFFile("Data/Game/SystemText.gif", 0);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+    ReadSaveRAMData();
 
     if (mode == 0) {
         stageMode = STARTMENU_MAIN;
@@ -1060,6 +1061,23 @@ void processStartMenu() {
                 gameMenu[1].selection1     = 0;
                 gameMenu[1].selection2     = 0;
                 stageMode                  = STARTMENU_SAVESEL;
+
+                saveRAM[0x100] = Engine.gameType;
+                if (Engine.gameType == GAME_SONIC1) {
+                    saveRAM[0x101] = GetGlobalVariableByName("options.spindash");
+                    saveRAM[0x102] = GetGlobalVariableByName("options.speedCap");
+                    saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
+                    saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+                    saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+                }
+                else {
+                    saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
+                    saveRAM[0x102] = GetGlobalVariableByName("options.tailsFlight");
+                    saveRAM[0x103] = GetGlobalVariableByName("options.superTails");
+                    saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+                    saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+                }
+                WriteSaveRAMData();
             }
             break;
         }
