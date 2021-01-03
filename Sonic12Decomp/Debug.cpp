@@ -323,8 +323,9 @@ void processStageSelect()
         {
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
-                stageMode = DEVMENU_STAGESEL;
+                stageMode = DEVMENU_MAIN;
                 SetupTextMenu(&gameMenu[0], 0);
+                SetupTextMenu(&gameMenu[1], 0);
                 AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
                 AddTextMenuEntry(&gameMenu[0], " ");
                 char version[0x80];
