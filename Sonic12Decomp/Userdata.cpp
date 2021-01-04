@@ -37,7 +37,7 @@ void InitUserdata()
 
         ini.SetBool("Game", "Language", Engine.language = RETRO_EN);
 
-        ini.SetBool("Window", "Fullscreen", Engine.fullScreen = false);
+        ini.SetBool("Window", "Fullscreen", Engine.startFullScreen = false);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
@@ -83,8 +83,8 @@ void InitUserdata()
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
 
-        if (!ini.GetBool("Window", "FullScreen", &Engine.fullScreen))
-            Engine.fullScreen = false;
+        if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
+            Engine.startFullScreen = false;
         if (!ini.GetBool("Window", "Borderless", &Engine.borderless))
             Engine.borderless = false;
         if (!ini.GetBool("Window", "VSync", &Engine.vsync))
@@ -185,7 +185,7 @@ void writeSettings() {
     ini.SetInteger("Game", "Language", Engine.language);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
-    ini.SetBool("Window", "Fullscreen", Engine.fullScreen);
+    ini.SetBool("Window", "Fullscreen", Engine.startFullScreen);
     ini.SetComment("Window", "BLComment", "Determines if the window will be borderless or not");
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");

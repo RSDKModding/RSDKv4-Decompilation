@@ -210,13 +210,13 @@ public:
     const char *gameHapticSetting = "NO_F_FEEDBACK"; 
 #endif
 
-    int gameType = GAME_UNKNOWN;
+    byte gameType = GAME_UNKNOWN;
 
     ushort *frameBuffer = nullptr;
 
     bool isFullScreen = false;
 
-    bool fullScreen = false;
+    bool startFullScreen = false; // if should start as fullscreen
     bool borderless = false;
     bool vsync = false;
     int windowScale = 2;
