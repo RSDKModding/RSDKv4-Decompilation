@@ -7,7 +7,29 @@ void PauseMenu_Create(void *objPtr)
 }
 void PauseMenu_Main(void *objPtr)
 {
+    CheckKeyDown(&keyDown, 0xFF);
+    CheckKeyPress(&keyPress, 0xFF);
+
     NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
+
+    if (keyPress.up) {
+        if (pauseMenu->selectedOption - 1 < 0)
+            pauseMenu->selectedOption = 3;
+        --pauseMenu->selectedOption;
+        for (int s = 0; s < globalSFXCount; ++s) {
+            if (StrComp(sfxNames[s], "MenuMove")) {
+                PlaySfx(s, 0);
+            }
+        }
+    }
+    else if (keyPress.down) {
+        pauseMenu->selectedOption = ++pauseMenu->selectedOption % 3;
+        for (int s = 0; s < globalSFXCount; ++s) {
+            if (StrComp(sfxNames[s], "MenuMove")) {
+                PlaySfx(s, 0);
+            }
+        }
+    }
 
     if (keyPress.A || keyPress.start) {
         switch (pauseMenu->selectedOption) {
@@ -16,6 +38,7 @@ void PauseMenu_Main(void *objPtr)
                 break;
             }
             case 1: {
+                Engine.gameMode = ENGINE_EXITPAUSE;
                 stageMode = STAGEMODE_LOAD;
                 break;
             }
@@ -24,6 +47,21 @@ void PauseMenu_Main(void *objPtr)
                 break;
             }
         }
-        // RemoveNativeObject(pauseMenu);
+        for (int s = 0; s < globalSFXCount; ++s) {
+            if (StrComp(sfxNames[s], "MenuSelect")) {
+                PlaySfx(s, 0);
+            }
+        }
+        RemoveNativeObject(pauseMenu);
+        CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
+    }
+    else if (keyPress.B) {
+        Engine.gameMode = ENGINE_EXITPAUSE;
+        for (int s = 0; s < globalSFXCount; ++s) {
+            if (StrComp(sfxNames[s], "MenuBack")) {
+                PlaySfx(s, 0);
+            }
+        }
+        RemoveNativeObject(pauseMenu);
     }
 }

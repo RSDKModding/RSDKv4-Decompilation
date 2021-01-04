@@ -488,8 +488,7 @@ const FunctionInfo functions[] = { FunctionInfo("End", 0),
                                    FunctionInfo("GetObjectValue", 3),
                                    FunctionInfo("SetObjectValue", 3),
                                    FunctionInfo("CopyObject", 3),
-                                   FunctionInfo("HapticEffect", 3),
-                                   FunctionInfo("Unknown", 0) };
+                                   FunctionInfo("HapticEffect", 3) };
 
 AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                    AliasInfo("false", "0"),
@@ -979,6 +978,7 @@ enum ScrFunc {
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
+    FUNC_HAPTICEFFECT,
     FUNC_MAX_CNT
 };
 
@@ -2609,7 +2609,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         }
                         else {
                             int pos               = objectEntityList[arrayVal].YPos >> 16;
-                            scriptEng.operands[i] = pos <= yScrollOffset - 256 || pos >= yScrollOffset + 496;
+                            scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >= yScrollOffset + OBJECT_BORDER_Y2;
                         }
                         break;
                     }
@@ -3470,12 +3470,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 SetActivePalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
                 break;
             case FUNC_SETPALETTEFADE:
-                opcodeSize = 0;
-                SetLimitedFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                SetPaletteFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                scriptEng.operands[5]);
                 break;
             case FUNC_SETPALETTEENTRY:
-                opcodeSize = 0;
                 SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
                 break;
             case FUNC_GETPALETTEENTRY:
@@ -3997,7 +3995,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 scriptEng.operands[0] = stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]];
                 break;
             case FUNC_SETTILELAYERENTRY:
-                opcodeSize                                                                                       = 0;
                 stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]] = scriptEng.operands[0];
                 break;
             case FUNC_GETBIT: scriptEng.operands[0] = (scriptEng.operands[1] & (1 << scriptEng.operands[2])) >> scriptEng.operands[2]; break;
@@ -4042,7 +4039,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             }
             case FUNC_SET16X16TILEINFO: {
-                opcodeSize            = 0;
                 scriptEng.operands[4] = scriptEng.operands[1] >> 7;
                 scriptEng.operands[5] = scriptEng.operands[2] >> 7;
                 scriptEng.operands[6] = stageLayouts[0].tiles[scriptEng.operands[4] + (scriptEng.operands[5] << 8)] << 6;
@@ -4146,15 +4142,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     nativeFunction[scriptEng.operands[0]](0x00, reinterpret_cast<void *>(static_cast<intptr_t>(0x00)));
                 break;
             case FUNC_ENGINECALLBACK:
-                opcodeSize = 0;
-
                 if (scriptEng.operands[0] <= 0xFu)
                     nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
                                                           reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
             case FUNC_ENGINECALLBACKEXT:
-                opcodeSize = 0;
-                
                 if (scriptEng.operands[0] <= 0xFu)
                     nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
@@ -4196,6 +4188,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     scriptEng.operands[2] = cnt;
                     scriptEng.operands[1] = nextID++ + dif;
                 }
+                break;
+            }
+            case FUNC_HAPTICEFFECT: {
+                break;
             }
         }
 

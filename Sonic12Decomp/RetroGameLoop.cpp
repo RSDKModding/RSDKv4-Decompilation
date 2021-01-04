@@ -27,19 +27,16 @@ void RetroGameLoop_Main(void *objPtr)
             ResetCurrentStageFolder();
             break;
         case ENGINE_INITPAUSE:
-            Engine.gameMode = ENGINE_MAINGAME;
-            stageMode    = STAGEMODE_UNKNOWN; // temp until/if nativeObjs are done
-            pauseEnabled = true;
+            //Engine.gameMode = ENGINE_MAINGAME;
+            //stageMode    = STAGEMODE_UNKNOWN; // temp until/if nativeObjs are fully complete
             PauseSound();
-            //ClearNativeObjects();
-            // CreateNativeObject(MenuBG_Create, MenuBG_Main);
-            //CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+            ClearNativeObjects();
+            // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete
+            CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
-            ClearScreen(1);
             Engine.gameMode = ENGINE_MAINGAME;
-            stageMode    = STAGEMODE_NORMAL;
-            pauseEnabled = false;
+            ResumeSound();
             break;
         case ENGINE_ENDGAME:
             ClearScreen(1);
@@ -49,7 +46,7 @@ void RetroGameLoop_Main(void *objPtr)
             stageListPosition = 0;
             initStartMenu(0);
             break;
-        case ENGINE_FINISHTA: 
+        case ENGINE_FINISHTA: //Also called when 2P VS disconnects
             ClearScreen(1); 
             //RestoreNativeObjects();
             initStartMenu(1);

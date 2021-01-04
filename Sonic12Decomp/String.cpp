@@ -469,8 +469,8 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
 
 #if RSDK_DEBUG
                         endLine = false;
-                        printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
-                        printLog(stringStorage[stringStorePos]);
+                        //printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
+                        //printLog(stringStorage[stringStorePos]);
                         endLine = true;
 #endif
 

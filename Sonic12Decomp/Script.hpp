@@ -28,9 +28,9 @@ struct ScriptEngine {
     int operands[0x16];
     int tempValue[8];
     int arrayPosition[9];
-    // int playerObjectPos; // ArrayPos6
-    // int playerObjectCount; // ArrayPos7
-    // int tempObjectPos; // ArrayPos8
+    // int playerObjectPos;     // ArrayPos[6]
+    // int playerObjectCount;   // ArrayPos[7]
+    // int tempObjectPos;       // ArrayPos[8]
     int checkResult;
 };
 

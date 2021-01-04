@@ -16,8 +16,6 @@ extern ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
 extern ushort *activePalette; // Ptr to the 256 colour set thats active
 extern PaletteEntry *activePalette32;
 
-extern PaletteEntry colourIndexes[PALETTE_SIZE];
-
 extern byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
 
 extern int fadeMode;
@@ -27,6 +25,8 @@ extern byte fadeG;
 extern byte fadeB;
 
 extern int paletteMode;
+
+#define RGB888_TO_RGB565(r, g, b) ((b) >> 3) | (((g) >> 2) << 5) | (((r) >> 3) << 11)
 
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex,
                  int endIndex);
@@ -43,13 +43,13 @@ inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 inline void SetPaletteEntry(byte paletteIndex, byte index, byte r, byte g, byte b)
 {
     if (paletteIndex != 0xFF) {
-        fullPalette[paletteIndex][index]     = ((int)b >> 3) | 32 * ((int)g >> 2) | ((ushort)((int)r >> 3) << 11);
+        fullPalette[paletteIndex][index]     = RGB888_TO_RGB565(r, g, b);
         fullPalette32[paletteIndex][index].r = r;
         fullPalette32[paletteIndex][index].g = g;
         fullPalette32[paletteIndex][index].b = b;
     }
     else {
-        activePalette[index]     = ((int)b >> 3) | 32 * ((int)g >> 2) | ((ushort)((int)r >> 3) << 11);
+        activePalette[index]     = RGB888_TO_RGB565(r, g, b);
         activePalette32[index].r = r;
         activePalette32[index].g = g;
         activePalette32[index].b = b;
@@ -58,7 +58,7 @@ inline void SetPaletteEntry(byte paletteIndex, byte index, byte r, byte g, byte 
 
 inline void SetPaletteEntryPacked(byte paletteIndex, byte index, uint colour)
 {
-    fullPalette[paletteIndex][index]     = ((byte)(colour >> 0) >> 3) | 32 * ((byte)(colour >> 8) >> 2) | ((ushort)((byte)(colour >> 16) >> 3) << 11);
+    fullPalette[paletteIndex][index]     = RGB888_TO_RGB565((byte)(colour >> 16), (byte)(colour >> 8), (byte)(colour >> 0));
     fullPalette32[paletteIndex][index].r = (byte)(colour >> 16);
     fullPalette32[paletteIndex][index].g = (byte)(colour >> 8);
     fullPalette32[paletteIndex][index].b = (byte)(colour >> 0);
@@ -112,6 +112,6 @@ inline void SetFade(byte R, byte G, byte B, ushort A)
     fadeB    = B;
     fadeA    = A > 0xFF ? 0xFF : A;
 }
-void SetLimitedFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex, int endIndex);
+void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex, int endIndex);
 
 #endif // !PALETTE_H

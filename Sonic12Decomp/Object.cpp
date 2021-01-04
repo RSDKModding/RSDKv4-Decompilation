@@ -6,14 +6,15 @@ int nativeEntityPos;
 
 int activeEntityList[NATIVEENTITY_COUNT];
 int objectRemoveFlag[NATIVEENTITY_COUNT];
+NativeEntity *nativeEntityList[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
-int nativeEntityCount;
+int nativeEntityCount = 0;
 
-int nativeEntityCountBackup;
+int nativeEntityCountBackup = 0;
 int backupEntityList[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBackup[NATIVEENTITY_COUNT];
 
-int nativeEntityCountBackupS;
+int nativeEntityCountBackupS = 0;
 int backupEntityListS[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 
@@ -195,9 +196,9 @@ void ProcessFrozenObjects()
             default: break;
         }
 
-        if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
+        if (entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
+            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
@@ -348,8 +349,21 @@ void ProcessPlayerControl(Entity *player)
 
 void InitNativeObjectSystem() {
     InitLocalizedStrings();
+
     nativeEntityCount = 0;
-    memset(objectEntityBank, 0, NATIVEENTITY_COUNT * sizeof(NativeEntity));
+    memset(activeEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
+    memset(objectRemoveFlag, 0, NATIVEENTITY_COUNT * sizeof(int));
+    memset(nativeEntityList, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase*));
+    memset(objectEntityBank, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+
+    nativeEntityCountBackup = 0;
+    memset(backupEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
+    memset(objectEntityBackup, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+
+    nativeEntityCountBackupS = 0;
+    memset(backupEntityListS, 0, NATIVEENTITY_COUNT * sizeof(int));
+    memset(objectEntityBackupS, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+
     ReadSaveRAMData();
     if (!saveRAM[32]) // if new save
     {
@@ -381,10 +395,11 @@ void InitNativeObjectSystem() {
     //CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
     CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
 }
-NativeEntity* CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr)) {
+NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
+{
     if (!nativeEntityCount) {
         NativeEntity *entity = objectEntityBank;
-        memset(objectEntityBank, 0, sizeof(NativeEntity));
+        memset(objectEntityBank, 0, sizeof(NativeEntityBase));
         entity->createPtr   = objCreate;
         entity->mainPtr     = objMain;
         activeEntityList[0] = 0;
@@ -417,7 +432,8 @@ NativeEntity* CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain
         return entity;
     }
 }
-void RemoveNativeObject(NativeEntity* entity) {
+void RemoveNativeObject(NativeEntityBase *entity)
+{
     if (nativeEntityCount <= 0) {
         objectRemoveFlag[entity->slotID] = 1;
     }
@@ -445,7 +461,6 @@ void ProcessNativeObjects() {
     for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
         NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
         entity->mainPtr(entity);
-        ++nativeEntityPos;
     }
-    //RenderScene()
+    //RenderScene();
 }

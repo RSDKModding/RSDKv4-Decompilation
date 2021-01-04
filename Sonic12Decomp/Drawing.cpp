@@ -136,12 +136,6 @@ void GenerateBlendLookupTable(void)
             tintValue = 31;
         tintLookupTable[i] = 0x841 * tintValue;
     }
-
-    for (int c = 0; c < 0x100; ++c) {
-        colourIndexes[c].r   = (c & 0xFFF8) << 8;
-        colourIndexes[c].g = (c & 0xFFFC) << 3;
-        colourIndexes[c].b   = c >> 3;
-    }
 }
 
 void ClearScreen(byte index)
@@ -2422,9 +2416,9 @@ void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
         case ROTFLAG_45DEG:
             if (entity->rotation >= 0x100)
                 DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width,
-                                  frame->height, 0x200 - ((532 - entity->rotation) >> 6 << 6), frame->sheetID);
+                                  frame->height, 0x200 - ((0x214 - entity->rotation) >> 6 << 6), frame->sheetID);
             else
-                DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprX, frame->width,
+                DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width,
                                   frame->height, (entity->rotation + 20) >> 6 << 6, frame->sheetID);
             break;
         case ROTFLAG_STATICFRAMES:

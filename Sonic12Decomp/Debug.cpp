@@ -45,6 +45,7 @@ void initDevMenu()
     gameMenu[0].selection2       = 9;
     gameMenu[1].visibleRowCount  = 0;
     gameMenu[1].visibleRowOffset = 0;
+    Engine.finishedStartMenu     = true;
 }
 void initErrorMessage()
 {
@@ -69,6 +70,7 @@ void initErrorMessage()
     gameMenu[1].visibleRowCount  = 0;
     gameMenu[1].visibleRowOffset = 0;
     stageMode                    = DEVMENU_SCRIPTERROR;
+    Engine.finishedStartMenu     = true;
 }
 void processStageSelect()
 {
@@ -572,10 +574,10 @@ void processStartMenu() {
                         StrAddW(strBuffer, " - ");
                         if (saveRAM[s * 4 + 4]) {
                             StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                            StrAddW(strBuffer, " - ");
-                            StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
-                            StrAddW(strBuffer, " ");
-                            AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                            StrAddW(strBuffer, "-");
+                            StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
+                            //StrAddW(strBuffer, " ");
+                            //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
                         }
                         else {
                             StrAddW(strBuffer, strNewGame);
@@ -904,10 +906,10 @@ void processStartMenu() {
                     StrAddW(strBuffer, " - ");
                     if (saveRAM[s * 4 + 4]) {
                         StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                        StrAddW(strBuffer, " - ");
-                        StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
-                        StrAddW(strBuffer, " ");
-                        AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                        StrAddW(strBuffer, "-");
+                        StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
+                        //StrAddW(strBuffer, " ");
+                        //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
                     }
                     else {
                         StrAddW(strBuffer, strNewGame);

@@ -150,7 +150,7 @@ void ProcessPlayerControl(Entity *player);
 
 void InitNativeObjectSystem();
 NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
-void RemoveNativeObject(NativeEntity *NativeEntry);
+void RemoveNativeObject(NativeEntityBase *NativeEntry);
 void ProcessNativeObjects();
 inline void BackupNativeObjects() {
     memcpy(backupEntityList, activeEntityList, sizeof(int) * NATIVEENTITY_COUNT);

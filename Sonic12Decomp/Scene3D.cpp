@@ -50,13 +50,13 @@ void matrixMultiply(Matrix *matrixA, Matrix *matrixB)
     int output[16];
 
     for (int i = 0; i < 0x10; ++i) {
-        uint RowA = i / 4;
-        uint RowB = i % 4;
+        uint rowA = i / 4;
+        uint rowB = i % 4;
         output[i] = 
-            (matrixA->values[RowA][3] * matrixB->values[3][RowB] >> 8) + 
-            (matrixA->values[RowA][2] * matrixB->values[2][RowB] >> 8) + 
-            (matrixA->values[RowA][1] * matrixB->values[1][RowB] >> 8) + 
-            (matrixA->values[RowA][0] * matrixB->values[0][RowB] >> 8);
+            (matrixA->values[rowA][3] * matrixB->values[3][rowB] >> 8) + 
+            (matrixA->values[rowA][2] * matrixB->values[2][rowB] >> 8) + 
+            (matrixA->values[rowA][1] * matrixB->values[1][rowB] >> 8) + 
+            (matrixA->values[rowA][0] * matrixB->values[0][rowB] >> 8);
     }
 
     for (int i = 0; i < 0x10; ++i) matrixA->values[i / 4][i % 4] = output[i];
