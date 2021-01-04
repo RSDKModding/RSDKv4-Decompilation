@@ -210,7 +210,7 @@ void GenerateELoadKeys(uint key1, uint key2)
 
 const uint ENC_KEY_2 = 0x24924925;
 const uint ENC_KEY_1 = 0xAAAAAAAB;
-int mulUnsignedHigh(uint arg1, int arg2) { return (int)(((ulong)arg1 * (ulong)arg2) >> 32); }
+int mulUnsignedHigh(uint arg1, int arg2) { return (int)(((unsigned long long)arg1 * (unsigned long long)arg2) >> 32); }
 
 void FileRead(void *dest, int size)
 {

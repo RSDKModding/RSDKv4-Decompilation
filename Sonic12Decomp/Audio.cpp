@@ -715,7 +715,6 @@ bool PlayMusic(int track, int musStartPos)
 
 #if RETRO_USING_SDL
         ov_callbacks callbacks;
-        ulong samples;
 
         callbacks.read_func  = readVorbis;
         callbacks.seek_func  = seekVorbis;
@@ -737,9 +736,10 @@ bool PlayMusic(int track, int musStartPos)
         musInfo.spec.freq     = (int)musInfo.vorbisFile.vi->rate;
         musInfo.spec.samples  = 4096;
 
-        samples = (ulong)ov_pcm_total(&musInfo.vorbisFile, -1);
+        unsigned long long samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
 
-        musInfo.audioLen = musInfo.spec.size = (int)(samples * musInfo.spec.channels * 2);
+        musInfo.audioLen = samples * musInfo.spec.channels * 2;
+        musInfo.spec.size = AUDIO_BUFFERSIZE;
 
         musInfo.stream = SDL_NewAudioStream(musInfo.spec.format, musInfo.spec.channels, musInfo.spec.freq, audioDeviceFormat.format,
                                             audioDeviceFormat.channels, audioDeviceFormat.freq);
