@@ -8,18 +8,19 @@ bool processEvents()
 {
 #if RETRO_USING_SDL
     while (SDL_PollEvent(&Engine.sdlEvents)) {
-        switch (Engine.sdlEvents.window.event) {
-            case SDL_WINDOWEVENT_MAXIMIZED: {
-                SDL_RestoreWindow(Engine.window);
-                SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                Engine.isFullScreen = true;
-                break;
-            }
-            case SDL_WINDOWEVENT_CLOSE: return false;
-        }
-
         // Main Events
         switch (Engine.sdlEvents.type) {
+            case SDL_WINDOWEVENT:
+                switch (Engine.sdlEvents.window.event) {
+                    case SDL_WINDOWEVENT_MAXIMIZED: {
+                        SDL_RestoreWindow(Engine.window);
+                        SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        Engine.isFullScreen = true;
+                        break;
+                    }
+                    case SDL_WINDOWEVENT_CLOSE: return false;
+                }
+                break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
             case SDL_WINDOWEVENT_CLOSE:

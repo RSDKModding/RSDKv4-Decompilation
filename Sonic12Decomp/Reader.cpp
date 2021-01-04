@@ -508,7 +508,7 @@ size_t GetFilePosition2(FileInfo* info)
 
 void SetFilePosition2(FileInfo *info, int newPos)
 {
-    if (Engine.usingDataFile) {
+    if (info->useEncryption) {
         info->readPos     = info->virtualFileOffset + newPos;
         info->eStringNo   = (info->vfileSize & 0x1FCu) >> 2;
         info->eStringPosB = (info->eStringNo % 9) + 1;
@@ -559,9 +559,9 @@ void SetFilePosition2(FileInfo *info, int newPos)
     }
     else {
         if (Engine.usingDataFile)
-            readPos = virtualFileOffset + newPos;
+            info->readPos = virtualFileOffset + newPos;
         else
-            readPos = newPos;
+            info->readPos = newPos;
     }
     fSeek(info->cFileHandle, info->readPos, SEEK_SET);
 }

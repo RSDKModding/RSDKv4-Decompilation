@@ -458,16 +458,16 @@ void initStartMenu(int mode) {
         int secs = saveRAM[3 * (listPos) + 0x40] / 100 % 60;
         int ms   = saveRAM[3 * (listPos) + 0x40] % 100;
         if (mins < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, mins);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, mins);
         StrAdd(strBuffer, ":");
         if (secs < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, secs);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, secs);
         StrAdd(strBuffer, ":");
         if (ms < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, ms);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, ms);
         AddTextMenuEntry(&gameMenu[0], strBuffer);
         AddTextMenuEntry(&gameMenu[0], "");
         StrCopy(strBuffer, "2ND: ");
@@ -475,16 +475,16 @@ void initStartMenu(int mode) {
         secs = saveRAM[3 * (listPos) + 0x41] / 100 % 60;
         ms   = saveRAM[3 * (listPos) + 0x41] % 100;
         if (mins < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, mins);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, mins);
         StrAdd(strBuffer, ":");
         if (secs < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, secs);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, secs);
         StrAdd(strBuffer, ":");
         if (ms < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, ms);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, ms);
         AddTextMenuEntry(&gameMenu[0], strBuffer);
         AddTextMenuEntry(&gameMenu[0], "");
         StrCopy(strBuffer, "3RD: ");
@@ -492,16 +492,16 @@ void initStartMenu(int mode) {
         secs = saveRAM[3 * (listPos) + 0x42] / 100 % 60;
         ms   = saveRAM[3 * (listPos) + 0x42] % 100;
         if (mins < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, mins);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, mins);
         StrAdd(strBuffer, ":");
         if (secs < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, secs);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, secs);
         StrAdd(strBuffer, ":");
         if (ms < 10)
-            AppendIntegerToSting(strBuffer, 0);
-        AppendIntegerToSting(strBuffer, ms);
+            AppendIntegerToString(strBuffer, 0);
+        AppendIntegerToString(strBuffer, ms);
         AddTextMenuEntry(&gameMenu[0], strBuffer);
         AddTextMenuEntry(&gameMenu[0], "");
 
@@ -568,14 +568,14 @@ void processStartMenu() {
                         AddTextMenuEntry(&gameMenu[1], "");
 
                         StrCopyW(strBuffer, "SAVE ");
-                        AppendIntegerToStingW(strBuffer, s + 1);
+                        AppendIntegerToStringW(strBuffer, s + 1);
                         StrAddW(strBuffer, " - ");
                         if (saveRAM[s * 4 + 4]) {
                             StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
                             StrAddW(strBuffer, " - ");
                             StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
                             StrAddW(strBuffer, " ");
-                            AppendIntegerToStingW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                            AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
                         }
                         else {
                             StrAddW(strBuffer, strNewGame);
@@ -825,7 +825,7 @@ void processStartMenu() {
 
                             ushort strBuffer[0x100];
                             StrCopyW(strBuffer, "SAVE ");
-                            AppendIntegerToStingW(strBuffer, saveSlot + 1);
+                            AppendIntegerToStringW(strBuffer, saveSlot + 1);
                             StrAddW(strBuffer, " - ");
                             StrAddW(strBuffer, strNewGame);
 
@@ -900,14 +900,14 @@ void processStartMenu() {
                     AddTextMenuEntry(&gameMenu[1], "");
 
                     StrCopyW(strBuffer, "SAVE ");
-                    AppendIntegerToStingW(strBuffer, s + 1);
+                    AppendIntegerToStringW(strBuffer, s + 1);
                     StrAddW(strBuffer, " - ");
                     if (saveRAM[s * 4 + 4]) {
                         StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
                         StrAddW(strBuffer, " - ");
                         StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
                         StrAddW(strBuffer, " ");
-                        AppendIntegerToStingW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                        AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
                     }
                     else {
                         StrAddW(strBuffer, strNewGame);
@@ -1045,14 +1045,14 @@ void processStartMenu() {
                     AddTextMenuEntry(&gameMenu[1], "");
 
                     StrCopyW(strBuffer, "SAVE ");
-                    AppendIntegerToStingW(strBuffer, s + 1);
+                    AppendIntegerToStringW(strBuffer, s + 1);
                     StrAddW(strBuffer, " - ");
                     if (saveRAM[s * 4 + 4]) {
                         StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
                         StrAddW(strBuffer, " - ");
                         StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
                         StrAddW(strBuffer, " ");
-                        AppendIntegerToStingW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                        AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
                     }
                     else {
                         StrAddW(strBuffer, strNewGame);
@@ -1173,16 +1173,16 @@ void processStartMenu() {
                 int secs = saveRAM[3 * (listPos) + 0x40] / 100 % 60;
                 int ms   = saveRAM[3 * (listPos) + 0x40] % 100;
                 if (mins < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, mins);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, mins);
                 StrAdd(strBuffer, ":");
                 if (secs < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, secs);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, secs);
                 StrAdd(strBuffer, ":");
                 if (ms < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, ms);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, ms);
                 AddTextMenuEntry(&gameMenu[0], strBuffer);
                 AddTextMenuEntry(&gameMenu[0], "");
                 StrCopy(strBuffer, "2ND: ");
@@ -1190,16 +1190,16 @@ void processStartMenu() {
                 secs = saveRAM[3 * (listPos) + 0x41] / 100 % 60;
                 ms   = saveRAM[3 * (listPos) + 0x41] % 100;
                 if (mins < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, mins);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, mins);
                 StrAdd(strBuffer, ":");
                 if (secs < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, secs);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, secs);
                 StrAdd(strBuffer, ":");
                 if (ms < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, ms);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, ms);
                 AddTextMenuEntry(&gameMenu[0], strBuffer);
                 AddTextMenuEntry(&gameMenu[0], "");
                 StrCopy(strBuffer, "3RD: ");
@@ -1207,16 +1207,16 @@ void processStartMenu() {
                 secs = saveRAM[3 * (listPos) + 0x42] / 100 % 60;
                 ms   = saveRAM[3 * (listPos) + 0x42] % 100;
                 if (mins < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, mins);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, mins);
                 StrAdd(strBuffer, ":");
                 if (secs < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, secs);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, secs);
                 StrAdd(strBuffer, ":");
                 if (ms < 10)
-                    AppendIntegerToSting(strBuffer, 0);
-                AppendIntegerToSting(strBuffer, ms);
+                    AppendIntegerToString(strBuffer, 0);
+                AppendIntegerToString(strBuffer, ms);
                 AddTextMenuEntry(&gameMenu[0], strBuffer);
                 AddTextMenuEntry(&gameMenu[0], "");
 

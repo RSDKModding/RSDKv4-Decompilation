@@ -21,7 +21,7 @@ typedef unsigned long long ulong;
 
 #define RSDK_DEBUG (1)
 
-// Platforms
+// Platforms (RSDKv4 only defines these 7 (I assume), but feel free to add your own custom platform define for easier platform code changes)
 #define RETRO_WIN      (0)
 #define RETRO_OSX      (1)
 #define RETRO_XBOX_360 (2)
@@ -30,7 +30,7 @@ typedef unsigned long long ulong;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 
-// Platform types
+// Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD      (0)
 #define RETRO_MOBILE        (1)
 
@@ -96,10 +96,6 @@ enum RetroStates {
     ENGINE_ENDGAME           = 7,
     ENGINE_FINISHTA           = 8,
 };
-
-//enum RetroEngineCallbacks {
-//
-//};
 
 enum RetroGameType {
     GAME_UNKNOWN = 0,

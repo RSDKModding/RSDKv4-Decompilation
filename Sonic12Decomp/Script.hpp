@@ -53,7 +53,7 @@ extern int functionStackPos;
 extern int foreachStackPos;
 
 extern ScriptEngine scriptEng;
-extern char scriptText[0x100];
+extern char scriptText[0x4000];
 
 extern int scriptDataPos;
 extern int scriptDataOffset;
@@ -76,8 +76,8 @@ bool ConvertSwitchStatement(char *text);
 void ConvertFunctionText(char *text);
 void CheckCaseNumber(char *text);
 bool ReadSwitchCase(char *text);
-void AppendIntegerToSting(char *text, int value);
-void AppendIntegerToStingW(ushort *text, int value);
+void AppendIntegerToString(char *text, int value);
+void AppendIntegerToStringW(ushort *text, int value);
 bool ConvertStringToInteger(char *text, int *value);
 void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 bool CheckOpcodeType(char *text); // Never actually used

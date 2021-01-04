@@ -17,14 +17,14 @@ int functionStackPos  = 0;
 int foreachStackPos  = 0;
 
 ScriptEngine scriptEng = ScriptEngine();
-char scriptText[0x100];
+char scriptText[0x4000];
 
 int scriptDataPos       = 0;
 int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define COMMONALIAS_COUNT (0x4A)
+#define COMMONALIAS_COUNT (0x4E)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + 0xE0)
 int aliasCount = 0;
 int lineID     = 0;
@@ -45,9 +45,9 @@ struct AliasInfo {
     char value[0x20];
 };
 
-#define STATICVAR_COUNT (0x100)
-#define ARRVAR_COUNT (0x100)
-#define ARRAY_VALUE_COUNT (0x100)
+#define STATICVAR_COUNT (0x200)
+#define ARRVAR_COUNT (0x200)
+#define ARRAY_VALUE_COUNT (0x400)
 
 struct StaticInfo {
     StaticInfo()
@@ -513,6 +513,10 @@ AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                    AliasInfo("FX_FLIP", "5"),
                                    AliasInfo("FACING_LEFT", "1"),
                                    AliasInfo("FACING_RIGHT", "0"),
+                                   AliasInfo("FLIP_NONE", "0"),
+                                   AliasInfo("FLIP_X", "1"),
+                                   AliasInfo("FLIP_Y", "2"),
+                                   AliasInfo("FLIP_XY", "3"),
                                    AliasInfo("STAGE_PAUSED", "2"),
                                    AliasInfo("STAGE_RUNNING", "1"),
                                    AliasInfo("RESET_GAME", "2"),
@@ -534,7 +538,7 @@ AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                    AliasInfo("PATH_A", "0"),
                                    AliasInfo("PATH_B", "1"),
                                    AliasInfo("GRAVITY_GROUND", "0"),
-                                   AliasInfo("GRAVITY_AIR", "0"),
+                                   AliasInfo("GRAVITY_AIR", "1"),
                                    AliasInfo("FACE_TEXTURED_3D", "0"),
                                    AliasInfo("FACE_TEXTURED_2D", "1"),
                                    AliasInfo("FACE_COLOURED_3D", "2"),
@@ -980,7 +984,7 @@ enum ScrFunc {
 
 void CheckAliasText(char *text)
 {
-    if (FindStringToken(text, "#alias", 1))
+    if (FindStringToken(text, "#alias", 1) || aliasCount >= ALIAS_COUNT)
         return;
     int textPos     = 6;
     int aliasStrPos = 0;
@@ -1012,7 +1016,7 @@ void CheckAliasText(char *text)
 }
 void CheckStaticText(char *text)
 {
-    if (FindStringToken(text, "#constant", 1))
+    if (FindStringToken(text, "#constant", 1) || staticVarCount >= STATICVAR_COUNT)
         return;
     int textPos     = 6;
     int staticStrPos = 0;
@@ -1046,7 +1050,7 @@ void CheckStaticText(char *text)
 }
 void CheckArrayText(char *text)
 {
-    if (FindStringToken(text, "#array", 1))
+    if (FindStringToken(text, "#array", 1) || arrVarCount >= ARRVAR_COUNT)
         return;
     int textPos     = 6;
     int arrayStrPos = 0;
@@ -1186,7 +1190,7 @@ void ConvertIfWhileStatement(char *text)
                 text[strPos] = ',';
                 StrCopy(dest, functions[compareOp + FUNC_WEQUAL].name);
                 StrAdd(dest, "(");
-                AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+                AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
                 StrAdd(dest, ",");
                 destStrPos = StrLength(dest);
                 for (int i = 5; text[i]; ++i) {
@@ -1214,7 +1218,7 @@ void ConvertIfWhileStatement(char *text)
             text[strPos] = ',';
             StrCopy(dest, functions[compareOp + FUNC_IFEQUAL].name);
             StrAdd(dest, "(");
-            AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+            AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
             StrAdd(dest, ",");
             destStrPos = StrLength(dest);
             for (int i = 2; text[i]; ++i) {
@@ -1241,7 +1245,7 @@ void ConvertForeachStatement(char *text)
     if (!FindStringToken(text, "foreachTypeGroup", 1)) { //foreach TypeGroup[
         StrCopy(dest, functions[FUNC_FOREACHTYPEGROUP].name);
         StrAdd(dest, "(");
-        AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+        AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
         StrAdd(dest, ",");
         destStrPos = StrLength(dest);
         for (int i = 7; text[i]; ++i) {
@@ -1258,7 +1262,7 @@ void ConvertForeachStatement(char *text)
     else { //foreach TypeName[
         StrCopy(dest, functions[FUNC_FOREACHTYPENAME].name);
         StrAdd(dest, "(");
-        AppendIntegerToSting(dest, jumpTableDataPos - jumpTableDataOffset);
+        AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
         StrAdd(dest, ",");
         destStrPos = StrLength(dest);
         for (int i = 7; text[i]; ++i) {
@@ -1280,7 +1284,7 @@ bool ConvertSwitchStatement(char *text)
     char switchText[260];
     StrCopy(switchText, "switch");
     StrAdd(switchText, "(");
-    AppendIntegerToSting(switchText, jumpTableDataPos - jumpTableDataOffset);
+    AppendIntegerToString(switchText, jumpTableDataPos - jumpTableDataOffset);
     StrAdd(switchText, ",");
     int pos = StrLength(switchText);
     for (int i = 6; text[i]; ++i) {
@@ -1396,14 +1400,14 @@ void ConvertFunctionText(char *text)
                 if (StrComp(funcName, staticVariables[s].name)) {
                     StrCopy(funcName, "ScriptData");
                     arrayStr[0] = 0;
-                    AppendIntegerToSting(arrayStr, staticVariables[s].dataPos);
+                    AppendIntegerToString(arrayStr, staticVariables[s].dataPos);
                 }
             }
             // Eg: =GetArrayValue(TempValue0, 1, array0)
             for (int a = 0; a < arrVarCount; ++a) {
                 if (StrComp(funcName, arrayVariables[a].name)) {
                     funcName[0] = 0;
-                    AppendIntegerToSting(funcName, arrayVariables[a].dataPos);
+                    AppendIntegerToString(funcName, arrayVariables[a].dataPos);
                     arrayStr[0] = 0;
                 }
             }
@@ -1412,45 +1416,45 @@ void ConvertFunctionText(char *text)
                 if (StrComp(funcName, globalVariableNames[v])) {
                     StrCopy(funcName, "Global");
                     arrayStr[0] = 0;
-                    AppendIntegerToSting(arrayStr, v);
+                    AppendIntegerToString(arrayStr, v);
                 }
             }
             // Eg: TempValue0 = Function1
             for (int f = 0; f < scriptFunctionCount; ++f) {
                 if (StrComp(funcName, scriptFunctionNames[f])) {
                     funcName[0] = 0;
-                    AppendIntegerToSting(funcName, f);
+                    AppendIntegerToString(funcName, f);
                 }
             }
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
-                AppendIntegerToSting(funcName, 0);
+                AppendIntegerToString(funcName, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
-                        AppendIntegerToSting(funcName, o);
+                        AppendIntegerToString(funcName, o);
                     }
                 }
             }
             // Eg: TempValue0 = TypeGroup[0]
             if (StrComp(funcName, "TypeGroup")) {
                 funcName[0] = 0;
-                AppendIntegerToSting(funcName, 0);
+                AppendIntegerToString(funcName, 0);
                 int typeGroup = 0;
                 if (ConvertStringToInteger(arrayStr, &typeGroup)) {
                     funcName[0] = 0;
-                    AppendIntegerToSting(funcName, typeGroup);
+                    AppendIntegerToString(funcName, typeGroup);
                 }
             }
             // Eg: TempValue0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
-                AppendIntegerToSting(funcName, 0);
+                AppendIntegerToString(funcName, 0);
                 for (int o = 0; o < SFX_COUNT; ++o) {
                     if (StrComp(arrayStr, sfxNames[o])) {
                         funcName[0] = 0;
-                        AppendIntegerToSting(funcName, o);
+                        AppendIntegerToString(funcName, o);
                     }
                 }
             }
@@ -1540,7 +1544,7 @@ void ConvertFunctionText(char *text)
                     AddTextMenuEntry(&gameMenu[0], " ");
                     AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
                     funcName[0] = 0;
-                    AppendIntegerToSting(funcName, lineID);
+                    AppendIntegerToString(funcName, lineID);
                     AddTextMenuEntry(&gameMenu[0], funcName);
                     Engine.gameMode = ENGINE_SCRIPTERROR;
                     value           = 0;
@@ -1636,7 +1640,7 @@ bool ReadSwitchCase(char *text)
     }
     return false;
 }
-void AppendIntegerToSting(char *text, int value)
+void AppendIntegerToString(char *text, int value)
 {
     int textPos = 0;
     while (true) {
@@ -1667,7 +1671,7 @@ void AppendIntegerToSting(char *text, int value)
         text[textPos++] = '0';
     text[textPos] = 0;
 }
-void AppendIntegerToStingW(ushort *text, int value)
+void AppendIntegerToStringW(ushort *text, int value)
 {
     int textPos = 0;
     while (true) {
@@ -1917,12 +1921,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                             funcName[textPos - 9] = 0;
                             int funcID            = -1;
                             for (int f = 0; f < scriptFunctionCount; ++f) {
-                                if (StrComp(scriptText, scriptFunctionNames[f]))
+                                if (StrComp(funcName, scriptFunctionNames[f]))
                                     funcID = f;
                             }
                             if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
-                                StrCopy(scriptFunctionNames[scriptFunctionCount], funcName);
-                                ++scriptFunctionCount;
+                                StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
                             }
                             parseMode = PARSEMODE_SCOPELESS;
                         }
@@ -1951,12 +1954,12 @@ void ParseScriptFile(char *scriptName, int scriptID)
                             }
                         }
                         else {
-                            StrCopy(scriptFunctionNames[parseMode], funcName);
-                            functionScriptList[scriptFunctionCount].scriptCodePtr = scriptDataPos;
-                            functionScriptList[scriptFunctionCount].jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                      = scriptDataPos;
-                            jumpTableDataOffset                                   = jumpTableDataPos;
-                            parseMode                                             = PARSEMODE_FUNCTION;
+                            StrCopy(scriptFunctionNames[funcID], funcName);
+                            functionScriptList[funcID].scriptCodePtr = scriptDataPos;
+                            functionScriptList[funcID].jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                         = scriptDataPos;
+                            jumpTableDataOffset                      = jumpTableDataPos;
+                            parseMode                                = PARSEMODE_FUNCTION;
                         }
                     }
                     break;
