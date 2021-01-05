@@ -22,29 +22,7 @@ void initDevMenu()
     LoadGIFFile("Data/Game/SystemText.gif", 0);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
-    stageMode = DEVMENU_MAIN;
-    SetupTextMenu(&gameMenu[0], 0);
-    AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    char version[0x80];
-    StrCopy(version, Engine.gameWindowText);
-    StrAdd(version, " Version");
-    AddTextMenuEntry(&gameMenu[0], version);
-    AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], "START GAME");
-    AddTextMenuEntry(&gameMenu[0], " ");
-    AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
-    gameMenu[0].alignment        = 2;
-    gameMenu[0].selectionCount   = 2;
-    gameMenu[0].selection1       = 0;
-    gameMenu[0].selection2       = 9;
-    gameMenu[1].visibleRowCount  = 0;
-    gameMenu[1].visibleRowOffset = 0;
+    setTextMenu(DEVMENU_MAIN);
     Engine.finishedStartMenu     = true;
 }
 void initErrorMessage()
@@ -87,10 +65,10 @@ void processStageSelect()
             if (keyPress.up)
                 gameMenu[0].selection2 -= 2;
 
-            if (gameMenu[0].selection2 > 11)
+            if (gameMenu[0].selection2 > 15)
                 gameMenu[0].selection2 = 9;
             if (gameMenu[0].selection2 < 9)
-                gameMenu[0].selection2 = 11;
+                gameMenu[0].selection2 = 15;
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
@@ -102,7 +80,7 @@ void processStageSelect()
                     Engine.gameMode   = ENGINE_MAINGAME;
                     stageListPosition = 0;
                 }
-                else {
+                else if (gameMenu[0].selection2 == 11) {
                     SetupTextMenu(&gameMenu[0], 0);
                     AddTextMenuEntry(&gameMenu[0], "SELECT A PLAYER");
                     SetupTextMenu(&gameMenu[1], 0);
@@ -111,6 +89,12 @@ void processStageSelect()
                     gameMenu[1].selectionCount = 1;
                     gameMenu[1].selection1     = 0;
                     stageMode                  = DEVMENU_PLAYERSEL;
+                }
+                else if (gameMenu[0].selection2 == 13) {
+                    initStartMenu(0);
+                }
+                else {
+                    Engine.running = false;
                 }
             }
             else if (keyPress.B) {
@@ -138,46 +122,10 @@ void processStageSelect()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.start || keyPress.A) {
-                playerListPos = gameMenu[1].selection1;
-                SetupTextMenu(&gameMenu[0], 0);
-                AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE LIST");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   PRESENTATION");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   REGULAR");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   SPECIAL");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   BONUS");
-                gameMenu[0].alignment  = 0;
-                gameMenu[0].selection2 = 3;
-                stageMode              = DEVMENU_STAGELISTSEL;
+                setTextMenu(DEVMENU_STAGELISTSEL);
             }
             else if (keyPress.B) {
-                stageMode = DEVMENU_MAIN;
-                SetupTextMenu(&gameMenu[0], 0);
-                AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                char version[0x80];
-                StrCopy(version, Engine.gameWindowText);
-                StrAdd(version, " Version");
-                AddTextMenuEntry(&gameMenu[0], version);
-                AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "START GAME");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
-                gameMenu[0].alignment        = 2;
-                gameMenu[0].selectionCount   = 2;
-                gameMenu[0].selection1       = 0;
-                gameMenu[0].selection2       = 9;
-                gameMenu[1].visibleRowCount  = 0;
-                gameMenu[1].visibleRowOffset = 0;
+                setTextMenu(DEVMENU_MAIN);
             }
             break;
         }
@@ -302,22 +250,7 @@ void processStageSelect()
                 stageListPosition = gameMenu[1].selection1;
             }
             else if (keyPress.B) {
-                SetupTextMenu(&gameMenu[0], 0);
-                AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE LIST");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   PRESENTATION");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   REGULAR");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   SPECIAL");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "   BONUS");
-                gameMenu[0].alignment      = 0;
-                gameMenu[0].selection2     = (activeStageList << 1) + 3;
-                gameMenu[0].selection2     = gameMenu[0].selection2 == 7 ? 9 : gameMenu[0].selection2 == 9 ? 7 : gameMenu[0].selection2;
-                gameMenu[0].selectionCount = 2;
-                stageMode                  = DEVMENU_STAGELISTSEL;
+                setTextMenu(DEVMENU_STAGELISTSEL);
             }
             break;
         }
@@ -325,30 +258,7 @@ void processStageSelect()
         {
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
-                stageMode = DEVMENU_MAIN;
-                SetupTextMenu(&gameMenu[0], 0);
-                SetupTextMenu(&gameMenu[1], 0);
-                AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                char version[0x80];
-                StrCopy(version, Engine.gameWindowText);
-                StrAdd(version, " Version");
-                AddTextMenuEntry(&gameMenu[0], version);
-                AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "START GAME");
-                AddTextMenuEntry(&gameMenu[0], " ");
-                AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
-                gameMenu[0].alignment        = 2;
-                gameMenu[0].selectionCount   = 2;
-                gameMenu[0].selection1       = 0;
-                gameMenu[0].selection2       = 9;
-                gameMenu[1].visibleRowCount  = 0;
-                gameMenu[1].visibleRowOffset = 0;
+                setTextMenu(DEVMENU_MAIN);
             }
             else if (keyPress.B) {
                 ClearGraphicsData();
@@ -385,38 +295,7 @@ void initStartMenu(int mode) {
     ReadSaveRAMData();
 
     if (mode == 0) {
-        stageMode = STARTMENU_MAIN;
-        SetupTextMenu(&gameMenu[0], 0);
-        char title[0x80];
-        StrCopy(title, Engine.gameWindowText);
-        StrAdd(title, " START MENU");
-        AddTextMenuEntry(&gameMenu[0], title);
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], "START GAME");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], "TIME ATTACK");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], "ACHIEVEMENTS");
-        AddTextMenuEntry(&gameMenu[0], " ");
-        AddTextMenuEntry(&gameMenu[0], "LEADERBOARDS");
-        if (Engine.gameType == GAME_SONIC2) {
-            AddTextMenuEntry(&gameMenu[0], " ");
-            AddTextMenuEntry(&gameMenu[0], "2P VERSUS");
-        }
-        LoadConfigListText(&gameMenu[1], 0); // to get the data stored
-        gameMenu[0].alignment        = 2;
-        gameMenu[0].selectionCount   = 2;
-        gameMenu[0].selection1       = 0;
-        gameMenu[0].selection2       = 9;
-        gameMenu[1].visibleRowCount  = 0;
-        gameMenu[1].visibleRowOffset = 0;
+        setTextMenu(STARTMENU_MAIN);
     }
     else {
         //finished TA act
@@ -527,6 +406,230 @@ void initStartMenu(int mode) {
     }
 }
 
+void setTextMenu(int sm) {
+    ushort strBuffer[0x100];
+    stageMode = sm;
+    SetupTextMenu(&gameMenu[0], 0);
+    SetupTextMenu(&gameMenu[1], 0);
+    switch (sm) {
+        case DEVMENU_MAIN: {
+            AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            char version[0x80];
+            StrCopy(version, Engine.gameWindowText);
+            StrAdd(version, " Version");
+            AddTextMenuEntry(&gameMenu[0], version);
+            AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "START GAME");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "START MENU");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "EXIT GAME");
+            gameMenu[0].alignment        = 2;
+            gameMenu[0].selectionCount   = 2;
+            gameMenu[0].selection1       = 0;
+            gameMenu[0].selection2       = 9;
+            gameMenu[1].visibleRowCount  = 0;
+            gameMenu[1].visibleRowOffset = 0;
+            break;
+        }
+        case DEVMENU_STAGELISTSEL:
+            AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE LIST");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "   PRESENTATION");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "   REGULAR");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "   SPECIAL");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "   BONUS");
+            gameMenu[0].alignment      = 0;
+            gameMenu[0].selection2     = 3;
+            gameMenu[0].selectionCount = 2;
+            break;
+        case STARTMENU_MAIN: {
+            char title[0x80];
+            StringUpperCase(title, Engine.gameWindowText);
+            StrAdd(title, " START MENU");
+            AddTextMenuEntry(&gameMenu[0], title);
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "START GAME");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TIME ATTACK");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "ACHIEVEMENTS");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "LEADERBOARDS");
+            if (Engine.gameType == GAME_SONIC2) {
+                AddTextMenuEntry(&gameMenu[0], " ");
+                AddTextMenuEntry(&gameMenu[0], "2P VERSUS");
+            }
+            LoadConfigListText(&gameMenu[1], 0); // to get the data stored
+            gameMenu[0].alignment        = 2;
+            gameMenu[0].selectionCount   = 2;
+            gameMenu[0].selection1       = 0;
+            gameMenu[0].selection2       = 9;
+            gameMenu[1].visibleRowCount  = 0;
+            gameMenu[1].visibleRowOffset = 0;
+            break;
+        }
+        case STARTMENU_SAVESEL: {
+            AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
+            AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
+            AddTextMenuEntry(&gameMenu[1], "");
+            AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
+            AddTextMenuEntry(&gameMenu[1], "");
+            AddTextMenuEntryW(&gameMenu[1], strNoSave);
+
+            for (int s = 0; s < 4; ++s) {
+                AddTextMenuEntry(&gameMenu[1], "");
+
+                StrCopyW(strBuffer, "SAVE ");
+                AppendIntegerToStringW(strBuffer, s + 1);
+                StrAddW(strBuffer, " - ");
+                if (saveRAM[s * 4 + 4]) {
+                    StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
+                    StrAddW(strBuffer, "-");
+                    StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
+                    //StrAddW(strBuffer, " ");
+                    //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                }
+                else {
+                    StrAddW(strBuffer, strNewGame);
+                }
+
+                AddTextMenuEntryW(&gameMenu[1], strBuffer);
+            }
+            gameMenu[1].alignment      = 0;
+            gameMenu[1].selectionCount = 1;
+            gameMenu[1].selection1     = 0;
+            gameMenu[1].selection2     = 0;
+            break;
+        }
+        case STARTMENU_TASTAGESEL: {
+            AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE");
+            int cnt = 0;
+            for (int i = 0; i < stageStrCount; ++i) {
+                if (strSaveStageList[i] && !StrCompW(strSaveStageList[i], "Complete")
+                    && !(Engine.gameType == GAME_SONIC2 && StrCompW(strSaveStageList[i], "Special Stage 6"))) {
+                    AddTextMenuEntry(&gameMenu[1], "");
+                    AddTextMenuEntryW(&gameMenu[1], strSaveStageList[i]);
+                    cnt++;
+                }
+            }
+            gameMenu[1].alignment      = 2;
+            gameMenu[1].selectionCount = 1;
+            gameMenu[1].selection1     = 1;
+            gameMenu[1].selection2     = 0;
+            if (gameMenu[1].rowCount > 18)
+                gameMenu[1].visibleRowCount = 18;
+            else
+                gameMenu[1].visibleRowCount = 0;
+
+            gameMenu[0].alignment      = 2;
+            gameMenu[0].selectionCount = 1;
+            gameMenu[1].timer          = 0;
+            gameMenu[0].timer          = cnt;
+            break;
+        }
+        case STARTMENU_ACHIEVEMENTS: {
+            AddTextMenuEntry(&gameMenu[0], "ACHIEVEMENTS LIST");
+
+            char strBuffer[0x80];
+            for (int i = 0; i < ACHIEVEMENT_MAX; ++i) {
+                if (!StrComp(achievements[i].name, "")) {
+                    AddTextMenuEntry(&gameMenu[1], "");
+                    StrCopy((char*)strBuffer, achievements[i].name);
+                    StrAdd((char*)strBuffer, ": ");
+                    StrAdd((char*)strBuffer, achievements[i].status == 100 ? "achieved" : "not achieved");
+                    AddTextMenuEntry(&gameMenu[1], (char*)strBuffer);
+                }
+            }
+            gameMenu[1].alignment      = 0;
+            gameMenu[1].selectionCount = 1;
+            gameMenu[1].selection1     = 1;
+            gameMenu[1].selection2     = 0;
+            if (gameMenu[1].rowCount > 18)
+                gameMenu[1].visibleRowCount = 18;
+            else
+                gameMenu[1].visibleRowCount = 0;
+
+            gameMenu[0].alignment      = 2;
+            gameMenu[0].selectionCount = 1;
+            gameMenu[1].timer          = 0;
+            break;
+        }
+        case STARTMENU_GAMEOPTS: {
+            AddTextMenuEntry(&gameMenu[0], "GAME OPTIONS");
+            if (Engine.gameType == GAME_SONIC1) {
+                if (GetGlobalVariableByName("options.spindash"))
+                    AddTextMenuEntry(&gameMenu[1], "SPINDASH: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "SPINDASH: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.speedCap"))
+                    AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.airSpeedCap"))
+                    AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.spikeBehaviour"))
+                    AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+
+                char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
+                AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
+            }
+            else {
+                if (GetGlobalVariableByName("options.airSpeedCap"))
+                    AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.tailsFlight"))
+                AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.superTails"))
+                    AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.spikeBehaviour"))
+                    AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
+                AddTextMenuEntry(&gameMenu[1], "");
+
+                char itemBoxTypes[4][0x20] = { "ITEM TYPE: S2", "ITEM TYPE: S2+S3", "ITEM TYPE: RANDOM", "ITEM TYPE: RANDOM+S3" };
+                AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
+            }
+        }
+    }
+}
+
 void processStartMenu() {
     ClearScreen(0xF0);
     CheckKeyDown(&keyDown, 0xFF);
@@ -556,99 +659,13 @@ void processStartMenu() {
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
                 if (gameMenu[0].selection2 == 9) {
-                    ushort strBuffer[0x100];
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
-                    SetupTextMenu(&gameMenu[1], 0);
-                    AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
-                    AddTextMenuEntry(&gameMenu[1], "");
-                    AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
-                    AddTextMenuEntry(&gameMenu[1], "");
-                    AddTextMenuEntryW(&gameMenu[1], strNoSave);
-
-                    for (int s = 0; s < 4; ++s) {
-                        AddTextMenuEntry(&gameMenu[1], "");
-
-                        StrCopyW(strBuffer, "SAVE ");
-                        AppendIntegerToStringW(strBuffer, s + 1);
-                        StrAddW(strBuffer, " - ");
-                        if (saveRAM[s * 4 + 4]) {
-                            StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                            StrAddW(strBuffer, "-");
-                            StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
-                            //StrAddW(strBuffer, " ");
-                            //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
-                        }
-                        else {
-                            StrAddW(strBuffer, strNewGame);
-                        }
-
-                        AddTextMenuEntryW(&gameMenu[1], strBuffer);
-                    }
-                    gameMenu[1].alignment      = 0;
-                    gameMenu[1].selectionCount = 1;
-                    gameMenu[1].selection1     = 0;
-                    gameMenu[1].selection2     = 0;
-                    stageMode                  = STARTMENU_SAVESEL;
+                    setTextMenu(STARTMENU_SAVESEL);
                 }
                 else if (gameMenu[0].selection2 == 11) {
-                    //TA
-                    ushort strBuffer[0x100];
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE");
-                    SetupTextMenu(&gameMenu[1], 0);
-                    int cnt = 0;
-                    for (int i = 0; i < stageStrCount; ++i) {
-                        if (strSaveStageList[i] && !StrCompW(strSaveStageList[i], "Complete")
-                            && !(Engine.gameType == GAME_SONIC2 && StrCompW(strSaveStageList[i], "Special Stage 6"))) {
-                            AddTextMenuEntry(&gameMenu[1], "");
-                            AddTextMenuEntryW(&gameMenu[1], strSaveStageList[i]);
-                            cnt++;
-                        }
-                    }
-                    gameMenu[1].alignment      = 2;
-                    gameMenu[1].selectionCount = 1;
-                    gameMenu[1].selection1     = 1;
-                    gameMenu[1].selection2     = 0;
-                    if (gameMenu[1].rowCount > 18)
-                        gameMenu[1].visibleRowCount = 18;
-                    else
-                        gameMenu[1].visibleRowCount = 0;
-
-                    gameMenu[0].alignment      = 2;
-                    gameMenu[0].selectionCount = 1;
-                    gameMenu[1].timer          = 0;
-                    gameMenu[0].timer          = cnt;
-                    stageMode                  = STARTMENU_TASTAGESEL;
+                    setTextMenu(STARTMENU_TASTAGESEL);
                 }
                 else if (gameMenu[0].selection2 == 13) {
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "ACHIEVEMENTS LIST");
-                    SetupTextMenu(&gameMenu[1], 0);
-
-                    char strBuffer[0x80];
-                    for (int i = 0; i < ACHIEVEMENT_MAX; ++i) {
-                        if (!StrComp(achievements[i].name, "")) {
-                            AddTextMenuEntry(&gameMenu[1], "");
-                            StrCopy(strBuffer, achievements[i].name);
-                            StrAdd(strBuffer, ": ");
-                            StrAdd(strBuffer, achievements[i].status == 100 ? "achieved" : "not achieved");
-                            AddTextMenuEntry(&gameMenu[1], strBuffer);
-                        }
-                    }
-                    gameMenu[1].alignment      = 2;
-                    gameMenu[1].selectionCount = 1;
-                    gameMenu[1].selection1     = 1;
-                    gameMenu[1].selection2     = 0;
-                    if (gameMenu[1].rowCount > 18)
-                        gameMenu[1].visibleRowCount = 18;
-                    else
-                        gameMenu[1].visibleRowCount = 0;
-
-                    gameMenu[0].alignment      = 2;
-                    gameMenu[0].selectionCount = 1;
-                    gameMenu[1].timer          = 0;
-                    stageMode = STARTMENU_ACHIEVEMENTS;
+                    setTextMenu(STARTMENU_ACHIEVEMENTS);
                 }
                 else if (gameMenu[0].selection2 == 15) {
                     //TODO:
@@ -694,61 +711,7 @@ void processStartMenu() {
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.start || keyPress.A) {
                 if (gameMenu[1].selection1 == 0) {
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "GAME OPTIONS");
-                    SetupTextMenu(&gameMenu[1], 0);
-                    if (Engine.gameType == GAME_SONIC1) {
-                        if (GetGlobalVariableByName("options.spindash"))
-                            AddTextMenuEntry(&gameMenu[1], "SPINDASH: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "SPINDASH: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.speedCap"))
-                            AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.airSpeedCap"))
-                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.spikeBehaviour"))
-                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-
-                        char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
-                        AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
-                    }
-                    else {
-                        if (GetGlobalVariableByName("options.airSpeedCap"))
-                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.tailsFlight"))
-                        AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "TAILS FLIGHT: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.superTails"))
-                            AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-                        if (GetGlobalVariableByName("options.spikeBehaviour"))
-                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
-                        else
-                            AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
-                        AddTextMenuEntry(&gameMenu[1], "");
-
-                        char itemBoxTypes[4][0x20] = { "ITEM TYPE: S2", "ITEM TYPE: S2+S3", "ITEM TYPE: RANDOM", "ITEM TYPE: RANDOM+S3" };
-                        AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
-                    }
-
-                    stageMode = STARTMENU_GAMEOPTS;
+                    setTextMenu(STARTMENU_GAMEOPTS);
                 }
                 else if (gameMenu[1].selection1 == 2) {
                     if (!gameMenu[1].selection2) {
@@ -882,45 +845,11 @@ void processStartMenu() {
                 SetGlobalVariableByName("starPostID", 0); //For S2
                 SetGlobalVariableByName("options.vsMode", 0);
 
-                InitStartingStage(STAGELIST_REGULAR, 0, saveRAM[8 * saveSlot + 0]);
+                InitStartingStage(STAGELIST_PRESENTATION, 0, saveRAM[8 * saveSlot + 0]);
                 Engine.finishedStartMenu = true;
             }
             else if (keyPress.B) {
-                ushort strBuffer[0x100];
-                SetupTextMenu(&gameMenu[0], 0);
-                AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
-                SetupTextMenu(&gameMenu[1], 0);
-                StrCopyW(strBuffer, "");
-                StrAddW(strBuffer, strNoSave);
-                AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
-                AddTextMenuEntry(&gameMenu[1], "");
-                AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
-                AddTextMenuEntry(&gameMenu[1], "");
-                AddTextMenuEntryW(&gameMenu[1], strBuffer);
-
-                for (int s = 0; s < 4; ++s) {
-                    AddTextMenuEntry(&gameMenu[1], "");
-
-                    StrCopyW(strBuffer, "SAVE ");
-                    AppendIntegerToStringW(strBuffer, s + 1);
-                    StrAddW(strBuffer, " - ");
-                    if (saveRAM[s * 4 + 4]) {
-                        StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                        StrAddW(strBuffer, "-");
-                        StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
-                        //StrAddW(strBuffer, " ");
-                        //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
-                    }
-                    else {
-                        StrAddW(strBuffer, strNewGame);
-                    }
-
-                    AddTextMenuEntryW(&gameMenu[1], strBuffer);
-                }
-                gameMenu[1].alignment      = 0;
-                gameMenu[1].selectionCount = 1;
-                gameMenu[1].selection1     = 0;
-                stageMode                  = STARTMENU_SAVESEL;
+                setTextMenu(STARTMENU_SAVESEL);
             }
             break;
         }
@@ -1033,40 +962,7 @@ void processStartMenu() {
                 }
             }
             else if (keyPress.B) {
-                ushort strBuffer[0x100];
-                SetupTextMenu(&gameMenu[0], 0);
-                AddTextMenuEntry(&gameMenu[0], "SELECT A SAVE FILE");
-                SetupTextMenu(&gameMenu[1], 0);
-                AddTextMenuEntry(&gameMenu[1], "GAME OPTIONS");
-                AddTextMenuEntry(&gameMenu[1], "");
-                AddTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE");
-                AddTextMenuEntry(&gameMenu[1], "");
-                AddTextMenuEntryW(&gameMenu[1], strNoSave);
-
-                for (int s = 0; s < 4; ++s) {
-                    AddTextMenuEntry(&gameMenu[1], "");
-
-                    StrCopyW(strBuffer, "SAVE ");
-                    AppendIntegerToStringW(strBuffer, s + 1);
-                    StrAddW(strBuffer, " - ");
-                    if (saveRAM[s * 4 + 4]) {
-                        StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                        StrAddW(strBuffer, " - ");
-                        StrAddW(strBuffer, strStageList[(saveRAM[s * 4 + 4] - 1) / 2]);
-                        StrAddW(strBuffer, " ");
-                        AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
-                    }
-                    else {
-                        StrAddW(strBuffer, strNewGame);
-                    }
-
-                    AddTextMenuEntryW(&gameMenu[1], strBuffer);
-                }
-                gameMenu[1].alignment      = 0;
-                gameMenu[1].selectionCount = 1;
-                gameMenu[1].selection1     = 0;
-                gameMenu[1].selection2     = 0;
-                stageMode                  = STARTMENU_SAVESEL;
+                setTextMenu(STARTMENU_SAVESEL);
 
                 saveRAM[0x100] = Engine.gameType;
                 if (Engine.gameType == GAME_SONIC1) {
@@ -1279,32 +1175,7 @@ void processStartMenu() {
                 }
                 else {
                     // TA
-                    ushort strBuffer[0x100];
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "SELECT A STAGE");
-                    SetupTextMenu(&gameMenu[1], 0);
-                    int cnt = 0;
-                    for (int i = 0; i < stageStrCount; ++i) {
-                        if (strSaveStageList[i] && !StrCompW(strSaveStageList[i], "Complete") && !(Engine.gameType == GAME_SONIC2 && StrCompW(strSaveStageList[i], "Special Stage 6"))) {
-                            AddTextMenuEntry(&gameMenu[1], "");
-                            AddTextMenuEntryW(&gameMenu[1], strSaveStageList[i]);
-                            cnt++;
-                        }
-                    }
-                    gameMenu[1].alignment      = 2;
-                    gameMenu[1].selectionCount = 1;
-                    gameMenu[1].selection1     = 1;
-                    gameMenu[1].selection2     = 0;
-                    if (gameMenu[1].rowCount > 18)
-                        gameMenu[1].visibleRowCount = 18;
-                    else
-                        gameMenu[1].visibleRowCount = 0;
-
-                    gameMenu[0].alignment      = 2;
-                    gameMenu[0].selectionCount = 1;
-                    gameMenu[1].timer          = 0;
-                    gameMenu[0].timer          = cnt;
-                    stageMode                  = STARTMENU_TASTAGESEL;
+                    setTextMenu(STARTMENU_TASTAGESEL);
                 }
             }
             break;

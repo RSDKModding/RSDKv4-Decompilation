@@ -255,6 +255,30 @@ inline void StringLowerCase(char *dest, const char *src)
     dest[++destPos] = 0;
 }
 
+inline void StringUpperCase(char *dest, const char *src)
+{
+    int destPos = 0;
+    int curChar = *src;
+    if (*src) {
+        int srcPos = 0;
+        do {
+            while (curChar - 'a' <= 0x19u) {
+                destPos       = srcPos;
+                dest[destPos] = curChar - ' ';
+                curChar  = src[++srcPos];
+                if (!curChar) {
+                    dest[++destPos] = 0;
+                    return;
+                }
+            }
+            destPos       = srcPos;
+            dest[destPos] = curChar;
+            curChar       = src[++srcPos];
+        } while (curChar);
+    }
+    dest[++destPos] = 0;
+}
+
 void ConvertIntegerToString(char *text, int value);
 
 void GenerateMD5FromString(const char *string, int len, byte *buffer);

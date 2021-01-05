@@ -81,7 +81,7 @@ enum DevMenuMenus {
 };
 
 enum StartMenuMenus {
-    STARTMENU_MAIN,
+    STARTMENU_MAIN = 5,
     STARTMENU_SAVESEL,
     STARTMENU_PLAYERSEL,
     STARTMENU_GAMEOPTS,
@@ -98,5 +98,6 @@ void processStageSelect();
 // added due to lack of normal main menu
 void initStartMenu(int mode);
 void processStartMenu(); 
+void setTextMenu(int mode);
 
 #endif //!DEBUG_H
