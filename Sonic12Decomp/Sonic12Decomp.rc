@@ -77,12 +77,12 @@ BEGIN
     BEGIN
         BLOCK "0c0904b0"
         BEGIN
-            VALUE "CompanyName", "RSDKv4/Sonic 1/2 (2013) By Christian 'The Taxman' Whitehead & Simon 'Stealth' Thomley"
-            VALUE "FileDescription", "Sonic 1 and 2 - Retro Engine Conversion, by Christian Whitehead & Simon Thomley!, RSDKv4 Decompilation By Rubberduckycooly/RMGRich"
+            VALUE "CompanyName", "RSDKv4/Sonic 1/2 (2013) By Christian 'The Taxman' Whitehead & Simon 'Stealth' Thomley, Decompilation By Rubberduckycooly/RMGRich"
+            VALUE "FileDescription", "RSDKv4"
             VALUE "FileVersion", "1.0.0"
-            VALUE "InternalName", "Sonic1.exe"
-            VALUE "OriginalFilename", "Sonic1.exe"
-            VALUE "ProductName", "RSDKvB"
+            VALUE "InternalName", "RSDKv4.exe"
+            VALUE "OriginalFilename", "RSDKv4.exe"
+            VALUE "ProductName", "RSDKv4"
             VALUE "ProductVersion", "1.0.0"
         END
     END
