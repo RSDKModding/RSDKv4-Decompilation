@@ -22,6 +22,11 @@ struct LeaderboardEntry {
     int status;
 };
 
+struct MultiplayerData {
+    int type;
+    int data[0x1FF];
+};
+
 extern int(*nativeFunction[16])(int, void *);
 extern int nativeFunctionCount;
 
@@ -33,6 +38,15 @@ extern char gamePath[0x100];
 extern int saveRAM[SAVEDATA_MAX];
 extern Achievement achievements[ACHIEVEMENT_MAX];
 extern LeaderboardEntry leaderboard[LEADERBOARD_MAX];
+
+extern MultiplayerData multiplayerDataIN;
+extern MultiplayerData multiplayerDataOUT;
+extern int matchValueData[0x100];
+extern int matchValueReadPos;
+extern int matchValueWritePos;
+
+extern int sendDataMethod;
+extern int sendCounter;
 
 inline int GetGlobalVariableByName(const char *name)
 {
@@ -51,6 +65,14 @@ inline void SetGlobalVariableByName(const char *name, int value)
             break;
         }
     }
+}
+inline int GetGlobalVariableID(const char *name)
+{
+    for (int v = 0; v < globalVariablesCount; ++v) {
+        if (StrComp(name, globalVariableNames[v]))
+            return v;
+    }
+    return 0;
 }
 
 inline void AddNativeFunction(const char* name, int (*funcPtr)(int, void*)) {

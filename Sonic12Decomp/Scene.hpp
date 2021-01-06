@@ -39,15 +39,15 @@ enum TileLayerTypes {
 };
 
 enum StageModes {
-    STAGEMODE_LOAD          = 0,
-    STAGEMODE_NORMAL        = 1,
-    STAGEMODE_UNKNOWN       = 2,
-    STAGEMODE_FROZEN        = 3,
-    STAGEMODE_2P            = 4,
-    STAGEMODE_PAUSED       = 5,
-    STAGEMODE_STEPOVER     = 6,
-    STAGEMODE_FROZEN_PAUSED = 7,
-    STAGEMODE_2P_PAUSED     = 8
+    STAGEMODE_LOAD            = 0,
+    STAGEMODE_NORMAL          = 1,
+    STAGEMODE_PAUSED          = 2,
+    STAGEMODE_FROZEN          = 3,
+    STAGEMODE_2P              = 4,
+    STAGEMODE_STEPOVER        = 5,
+    STAGEMODE_PAUSED_STEPOVER = 6,
+    STAGEMODE_FROZEN_PAUSED   = 7,
+    STAGEMODE_2P_PAUSED       = 8
 };
 
 enum TileInfo {
@@ -139,12 +139,12 @@ extern int cameraShakeY;
 extern int cameraLag;
 extern int cameraLagStyle;
 
-extern int xBoundary1;
+extern int curXBoundary1;
 extern int newXBoundary1;
-extern int yBoundary1;
+extern int curYBoundary1;
 extern int newYBoundary1;
-extern int xBoundary2;
-extern int yBoundary2;
+extern int curXBoundary2;
+extern int curYBoundary2;
 extern int waterLevel;
 extern int waterDrawPos;
 extern int newXBoundary2;

@@ -26,12 +26,12 @@ int cameraShakeY   = 0;
 int cameraLag      = 0;
 int cameraLagStyle = 0;
 
-int xBoundary1    = 0;
+int curXBoundary1    = 0;
 int newXBoundary1 = 0;
-int yBoundary1    = 0;
+int curYBoundary1    = 0;
 int newYBoundary1 = 0;
-int xBoundary2    = 0;
-int yBoundary2    = 0;
+int curXBoundary2    = 0;
+int curYBoundary2    = 0;
 int waterLevel    = 0;
 int waterDrawPos  = 0;
 int newXBoundary2 = 0;
@@ -144,9 +144,9 @@ void ProcessStage(void)
             stageMilliseconds = 0;
             stageSeconds      = 0;
             stageMinutes      = 0;
+            stageMode         = STAGEMODE_NORMAL;
             ResetBackgroundSettings();
             LoadStageFiles();
-            stageMode = STAGEMODE_NORMAL;
 
             break;
         case STAGEMODE_NORMAL:
@@ -158,7 +158,7 @@ void ProcessStage(void)
             CheckKeyDown(&keyDown, 0xFF);
             CheckKeyPress(&keyPress, 0xFF);
             if (pauseEnabled && keyPress.start) {
-                stageMode = STAGEMODE_PAUSED;
+                stageMode = STAGEMODE_STEPOVER;
                 PauseSound();
             }
 
@@ -194,7 +194,7 @@ void ProcessStage(void)
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
-        case STAGEMODE_UNKNOWN:
+        case STAGEMODE_PAUSED:
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -204,7 +204,7 @@ void ProcessStage(void)
             CheckKeyPress(&keyPress, 0xFF);
 
             if (pauseEnabled && keyPress.start) {
-                //stageMode = STAGEMODE_STEPOVER;
+                //stageMode = STAGEMODE_PAUSED_STEPOVER;
                 stageMode = STAGEMODE_NORMAL;
                 ResumeSound();
             }
@@ -227,7 +227,7 @@ void ProcessStage(void)
             CheckKeyDown(&keyDown, 0xFF);
             CheckKeyPress(&keyPress, 0xFF);
             if (pauseEnabled && keyPress.start) {
-                stageMode = STAGEMODE_PAUSED;
+                stageMode = STAGEMODE_STEPOVER;
                 PauseSound();
             }
 
@@ -295,7 +295,7 @@ void ProcessStage(void)
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
-        case STAGEMODE_PAUSED: // Paused
+        case STAGEMODE_STEPOVER:
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -342,7 +342,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
-        case STAGEMODE_STEPOVER:
+        case STAGEMODE_PAUSED_STEPOVER:
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -658,13 +658,13 @@ void LoadActLayout()
 
         FileRead(&stageLayouts[0].height, 1);
         FileRead(fileBuffer, 1); // Unused
-        xBoundary1    = 0;
+        curXBoundary1    = 0;
         newXBoundary1 = 0;
-        yBoundary1    = 0;
+        curYBoundary1    = 0;
         newYBoundary1 = 0;
-        xBoundary2    = stageLayouts[0].width << 7;
-        yBoundary2    = stageLayouts[0].height << 7;
-        waterLevel    = yBoundary2 + 128;
+        curXBoundary2    = stageLayouts[0].width << 7;
+        curYBoundary2    = stageLayouts[0].height << 7;
+        waterLevel    = curYBoundary2 + 128;
         newXBoundary2 = stageLayouts[0].width << 7;
         newYBoundary2 = stageLayouts[0].height << 7;
 
@@ -1194,66 +1194,66 @@ void SetPlayerScreenPosition(Entity *target)
 {
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
-    if (newYBoundary1 > yBoundary1) {
+    if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
-            yBoundary1 = yScrollOffset;
+            curYBoundary1 = yScrollOffset;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary1 < yBoundary1) {
-        if (yScrollOffset <= yBoundary1)
-            --yBoundary1;
+    if (newYBoundary1 < curYBoundary1) {
+        if (yScrollOffset <= curYBoundary1)
+            --curYBoundary1;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary2 < yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
-            --yBoundary2;
+    if (newYBoundary2 < curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+            --curYBoundary2;
         else
-            yBoundary2 = yScrollOffset + SCREEN_YSIZE;
+            curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
-    if (newYBoundary2 > yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2)
-            ++yBoundary2;
+    if (newYBoundary2 > curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+            ++curYBoundary2;
         else
-            yBoundary2 = newYBoundary2;
+            curYBoundary2 = newYBoundary2;
     }
-    if (newXBoundary1 > xBoundary1) {
+    if (newXBoundary1 > curXBoundary1) {
         if (xScrollOffset <= newXBoundary1)
-            xBoundary1 = xScrollOffset;
+            curXBoundary1 = xScrollOffset;
         else
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
     }
-    if (newXBoundary1 < xBoundary1) {
-        if (xScrollOffset <= xBoundary1) {
-            --xBoundary1;
+    if (newXBoundary1 < curXBoundary1) {
+        if (xScrollOffset <= curXBoundary1) {
+            --curXBoundary1;
             if (target->XVelocity < 0) {
-                xBoundary1 += target->XVelocity >> 16;
-                if (xBoundary1 < newXBoundary1)
-                    xBoundary1 = newXBoundary1;
+                curXBoundary1 += target->XVelocity >> 16;
+                if (curXBoundary1 < newXBoundary1)
+                    curXBoundary1 = newXBoundary1;
             }
         }
         else {
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
         }
     }
-    if (newXBoundary2 < xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2)
-            xBoundary2 = SCREEN_XSIZE + xScrollOffset;
+    if (newXBoundary2 < curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
         else
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
     }
-    if (newXBoundary2 > xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2) {
-            ++xBoundary2;
+    if (newXBoundary2 > curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
+            ++curXBoundary2;
             if (target->XVelocity > 0) {
-                xBoundary2 += target->XVelocity >> 16;
-                if (xBoundary2 > newXBoundary2)
-                    xBoundary2 = newXBoundary2;
+                curXBoundary2 += target->XVelocity >> 16;
+                if (curXBoundary2 > newXBoundary2)
+                    curXBoundary2 = newXBoundary2;
             }
         }
         else {
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
         }
     }
 
@@ -1280,12 +1280,12 @@ void SetPlayerScreenPosition(Entity *target)
 
     int centeredXBound1 = cameraXPos + xPosDif;
     cameraXPos          = centeredXBound1;
-    if (centeredXBound1 < SCREEN_CENTERX + xBoundary1) {
-        cameraXPos      = SCREEN_CENTERX + xBoundary1;
-        centeredXBound1 = SCREEN_CENTERX + xBoundary1;
+    if (centeredXBound1 < SCREEN_CENTERX + curXBoundary1) {
+        cameraXPos      = SCREEN_CENTERX + curXBoundary1;
+        centeredXBound1 = SCREEN_CENTERX + curXBoundary1;
     }
 
-    int centeredXBound2 = xBoundary2 - SCREEN_CENTERX;
+    int centeredXBound2 = curXBoundary2 - SCREEN_CENTERX;
     if (centeredXBound2 < centeredXBound1) {
         cameraXPos      = centeredXBound2;
         centeredXBound1 = centeredXBound2;
@@ -1355,28 +1355,27 @@ void SetPlayerScreenPosition(Entity *target)
     }
 
     int newCamY = cameraYPos + yPosDif;
-    if (newCamY <= yBoundary1 + (SCREEN_SCROLL_UP - 1))
-        newCamY = yBoundary1 + SCREEN_SCROLL_UP;
+    if (newCamY <= curYBoundary1 + (SCREEN_SCROLL_UP - 1))
+        newCamY = curYBoundary1 + SCREEN_SCROLL_UP;
     cameraYPos = newCamY;
-    if (yBoundary2 - (SCREEN_SCROLL_DOWN - 1) <= newCamY) {
-        newCamY    = yBoundary2 - SCREEN_SCROLL_DOWN;
-        cameraYPos = yBoundary2 - SCREEN_SCROLL_DOWN;
+    if (curYBoundary2 - (SCREEN_SCROLL_DOWN - 1) <= newCamY) {
+        cameraYPos = curYBoundary2 - SCREEN_SCROLL_DOWN;
     }
 
     xScrollOffset = cameraShakeX + centeredXBound1 - SCREEN_CENTERX;
 
-    int pos           = newCamY + target->lookPos - SCREEN_SCROLL_UP;
-    if (pos < yBoundary1) {
-        yScrollOffset = yBoundary1;
+    int pos = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
+    if (pos < curYBoundary1) {
+        yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = newCamY + target->lookPos - SCREEN_SCROLL_UP;
+        yScrollOffset = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
     }
-    int y1 = yBoundary2 - (SCREEN_YSIZE - 1);
-    int y2 = yBoundary2 - SCREEN_YSIZE;
-    if (y1 > yScrollOffset)
-        y2 = yScrollOffset;
-    yScrollOffset = cameraShakeY + y2;
+
+    int y = curYBoundary2 - SCREEN_YSIZE;
+    if (curYBoundary2 - (SCREEN_YSIZE - 1) > yScrollOffset)
+        y = yScrollOffset;
+    yScrollOffset = cameraShakeY + y;
 
     if (cameraShakeX) {
         if (cameraShakeX <= 0) {
@@ -1588,66 +1587,66 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 {
     int targetY = cameraAdjustY + (target->YPos >> 16);
 
-    if (newYBoundary1 > yBoundary1) {
+    if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
-            yBoundary1 = yScrollOffset;
+            curYBoundary1 = yScrollOffset;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary1 < yBoundary1) {
-        if (yScrollOffset <= yBoundary1)
-            --yBoundary1;
+    if (newYBoundary1 < curYBoundary1) {
+        if (yScrollOffset <= curYBoundary1)
+            --curYBoundary1;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary2 < yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
-            --yBoundary2;
+    if (newYBoundary2 < curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+            --curYBoundary2;
         else
-            yBoundary2 = yScrollOffset + SCREEN_YSIZE;
+            curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
-    if (newYBoundary2 > yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2)
-            ++yBoundary2;
+    if (newYBoundary2 > curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+            ++curYBoundary2;
         else
-            yBoundary2 = newYBoundary2;
+            curYBoundary2 = newYBoundary2;
     }
-    if (newXBoundary1 > xBoundary1) {
+    if (newXBoundary1 > curXBoundary1) {
         if (xScrollOffset <= newXBoundary1)
-            xBoundary1 = xScrollOffset;
+            curXBoundary1 = xScrollOffset;
         else
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
     }
-    if (newXBoundary1 < xBoundary1) {
-        if (xScrollOffset <= xBoundary1) {
-            --xBoundary1;
+    if (newXBoundary1 < curXBoundary1) {
+        if (xScrollOffset <= curXBoundary1) {
+            --curXBoundary1;
             if (target->XVelocity < 0) {
-                xBoundary1 += target->XVelocity >> 16;
-                if (xBoundary1 < newXBoundary1)
-                    xBoundary1 = newXBoundary1;
+                curXBoundary1 += target->XVelocity >> 16;
+                if (curXBoundary1 < newXBoundary1)
+                    curXBoundary1 = newXBoundary1;
             }
         }
         else {
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
         }
     }
-    if (newXBoundary2 < xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2)
-            xBoundary2 = SCREEN_XSIZE + xScrollOffset;
+    if (newXBoundary2 < curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
         else
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
     }
-    if (newXBoundary2 > xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2) {
-            ++xBoundary2;
+    if (newXBoundary2 > curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
+            ++curXBoundary2;
             if (target->XVelocity > 0) {
-                xBoundary2 += target->XVelocity >> 16;
-                if (xBoundary2 > newXBoundary2)
-                    xBoundary2 = newXBoundary2;
+                curXBoundary2 += target->XVelocity >> 16;
+                if (curXBoundary2 > newXBoundary2)
+                    curXBoundary2 = newXBoundary2;
             }
         }
         else {
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
         }
     }
 
@@ -1720,25 +1719,25 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     }
 
     int newCamY = cameraYPos + camScroll;
-    if (newCamY <= yBoundary1 + (SCREEN_SCROLL_UP - 1))
-        newCamY = yBoundary1 + SCREEN_SCROLL_UP;
+    if (newCamY <= curYBoundary1 + (SCREEN_SCROLL_UP - 1))
+        newCamY = curYBoundary1 + SCREEN_SCROLL_UP;
     cameraYPos = newCamY;
-    if (yBoundary2 - (SCREEN_SCROLL_DOWN - 1) <= newCamY) {
-        newCamY    = yBoundary2 - SCREEN_SCROLL_DOWN;
-        cameraYPos = yBoundary2 - SCREEN_SCROLL_DOWN;
+    if (curYBoundary2 - (SCREEN_SCROLL_DOWN - 1) <= newCamY) {
+        newCamY    = curYBoundary2 - SCREEN_SCROLL_DOWN;
+        cameraYPos = curYBoundary2 - SCREEN_SCROLL_DOWN;
     }
 
     xScrollOffset = cameraShakeX + cameraXPos - SCREEN_CENTERX;
 
     int pos = newCamY + target->lookPos - SCREEN_SCROLL_UP;
-    if (pos < yBoundary1) {
-        yScrollOffset = yBoundary1;
+    if (pos < curYBoundary1) {
+        yScrollOffset = curYBoundary1;
     }
     else {
         yScrollOffset = newCamY + target->lookPos - SCREEN_SCROLL_UP;
     }
-    int y1 = yBoundary2 - (SCREEN_YSIZE - 1);
-    int y2 = yBoundary2 - SCREEN_YSIZE;
+    int y1 = curYBoundary2 - (SCREEN_YSIZE - 1);
+    int y2 = curYBoundary2 - SCREEN_YSIZE;
     if (y1 > yScrollOffset)
         y2 = yScrollOffset;
     yScrollOffset = cameraShakeY + y2;
@@ -1763,66 +1762,66 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 }
 void SetPlayerLockedScreenPosition(Entity *target)
 {
-    if (newYBoundary1 > yBoundary1) {
+    if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
-            yBoundary1 = yScrollOffset;
+            curYBoundary1 = yScrollOffset;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary1 < yBoundary1) {
-        if (yScrollOffset <= yBoundary1)
-            --yBoundary1;
+    if (newYBoundary1 < curYBoundary1) {
+        if (yScrollOffset <= curYBoundary1)
+            --curYBoundary1;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary2 < yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
-            --yBoundary2;
+    if (newYBoundary2 < curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+            --curYBoundary2;
         else
-            yBoundary2 = yScrollOffset + SCREEN_YSIZE;
+            curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
-    if (newYBoundary2 > yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2)
-            ++yBoundary2;
+    if (newYBoundary2 > curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+            ++curYBoundary2;
         else
-            yBoundary2 = newYBoundary2;
+            curYBoundary2 = newYBoundary2;
     }
-    if (newXBoundary1 > xBoundary1) {
+    if (newXBoundary1 > curXBoundary1) {
         if (xScrollOffset <= newXBoundary1)
-            xBoundary1 = xScrollOffset;
+            curXBoundary1 = xScrollOffset;
         else
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
     }
-    if (newXBoundary1 < xBoundary1) {
-        if (xScrollOffset <= xBoundary1) {
-            --xBoundary1;
+    if (newXBoundary1 < curXBoundary1) {
+        if (xScrollOffset <= curXBoundary1) {
+            --curXBoundary1;
             if (target->XVelocity < 0) {
-                xBoundary1 += target->XVelocity >> 16;
-                if (xBoundary1 < newXBoundary1)
-                    xBoundary1 = newXBoundary1;
+                curXBoundary1 += target->XVelocity >> 16;
+                if (curXBoundary1 < newXBoundary1)
+                    curXBoundary1 = newXBoundary1;
             }
         }
         else {
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
         }
     }
-    if (newXBoundary2 < xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2)
-            xBoundary2 = SCREEN_XSIZE + xScrollOffset;
+    if (newXBoundary2 < curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
         else
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
     }
-    if (newXBoundary2 > xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2) {
-            ++xBoundary2;
+    if (newXBoundary2 > curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
+            ++curXBoundary2;
             if (target->XVelocity > 0) {
-                xBoundary2 += target->XVelocity >> 16;
-                if (xBoundary2 > newXBoundary2)
-                    xBoundary2 = newXBoundary2;
+                curXBoundary2 += target->XVelocity >> 16;
+                if (curXBoundary2 > newXBoundary2)
+                    curXBoundary2 = newXBoundary2;
             }
         }
         else {
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
         }
     }
 
@@ -1850,104 +1849,104 @@ void SetPlayerScreenPositionFixed(Entity *target)
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
 
-    if (newYBoundary1 > yBoundary1) {
+    if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
-            yBoundary1 = yScrollOffset;
+            curYBoundary1 = yScrollOffset;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary1 < yBoundary1) {
-        if (yScrollOffset <= yBoundary1)
-            --yBoundary1;
+    if (newYBoundary1 < curYBoundary1) {
+        if (yScrollOffset <= curYBoundary1)
+            --curYBoundary1;
         else
-            yBoundary1 = newYBoundary1;
+            curYBoundary1 = newYBoundary1;
     }
-    if (newYBoundary2 < yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
-            --yBoundary2;
+    if (newYBoundary2 < curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+            --curYBoundary2;
         else
-            yBoundary2 = yScrollOffset + SCREEN_YSIZE;
+            curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
-    if (newYBoundary2 > yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2)
-            ++yBoundary2;
+    if (newYBoundary2 > curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+            ++curYBoundary2;
         else
-            yBoundary2 = newYBoundary2;
+            curYBoundary2 = newYBoundary2;
     }
-    if (newXBoundary1 > xBoundary1) {
+    if (newXBoundary1 > curXBoundary1) {
         if (xScrollOffset <= newXBoundary1)
-            xBoundary1 = xScrollOffset;
+            curXBoundary1 = xScrollOffset;
         else
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
     }
-    if (newXBoundary1 < xBoundary1) {
-        if (xScrollOffset <= xBoundary1) {
-            --xBoundary1;
+    if (newXBoundary1 < curXBoundary1) {
+        if (xScrollOffset <= curXBoundary1) {
+            --curXBoundary1;
             if (target->XVelocity < 0) {
-                xBoundary1 += target->XVelocity >> 16;
-                if (xBoundary1 < newXBoundary1)
-                    xBoundary1 = newXBoundary1;
+                curXBoundary1 += target->XVelocity >> 16;
+                if (curXBoundary1 < newXBoundary1)
+                    curXBoundary1 = newXBoundary1;
             }
         }
         else {
-            xBoundary1 = newXBoundary1;
+            curXBoundary1 = newXBoundary1;
         }
     }
-    if (newXBoundary2 < xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2)
-            xBoundary2 = SCREEN_XSIZE + xScrollOffset;
+    if (newXBoundary2 < curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
         else
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
     }
-    if (newXBoundary2 > xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2) {
-            ++xBoundary2;
+    if (newXBoundary2 > curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
+            ++curXBoundary2;
             if (target->XVelocity > 0) {
-                xBoundary2 += target->XVelocity >> 16;
-                if (xBoundary2 > newXBoundary2)
-                    xBoundary2 = newXBoundary2;
+                curXBoundary2 += target->XVelocity >> 16;
+                if (curXBoundary2 > newXBoundary2)
+                    curXBoundary2 = newXBoundary2;
             }
         }
         else {
-            xBoundary2 = newXBoundary2;
+            curXBoundary2 = newXBoundary2;
         }
     }
 
     cameraXPos = targetX;
-    if (targetX < SCREEN_CENTERX + xBoundary1) {
-        targetX    = SCREEN_CENTERX + xBoundary1;
-        cameraXPos = SCREEN_CENTERX + xBoundary1;
+    if (targetX < SCREEN_CENTERX + curXBoundary1) {
+        targetX    = SCREEN_CENTERX + curXBoundary1;
+        cameraXPos = SCREEN_CENTERX + curXBoundary1;
     }
-    int boundX2 = xBoundary2 - SCREEN_CENTERX;
+    int boundX2 = curXBoundary2 - SCREEN_CENTERX;
     if (boundX2 < targetX) {
         targetX    = boundX2;
         cameraXPos = boundX2;
     }
 
 
-    if (targetY <= yBoundary1 + 119) {
-        targetY    = yBoundary1 + 120;
-        cameraYPos = yBoundary1 + 120;
+    if (targetY <= curYBoundary1 + 119) {
+        targetY    = curYBoundary1 + 120;
+        cameraYPos = curYBoundary1 + 120;
     }
     else {
         cameraYPos = targetY;
     }
-    if (yBoundary2 - 119 <= targetY) {
-        targetY    = yBoundary2 - 120;
-        cameraYPos = yBoundary2 - 120;
+    if (curYBoundary2 - 119 <= targetY) {
+        targetY    = curYBoundary2 - 120;
+        cameraYPos = curYBoundary2 - 120;
     }
 
     xScrollOffset = cameraShakeX + targetX - SCREEN_CENTERX;
     int camY          = targetY + target->lookPos - SCREEN_CENTERY;
-    if (yBoundary1 > camY) {
-        yScrollOffset = yBoundary1;
+    if (curYBoundary1 > camY) {
+        yScrollOffset = curYBoundary1;
     }
     else {
         yScrollOffset = targetY + target->lookPos - SCREEN_CENTERY;
     }
 
-    int newCamY = yBoundary2 - SCREEN_YSIZE;
-    if (yBoundary2 - (SCREEN_YSIZE - 1) > yScrollOffset)
+    int newCamY = curYBoundary2 - SCREEN_YSIZE;
+    if (curYBoundary2 - (SCREEN_YSIZE - 1) > yScrollOffset)
         newCamY = yScrollOffset;
     yScrollOffset = cameraShakeY + newCamY;
 

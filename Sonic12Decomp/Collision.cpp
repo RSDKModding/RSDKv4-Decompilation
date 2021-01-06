@@ -2142,6 +2142,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
+
     thisLeft += thisEntity->XPos >> 16;
     thisTop += thisEntity->YPos >> 16;
     thisRight += thisEntity->XPos >> 16;
@@ -2179,7 +2180,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
     otherRight <<= 16;
     otherBottom <<= 16;
 
-    scriptEng.checkResult = false;
+    scriptEng.checkResult = 0;
 
     int spd = 0;
     switch (otherEntity->collisionMode) {
@@ -2421,7 +2422,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
                     sensors[0].collided = false;
                     sensors[1].collided = false;
                     sensors[0].XPos     = otherLeft + 0x20000;
-                    sensors[0].XPos     = otherRight - 0x20000;
+                    sensors[1].XPos     = otherRight - 0x20000;
                     sensors[0].YPos     = otherTop;
                     sensors[1].YPos     = sensors[0].YPos;
                     for (int i = 0; i < 2; ++i) {
@@ -2735,7 +2736,7 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
                     sensors[0].collided = false;
                     sensors[1].collided = false;
                     sensors[0].XPos     = otherLeft + 0x20000;
-                    sensors[0].XPos     = otherRight - 0x20000;
+                    sensors[1].XPos     = otherRight - 0x20000;
                     sensors[0].YPos     = otherTop;
                     sensors[1].YPos     = sensors[0].YPos;
                     for (int i = 0; i < 2; ++i) {

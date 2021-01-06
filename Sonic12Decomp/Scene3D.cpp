@@ -162,7 +162,7 @@ void matrixRotateZ(Matrix *matrix, int rotationZ)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixRotateXYZ(Matrix *matrix, int rotationX, int rotationY, int rotationZ)
+void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
 {
     int sineX   = sinVal512[rotationX & 0x1FF] >> 1;
     int cosineX = cosVal512[rotationX & 0x1FF] >> 1;
@@ -242,42 +242,45 @@ void matrixInverse(Matrix *matrix)
 }
 void transformVertexBuffer()
 {
-    for (int y = 0; y < 4; ++y) {
-        for (int x = 0; x < 4; ++x) {
-            matFinal.values[y][x] = matWorld.values[y][x];
-        }
-    }
+    matFinal.values[0][0] = matWorld.values[0][0];
+    matFinal.values[0][1] = matWorld.values[0][1];
+    matFinal.values[0][2] = matWorld.values[0][2];
+    matFinal.values[0][3] = matWorld.values[0][3];
+    matFinal.values[1][0] = matWorld.values[1][0];
+    matFinal.values[1][1] = matWorld.values[1][1];
+    matFinal.values[1][2] = matWorld.values[1][2];
+    matFinal.values[1][3] = matWorld.values[1][3];
+    matFinal.values[2][0] = matWorld.values[2][0];
+    matFinal.values[2][1] = matWorld.values[2][1];
+    matFinal.values[2][2] = matWorld.values[2][2];
+    matFinal.values[2][3] = matWorld.values[2][3];
+    matFinal.values[3][0] = matWorld.values[3][0];
+    matFinal.values[3][1] = matWorld.values[3][1];
+    matFinal.values[3][2] = matWorld.values[3][2];
+    matFinal.values[3][3] = matWorld.values[3][3];
     matrixMultiply(&matFinal, &matView);
 
-    if (vertexCount <= 0)
-        return;
+    for (int v = 0; v < vertexCount; ++v) {
+        int vx       = vertexBuffer[v].x;
+        int vy       = vertexBuffer[v].y;
+        int vz       = vertexBuffer[v].z;
 
-    int vertexID  = 0;
-    do {
-        int vx       = vertexBuffer[vertexID].x;
-        int vy       = vertexBuffer[vertexID].y;
-        int vz       = vertexBuffer[vertexID].z;
-        Vertex *vert = &vertexBufferT[vertexID];
-
-        vert->x = (vx * matFinal.values[0][0] >> 8) + (vy * matFinal.values[1][0] >> 8) + (vz * matFinal.values[2][0] >> 8) + matFinal.values[3][0];
-        vert->y = (vx * matFinal.values[0][1] >> 8) + (vy * matFinal.values[1][1] >> 8) + (vz * matFinal.values[2][1] >> 8) + matFinal.values[3][1];
-        vert->z = (vx * matFinal.values[0][2] >> 8) + (vy * matFinal.values[1][2] >> 8) + (vz * matFinal.values[2][2] >> 8) + matFinal.values[3][2];
-    } while (++vertexID < vertexCount);
+        vertexBufferT[v].x = (vx * matFinal.values[0][0] >> 8) + (vy * matFinal.values[1][0] >> 8) + (vz * matFinal.values[2][0] >> 8) + matFinal.values[3][0];
+        vertexBufferT[v].y = (vx * matFinal.values[0][1] >> 8) + (vy * matFinal.values[1][1] >> 8) + (vz * matFinal.values[2][1] >> 8) + matFinal.values[3][1];
+        vertexBufferT[v].z = (vx * matFinal.values[0][2] >> 8) + (vy * matFinal.values[1][2] >> 8) + (vz * matFinal.values[2][2] >> 8) + matFinal.values[3][2];
+    }
 }
 void transformVertices(Matrix *matrix, int startIndex, int endIndex)
 {
-    if (startIndex > endIndex)
-        return;
-
-    do {
-        int vx       = vertexBuffer[startIndex].x;
-        int vy       = vertexBuffer[startIndex].y;
-        int vz       = vertexBuffer[startIndex].z;
-        Vertex *vert = &vertexBuffer[startIndex];
+    for (int v = startIndex; v < endIndex; ++v) {
+        int vx       = vertexBuffer[v].x;
+        int vy       = vertexBuffer[v].y;
+        int vz       = vertexBuffer[v].z;
+        Vertex *vert = &vertexBuffer[v];
         vert->x      = (vx * matrix->values[0][0] >> 8) + (vy * matrix->values[1][0] >> 8) + (vz * matrix->values[2][0] >> 8) + matrix->values[3][0];
         vert->y      = (vx * matrix->values[0][1] >> 8) + (vy * matrix->values[1][1] >> 8) + (vz * matrix->values[2][1] >> 8) + matrix->values[3][1];
         vert->z      = (vx * matrix->values[0][2] >> 8) + (vy * matrix->values[1][2] >> 8) + (vz * matrix->values[2][2] >> 8) + matrix->values[3][2];
-    } while (++startIndex < endIndex);
+    }
 }
 void sort3DDrawList()
 {
@@ -307,7 +310,7 @@ void draw3DScene(int spriteSheetID)
     for (int i = 0; i < faceCount; ++i) {
         Face *face = &faceBuffer[drawList3D[i].faceID];
         memset(quad, 0, 4 * sizeof(Vertex));
-        switch (face->flags) {
+        switch (face->flag) {
             default: break;
             case FACE_FLAG_TEXTURED_3D:
                 if (vertexBufferT[face->a].z > 0 && vertexBufferT[face->b].z > 0 && vertexBufferT[face->c].z > 0 && vertexBufferT[face->d].z > 0) {

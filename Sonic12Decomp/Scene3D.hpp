@@ -39,7 +39,7 @@ struct Face {
     int c;
     int d;
     uint colour;
-    int flags;
+    int flag;
 };
 
 struct DrawListEntry3D {
@@ -80,7 +80,7 @@ void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ);
 void matrixRotateX(Matrix *matrix, int rotationX);
 void matrixRotateY(Matrix *matrix, int rotationY);
 void matrixRotateZ(Matrix *matrix, int rotationZ);
-void matrixRotateXYZ(Matrix *matrix, int rotationX, int rotationY, int rotationZ);
+void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ);
 void matrixInverse(Matrix *matrix);
 void transformVertexBuffer();
 void transformVertices(Matrix *matrix, int startIndex, int endIndex);

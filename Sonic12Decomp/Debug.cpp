@@ -294,6 +294,41 @@ void initStartMenu(int mode) {
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     ReadSaveRAMData();
 
+    if (!saveRAM[0x100]) {
+        saveRAM[0x100] = Engine.gameType;
+        if (Engine.gameType == GAME_SONIC1) {
+            saveRAM[0x101] = GetGlobalVariableByName("options.spindash");
+            saveRAM[0x102] = GetGlobalVariableByName("options.speedCap");
+            saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
+            saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+            saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+        }
+        else {
+            saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
+            saveRAM[0x102] = GetGlobalVariableByName("options.tailsFlight");
+            saveRAM[0x103] = GetGlobalVariableByName("options.superTails");
+            saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+            saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+        }
+        WriteSaveRAMData();
+    }
+    else {
+        if (Engine.gameType == GAME_SONIC1) {
+            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+        else {
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+    }
+
     if (mode == 0) {
         setTextMenu(STARTMENU_MAIN);
     }
@@ -1170,11 +1205,22 @@ void processStartMenu() {
                     SetGlobalVariableByName("lampPostID", 0); // For S1
                     SetGlobalVariableByName("starPostID", 0); // For S2
                     SetGlobalVariableByName("timeAttack.result", 0);
-                    SetGlobalVariableByName("options.spindash",1);
-                    SetGlobalVariableByName("options.speedCap",0);
-                    SetGlobalVariableByName("options.airSpeedCap",0);
-                    SetGlobalVariableByName("options.spikeBehavior",0);
-                    SetGlobalVariableByName("options.shieldType",0);
+
+                    if (Engine.gameType == GAME_SONIC1) {
+                        SetGlobalVariableByName("options.spindash", 1);
+                        SetGlobalVariableByName("options.speedCap", 0);
+                        SetGlobalVariableByName("options.airSpeedCap", 0);
+                        SetGlobalVariableByName("options.spikeBehavior", 0);
+                        SetGlobalVariableByName("options.shieldType", 0);
+                    }
+                    else {
+                        SetGlobalVariableByName("options.airSpeedCap", 0);
+                        SetGlobalVariableByName("options.tailsFlight", 1);
+                        SetGlobalVariableByName("options.superTails", 1);
+                        SetGlobalVariableByName("options.spikeBehavior", 0);
+                        SetGlobalVariableByName("options.shieldType", 0);
+                    }
+
                     InitStartingStage(activeStageList, stageListPosition, 0);
                     Engine.finishedStartMenu = true;
                 }

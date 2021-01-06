@@ -1520,8 +1520,20 @@ void ConvertFunctionText(char *text)
                             value = 0;
                         if (StrComp(arrayStr, "ArrayPos1"))
                             value = 1;
-                        if (StrComp(arrayStr, "TempObjectPos"))
+                        if (StrComp(arrayStr, "ArrayPos2"))
                             value = 2;
+                        if (StrComp(arrayStr, "ArrayPos3"))
+                            value = 3;
+                        if (StrComp(arrayStr, "ArrayPos4"))
+                            value = 4;
+                        if (StrComp(arrayStr, "ArrayPos5"))
+                            value = 5;
+                        if (StrComp(arrayStr, "PlayerObjectPos"))
+                            value = 6;
+                        if (StrComp(arrayStr, "PlayerObjectCount"))
+                            value = 7;
+                        if (StrComp(arrayStr, "TempObjectPos"))
+                            value = 8;
                         scriptData[scriptDataPos++] = 1;
                         scriptData[scriptDataPos++] = value;
                     }
@@ -2823,10 +2835,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGENEWXBOUNDARY2: scriptEng.operands[i] = newXBoundary2; break;
                     case VAR_STAGENEWYBOUNDARY1: scriptEng.operands[i] = newYBoundary1; break;
                     case VAR_STAGENEWYBOUNDARY2: scriptEng.operands[i] = newYBoundary2; break;
-                    case VAR_STAGEXBOUNDARY1: scriptEng.operands[i] = xBoundary1; break;
-                    case VAR_STAGEXBOUNDARY2: scriptEng.operands[i] = xBoundary2; break;
-                    case VAR_STAGEYBOUNDARY1: scriptEng.operands[i] = yBoundary1; break;
-                    case VAR_STAGEYBOUNDARY2: scriptEng.operands[i] = yBoundary2; break;
+                    case VAR_STAGEXBOUNDARY1: scriptEng.operands[i] = curXBoundary1; break;
+                    case VAR_STAGEXBOUNDARY2: scriptEng.operands[i] = curXBoundary2; break;
+                    case VAR_STAGEYBOUNDARY1: scriptEng.operands[i] = curYBoundary1; break;
+                    case VAR_STAGEYBOUNDARY2: scriptEng.operands[i] = curYBoundary2; break;
                     case VAR_STAGEDEFORMATIONDATA0: scriptEng.operands[i] = bgDeformationData0[arrayVal]; break;
                     case VAR_STAGEDEFORMATIONDATA1: scriptEng.operands[i] = bgDeformationData1[arrayVal]; break;
                     case VAR_STAGEDEFORMATIONDATA2: scriptEng.operands[i] = bgDeformationData2[arrayVal]; break;
@@ -2921,7 +2933,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_FACEBUFFERB: scriptEng.operands[i] = faceBuffer[arrayVal].b; break;
                     case VAR_FACEBUFFERC: scriptEng.operands[i] = faceBuffer[arrayVal].c; break;
                     case VAR_FACEBUFFERD: scriptEng.operands[i] = faceBuffer[arrayVal].d; break;
-                    case VAR_FACEBUFFERFLAG: scriptEng.operands[i] = faceBuffer[arrayVal].flags; break;
+                    case VAR_FACEBUFFERFLAG: scriptEng.operands[i] = faceBuffer[arrayVal].flag; break;
                     case VAR_FACEBUFFERCOLOR: scriptEng.operands[i] = faceBuffer[arrayVal].colour; break;
                     case VAR_SAVERAM: scriptEng.operands[i] = saveRAM[arrayVal]; break;
                     case VAR_ENGINESTATE: scriptEng.operands[i] = Engine.gameMode; break;
@@ -4662,26 +4674,26 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGENEWYBOUNDARY1: newYBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY2: newYBoundary2 = scriptEng.operands[i]; break;
                     case VAR_STAGEXBOUNDARY1:
-                        if (xBoundary1 != scriptEng.operands[i]) {
-                            xBoundary1    = scriptEng.operands[i];
+                        if (curXBoundary1 != scriptEng.operands[i]) {
+                            curXBoundary1    = scriptEng.operands[i];
                             newXBoundary1 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEXBOUNDARY2:
-                        if (xBoundary2 != scriptEng.operands[i]) {
-                            xBoundary2    = scriptEng.operands[i];
+                        if (curXBoundary2 != scriptEng.operands[i]) {
+                            curXBoundary2    = scriptEng.operands[i];
                             newXBoundary2 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEYBOUNDARY1:
-                        if (yBoundary1 != scriptEng.operands[i]) {
-                            yBoundary1    = scriptEng.operands[i];
+                        if (curYBoundary1 != scriptEng.operands[i]) {
+                            curYBoundary1    = scriptEng.operands[i];
                             newYBoundary1 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEYBOUNDARY2:
-                        if (yBoundary2 != scriptEng.operands[i]) {
-                            yBoundary2    = scriptEng.operands[i];
+                        if (curYBoundary2 != scriptEng.operands[i]) {
+                            curYBoundary2    = scriptEng.operands[i];
                             newYBoundary2 = scriptEng.operands[i];
                         }
                         break;
@@ -4779,7 +4791,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_FACEBUFFERB: faceBuffer[arrayVal].b = scriptEng.operands[i]; break;
                     case VAR_FACEBUFFERC: faceBuffer[arrayVal].c = scriptEng.operands[i]; break;
                     case VAR_FACEBUFFERD: faceBuffer[arrayVal].d = scriptEng.operands[i]; break;
-                    case VAR_FACEBUFFERFLAG: faceBuffer[arrayVal].flags = scriptEng.operands[i]; break;
+                    case VAR_FACEBUFFERFLAG: faceBuffer[arrayVal].flag = scriptEng.operands[i]; break;
                     case VAR_FACEBUFFERCOLOR: faceBuffer[arrayVal].colour = scriptEng.operands[i]; break;
                     case VAR_SAVERAM: saveRAM[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_ENGINESTATE: Engine.gameMode = scriptEng.operands[i]; break;

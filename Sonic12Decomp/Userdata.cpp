@@ -12,6 +12,15 @@ int saveRAM[SAVEDATA_MAX];
 Achievement achievements[ACHIEVEMENT_MAX];
 LeaderboardEntry leaderboard[LEADERBOARD_MAX];
 
+MultiplayerData multiplayerDataIN = MultiplayerData();
+MultiplayerData multiplayerDataOUT = MultiplayerData();
+int matchValueData[0x100];
+int matchValueReadPos  = 0;
+int matchValueWritePos = 0;
+
+int sendDataMethod = 0;
+int sendCounter    = 0;
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -345,11 +354,20 @@ int SetLeaderboard(int leaderboardID, void *res)
     return 0;
 }
 
-int Connect2PVS(int a1, void *a2)
+int Connect2PVS(int gameLength, void *itemMode)
 {
 #if RSDK_DEBUG 
-    printLog("Attempting to connect to 2P game (%d) (%p)", a1, a2);
+    printLog("Attempting to connect to 2P game (%d) (%p)", gameLength, itemMode);
 #endif
+    multiplayerDataIN.type = 0;
+    matchValueData[0]      = 0;
+    matchValueData[1]      = 0;
+    matchValueReadPos      = 0;
+    matchValueWritePos     = 0;
+    Engine.gameMode        = ENGINE_WAIT;
+    PauseSound();
+
+    //actual connection code
     if (Engine.onlineActive) {
         // Do online code
         return 1;
@@ -367,56 +385,88 @@ int Disconnect2PVS(int a1, void *a2)
     }
     return 0;
 }
-int SendEntity(int a1, void *a2)
+int SendEntity(int dataSlot, void *entityID)
 {
 #if RSDK_DEBUG
-    printLog("Attempting to send entity (%d) (%p)", a1, a2);
+    printLog("Attempting to send entity (%d) (%p)", dataSlot, entityID);
 #endif
-    if (Engine.onlineActive) {
+    if (!sendCounter) {
+        multiplayerDataOUT.type = 1;
+        memcpy(multiplayerDataOUT.data, &objectEntityList[static_cast<int>(reinterpret_cast<intptr_t>(entityID))], sizeof(Entity));
+        if (Engine.onlineActive) {
+            // Do online code
+            return 1;
+        }
+    }
+    sendCounter += 1;
+    sendCounter %= 2;
+    return 0;
+}
+int SendValue(int a1, void *value)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to send value (%d) (%p)", a1, value);
+#endif
+    multiplayerDataOUT.type = 0;
+    multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
+    if (Engine.onlineActive && sendDataMethod) {
         // Do online code
         return 1;
     }
     return 0;
 }
-int SendValue(int a1, void *a2)
+int ReceiveEntity(int dataSlotID, void *entityID)
 {
 #if RSDK_DEBUG
-    printLog("Attempting to send value (%d) (%p)", a1, a2);
+    printLog("Attempting to receive entity (%d) (%p)", dataSlotID, entityID);
 #endif
     if (Engine.onlineActive) {
         // Do online code
+        int entitySlot = static_cast<int>(reinterpret_cast<intptr_t>(entityID));
+
+        if (dataSlotID == 1) {
+            if (multiplayerDataIN.type == 1) {
+                memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
+            }
+            multiplayerDataIN.type = 0;
+        }
+        else {
+            memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
+        }
+    }
+    return 0;
+}
+int ReceiveValue(int dataSlot, void *value)
+{
+#if RSDK_DEBUG
+    printLog("Attempting to receive value (%d) (%p)", dataSlot, value);
+#endif
+    if (Engine.onlineActive) {
+        // Do online code
+        int *val = (int *)value;
+
+        if (dataSlot == 1) {
+            if (matchValueReadPos != matchValueWritePos) {
+                *val = matchValueData[matchValueReadPos];
+                matchValueReadPos++;
+            }
+        }
+        else {
+            *val = matchValueData[matchValueReadPos];
+        }
         return 1;
     }
     return 0;
 }
-int ReceiveEntity(int a1, void *a2)
+int TransmitGlobal(int globalValue, void *globalName)
 {
 #if RSDK_DEBUG
-    printLog("Attempting to receive entity (%d) (%p)", a1, a2);
+    printLog("Attempting to transmit global (%s) (%d)", (char*)globalName, globalValue);
 #endif
-    if (Engine.onlineActive) {
-        // Do online code
-        return 1;
-    }
-    return 0;
-}
-int ReceiveValue(int a1, void *a2)
-{
-#if RSDK_DEBUG
-    printLog("Attempting to receive value (%d) (%p)", a1, a2);
-#endif
-    if (Engine.onlineActive) {
-        // Do online code
-        return 1;
-    }
-    return 0;
-}
-int TransmitGlobal(int a1, void *a2)
-{
-#if RSDK_DEBUG
-    printLog("Attempting to transmit global (%d) (%p)", a1, a2);
-#endif
-    if (Engine.onlineActive) {
+    multiplayerDataOUT.type    = 2;
+    multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
+    multiplayerDataOUT.data[1] = globalValue;
+    if (Engine.onlineActive && sendDataMethod) {
         // Do online code
         return 1;
     }

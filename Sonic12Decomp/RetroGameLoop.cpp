@@ -28,7 +28,7 @@ void RetroGameLoop_Main(void *objPtr)
             break;
         case ENGINE_INITPAUSE:
             //Engine.gameMode = ENGINE_MAINGAME;
-            //stageMode    = STAGEMODE_UNKNOWN; // temp until/if nativeObjs are fully complete
+            //stageMode    = STAGEMODE_PAUSED; // temp until/if nativeObjs are fully complete
             PauseSound();
             ClearNativeObjects();
             // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete

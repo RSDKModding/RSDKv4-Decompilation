@@ -329,22 +329,20 @@ void SetObjectTypeName(const char *objectName, int objectID)
 
 void ProcessPlayerControl(Entity *player)
 {
-    if (player->controlMode) {
-        return;
+    if (!player->controlMode) {
+        player->up   = keyDown.up;
+        player->down = keyDown.down;
+        if (!keyDown.left || !keyDown.right) {
+            player->left  = keyDown.left;
+            player->right = keyDown.right;
+        }
+        else {
+            player->left  = false;
+            player->right = false;
+        }
+        player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
+        player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
     }
-
-    player->up   = keyDown.up;
-    player->down = keyDown.down;
-    if (!keyDown.left || !keyDown.right) {
-        player->left  = keyDown.left;
-        player->right = keyDown.right;
-    }
-    else {
-        player->left  = false;
-        player->right = false;
-    }
-    player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
-    player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
 }
 
 void InitNativeObjectSystem() {
