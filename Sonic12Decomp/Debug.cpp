@@ -564,8 +564,8 @@ void setTextMenu(int sm) {
             gameMenu[1].selectionCount = 1;
             gameMenu[1].selection1     = 1;
             gameMenu[1].selection2     = 0;
-            if (gameMenu[1].rowCount > 18)
-                gameMenu[1].visibleRowCount = 18;
+            if (gameMenu[1].rowCount > 15)
+                gameMenu[1].visibleRowCount = 15;
             else
                 gameMenu[1].visibleRowCount = 0;
 
@@ -1170,6 +1170,11 @@ void processStartMenu() {
                     SetGlobalVariableByName("lampPostID", 0); // For S1
                     SetGlobalVariableByName("starPostID", 0); // For S2
                     SetGlobalVariableByName("timeAttack.result", 0);
+                    SetGlobalVariableByName("options.spindash",1);
+                    SetGlobalVariableByName("options.speedCap",0);
+                    SetGlobalVariableByName("options.airSpeedCap",0);
+                    SetGlobalVariableByName("options.spikeBehavior",0);
+                    SetGlobalVariableByName("options.shieldType",0);
                     InitStartingStage(activeStageList, stageListPosition, 0);
                     Engine.finishedStartMenu = true;
                 }
@@ -1222,7 +1227,7 @@ void processStartMenu() {
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
-            DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
+            DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.B) {
                 initStartMenu(0);
             }
