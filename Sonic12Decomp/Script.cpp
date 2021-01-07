@@ -2568,8 +2568,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_OBJECTCOLLISIONLEFT: {
                         AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        Entity *ent             = &objectEntityList[arrayVal];
                         if (animFile) {
-                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+                            int h = animFrames[animationList[animFile->aniListOffset + ent->animation].frameListOffset + ent->frame].hitboxID;
 
                             scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].left[0];
                         }
@@ -2580,8 +2581,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_OBJECTCOLLISIONTOP: {
                         AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        Entity *ent             = &objectEntityList[arrayVal];
                         if (animFile) {
-                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+                            int h = animFrames[animationList[animFile->aniListOffset + ent->animation].frameListOffset + ent->frame].hitboxID;
 
                             scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].top[0];
                         }
@@ -2592,8 +2594,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_OBJECTCOLLISIONRIGHT: {
                         AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        Entity *ent             = &objectEntityList[arrayVal];
                         if (animFile) {
-                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+                            int h = animFrames[animationList[animFile->aniListOffset + ent->animation].frameListOffset + ent->frame].hitboxID;
 
                             scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].right[0];
                         }
@@ -2604,8 +2607,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_OBJECTCOLLISIONBOTTOM: {
                         AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
+                        Entity *ent             = &objectEntityList[arrayVal];
                         if (animFile) {
-                            int h = animFrames[animationList[animFile->aniListOffset].frameListOffset].hitboxID;
+                            int h = animFrames[animationList[animFile->aniListOffset + ent->animation].frameListOffset + ent->frame].hitboxID;
 
                             scriptEng.operands[i] = hitboxList[animFile->hitboxListOffset + h].bottom[0];
                         }

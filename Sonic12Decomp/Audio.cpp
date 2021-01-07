@@ -277,18 +277,15 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
     float panL = 0.0;
     float panR = 0.0;
     int i      = 0;
-    if (!music)
-        panL = snd->pan;
-    else
-        panL = 0.0;
-
-    if (panL < 0) {
-        panL = abs(panL / 100.0f);
-        panR = 0.0;
-    }
-    else {
-        panR = abs(panL / 100.0f);
-        panL = 0.0;
+    if (!music) {
+        if (snd->pan < 0) {
+            panL = abs(snd->pan / 100.0f);
+            panR = 1.0f - panL;
+        }
+        else if (snd->pan > 0) {
+            panR = abs(snd->pan / 100.0f);
+            panL = 1.0f - panR;
+        }
     }
 
     switch (format) {
