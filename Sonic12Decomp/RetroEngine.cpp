@@ -76,6 +76,7 @@ bool processEvents()
                     touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
                 }
                 break;
+            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)); break;
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
@@ -182,7 +183,7 @@ void RetroEngine::Init()
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
-    CheckRSDKFile("data.rsdk");
+    CheckRSDKFile(BASE_PATH "Data.rsdk");
     InitUserdata();
     InitNativeObjectSystem();
 
@@ -269,21 +270,19 @@ void RetroEngine::Run()
         frameStart = SDL_GetTicks();
         frameDelta = frameStart - frameEnd;
 
-        if (frameDelta > 1000.0f / (float)refreshRate) {
-            frameEnd = frameStart;
+        if (frameDelta < 1000.0f / (float)refreshRate)
+            SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
 
-            running = processEvents();
+        frameEnd = SDL_GetTicks();
 
-            for (int s = 0; s < gameSpeed; ++s) {
-                ProcessInput();
+        running = processEvents();
+        for (int s = 0; s < gameSpeed; ++s) {
+            ProcessInput();
 
-                if (!masterPaused || frameStep) {
-                    ProcessNativeObjects();
-
-                    RenderRenderDevice();
-
-                    frameStep = false;
-                }
+            if (!masterPaused || frameStep) {
+                ProcessNativeObjects();
+                RenderRenderDevice();
+                frameStep = false;
             }
         }
     }

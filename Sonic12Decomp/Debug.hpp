@@ -25,9 +25,9 @@ inline void printLog(const char *msg, ...)
     if (!usingCWD)
         sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
     else
-        sprintf(pathBuffer, "%slog.txt", gamePath);
+        sprintf(pathBuffer, "log.txt");
 #else
-    sprintf(pathBuffer, "%slog.txt", gamePath);
+    sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif
     FileIO *file = fOpen(pathBuffer, "a");
     if (file) {
@@ -51,9 +51,9 @@ inline void printLog(const ushort *msg)
     if (!usingCWD)
         sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
     else
-        sprintf(pathBuffer, "%slog.txt", gamePath);
+        sprintf(pathBuffer, "%slog.txt");
 #else
-    sprintf(pathBuffer, "%slog.txt", gamePath);
+     sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif
     mPos         = 0;
     FileIO *file = fOpen(pathBuffer, "a");

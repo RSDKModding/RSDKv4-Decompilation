@@ -24,7 +24,7 @@ int sendCounter    = 0;
 void InitUserdata()
 {
     // userdata files are loaded from this directory
-    sprintf(gamePath, "%s", "");
+    sprintf(gamePath, "%s", BASE_PATH);
 
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
@@ -33,7 +33,7 @@ void InitUserdata()
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
 #else
-    sprintf(buffer, "%ssettings.ini", gamePath);
+    sprintf(buffer, BASE_PATH "settings.ini");
 #endif
     FileIO *file = fOpen(buffer, "rb");
     if (!file) {
@@ -46,11 +46,11 @@ void InitUserdata()
 
         ini.SetBool("Game", "Language", Engine.language = RETRO_EN);
 
-        ini.SetBool("Window", "Fullscreen", Engine.startFullScreen = false);
+        ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
-        ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = 424);
+        ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 
         ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
@@ -74,11 +74,11 @@ void InitUserdata()
         ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings = SDL_CONTROLLER_BUTTON_X);
         ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings = SDL_CONTROLLER_BUTTON_START);
 
-        ini.Write("settings.ini");
+        ini.Write(BASE_PATH "settings.ini");
     }
     else {
         fClose(file);
-        IniParser ini("settings.ini");
+        IniParser ini(BASE_PATH "settings.ini");
 
         if (!ini.GetBool("Dev", "DevMenu", &Engine.devMenu))
             Engine.devMenu = false;
@@ -93,7 +93,7 @@ void InitUserdata()
             Engine.language = RETRO_EN;
 
         if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
-            Engine.startFullScreen = false;
+            Engine.startFullScreen = DEFAULT_FULLSCREEN;
         if (!ini.GetBool("Window", "Borderless", &Engine.borderless))
             Engine.borderless = false;
         if (!ini.GetBool("Window", "VSync", &Engine.vsync))
@@ -101,7 +101,7 @@ void InitUserdata()
         if (!ini.GetInteger("Window", "WindowScale", &Engine.windowScale))
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE))
-            SCREEN_XSIZE = 424;
+            SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE;
         if (!ini.GetInteger("Window", "Refresh Rate", &Engine.refreshRate))
             Engine.refreshRate = 60;
 
@@ -194,7 +194,7 @@ void writeSettings() {
     ini.SetInteger("Game", "Language", Engine.language);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
-    ini.SetBool("Window", "Fullscreen", Engine.startFullScreen);
+    ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
     ini.SetComment("Window", "BLComment", "Determines if the window will be borderless or not");
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");

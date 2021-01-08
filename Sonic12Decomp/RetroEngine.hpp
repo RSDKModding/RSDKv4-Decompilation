@@ -29,6 +29,7 @@ typedef unsigned int uint;
 #define RETRO_iOS      (4)
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
+// Custom Platforms start here
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD      (0)
@@ -49,6 +50,10 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
+
+#define BASE_PATH            ""
+#define DEFAULT_SCREEN_XSIZE 424
+#define DEFAULT_FULLSCREEN   false
 
 #if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
 #define RETRO_USING_SDL (1)
@@ -156,7 +161,6 @@ public:
     int gameMode     = 1;
     int language     = RETRO_EN;
     int message      = 0;
-    bool highResMode = false;
 
     bool trialMode      = false;
     bool onlineActive   = true;
@@ -213,6 +217,7 @@ public:
     byte gameType = GAME_UNKNOWN;
 
     ushort *frameBuffer = nullptr;
+    ushort *frameBuffer2x = nullptr;
 
     bool isFullScreen = false;
 
@@ -225,7 +230,8 @@ public:
 #if RETRO_USING_SDL
     SDL_Window *window        = nullptr;
     SDL_Renderer *renderer    = nullptr;
-    SDL_Texture *screenBuffer = nullptr;
+    SDL_Texture *screenBuffer   = nullptr;
+    SDL_Texture *screenBuffer2x = nullptr;
 
     SDL_Event sdlEvents;
 #endif

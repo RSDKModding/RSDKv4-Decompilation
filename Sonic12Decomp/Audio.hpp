@@ -90,6 +90,8 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
+        SDL_LockAudio();
+
         if (musInfo.buffer)
             delete[] musInfo.buffer;
         if (musInfo.extraBuffer)
@@ -102,6 +104,8 @@ inline void freeMusInfo()
         musInfo.audioLen     = 0;
         musInfo.currentTrack = nullptr;
         musInfo.loaded       = false;
+
+        SDL_UnlockAudio();
     }
 }
 #else

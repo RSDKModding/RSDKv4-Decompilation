@@ -19,8 +19,10 @@ int InitRenderDevice()
 
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
 
-    Engine.frameBuffer = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
     memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+    memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
 
 #if RETRO_USING_SDL
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -52,12 +54,18 @@ int InitRenderDevice()
 
     Engine.screenBuffer = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, SCREEN_XSIZE, SCREEN_YSIZE);
 
-#if RSDK_DEBUG
     if (!Engine.screenBuffer) {
         printLog("ERROR: failed to create screen buffer!\nerror msg: %s", SDL_GetError());
         return 0;
     }
-#endif
+
+    Engine.screenBuffer2x =
+        SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, SCREEN_XSIZE * 2, SCREEN_YSIZE * 2);
+
+    if (!Engine.screenBuffer2x) {
+        printLog("ERROR: failed to create screen buffer HQ!\nerror msg: %s", SDL_GetError());
+        return 0;
+    }
 
     if (Engine.startFullScreen) {
         SDL_RestoreWindow(Engine.window);
@@ -95,11 +103,54 @@ void RenderRenderDevice()
     SDL_SetRenderTarget(Engine.renderer, NULL);
     ushort *pixels = NULL;
     
-    SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-    memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
-    SDL_UnlockTexture(Engine.screenBuffer);
+    if (!drawStageGFXHQ) {
+        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
+        memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
+        SDL_UnlockTexture(Engine.screenBuffer);
 
-    SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, &destScreenPos);
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, &destScreenPos);
+    }
+    else {
+        int w = 0, h = 0;
+        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
+        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
+
+        ushort *framebufferPtr = Engine.frameBuffer;
+        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *pixels = *framebufferPtr;
+                pixels++;
+                *pixels = *framebufferPtr;
+                pixels++;
+                framebufferPtr++;
+            }
+
+            framebufferPtr -= SCREEN_XSIZE;
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *pixels = *framebufferPtr;
+                pixels++;
+                *pixels = *framebufferPtr;
+                pixels++;
+                framebufferPtr++;
+            }
+        }
+
+        framebufferPtr = Engine.frameBuffer2x;
+        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *pixels = *framebufferPtr;
+                framebufferPtr++;
+                pixels++;
+
+                *pixels = *framebufferPtr;
+                framebufferPtr++;
+                pixels++;
+            }
+        }
+
+        SDL_UnlockTexture(Engine.screenBuffer2x);
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, &destScreenPos);
+    }
 
     SDL_RenderPresent(Engine.renderer);
 #endif
@@ -164,6 +215,41 @@ void SetScreenSize(int width, int height)
     // OBJECT_BORDER_Y2   = height + 0x100;
 }
 
+void CopyFrameOverlay2x()
+{
+    ushort *frameBuffer   = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * SCREEN_XSIZE];
+    ushort *frameBuffer2x = Engine.frameBuffer2x;
+
+    for (int y = 0; y < (SCREEN_YSIZE / 2) - 12; ++y) {
+        for (int x = 0; x < SCREEN_XSIZE; ++x) {
+            if (*frameBuffer == 0xF81F) { // magenta
+                frameBuffer2x += 2;
+            }
+            else {
+                *frameBuffer2x = *frameBuffer;
+                frameBuffer2x++;
+                *frameBuffer2x = *frameBuffer;
+                frameBuffer2x++;
+            }
+            ++frameBuffer;
+        }
+
+        frameBuffer -= SCREEN_XSIZE;
+        for (int x = 0; x < SCREEN_XSIZE; ++x) {
+            if (*frameBuffer == 0xF81F) { // magenta
+                frameBuffer2x += 2;
+            }
+            else {
+                *frameBuffer2x = *frameBuffer;
+                frameBuffer2x++;
+                *frameBuffer2x = *frameBuffer;
+                frameBuffer2x++;
+            }
+            ++frameBuffer;
+        }
+    }
+}
+
 void DrawObjectList(int Layer)
 {
     int size = drawListEntries[Layer].listSize;
@@ -191,8 +277,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[0]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(0); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(0); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(0);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(0);
+                    break;
                 default: break;
             }
         }
@@ -202,8 +294,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[1]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(1); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(1); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(1);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(1);
+                    break;
                 default: break;
             }
         }
@@ -215,8 +313,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[2]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(2); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(2); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(2);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(2);
+                    break;
                 default: break;
             }
         }
@@ -227,8 +331,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[0]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(0); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(0); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(0); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(0); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(0);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(0);
+                    break;
                 default: break;
             }
         }
@@ -238,8 +348,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[1]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(1); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(1); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(1); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(1); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(1);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(1);
+                    break;
                 default: break;
             }
         }
@@ -249,8 +365,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[2]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(2); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(2); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(2); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(2); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(2);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(2);
+                    break;
                 default: break;
             }
         }
@@ -263,8 +385,14 @@ void DrawStageGFX()
             switch (stageLayouts[activeTileLayers[3]].type) {
                 case LAYER_HSCROLL: DrawHLineScrollLayer(3); break;
                 case LAYER_VSCROLL: DrawVLineScrollLayer(3); break;
-                case LAYER_3DFLOOR: Draw3DFloorLayer(3); break;
-                case LAYER_3DSKY: Draw3DSkyLayer(3); break;
+                case LAYER_3DFLOOR:
+                    drawStageGFXHQ = false;
+                    Draw3DFloorLayer(3);
+                    break;
+                case LAYER_3DSKY:
+                    drawStageGFXHQ = true;
+                    Draw3DSkyLayer(3);
+                    break;
                 default: break;
             }
         }
@@ -273,9 +401,22 @@ void DrawStageGFX()
         DrawObjectList(6);
     }
 
+    if (drawStageGFXHQ) {
+        CopyFrameOverlay2x();
+        if (fadeMode > 0) {
+            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, fadeR, fadeG, fadeB, fadeA);
+            SetFadeHQ(fadeR, fadeG, fadeB, fadeA);
+        }
+    }
+    else {
+        if (fadeMode > 0) {
+            DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, fadeR, fadeG, fadeB, fadeA);
+        }
+    }
+
     if (Engine.showPaletteOverlay) {
         for (int p = 0; p < PALETTE_COUNT; ++p) {
-            int x = (SCREEN_XSIZE - (0xF << 3));
+            int x = (SCREEN_XSIZE - (0xF << 4));
             int y = (SCREEN_YSIZE - (0xF << 2));
             for (int c = 0; c < PALETTE_SIZE; ++c) {
                 DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
@@ -284,9 +425,6 @@ void DrawStageGFX()
             }
         }
     }
-
-    if (fadeMode > 0)
-        DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, fadeR, fadeG, fadeB, fadeA);
 }
 
 int tileXPos[PARALLAX_COUNT];
@@ -294,6 +432,7 @@ int tileYPos[PARALLAX_COUNT];
 
 void DrawHLineScrollLayer(int layerID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
     int screenwidth16       = (SCREEN_XSIZE >> 4) - 1;
     int layerwidth          = layer->width;
@@ -804,9 +943,15 @@ void DrawHLineScrollLayer(int layerID)
             }
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawVLineScrollLayer(int layerID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
     int layerwidth          = layer->width;
     int layerheight         = layer->height;
@@ -1303,9 +1448,15 @@ void DrawVLineScrollLayer(int layerID)
             tileX = 0;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void Draw3DFloorLayer(int layerID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
     int layerWidth          = layer->width << 7;
     int layerHeight         = layer->height << 7;
@@ -1350,19 +1501,28 @@ void Draw3DFloorLayer(int layerID)
             YPos += YBuffer;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void Draw3DSkyLayer(int layerID)
 {
-    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
-    int layerWidth          = layer->width << 7;
-    int layerHeight         = layer->height << 7;
-    int layerYPos           = layer->YPos;
-    int sinValue            = sinM[layer->angle & 0x1FF];
-    int cosValue            = cosM[layer->angle & 0x1FF];
-    ushort *frameBufferPtr  = &Engine.frameBuffer[132 * SCREEN_XSIZE];
-    byte *linePtr           = &gfxLineBuffer[132];
-    int layerXPos           = layer->XPos >> 4;
-    int layerZPos           = layer->ZPos >> 4;
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
+    TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
+    int layerWidth         = layer->width << 7;
+    int layerHeight        = layer->height << 7;
+    int layerYPos          = layer->YPos;
+    int sinValue           = sinM[layer->angle & 0x1FF];
+    int cosValue           = cosM[layer->angle & 0x1FF];
+    ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * SCREEN_XSIZE];
+    ushort *bufferPtr      = Engine.frameBuffer2x;
+    if (!drawStageGFXHQ)
+        bufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * SCREEN_XSIZE];
+    byte *linePtr = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12)];
+    int layerXPos = layer->XPos >> 4;
+    int layerZPos = layer->ZPos >> 4;
     for (int i = TILE_SIZE / 2; i < SCREEN_YSIZE - TILE_SIZE; ++i) {
         if (!(i & 1)) {
             activePalette   = fullPalette[*linePtr];
@@ -1387,29 +1547,49 @@ void Draw3DSkyLayer(int layerID)
                     case FLIP_XY: tilePixel += 0xF - (tileX & 0xF) + SCREEN_YSIZE - TILE_SIZE * (tileY & 0xF); break;
                     default: break;
                 }
+
                 if (*tilePixel > 0)
-                    *frameBufferPtr = activePalette[*tilePixel];
+                    *bufferPtr = activePalette[*tilePixel];
+                else if (drawStageGFXHQ)
+                    *bufferPtr = *frameBufferPtr;
+            }
+            else if (drawStageGFXHQ) {
+                *bufferPtr = *frameBufferPtr;
             }
             if (lineBuffer & 1)
                 ++frameBufferPtr;
+            if (drawStageGFXHQ) {
+                bufferPtr++;
+            }
+            else if (lineBuffer & 1) {
+                ++bufferPtr;
+            }
             lineBuffer++;
             XPos += xBuffer;
             YPos += yBuffer;
         }
         if (!(i & 1))
             frameBufferPtr -= SCREEN_XSIZE;
+        if (!(i & 1) && !drawStageGFXHQ) {
+            bufferPtr -= SCREEN_XSIZE;
+        }
     }
 
-    //TODO(?): this is run only when the code above is drawn to a "HQ" framebuffer
-    //if (false) {
-    //    frameBufferPtr = &Engine.frameBuffer[132 * SCREEN_XSIZE];
-    //    int cnt    = 108 * SCREEN_XSIZE;
-    //    while (cnt--) *frameBufferPtr++ = 0xF81Fu; //Magenta
-    //}
+    if (drawStageGFXHQ) {
+        frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * SCREEN_XSIZE];
+        int cnt        = ((SCREEN_YSIZE / 2) - 12) * SCREEN_XSIZE;
+        while (cnt--) *frameBufferPtr++ = 0xF81F; // Magenta
+    }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -1429,7 +1609,7 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
         A = 0xFF;
     int pitch              = SCREEN_XSIZE - width;
     ushort *frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
-    ushort clr             = (B >> 3) | 32 * (G >> 2) | ((ushort)(R >> 3) << 11);
+    ushort clr             = RGB888_TO_RGB565(R, G, B);
     if (A == 0xFF) {
         int h = height;
         while (h--) {
@@ -1456,10 +1636,57 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
             frameBufferPtr += pitch;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
+}
+
+void SetFadeHQ(int R, int G, int B, int A)
+{
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
+    if (A <= 0)
+        return;
+    if (A > 0xFF)
+        A = 0xFF;
+    int pitch              = SCREEN_XSIZE * 2;
+    ushort *frameBufferPtr = Engine.frameBuffer2x;
+    ushort clr             = RGB888_TO_RGB565(R, G, B);
+    if (A == 0xFF) {
+        int h = SCREEN_YSIZE;
+        while (h--) {
+            int w = pitch;
+            while (w--) {
+                *frameBufferPtr = clr;
+                ++frameBufferPtr;
+            }
+        }
+    }
+    else {
+        int h = SCREEN_YSIZE;
+        while (h--) {
+            int w = pitch;
+            while (w--) {
+                short *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
+                short *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
+                *frameBufferPtr  = (blendPtrB[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
+                                  | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
+                                  | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
+                ++frameBufferPtr;
+            }
+        }
+    }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawTintRectangle(int XPos, int YPos, int width, int height)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -1486,10 +1713,16 @@ void DrawTintRectangle(int XPos, int YPos, int width, int height)
             ++frameBufferPtr;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX,
                                  int sprY, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int roundedYPos = 0;
     int roundedXPos = 0;
     int truescaleX  = 4 * scaleX;
@@ -1583,10 +1816,16 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
             gfxPitch    = 0;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -1624,10 +1863,16 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
         frameBufferPtr += pitch;
         gfxDataPtr += gfxPitch;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int widthFlip = width;
     int heightFlip = height;
 
@@ -1747,10 +1992,16 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             break;
         default: break;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+        // TODO: this
+#endif
 }
 void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX,
                                int sprY, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int roundedYPos = 0;
     int roundedXPos = 0;
     int truescaleX  = 4 * scaleX;
@@ -1850,10 +2101,16 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
             gfxPitch    = 0;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
                                 int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int sprXPos    = (pivotX + sprX) << 9;
     int sprYPos    = (pivotY + sprY) << 9;
     int fullwidth  = width + sprX;
@@ -1995,11 +2252,17 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
             frameBufferPtr += pitch;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
                                  int scale, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (scale == 0)
         return;
 
@@ -2147,10 +2410,16 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
             frameBufferPtr += pitch;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -2188,9 +2457,15 @@ void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int 
         frameBufferPtr += pitch;
         gfxData += gfxPitch;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -2254,9 +2529,15 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
             gfxData += gfxPitch;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -2319,9 +2600,15 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
         frameBufferPtr += pitch;
         gfxData += gfxPitch;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID)
 {
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (width + XPos > SCREEN_XSIZE)
         width = SCREEN_XSIZE - XPos;
     if (XPos < 0) {
@@ -2377,6 +2664,11 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
         frameBufferPtr += pitch;
         gfxData += gfxPitch;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
@@ -2536,6 +2828,7 @@ void DrawFace(void *v, uint colour)
         vertexD  = temp;
     }
 
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int faceTop    = verts[vertexA].y;
     int faceBottom = verts[vertexD].y;
     if (faceTop < 0)
@@ -2554,7 +2847,7 @@ void DrawFace(void *v, uint colour)
     processScanEdge(&verts[vertexC], &verts[vertexD]);
     processScanEdge(&verts[vertexB], &verts[vertexD]);
 
-    ushort colour16 = ((signed int)(byte)colour >> 3) | 32 * (((colour >> 8) & 0xFF) >> 2) | ((ushort)(((colour >> 16) & 0xFF) >> 3) << 11);
+    ushort colour16 = RGB888_TO_RGB565(((colour >> 16) & 0xFF), ((colour >> 8) & 0xFF), ((colour >> 0) & 0xFF));
 
     ushort *frameBufferPtr = &Engine.frameBuffer[SCREEN_XSIZE * faceTop];
     if (alpha == 255) {
@@ -2607,6 +2900,11 @@ void DrawFace(void *v, uint colour)
             ++faceTop;
         }
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
 {
@@ -2663,6 +2961,7 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
         vertexD  = temp;
     }
 
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int faceTop    = verts[vertexA].y;
     int faceBottom = verts[vertexD].y;
     if (faceTop < 0)
@@ -2681,8 +2980,8 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
     processScanEdge(&verts[vertexC], &verts[vertexD]);
     processScanEdge(&verts[vertexB], &verts[vertexD]);
 
-    ushort colour16 = ((int)(byte)colour >> 3) | 32 * (((colour >> 8) & 0xFF) >> 2) | ((ushort)(((colour >> 16) & 0xFF) >> 3) << 11);
-    ushort fogColour16 = ((int)(byte)fogColour >> 3) | 32 * (((fogColour >> 8) & 0xFF) >> 2) | ((ushort)(((fogColour >> 16) & 0xFF) >> 3) << 11);
+    ushort colour16    = RGB888_TO_RGB565(((colour >> 16) & 0xFF), ((colour >> 8) & 0xFF), ((colour >> 0) & 0xFF));
+    ushort fogColour16 = RGB888_TO_RGB565(((fogColour >> 16) & 0xFF), ((fogColour >> 8) & 0xFF), ((fogColour >> 0) & 0xFF));
 
     ushort *frameBufferPtr = &Engine.frameBuffer[SCREEN_XSIZE * faceTop];
     while (faceTop < faceBottom) {
@@ -2710,6 +3009,11 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
         }
         ++faceTop;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawTexturedFace(void *v, byte sheetID)
 {
@@ -2762,6 +3066,7 @@ void DrawTexturedFace(void *v, byte sheetID)
         vertexD  = temp;
     }
 
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int faceTop    = verts[vertexA].y;
     int faceBottom = verts[vertexD].y;
     if (faceTop < 0)
@@ -2833,6 +3138,11 @@ void DrawTexturedFace(void *v, byte sheetID)
         }
         ++faceTop;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 void DrawTexturedFace2(void *v, byte sheetID)
 {
@@ -2885,6 +3195,7 @@ void DrawTexturedFace2(void *v, byte sheetID)
         vertexD  = temp;
     }
 
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int faceTop    = verts[vertexA].y;
     int faceBottom = verts[vertexD].y;
     if (faceTop < 0)
@@ -2956,6 +3267,11 @@ void DrawTexturedFace2(void *v, byte sheetID)
         }
         ++faceTop;
     }
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_HW_RENDER
+    // TODO: this
+#endif
 }
 
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight)
