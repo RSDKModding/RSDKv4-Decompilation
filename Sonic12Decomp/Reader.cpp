@@ -123,12 +123,16 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fSeek(cFileHandle, virtualFileOffset, SEEK_SET);
 
             useEncryption = file->encrypted;
+            memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
+            memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
             if (useEncryption) {
                 GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
                 eStringNo   = (vFileSize & 0x1FC) >> 2;
                 eStringPosA = 0;
                 eStringPosB = 8;
                 eNybbleSwap = 0;
+                memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
+                memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
             }
             
             fileInfo->readPos           = readPos;
@@ -290,13 +294,15 @@ void GetFileInfo(FileInfo *fileInfo)
     fileInfo->bufferPosition    = bufferPosition;
     fileInfo->readPos           = readPos - readSize;
     fileInfo->fileSize          = fileSize;
-    fileInfo->vfileSize          = vFileSize;
+    fileInfo->vfileSize         = vFileSize;
     fileInfo->virtualFileOffset = virtualFileOffset;
     fileInfo->eStringPosA       = eStringPosA;
     fileInfo->eStringPosB       = eStringPosB;
     fileInfo->eStringNo         = eStringNo;
     fileInfo->eNybbleSwap       = eNybbleSwap;
     fileInfo->useEncryption     = useEncryption;
+    memcpy(encryptionStringA, fileInfo->encryptionStringA, 0x10 * sizeof(byte));
+    memcpy(encryptionStringB, fileInfo->encryptionStringB, 0x10 * sizeof(byte));
 }
 
 void SetFileInfo(FileInfo *fileInfo)
@@ -421,7 +427,7 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
     memset(data, 0, size);
 
     if (rPos <= info->vfileSize) {
-        if (useEncryption) {
+        if (info->useEncryption) {
             int rSize = 0;
             if (rPos + size <= info->vfileSize)
                 rSize = size;
@@ -433,10 +439,10 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
             info->bufferPosition = 0;
 
             while (size > 0) {
-                *data = encryptionStringB[info->eStringPosB] ^ info->eStringNo ^ *data;
+                *data = info->encryptionStringB[info->eStringPosB] ^ info->eStringNo ^ *data;
                 if (info->eNybbleSwap)
                     *data = 16 * (*data & 0xF) + (*data >> 4);
-                *data ^= encryptionStringA[info->eStringPosA];
+                *data ^= info->encryptionStringA[info->eStringPosA];
 
                 ++info->eStringPosA;
                 ++info->eStringPosB;
@@ -455,8 +461,8 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
                     info->eStringNo &= 0x7F;
 
                     if (info->eNybbleSwap != 0) {
-                        int key1    = mulUnsignedHigh(ENC_KEY_1, eStringNo);
-                        int key2    = mulUnsignedHigh(ENC_KEY_2, eStringNo);
+                        int key1    = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                        int key2    = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
                         info->eNybbleSwap = 0;
 
                         int temp1 = key2 + (info->eStringNo - key2) / 2;
@@ -466,8 +472,8 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
                         info->eStringPosB = info->eStringNo - temp2 * 4 + 2;
                     }
                     else {
-                        int key1    = mulUnsignedHigh(ENC_KEY_1, eStringNo);
-                        int key2    = mulUnsignedHigh(ENC_KEY_2, eStringNo);
+                        int key1    = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                        int key2    = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
                         info->eNybbleSwap = 1;
 
                         int temp1 = key2 + (info->eStringNo - key2) / 2;
@@ -532,9 +538,9 @@ void SetFilePosition2(FileInfo *info, int newPos)
                 info->eStringNo &= 0x7F;
 
                 if (info->eNybbleSwap != 0) {
-                    int key1          = mulUnsignedHigh(ENC_KEY_1, eStringNo);
-                    int key2          = mulUnsignedHigh(ENC_KEY_2, eStringNo);
-                    info->eNybbleSwap = 0;
+                    int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                    int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
+                    info->eNybbleSwap = false;
 
                     int temp1 = key2 + (info->eStringNo - key2) / 2;
                     int temp2 = key1 / 8 * 3;
@@ -543,9 +549,9 @@ void SetFilePosition2(FileInfo *info, int newPos)
                     info->eStringPosB = info->eStringNo - temp2 * 4 + 2;
                 }
                 else {
-                    int key1          = mulUnsignedHigh(ENC_KEY_1, eStringNo);
-                    int key2          = mulUnsignedHigh(ENC_KEY_2, eStringNo);
-                    info->eNybbleSwap = 1;
+                    int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                    int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
+                    info->eNybbleSwap = true;
 
                     int temp1 = key2 + (info->eStringNo - key2) / 2;
                     int temp2 = key1 / 8 * 3;
@@ -559,7 +565,7 @@ void SetFilePosition2(FileInfo *info, int newPos)
     }
     else {
         if (Engine.usingDataFile)
-            info->readPos = virtualFileOffset + newPos;
+            info->readPos = info->virtualFileOffset + newPos;
         else
             info->readPos = newPos;
     }

@@ -119,6 +119,7 @@ void InitStartingStage(int list, int stage, int player) {
 
 void ProcessStage(void)
 {
+    int updateMax = 0;
     switch (stageMode) {
         case STAGEMODE_LOAD: // Startup
             fadeMode = 0;
@@ -142,6 +143,7 @@ void ProcessStage(void)
             pauseEnabled      = false;
             timeEnabled       = false;
             frameCounter      = 0;
+            Engine.frameCount = 0;
             stageMilliseconds = 0;
             stageSeconds      = 0;
             stageMinutes      = 0;
@@ -151,6 +153,7 @@ void ProcessStage(void)
 
             break;
         case STAGEMODE_NORMAL:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -175,7 +178,19 @@ void ProcessStage(void)
                 stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
-            ProcessObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                ProcessObjects();
+            }
+
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
                     switch (cameraStyle) {
@@ -196,6 +211,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
         case STAGEMODE_PAUSED:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -210,7 +226,19 @@ void ProcessStage(void)
                 ResumeSound();
             }
 
-            ProcessPausedObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                ProcessPausedObjects();
+            }
+
             DrawObjectList(0);
             DrawObjectList(1);
             DrawObjectList(2);
@@ -220,6 +248,7 @@ void ProcessStage(void)
             DrawObjectList(6);
             break;
         case STAGEMODE_FROZEN:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -232,7 +261,19 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            ProcessFrozenObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                ProcessFrozenObjects();
+            }
+
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
                     switch (cameraStyle) {
@@ -252,6 +293,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
         case STAGEMODE_2P:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -276,7 +318,19 @@ void ProcessStage(void)
                 stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
-            Process2PObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                Process2PObjects();
+            }
+
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
                     switch (cameraStyle) {
@@ -297,6 +351,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
         case STAGEMODE_STEPOVER:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -344,6 +399,7 @@ void ProcessStage(void)
             }
             break;
         case STAGEMODE_PAUSED_STEPOVER:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -370,6 +426,7 @@ void ProcessStage(void)
             }
             break;
         case STAGEMODE_FROZEN_PAUSED:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -382,7 +439,19 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            ProcessFrozenObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                ProcessFrozenObjects();
+            }
+
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
                     switch (cameraStyle) {
@@ -402,6 +471,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
         case STAGEMODE_2P_PAUSED:
+            drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
 
@@ -426,7 +496,19 @@ void ProcessStage(void)
                 stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
-            Process2PObjects();
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
+            // Update
+            for (int i = 0; i < updateMax; ++i) {
+                Process2PObjects();
+            }
+
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
                     switch (cameraStyle) {
@@ -447,6 +529,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
     }
+    Engine.frameCount++;
 }
 
 void ProcessParallaxAutoScroll()
@@ -595,7 +678,7 @@ void LoadStageFiles(void)
     }
 #endif
     LoadStageChunks();
-    for (int i = 0; i < TRACK_COUNT; ++i) SetMusicTrack("", i, 0, 0);
+    for (int i = 0; i < TRACK_COUNT; ++i) SetMusicTrack("", i, false, 0);
 
     
     memset(objectEntityList, 0, ENTITY_COUNT * sizeof(Entity));
@@ -1208,7 +1291,7 @@ void SetPlayerScreenPosition(Entity *target)
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary2 < curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+        if (curYBoundary2 <= yScrollOffset + SCREEN_YSIZE || newYBoundary2 >= yScrollOffset + SCREEN_YSIZE)
             --curYBoundary2;
         else
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
@@ -1239,10 +1322,10 @@ void SetPlayerScreenPosition(Entity *target)
         }
     }
     if (newXBoundary2 < curXBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
-            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
-        else
+        if (newXBoundary2 > SCREEN_XSIZE + xScrollOffset)
             curXBoundary2 = newXBoundary2;
+        else
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
     }
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
@@ -1398,196 +1481,8 @@ void SetPlayerScreenPosition(Entity *target)
 }
 void SetPlayerScreenPositionCDStyle(Entity *target)
 {
-    /*int playerXPos = Player->XPos >> 16;
-    int playerYPos = Player->YPos >> 16;
-    if (newYBoundary1 > yBoundary1) {
-        if (yScrollOffset <= newYBoundary1)
-            yBoundary1 = yScrollOffset;
-        else
-            yBoundary1 = newYBoundary1;
-    }
-    if (newYBoundary1 < yBoundary1) {
-        if (yScrollOffset <= yBoundary1)
-            --yBoundary1;
-        else
-            yBoundary1 = newYBoundary1;
-    }
-    if (newYBoundary2 < yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
-            --yBoundary2;
-        else
-            yBoundary2 = yScrollOffset + SCREEN_YSIZE;
-    }
-    if (newYBoundary2 > yBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= yBoundary2)
-            ++yBoundary2;
-        else
-            yBoundary2 = newYBoundary2;
-    }
-    if (newXBoundary1 > xBoundary1) {
-        if (xScrollOffset <= newXBoundary1)
-            xBoundary1 = xScrollOffset;
-        else
-            xBoundary1 = newXBoundary1;
-    }
-    if (newXBoundary1 < xBoundary1) {
-        if (xScrollOffset <= xBoundary1) {
-            --xBoundary1;
-            if (Player->XVelocity < 0) {
-                xBoundary1 += Player->XVelocity >> 16;
-                if (xBoundary1 < newXBoundary1)
-                    xBoundary1 = newXBoundary1;
-            }
-        }
-        else {
-            xBoundary1 = newXBoundary1;
-        }
-    }
-    if (newXBoundary2 < xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2)
-            xBoundary2 = SCREEN_XSIZE + xScrollOffset;
-        else
-            xBoundary2 = newXBoundary2;
-    }
-    if (newXBoundary2 > xBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= xBoundary2) {
-            ++xBoundary2;
-            if (Player->XVelocity > 0) {
-                xBoundary2 += Player->XVelocity >> 16;
-                if (xBoundary2 > newXBoundary2)
-                    xBoundary2 = newXBoundary2;
-            }
-        }
-        else {
-            xBoundary2 = newXBoundary2;
-        }
-    }
-    if (!Player->gravity) {
-        if (Player->boundEntity->direction) {
-            if (cameraStyle == 3 || Player->speed < -0x5F5C2)
-                cameraLagStyle = 2;
-            else
-                cameraLagStyle = 0;
-        }
-        else {
-            cameraLagStyle = (cameraStyle == 2 || Player->speed > 0x5F5C2) != 0;
-        }
-    }
-    if (cameraLagStyle) {
-        if (cameraLagStyle == 1) {
-            if (cameraLag > -64)
-                cameraLag -= 2;
-        }
-        else if (cameraLagStyle == 2 && cameraLag < 64) {
-            cameraLag += 2;
-        }
-    }
-    else {
-        cameraLag += cameraLag < 0 ? 2 : 0;
-        if (cameraLag > 0)
-            cameraLag -= 2;
-    }
-    if (playerXPos <= cameraLag + SCREEN_CENTERX + xBoundary1) {
-        Player->screenXPos = cameraShakeX + playerXPos - xBoundary1;
-        xScrollOffset      = xBoundary1 - cameraShakeX;
-    }
-    else {
-        xScrollOffset      = cameraShakeX + playerXPos - SCREEN_CENTERX - cameraLag;
-        Player->screenXPos = cameraLag + SCREEN_CENTERX - cameraShakeX;
-        if (playerXPos - cameraLag > xBoundary2 - SCREEN_CENTERX) {
-            Player->screenXPos = cameraShakeX + SCREEN_CENTERX + playerXPos - (xBoundary2 - SCREEN_CENTERX);
-            xScrollOffset      = xBoundary2 - SCREEN_XSIZE - cameraShakeX;
-        }
-    }
-    xScrollA         = xScrollOffset;
-    xScrollB         = SCREEN_XSIZE + xScrollOffset;
-    int yscrollA     = yScrollA;
-    int yscrollB     = yScrollB;
-    int adjustY      = cameraAdjustY + playerYPos;
-    int adjustOffset = Player->lookPos + adjustY - (yScrollA + SCREEN_SCROLL_UP);
-    if (Player->trackScroll == 1) {
-        yScrollMove = 32;
-    }
-    else {
-        if (yScrollMove == 32) {
-            yScrollMove = 2 * ((SCREEN_SCROLL_UP - Player->screenYPos - Player->lookPos) >> 1);
-            if (yScrollMove > 32)
-                yScrollMove = 32;
-            if (yScrollMove < -32)
-                yScrollMove = -32;
-        }
-        if (yScrollMove > 0)
-            yScrollMove -= 6;
-        yScrollMove += yScrollMove < 0 ? 6 : 0;
-    }
-
-    int absAdjust = abs(adjustOffset);
-    if (absAdjust >= abs(yScrollMove) + 17) {
-        if (adjustOffset <= 0)
-            yscrollA -= 16;
-        else
-            yscrollA += 16;
-        yscrollB = yscrollA + SCREEN_YSIZE;
-    }
-    else if (yScrollMove == 32) {
-        if (Player->lookPos + adjustY > yscrollA + yScrollMove + SCREEN_SCROLL_UP) {
-            yscrollA = Player->lookPos + adjustY - (yScrollMove + SCREEN_SCROLL_UP);
-            yscrollB = yscrollA + SCREEN_YSIZE;
-        }
-        if (Player->lookPos + adjustY < yscrollA + SCREEN_SCROLL_UP - yScrollMove) {
-            yscrollA = Player->lookPos + adjustY - (SCREEN_SCROLL_UP - yScrollMove);
-            yscrollB = yscrollA + SCREEN_YSIZE;
-        }
-    }
-    else {
-        yscrollA = Player->lookPos + adjustY + yScrollMove - SCREEN_SCROLL_UP;
-        yscrollB = yscrollA + SCREEN_YSIZE;
-    }
-    if (yscrollA < yBoundary1) {
-        yscrollA = yBoundary1;
-        yscrollB = yBoundary1 + SCREEN_YSIZE;
-    }
-    if (yscrollB > yBoundary2) {
-        yscrollB = yBoundary2;
-        yscrollA = yBoundary2 - SCREEN_YSIZE;
-    }
-    yScrollA = yscrollA;
-    yScrollB = yscrollB;
-    if (Player->lookPos + adjustY <= yscrollA + SCREEN_SCROLL_UP) {
-        Player->screenYPos = adjustY - yscrollA - cameraShakeY;
-        yScrollOffset      = cameraShakeY + yscrollA;
-    }
-    else {
-        yScrollOffset      = cameraShakeY + adjustY + Player->lookPos - SCREEN_SCROLL_UP;
-        Player->screenYPos = SCREEN_SCROLL_UP - Player->lookPos - cameraShakeY;
-        if (Player->lookPos + adjustY > yscrollB - SCREEN_SCROLL_DOWN) {
-            Player->screenYPos = adjustY - (yscrollB - SCREEN_SCROLL_DOWN) + cameraShakeY + SCREEN_SCROLL_UP;
-            yScrollOffset      = yscrollB - SCREEN_YSIZE - cameraShakeY;
-        }
-    }
-
-    Player->screenYPos -= cameraAdjustY;
-    if (cameraShakeX) {
-        if (cameraShakeX <= 0) {
-            cameraShakeX = -cameraShakeX--;
-        }
-        else {
-            cameraShakeX = -cameraShakeX;
-        }
-    }
-    if (!cameraShakeY)
-        return;
-    if (cameraShakeY <= 0) {
-        cameraShakeY = -cameraShakeY--;
-    }
-    else {
-        cameraShakeY = -cameraShakeY;
-    }*/
-}
-void SetPlayerHLockedScreenPosition(Entity *target)
-{
+    int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
-
     if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
             curYBoundary1 = yScrollOffset;
@@ -1601,7 +1496,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary2 < curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+        if (curYBoundary2 <= yScrollOffset + SCREEN_YSIZE || newYBoundary2 >= yScrollOffset + SCREEN_YSIZE)
             --curYBoundary2;
         else
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
@@ -1632,10 +1527,353 @@ void SetPlayerHLockedScreenPosition(Entity *target)
         }
     }
     if (newXBoundary2 < curXBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
-            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
-        else
+        if (newXBoundary2 > SCREEN_XSIZE + xScrollOffset)
             curXBoundary2 = newXBoundary2;
+        else
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
+    }
+    if (newXBoundary2 > curXBoundary2) {
+        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
+            ++curXBoundary2;
+            if (target->XVelocity > 0) {
+                curXBoundary2 += target->XVelocity >> 16;
+                if (curXBoundary2 > newXBoundary2)
+                    curXBoundary2 = newXBoundary2;
+            }
+        }
+        else {
+            curXBoundary2 = newXBoundary2;
+        }
+    }
+
+    if (!target->gravity) {
+        if (target->direction) {
+            if (cameraStyle == 3 || target->speed < -0x5F5C2) {
+                cameraShift = 2;
+                if (target->camOffsetX <= 63) {
+                    target->camOffsetX += 2;
+                }
+            }
+            else {
+                cameraShift = 0;
+                if (target->camOffsetX < 0) {
+                    target->camOffsetX += 2;
+                }
+
+                if (target->camOffsetX > 0) {
+                    target->camOffsetX -= 2;
+                }
+            }
+        }
+        else {
+            if (cameraStyle == 2 || target->speed > 0x5F5C2) {
+                cameraShift = 1;
+                if (target->camOffsetX >= -63) {
+                    target->camOffsetX -= 2;
+                }
+            }
+            else {
+                cameraShift = 0;
+                if (target->camOffsetX < 0) {
+                    target->camOffsetX += 2;
+                }
+
+                if (target->camOffsetX > 0) {
+                    target->camOffsetX -= 2;
+                }
+            }
+        }
+    }
+    else {
+        if (cameraShift == 1) {
+            if (target->camOffsetX >= -63) {
+                target->camOffsetX -= 2;
+            }
+        }
+        else if (cameraShift < 1) {
+            if (target->camOffsetX < 0) {
+                target->camOffsetX += 2;
+            }
+            if (target->camOffsetX > 0) {
+                target->camOffsetX -= 2;
+            }
+        }
+        else if (cameraShift == 2) {
+            if (target->camOffsetX <= 63) {
+                target->camOffsetX += 2;
+            }
+        }
+    }
+    cameraXPos = targetX - target->camOffsetX;
+
+    if (!target->trackScroll) {
+        if (cameraLockedY) {
+            cameraYPos = targetY;
+            if (cameraYPos < curYBoundary1 + SCREEN_SCROLL_UP) {
+                cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+            }
+        }
+        else if (targetY > cameraYPos) {
+            int dif = targetY - cameraYPos;
+            if (targetY - cameraYPos < 0) {
+                cameraLockedY = true;
+                if (cameraYPos < curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+            else {
+                if (dif > 32 || abs(target->YVelocity) > 0x60000) {
+                    if (dif > 16) {
+                        dif = 16;
+                        if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                            cameraYPos += dif;
+                        }
+                        else {
+                            cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                        }
+                    }
+                    else {
+                        cameraLockedY = true;
+                        if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                            cameraYPos += dif;
+                        }
+                        else {
+                            cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                        }
+                    }
+                }
+                else if (dif > 6) {
+                    dif = 6;
+                    if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                        cameraYPos += dif;
+                    }
+                    else {
+                        cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                    }
+                }
+                else {
+                    cameraLockedY = true;
+                    if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                        cameraYPos += dif;
+                    }
+                    else {
+                        cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                    }
+                }
+            }
+        }
+        else {
+            int dif = targetY - cameraYPos;
+            if (targetY - cameraYPos <= 0) {
+                if (dif < -32 || abs(target->YVelocity) > 0x60000) {
+                    if (dif < -16) {
+                        dif      = -16;
+                        if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                            cameraYPos += dif;
+                        }
+                        else {
+                            cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                        }
+                    }
+                    else {
+                        cameraLockedY = true;
+                        if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                            cameraYPos += dif;
+                        }
+                        else {
+                            cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                        }
+                    }
+                }
+                else if (dif < -6) {
+                    dif = -6;
+                    if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                        cameraYPos += dif;
+                    }
+                    else {
+                        cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                    }
+                }
+            }
+            else {
+                dif = 0;
+                if (abs(target->YVelocity) > 0x60000) {
+                    cameraLockedY = true;
+                    if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                        cameraYPos += dif;
+                    }
+                    else {
+                        cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                    }
+                }
+                else {
+                    cameraLockedY = true;
+                    if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                        cameraYPos += dif;
+                    }
+                    else {
+                        cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        int dif  = targetY - cameraYPos;
+        int difY = 0;
+        if (targetY > cameraYPos) {
+            difY = dif - 32;
+            if (difY >= 0) {
+                if (difY >= 17) 
+                    difY = 16;
+
+                cameraLockedY = false;
+                if (cameraYPos + difY >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos += difY;
+                }
+                else {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+            else {
+                cameraLockedY = false;
+                if (cameraYPos < curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+        }
+        else {
+            difY = dif + 32;
+            if (difY > 0) {
+                difY = 0;
+
+                cameraLockedY = false;
+                if (cameraYPos < curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+            else if (difY <= -17) {
+                difY = -16;
+
+                cameraLockedY = false;
+                if (cameraYPos + difY >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos += difY;
+                }
+                else {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+            else {
+                cameraLockedY = false;
+                if (cameraYPos + difY >= curYBoundary1 + SCREEN_SCROLL_UP) {
+                    cameraYPos += difY;
+                }
+                else {
+                    cameraYPos = curYBoundary1 + SCREEN_SCROLL_UP;
+                }
+            }
+        }
+    }
+
+    if (cameraYPos >= curYBoundary2 - SCREEN_SCROLL_DOWN - 1) {
+        cameraYPos = curYBoundary2 - SCREEN_SCROLL_DOWN;
+    }
+
+    xScrollOffset = cameraXPos - SCREEN_CENTERX;
+    yScrollOffset = target->lookPos + cameraYPos - SCREEN_SCROLL_UP;
+
+    int x = curXBoundary1;
+    if (x <= xScrollOffset)
+        x = xScrollOffset;
+    else
+        xScrollOffset = x;
+
+    if (x > curXBoundary2 - SCREEN_XSIZE) {
+        x = curXBoundary2 - SCREEN_XSIZE;
+        xScrollOffset = curXBoundary2 - SCREEN_XSIZE;
+    }
+
+    int y = curYBoundary1;
+    if (yScrollOffset >= y)
+        y = yScrollOffset;
+    else
+        yScrollOffset = y;
+
+    if (curYBoundary2 - SCREEN_YSIZE - 1 <= y)
+        y = curYBoundary2 - SCREEN_YSIZE;
+
+    xScrollOffset = cameraShakeX + x;
+    yScrollOffset = cameraShakeY + y;
+
+    if (cameraShakeX) {
+        if (cameraShakeX <= 0) {
+            cameraShakeX = ~cameraShakeX;
+        }
+        else {
+            cameraShakeX = -cameraShakeX;
+        }
+    }
+
+    if (cameraShakeY) {
+        if (cameraShakeY <= 0) {
+            cameraShakeY = ~cameraShakeY;
+        }
+        else {
+            cameraShakeY = -cameraShakeY;
+        }
+    }
+}
+void SetPlayerHLockedScreenPosition(Entity *target)
+{
+    int targetY = cameraAdjustY + (target->YPos >> 16);
+    if (newYBoundary1 > curYBoundary1) {
+        if (yScrollOffset <= newYBoundary1)
+            curYBoundary1 = yScrollOffset;
+        else
+            curYBoundary1 = newYBoundary1;
+    }
+    if (newYBoundary1 < curYBoundary1) {
+        if (yScrollOffset <= curYBoundary1)
+            --curYBoundary1;
+        else
+            curYBoundary1 = newYBoundary1;
+    }
+    if (newYBoundary2 < curYBoundary2) {
+        if (curYBoundary2 <= yScrollOffset + SCREEN_YSIZE || newYBoundary2 >= yScrollOffset + SCREEN_YSIZE)
+            --curYBoundary2;
+        else
+            curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
+    }
+    if (newYBoundary2 > curYBoundary2) {
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+            ++curYBoundary2;
+        else
+            curYBoundary2 = newYBoundary2;
+    }
+    if (newXBoundary1 > curXBoundary1) {
+        if (xScrollOffset <= newXBoundary1)
+            curXBoundary1 = xScrollOffset;
+        else
+            curXBoundary1 = newXBoundary1;
+    }
+    if (newXBoundary1 < curXBoundary1) {
+        if (xScrollOffset <= curXBoundary1) {
+            --curXBoundary1;
+            if (target->XVelocity < 0) {
+                curXBoundary1 += target->XVelocity >> 16;
+                if (curXBoundary1 < newXBoundary1)
+                    curXBoundary1 = newXBoundary1;
+            }
+        }
+        else {
+            curXBoundary1 = newXBoundary1;
+        }
+    }
+    if (newXBoundary2 < curXBoundary2) {
+        if (newXBoundary2 > SCREEN_XSIZE + xScrollOffset)
+            curXBoundary2 = newXBoundary2;
+        else
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
     }
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
@@ -1763,6 +2001,8 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 }
 void SetPlayerLockedScreenPosition(Entity *target)
 {
+    int targetX = target->XPos >> 16;
+    int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
             curYBoundary1 = yScrollOffset;
@@ -1776,7 +2016,7 @@ void SetPlayerLockedScreenPosition(Entity *target)
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary2 < curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+        if (curYBoundary2 <= yScrollOffset + SCREEN_YSIZE || newYBoundary2 >= yScrollOffset + SCREEN_YSIZE)
             --curYBoundary2;
         else
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
@@ -1807,10 +2047,10 @@ void SetPlayerLockedScreenPosition(Entity *target)
         }
     }
     if (newXBoundary2 < curXBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
-            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
-        else
+        if (newXBoundary2 > SCREEN_XSIZE + xScrollOffset)
             curXBoundary2 = newXBoundary2;
+        else
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
     }
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
@@ -1849,7 +2089,6 @@ void SetPlayerScreenPositionFixed(Entity *target)
 {
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
-
     if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
             curYBoundary1 = yScrollOffset;
@@ -1863,7 +2102,7 @@ void SetPlayerScreenPositionFixed(Entity *target)
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary2 < curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2 || yScrollOffset + SCREEN_YSIZE <= newYBoundary2)
+        if (curYBoundary2 <= yScrollOffset + SCREEN_YSIZE || newYBoundary2 >= yScrollOffset + SCREEN_YSIZE)
             --curYBoundary2;
         else
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
@@ -1894,10 +2133,10 @@ void SetPlayerScreenPositionFixed(Entity *target)
         }
     }
     if (newXBoundary2 < curXBoundary2) {
-        if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2)
-            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
-        else
+        if (newXBoundary2 > SCREEN_XSIZE + xScrollOffset)
             curXBoundary2 = newXBoundary2;
+        else
+            curXBoundary2 = SCREEN_XSIZE + xScrollOffset;
     }
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {

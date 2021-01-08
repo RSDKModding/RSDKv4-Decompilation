@@ -40,9 +40,10 @@ void InitUserdata()
         IniParser ini;
 
         ini.SetBool("Dev", "DevMenu", Engine.devMenu = false);
-        ini.SetBool("Dev", "StartingCategory", Engine.startList = 0);
-        ini.SetBool("Dev", "StartingScene", Engine.startStage = 0);
-        ini.SetBool("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
+        ini.SetInteger("Dev", "StartingCategory", Engine.startList = 0);
+        ini.SetInteger("Dev", "StartingScene", Engine.startStage = 0);
+        ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
+        ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
 
         ini.SetBool("Game", "Language", Engine.language = RETRO_EN);
 
@@ -88,6 +89,8 @@ void InitUserdata()
             Engine.startStage = 0;
         if (!ini.GetInteger("Dev", "FastForwardSpeed", &Engine.fastForwardSpeed))
             Engine.fastForwardSpeed = 8;
+        if (!ini.GetBool("Dev", "UseHQModes", &Engine.useHQModes))
+            Engine.useHQModes = true;
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
@@ -189,6 +192,8 @@ void writeSettings() {
     ini.SetBool("Dev", "StartingScene", Engine.startStage);
     ini.SetComment("Dev", "FFComment", "Determines how fast the game will be when fastforwarding is active");
     ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed);
+    ini.SetComment("Dev", "UseHQComment", "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
+    ini.SetBool("Dev", "UseHQModes", Engine.useHQModes);
 
     ini.SetComment("Game", "LangComment", "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
@@ -364,7 +369,7 @@ int Connect2PVS(int gameLength, void *itemMode)
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
-    Engine.gameMode        = ENGINE_WAIT;
+    Engine.gameMode        = ENGINE_CONNECT2PVS;
     PauseSound();
 
     //actual connection code
@@ -471,6 +476,23 @@ int TransmitGlobal(int globalValue, void *globalName)
         return 1;
     }
     return 0;
+}
+
+void receive2PVSData(MultiplayerData* data) {
+    switch (data->type) {
+        case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
+        case 1:
+            multiplayerDataIN.type = 1;
+            memcpy(multiplayerDataIN.data, data->data, 0x118u);
+            break;
+        case 2: globalVariables[data->data[0]] = data->data[1]; break;
+    }
+}
+
+void receive2PVSMatchCode(int code) {
+    matchValueData[matchValueWritePos++] = code;
+    ResumeSound();
+    Engine.gameMode = ENGINE_MAINGAME;
 }
 
 int ShowPromoPopup(int a1, void *a2)

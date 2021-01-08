@@ -31,6 +31,8 @@ struct FileInfo {
     byte eStringNo;
     byte eNybbleSwap;
     bool useEncryption;
+    byte encryptionStringA[0x10];
+    byte encryptionStringB[0x10];
     FileIO *cFileHandle;
 };
 

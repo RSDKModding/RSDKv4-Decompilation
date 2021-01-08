@@ -637,7 +637,7 @@ enum ScrVar {
     VAR_OBJECTANIMATIONSPEED,
     VAR_OBJECTANIMATIONTIMER,
     VAR_OBJECTANGLE,
-    VAR_OBJECTVALUEF0,
+    VAR_OBJECTCAMOFFSETX,
     VAR_OBJECTLOOKPOS,
     VAR_OBJECTCOLLISIONMODE,
     VAR_OBJECTCOLLISIONPLANE,
@@ -2474,8 +2474,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         scriptEng.operands[i] = objectEntityList[arrayVal].angle;
                         break;
                     }
-                    case VAR_OBJECTVALUEF0: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].field_F0;
+                    case VAR_OBJECTCAMOFFSETX: {
+                        scriptEng.operands[i] = objectEntityList[arrayVal].camOffsetX;
                         break;
                     }
                     case VAR_OBJECTLOOKPOS: {
@@ -4360,8 +4360,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         objectEntityList[arrayVal].angle = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTVALUEF0: {
-                        objectEntityList[arrayVal].field_F0 = scriptEng.operands[i];
+                    case VAR_OBJECTCAMOFFSETX: {
+                        objectEntityList[arrayVal].camOffsetX = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOS: {

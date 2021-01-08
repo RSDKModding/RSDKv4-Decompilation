@@ -4,6 +4,23 @@ bool usingCWD = false;
 
 RetroEngine Engine = RetroEngine();
 
+inline int getLowerRate(int intendRate, int targetRate)
+{
+    int result   = 0;
+    int valStore = 0;
+
+    result = targetRate;
+    if (intendRate) {
+        do {
+            valStore   = result % intendRate;
+            result     = intendRate;
+            intendRate = valStore;
+        } while (valStore);
+    }
+    return result;
+}
+
+
 bool processEvents()
 {
 #if RETRO_USING_SDL
@@ -200,6 +217,11 @@ void RetroEngine::Init()
         }
     }
 
+    // Calculate Skip frame
+    int lower        = getLowerRate(targetRefreshRate, refreshRate);
+    renderFrameIndex = targetRefreshRate / lower;
+    skipFrameIndex   = refreshRate / lower;
+
     gameType = GAME_UNKNOWN;
     if (strstr(gameWindowText, "Sonic 1")) {
         gameType = GAME_SONIC1;
@@ -239,8 +261,8 @@ void RetroEngine::Init()
         StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
         StrCopy(achievements[6].name, "Flawless Pursuit");
         StrCopy(achievements[7].name, "Bombs Away");
-        StrCopy(achievements[8].name, "Chaos Connoisseur");
         StrCopy(achievements[9].name, "Hidden Transporter");
+        StrCopy(achievements[8].name, "Chaos Connoisseur");
         StrCopy(achievements[10].name, "One For the Road");
         StrCopy(achievements[11].name, "Beat The Clock");
     }

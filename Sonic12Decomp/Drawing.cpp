@@ -83,6 +83,18 @@ int InitRenderDevice()
 
     SDL_SetWindowResizable(Engine.window, SDL_FALSE);
     SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+    SDL_DisplayMode disp;
+    if (SDL_GetDisplayMode(0, 0, &disp) == 0) {
+        Engine.screenRefreshRate = disp.refresh_rate;
+    }
+
+#if RETRO_PLATFORM == RETRO_iOS
+    SDL_RestoreWindow(Engine.window);
+    SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    Engine.isFullScreen = true;
+#endif
+
 #endif
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
@@ -282,7 +294,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(0);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(0);
                     break;
                 default: break;
@@ -299,7 +312,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(1);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(1);
                     break;
                 default: break;
@@ -318,7 +332,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(2);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(2);
                     break;
                 default: break;
@@ -336,7 +351,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(0);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(0);
                     break;
                 default: break;
@@ -353,7 +369,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(1);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(1);
                     break;
                 default: break;
@@ -370,7 +387,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(2);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(2);
                     break;
                 default: break;
@@ -390,7 +408,8 @@ void DrawStageGFX()
                     Draw3DFloorLayer(3);
                     break;
                 case LAYER_3DSKY:
-                    drawStageGFXHQ = true;
+                    if (Engine.useHQModes)
+                        drawStageGFXHQ = true;
                     Draw3DSkyLayer(3);
                     break;
                 default: break;

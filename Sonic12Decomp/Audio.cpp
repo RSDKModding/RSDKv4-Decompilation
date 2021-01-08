@@ -206,8 +206,8 @@ void ProcessMusicStream(void *data, Uint8 *stream, int len)
                 case -2:
                 case -1: break;
                 case 0:
-                    if (musInfo.currentTrack->trackLoop)
-                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.currentTrack->loopPoint);
+                    if (musInfo.trackLoop)
+                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.loopPoint);
                     else
                         musicStatus = MUSIC_STOPPED;
                     break;
@@ -707,7 +707,8 @@ bool PlayMusic(int track, int musStartPos)
         musInfo.fileInfo.cFileHandle = cFileHandle;
         cFileHandle                  = nullptr;
 
-        musInfo.currentTrack = trackPtr;
+        musInfo.trackLoop = trackPtr->trackLoop;
+        musInfo.loopPoint = trackPtr->loopPoint;
         musInfo.loaded       = true;
 
 #if RETRO_USING_SDL
@@ -965,8 +966,7 @@ void SetSfxAttributes(int sfx, int loopCount, char pan)
 {
     int sfxChannel = -1;
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
-        if (sfxChannels[i].sfxID == sfx || sfxChannels[i].sfxID == -1) {
-            nextChannelPos = i;
+        if (sfxChannels[i].sfxID == sfx) {
             sfxChannel     = i;
             break;
         }
@@ -974,15 +974,8 @@ void SetSfxAttributes(int sfx, int loopCount, char pan)
     if (sfxChannel == -1)
         return; //wasn't found
 
-    ChannelInfo *sfxInfo = &sfxChannels[nextChannelPos++];
-    if (sfxInfo->sfxID != -1)
-        StopSfx(sfxInfo->sfxID);
-    sfxInfo->samplePtr    = sfxList[sfx].buffer;
-    sfxInfo->sampleLength = sfxList[sfx].length;
+    ChannelInfo *sfxInfo = &sfxChannels[sfxChannel];
     sfxInfo->loopSFX      = loopCount == -1 ? sfxInfo->loopSFX : loopCount;
     sfxInfo->pan          = pan;
     sfxInfo->sfxID        = sfx;
-
-    if (nextChannelPos == CHANNEL_COUNT)
-        nextChannelPos = 0;
 }

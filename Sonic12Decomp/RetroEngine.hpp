@@ -98,8 +98,11 @@ enum RetroStates {
     ENGINE_SCRIPTERROR = 4,
     ENGINE_INITPAUSE   = 5,
     ENGINE_EXITPAUSE   = 6,
-    ENGINE_ENDGAME           = 7,
-    ENGINE_FINISHTA           = 8,
+    ENGINE_ENDGAME     = 7,
+    ENGINE_FINISHTA    = 8,
+
+    // Custom GameModes (required to make some features work
+    ENGINE_CONNECT2PVS = 0x80,
 };
 
 enum RetroGameType {
@@ -180,6 +183,7 @@ public:
     bool frameStep       = false;
 
     bool showPaletteOverlay = false;
+    bool useHQModes         = true;
 
     void Init();
     void Run();
@@ -224,8 +228,14 @@ public:
     bool startFullScreen = false; // if should start as fullscreen
     bool borderless = false;
     bool vsync = false;
-    int windowScale = 2;
-    int refreshRate = 60;
+    int windowScale       = 2;
+    int refreshRate       = 60; // user-picked screen update rate
+    int screenRefreshRate = 60; // hardware screen update rate
+    int targetRefreshRate = 60; // game logic update rate
+
+    uint frameCount      = 0; // frames since scene load
+    int renderFrameIndex = 0;
+    int skipFrameIndex   = 0;
 
 #if RETRO_USING_SDL
     SDL_Window *window        = nullptr;

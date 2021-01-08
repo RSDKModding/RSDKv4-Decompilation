@@ -24,7 +24,8 @@ struct MusicPlaybackInfo {
     byte *extraBuffer;
 #endif
     FileInfo fileInfo;
-    TrackInfo *currentTrack;
+    bool trackLoop;
+    uint loopPoint;
     bool loaded;
 };
 
@@ -102,7 +103,8 @@ inline void freeMusInfo()
         musInfo.buffer       = nullptr;
         musInfo.stream       = nullptr;
         musInfo.audioLen     = 0;
-        musInfo.currentTrack = nullptr;
+        musInfo.trackLoop    = false;
+        musInfo.loopPoint    = 0;
         musInfo.loaded       = false;
 
         SDL_UnlockAudio();

@@ -386,6 +386,7 @@ void InitNativeObjectSystem() {
 
     if (!saveRAM[33])
         musicEnabled = 0;
+
     //if (!saveRAM[39])
     //    _mm_storeu_si128((__m128i *)&saveRAM[39], _mm_load_si128((const __m128i *)&xmmword_8C670));
     //globalBoxRegion[0] = saveRAM[36];

@@ -23,6 +23,7 @@ void initDevMenu()
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     setTextMenu(DEVMENU_MAIN);
+    drawStageGFXHQ           = false;
     Engine.finishedStartMenu     = true;
 }
 void initErrorMessage()
@@ -48,6 +49,7 @@ void initErrorMessage()
     gameMenu[1].visibleRowCount  = 0;
     gameMenu[1].visibleRowOffset = 0;
     stageMode                    = DEVMENU_SCRIPTERROR;
+    drawStageGFXHQ               = false;
     Engine.finishedStartMenu     = true;
 }
 void processStageSelect()
@@ -191,9 +193,11 @@ void processStageSelect()
                 AddTextMenuEntry(&gameMenu[0], "SELECT A PLAYER");
                 SetupTextMenu(&gameMenu[1], 0);
                 LoadConfigListText(&gameMenu[1], 0);
-                gameMenu[0].alignment      = 2;
-                gameMenu[1].alignment      = 0;
-                gameMenu[1].selectionCount = 1;
+                gameMenu[0].alignment        = 2;
+                gameMenu[1].alignment        = 0;
+                gameMenu[1].selectionCount   = 1;
+                gameMenu[1].visibleRowCount  = 0;
+                gameMenu[1].visibleRowOffset = 0;
                 gameMenu[1].selection1     = playerListPos;
                 stageMode                  = DEVMENU_PLAYERSEL;
             }
@@ -537,12 +541,26 @@ void setTextMenu(int sm) {
                 StrCopyW(strBuffer, "SAVE ");
                 AppendIntegerToStringW(strBuffer, s + 1);
                 StrAddW(strBuffer, " - ");
-                if (saveRAM[s * 4 + 4]) {
-                    StrAddW(strBuffer, playerListText[saveRAM[s * 4 + 0]]);
-                    StrAddW(strBuffer, "-");
-                    StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 4 + 4] - 1)]);
-                    //StrAddW(strBuffer, " ");
-                    //AppendIntegerToStringW(strBuffer, (saveRAM[s * 4 + 4] - 1) % 2 + 1);
+                int stagePos = saveRAM[s * 8 + 4];
+                if (stagePos) {
+                    if (stagePos >= 0x80) {
+                        StrAddW(strBuffer, playerListText[saveRAM[s * 8 + 0]]);
+                        StrAddW(strBuffer, "-");
+                        StrAddW(strBuffer, "SPECIAL STAGE ");
+                        AppendIntegerToStringW(strBuffer, saveRAM[s * 8 + 6] + 1);
+                    }
+                    else {
+                        if (StrComp("STAGE MENU", stageList[STAGELIST_REGULAR][stagePos - 1].name)) {
+                            StrAddW(strBuffer, playerListText[saveRAM[s * 8 + 0]]);
+                            StrAddW(strBuffer, "-");
+                            StrAddW(strBuffer, "COMPLETE");
+                        }
+                        else {
+                            StrAddW(strBuffer, playerListText[saveRAM[s * 8 + 0]]);
+                            StrAddW(strBuffer, "-");
+                            StrAddW(strBuffer, strSaveStageList[(saveRAM[s * 8 + 4] - 1)]);
+                        }
+                    }
                 }
                 else {
                     StrAddW(strBuffer, strNewGame);

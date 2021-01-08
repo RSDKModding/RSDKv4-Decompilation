@@ -51,6 +51,9 @@ void RetroGameLoop_Main(void *objPtr)
             //RestoreNativeObjects();
             initStartMenu(1);
             break;
+        case ENGINE_CONNECT2PVS: 
+            //connect screen goes here
+            break;
         default:
 #if RSDK_DEBUG
             printLog("GameMode '%d' Called", Engine.gameMode);

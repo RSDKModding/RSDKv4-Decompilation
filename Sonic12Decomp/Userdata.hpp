@@ -141,6 +141,9 @@ int ReceiveEntity(int a1, void *a2);
 int ReceiveValue(int a1, void *a2);
 int TransmitGlobal(int a1, void *a2);
 
+void receive2PVSData(MultiplayerData *data);
+void receive2PVSMatchCode(int code);
+
 int ShowPromoPopup(int a1, void *a2);
 
 #endif //!USERDATA_H
