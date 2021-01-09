@@ -124,6 +124,7 @@ void processStageSelect()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.start || keyPress.A) {
+                playerListPos = gameMenu[1].selection1;
                 setTextMenu(DEVMENU_STAGELISTSEL);
             }
             else if (keyPress.B) {
@@ -252,6 +253,7 @@ void processStageSelect()
                 stageMode         = STAGEMODE_LOAD;
                 Engine.gameMode   = ENGINE_MAINGAME;
                 stageListPosition = gameMenu[1].selection1;
+                SetGlobalVariableByName("options.gameMode", 0);
             }
             else if (keyPress.B) {
                 setTextMenu(DEVMENU_STAGELISTSEL);
@@ -298,45 +300,45 @@ void initStartMenu(int mode) {
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     ReadSaveRAMData();
 
-    if (!saveRAM[0x100]) {
-        saveRAM[0x100] = Engine.gameType;
-        if (Engine.gameType == GAME_SONIC1) {
-            saveRAM[0x101] = GetGlobalVariableByName("options.spindash");
-            saveRAM[0x102] = GetGlobalVariableByName("options.speedCap");
-            saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
-            saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
-            saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
-        }
-        else {
-            saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
-            saveRAM[0x102] = GetGlobalVariableByName("options.tailsFlight");
-            saveRAM[0x103] = GetGlobalVariableByName("options.superTails");
-            saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
-            saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
-        }
-        WriteSaveRAMData();
-    }
-    else {
-        if (Engine.gameType == GAME_SONIC1) {
-            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-        else {
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-    }
-
     if (mode == 0) {
         setTextMenu(STARTMENU_MAIN);
     }
     else {
+        if (!saveRAM[0x100]) {
+            saveRAM[0x100] = Engine.gameType;
+            if (Engine.gameType == GAME_SONIC1) {
+                saveRAM[0x101] = GetGlobalVariableByName("options.spindash");
+                saveRAM[0x102] = GetGlobalVariableByName("options.speedCap");
+                saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
+                saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+                saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+            }
+            else {
+                saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
+                saveRAM[0x102] = GetGlobalVariableByName("options.tailsFlight");
+                saveRAM[0x103] = GetGlobalVariableByName("options.superTails");
+                saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
+                saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+            }
+            WriteSaveRAMData();
+        }
+        else {
+            if (Engine.gameType == GAME_SONIC1) {
+                SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+                SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+                SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+                SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+                SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+            }
+            else {
+                SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+                SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+                SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+                SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+                SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+            }
+        }
+
         //finished TA act
         int listPos = stageListPosition;
         int max     = listPos < stageListCount[STAGELIST_REGULAR];

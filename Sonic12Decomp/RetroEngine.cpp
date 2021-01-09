@@ -108,8 +108,9 @@ bool processEvents()
                             SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                         }
                         else {
-                            SDL_SetWindowFullscreen(Engine.window, 0);
+                            SDL_SetWindowFullscreen(Engine.window, false);
                             SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+                            SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                             SDL_RestoreWindow(Engine.window);
                         }
                         break;

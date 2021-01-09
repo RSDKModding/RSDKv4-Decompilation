@@ -106,6 +106,7 @@ struct LineScroll {
     int parallaxFactor[PARALLAX_COUNT];
     int scrollSpeed[PARALLAX_COUNT];
     int scrollPos[PARALLAX_COUNT];
+    int tilePos[PARALLAX_COUNT];
     int deform[PARALLAX_COUNT];
     byte entryCount;
 };

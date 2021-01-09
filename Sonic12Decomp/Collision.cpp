@@ -2820,7 +2820,7 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
     sensors[3].XPos = (rx + sensors[0].XPos) >> 1;
     sensors[4].XPos = (rx + sensors[2].XPos) >> 1;
 
-    sensors[0].YPos = otherBottom;
+    sensors[0].YPos = otherBottom >> 16 << 16;
 
     for (int i = 0; i < 5; ++i) {
         if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && sensors[0].YPos >= thisTop - 0x10000 && thisBottom > sensors[0].YPos
