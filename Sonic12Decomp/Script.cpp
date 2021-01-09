@@ -3917,8 +3917,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
                     case MAT_WORLD: matrixTranslateXYZ(&matWorld, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case MAT_TEMP: matrixTranslateXYZ(&matView, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case MAT_VIEW: matrixTranslateXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_VIEW: matrixTranslateXYZ(&matView, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    case MAT_TEMP: matrixTranslateXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                 }
                 break;
             case FUNC_MATRIXSCALEXYZ:

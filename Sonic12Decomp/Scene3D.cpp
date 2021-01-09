@@ -164,9 +164,6 @@ void matrixRotateZ(Matrix *matrix, int rotationZ)
 }
 void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
 {
-    int rx   = rotationX & 0x1FF;
-    int ry   = rotationY & 0x1FF;
-    int rz   = rotationZ & 0x1FF;
     int sinX = sinVal512[rotationX & 0x1FF] >> 1;
     int cosX = cosVal512[rotationX & 0x1FF] >> 1;
     int sinY = sinVal512[rotationY & 0x1FF] >> 1;
