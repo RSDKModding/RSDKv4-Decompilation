@@ -1,8 +1,8 @@
 #include "RetroEngine.hpp"
 #include <math.h>
 
-int sinM[512];
-int cosM[512];
+int sinValM7[512];
+int cosValM7[512];
 
 int sinVal512[512];
 int cosVal512[512];
@@ -16,19 +16,19 @@ void CalculateTrigAngles()
 {
     for (int i = 0; i < 0x200; ++i) {
         float Val     = sin(((float)i / 256.0) * M_PI);
-        sinM[i] = (Val * 4096.0);
+        sinValM7[i] = (Val * 4096.0);
         Val           = cos(((float)i / 256.0) * M_PI);
-        cosM[i] = (Val * 4096.0);
+        cosValM7[i] = (Val * 4096.0);
     }
 
-    cosM[0]   = 4096;
-    cosM[128] = 0;
-    cosM[256] = -4096;
-    cosM[384] = 0;
-    sinM[0]   = 0;
-    sinM[128] = 4096;
-    sinM[256] = 0;
-    sinM[384] = -4096;
+    cosValM7[0]   = 4096;
+    cosValM7[128] = 0;
+    cosValM7[256] = -4096;
+    cosValM7[384] = 0;
+    sinValM7[0]   = 0;
+    sinValM7[128] = 4096;
+    sinValM7[256] = 0;
+    sinValM7[384] = -4096;
 
     for (int i = 0; i < 0x200; ++i) {
         float Val       = sinf(((float)i / 256) * M_PI);

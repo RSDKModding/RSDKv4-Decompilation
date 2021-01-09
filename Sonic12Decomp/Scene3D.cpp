@@ -164,24 +164,27 @@ void matrixRotateZ(Matrix *matrix, int rotationZ)
 }
 void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
 {
-    int sineX   = sinVal512[rotationX & 0x1FF] >> 1;
-    int cosineX = cosVal512[rotationX & 0x1FF] >> 1;
-    int sineY   = sinVal512[rotationY & 0x1FF] >> 1;
-    int cosineY = cosVal512[rotationY & 0x1FF] >> 1;
-    int sineZ   = sinVal512[rotationZ & 0x1FF] >> 1;
-    int cosineZ = cosVal512[rotationZ & 0x1FF] >> 1;
+    int rx   = rotationX & 0x1FF;
+    int ry   = rotationY & 0x1FF;
+    int rz   = rotationZ & 0x1FF;
+    int sinX = sinVal512[rotationX & 0x1FF] >> 1;
+    int cosX = cosVal512[rotationX & 0x1FF] >> 1;
+    int sinY = sinVal512[rotationY & 0x1FF] >> 1;
+    int cosY = cosVal512[rotationY & 0x1FF] >> 1;
+    int sinZ = sinVal512[rotationZ & 0x1FF] >> 1;
+    int cosZ = cosVal512[rotationZ & 0x1FF] >> 1;
 
-    matrix->values[0][0] = (sineZ * (sineY * sineX >> 8) >> 8) + (cosineZ * cosineY >> 8);
-    matrix->values[0][1] = (sineZ * cosineY >> 8) - (cosineZ * (sineY * sineX >> 8) >> 8);
-    matrix->values[0][2] = sineY * cosineX >> 8;
+    matrix->values[0][0] = (cosZ * cosY >> 8) + (sinZ * (sinY * sinX >> 8) >> 8);
+    matrix->values[0][1] = (sinZ * cosY >> 8) - (cosZ * (sinY * sinX >> 8) >> 8);
+    matrix->values[0][2] = sinY * cosX >> 8;
     matrix->values[0][3] = 0;
-    matrix->values[1][0] = sineZ * -cosineX >> 8;
-    matrix->values[1][1] = cosineZ * cosineX >> 8;
-    matrix->values[1][2] = sineX;
+    matrix->values[1][0] = sinZ * -cosX >> 8;
+    matrix->values[1][1] = cosZ * cosX >> 8;
+    matrix->values[1][2] = sinX;
     matrix->values[1][3] = 0;
-    matrix->values[2][0] = (sineZ * (cosineY * sineX >> 8) >> 8) - (cosineZ * sineY >> 8);
-    matrix->values[2][1] = (sineZ * -sineY >> 8) - (cosineZ * (cosineY * sineX >> 8) >> 8);
-    matrix->values[2][2] = cosineY * cosineX >> 8;
+    matrix->values[2][0] = (sinZ * (cosY * sinX >> 8) >> 8) - (cosZ * sinY >> 8);
+    matrix->values[2][1] = (sinZ * -sinY >> 8) - (cosZ * (cosY * sinX >> 8) >> 8);
+    matrix->values[2][2] = cosY * cosX >> 8;
     matrix->values[2][3] = 0;
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;

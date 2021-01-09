@@ -6,8 +6,8 @@
 #define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))
 
-extern int sinM[0x200];
-extern int cosM[0x200];
+extern int sinValM7[0x200];
+extern int cosValM7[0x200];
 
 extern int sinVal512[0x200];
 extern int cosVal512[0x200];

@@ -112,7 +112,12 @@ void RenderRenderDevice()
     destScreenPos.h = SCREEN_YSIZE;
 
     int pitch = 0;
-    SDL_SetRenderTarget(Engine.renderer, NULL);
+    SDL_SetRenderTarget(Engine.renderer, NULL); 
+    
+    // Clear the screen. This is needed to keep the
+    // pillarboxes in fullscreen from displaying garbage data.
+    SDL_RenderClear(Engine.renderer);
+
     ushort *pixels = NULL;
     
     if (!drawStageGFXHQ) {
@@ -1481,8 +1486,8 @@ void Draw3DFloorLayer(int layerID)
     int layerHeight         = layer->height << 7;
     int layerYPos           = layer->YPos;
     int layerZPos           = layer->ZPos;
-    int sinValue            = sinM[layer->angle];
-    int cosValue            = cosM[layer->angle];
+    int sinValue            = sinValM7[layer->angle];
+    int cosValue            = cosValM7[layer->angle];
     byte *linePtr           = gfxLineBuffer;
     ushort *frameBufferPtr  = &Engine.frameBuffer[132 * SCREEN_XSIZE];
     int layerXPos           = layer->XPos >> 4;
@@ -1533,8 +1538,8 @@ void Draw3DSkyLayer(int layerID)
     int layerWidth         = layer->width << 7;
     int layerHeight        = layer->height << 7;
     int layerYPos          = layer->YPos;
-    int sinValue           = sinM[layer->angle & 0x1FF];
-    int cosValue           = cosM[layer->angle & 0x1FF];
+    int sinValue           = sinValM7[layer->angle & 0x1FF];
+    int cosValue           = cosValM7[layer->angle & 0x1FF];
     ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * SCREEN_XSIZE];
     ushort *bufferPtr      = Engine.frameBuffer2x;
     if (!drawStageGFXHQ)
