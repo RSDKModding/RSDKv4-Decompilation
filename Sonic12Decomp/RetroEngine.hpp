@@ -129,6 +129,7 @@ extern bool usingCWD;
 
 //Utils
 #include "Ini.hpp"
+#include "Network.hpp"
 
 #include "Math.hpp"
 #include "Reader.hpp"

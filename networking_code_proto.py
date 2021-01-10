@@ -16,7 +16,7 @@ ipcode = 0
 for i in range(4): #TODO: should this be reverse?
     ipcode |= ipbytes[i] << (i * 8)
 print("IPC", bin(ipcode), ipcode)
-portcode = 10293
+portcode = 300
 print("PRT", bin(portcode), portcode)
 
 gameinfo = (10, 3, 2) #len, itembox, player
@@ -35,6 +35,7 @@ ipc = 0; pc = 0; gc = 0
 for i in range(len(pattern) * 8): #pattern length
     #we can check what's at the pattern and build/read from it
     #we can set this up similarly in C++ with a const char*
+    print(pout, i)
     c = pattern[i % (len(pattern))]
     if c == "A":
         pout |= (getbit(ipcode,  ipc) << i)
