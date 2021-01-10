@@ -99,3 +99,10 @@ byte ArcTanLookup(int X, int Y)
         result = atanVal256[0x100 * XVal + YVal];
     return result;
 }
+
+int64_t pow(int base, int exponent) {
+    if (!exponent) return 1;
+    int64_t result = base;
+    for (int i = 1; i < exponent; i++) result *= base;
+    return result; 
+}
