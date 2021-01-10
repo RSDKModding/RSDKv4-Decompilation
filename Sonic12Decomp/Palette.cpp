@@ -66,25 +66,16 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
         ushort *dst   = &fullPalette[destPaletteID][startIndex];
         ushort *srcA  = &fullPalette[srcPaletteA][startIndex];
         ushort *srcB  = &fullPalette[srcPaletteB][startIndex];
-        for (int l = startIndex; l < endIndex; ++l) {
-            ushort result = (((blendAmount * (4 * (byte)*srcB & 0xF8) + blendA * (4 * (byte)*srcA & 0xF8)) >> 10) & 0x3E
-                                     | (blendAmount * (ushort)((*srcB & 0xF800) >> 8) + blendA * (ushort)((*srcA & 0xF800) >> 8)) & 0xF800
-                                     | ((blendA * ((*srcA & 0x7C0) >> 3) + blendAmount * ((*srcB & 0x7C0) >> 3)) >> 5) & 0x7C0 | 1);
-            *dst           = result;
 
-            /*byte a1   = *srcA;
-            ushort a2 = (*srcA >> 3) & 0xFFFC;
-            byte b1   = *srcB;
-            ushort b2 = (*srcB >> 3) & 0xFFFC;
-            ushort r  = (blendAmount * (b1 & 0xFFF8) + blendA * (a1 & 0xFFF8)) >> 8;
-            ushort g  = (blendAmount * b2 + blendA * a2) >> 8;
-            ushort b  = (blendAmount * (*srcB << 3) + blendA * (*srcA << 3)) >> 8;
-            ushort val = r | g | b;
-            //*dst      = RGB888_TO_RGB565((blendAmount * (b1 & 0xFFF8) + blendA * (a1 & 0xFFF8)) >> 8, (blendAmount * b2 + blendA * a2) >> 8,
-            //                        (blendAmount * (*srcB << 3) + blendA * (*srcA << 3)) >> 8);*/
+        for (int l = startIndex; l < endIndex; ++l) {
+            *dst = RGB888_TO_RGB565((byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8),
+                                    (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8),
+                                    (byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8));
             ++srcA;
             ++srcB;
             ++dst;
         }
+
+        
     }
 }

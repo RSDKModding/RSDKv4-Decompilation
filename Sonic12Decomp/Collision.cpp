@@ -2773,16 +2773,15 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
+    thisLeft += thisEntity->XPos >> 16;
+    thisTop += thisEntity->YPos >> 16;
+    thisRight += thisEntity->XPos >> 16;
+    thisBottom += thisEntity->YPos >> 16;
 
     thisLeft <<= 16;
     thisTop <<= 16;
     thisRight <<= 16;
     thisBottom <<= 16;
-
-    thisLeft += thisEntity->XPos;
-    thisTop += thisEntity->YPos;
-    thisRight += thisEntity->XPos;
-    thisBottom += thisEntity->YPos;
 
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
@@ -2796,34 +2795,20 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
 
-    int oBottom = otherBottom << 16;
-
-    otherLeft <<= 16;
-    otherTop <<= 16;
-    otherRight <<= 16;
-    otherBottom <<= 16;
-
-    otherLeft += otherEntity->XPos;
-    otherTop += otherEntity->YPos;
-    otherRight += otherEntity->XPos;
-    otherBottom += otherEntity->YPos;
-
     sensors[0].collided = false;
     sensors[1].collided = false;
     sensors[2].collided = false;
 
-    int rx = otherEntity->XPos >> 16 << 16;
+    sensors[0].XPos = otherEntity->XPos + (otherLeft << 16);
+    sensors[1].XPos = otherEntity->XPos;
+    sensors[2].XPos = otherEntity->XPos + (otherRight << 16);
+    sensors[3].XPos = (otherEntity->XPos + sensors[0].XPos) >> 1;
+    sensors[4].XPos = (sensors[2].XPos + otherEntity->XPos) >> 1;
 
-    sensors[0].XPos = otherLeft + 0x10000;
-    sensors[1].XPos = rx;
-    sensors[2].XPos = otherRight;
-    sensors[3].XPos = (rx + sensors[0].XPos) >> 1;
-    sensors[4].XPos = (rx + sensors[2].XPos) >> 1;
-
-    sensors[0].YPos = otherBottom;
+    sensors[0].YPos = (otherBottom << 16) + otherEntity->YPos;
 
     for (int i = 0; i < 5; ++i) {
-        if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && sensors[0].YPos >= thisTop - 0x10000 && thisBottom > sensors[0].YPos
+        if (thisLeft <= sensors[i].XPos && thisRight > sensors[i].XPos && sensors[0].YPos >= thisTop - 1 && thisBottom > sensors[0].YPos
             && otherEntity->YVelocity >= 0) {
             sensors[i].collided      = true;
             otherEntity->flailing[i] = true;
@@ -2835,7 +2820,7 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
             otherEntity->XVelocity = 0;
             otherEntity->speed     = 0;
         }
-        otherEntity->YPos        = thisTop - oBottom;
+        otherEntity->YPos        = thisTop - (otherBottom << 16);
         otherEntity->gravity     = 0;
         otherEntity->YVelocity   = 0;
         otherEntity->angle       = 0;
