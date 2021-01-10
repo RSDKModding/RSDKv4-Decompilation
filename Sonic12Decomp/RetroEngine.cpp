@@ -205,6 +205,8 @@ void RetroEngine::Init()
     InitUserdata();
     InitNativeObjectSystem();
 
+    buildNetworkIndex();
+
     gameMode = ENGINE_MAINGAME;
     running  = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {

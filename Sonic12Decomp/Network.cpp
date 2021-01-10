@@ -17,11 +17,14 @@ using std::string;
 const char *pattern = "AABAABC";
 #define PLEN (7)
 
-string generateCode(ushort port, int gameLength, int itemMode)
-{
-    char index[36];
+char index[36];
+void buildNetworkIndex() {
     for (byte i = 0; i < 26; ++i) index[i] = i + 'A';
     for (byte i = 0; i < 10; ++i) index[i + 26] = i + '0';
+}
+
+string generateCode(ushort port, int gameLength, int itemMode)
+{
     uint64_t code = 0;
     uint ip;
     if (getIP(&ip))
@@ -45,6 +48,41 @@ string generateCode(ushort port, int gameLength, int itemMode)
         code %= pow(36, i--);
     }
     return out.str();
+}
+
+CodeData parseCode(const string code) 
+{
+    uint64_t out = 0;
+    int i = 0;
+    for (auto rit = code.rbegin(); rit != code.rend(); ++rit) {
+        char c = *rit, mult;
+        if (c <= '9')
+            mult = c - '0' + 26;
+        else mult = c - 'A';
+        out += mult * (uint64_t)pow(36, i++);
+    }
+    int bitlen = floor(log2(out) + 1);
+    CodeData ret;
+    MEM_ZERO(ret);
+    short gamecode = 0;
+    int ipc = 0, pc = 0, gc = 0;
+    for (int i = 0; i < bitlen; ++i) {
+        char c = pattern[i % PLEN];
+        auto bit = GETBIT(out, i);
+        switch (c) {
+            case 'A': ret.ip |= bit << ipc++; break;
+            case 'B': ret.port |= bit << pc++; break;
+            case 'C': gamecode |= bit << gc++; break;
+        }
+    }
+    ret.gameLength = gamecode & 0b1111;
+    ret.itemMode = (gamecode >> 4) & 0b11;
+    ret.player = (gamecode >> 6) & 0b11;
+    std::cout << (ret.ip & 0xFF) << '.'
+            << ((ret.ip >> 8) & 0xFF) << '.'
+            << ((ret.ip >> 16) & 0xFF) << '.'
+            << ((ret.ip >> 24) & 0xFF) << std::endl;
+    return ret;
 }
 
 int getIP(uint *ip)
