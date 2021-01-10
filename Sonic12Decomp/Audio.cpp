@@ -277,13 +277,15 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
     int i      = 0;
     if (!music) {
         if (snd->pan < 0) {
-            panR = 1.0f - abs(snd->pan / 100.0f);
-            panL = 1.0f; // 1.0f - panL;
+            panL = 1.0f - abs(snd->pan / 100.0f);
+            panR = 1.0f; // 1.0f - panL;
         }
         else if (snd->pan > 0) {
-            panL = 1.0f - abs(snd->pan / 100.0f);
-            panR = 1.0f; // 1.0f - panR;
+            panR = 1.0f - abs(snd->pan / 100.0f);
+            panL = 1.0f; // 1.0f - panR;
         }
+        //TODO: i think this makes rings quieter. fuck
+        if (snd->pan) volume -= (abs(snd->pan / 2.0f * (volume / MAX_VOLUME)));
     }
 
     switch (format) {
