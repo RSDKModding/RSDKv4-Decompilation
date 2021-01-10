@@ -278,11 +278,11 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
     if (!music) {
         if (snd->pan < 0) {
             panR = 1.0f - abs(snd->pan / 100.0f);
-            panL = 1.0f; // 1.0f - panL;
+            panL = 1.0f;
         }
         else if (snd->pan > 0) {
             panL = 1.0f - abs(snd->pan / 100.0f);
-            panR = 1.0f; // 1.0f - panR;
+            panR = 1.0f;
         }
     }
 

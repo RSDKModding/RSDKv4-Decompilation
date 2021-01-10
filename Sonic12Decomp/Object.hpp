@@ -48,8 +48,8 @@ struct Entity {
     byte tileCollisions;
     byte objectInteractions;
     byte gravity;
-    byte right;
     byte left;
+    byte right;
     byte up;
     byte down;
     byte jumpPress;
@@ -82,7 +82,7 @@ enum ObjectPriority {
     PRIORITY_ACTIVE,
     PRIORITY_ACTIVE_PAUSED,
     PRIORITY_ACTIVE_XBOUNDS,
-    PRIORITY_ACTIVE_BOUNDS_REMOVE,
+    PRIORITY_ACTIVE_XBOUNDS_REMOVE,
     PRIORITY_INACTIVE,
     PRIORITY_ACTIVE_BOUNDS_SMALL,
     PRIORITY_ACTIVE2

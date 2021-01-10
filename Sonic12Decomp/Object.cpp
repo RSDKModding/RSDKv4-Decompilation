@@ -34,8 +34,8 @@ int OBJECT_BORDER_X4       = SCREEN_XSIZE + 0x20;
 
 const int OBJECT_BORDER_Y1 = 0x100;
 const int OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
-const int OBJECT_BORDER_Y3 = 0x7F;
-const int OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x7F;
+const int OBJECT_BORDER_Y3 = 0x80;
+const int OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
 
 int playerListPos          = 0;
 
@@ -82,8 +82,8 @@ void ProcessObjects()
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset
-                         && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
+                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
+                                                && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
@@ -91,14 +91,11 @@ void ProcessObjects()
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
-            case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                if (x <= xScrollOffset - OBJECT_BORDER_X1 || x >= OBJECT_BORDER_X2 + xScrollOffset
-                    || y <= yScrollOffset - OBJECT_BORDER_Y1 || y >= yScrollOffset + OBJECT_BORDER_Y2) {
+            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
+                if (!processObjectFlag[objectLoop]) {
                     processObjectFlag[objectLoop] = false;
                     entity->type = OBJ_TYPE_BLANKOBJECT;
-                }
-                else {
-                    processObjectFlag[objectLoop] = true;
                 }
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
@@ -136,7 +133,6 @@ void ProcessObjects()
     }
 
 }
-
 void ProcessPausedObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
@@ -154,8 +150,6 @@ void ProcessPausedObjects()
         }
     }
 }
-
-
 void ProcessFrozenObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
@@ -169,23 +163,20 @@ void ProcessFrozenObjects()
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset
+                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                 && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
-            case PRIORITY_ACTIVE: 
+            case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
             case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
-            case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                if (x <= xScrollOffset - OBJECT_BORDER_X1 || x >= OBJECT_BORDER_X2 + xScrollOffset || y <= yScrollOffset - OBJECT_BORDER_Y1
-                    || y >= yScrollOffset + OBJECT_BORDER_Y2) {
+            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
+                if (!processObjectFlag[objectLoop]) {
                     processObjectFlag[objectLoop] = false;
                     entity->type                  = OBJ_TYPE_BLANKOBJECT;
-                }
-                else {
-                    processObjectFlag[objectLoop] = true;
                 }
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
@@ -241,45 +232,41 @@ void Process2PObjects() {
         y              = entity->YPos;
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                if (x < XPosP1 - 0x1FFFFFF || x > XPosP1 + 0x1FFFFFF || (y < YPosP1 - 0x17FFFFF) || y > YPosP1 + 0x17FFFFF) {
-                    if (x < XPosP2 - 0x1FFFFFF || x > XPosP2 + 0x1FFFFFF || (y < YPosP2 - 0x17FFFFF) || y > YPosP2 + 0x17FFFFF) {
-                        processObjectFlag[objectLoop] = false;
-                    }
-                    else {
-                        processObjectFlag[objectLoop] = true;
-                    }
-                }
-                else {
-                    processObjectFlag[objectLoop] = true;
+                processObjectFlag[objectLoop] =
+                    x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16) && y > YPosP1 - (0x180 << 16) && y < YPosP1 + (0x180 << 16);
+                if (!processObjectFlag[objectLoop]) {
+                    processObjectFlag[objectLoop] =
+                        x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16) && y > YPosP2 - (0x180 << 16) && y < YPosP2 + (0x180 << 16);
                 }
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
             case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
-                break;
-            case PRIORITY_ACTIVE_BOUNDS_REMOVE:
-                if ((x >= XPosP1 - 0x1FFFFFF && x <= XPosP1 + 0x1FFFFFF) || (x >= XPosP2 - 0x1FFFFFF && x <= XPosP2 + 0x1FFFFFF)) {
-                    processObjectFlag[objectLoop] = true;
+                processObjectFlag[objectLoop] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                if (!processObjectFlag[objectLoop]) {
+                    processObjectFlag[objectLoop] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
                 }
-                else {
+                break;
+            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+                
+                processObjectFlag[objectLoop] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                if (!processObjectFlag[objectLoop]) {
+                    processObjectFlag[objectLoop] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
+                }
+
+                if (!processObjectFlag[objectLoop]) {
                     entity->type                  = OBJ_TYPE_BLANKOBJECT;
-                    processObjectFlag[objectLoop] = false;
                 }
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                if (x < XPosP1 - 0x17FFFFF || x > XPosP1 + 0x17FFFFF || (y < YPosP1 - 0xFFFFFF) || y > YPosP1 + 0xFFFFFF) {
-                    if (x < XPosP2 - 0x17FFFFF || x > XPosP2 + 0x17FFFFF || (y < YPosP2 - 0xFFFFFF) || y > YPosP2 + 0xFFFFFF) {
-                        processObjectFlag[objectLoop] = false;
-                    }
-                    else {
-                        processObjectFlag[objectLoop] = true;
-                    }
-                }
-                else {
-                    processObjectFlag[objectLoop] = true;
+
+                processObjectFlag[objectLoop] =
+                    x > XPosP1 - (0x180 << 16) && x < XPosP1 + (0x180 << 16) && y > YPosP1 - (0x100 << 16) && y < YPosP1 + (0x100 << 16);
+                if (!processObjectFlag[objectLoop]) {
+                    processObjectFlag[objectLoop] =
+                        x > XPosP2 - (0x180 << 16) && x < XPosP2 + (0x180 << 16) && y > YPosP2 - (0x100 << 16) && y < YPosP2 + (0x100 << 16);
                 }
                 break;
             default: break;
