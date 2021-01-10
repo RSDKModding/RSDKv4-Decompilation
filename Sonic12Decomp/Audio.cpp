@@ -233,8 +233,6 @@ void ProcessAudioPlayback(void *data, Uint8 *stream, int len)
 
     for (byte i = 0; i < CHANNEL_COUNT; ++i) {
         ChannelInfo *sfx = &sfxChannels[i];
-        if (sfx == NULL)
-            continue;
 
         if (sfx->sfxID < 0)
             continue;
@@ -279,12 +277,12 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
     int i      = 0;
     if (!music) {
         if (snd->pan < 0) {
-            panL = abs(snd->pan / 100.0f);
-            panR = 1.0f - panL;
+            panR = 1.0f - abs(snd->pan / 100.0f);
+            panL = 1.0f; // 1.0f - panL;
         }
         else if (snd->pan > 0) {
-            panR = abs(snd->pan / 100.0f);
-            panL = 1.0f - panR;
+            panL = 1.0f - abs(snd->pan / 100.0f);
+            panR = 1.0f; // 1.0f - panR;
         }
     }
 

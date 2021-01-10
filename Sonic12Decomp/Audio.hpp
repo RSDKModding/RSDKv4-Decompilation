@@ -201,7 +201,13 @@ inline void ResumeSound()
 
 inline void StopAllSfx()
 {
+#if RETRO_USING_SDL
+    SDL_LockAudio();
+#endif
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
+#if RETRO_USING_SDL
+    SDL_UnlockAudio();
+#endif
 }
 inline void ReleaseGlobalSfx()
 {

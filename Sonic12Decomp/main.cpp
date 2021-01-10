@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
         if (StrComp(argv[i],"UsingCWD"))
             usingCWD = true;
     }
-    
+
     Engine.Init();
     Engine.Run();
 
