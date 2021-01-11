@@ -196,6 +196,7 @@ bool processEvents()
     return true;
 }
 
+#include <string>
 void RetroEngine::Init()
 {
     CalculateTrigAngles();
@@ -206,6 +207,22 @@ void RetroEngine::Init()
     InitNativeObjectSystem();
 
     buildNetworkIndex();
+#if WIN32
+    {
+        ushort port = 300;
+        playerListPos = 2;
+        std::string code = generateCode(port, 6, 2);
+        CodeData c = parseCode("ENC0WZ82F9B");
+        initClient(c);
+    }
+#else
+    {
+        ushort port      = 25535;
+        playerListPos    = 0;
+        std::string code = generateCode(port, 8, 1);
+        initServer(port);
+    }
+#endif
 
     gameMode = ENGINE_MAINGAME;
     running  = false;
