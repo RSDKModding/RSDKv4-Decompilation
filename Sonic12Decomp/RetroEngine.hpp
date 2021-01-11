@@ -22,7 +22,7 @@ typedef unsigned int uint;
 #define RSDK_DEBUG (1)
 
 #define NETWORKING (0)
-#if NETWORKING
+#if !NETWORKING
 #define NETWORK_H //easy way to fuck over network header LOL
 #endif
 
