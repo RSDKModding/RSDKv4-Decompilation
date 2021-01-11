@@ -95,7 +95,7 @@ CodeData parseCode(const string code)
     ret.gameLength = gamecode & 0b1111;
     ret.itemMode = (gamecode >> 4) & 0b11;
     ret.player = (gamecode >> 6) & 0b11;
-    ret.ip = 127 | 1 << 24;
+    //ret.ip = 127 | 1 << 24;
     std::ostringstream ip;
     ip << (ret.ip & 0xFF) << '.'
             << ((ret.ip >> 8) & 0xFF) << '.'
