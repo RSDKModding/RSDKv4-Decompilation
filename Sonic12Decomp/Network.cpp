@@ -236,7 +236,9 @@ void runServer(ushort port) {
 void runClient(CodeData data) {
     io_context io_context;
     datas[1] = data;
-    otherEndpoint = udp::endpoint(ip::address::from_string(data.ipString), data.port);
+    udp::resolver resolver(io_context);
+    otherEndpoint =
+      *resolver.resolve(udp::v4(), data.ipString, std::to_string(data.port)).begin();
     udpSocket = new udp::socket(io_context, otherEndpoint);
     udpSocket->connect(otherEndpoint);
     sendData(0x01, datas[1].codeString.length(), (void*)datas[1].codeString.c_str());
