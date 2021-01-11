@@ -1,3 +1,7 @@
+//here lies Network.cpp
+//check RetroEngine.cpp:215ish for more info (RetroEngine::Init)
+
+#if NETWORKING
 #include "RetroEngine.hpp"
 
 #if RETRO_PLATFORM == RETRO_WIN && _MSC_VER
@@ -102,7 +106,7 @@ CodeData parseCode(const string code)
             << ((ret.ip >> 16) & 0xFF) << '.'
             << ((ret.ip >> 24) & 0xFF);
     ret.ipString = ip.str();
-    ret.codeString = code;
+    ret.codeString = code.c_str(); //make a copy i guess
     return ret;
 }
 
@@ -186,6 +190,12 @@ void initClient(CodeData data) {
     runner = std::thread(runClient, data);
 }
 
+void stopNetworking() {
+    error_code ignored;
+    udpSocket->close(ignored); //this should error the running loop
+    runner.detach();
+}
+
 void runServer(ushort port) {
     io_context io_context;
     MEM_ZERO(datas[1]);
@@ -196,7 +206,12 @@ void runServer(ushort port) {
         char recv_buf[0x1000]; 
         MEM_ZEROP(recv_buf);
         cout << "waiting for bytes" << endl;
-        udpSocket->receive_from(buffer(recv_buf), remote_endpoint, 0, ignored);
+        try {
+            udpSocket->receive_from(buffer(recv_buf), remote_endpoint, 0);
+        }
+        catch (std::exception &e) {
+            recv_buf[0] = 0x82; //error on the socket end, terminate immediately
+        }
         cout << "recieved " << +recv_buf[0] << " from " << remote_endpoint.address().to_v4().to_string() << ":" << remote_endpoint.port() << endl;
         if (datas[1].ip && datas[1].ipString.compare(remote_endpoint.address().to_v4().to_string())) {
             sendData(0x80, 0, nullptr, &remote_endpoint); //you're not who we're looking for
@@ -236,9 +251,7 @@ void runServer(ushort port) {
 void runClient(CodeData data) {
     io_context io_context;
     datas[1] = data;
-    udp::resolver resolver(io_context);
-    otherEndpoint =
-      *resolver.resolve(udp::v4(), data.ipString, std::to_string(data.port)).begin();
+    otherEndpoint = udp::endpoint(ip::address_v4(data.ip), data.port);
     udpSocket = new udp::socket(io_context, otherEndpoint);
     udpSocket->connect(otherEndpoint);
     sendData(0x01, datas[1].codeString.length(), (void*)datas[1].codeString.c_str());
@@ -277,16 +290,17 @@ void runClient(CodeData data) {
 }
 
 int sendData(byte flag, ushort datalen, void* data, void *endpoint) {
-    if (!udpSocket || !udpSocket->is_open()) return 1;
-    if (!endpoint) endpoint = &otherEndpoint;
+    if (!udpSocket || !udpSocket->is_open()) return 1; //if socket doesn't exist
+    if (!endpoint) endpoint = &otherEndpoint; //set the default endpoint
     error_code ec;
     char sendbuf[0x1000];
     MEM_ZEROP(sendbuf);
     *sendbuf = flag;
     *(sendbuf + 1) = datalen;
-    memcpy(sendbuf + 3, data, datalen);
-    udpSocket->send_to(buffer(sendbuf), *(udp::endpoint*)endpoint, 0, ec);
-    cout << "sent " << +flag << " to " << (*(udp::endpoint*)endpoint).address().to_v4().to_string() << endl;
+    memcpy(sendbuf + 3, data, datalen); //fill our sendbuffer
+    udpSocket->send_to(buffer(sendbuf), *(udp::endpoint*)endpoint, 0, ec); //send it over
     if (ec) return ec.value();
+    cout << "sent " << +flag << " to " << (*(udp::endpoint*)endpoint).address().to_v4().to_string() << endl;
     return 0;
 }
+#endif

@@ -21,6 +21,11 @@ typedef unsigned int uint;
 
 #define RSDK_DEBUG (1)
 
+#define NETWORKING (0)
+#if NETWORKING
+#define NETWORK_H //easy way to fuck over network header LOL
+#endif
+
 // Platforms (RSDKv4 only defines these 7 (I assume), but feel free to add your own custom platform define for easier platform code changes)
 #define RETRO_WIN      (0)
 #define RETRO_OSX      (1)
