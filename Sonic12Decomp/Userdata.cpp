@@ -385,7 +385,9 @@ int Disconnect2PVS(int a1, void *a2)
     printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
 #endif
     if (Engine.onlineActive) {
+#if NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+#endif
         return 1;
     }
     return 0;
@@ -399,7 +401,9 @@ int SendEntity(int dataSlot, void *entityID)
         multiplayerDataOUT.type = 1;
         memcpy(multiplayerDataOUT.data, &objectEntityList[static_cast<int>(reinterpret_cast<intptr_t>(entityID))], sizeof(Entity));
         if (Engine.onlineActive) {
+#if NETWORKING
             sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+#endif
             return 1;
         }
     }
@@ -415,7 +419,9 @@ int SendValue(int a1, void *value)
     multiplayerDataOUT.type = 0;
     multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
     if (Engine.onlineActive && sendDataMethod) {
+#if NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+#endif
         return 1;
     }
     return 0;
@@ -471,7 +477,9 @@ int TransmitGlobal(int globalValue, void *globalName)
     multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
     multiplayerDataOUT.data[1] = globalValue;
     if (Engine.onlineActive && sendDataMethod) {
+#if NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+#endif
         return 1;
     }
     return 0;

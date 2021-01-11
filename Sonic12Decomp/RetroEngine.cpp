@@ -207,9 +207,9 @@ void RetroEngine::Init()
     CheckRSDKFile(BASE_PATH "Data.rsdk");
     InitUserdata();
     InitNativeObjectSystem();
-
+#if NETWORKING
     buildNetworkIndex();
-#if NETWORKING && RSDK_DEBUG
+#if RSDK_DEBUG
 //here lies the networking test.
 //check Network.cpp for the network code i've written so far
 //it should be commented enough
@@ -232,8 +232,9 @@ void RetroEngine::Init()
         std::string code = generateCode(port, 8, 1);
         initServer(port);
     }
-#endif
-#endif
+#endif // WIN32
+#endif // RSDK_DEBUG
+#endif // NETWORKING
     gameMode = ENGINE_MAINGAME;
     running  = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
