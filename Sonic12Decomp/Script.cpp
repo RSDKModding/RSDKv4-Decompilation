@@ -2326,6 +2326,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
         int opcodeSize       = functions[opcode].opcodeSize;
         int scriptCodeOffset = scriptDataPtr;
 
+        StrCopy(scriptText, "");
+
         // Get Values
         for (int i = 0; i < opcodeSize; ++i) {
             int opcodeType = scriptData[scriptDataPtr++];
@@ -4155,12 +4157,18 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_ENGINECALLBACKFUNC:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](0x00, reinterpret_cast<void *>(static_cast<intptr_t>(0x00)));
+                    nativeFunction[scriptEng.operands[0]](0x00, NULL);
                 break;
             case FUNC_ENGINECALLBACK:
-                if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
-                                                          reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                if (scriptEng.operands[0] <= 0xFu) {
+                    if (StrLength(scriptText)) {
+                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
+                    }
+                    else {
+                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
+                                                              reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                    }
+                }
                 break;
             case FUNC_ENGINECALLBACKEXT:
                 if (scriptEng.operands[0] <= 0xFu)
@@ -4190,19 +4198,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
             case FUNC_COPYOBJECT: {
                 opcodeSize   = 0;
-                int cnt      = scriptEng.operands[2];
-                int endIndex = scriptEng.operands[1];
-                int startID  = scriptEng.operands[0];
-                int nextID   = scriptEng.operands[0] + 1;
-                int dif      = endIndex - scriptEng.operands[0];
-                Entity *src  = &objectEntityList[endIndex];
-                for (int e = 0; e < cnt; ++e) {
-                    Entity *dst = &src[startID + endIndex];
+                //start index, copy offset, count
+                int dif     = scriptEng.operands[1] - scriptEng.operands[0];
+                Entity *src = &objectEntityList[scriptEng.operands[0]];
+                for (int e = 0; e < scriptEng.operands[2]; ++e) {
+                    Entity *dst = &src[scriptEng.operands[1]];
                     ++src;
                     memcpy(dst, src, sizeof(Entity));
-                    scriptEng.operands[0] = nextID;
-                    scriptEng.operands[2] = cnt;
-                    scriptEng.operands[1] = nextID++ + dif;
                 }
                 break;
             }

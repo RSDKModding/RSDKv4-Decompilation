@@ -428,7 +428,6 @@ int ReceiveEntity(int dataSlotID, void *entityID)
     if (Engine.onlineActive) {
         // Do online code
         int entitySlot = static_cast<int>(reinterpret_cast<intptr_t>(entityID));
-
         if (dataSlotID == 1) {
             if (multiplayerDataIN.type == 1) {
                 memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
@@ -483,7 +482,7 @@ void receive2PVSData(MultiplayerData* data) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
             multiplayerDataIN.type = 1;
-            memcpy(multiplayerDataIN.data, data->data, 0x118u);
+            memcpy(multiplayerDataIN.data, data->data, sizeof(Entity));
             break;
         case 2: globalVariables[data->data[0]] = data->data[1]; break;
     }
