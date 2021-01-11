@@ -1481,13 +1481,14 @@ void SetPathGripSensors(Entity *player)
             sensors[0].XPos = sensors[4].XPos + ((playerHitbox->left[1] - 1) << 16);
             sensors[1].XPos = sensors[4].XPos;
             sensors[2].XPos = sensors[4].XPos + (playerHitbox->right[1] << 16);
-            if (player->speed > 0) {
-                sensors[3].XPos = sensors[4].XPos + ((collisionRight + 1) << 16);
-                return;
-            }
-            sensors[3].XPos = sensors[4].XPos + ((collisionLeft - 1) << 16);
             sensors[5].XPos = sensors[4].XPos + (playerHitbox->left[1] << 15);
             sensors[6].XPos = sensors[4].XPos + (playerHitbox->right[1] << 15);
+            if (player->speed > 0) {
+                sensors[3].XPos = sensors[4].XPos + ((collisionRight + 1) << 16);
+            }
+            else {
+                sensors[3].XPos = sensors[4].XPos + ((collisionLeft - 1) << 16);
+            }
             return;
         }
         case CMODE_LWALL: {
@@ -1504,9 +1505,10 @@ void SetPathGripSensors(Entity *player)
             sensors[2].YPos = sensors[4].YPos + (playerHitbox->bottom[3] << 16);
             if (player->speed > 0) {
                 sensors[3].YPos = sensors[4].YPos + (collisionTop << 16);
-                return;
             }
-            sensors[3].YPos = sensors[4].YPos + ((collisionBottom - 1) << 16);
+            else {
+                sensors[3].YPos = sensors[4].YPos + ((collisionBottom - 1) << 16);
+            }
             return;
         }
         case CMODE_ROOF: {
@@ -1523,9 +1525,10 @@ void SetPathGripSensors(Entity *player)
             sensors[2].XPos = sensors[4].XPos + (playerHitbox->right[5] << 16);
             if (player->speed < 0) {
                 sensors[3].XPos = sensors[4].XPos + ((collisionRight + 1) << 16);
-                return;
             }
-            sensors[3].XPos = sensors[4].XPos + ((collisionLeft - 1) << 16);
+            else {
+                sensors[3].XPos = sensors[4].XPos + ((collisionLeft - 1) << 16);
+            }
             return;
         }
         case CMODE_RWALL: {
@@ -1542,9 +1545,10 @@ void SetPathGripSensors(Entity *player)
             sensors[2].YPos = sensors[4].YPos + (playerHitbox->bottom[7] << 16);
             if (player->speed > 0) {
                 sensors[3].YPos = sensors[4].YPos + (collisionBottom << 16);
-                return;
             }
-            sensors[3].YPos = sensors[4].YPos + ((collisionTop - 1) << 16);
+            else {
+                sensors[3].YPos = sensors[4].YPos + ((collisionTop - 1) << 16);
+            }
             return;
         }
         default: return;
@@ -2201,7 +2205,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
         if (otherEntity->YVelocity >= 0) {
             for (int i = 0; i < 5; ++i) {
                 if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && thisTop <= sensors[0].YPos
-                    && thisTop >= otherEntity->YPos - otherEntity->YVelocity) {
+                    && thisTop > otherEntity->YPos - otherEntity->YVelocity) {
                     sensors[i].collided      = true;
                     otherEntity->flailing[i] = true;
                 }
@@ -2348,7 +2352,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
                 }
             }
 
-            if (sensors[1].collided || sensors[0].collided) {
+            if (sensors[0].collided || sensors[1].collided) {
                 otherEntity->XPos = thisRight - otherLeft;
                 if (otherEntity->XVelocity < 0) {
                     if (otherEntity->direction == FLIP_X)
@@ -2467,65 +2471,48 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
 
-    int oLeft   = otherLeft << 16;
-    int oTop    = otherTop << 16;
-    int oRight  = otherRight << 16;
-    int oBottom = otherBottom << 16;
-
     otherLeft <<= 16;
     otherTop <<= 16;
     otherRight <<= 16;
     otherBottom <<= 16;
 
-    otherLeft += otherEntity->XPos;
-    otherTop += otherEntity->YPos;
-    otherRight += otherEntity->XPos;
-    otherBottom += otherEntity->YPos;
-
     scriptEng.checkResult = 0;
 
     int rx = otherEntity->XPos >> 16 << 16;
+    int ry = otherEntity->YPos >> 16 << 16;
 
-    int leftDif = thisLeft - otherEntity->XPos;
+    int xDif = thisLeft - thisEntity->XPos;
     if (thisEntity->XPos <= otherEntity->XPos)
-        leftDif = otherEntity->XPos - thisRight;
-
-    int topDif = thisTop - otherEntity->YPos;
+        xDif = otherEntity->XPos - thisRight;
+    int yDif = thisTop - thisEntity->YPos;
     if (thisEntity->YPos <= otherEntity->YPos)
-        topDif = otherEntity->YPos - thisBottom;
+        yDif = otherEntity->YPos - thisBottom;
 
-    if (leftDif > topDif) {
+    if (xDif <= yDif) {
         sensors[0].collided = false;
         sensors[1].collided = false;
         sensors[2].collided = false;
-        sensors[3].collided = false;
-        sensors[4].collided = false;
-        sensors[0].XPos     = otherLeft + 0x20000;
+        sensors[0].XPos     = rx + otherLeft + 0x20000;
         sensors[1].XPos     = rx;
-        sensors[2].XPos     = otherRight - 0x20000;
-        sensors[3].XPos     = (sensors[0].XPos + rx) >> 1;
-        sensors[4].XPos     = (sensors[2].XPos + rx) >> 1;
-        sensors[0].YPos     = otherBottom;
-        sensors[1].YPos     = otherBottom;
-        sensors[2].YPos     = otherBottom;
-        sensors[3].YPos     = otherBottom;
-        sensors[4].YPos     = otherBottom;
-        if (otherEntity->YVelocity > -1) {
-            for (int i = 0; i < 5; ++i) {
-                if (sensors[i].XPos > thisLeft && sensors[i].XPos < thisRight && sensors[i].YPos >= thisTop
-                    && otherEntity->YPos - otherEntity->YVelocity < thisTop) {
+        sensors[2].XPos     = rx + otherRight - 0x20000;
+
+        sensors[0].YPos = ry + otherBottom;
+
+        if (otherEntity->YVelocity >= 0) {
+            for (int i = 0; i < 3; ++i) {
+                if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && thisTop <= sensors[0].YPos && thisEntity->YPos > sensors[0].YPos) {
                     sensors[i].collided      = true;
                     otherEntity->flailing[i] = true;
                 }
             }
         }
 
-        if (sensors[2].collided || sensors[1].collided || sensors[0].collided) {
+        if (sensors[0].collided || sensors[1].collided || sensors[2].collided) {
             if (!otherEntity->gravity && (otherEntity->collisionMode == CMODE_RWALL || otherEntity->collisionMode == CMODE_LWALL)) {
                 otherEntity->XVelocity = 0;
                 otherEntity->speed     = 0;
             }
-            otherEntity->YPos        = thisTop - oBottom;
+            otherEntity->YPos        = thisTop - otherBottom;
             otherEntity->gravity     = 0;
             otherEntity->YVelocity   = 0;
             otherEntity->angle       = 0;
@@ -2536,21 +2523,24 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
         else {
             sensors[0].collided = false;
             sensors[1].collided = false;
-            sensors[0].XPos     = otherLeft + 0x20000;
-            sensors[1].XPos     = otherRight - 0x20000;
-            sensors[0].YPos     = otherTop;
-            sensors[1].YPos     = sensors[0].YPos;
+            sensors[0].XPos     = rx + otherLeft + 0x20000;
+            sensors[1].XPos     = rx + otherRight - 0x20000;
+
+            sensors[0].YPos = ry + otherTop;
+
             for (int i = 0; i < 2; ++i) {
-                if (sensors[i].XPos > thisLeft && sensors[i].XPos < thisRight && sensors[i].YPos <= thisBottom
-                    && otherEntity->YPos - otherEntity->YVelocity > thisBottom) {
+                if (thisLeft < sensors[1].XPos && thisRight > sensors[0].XPos && thisBottom > sensors[0].YPos && thisEntity->YPos < sensors[0].YPos) {
                     sensors[i].collided = true;
                 }
             }
 
             if (sensors[1].collided || sensors[0].collided) {
-                if (otherEntity->gravity == 1)
-                    otherEntity->YPos = thisBottom - oTop;
+                if (!otherEntity->gravity && (otherEntity->collisionMode == CMODE_RWALL || otherEntity->collisionMode == CMODE_LWALL)) {
+                    otherEntity->XVelocity = 0;
+                    otherEntity->speed     = 0;
+                }
 
+                otherEntity->YPos = thisBottom - otherTop;
                 if (otherEntity->YVelocity < 0)
                     otherEntity->YVelocity = 0;
                 scriptEng.checkResult = 4;
@@ -2558,59 +2548,53 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
             else {
                 sensors[0].collided = false;
                 sensors[1].collided = false;
-                sensors[0].XPos     = otherRight;
-                sensors[1].XPos     = otherRight;
-                sensors[0].YPos     = otherTop + 0x20000;
-                sensors[1].YPos     = otherBottom - 0x20000;
+                sensors[0].XPos     = rx + otherRight;
+
+                sensors[0].YPos = ry + otherTop + 0x20000;
+                sensors[1].YPos = ry + otherBottom - 0x20000;
                 for (int i = 0; i < 2; ++i) {
-                    if (sensors[i].XPos >= thisLeft && otherEntity->XPos - otherEntity->XVelocity < thisLeft && sensors[1].YPos > thisTop
-                        && sensors[0].YPos < thisBottom) {
+                    if (thisLeft <= sensors[0].XPos && thisEntity->XPos > sensors[0].XPos && thisTop < sensors[1].YPos
+                        && thisBottom > sensors[0].YPos) {
                         sensors[i].collided = true;
                     }
                 }
 
                 if (sensors[1].collided || sensors[0].collided) {
-                    otherEntity->XPos = thisLeft - oRight;
+                    otherEntity->XPos = thisLeft - otherRight;
                     if (otherEntity->XVelocity > 0) {
                         if (!otherEntity->direction)
                             otherEntity->pushing = 2;
+
                         otherEntity->XVelocity = 0;
-                        // This code was in ida, but it never works properly in practice
-                        // if (otherEntity->collisionMode || !otherEntity->right)
-                        otherEntity->speed = 0;
-                        // else
-                        //    otherEntity->speed = -0x8000;
+                        otherEntity->speed     = 0;
                     }
                     scriptEng.checkResult = 2;
                 }
                 else {
                     sensors[0].collided = false;
                     sensors[1].collided = false;
-                    sensors[0].XPos     = otherLeft;
-                    sensors[1].XPos     = otherLeft;
-                    sensors[0].YPos     = otherTop + 0x20000;
-                    sensors[1].YPos     = otherBottom - 0x20000;
+                    sensors[0].XPos     = rx + otherLeft;
+
+                    sensors[0].YPos = ry + otherTop + 0x20000;
+                    sensors[1].YPos = ry + otherBottom - 0x20000;
                     for (int i = 0; i < 2; ++i) {
-                        if (sensors[i].XPos <= thisRight && otherEntity->XPos - otherEntity->XVelocity > thisRight && sensors[1].YPos > thisTop
-                            && sensors[0].YPos < thisBottom) {
+                        if (thisRight > sensors[0].XPos && thisEntity->XPos < sensors[0].XPos && thisTop < sensors[1].YPos
+                            && thisBottom > sensors[0].YPos) {
                             sensors[i].collided = true;
                         }
                     }
 
-                    if (sensors[1].collided || (sensors[0].collided)) {
-                        otherEntity->XPos = thisRight - oLeft;
+                    if (sensors[1].collided || sensors[0].collided) {
+                        otherEntity->XPos = thisRight - otherLeft;
                         if (otherEntity->XVelocity < 0) {
                             if (otherEntity->direction == FLIP_X)
                                 otherEntity->pushing = 2;
 
-                            // if (otherEntity->XVelocity < -0x10000)
-                            //    otherEntity->XPos += 0x8000;
+                            if (otherEntity->XVelocity < -0x10000)
+                                otherEntity->XPos += 0x8000;
 
                             otherEntity->XVelocity = 0;
-                            // if (otherEntity->collisionMode || !otherEntity->left)
-                            otherEntity->speed = 0;
-                            // else
-                            //    otherEntity->speed = 0x8000;
+                            otherEntity->speed     = 0;
                         }
                         scriptEng.checkResult = 3;
                     }
@@ -2621,58 +2605,52 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     else {
         sensors[0].collided = false;
         sensors[1].collided = false;
-        sensors[0].XPos     = otherRight;
-        sensors[1].XPos     = otherRight;
-        sensors[0].YPos     = otherTop + 0x20000;
-        sensors[1].YPos     = otherBottom - 0x20000;
+        sensors[0].XPos     = rx + otherRight;
+
+        sensors[0].YPos = ry + otherTop + 0x20000;
+        sensors[1].YPos = ry + otherBottom - 0x20000;
         for (int i = 0; i < 2; ++i) {
-            if (sensors[i].XPos >= thisLeft && otherEntity->XPos - otherEntity->XVelocity < thisLeft && sensors[1].YPos > thisTop
-                && sensors[0].YPos < thisBottom) {
+            if (thisLeft <= sensors[0].XPos && thisEntity->XPos > sensors[0].XPos && thisTop < sensors[1].YPos
+                && thisBottom > sensors[0].YPos) {
                 sensors[i].collided = true;
             }
         }
         if (sensors[1].collided || sensors[0].collided) {
-            otherEntity->XPos = thisLeft - oRight;
+            otherEntity->XPos = thisLeft - otherRight;
             if (otherEntity->XVelocity > 0) {
                 if (!otherEntity->direction)
                     otherEntity->pushing = 2;
+
                 otherEntity->XVelocity = 0;
-                // This code was in ida, but it never works properly in practice
-                // if (otherEntity->collisionMode || !otherEntity->right)
-                otherEntity->speed = 0;
-                // else
-                //    otherEntity->speed = -0x8000;
+                otherEntity->speed     = 0;
             }
             scriptEng.checkResult = 2;
         }
         else {
             sensors[0].collided = false;
             sensors[1].collided = false;
-            sensors[0].XPos     = otherLeft;
-            sensors[1].XPos     = otherLeft;
-            sensors[0].YPos     = otherTop + 0x20000;
-            sensors[1].YPos     = otherBottom - 0x20000;
+            sensors[0].XPos     = rx + otherLeft;
+
+            sensors[0].YPos = ry + otherTop + 0x20000;
+            sensors[1].YPos = ry + otherBottom - 0x20000;
             for (int i = 0; i < 2; ++i) {
-                if (sensors[i].XPos <= thisRight && otherEntity->XPos - otherEntity->XVelocity > thisRight && sensors[1].YPos > thisTop
-                    && sensors[0].YPos < thisBottom) {
+                if (thisRight > sensors[0].XPos && thisEntity->XPos < sensors[0].XPos && thisTop < sensors[1].YPos
+                    && thisBottom > sensors[0].YPos) {
                     sensors[i].collided = true;
                 }
             }
-            if (sensors[1].collided || sensors[0].collided) {
-                otherEntity->XPos = thisRight - oLeft;
+
+            if (sensors[0].collided || sensors[1].collided) {
+                otherEntity->XPos = thisRight - otherLeft;
                 if (otherEntity->XVelocity < 0) {
                     if (otherEntity->direction == FLIP_X)
                         otherEntity->pushing = 2;
 
-                    // This code was in ida, but it never works properly in practice
-                    // if (otherEntity->XVelocity < -0x10000)
-                    //    otherEntity->XPos += 0x8000;
+                    if (otherEntity->XVelocity < -0x10000)
+                        otherEntity->XPos += 0x8000;
 
                     otherEntity->XVelocity = 0;
-                    // if (otherEntity->collisionMode || !otherEntity->left)
-                    otherEntity->speed = 0;
-                    // else
-                    //    otherEntity->speed = 0x8000;
+                    otherEntity->speed     = 0;
                 }
                 scriptEng.checkResult = 3;
             }
@@ -2680,33 +2658,26 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
                 sensors[0].collided = false;
                 sensors[1].collided = false;
                 sensors[2].collided = false;
-                sensors[3].collided = false;
-                sensors[4].collided = false;
-                sensors[0].XPos     = otherLeft + 0x20000;
+                sensors[0].XPos     = rx + otherLeft + 0x20000;
                 sensors[1].XPos     = rx;
-                sensors[2].XPos     = otherRight - 0x20000;
-                sensors[3].XPos     = (sensors[0].XPos + rx) >> 1;
-                sensors[4].XPos     = (sensors[2].XPos + rx) >> 1;
-                sensors[0].YPos     = otherBottom;
-                sensors[1].YPos     = otherBottom;
-                sensors[2].YPos     = otherBottom;
-                sensors[3].YPos     = otherBottom;
-                sensors[4].YPos     = otherBottom;
-                if (otherEntity->YVelocity > -1) {
-                    for (int i = 0; i < 5; ++i) {
-                        if (sensors[i].XPos > thisLeft && sensors[i].XPos < thisRight && sensors[i].YPos >= thisTop
-                            && otherEntity->YPos - otherEntity->YVelocity < thisTop) {
+                sensors[2].XPos     = rx + otherRight - 0x20000;
+
+                sensors[0].YPos = ry + otherBottom;
+                if (otherEntity->YVelocity >= 0) {
+                    for (int i = 0; i < 3; ++i) {
+                        if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && thisTop <= sensors[0].YPos && thisEntity->YPos > sensors[0].YPos) {
                             sensors[i].collided      = true;
                             otherEntity->flailing[i] = true;
                         }
                     }
                 }
-                if (sensors[2].collided || sensors[1].collided || sensors[0].collided) {
+
+                if (sensors[0].collided || sensors[1].collided || sensors[2].collided) {
                     if (!otherEntity->gravity && (otherEntity->collisionMode == CMODE_RWALL || otherEntity->collisionMode == CMODE_LWALL)) {
                         otherEntity->XVelocity = 0;
                         otherEntity->speed     = 0;
                     }
-                    otherEntity->YPos        = thisTop - oBottom;
+                    otherEntity->YPos        = thisTop - otherBottom;
                     otherEntity->gravity     = 0;
                     otherEntity->YVelocity   = 0;
                     otherEntity->angle       = 0;
@@ -2717,21 +2688,25 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
                 else {
                     sensors[0].collided = false;
                     sensors[1].collided = false;
-                    sensors[0].XPos     = otherLeft + 0x20000;
-                    sensors[1].XPos     = otherRight - 0x20000;
-                    sensors[0].YPos     = otherTop;
-                    sensors[1].YPos     = sensors[0].YPos;
+                    sensors[0].XPos     = rx + otherLeft + 0x20000;
+                    sensors[1].XPos     = rx + otherRight - 0x20000;
+
+                    sensors[0].YPos     = ry + otherTop;
+
                     for (int i = 0; i < 2; ++i) {
-                        if (sensors[i].XPos > thisLeft && sensors[i].XPos < thisRight && sensors[i].YPos <= thisBottom
-                            && otherEntity->YPos - otherEntity->YVelocity > thisBottom) {
+                        if (thisLeft < sensors[1].XPos && thisRight > sensors[0].XPos && thisBottom > sensors[0].YPos
+                            && thisEntity->YPos < sensors[0].YPos) {
                             sensors[i].collided = true;
                         }
                     }
 
                     if (sensors[1].collided || sensors[0].collided) {
-                        if (otherEntity->gravity == 1) {
-                            otherEntity->YPos = thisBottom - oTop;
+                        if (!otherEntity->gravity && (otherEntity->collisionMode == CMODE_RWALL || otherEntity->collisionMode == CMODE_LWALL)) {
+                            otherEntity->XVelocity = 0;
+                            otherEntity->speed     = 0;
                         }
+
+                        otherEntity->YPos = thisBottom - otherTop;
 
                         if (otherEntity->YVelocity < 0)
                             otherEntity->YVelocity = 0;

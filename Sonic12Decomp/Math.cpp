@@ -61,43 +61,34 @@ void CalculateTrigAngles()
 
 byte ArcTanLookup(int X, int Y)
 {
-    int XVal;
-    byte result = 0;
-    int YVal;
+    int x = 0;
+    int y = 0;
 
-    if (X >= 0)
-        XVal = X;
-    else 
-        XVal = -X;
+    x = abs(X);
+    y = abs(Y);
 
-    if (Y >= 0)
-        YVal = Y;
-    else 
-        YVal = -Y;
-
-    if (XVal <= YVal) {
-        while (YVal > 0xFF) {
-            XVal >>= 4;
-            YVal >>= 4;
+    if (x <= y) {
+        while (y > 0xFF) {
+            x >>= 4;
+            y >>= 4;
         }
     }
     else {
-        while (XVal > 0xFF) {
-            XVal >>= 4;
-            YVal >>= 4;
+        while (x > 0xFF) {
+            x >>= 4;
+            y >>= 4;
         }
     }
     if (X <= 0) {
         if (Y <= 0)
-            result = atanVal256[0x100 * XVal + YVal] + -0x80;
+            return atanVal256[(x << 8) + y] + -0x80;
         else
-            result = -0x80 - atanVal256[0x100 * XVal + YVal];
+            return -0x80 - atanVal256[(x << 8) + y];
     }
     else if (Y <= 0)
-        result = -atanVal256[0x100 * XVal + YVal];
-    else 
-        result = atanVal256[0x100 * XVal + YVal];
-    return result;
+        return -atanVal256[(x << 8) + y];
+    else
+        return atanVal256[(x << 8) + y];
 }
 
 int64_t pow(int base, int exponent) {
