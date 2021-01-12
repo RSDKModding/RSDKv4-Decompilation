@@ -41,7 +41,7 @@ struct Entity {
     byte frame;
     byte collisionMode;
     byte collisionPlane;
-    char controlMode;
+    sbyte controlMode;
     byte controlLock;
     byte pushing;
     byte visible;

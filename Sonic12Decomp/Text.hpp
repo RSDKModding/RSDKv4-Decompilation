@@ -20,7 +20,7 @@ struct TextMenu {
     ushort visibleRowOffset;
     byte alignment;
     byte selectionCount;
-    char timer;
+    sbyte timer;
 };
 
 enum TextMenuAlignments {

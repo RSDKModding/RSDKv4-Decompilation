@@ -42,7 +42,7 @@ struct ChannelInfo {
     byte *samplePtr;
     int sfxID;
     byte loopSFX;
-    char pan;
+    sbyte pan;
 };
 
 enum MusicStatuses {
@@ -154,7 +154,7 @@ inline void StopSfx(int sfx)
         }
     }
 }
-void SetSfxAttributes(int sfx, int loopCount, char pan);
+void SetSfxAttributes(int sfx, int loopCount, sbyte pan);
 
 #if !RSDK_DEBUG
 inline void SetSfxName(const char* sfxName, int sfxID) {

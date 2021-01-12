@@ -962,7 +962,7 @@ void PlaySfx(int sfx, bool loop)
     if (nextChannelPos == CHANNEL_COUNT)
         nextChannelPos = 0;
 }
-void SetSfxAttributes(int sfx, int loopCount, char pan)
+void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
 {
     int sfxChannel = -1;
     for (int i = 0; i < CHANNEL_COUNT; ++i) {

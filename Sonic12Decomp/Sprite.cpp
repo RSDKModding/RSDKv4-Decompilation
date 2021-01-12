@@ -164,7 +164,7 @@ int ReadGifCode()
 
 byte ReadGifByte()
 {
-    char c = '\0';
+    byte c = '\0';
     if (gifDecoder.fileState == LOAD_COMPLETE)
         return c;
 

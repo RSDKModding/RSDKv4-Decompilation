@@ -217,7 +217,7 @@ void runServer(ushort port) {
             sendData(0x80, 0, nullptr, &remote_endpoint); //you're not who we're looking for
             continue;
         }
-        char flag = recv_buf[0] & 0x7F, error = recv_buf[0] & 0x80;
+        sbyte flag = recv_buf[0] & 0x7F, error = recv_buf[0] & 0x80;
         ushort datalen = *(short*)(recv_buf + 1);
         if (error) {
             udpSocket->close(ignored);
@@ -267,7 +267,7 @@ void runClient(CodeData data) {
             sendData(0x80, 0, nullptr, &remote_endpoint); //you're not who we're looking for
             continue;
         }
-        char flag = recv_buf[0] & 0x7F, error = recv_buf[0] & 0x80;
+        sbyte flag = recv_buf[0] & 0x7F, error = recv_buf[0] & 0x80;
         ushort datalen = *(short*)(recv_buf + 1);
         if (error) {
             udpSocket->close(ignored);
