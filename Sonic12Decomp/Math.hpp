@@ -15,7 +15,7 @@ extern int cosVal512[0x200];
 extern int sinVal256[0x100];
 extern int cosVal256[0x100];
 
-extern int atanVal256[0x100 * 0x100];
+extern byte atanVal256[0x100 * 0x100];
 
 // Setup Angles
 void CalculateTrigAngles();

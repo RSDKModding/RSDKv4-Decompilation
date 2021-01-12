@@ -196,7 +196,7 @@ bool processEvents()
     return true;
 }
 
-#if NETWORKING && RSDK_DEBUG
+#if RETRO_USE_NETWORKING && RSDK_DEBUG
 #include <string>
 #endif
 void RetroEngine::Init()
@@ -207,7 +207,8 @@ void RetroEngine::Init()
     CheckRSDKFile(BASE_PATH "Data.rsdk");
     InitUserdata();
     InitNativeObjectSystem();
-#if NETWORKING
+
+#if RETRO_USE_NETWORKING
     buildNetworkIndex();
 #if RSDK_DEBUG
 //here lies the networking test.
@@ -234,7 +235,8 @@ void RetroEngine::Init()
     }
 #endif // WIN32
 #endif // RSDK_DEBUG
-#endif // NETWORKING
+#endif // RETRO_USE_NETWORKING
+
     gameMode = ENGINE_MAINGAME;
     running  = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {

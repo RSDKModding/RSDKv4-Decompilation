@@ -1,7 +1,7 @@
 //here lies Network.cpp
 //check RetroEngine.cpp:215ish for more info (RetroEngine::Init)
 
-#if NETWORKING
+#if RETRO_USE_NETWORKING
 #include "RetroEngine.hpp"
 
 #if RETRO_PLATFORM == RETRO_WIN && _MSC_VER

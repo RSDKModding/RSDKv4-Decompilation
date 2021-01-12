@@ -12,8 +12,8 @@ CollisionSensor sensors[7];
 inline Hitbox *getHitbox(Entity *entity)
 {
     AnimationFile *thisAnim = objectScriptList[entity->type].animFile;
-    return &hitboxList[animFrames[animationList[thisAnim->aniListOffset + entity->animation].frameListOffset + entity->frame].hitboxID
-                       + thisAnim->hitboxListOffset];
+    return &hitboxList[thisAnim->hitboxListOffset
+                       + animFrames[animationList[thisAnim->aniListOffset + entity->animation].frameListOffset + entity->frame].hitboxID];
 }
 
 void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
@@ -952,8 +952,8 @@ void ProcessAirCollision(Entity *player)
             player->angle         = sensorAngle;
             player->rotation      = player->angle << 1;
             player->collisionMode = CMODE_RWALL;
-            player->XPos          = player->XPos + 0x40000;
-            player->YPos          = player->YPos - 0x20000;
+            player->XPos += 0x40000;
+            player->YPos -= 0x20000;
             if (player->angle <= 0x60)
                 player->speed = player->YVelocity;
             else
@@ -964,8 +964,8 @@ void ProcessAirCollision(Entity *player)
             player->angle         = sensorAngle;
             player->rotation      = player->angle << 1;
             player->collisionMode = CMODE_LWALL;
-            player->XPos          = player->XPos - 0x40000;
-            player->YPos          = player->YPos - 0x20000;
+            player->XPos -= 0x40000;
+            player->YPos -= 0x20000;
             if (player->angle >= 0xA0)
                 player->speed = -player->YVelocity;
             else
@@ -2108,10 +2108,15 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
-    thisLeft += thisEntity->XPos >> 16;
-    thisTop += thisEntity->YPos >> 16;
-    thisRight += thisEntity->XPos >> 16;
-    thisBottom += thisEntity->YPos >> 16;
+    thisLeft <<= 16;
+    thisTop <<= 16;
+    thisRight <<= 16;
+    thisBottom <<= 16;
+
+    thisLeft += thisEntity->XPos;
+    thisTop += thisEntity->YPos;
+    thisRight += thisEntity->XPos;
+    thisBottom += thisEntity->YPos;
 
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
@@ -2124,10 +2129,15 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
 
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
-    otherLeft += otherEntity->XPos >> 16;
-    otherTop += otherEntity->YPos >> 16;
-    otherRight += otherEntity->XPos >> 16;
-    otherBottom += otherEntity->YPos >> 16;
+    otherLeft <<= 16;
+    otherTop <<= 16;
+    otherRight <<= 16;
+    otherBottom <<= 16;
+
+    otherLeft += otherEntity->XPos;
+    otherTop += otherEntity->YPos;
+    otherRight += otherEntity->XPos;
+    otherBottom += otherEntity->YPos;
 
     scriptEng.checkResult = otherRight > thisLeft && otherLeft < thisRight && otherBottom > thisTop && otherTop < thisBottom;
 }

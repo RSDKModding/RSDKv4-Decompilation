@@ -2622,11 +2622,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
                         int pos = objectEntityList[arrayVal].XPos >> 16;
-                        if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= OBJECT_BORDER_X2 + xScrollOffset) {
+                        if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= xScrollOffset + OBJECT_BORDER_X2) {
                             scriptEng.operands[i] = 1;
                         }
                         else {
-                            int pos               = objectEntityList[arrayVal].YPos >> 16;
+                            pos               = objectEntityList[arrayVal].YPos >> 16;
                             scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >= yScrollOffset + OBJECT_BORDER_Y2;
                         }
                         break;
