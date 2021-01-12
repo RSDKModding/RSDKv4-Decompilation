@@ -33,7 +33,7 @@ even if your platform isn't supported by the official releases, buy it for the a
 * Clone the repo, then follow the instructions in the [depencencies readme for iOS](./dependencies/ios/dependencies.txt) to setup dependencies, then build via the xcode project
 
 ## Other platforms:
-Currently the only supported platforms are the one's listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
+Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
 if you've cloned this repo and ported it to a platform not on the list or made some changes you'd like to see added to this repo, submit a pull request and it'll most likely be added
 
 # FAQ
