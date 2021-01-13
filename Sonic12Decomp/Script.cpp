@@ -2335,24 +2335,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             if (opcodeType == SCRIPTVAR_VAR) {
                 int arrayVal = 0;
                 switch (scriptData[scriptDataPtr++]) {
-                    case VARARR_NONE: arrayVal = objectLoop; break;
+                    case VARARR_NONE: arrayVal = objectEntityPos; break;
                     case VARARR_ARRAY:
-                        if (scriptData[scriptDataPtr++] == 1)
+                        if (scriptData[scriptDataPtr++] == 1) {
+                            if (scriptData[scriptDataPtr] == 6)
+                                printf("");
                             arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        }
                         else
                             arrayVal = scriptData[scriptDataPtr++];
                         break;
                     case VARARR_ENTNOPLUS1:
                         if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectEntityPos;
                         else
-                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                            arrayVal = scriptData[scriptDataPtr++] + objectEntityPos;
                         break;
                     case VARARR_ENTNOMINUS1:
                         if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                            arrayVal = objectEntityPos - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
                         else
-                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                            arrayVal = objectEntityPos - scriptData[scriptDataPtr++];
                         break;
                     default: break;
                 }
@@ -2632,7 +2635,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         break;
                     }
                     case VAR_OBJECTSPRITESHEET: {
-                        scriptEng.operands[i] = objectScriptList[objectEntityList[objectLoop].type].spriteSheetID;
+                        scriptEng.operands[i] = objectScriptList[objectEntityList[arrayVal].type].spriteSheetID;
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
@@ -2854,7 +2857,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMIDPOINT: scriptEng.operands[i] = tLayerMidPoint; break;
                     case VAR_STAGEPLAYERLISTPOS: scriptEng.operands[i] = playerListPos; break;
                     case VAR_STAGEDEBUGMODE: scriptEng.operands[i] = debugMode; break;
-                    case VAR_STAGEOBJECTENTITYPOS: scriptEng.operands[i] = objectLoop; break;
+                    case VAR_STAGEOBJECTENTITYPOS: scriptEng.operands[i] = objectEntityPos; break;
                     case VAR_SCREENCAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
                     case VAR_SCREENCAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
                     case VAR_SCREENCAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
@@ -2982,8 +2985,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
         }
 
-        ObjectScript *scriptInfo = &objectScriptList[objectEntityList[objectLoop].type];
-        Entity *entity           = &objectEntityList[objectLoop];
+        ObjectScript *scriptInfo = &objectScriptList[objectEntityList[objectEntityPos].type];
+        Entity *entity           = &objectEntityList[objectEntityPos];
         SpriteFrame *spriteFrame = nullptr;
 
         // Functions
@@ -4221,7 +4224,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             if (opcodeType == SCRIPTVAR_VAR) {
                 int arrayVal = 0;
                 switch (scriptData[scriptDataPtr++]) { // variable
-                    case VARARR_NONE: arrayVal = objectLoop; break;
+                    case VARARR_NONE: arrayVal = objectEntityPos; break;
                     case VARARR_ARRAY:
                         if (scriptData[scriptDataPtr++] == 1)
                             arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
@@ -4230,15 +4233,15 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         break;
                     case VARARR_ENTNOPLUS1:
                         if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                            arrayVal = objectEntityPos + scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
                         else
-                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                            arrayVal = objectEntityPos + scriptData[scriptDataPtr++];
                         break;
                     case VARARR_ENTNOMINUS1:
                         if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                            arrayVal = objectEntityPos - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
                         else
-                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                            arrayVal = objectEntityPos - scriptData[scriptDataPtr++];
                         break;
                     default: break;
                 }
@@ -4470,7 +4473,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         break;
                     }
                     case VAR_OBJECTSPRITESHEET: {
-                        objectScriptList[objectEntityList[objectLoop].type].spriteSheetID = scriptEng.operands[i];
+                        objectScriptList[objectEntityList[arrayVal].type].spriteSheetID = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
@@ -4712,7 +4715,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMIDPOINT: tLayerMidPoint = scriptEng.operands[i]; break;
                     case VAR_STAGEPLAYERLISTPOS: playerListPos = scriptEng.operands[i]; break;
                     case VAR_STAGEDEBUGMODE: debugMode = scriptEng.operands[i]; break;
-                    case VAR_STAGEOBJECTENTITYPOS: objectLoop = scriptEng.operands[i]; break;
+                    case VAR_STAGEOBJECTENTITYPOS: objectEntityPos = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERAENABLED: cameraEnabled = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERATARGET: cameraTarget = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERASTYLE: cameraStyle = scriptEng.operands[i]; break;

@@ -1577,7 +1577,7 @@ void ProcessPlayerTileCollisions(Entity *player)
 void ObjectFloorCollision(int xOffset, int yOffset, int cPath)
 {
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int c                 = 0;
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
@@ -1637,7 +1637,7 @@ void ObjectLWallCollision(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].width << 7 && YPos > 0 && YPos < stageLayouts[0].height << 7) {
@@ -1697,7 +1697,7 @@ void ObjectRoofCollision(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].width << 7 && YPos > 0 && YPos < stageLayouts[0].height << 7) {
@@ -1757,7 +1757,7 @@ void ObjectRWallCollision(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     if (XPos > 0 && XPos < stageLayouts[0].width << 7 && YPos > 0 && YPos < stageLayouts[0].height << 7) {
@@ -1818,7 +1818,7 @@ void ObjectFloorGrip(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     int chunkX            = YPos;
@@ -1887,7 +1887,7 @@ void ObjectLWallGrip(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     int startX            = XPos;
@@ -1956,7 +1956,7 @@ void ObjectRoofGrip(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     int startY            = YPos;
@@ -2025,7 +2025,7 @@ void ObjectRWallGrip(int xOffset, int yOffset, int cPath)
 {
     int c;
     scriptEng.checkResult = false;
-    Entity *entity        = &objectEntityList[objectLoop];
+    Entity *entity        = &objectEntityList[objectEntityPos];
     int XPos              = (entity->XPos >> 16) + xOffset;
     int YPos              = (entity->YPos >> 16) + yOffset;
     int startX            = XPos;
@@ -2108,15 +2108,11 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
-    thisLeft <<= 16;
-    thisTop <<= 16;
-    thisRight <<= 16;
-    thisBottom <<= 16;
 
-    thisLeft += thisEntity->XPos;
-    thisTop += thisEntity->YPos;
-    thisRight += thisEntity->XPos;
-    thisBottom += thisEntity->YPos;
+    thisLeft += thisEntity->XPos >> 16;
+    thisTop += thisEntity->YPos >> 16;
+    thisRight += thisEntity->XPos >> 16;
+    thisBottom += thisEntity->YPos >> 16;
 
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
@@ -2129,15 +2125,11 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
 
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
-    otherLeft <<= 16;
-    otherTop <<= 16;
-    otherRight <<= 16;
-    otherBottom <<= 16;
 
-    otherLeft += otherEntity->XPos;
-    otherTop += otherEntity->YPos;
-    otherRight += otherEntity->XPos;
-    otherBottom += otherEntity->YPos;
+    otherLeft += otherEntity->XPos >> 16;
+    otherTop += otherEntity->YPos >> 16;
+    otherRight += otherEntity->XPos >> 16;
+    otherBottom += otherEntity->YPos >> 16;
 
     scriptEng.checkResult = otherRight > thisLeft && otherLeft < thisRight && otherBottom > thisTop && otherTop < thisBottom;
 }

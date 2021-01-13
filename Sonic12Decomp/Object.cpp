@@ -19,7 +19,7 @@ int backupEntityListS[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 
 //Game Objects
-int objectLoop    = 0;
+int objectEntityPos    = 0;
 int curObjectType = 0;
 Entity objectEntityList[ENTITY_COUNT];
 int processObjectFlag[ENTITY_COUNT];
@@ -55,7 +55,7 @@ void ProcessStartupObjects()
 
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];
-        objectLoop                  = TEMPENTITY_START;
+        objectEntityPos                  = TEMPENTITY_START;
         curObjectType               = i;
         scriptInfo->frameListOffset = scriptFrameCount;
         scriptInfo->spriteSheetID   = 0;
@@ -73,61 +73,61 @@ void ProcessObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        processObjectFlag[objectLoop] = false;
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
-        Entity *entity = &objectEntityList[objectLoop];
+        Entity *entity = &objectEntityList[objectEntityPos];
         x              = entity->XPos >> 16;
         y              = entity->YPos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                 && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] = false;
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] = false;
                     entity->type = OBJ_TYPE_BLANKOBJECT;
                 }
                 break;
-            case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
+            case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                 && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
             default: break;
         }
 
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
+        if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
-                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectLoop;
+                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
     
     for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        Entity *entity = &objectEntityList[objectEntityPos];
+        if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
             if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list = &objectTypeGroupList[objectEntityList[objectLoop].type];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
         }
     }
@@ -137,8 +137,8 @@ void ProcessPausedObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        Entity *entity = &objectEntityList[objectLoop];
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        Entity *entity = &objectEntityList[objectEntityPos];
 
         if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
@@ -146,7 +146,7 @@ void ProcessPausedObjects()
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
-                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectLoop;
+                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
 }
@@ -154,34 +154,34 @@ void ProcessFrozenObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        processObjectFlag[objectLoop] = false;
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
-        Entity *entity = &objectEntityList[objectLoop];
+        Entity *entity = &objectEntityList[objectEntityPos];
         x              = entity->XPos >> 16;
         y              = entity->YPos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                 && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] = false;
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] = false;
                     entity->type                  = OBJ_TYPE_BLANKOBJECT;
                 }
                 break;
-            case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
+            case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                processObjectFlag[objectLoop] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
+                processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                 && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
             default: break;
@@ -193,22 +193,22 @@ void ProcessFrozenObjects()
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
-                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectLoop;
+                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
 
     for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        Entity *entity = &objectEntityList[objectEntityPos];
+        if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
             if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].type];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
         }
     }
@@ -223,77 +223,77 @@ void Process2PObjects() {
     int XPosP2       = entityP2->XPos;
     int YPosP2       = entityP2->YPos;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        processObjectFlag[objectLoop] = false;
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
 
-        Entity *entity = &objectEntityList[objectLoop];
+        Entity *entity = &objectEntityList[objectEntityPos];
         x              = entity->XPos;
         y              = entity->YPos;
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectLoop] =
+                processObjectFlag[objectEntityPos] =
                     x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16) && y > YPosP1 - (0x180 << 16) && y < YPosP1 + (0x180 << 16);
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] =
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] =
                         x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16) && y > YPosP2 - (0x180 << 16) && y < YPosP2 + (0x180 << 16);
                 }
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectLoop] = true; break;
+            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                processObjectFlag[objectLoop] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
                 }
                 break;
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
                 
-                processObjectFlag[objectLoop] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
                 }
 
-                if (!processObjectFlag[objectLoop]) {
+                if (!processObjectFlag[objectEntityPos]) {
                     entity->type                  = OBJ_TYPE_BLANKOBJECT;
                 }
                 break;
-            case PRIORITY_INACTIVE: processObjectFlag[objectLoop] = false; break;
+            case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
 
-                processObjectFlag[objectLoop] =
+                processObjectFlag[objectEntityPos] =
                     x > XPosP1 - (0x180 << 16) && x < XPosP1 + (0x180 << 16) && y > YPosP1 - (0x100 << 16) && y < YPosP1 + (0x100 << 16);
-                if (!processObjectFlag[objectLoop]) {
-                    processObjectFlag[objectLoop] =
+                if (!processObjectFlag[objectEntityPos]) {
+                    processObjectFlag[objectEntityPos] =
                         x > XPosP2 - (0x180 << 16) && x < XPosP2 + (0x180 << 16) && y > YPosP2 - (0x100 << 16) && y < YPosP2 + (0x100 << 16);
                 }
                 break;
             default: break;
         }
 
-        if (processObjectFlag[objectLoop] && entity->type > OBJ_TYPE_BLANKOBJECT) {
+        if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
-                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectLoop;
+                drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
 
     for (int i = 0; i < TYPEGROUP_COUNT; ++i) objectTypeGroupList[i].listSize = 0;
 
-    for (objectLoop = 0; objectLoop < ENTITY_COUNT; ++objectLoop) {
-        Entity *entity = &objectEntityList[objectLoop];
-        if (processObjectFlag[objectLoop] && entity->objectInteractions) {
+    for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
+        Entity *entity = &objectEntityList[objectEntityPos];
+        if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
             if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].type];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectLoop].typeGroup];
-                list->entityRefs[list->listSize++] = objectLoop;
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                list->entityRefs[list->listSize++] = objectEntityPos;
             }
         }
     }

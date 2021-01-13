@@ -105,7 +105,7 @@ extern int backupEntityListS[NATIVEENTITY_COUNT];
 extern NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 
 //Game Objects
-extern int objectLoop;
+extern int objectEntityPos;
 extern int curObjectType;
 extern Entity objectEntityList[ENTITY_COUNT];
 extern int processObjectFlag[ENTITY_COUNT];

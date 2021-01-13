@@ -271,8 +271,8 @@ void DrawObjectList(int Layer)
 {
     int size = drawListEntries[Layer].listSize;
     for (int i = 0; i < size; ++i) {
-        objectLoop = drawListEntries[Layer].entityRefs[i];
-        int type           = objectEntityList[objectLoop].type;
+        objectEntityPos = drawListEntries[Layer].entityRefs[i];
+        int type           = objectEntityList[objectEntityPos].type;
         if (type) {
             if (scriptData[objectScriptList[type].subDraw.scriptCodePtr] > 0)
                 ProcessScript(objectScriptList[type].subDraw.scriptCodePtr, objectScriptList[type].subDraw.jumpTablePtr, SUB_DRAW);
