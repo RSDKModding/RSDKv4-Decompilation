@@ -249,7 +249,6 @@ void Process2PObjects() {
                 }
                 break;
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
-                
                 processObjectFlag[objectEntityPos] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
@@ -261,7 +260,6 @@ void Process2PObjects() {
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-
                 processObjectFlag[objectEntityPos] =
                     x > XPosP1 - (0x180 << 16) && x < XPosP1 + (0x180 << 16) && y > YPosP1 - (0x100 << 16) && y < YPosP1 + (0x100 << 16);
                 if (!processObjectFlag[objectEntityPos]) {

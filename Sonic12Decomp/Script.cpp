@@ -723,7 +723,7 @@ enum ScrVar {
     VAR_STAGEMINUTES,
     VAR_STAGEACTNO,
     VAR_STAGEPAUSEENABLED,
-    VAR_STAGELIST_STSIZE,
+    VAR_STAGELISTSIZE,
     VAR_STAGENEWXBOUNDARY1,
     VAR_STAGENEWXBOUNDARY2,
     VAR_STAGENEWYBOUNDARY1,
@@ -2337,11 +2337,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 switch (scriptData[scriptDataPtr++]) {
                     case VARARR_NONE: arrayVal = objectEntityPos; break;
                     case VARARR_ARRAY:
-                        if (scriptData[scriptDataPtr++] == 1) {
-                            if (scriptData[scriptDataPtr] == 6)
-                                printf("");
+                        if (scriptData[scriptDataPtr++] == 1)
                             arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
-                        }
                         else
                             arrayVal = scriptData[scriptDataPtr++];
                         break;
@@ -2839,7 +2836,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMINUTES: scriptEng.operands[i] = stageMinutes; break;
                     case VAR_STAGEACTNO: scriptEng.operands[i] = actID; break;
                     case VAR_STAGEPAUSEENABLED: scriptEng.operands[i] = pauseEnabled; break;
-                    case VAR_STAGELIST_STSIZE: scriptEng.operands[i] = stageListCount[activeStageList]; break;
+                    case VAR_STAGELISTSIZE: scriptEng.operands[i] = stageListCount[activeStageList]; break;
                     case VAR_STAGENEWXBOUNDARY1: scriptEng.operands[i] = newXBoundary1; break;
                     case VAR_STAGENEWXBOUNDARY2: scriptEng.operands[i] = newXBoundary2; break;
                     case VAR_STAGENEWYBOUNDARY1: scriptEng.operands[i] = newYBoundary1; break;
@@ -4677,32 +4674,32 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMINUTES: stageMinutes = scriptEng.operands[i]; break;
                     case VAR_STAGEACTNO: actID = scriptEng.operands[i]; break;
                     case VAR_STAGEPAUSEENABLED: pauseEnabled = scriptEng.operands[i]; break;
-                    case VAR_STAGELIST_STSIZE: stageListCount[activeStageList] = scriptEng.operands[i]; break;
+                    case VAR_STAGELISTSIZE: break;
                     case VAR_STAGENEWXBOUNDARY1: newXBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWXBOUNDARY2: newXBoundary2 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY1: newYBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY2: newYBoundary2 = scriptEng.operands[i]; break;
                     case VAR_STAGEXBOUNDARY1:
                         if (curXBoundary1 != scriptEng.operands[i]) {
-                            curXBoundary1    = scriptEng.operands[i];
+                            curXBoundary1 = scriptEng.operands[i];
                             newXBoundary1 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEXBOUNDARY2:
                         if (curXBoundary2 != scriptEng.operands[i]) {
-                            curXBoundary2    = scriptEng.operands[i];
+                            curXBoundary2 = scriptEng.operands[i];
                             newXBoundary2 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEYBOUNDARY1:
                         if (curYBoundary1 != scriptEng.operands[i]) {
-                            curYBoundary1    = scriptEng.operands[i];
+                            curYBoundary1 = scriptEng.operands[i];
                             newYBoundary1 = scriptEng.operands[i];
                         }
                         break;
                     case VAR_STAGEYBOUNDARY2:
                         if (curYBoundary2 != scriptEng.operands[i]) {
-                            curYBoundary2    = scriptEng.operands[i];
+                            curYBoundary2 = scriptEng.operands[i];
                             newYBoundary2 = scriptEng.operands[i];
                         }
                         break;
@@ -4770,7 +4767,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].width = scriptEng.operands[i]; break;
                     case VAR_TILELAYERYSIZE: stageLayouts[arrayVal].height = scriptEng.operands[i]; break;
                     case VAR_TILELAYERTYPE: stageLayouts[arrayVal].type = scriptEng.operands[i]; break;
-                    case VAR_TILELAYERANGLE: stageLayouts[arrayVal].angle = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERANGLE: {
+                        int angle = scriptEng.operands[i] + 512;
+                        if (scriptEng.operands[i] >= 0)
+                            angle = scriptEng.operands[i];
+                        stageLayouts[arrayVal].angle = angle & 0x1FF;
+                        break;
+                    }
                     case VAR_TILELAYERXPOS: stageLayouts[arrayVal].XPos = scriptEng.operands[i]; break;
                     case VAR_TILELAYERYPOS: stageLayouts[arrayVal].YPos = scriptEng.operands[i]; break;
                     case VAR_TILELAYERZPOS: stageLayouts[arrayVal].ZPos = scriptEng.operands[i]; break;

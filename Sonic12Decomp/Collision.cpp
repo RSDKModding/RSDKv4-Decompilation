@@ -1021,10 +1021,16 @@ void ProcessPathGrip(Entity *player)
 
                 if (player->speed > 0) {
                     LWallCollision(player, &sensors[3]);
+                    if (sensors[3].collided) {
+                        sensors[2].XPos = (sensors[3].XPos - 2) << 16;
+                    }
                 }
 
                 if (player->speed < 0) {
                     RWallCollision(player, &sensors[3]);
+                    if (sensors[3].collided) {
+                        sensors[0].XPos = (sensors[3].XPos + 2) << 16;
+                    }
                 }
 
                 if (sensors[3].collided) {
