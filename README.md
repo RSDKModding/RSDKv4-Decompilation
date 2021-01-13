@@ -4,13 +4,13 @@ A Full Decompilation of Sonic 1 & 2 (2013)
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
 
-+ You can get the official release of sonic cd from:
++ You can get the official release of sonic 1 & sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
   * [Sonic 2 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
   * [Sonic 1 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic1px&hl=en_AU&gl=US)
   * [Sonic 2 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic2.runner&hl=en_AU&gl=US)
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
-  * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
+  * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
 even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets)
 
@@ -49,7 +49,6 @@ if you've cloned this repo and ported it to a platform not on the list or made s
 # Special Thanks
 * [RMGRich](https://github.com/MGRich): for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
 * [Xeeynamo](https://github.com/Xeeynamo): For creating the RSDK Animation editor & an early version of the script unpacker, both of which got me into RSDK modding
-* [Sappharad](https://github.com/Sappharad): For making a decompilation of the windows phone 7 version of sonic cd (found [here](https://github.com/Sappharad/rvm_soniccd)) which gave me the idea & motivation to decompile Sonic CD, leading to this decompilation
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine): for being supportive of me and for giving me a place to show off these things that I've found
 
 # Background:
