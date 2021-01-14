@@ -20,6 +20,10 @@ even if your platform isn't supported by the official releases, buy it for the a
 * The f12 pause, f11 step over & fast forward debug features from sonic mania have all be ported and are enabled if devMenu is enabled in the config
 * If devMenu is enabled in the config, pressing f10 will activate a palette overlay that shows the game's 8 internal palettes in real time
 
+#TODOs:
+* the "native object" system has been implimented, but the objects (aside from RetroGameLoop and a temporary pause menu) and the proper HW rendering system have yet to be added
+* probably some more bug fixes, because there always are a few stragglers
+
 # How to build:
 ## Windows:
 * Clone the repo, then follow the instructions in the [depencencies readme for windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
