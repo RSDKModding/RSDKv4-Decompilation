@@ -83,7 +83,7 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if ((abs(sensor->angle - angle) > 0x20) && (abs(sensor->angle - 0x100 - angle) > 0x20)
@@ -93,11 +93,7 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
                         sensor->angle    = angle;
                         i                = TILE_SIZE * 3;
                     }
-                    else if (sensor->YPos - startY > collisionTolerance) {
-                        sensor->YPos     = startY << 16;
-                        sensor->collided = false;
-                    }
-                    else if (sensor->YPos - startY < -collisionTolerance) {
+                    else if (sensor->YPos - startY > collisionTolerance || sensor->YPos - startY < -collisionTolerance) {
                         sensor->YPos     = startY << 16;
                         sensor->collided = false;
                     }
@@ -171,7 +167,7 @@ void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startX)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if (abs(angle - sensor->angle) > 0x20) {
@@ -219,7 +215,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (byte)((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24);
+                            sensor->angle    = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
                             break;
                         }
                         case FLIP_X: {
@@ -229,7 +225,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (byte)(0x100 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24));
+                            sensor->angle    = 0x100 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24);
                             break;
                         }
                         case FLIP_Y: {
@@ -348,7 +344,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if (abs(sensor->angle - angle) > 0x20) {
@@ -357,11 +353,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
                         sensor->angle    = angle;
                         i                = TILE_SIZE * 3;
                     }
-                    else if (sensor->XPos - startX > collisionTolerance) {
-                        sensor->XPos     = startX << 16;
-                        sensor->collided = false;
-                    }
-                    else if (sensor->XPos - startX < -collisionTolerance) {
+                    else if (sensor->XPos - startX > collisionTolerance || sensor->XPos - startX < -collisionTolerance) {
                         sensor->XPos     = startX << 16;
                         sensor->collided = false;
                     }
@@ -705,7 +697,7 @@ void ProcessAirCollision(Entity *player)
     }
     else {
         movingRight         = 1;
-        sensors[0].YPos     = player->YPos + 0x20000;
+        sensors[0].YPos     = player->YPos + 0x40000;
         sensors[0].collided = false;
         sensors[0].XPos     = player->XPos + (collisionRight << 16);
     }
@@ -714,7 +706,7 @@ void ProcessAirCollision(Entity *player)
     }
     else {
         movingLeft          = 1;
-        sensors[1].YPos     = player->YPos + 0x20000;
+        sensors[1].YPos     = player->YPos + 0x40000;
         sensors[1].collided = false;
         sensors[1].XPos     = player->XPos + ((collisionLeft - 1) << 16);
     }
@@ -749,19 +741,37 @@ void ProcessAirCollision(Entity *player)
         cnt--;
 
         if (movingRight == 1) {
-            sensors[0].XPos += XVel + 0x10000;
+            sensors[0].XPos += XVel;
             sensors[0].YPos += YVel;
             LWallCollision(player, &sensors[0]);
-            if (sensors[0].collided)
+            if (sensors[0].collided) {
                 movingRight = 2;
+            }
+            else if (player->XVelocity <= 0x1FFFF) {
+                sensors[0].YPos -= 0x80000;
+                LWallCollision(player, &sensors[0]);
+                movingRight = 1;
+                if (sensors[0].collided)
+                    movingRight = 2;
+                sensors[0].YPos += 0x80000;
+            }
         }
 
         if (movingLeft == 1) {
-            sensors[1].XPos += XVel - 0x10000;
+            sensors[1].XPos += XVel;
             sensors[1].YPos += YVel;
             RWallCollision(player, &sensors[1]);
-            if (sensors[1].collided)
+            if (sensors[1].collided) {
                 movingLeft = 2;
+            }
+            else if (player->XVelocity >= -0x1FFFF) {
+                sensors[1].YPos -= 0x80000;
+                RWallCollision(player, &sensors[1]);
+                movingLeft = 1;
+                if (sensors[1].collided)
+                    movingLeft = 2;
+                sensors[1].YPos += 0x80000;
+            }
         }
 
         if (movingRight == 2) {
@@ -849,11 +859,11 @@ void ProcessAirCollision(Entity *player)
         }
         if (player->angle > 0xA0 && player->angle < 0xE0 && player->collisionMode != CMODE_LWALL) {
             player->collisionMode = CMODE_LWALL;
-            player->XPos          = player->XPos - 0x40000;
+            player->XPos -= 0x40000;
         }
         if (player->angle > 0x20 && player->angle < 0x60 && player->collisionMode != CMODE_RWALL) {
             player->collisionMode = CMODE_RWALL;
-            player->XPos          = player->XPos + 0x40000;
+            player->XPos += 0x40000;
         }
         if (player->angle < 0x20 || player->angle > 0xE0) {
             player->controlLock = 0;
@@ -1289,7 +1299,7 @@ void ProcessPathGrip(Entity *player)
             player->angle = 0;
             if (!sensors[3].collided) {
                 player->pushing = 0;
-                player->XPos    = player->XPos + player->XVelocity;
+                player->XPos += player->XVelocity;
             }
             else {
                 if (player->speed > 0)
@@ -1301,7 +1311,7 @@ void ProcessPathGrip(Entity *player)
                 if ((player->left || player->right) && player->pushing < 2)
                     player->pushing++;
             }
-            player->YPos = player->YPos + player->YVelocity;
+            player->YPos += player->YVelocity;
             return;
         }
         case CMODE_LWALL: {
@@ -1562,8 +1572,8 @@ void ProcessPlayerTileCollisions(Entity *player)
     scriptEng.checkResult = false;
 
     collisionTolerance = 15;
-    if (player->speed + 0x5FFFF <= 0xBFFFE)
-        collisionTolerance = player->angle < 1u ? 8 : 15;
+    if (player->speed <= 0x5FFFF)
+        collisionTolerance = (sbyte)player->angle < 1 ? 8 : 15;
 
     if (player->gravity == 1)
         ProcessAirCollision(player);

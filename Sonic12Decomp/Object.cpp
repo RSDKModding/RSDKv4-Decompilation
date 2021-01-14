@@ -111,7 +111,7 @@ void ProcessObjects()
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
-            if (entity->drawOrder < DRAWLAYER_COUNT)
+            if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
@@ -145,7 +145,7 @@ void ProcessPausedObjects()
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
-            if (entity->drawOrder < DRAWLAYER_COUNT)
+            if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
@@ -192,7 +192,7 @@ void ProcessFrozenObjects()
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
-            if (entity->drawOrder < DRAWLAYER_COUNT)
+            if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
@@ -275,7 +275,7 @@ void Process2PObjects() {
             if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
 
-            if (entity->drawOrder < DRAWLAYER_COUNT)
+            if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }

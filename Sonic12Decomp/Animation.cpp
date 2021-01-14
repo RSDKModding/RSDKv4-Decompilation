@@ -104,6 +104,9 @@ void ClearAnimationData()
     animationCount     = 0;
     animationFileCount = 0;
     hitboxCount        = 0;
+
+    //Used for pause menu
+    LoadGIFFile("Data/Game/SystemText.gif", 0);
 }
 
 AnimationFile *AddAnimationFile(char *filePath)
