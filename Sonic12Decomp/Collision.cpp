@@ -26,7 +26,7 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
             int XPos   = sensor->XPos >> 16;
             int chunkX = XPos >> 7;
             int tileX  = (XPos & 0x7F) >> 4;
-            int YPos   = (sensor->YPos >> 16) + i - TILE_SIZE;
+            int YPos   = (sensor->YPos >> 16) - TILE_SIZE + i;
             int chunkY = YPos >> 7;
             int tileY  = (YPos & 0x7F) >> 4;
             if (XPos > -1 && YPos > -1) {
@@ -63,8 +63,7 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24));
                             break;
                         }
                         case FLIP_XY: {
@@ -74,8 +73,7 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle = 0x100 - (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24));
                             break;
                         }
                     }
@@ -115,7 +113,7 @@ void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startX)
     int tsm1  = (TILE_SIZE - 1);
     for (int i = 0; i < TILE_SIZE * 3; i += TILE_SIZE) {
         if (!sensor->collided) {
-            int XPos   = (sensor->XPos >> 16) + i - TILE_SIZE;
+            int XPos   = (sensor->XPos >> 16) - TILE_SIZE + i;
             int chunkX = XPos >> 7;
             int tileX  = (XPos & 0x7F) >> 4;
             int YPos   = sensor->YPos >> 16;
@@ -154,8 +152,7 @@ void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startX)
 
                             sensor->XPos     = collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8));
                             break;
                         }
                         case FLIP_XY: {
@@ -165,8 +162,7 @@ void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startX)
 
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16));
                             break;
                         }
                     }
@@ -223,7 +219,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            sensor->angle    = (byte)((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24);
                             break;
                         }
                         case FLIP_X: {
@@ -233,7 +229,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = 0x100 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24);
+                            sensor->angle    = (byte)(0x100 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24));
                             break;
                         }
                         case FLIP_Y: {
@@ -243,8 +239,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (byte)(0x180 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                         case FLIP_XY: {
@@ -254,8 +249,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            byte cAngle      = collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (byte)(0x180 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                     }
@@ -265,7 +259,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if (abs(sensor->angle - angle) <= 0x20) {
@@ -315,7 +309,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
 
                             sensor->XPos     = collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
-                            sensor->angle    = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16;
+                            sensor->angle    = (byte)((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16);
                             break;
                         }
                         case FLIP_X: {
@@ -335,8 +329,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
 
                             sensor->XPos     = collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            sensor->angle    = (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF0000) >> 16));
                             break;
                         }
                         case FLIP_XY: {
@@ -346,8 +339,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
 
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle    = 0x100 - (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF00) >> 8));
                             break;
                         }
                     }
@@ -366,7 +358,7 @@ void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startX)
                         i                = TILE_SIZE * 3;
                     }
                     else if (sensor->XPos - startX > collisionTolerance) {
-                        sensor->XPos     = startX >> 16;
+                        sensor->XPos     = startX << 16;
                         sensor->collided = false;
                     }
                     else if (sensor->XPos - startX < -collisionTolerance) {
@@ -389,7 +381,7 @@ void FloorCollision(Entity *player, CollisionSensor *sensor)
             int XPos   = sensor->XPos >> 16;
             int chunkX = XPos >> 7;
             int tileX  = (XPos & 0x7F) >> 4;
-            int YPos   = (sensor->YPos >> 16) + i - TILE_SIZE;
+            int YPos   = (sensor->YPos >> 16) - TILE_SIZE + i;
             int chunkY = YPos >> 7;
             int tileY  = (YPos & 0x7F) >> 4;
             if (XPos > -1 && YPos > -1) {
@@ -401,7 +393,7 @@ void FloorCollision(Entity *player, CollisionSensor *sensor)
                     switch (tiles128x128.direction[tile]) {
                         case FLIP_NONE: {
                             c = (XPos & tsm1) + (tileIndex << 4);
-                            if ((YPos & tsm1) <= collisionMasks[player->collisionPlane].floorMasks[c] + i - TILE_SIZE
+                            if ((YPos & tsm1) <= collisionMasks[player->collisionPlane].floorMasks[c] - TILE_SIZE + i
                                 || collisionMasks[player->collisionPlane].floorMasks[c] >= tsm1)
                                 break;
 
@@ -412,7 +404,7 @@ void FloorCollision(Entity *player, CollisionSensor *sensor)
                         }
                         case FLIP_X: {
                             c = tsm1 - (XPos & tsm1) + (tileIndex << 4);
-                            if ((YPos & tsm1) <= collisionMasks[player->collisionPlane].floorMasks[c] + i - TILE_SIZE
+                            if ((YPos & tsm1) <= collisionMasks[player->collisionPlane].floorMasks[c] - TILE_SIZE + i
                                 || collisionMasks[player->collisionPlane].floorMasks[c] >= tsm1)
                                 break;
 
@@ -423,24 +415,23 @@ void FloorCollision(Entity *player, CollisionSensor *sensor)
                         }
                         case FLIP_Y: {
                             c = (XPos & tsm1) + (tileIndex << 4);
-                            if ((YPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + i - TILE_SIZE)
+                            if ((YPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = (byte)(-0x80 - cAngle);
+                            byte cAngle      = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
+                            sensor->angle    = (byte)(0x180 - cAngle);
                             break;
                         }
                         case FLIP_XY: {
                             c = tsm1 - (XPos & tsm1) + (tileIndex << 4);
-                            if ((YPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + i - TILE_SIZE)
+                            if ((YPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].roofMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            int cAngle       = (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - cAngle);
+                            sensor->angle = 0x100 - (byte)(0x180 - ((collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF000000) >> 24));
                             break;
                         }
                     }
@@ -450,7 +441,7 @@ void FloorCollision(Entity *player, CollisionSensor *sensor)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if (sensor->YPos - startY > (TILE_SIZE - 2)) {
@@ -473,7 +464,7 @@ void LWallCollision(Entity *player, CollisionSensor *sensor)
     int tsm1   = (TILE_SIZE - 1);
     for (int i = 0; i < TILE_SIZE * 3; i += TILE_SIZE) {
         if (!sensor->collided) {
-            int XPos   = (sensor->XPos >> 16) + i - TILE_SIZE;
+            int XPos   = (sensor->XPos >> 16) - TILE_SIZE + i;
             int chunkX = XPos >> 7;
             int tileX  = (XPos & 0x7F) >> 4;
             int YPos   = sensor->YPos >> 16;
@@ -488,7 +479,7 @@ void LWallCollision(Entity *player, CollisionSensor *sensor)
                     switch (tiles128x128.direction[tile]) {
                         case FLIP_NONE: {
                             c = (YPos & tsm1) + (tileIndex << 4);
-                            if ((XPos & tsm1) <= collisionMasks[player->collisionPlane].lWallMasks[c] + i - TILE_SIZE)
+                            if ((XPos & tsm1) <= collisionMasks[player->collisionPlane].lWallMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->XPos     = collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
@@ -497,7 +488,7 @@ void LWallCollision(Entity *player, CollisionSensor *sensor)
                         }
                         case FLIP_X: {
                             c = (YPos & tsm1) + (tileIndex << 4);
-                            if ((XPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + i - TILE_SIZE)
+                            if ((XPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
@@ -506,7 +497,7 @@ void LWallCollision(Entity *player, CollisionSensor *sensor)
                         }
                         case FLIP_Y: {
                             c = tsm1 - (YPos & tsm1) + (tileIndex << 4);
-                            if ((XPos & tsm1) <= collisionMasks[player->collisionPlane].lWallMasks[c] + i - TILE_SIZE)
+                            if ((XPos & tsm1) <= collisionMasks[player->collisionPlane].lWallMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->XPos     = collisionMasks[player->collisionPlane].lWallMasks[c] + (chunkX << 7) + (tileX << 4);
@@ -515,7 +506,7 @@ void LWallCollision(Entity *player, CollisionSensor *sensor)
                         }
                         case FLIP_XY: {
                             c = tsm1 - (YPos & tsm1) + (tileIndex << 4);
-                            if ((XPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + i - TILE_SIZE)
+                            if ((XPos & tsm1) <= tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] - TILE_SIZE + i)
                                 break;
 
                             sensor->XPos     = tsm1 - collisionMasks[player->collisionPlane].rWallMasks[c] + (chunkX << 7) + (tileX << 4);
@@ -586,7 +577,7 @@ void RoofCollision(Entity *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = 0x180 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF);
                             break;
                         }
                         case FLIP_XY: {
@@ -596,7 +587,7 @@ void RoofCollision(Entity *player, CollisionSensor *sensor)
 
                             sensor->YPos     = tsm1 - collisionMasks[player->collisionPlane].floorMasks[c] + (chunkY << 7) + (tileY << 4);
                             sensor->collided = true;
-                            sensor->angle    = 0x100 - (byte)(-0x80 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
+                            sensor->angle    = 0x100 - (byte)(0x180 - (collisionMasks[player->collisionPlane].angles[tileIndex] & 0xFF));
                             break;
                         }
                     }
@@ -606,7 +597,7 @@ void RoofCollision(Entity *player, CollisionSensor *sensor)
                     if (sensor->angle < 0)
                         sensor->angle += 0x100;
 
-                    if (sensor->angle > 0xFF)
+                    if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
                     if (sensor->YPos - startY > (TILE_SIZE - 2)) {

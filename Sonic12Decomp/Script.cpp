@@ -716,7 +716,7 @@ enum ScrVar {
     VAR_OBJECTVALUE47,
     VAR_STAGESTATE,
     VAR_STAGEACTIVELIST,
-    VAR_STAGELIST_STPOS,
+    VAR_STAGELISTPOS,
     VAR_STAGETIMEENABLED,
     VAR_STAGEMILLISECONDS,
     VAR_STAGESECONDS,
@@ -2829,7 +2829,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_STAGESTATE: scriptEng.operands[i] = stageMode; break;
                     case VAR_STAGEACTIVELIST: scriptEng.operands[i] = activeStageList; break;
-                    case VAR_STAGELIST_STPOS: scriptEng.operands[i] = stageListPosition; break;
+                    case VAR_STAGELISTPOS: scriptEng.operands[i] = stageListPosition; break;
                     case VAR_STAGETIMEENABLED: scriptEng.operands[i] = timeEnabled; break;
                     case VAR_STAGEMILLISECONDS: scriptEng.operands[i] = stageMilliseconds; break;
                     case VAR_STAGESECONDS: scriptEng.operands[i] = stageSeconds; break;
@@ -4667,7 +4667,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                     case VAR_STAGESTATE: stageMode = scriptEng.operands[i]; break;
                     case VAR_STAGEACTIVELIST: activeStageList = scriptEng.operands[i]; break;
-                    case VAR_STAGELIST_STPOS: stageListPosition = scriptEng.operands[i]; break;
+                    case VAR_STAGELISTPOS: stageListPosition = scriptEng.operands[i]; break;
                     case VAR_STAGETIMEENABLED: timeEnabled = scriptEng.operands[i]; break;
                     case VAR_STAGEMILLISECONDS: stageMilliseconds = scriptEng.operands[i]; break;
                     case VAR_STAGESECONDS: stageSeconds = scriptEng.operands[i]; break;

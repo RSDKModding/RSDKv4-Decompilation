@@ -1279,13 +1279,13 @@ void SetPlayerScreenPosition(Entity *target)
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
-        if (yScrollOffset <= newYBoundary1)
+        if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
         else
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary1 < curYBoundary1) {
-        if (yScrollOffset <= curYBoundary1)
+        if (curYBoundary1 >= yScrollOffset)
             --curYBoundary1;
         else
             curYBoundary1 = newYBoundary1;
@@ -1297,8 +1297,18 @@ void SetPlayerScreenPosition(Entity *target)
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
     if (newYBoundary2 > curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
+            if (target->YVelocity > 0) {
+                int buf = curYBoundary2 + target->YVelocity >> 16;
+                if (newYBoundary2 < buf) {
+                    curYBoundary2 = newYBoundary2;
+                }
+                else {
+                    curYBoundary2 += target->YVelocity >> 16;
+                }
+            }
+        }
         else
             curYBoundary2 = newYBoundary2;
     }
@@ -1484,13 +1494,13 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
-        if (yScrollOffset <= newYBoundary1)
+        if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
         else
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary1 < curYBoundary1) {
-        if (yScrollOffset <= curYBoundary1)
+        if (curYBoundary1 >= yScrollOffset)
             --curYBoundary1;
         else
             curYBoundary1 = newYBoundary1;
@@ -1502,8 +1512,18 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
     if (newYBoundary2 > curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
+            if (target->YVelocity > 0) {
+                int buf = curYBoundary2 + target->YVelocity >> 16;
+                if (newYBoundary2 < buf) {
+                    curYBoundary2 = newYBoundary2;
+                }
+                else {
+                    curYBoundary2 += target->YVelocity >> 16;
+                }
+            }
+        }
         else
             curYBoundary2 = newYBoundary2;
     }
@@ -1827,13 +1847,13 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 {
     int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
-        if (yScrollOffset <= newYBoundary1)
+        if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
         else
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary1 < curYBoundary1) {
-        if (yScrollOffset <= curYBoundary1)
+        if (curYBoundary1 >= yScrollOffset)
             --curYBoundary1;
         else
             curYBoundary1 = newYBoundary1;
@@ -1845,8 +1865,18 @@ void SetPlayerHLockedScreenPosition(Entity *target)
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
     if (newYBoundary2 > curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
+            if (target->YVelocity > 0) {
+                int buf = curYBoundary2 + target->YVelocity >> 16;
+                if (newYBoundary2 < buf) {
+                    curYBoundary2 = newYBoundary2;
+                }
+                else {
+                    curYBoundary2 += target->YVelocity >> 16;
+                }
+            }
+        }
         else
             curYBoundary2 = newYBoundary2;
     }
@@ -2090,13 +2120,13 @@ void SetPlayerScreenPositionFixed(Entity *target)
     int targetX = target->XPos >> 16;
     int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
-        if (yScrollOffset <= newYBoundary1)
+        if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
         else
             curYBoundary1 = newYBoundary1;
     }
     if (newYBoundary1 < curYBoundary1) {
-        if (yScrollOffset <= curYBoundary1)
+        if (curYBoundary1 >= yScrollOffset)
             --curYBoundary1;
         else
             curYBoundary1 = newYBoundary1;
@@ -2108,8 +2138,18 @@ void SetPlayerScreenPositionFixed(Entity *target)
             curYBoundary2 = yScrollOffset + SCREEN_YSIZE;
     }
     if (newYBoundary2 > curYBoundary2) {
-        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2)
+        if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
+            if (target->YVelocity > 0) {
+                int buf = curYBoundary2 + target->YVelocity >> 16;
+                if (newYBoundary2 < buf) {
+                    curYBoundary2 = newYBoundary2;
+                }
+                else {
+                    curYBoundary2 += target->YVelocity >> 16;
+                }
+            }
+        }
         else
             curYBoundary2 = newYBoundary2;
     }
