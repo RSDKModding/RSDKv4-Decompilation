@@ -1300,7 +1300,7 @@ void SetPlayerScreenPosition(Entity *target)
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
             if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + target->YVelocity >> 16;
+                int buf = curYBoundary2 + (target->YVelocity >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
@@ -1515,7 +1515,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
             if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + target->YVelocity >> 16;
+                int buf = curYBoundary2 + (target->YVelocity >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
@@ -1868,7 +1868,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
             if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + target->YVelocity >> 16;
+                int buf = curYBoundary2 + (target->YVelocity >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
@@ -2031,8 +2031,6 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 }
 void SetPlayerLockedScreenPosition(Entity *target)
 {
-    int targetX = target->XPos >> 16;
-    int targetY = cameraAdjustY + (target->YPos >> 16);
     if (newYBoundary1 > curYBoundary1) {
         if (yScrollOffset <= newYBoundary1)
             curYBoundary1 = yScrollOffset;
@@ -2141,7 +2139,7 @@ void SetPlayerScreenPositionFixed(Entity *target)
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
             if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + target->YVelocity >> 16;
+                int buf = curYBoundary2 + (target->YVelocity >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }

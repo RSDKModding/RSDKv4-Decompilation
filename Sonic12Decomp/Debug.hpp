@@ -51,7 +51,7 @@ inline void printLog(const ushort *msg)
     if (!usingCWD)
         sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
     else
-        sprintf(pathBuffer, "%slog.txt");
+        sprintf(pathBuffer, "log.txt");
 #else
      sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif

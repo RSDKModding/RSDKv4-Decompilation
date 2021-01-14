@@ -37,6 +37,8 @@
 		C96219952589B51000B47AB3 /* Vorbis.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C96219932589B51000B47AB3 /* Vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C96219AA25947B0200B47AB3 /* cocoaHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = C96219A925947B0200B47AB3 /* cocoaHelpers.mm */; };
 		C96219B025947CC300B47AB3 /* RetroGameLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */; };
+		C968819A25B05FA100BEE4B8 /* PauseMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C968819925B05FA100BEE4B8 /* PauseMenu.cpp */; };
+		C968819C25B05FA900BEE4B8 /* Network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C968819B25B05FA900BEE4B8 /* Network.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -108,6 +110,10 @@
 		C96219A925947B0200B47AB3 /* cocoaHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = cocoaHelpers.mm; path = dependencies/mac/cocoaHelpers.mm; sourceTree = SOURCE_ROOT; };
 		C96219AE25947CB700B47AB3 /* RetroGameLoop.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RetroGameLoop.hpp; path = Sonic12Decomp/RetroGameLoop.hpp; sourceTree = SOURCE_ROOT; };
 		C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RetroGameLoop.cpp; path = Sonic12Decomp/RetroGameLoop.cpp; sourceTree = SOURCE_ROOT; };
+		C968819825B05F9600BEE4B8 /* PauseMenu.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = PauseMenu.hpp; path = Sonic12Decomp/PauseMenu.hpp; sourceTree = SOURCE_ROOT; };
+		C968819925B05FA100BEE4B8 /* PauseMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PauseMenu.cpp; path = Sonic12Decomp/PauseMenu.cpp; sourceTree = SOURCE_ROOT; };
+		C968819B25B05FA900BEE4B8 /* Network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Network.cpp; path = Sonic12Decomp/Network.cpp; sourceTree = SOURCE_ROOT; };
+		C968819D25B05FB500BEE4B8 /* Network.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Network.hpp; path = Sonic12Decomp/Network.hpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +161,7 @@
 		C962193F25898B6700B47AB3 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				C968819B25B05FA900BEE4B8 /* Network.cpp */,
 				C96219AB25947C8F00B47AB3 /* Native Objects */,
 				C96219A725947AE900B47AB3 /* Cocoa Helpers */,
 				C962195B25898BF500B47AB3 /* Animation.cpp */,
@@ -184,6 +191,7 @@
 		C962194025898B6E00B47AB3 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				C968819D25B05FB500BEE4B8 /* Network.hpp */,
 				C96219AC25947CA100B47AB3 /* Native Objects */,
 				C96219A625947AE100B47AB3 /* Cocoa Helpers */,
 				C962195525898BCE00B47AB3 /* Animation.hpp */,
@@ -241,6 +249,7 @@
 		C96219AB25947C8F00B47AB3 /* Native Objects */ = {
 			isa = PBXGroup;
 			children = (
+				C968819925B05FA100BEE4B8 /* PauseMenu.cpp */,
 				C96219AF25947CC300B47AB3 /* RetroGameLoop.cpp */,
 			);
 			name = "Native Objects";
@@ -249,6 +258,7 @@
 		C96219AC25947CA100B47AB3 /* Native Objects */ = {
 			isa = PBXGroup;
 			children = (
+				C968819825B05F9600BEE4B8 /* PauseMenu.hpp */,
 				C96219AE25947CB700B47AB3 /* RetroGameLoop.hpp */,
 			);
 			name = "Native Objects";
@@ -281,7 +291,7 @@
 		C962191125898A9300B47AB3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1160;
+				LastUpgradeCheck = 1230;
 				ORGANIZATIONNAME = Rubberduckycooly;
 				TargetAttributes = {
 					C962191825898A9300B47AB3 = {
@@ -335,6 +345,7 @@
 				C962197D25898BF600B47AB3 /* Object.cpp in Sources */,
 				C962197125898BF600B47AB3 /* Animation.cpp in Sources */,
 				C96219B025947CC300B47AB3 /* RetroGameLoop.cpp in Sources */,
+				C968819A25B05FA100BEE4B8 /* PauseMenu.cpp in Sources */,
 				C962197225898BF600B47AB3 /* Drawing.cpp in Sources */,
 				C962198125898BF600B47AB3 /* Reader.cpp in Sources */,
 				C962197E25898BF600B47AB3 /* Math.cpp in Sources */,
@@ -345,6 +356,7 @@
 				C962197425898BF600B47AB3 /* String.cpp in Sources */,
 				C962197525898BF600B47AB3 /* Ini.cpp in Sources */,
 				C962197725898BF600B47AB3 /* Userdata.cpp in Sources */,
+				C968819C25B05FA900BEE4B8 /* Network.cpp in Sources */,
 				C962196D25898BF600B47AB3 /* Debug.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,6 +401,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -448,6 +461,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -479,7 +493,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Sonic CD/Sonic_CD.entitlements";
+				CODE_SIGN_ENTITLEMENTS = RSDKv4/RSDKv4.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -505,7 +520,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "Sonic CD/Sonic_CD.entitlements";
+				CODE_SIGN_ENTITLEMENTS = RSDKv4/RSDKv4.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (

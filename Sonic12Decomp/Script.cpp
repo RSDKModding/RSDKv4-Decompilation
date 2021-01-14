@@ -1239,7 +1239,6 @@ void ConvertForeachStatement(char *text)
     if (FindStringToken(text, "foreach", 1))
         return;
     char dest[260];
-    int compareOp  = -1;
     int destStrPos = 0;
 
     if (!FindStringToken(text, "foreachTypeGroup", 1)) { //foreach TypeGroup[
@@ -4199,7 +4198,6 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_COPYOBJECT: {
                 opcodeSize   = 0;
                 //start index, copy offset, count
-                int dif     = scriptEng.operands[1] - scriptEng.operands[0];
                 Entity *src = &objectEntityList[scriptEng.operands[0]];
                 for (int e = 0; e < scriptEng.operands[2]; ++e) {
                     Entity *dst = &src[scriptEng.operands[1]];

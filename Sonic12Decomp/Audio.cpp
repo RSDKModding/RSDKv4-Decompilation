@@ -144,7 +144,7 @@ int readVorbisStream(void *dst, uint size)
     int read;
     int to_read = size;
     char *buf   = (char *)dst;
-    uint left   = musInfo.audioLen;
+    long long left   = musInfo.audioLen;
     while (to_read && (read = (int)ov_read(&musInfo.vorbisFile, buf, to_read, 0, 2, 1, &musInfo.vorbBitstream))) {
         if (read < 0) {
             return 0;
