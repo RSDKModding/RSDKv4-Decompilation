@@ -298,12 +298,12 @@ void initStartMenu(int mode) {
     LoadGIFFile("Data/Game/SystemText.gif", 0);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
-    ReadSaveRAMData();
 
-    if (mode == 0) {
+    if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
         setTextMenu(STARTMENU_MAIN);
     }
     else {
+        ReadSaveRAMData();
         if (!saveRAM[0x100]) {
             saveRAM[0x100] = Engine.gameType;
             if (Engine.gameType == GAME_SONIC1) {
@@ -757,10 +757,10 @@ void processStartMenu() {
             if (keyPress.up)
                 gameMenu[1].selection1 -= 2;
 
-            if (gameMenu[1].selection1 > 10)
+            if (gameMenu[1].selection1 > 12)
                 gameMenu[1].selection1 = 0;
             if (gameMenu[1].selection1 < 0)
-                gameMenu[1].selection1 = 10;
+                gameMenu[1].selection1 = 12;
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], 16, 96);
@@ -779,30 +779,31 @@ void processStartMenu() {
                     }
                 }
                 else {
-                    int saveSlot = (gameMenu[1].selection1 - 5) / 2;
+                    int saveSlot = (gameMenu[1].selection1 - 6) / 2;
                     if (!gameMenu[1].selection2) {
                         if (saveSlot >= 0 && saveSlot < 4) {
-                            if (saveRAM[8 * saveSlot + 4]) {
+                            int savePos = saveSlot << 3;
+                            if (saveRAM[savePos + 4]) {
                                 SetGlobalVariableByName("options.saveSlot", saveSlot);
                                 SetGlobalVariableByName("options.gameMode", 1);
                                 SetGlobalVariableByName("options.stageSelectFlag", 0);
-                                SetGlobalVariableByName("player.lives", saveRAM[8 * saveSlot + 1]);
-                                SetGlobalVariableByName("player.score", saveRAM[8 * saveSlot + 2]);
-                                SetGlobalVariableByName("player.scoreBonus", saveRAM[8 * saveSlot + 3]);
-                                SetGlobalVariableByName("specialStage.emeralds", saveRAM[8 * saveSlot + 5]);
-                                SetGlobalVariableByName("specialStage.listPos", saveRAM[8 * saveSlot + 6]);
+                                SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
+                                SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
+                                SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
+                                SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
+                                SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
                                 SetGlobalVariableByName("lampPostID", 0); // For S1
                                 SetGlobalVariableByName("starPostID", 0); // For S2
                                 SetGlobalVariableByName("options.vsMode", 0);
 
-                                int nextZone = saveRAM[8 * saveSlot + 4];
+                                int nextZone = saveRAM[savePos + 4];
                                 if (nextZone > 127) {
                                     SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
-                                    InitStartingStage(STAGELIST_SPECIAL, saveRAM[8 * saveSlot + 6], saveRAM[8 * saveSlot + 0]);
+                                    InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
                                 }
                                 else {
                                     SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
-                                    InitStartingStage(STAGELIST_REGULAR, saveRAM[8 * saveSlot + 4] - 1, saveRAM[8 * saveSlot + 0]);
+                                    InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
                                 }
                                 Engine.finishedStartMenu = true;
                             }
@@ -834,14 +835,15 @@ void processStartMenu() {
                     }
                     else {
                         if (saveSlot >= 0 && saveSlot < 4) {
-                            saveRAM[8 * saveSlot + 0] = 0;
-                            saveRAM[8 * saveSlot + 1] = 3;
-                            saveRAM[8 * saveSlot + 2] = 0;
-                            saveRAM[8 * saveSlot + 3] = 50000;
-                            saveRAM[8 * saveSlot + 4] = 0;
-                            saveRAM[8 * saveSlot + 5] = 0;
-                            saveRAM[8 * saveSlot + 6] = 0;
-                            saveRAM[8 * saveSlot + 7] = 0;
+                            int savePos          = saveSlot << 3;
+                            saveRAM[savePos + 0] = 0;
+                            saveRAM[savePos + 1] = 3;
+                            saveRAM[savePos + 2] = 0;
+                            saveRAM[savePos + 3] = 50000;
+                            saveRAM[savePos + 4] = 0;
+                            saveRAM[savePos + 5] = 0;
+                            saveRAM[savePos + 6] = 0;
+                            saveRAM[savePos + 7] = 0;
 
                             ushort strBuffer[0x100];
                             StrCopyW(strBuffer, "SAVE ");
@@ -872,6 +874,7 @@ void processStartMenu() {
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.start || keyPress.A) {
                 int saveSlot = gameMenu[1].selection2;
+                int savePos  = saveSlot << 3;
 
                 if (saveSlot < 0) {
                     SetGlobalVariableByName("options.gameMode", 0);
@@ -881,26 +884,27 @@ void processStartMenu() {
                     SetGlobalVariableByName("options.gameMode", 1);
                     SetGlobalVariableByName("options.stageSelectFlag", 0);
                 }
-                saveRAM[8 * saveSlot + 0] = gameMenu[1].selection1;
-                saveRAM[8 * saveSlot + 1] = 3;
-                saveRAM[8 * saveSlot + 2] = 0;
-                saveRAM[8 * saveSlot + 3] = 50000;
-                saveRAM[8 * saveSlot + 4] = 0;
-                saveRAM[8 * saveSlot + 5] = 0;
-                saveRAM[8 * saveSlot + 6] = 0;
-                saveRAM[8 * saveSlot + 7] = 0;
+                saveRAM[savePos + 0] = gameMenu[1].selection1;
+                saveRAM[savePos + 1] = 3;
+                saveRAM[savePos + 2] = 0;
+                saveRAM[savePos + 3] = 50000;
+                saveRAM[savePos + 4] = 1;
+                saveRAM[savePos + 5] = 0;
+                saveRAM[savePos + 6] = 0;
+                saveRAM[savePos + 7] = 0;
 
                 SetGlobalVariableByName("options.saveSlot", saveSlot);
-                SetGlobalVariableByName("player.lives", saveRAM[8 * saveSlot + 1]);
-                SetGlobalVariableByName("player.score", saveRAM[8 * saveSlot + 2]);
-                SetGlobalVariableByName("player.scoreBonus", saveRAM[8 * saveSlot + 3]);
-                SetGlobalVariableByName("specialStage.emeralds", saveRAM[8 * saveSlot + 5]);
-                SetGlobalVariableByName("specialStage.listPos", saveRAM[8 * saveSlot + 6]);
+                SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
+                SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
+                SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
+                SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
+                SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
                 SetGlobalVariableByName("lampPostID", 0); //For S1
                 SetGlobalVariableByName("starPostID", 0); //For S2
                 SetGlobalVariableByName("options.vsMode", 0);
+                WriteSaveRAMData();
 
-                InitStartingStage(STAGELIST_PRESENTATION, 0, saveRAM[8 * saveSlot + 0]);
+                InitStartingStage(STAGELIST_PRESENTATION, 0, saveRAM[savePos + 0]);
                 Engine.finishedStartMenu = true;
             }
             else if (keyPress.B) {

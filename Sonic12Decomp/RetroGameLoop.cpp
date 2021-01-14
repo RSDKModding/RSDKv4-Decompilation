@@ -45,7 +45,7 @@ void RetroGameLoop_Main(void *objPtr)
             stageListPosition = 0;
             initStartMenu(0);
             break;
-        case ENGINE_FINISHTA: //Also called when 2P VS disconnects
+        case ENGINE_RESETGAME: //Also called when 2P VS disconnects
             ClearScreen(1); 
             //RestoreNativeObjects();
             initStartMenu(1);

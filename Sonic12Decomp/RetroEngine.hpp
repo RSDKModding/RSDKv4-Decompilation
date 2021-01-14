@@ -104,7 +104,7 @@ enum RetroStates {
     ENGINE_INITPAUSE   = 5,
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
-    ENGINE_FINISHTA    = 8,
+    ENGINE_RESETGAME    = 8,
 
     // Custom GameModes (required to make some features work
     ENGINE_CONNECT2PVS = 0x80,
