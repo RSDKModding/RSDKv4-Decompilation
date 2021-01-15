@@ -723,26 +723,31 @@ void processStartMenu() {
                     setTextMenu(STARTMENU_ACHIEVEMENTS);
                 }
                 else if (gameMenu[0].selection2 == 15) {
-                    //TODO:
+                    PlaySFXByName("Hurt", 0);
                 }
                 else {
-                    //2P VS
-                    SetGlobalVariableByName("options.saveSlot", 0);
-                    SetGlobalVariableByName("options.gameMode", 0);
-                    SetGlobalVariableByName("options.vsMode", 0);
-                    SetGlobalVariableByName("player.lives", 3);
-                    SetGlobalVariableByName("player.score", 0);
-                    SetGlobalVariableByName("player.scoreBonus", 50000);
-                    SetGlobalVariableByName("specialStage.listPos", 0);
-                    SetGlobalVariableByName("specialStage.emeralds", 0);
-                    SetGlobalVariableByName("specialStage.nextZone", 0);
-                    SetGlobalVariableByName("timeAttack.result", 0);
-                    SetGlobalVariableByName("lampPostID", 0); // For S1
-                    SetGlobalVariableByName("starPostID", 0); // For S2
+                    PlaySFXByName("Hurt", 0);
 
-                    //if (Engine.onlineActive)
-                    InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
-                    Engine.finishedStartMenu = true;
+                    //TODO: add networking code and remove this if statement
+                    if (false) {
+                        // 2P VS
+                        SetGlobalVariableByName("options.saveSlot", 0);
+                        SetGlobalVariableByName("options.gameMode", 0);
+                        SetGlobalVariableByName("options.vsMode", 0);
+                        SetGlobalVariableByName("player.lives", 3);
+                        SetGlobalVariableByName("player.score", 0);
+                        SetGlobalVariableByName("player.scoreBonus", 50000);
+                        SetGlobalVariableByName("specialStage.listPos", 0);
+                        SetGlobalVariableByName("specialStage.emeralds", 0);
+                        SetGlobalVariableByName("specialStage.nextZone", 0);
+                        SetGlobalVariableByName("timeAttack.result", 0);
+                        SetGlobalVariableByName("lampPostID", 0); // For S1
+                        SetGlobalVariableByName("starPostID", 0); // For S2
+
+                        // if (Engine.onlineActive)
+                        InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
+                        Engine.finishedStartMenu = true;
+                    }
                 }
             }
             else if (keyPress.B) {

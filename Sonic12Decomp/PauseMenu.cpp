@@ -1,5 +1,7 @@
 #include "RetroEngine.hpp"
 
+TextMenu pauseTextMenu;
+
 void PauseMenu_Create(void *objPtr)
 {
     NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
@@ -7,8 +9,7 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->timer                  = 0;
     pauseMenu->selectedOption         = 0;
     pauseMenu->barPos                 = SCREEN_XSIZE + 64;
-    pauseMenu->menu                   = new TextMenu; // what a terrible idea this is
-    //though its done so it wont overwrite any of the gameMenu's incase the game is using it
+    pauseMenu->menu                   = &pauseTextMenu;
     MEM_ZEROP(pauseMenu->menu);
 
     AddTextMenuEntry(pauseMenu->menu, "RESUME");
@@ -62,22 +63,14 @@ void PauseMenu_Main(void *objPtr)
                         pauseMenu->selectedOption = 4;
                 }
                 --pauseMenu->selectedOption;
-                for (int s = 0; s < globalSFXCount; ++s) {
-                    if (StrComp(sfxNames[s], "MenuMove")) {
-                        PlaySfx(s, 0);
-                    }
-                }
+                PlaySFXByName("MenuMove", 0);
             }
             else if (keyPress.down) {
                 if (!Engine.devMenu)
                     pauseMenu->selectedOption = ++pauseMenu->selectedOption % 3;
                 else
                     pauseMenu->selectedOption = ++pauseMenu->selectedOption % 4;
-                for (int s = 0; s < globalSFXCount; ++s) {
-                    if (StrComp(sfxNames[s], "MenuMove")) {
-                        PlaySfx(s, 0);
-                    }
-                }
+                PlaySFXByName("MenuMove", 0);
             }
 
             pauseMenu->menu->selection1 = pauseMenu->selectedOption * 4;
@@ -102,19 +95,11 @@ void PauseMenu_Main(void *objPtr)
                         break;
                     }
                 }
-                for (int s = 0; s < globalSFXCount; ++s) {
-                    if (StrComp(sfxNames[s], "MenuSelect")) {
-                        PlaySfx(s, 0);
-                    }
-                }
+                PlaySFXByName("MenuSelect", 0);
             }
             else if (keyPress.B) {
                 Engine.gameMode = ENGINE_EXITPAUSE;
-                for (int s = 0; s < globalSFXCount; ++s) {
-                    if (StrComp(sfxNames[s], "MenuBack")) {
-                        PlaySfx(s, 0);
-                    }
-                }
+                PlaySFXByName("MenuBack", 0);
                 pauseMenu->state = 6;
             }
             break;
@@ -122,10 +107,10 @@ void PauseMenu_Main(void *objPtr)
         case 6:
             pauseMenu->barPos += 16;
             if (pauseMenu->barPos > SCREEN_XSIZE + 64) {
-                delete pauseMenu->menu;
                 SetPaletteEntryPacked(0, 0xF0, pauseMenu->paletteStore[0]);
                 SetPaletteEntryPacked(0, 0xFF, pauseMenu->paletteStore[1]);
                 RemoveNativeObject(pauseMenu);
+                return;
             }
             break;
         case 3:
@@ -146,14 +131,16 @@ void PauseMenu_Main(void *objPtr)
                         initDevMenu();
                         break;
                 }
-                delete pauseMenu->menu;
                 RemoveNativeObject(pauseMenu);
+                return;
             }
             break;
     }
 
-    SetActivePalette(0, 0, SCREEN_YSIZE);
+    if (pauseMenu->menu) {
+        SetActivePalette(0, 0, SCREEN_YSIZE);
 
-    DrawRectangle(pauseMenu->barPos, 0, SCREEN_XSIZE - pauseMenu->barPos, SCREEN_YSIZE, 0, 0, 0, 0xFF);
-    DrawTextMenu(pauseMenu->menu, pauseMenu->barPos + 0x28, SCREEN_CENTERY - 0x30);
+        DrawRectangle(pauseMenu->barPos, 0, SCREEN_XSIZE - pauseMenu->barPos, SCREEN_YSIZE, 0, 0, 0, 0xFF);
+        DrawTextMenu(pauseMenu->menu, pauseMenu->barPos + 0x28, SCREEN_CENTERY - 0x30);
+    }
 }

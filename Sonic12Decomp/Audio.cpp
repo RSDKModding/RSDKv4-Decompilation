@@ -616,7 +616,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 sfxList[sfxID].buffer = (Sint16 *)convert.buf;
                 sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
-                SDL_FreeWAV(audioBuf);
+                free(audioBuf);
             }
             else {
                 StrCopy(sfxList[sfxID].name, filePath);

@@ -1,11 +1,12 @@
 #include "RetroEngine.hpp"
 
 void RetroGameLoop_Create(void *objPtr) {
-    //NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
+    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
+    entity->pauseMenu                  = nullptr;
 }
 void RetroGameLoop_Main(void *objPtr)
 {
-    //NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
+    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU: processStageSelect(); break;
@@ -31,11 +32,16 @@ void RetroGameLoop_Main(void *objPtr)
             //ClearNativeObjects();
             Engine.gameMode = ENGINE_WAIT; //temp (maybe?) so pause menu renders on top
             // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete
-            CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+            if (entity->pauseMenu && nativeEntityCount > 1)
+                RemoveNativeObject(entity->pauseMenu);
+            entity->pauseMenu = (NativeEntity_PauseMenu*)CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
             Engine.gameMode = ENGINE_MAINGAME;
             ResumeSound();
+            if (entity->pauseMenu)
+                RemoveNativeObject(entity->pauseMenu);
+            entity->pauseMenu = nullptr;
             break;
         case ENGINE_ENDGAME:
             ClearScreen(1);

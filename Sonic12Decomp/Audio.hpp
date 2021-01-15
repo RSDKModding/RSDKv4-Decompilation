@@ -163,6 +163,17 @@ inline void SetSfxName(const char* sfxName, int sfxID) {
 void SetSfxName(const char *sfxName, int sfxID);
 #endif
 
+//Helper Func
+inline bool PlaySFXByName(const char* sfx, sbyte loopCnt) {
+    for (int s = 0; s < globalSFXCount + stageSFXCount; ++s) {
+        if (StrComp(sfxNames[s], sfx)) {
+            PlaySfx(s, loopCnt);
+            return true;
+        }
+    }
+    return false;
+}
+
 inline void SetMusicVolume(int volume)
 {
     if (volume < 0)

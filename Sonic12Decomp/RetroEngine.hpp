@@ -155,8 +155,8 @@ extern bool usingCWD;
 #include "Debug.hpp"
 
 //Native Entities
-#include "RetroGameLoop.hpp"
 #include "PauseMenu.hpp"
+#include "RetroGameLoop.hpp"
 
 class RetroEngine
 {

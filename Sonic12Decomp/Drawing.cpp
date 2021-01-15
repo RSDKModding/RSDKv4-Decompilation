@@ -3337,6 +3337,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
 {
     TextMenu *tMenu = (TextMenu *)menu;
     int cnt         = 0;
+
     if (tMenu->visibleRowCount > 0) {
         cnt = (int)(tMenu->visibleRowCount + tMenu->visibleRowOffset);
     }
