@@ -34,10 +34,8 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->lastSurfaceNo        = textMenuSurfaceNo;
     textMenuSurfaceNo               = SPRITESHEETS_MAX - 1;
 
-    pauseMenu->paletteStore[0] = GetPaletteEntryPacked(0, 0xF0);
-    pauseMenu->paletteStore[1] = GetPaletteEntryPacked(0, 0xFF);
-    SetPaletteEntry(0, 0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(0, 0xFF, 0xFF, 0xFF, 0xFF);
+    SetPaletteEntryPacked(7, 0x08, GetPaletteEntryPacked(0, 8));
+    SetPaletteEntryPacked(7, 0xFF, 0xFFFFFF);
 }
 void PauseMenu_Main(void *objPtr)
 {
@@ -107,8 +105,6 @@ void PauseMenu_Main(void *objPtr)
         case 6:
             pauseMenu->barPos += 16;
             if (pauseMenu->barPos > SCREEN_XSIZE + 64) {
-                SetPaletteEntryPacked(0, 0xF0, pauseMenu->paletteStore[0]);
-                SetPaletteEntryPacked(0, 0xFF, pauseMenu->paletteStore[1]);
                 textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
@@ -140,9 +136,11 @@ void PauseMenu_Main(void *objPtr)
     }
 
     if (pauseMenu->menu) {
-        SetActivePalette(0, 0, SCREEN_YSIZE);
+        SetActivePalette(7, 0, SCREEN_YSIZE);
 
         DrawRectangle(pauseMenu->barPos, 0, SCREEN_XSIZE - pauseMenu->barPos, SCREEN_YSIZE, 0, 0, 0, 0xFF);
         DrawTextMenu(pauseMenu->menu, pauseMenu->barPos + 0x28, SCREEN_CENTERY - 0x30);
+
+        SetActivePalette(0, 0, SCREEN_YSIZE);
     }
 }

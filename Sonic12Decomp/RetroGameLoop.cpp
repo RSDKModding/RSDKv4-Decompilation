@@ -9,7 +9,12 @@ void RetroGameLoop_Main(void *objPtr)
     NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
 
     switch (Engine.gameMode) {
-        case ENGINE_DEVMENU: processStageSelect(); break;
+        case ENGINE_DEVMENU: 
+            if (entity->pauseMenu) //dumb fix but yknow how it is
+                RemoveNativeObject(entity->pauseMenu);
+            entity->pauseMenu = nullptr;
+
+            processStageSelect(); break;
         case ENGINE_MAINGAME:
             if (Engine.finishedStartMenu)
                 ProcessStage();

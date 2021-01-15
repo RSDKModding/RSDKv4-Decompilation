@@ -9,7 +9,6 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
     TextMenu *menu;
 
     int lastSurfaceNo;
-    uint paletteStore[2];
 };
 
 void PauseMenu_Create(void *objPtr);
