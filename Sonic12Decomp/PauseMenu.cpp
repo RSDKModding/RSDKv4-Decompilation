@@ -32,7 +32,7 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->menu->selection1     = 0;
     pauseMenu->menu->selection2     = 0;
     pauseMenu->lastSurfaceNo        = textMenuSurfaceNo;
-    textMenuSurfaceNo               = 0;
+    textMenuSurfaceNo               = SPRITESHEETS_MAX - 1;
 
     pauseMenu->paletteStore[0] = GetPaletteEntryPacked(0, 0xF0);
     pauseMenu->paletteStore[1] = GetPaletteEntryPacked(0, 0xFF);
@@ -109,6 +109,7 @@ void PauseMenu_Main(void *objPtr)
             if (pauseMenu->barPos > SCREEN_XSIZE + 64) {
                 SetPaletteEntryPacked(0, 0xF0, pauseMenu->paletteStore[0]);
                 SetPaletteEntryPacked(0, 0xFF, pauseMenu->paletteStore[1]);
+                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
             }
@@ -131,6 +132,7 @@ void PauseMenu_Main(void *objPtr)
                         initDevMenu();
                         break;
                 }
+                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
             }
