@@ -16,12 +16,9 @@ struct TrackInfo {
 struct MusicPlaybackInfo {
 #if RETRO_USING_SDL
     OggVorbis_File vorbisFile;
-    unsigned long long audioLen;
     int vorbBitstream;
-    SDL_AudioSpec spec;
     SDL_AudioStream *stream;
-    byte *buffer;
-    byte *extraBuffer;
+    Sint16 *buffer;
 #endif
     FileInfo fileInfo;
     bool trackLoop;
@@ -31,15 +28,14 @@ struct MusicPlaybackInfo {
 
 struct SFXInfo {
     char name[0x40];
-    byte *buffer;
-    int length;
+    Sint16 *buffer;
+    size_t length;
     bool loaded;
 };
 
 struct ChannelInfo {
-    int sampleStart;
-    int sampleLength;
-    byte *samplePtr;
+    size_t sampleLength;
+    Sint16 *samplePtr;
     int sfxID;
     byte loopSFX;
     sbyte pan;
@@ -83,9 +79,9 @@ extern SDL_AudioSpec audioDeviceFormat;
 int InitAudioPlayback();
 
 #if RETRO_USING_SDL
-void ProcessMusicStream(void *data, Uint8 *stream, int le);
+void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
 void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
-void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat format, Uint32 len, int volume, bool music);
+void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
 
 
 inline void freeMusInfo()
@@ -95,17 +91,14 @@ inline void freeMusInfo()
 
         if (musInfo.buffer)
             delete[] musInfo.buffer;
-        if (musInfo.extraBuffer)
-            delete[] musInfo.extraBuffer;
         if (musInfo.stream)
             SDL_FreeAudioStream(musInfo.stream);
         ov_clear(&musInfo.vorbisFile);
-        musInfo.buffer       = nullptr;
-        musInfo.stream       = nullptr;
-        musInfo.audioLen     = 0;
-        musInfo.trackLoop    = false;
-        musInfo.loopPoint    = 0;
-        musInfo.loaded       = false;
+        musInfo.buffer    = nullptr;
+        musInfo.stream    = nullptr;
+        musInfo.trackLoop = false;
+        musInfo.loopPoint = 0;
+        musInfo.loaded    = false;
 
         SDL_UnlockAudio();
     }
@@ -123,7 +116,6 @@ inline void freeMusInfo()
         musInfo.musicFile    = nullptr;
         musInfo.buffer       = nullptr;
         musInfo.stream       = nullptr;
-        musInfo.audioLen     = 0;
         musInfo.pos          = 0;
         musInfo.len          = 0;
         musInfo.currentTrack = nullptr;

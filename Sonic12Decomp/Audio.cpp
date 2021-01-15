@@ -24,10 +24,11 @@ ChannelInfo sfxChannels[CHANNEL_COUNT];
 MusicPlaybackInfo musInfo;
 
 #if RETRO_USING_SDL
+SDL_AudioDeviceID audioDevice;
 SDL_AudioSpec audioDeviceFormat;
 
 #define AUDIO_FREQUENCY (44100)
-#define AUDIO_FORMAT    (0x8010) /**< Signed 16-bit samples */
+#define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */
 #define AUDIO_SAMPLES   (0x800)
 #define AUDIO_CHANNELS  (2)
 
@@ -35,7 +36,7 @@ SDL_AudioSpec audioDeviceFormat;
 
 #endif
 
-#define AUDIO_BUFFERSIZE (0x4000)
+#define MIX_BUFFER_SAMPLES (256)
 
 int InitAudioPlayback()
 {
@@ -48,14 +49,12 @@ int InitAudioPlayback()
     want.channels = AUDIO_CHANNELS;
     want.callback = ProcessAudioPlayback;
 
-    if (SDL_OpenAudio(&want, &audioDeviceFormat) >= 0) {
+    if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
         audioEnabled = true;
-        SDL_PauseAudio(0);
+        SDL_PauseAudioDevice(audioDevice, 0);
     }
     else {
-#if RSDK_DEBUG
         printLog("Unable to open audio device: %s", SDL_GetError());
-#endif
         return false;
     }
 #endif
@@ -76,9 +75,8 @@ int InitAudioPlayback()
         FileRead(strBuffer, fileBuffer);
 
         byte buf[3];
-        for (int c = 0; c < 0x60; ++c) {
+        for (int c = 0; c < 0x60; ++c)
             FileRead(buf, 3);
-        }
 
         // Read Obect Names
         int objectCount = 0;
@@ -137,58 +135,7 @@ int InitAudioPlayback()
     return true;
 }
 
-#if RETRO_USING_SDL
-int readVorbisStream(void *dst, uint size)
-{
-    int tot = 0;
-    int read;
-    int to_read = size;
-    char *buf   = (char *)dst;
-    long long left   = musInfo.audioLen;
-    while (to_read && (read = (int)ov_read(&musInfo.vorbisFile, buf, to_read, 0, 2, 1, &musInfo.vorbBitstream))) {
-        if (read < 0) {
-            return 0;
-        }
-        to_read -= read;
-        buf += read;
-        tot += read;
-        left -= read;
-        if (left <= 0)
-            break;
-    }
-    return tot;
-}
-
-int trackRequestMoreData(uint samples, uint amount)
-{
-    int out   = amount / 2;
-    int avail = SDL_AudioStreamAvailable(musInfo.stream);
-
-    if (avail < out * 2) {
-
-        int numSamples = 0;
-        numSamples     = readVorbisStream(musInfo.extraBuffer, (musInfo.spec.format & 0xFF) / 8 * samples * musInfo.spec.channels);
-
-        if (numSamples == 0)
-            return 0;
-
-        int rc = SDL_AudioStreamPut(musInfo.stream, musInfo.extraBuffer, numSamples);
-        if (rc == -1)
-            return -1;
-    }
-
-    int get = SDL_AudioStreamGet(musInfo.stream, musInfo.buffer, out);
-    if (get == -1) {
-        return -1;
-    }
-    if (get == 0)
-        get = -2;
-
-    return get;
-}
-#endif
-
-void ProcessMusicStream(void *data, Uint8 *stream, int len)
+void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
 {
     if (!musInfo.loaded)
         return;
@@ -196,22 +143,33 @@ void ProcessMusicStream(void *data, Uint8 *stream, int len)
         case MUSIC_READY:
         case MUSIC_PLAYING: {
 #if RETRO_USING_SDL
-            int bytes = trackRequestMoreData(AUDIO_SAMPLES, len * 2);
-            if (bytes > 0) {
-                int vol = (bgmVolume * masterVolume) / MAX_VOLUME;
-                ProcessAudioMixing(NULL, stream, musInfo.buffer, audioDeviceFormat.format, len, vol, true);
+            while (SDL_AudioStreamAvailable(musInfo.stream) < bytes_wanted) {
+                // We need more samples: get some
+                long bytes_read = ov_read(&musInfo.vorbisFile, (char *)musInfo.buffer, sizeof(musInfo.buffer), 0, 2, 1, &musInfo.vorbBitstream);
+
+                if (bytes_read == 0) {
+                    // We've reached the end of the file
+                    if (musInfo.trackLoop) {
+                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.loopPoint);
+                        continue;
+                    }
+                    else {
+                        musicStatus = MUSIC_STOPPED;
+                        break;
+                    }
+                }
+
+                if (SDL_AudioStreamPut(musInfo.stream, musInfo.buffer, bytes_read) == -1)
+                    return;
             }
 
-            switch (bytes) {
-                case -2:
-                case -1: break;
-                case 0:
-                    if (musInfo.trackLoop)
-                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.loopPoint);
-                    else
-                        musicStatus = MUSIC_STOPPED;
-                    break;
+            // Now that we know there are enough samples, read them and mix them
+            int bytes_done = SDL_AudioStreamGet(musInfo.stream, musInfo.buffer, bytes_wanted);
+            if (bytes_done == -1) {
+                return;
             }
+            if (bytes_done != 0)
+                ProcessAudioMixing(stream, musInfo.buffer, bytes_done / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
 #endif
         } break;
         case MUSIC_STOPPED:
@@ -222,47 +180,85 @@ void ProcessMusicStream(void *data, Uint8 *stream, int len)
     }
 }
 
-void ProcessAudioPlayback(void *data, Uint8 *stream, int len)
+void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 {
-    memset(stream, 0, len);
+    (void)userdata; // Unused
 
     if (!audioEnabled)
         return;
 
-    ProcessMusicStream(data, stream, len);
+    Sint16 *output_buffer = (Sint16 *)stream;
 
-    for (byte i = 0; i < CHANNEL_COUNT; ++i) {
-        ChannelInfo *sfx = &sfxChannels[i];
+    size_t samples_remaining = (size_t)len / sizeof(Sint16);
+    while (samples_remaining != 0) {
+        Sint32 mix_buffer[MIX_BUFFER_SAMPLES];
+        memset(mix_buffer, 0, sizeof(mix_buffer));
 
-        if (sfx->sfxID < 0)
-            continue;
+        const size_t samples_to_do = (samples_remaining < MIX_BUFFER_SAMPLES) ? samples_remaining : MIX_BUFFER_SAMPLES;
 
-        if (sfx->samplePtr) {
-            if (sfx->sampleLength > 0) {
-                int sampleLen = (len > sfx->sampleLength) ? sfx->sampleLength : len;
+        // Mix music
+        ProcessMusicStream(mix_buffer, samples_to_do * sizeof(Sint16));
+
+        // Mix SFX
+        for (byte i = 0; i < CHANNEL_COUNT; ++i) {
+            ChannelInfo *sfx = &sfxChannels[i];
+            if (sfx == NULL)
+                continue;
+
+            if (sfx->sfxID < 0)
+                continue;
+
+            if (sfx->samplePtr) {
+                Sint16 buffer[MIX_BUFFER_SAMPLES];
+
+                size_t samples_done = 0;
+                while (samples_done != samples_to_do) {
+                    size_t sampleLen = (sfx->sampleLength < samples_to_do - samples_done) ? sfx->sampleLength : samples_to_do - samples_done;
+                    memcpy(&buffer[samples_done], sfx->samplePtr, sampleLen * sizeof(Sint16));
+
+                    samples_done += sampleLen;
+                    sfx->samplePtr += sampleLen;
+                    sfx->sampleLength -= sampleLen;
+
+                    if (sfx->sampleLength == 0) {
+                        if (sfx->loopSFX) {
+                            sfx->samplePtr    = sfxList[sfx->sfxID].buffer;
+                            sfx->sampleLength = sfxList[sfx->sfxID].length;
+                        }
+                        else {
+                            StopSfx(sfx->sfxID);
+                            break;
+                        }
+                    }
+                }
+
 #if RETRO_USING_SDL
-                ProcessAudioMixing(sfx, stream, sfx->samplePtr, audioDeviceFormat.format, sampleLen, sfxVolume, false);
+                ProcessAudioMixing(mix_buffer, buffer, samples_done, sfxVolume, sfx->pan);
 #endif
-
-                sfx->samplePtr += sampleLen;
-                sfx->sampleLength -= sampleLen;
-            }
-
-            if (sfx->sampleLength <= 0) {
-                if (sfx->loopSFX) {
-                    sfx->samplePtr    = sfxList[sfx->sfxID].buffer;
-                    sfx->sampleLength = sfxList[sfx->sfxID].length;
-                }
-                else {
-                    StopSfx(sfx->sfxID);
-                }
             }
         }
+
+        // Clamp mixed samples back to 16-bit and write them to the output buffer
+        for (size_t i = 0; i < sizeof(mix_buffer) / sizeof(*mix_buffer); ++i) {
+            const Sint16 max_audioval = ((1 << (16 - 1)) - 1);
+            const Sint16 min_audioval = -(1 << (16 - 1));
+
+            const Sint32 sample = mix_buffer[i];
+
+            if (sample > max_audioval)
+                *output_buffer++ = max_audioval;
+            else if (sample < min_audioval)
+                *output_buffer++ = min_audioval;
+            else
+                *output_buffer++ = sample;
+        }
+
+        samples_remaining -= samples_to_do;
     }
 }
 
 #if RETRO_USING_SDL
-void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat format, Uint32 len, int volume, bool music)
+void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
         return;
@@ -270,333 +266,38 @@ void ProcessAudioMixing(void *sfx, Uint8 *dst, const byte *src, SDL_AudioFormat 
     if (volume > MAX_VOLUME)
         volume = MAX_VOLUME;
 
-    ChannelInfo *snd = (ChannelInfo *)sfx;
-
     float panL = 0.0;
     float panR = 0.0;
     int i      = 0;
-    if (!music) {
-        if (snd->pan < 0) {
-            panL = 1.0f - abs(snd->pan / 100.0f);
-            panR = 1.0f; // 1.0f - panL;
-        }
-        else if (snd->pan > 0) {
-            panR = 1.0f - abs(snd->pan / 100.0f);
-            panL = 1.0f; // 1.0f - panR;
-        }
-        //TODO: i think this makes rings quieter. fuck
-        if (snd->pan) volume -= (abs(snd->pan / 2.0f * (volume / MAX_VOLUME)));
+
+    if (pan < 0) {
+        panL = 1.0f - abs(pan / 100.0f);
+        panR = 1.0f;
     }
+    else if (pan > 0) {
+        panR = 1.0f - abs(pan / 100.0f);
+        panL = 1.0f;
+    }
+    // TODO: i think this makes rings quieter. fuck
+    //if (snd->pan)
+    //    volume -= (abs(snd->pan / 2.0f * (volume / MAX_VOLUME)));
 
-    switch (format) {
-        case AUDIO_S16LSB: {
-            Sint16 src1, src2;
-            int dst_sample;
-            const int max_audioval = ((1 << (16 - 1)) - 1);
-            const int min_audioval = -(1 << (16 - 1));
+    while (len--) {
+        Sint32 sample = *src++;
+        ADJUST_VOLUME(sample, volume);
 
-            len /= 2;
-            while (len--) {
-                src1 = ((src[1]) << 8 | src[0]);
-                ADJUST_VOLUME(src1, volume);
-
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) != 0) {
-                        Sint16 swapr = (Sint16)(((float)(Sint16)SDL_SwapLE16(src1)) * panR);
-                        src1         = (Sint16)SDL_SwapLE16(swapr);
-                    }
-                    else {
-                        Sint16 swapl = (Sint16)(((float)(Sint16)SDL_SwapLE16(src1)) * panL);
-                        src1         = (Sint16)SDL_SwapLE16(swapl);
-                    }
-                }
-
-                src2 = ((dst[1]) << 8 | dst[0]);
-                src += 2;
-                dst_sample = src1 + src2;
-
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                dst[0] = dst_sample & 0xFF;
-                dst_sample >>= 8;
-                dst[1] = dst_sample & 0xFF;
-                dst += 2;
-                i++;
+        if (pan != 0) {
+            if ((i % 2) != 0) {
+                sample *= panR;
             }
-        } break;
-        case AUDIO_S16MSB: {
-#if defined(__GNUC__) && defined(__M68000__) && !defined(__mcoldfire__) && defined(SDL_ASSEMBLY_ROUTINES)
-            SDL_MixAudio_m68k_S16MSB((short *)dst, (short *)src, (unsigned long)len, (long)volume);
-#else
-            Sint16 src1, src2;
-            int dst_sample;
-            const int max_audioval = ((1 << (16 - 1)) - 1);
-            const int min_audioval = -(1 << (16 - 1));
-
-            len /= 2;
-            while (len--) {
-                src1 = ((src[0]) << 8 | src[1]);
-                ADJUST_VOLUME(src1, volume);
-
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) != 0) {
-                        Sint16 swapr = (Sint16)(((float)(Sint16)SDL_SwapBE16(src1)) * panR);
-                        src1         = (Sint16)SDL_SwapBE16(swapr);
-                    }
-                    else {
-                        Sint16 swapl = (Sint16)(((float)(Sint16)SDL_SwapBE16(src1)) * panL);
-                        src1         = (Sint16)SDL_SwapBE16(swapl);
-                    }
-                }
-
-                src2 = ((dst[0]) << 8 | dst[1]);
-                src += 2;
-                dst_sample = src1 + src2;
-
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                dst[1] = dst_sample & 0xFF;
-                dst_sample >>= 8;
-                dst[0] = dst_sample & 0xFF;
-                dst += 2;
-                i++;
+            else {
+                sample *= panL;
             }
-#endif
-        } break;
-        case AUDIO_U16LSB: {
-            Uint16 src1, src2;
-            int dst_sample;
-            const int max_audioval = 0xFFFF;
+        }
 
-            len /= 2;
-            while (len--) {
-                src1 = ((src[1]) << 8 | src[0]);
-                ADJUST_VOLUME(src1, volume);
+        *dst++ += sample;
 
-                if (panL != 0 || panR != 0) {
-                    Sint16 samp = (Sint16)(SDL_SwapLE16(src1) - 32768);
-                    if ((i % 2) != 0) {
-                        Uint16 swapr = (Uint16)(Sint16)(((float)samp * panR) + 32768);
-                        src1         = (Uint16)SDL_SwapLE16(swapr);
-                    }
-                    else {
-                        Uint16 swapl = (Uint16)(Sint16)(((float)samp * panL) + 32768);
-                        src1         = (Uint16)SDL_SwapLE16(swapl);
-                    }
-                }
-
-                src2 = ((dst[1]) << 8 | dst[0]);
-                src += 2;
-                dst_sample = src1 + src2;
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                dst[0] = dst_sample & 0xFF;
-                dst_sample >>= 8;
-                dst[1] = dst_sample & 0xFF;
-                dst += 2;
-                i++;
-            }
-        } break;
-        case AUDIO_U16MSB: {
-            Uint16 src1, src2;
-            int dst_sample;
-            const int max_audioval = 0xFFFF;
-
-            len /= 2;
-            while (len--) {
-                src1 = ((src[0]) << 8 | src[1]);
-                ADJUST_VOLUME(src1, volume);
-
-                if (panL != 0 || panR != 0) {
-                    Sint16 samp = (Sint16)(SDL_SwapBE16(src1) - 32768);
-                    if ((i % 2) != 0) {
-                        Uint16 swapr = (Uint16)((Sint16)((float)samp * panR) + 32768);
-                        src1         = (Uint16)SDL_SwapBE16(swapr);
-                    }
-                    else {
-                        Uint16 swapl = (Uint16)((Sint16)((float)samp * panL) + 32768);
-                        src1         = (Uint16)SDL_SwapBE16(swapl);
-                    }
-                }
-
-                src2 = ((dst[0]) << 8 | dst[1]);
-                src += 2;
-                dst_sample = src1 + src2;
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                dst[1] = dst_sample & 0xFF;
-                dst_sample >>= 8;
-                dst[0] = dst_sample & 0xFF;
-                dst += 2;
-                i++;
-            }
-        } break;
-        case AUDIO_S32LSB: {
-            const Uint32 *src32 = (Uint32 *)src;
-            Uint32 *dst32       = (Uint32 *)dst;
-            Sint64 src1, src2;
-            Sint64 dst_sample;
-            const Sint64 max_audioval = ((((Sint64)1) << (32 - 1)) - 1);
-            const Sint64 min_audioval = -(((Sint64)1) << (32 - 1));
-
-            len /= 4;
-            while (len--) {
-                src1 = (Sint64)((Sint32)SDL_SwapLE32(*src32));
-                src32++;
-                ADJUST_VOLUME(src1, volume);
-
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) != 0) {
-                        Sint32 swapr = (Sint32)(((float)(Sint32)SDL_SwapLE32(src1)) * panR);
-                        src1         = (Sint32)SDL_SwapLE16(swapr);
-                    }
-                    else {
-                        Sint32 swapl = (Sint32)(((float)(Sint32)SDL_SwapLE32(src1)) * panL);
-                        src1         = (Sint32)SDL_SwapLE32(swapl);
-                    }
-                }
-
-                src2       = (Sint64)((Sint32)SDL_SwapLE32(*dst32));
-                dst_sample = src1 + src2;
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                *(dst32++) = SDL_SwapLE32((Uint32)((Sint32)dst_sample));
-                i++;
-            }
-        } break;
-        case AUDIO_S32MSB: {
-            const Uint32 *src32 = (Uint32 *)src;
-            Uint32 *dst32       = (Uint32 *)dst;
-            Sint64 src1, src2;
-            Sint64 dst_sample;
-            const Sint64 max_audioval = ((((Sint64)1) << (32 - 1)) - 1);
-            const Sint64 min_audioval = -(((Sint64)1) << (32 - 1));
-
-            len /= 4;
-            while (len--) {
-                src1 = (Sint64)((Sint32)SDL_SwapBE32(*src32));
-                src32++;
-                ADJUST_VOLUME(src1, volume);
-
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) != 0) {
-                        Sint32 swapr = (Sint32)(((float)(Sint32)SDL_SwapBE32((uint)src1)) * panR);
-                        src1         = (Sint32)SDL_SwapBE16(swapr);
-                    }
-                    else {
-                        Sint32 swapl = (Sint32)(((float)(Sint32)SDL_SwapBE32((uint)src1)) * panL);
-                        src1         = (Sint32)SDL_SwapBE16(swapl);
-                    }
-                }
-
-                src2       = (Sint64)((Sint32)SDL_SwapBE32(*dst32));
-                dst_sample = src1 + src2;
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                *(dst32++) = SDL_SwapBE32((Uint32)((Sint32)dst_sample));
-                i++;
-            }
-        } break;
-        case AUDIO_F32LSB: {
-            const float fmaxvolume = 1.0f / ((float)MAX_VOLUME);
-            const float fvolume    = (float)volume;
-            const float *src32     = (float *)src;
-            float *dst32           = (float *)dst;
-            float src1 /*, src2*/;
-            float dst1;
-            double dst_sample;
-
-            /* !!! FIXME: are these right? */
-            const double max_audioval = 3.402823466e+38F;
-            const double min_audioval = -3.402823466e+38F;
-
-            len /= 4;
-            int i = 0;
-            while (len--) {
-                src1 = ((SDL_SwapFloatLE(*src32) * fvolume) * fmaxvolume);
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) == 0) {
-                        src1 = (src1 * panR);
-                    }
-                    else {
-                        src1 = (src1 * panL);
-                    }
-                }
-
-                src32++;
-                dst1       = SDL_SwapFloatLE(*dst32);
-                dst_sample = ((double)src1) + ((double)dst1);
-
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                *(dst32++) = SDL_SwapFloatLE((float)dst_sample);
-                i++;
-            }
-        } break;
-        case AUDIO_F32MSB: {
-            const float fmaxvolume = 1.0f / ((float)MAX_VOLUME);
-            const float fvolume    = (float)volume;
-            const float *src32     = (float *)src;
-            float *dst32           = (float *)dst;
-            float src1, src2;
-            double dst_sample;
-            const double max_audioval = 3.402823466e+38F;
-            const double min_audioval = -3.402823466e+38F;
-
-            len /= 4;
-            while (len--) {
-                src1 = ((SDL_SwapFloatBE(*src32) * fvolume) * fmaxvolume);
-
-                if (panL != 0 || panR != 0) {
-                    if ((i % 2) == 0) {
-                        src1 = (src1 * panR);
-                    }
-                    else {
-                        src1 = (src1 * panL);
-                    }
-                }
-
-                src2 = SDL_SwapFloatBE(*dst32);
-                src32++;
-
-                dst_sample = ((double)src1) + ((double)src2);
-                if (dst_sample > max_audioval) {
-                    dst_sample = max_audioval;
-                }
-                else if (dst_sample < min_audioval) {
-                    dst_sample = min_audioval;
-                }
-                *(dst32++) = SDL_SwapFloatBE((float)dst_sample);
-                i++;
-            }
-        } break;
-        default:
-#if RSDK_DEBUG
-            printLog("Unknown audio format: %d", format);
-#endif
-            return;
+        i++;
     }
 }
 #endif
@@ -691,26 +392,29 @@ bool PlayMusic(int track, int musStartPos)
         return false;
     }
 
-    if (musInfo.loaded && !musicStartPos)
-        StopMusic();
-
-    SDL_LockAudio();
-
-    uint oldPos = 0;
+    uint oldPos   = 0;
     uint oldTotal = 0;
     if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
-        oldPos = (uint)ov_pcm_tell(&musInfo.vorbisFile);
+        oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
         oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
     }
 
     if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
+        if (musInfo.loaded)
+            StopMusic();
+
+#if RETRO_USING_SDL
+        SDL_LockAudio();
+#endif
+
         musInfo.fileInfo.cFileHandle = cFileHandle;
         cFileHandle                  = nullptr;
 
         musInfo.trackLoop = trackPtr->trackLoop;
         musInfo.loopPoint = trackPtr->loopPoint;
-        musInfo.loaded       = true;
+        musInfo.loaded    = true;
 
+        unsigned long long samples = 0;
 #if RETRO_USING_SDL
         ov_callbacks callbacks;
 
@@ -725,34 +429,21 @@ bool PlayMusic(int track, int musStartPos)
         }
 
         musInfo.vorbBitstream = -1;
-        musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
+        musInfo.vorbisFile.vi      = ov_info(&musInfo.vorbisFile, -1);
 
-        memset(&musInfo.spec, 0, sizeof(SDL_AudioSpec));
+        samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
 
-        musInfo.spec.format   = AUDIO_S16;
-        musInfo.spec.channels = musInfo.vorbisFile.vi->channels;
-        musInfo.spec.freq     = (int)musInfo.vorbisFile.vi->rate;
-        musInfo.spec.samples  = 4096;
-
-        unsigned long long samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
-
-        musInfo.audioLen = samples * musInfo.spec.channels * 2;
-        musInfo.spec.size = AUDIO_BUFFERSIZE;
-
-        musInfo.stream = SDL_NewAudioStream(musInfo.spec.format, musInfo.spec.channels, musInfo.spec.freq, audioDeviceFormat.format,
+        musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
                                             audioDeviceFormat.channels, audioDeviceFormat.freq);
         if (!musInfo.stream) {
-#if RSDK_DEBUG
             printLog("Failed to create stream: %s", SDL_GetError());
-#endif
         }
 
-        musInfo.buffer      = new byte[AUDIO_BUFFERSIZE];
-        musInfo.extraBuffer = new byte[AUDIO_BUFFERSIZE];
+        musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
 #endif
 
         if (musicStartPos) {
-            float newPos = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+            float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
             musicStartPos = fmod(newPos, samples);
 
             ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
@@ -761,10 +452,12 @@ bool PlayMusic(int track, int musStartPos)
         musicStatus  = MUSIC_PLAYING;
         masterVolume = MAX_VOLUME;
         trackID      = track;
+
+#if RETRO_USING_SDL
         SDL_UnlockAudio();
+#endif
         return true;
     }
-    SDL_UnlockAudio();
     return false;
 }
 
@@ -828,15 +521,15 @@ void LoadSfx(char *filePath, byte sfxID)
                         SDL_ConvertAudio(&convert);
 
                         StrCopy(sfxList[sfxID].name, filePath);
-                        sfxList[sfxID].buffer = convert.buf;
-                        sfxList[sfxID].length = convert.len_cvt;
+                        sfxList[sfxID].buffer = (Sint16 *)convert.buf;
+                        sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                         sfxList[sfxID].loaded = true;
                         SDL_FreeWAV(wav_buffer);
                     }
                     else {
                         StrCopy(sfxList[sfxID].name, filePath);
-                        sfxList[sfxID].buffer = wav_buffer;
-                        sfxList[sfxID].length = wav_length;
+                        sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
+                        sfxList[sfxID].length = wav_length / sizeof(Sint16);
                         sfxList[sfxID].loaded = true;
                     }
                 }
@@ -920,15 +613,15 @@ void LoadSfx(char *filePath, byte sfxID)
                 SDL_ConvertAudio(&convert);
 
                 StrCopy(sfxList[sfxID].name, filePath);
-                sfxList[sfxID].buffer = convert.buf;
-                sfxList[sfxID].length = convert.len_cvt;
+                sfxList[sfxID].buffer = (Sint16 *)convert.buf;
+                sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
-                free(audioBuf);
+                SDL_FreeWAV(audioBuf);
             }
             else {
                 StrCopy(sfxList[sfxID].name, filePath);
-                sfxList[sfxID].buffer = audioBuf;
-                sfxList[sfxID].length = audioLen;
+                sfxList[sfxID].buffer = (Sint16 *)audioBuf;
+                sfxList[sfxID].length = audioLen / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
             }
         }
