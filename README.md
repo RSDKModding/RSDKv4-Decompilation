@@ -15,6 +15,7 @@ A Full Decompilation of Sonic 1 & 2 (2013)
 even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets)
 
 # Additional Tweaks
+* added a built in script compiler, similar to how CD has but tweaked up to match the new syntax for the scripts used in RSDKv4
 * There is now a settings.ini file that the game uses to load all settings, similar to Sonic Mania
 * Dev menu can now be accessed from anywhere by pressing the escape key if enabled in the config
 * The f12 pause, f11 step over & fast forward debug features from sonic mania have all be ported and are enabled if devMenu is enabled in the config
