@@ -25,6 +25,7 @@ even if your platform isn't supported by the official releases, buy it for the a
 * the "native object" system has been implimented, but the objects (aside from RetroGameLoop and a temporary pause menu) and the proper HW rendering system have yet to be added
 * probably some more bug fixes, because there always are a few stragglers
 * create a `cmakelists.txt` file for windows compiling so builds can be added automatically via git actions
+* S2 networking code, we attempted to write code to handle the 2PVS mode in S2 but we couldn't finish for many reasons, we did leave our WIP code in the game, so if you think you could do it by all means give it a shot!
 
 # How to build:
 ## Windows:
