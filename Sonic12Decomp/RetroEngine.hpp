@@ -207,21 +207,21 @@ public:
     char gameDescriptionText[0x100];
     const char *gameVersion       = "1.0.0";
 #if RETRO_GAMEPLATFORM == RETRO_GAME_STANDARD
-    const char *gamePlatform = "STANDARD";
+    const char *gamePlatform = "Standard"; // "STANDARD"
 #elif RETRO_GAMEPLATFORM == RETRO_GAME_MOBILE
-    const char *gamePlatform   = "MOBILE";
+    const char *gamePlatform   = "Mobile"; // "MOBILE"
 #endif
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    const char *gameRenderType = "SW_RENDERING";
+    const char *gameRenderType = "SW_Rendering"; //"SW_RENDERING"
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType = "HW_RENDERING";
+    const char *gameRenderType = "HW_Rendering"; // "HW_RENDERING"
 #endif
 
 #if RETRO_USE_HAPTICS
-    const char *gameHapticSetting = "USE_F_FEEDBACK"; // NO_F_FEEDBACK is default, but people with controllers exist
+    const char *gameHapticSetting = "Use_Haptics"; //"USE_F_FEEDBACK"; // None is default, but people with controllers exist
 #else
-    const char *gameHapticSetting = "NO_F_FEEDBACK"; 
+    const char *gameHapticSetting = "No_Haptics"; //"NO_F_FEEDBACK";
 #endif
 
     byte gameType = GAME_UNKNOWN;

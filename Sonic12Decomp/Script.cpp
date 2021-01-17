@@ -149,7 +149,7 @@ const char variableNames[][0x20] = {
     "Object.AnimationSpeed",
     "Object.AnimationTimer",
     "Object.Angle",
-    "Object.ValueF0",
+    "Object.CamOffsetX",
     "Object.LookPos",
     "Object.CollisionMode",
     "Object.CollisionPlane",
@@ -1055,7 +1055,7 @@ void CheckStaticText(char *text)
 }
 void CheckArrayText(char *text)
 {
-    if (FindStringToken(text, "#array", 1) || arrVarCount >= ARRVAR_COUNT)
+    if ((FindStringToken(text, "#array", 1) && FindStringToken(text, "#table", 1)) || arrVarCount >= ARRVAR_COUNT)
         return;
     int textPos     = 6;
     int arrayStrPos = 0;
