@@ -24,7 +24,7 @@ even if your platform isn't supported by the official releases, buy it for the a
 # TODOs:
 * the "native object" system has been implimented, but the objects (aside from RetroGameLoop and a temporary pause menu) and the proper HW rendering system have yet to be added
 * probably some more bug fixes, because there always are a few stragglers
-* create a cmakelists.txt file for windows compiling so builds can be added automatically via git actions
+* create a `cmakelists.txt` file for windows compiling so builds can be added automatically via git actions
 
 # How to build:
 ## Windows:
