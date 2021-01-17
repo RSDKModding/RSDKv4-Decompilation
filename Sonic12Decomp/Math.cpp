@@ -1,6 +1,11 @@
 #include "RetroEngine.hpp"
 #include <math.h>
 
+#ifdef __vita__
+#define M_PI		3.14159265358979323846
+#endif
+
+
 int sinValM7[512];
 int cosValM7[512];
 

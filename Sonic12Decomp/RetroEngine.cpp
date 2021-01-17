@@ -203,8 +203,11 @@ void RetroEngine::Init()
 {
     CalculateTrigAngles();
     GenerateBlendLookupTable();
-
+#if RETRO_PLATFORM == RETRO_VITA
+    CheckRSDKFile("ux0:/data/Sonic12/data.rsdk");
+#else
     CheckRSDKFile(BASE_PATH "Data.rsdk");
+#endif
     InitUserdata();
     InitNativeObjectSystem();
 

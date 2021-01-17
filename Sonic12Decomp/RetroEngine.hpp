@@ -17,7 +17,9 @@ typedef unsigned char byte;
 typedef signed char sbyte;
 typedef unsigned short ushort;
 typedef unsigned int uint;
-//typedef unsigned long long ulong;
+#ifndef __vita__
+typedef unsigned long long ulong;
+#endif
 
 #define RSDK_DEBUG (1)
 
@@ -34,6 +36,7 @@ typedef unsigned int uint;
 #define RETRO_iOS      (4)
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
+#define RETRO_VITA     (7)
 // Custom Platforms start here
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
@@ -51,6 +54,9 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_OSX)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
+#elif defined __vita__
+#define RETRO_PLATFORM (RETRO_VITA)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
@@ -60,7 +66,7 @@ typedef unsigned int uint;
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
 
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
 #define RETRO_USING_SDL (1)
 #else //Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL (0)
@@ -69,7 +75,7 @@ typedef unsigned int uint;
 #define RETRO_GAME_STANDARD (0)
 #define RETRO_GAME_MOBILE   (1)
 
-#if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
+#if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7 || RETRO_PLATFORM == RETRO_VITA 
 #define RETRO_GAMEPLATFORM (RETRO_GAME_MOBILE)
 #else
 #define RETRO_GAMEPLATFORM (RETRO_GAME_STANDARD)
@@ -128,6 +134,9 @@ enum RetroGameType {
 #include <Vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
+#elif RETRO_PLATFORM == RETRO_VITA
+#include <SDL2/SDL.h>
+#include <vorbis/vorbisfile.h>
 #endif
 
 extern bool usingCWD;

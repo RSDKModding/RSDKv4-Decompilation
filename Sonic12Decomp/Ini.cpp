@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
 #include <stdlib.h>
+#include <string>
 #include <algorithm>
 #include <string>
 
@@ -21,6 +22,8 @@ IniParser::IniParser(const char *filename)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
         sprintf(pathBuffer, "%s", filename);
+#elif RETRO_PLATFORM == RETRO_VITA
+    sprintf(pathBuffer, "ux0:/data/Sonic12/%s",filename);
 #else
     sprintf(pathBuffer, "%s", filename);
 #endif
@@ -244,6 +247,8 @@ void IniParser::Write(const char *filename)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
         sprintf(pathBuffer, "%s", filename);
+#elif RETRO_PLATFORM == RETRO_VITA
+    sprintf(pathBuffer, "ux0:/data/Sonic12/%s",filename);
 #else
     sprintf(pathBuffer, "%s", filename);
 #endif

@@ -32,6 +32,8 @@ void InitUserdata()
         sprintf(buffer, "%s/settings.ini", getResourcesPath());
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_VITA
+    sprintf(buffer, "ux0:data/Sonic12/settings.ini");
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
 #endif
