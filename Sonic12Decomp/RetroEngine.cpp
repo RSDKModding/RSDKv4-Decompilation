@@ -35,7 +35,10 @@ bool processEvents()
                         Engine.isFullScreen = true;
                         break;
                     }
-                    case SDL_WINDOWEVENT_CLOSE: return false;
+                    case SDL_WINDOWEVENT_CLOSE:
+                        Engine.gameMode = ENGINE_EXITGAME;
+                        return false;
+                        break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
@@ -48,7 +51,9 @@ bool processEvents()
                 return false;
             case SDL_APP_WILLENTERBACKGROUND: /*Engine.Callback(CALLBACK_ENTERBG);*/ break;
             case SDL_APP_WILLENTERFOREGROUND: /*Engine.Callback(CALLBACK_ENTERFG);*/ break;
-            case SDL_APP_TERMINATING:  break;
+            case SDL_APP_TERMINATING:
+                Engine.gameMode = ENGINE_EXITGAME;
+                break;
             case SDL_MOUSEMOTION:
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
