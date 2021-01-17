@@ -277,9 +277,6 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
         panL = 1.0f - abs(pan / 100.0f);
         panR = 1.0f;
     }
-    // TODO: i think this makes rings quieter. fuck
-    // if (snd->pan)
-    //    volume -= (abs(snd->pan / 2.0f * (volume / MAX_VOLUME)));
 
     while (len--) {
         Sint32 sample = *src++;
