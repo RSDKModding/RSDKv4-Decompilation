@@ -27,6 +27,7 @@ bin/
 [Dd]ependencies/windows/*
 [Dd]ependencies/mac/*
 [Dd]ependencies/all/*
+![Dd]ependencies/all/dependencies.txt
 
 #OSX files
 *.DS_Store
