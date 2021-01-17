@@ -75,8 +75,7 @@ int InitAudioPlayback()
         FileRead(strBuffer, fileBuffer);
 
         byte buf[3];
-        for (int c = 0; c < 0x60; ++c)
-            FileRead(buf, 3);
+        for (int c = 0; c < 0x60; ++c) FileRead(buf, 3);
 
         // Read Obect Names
         int objectCount = 0;
@@ -271,15 +270,15 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
     int i      = 0;
 
     if (pan < 0) {
-        panL = 1.0f - abs(pan / 100.0f);
-        panR = 1.0f;
-    }
-    else if (pan > 0) {
         panR = 1.0f - abs(pan / 100.0f);
         panL = 1.0f;
     }
+    else if (pan > 0) {
+        panL = 1.0f - abs(pan / 100.0f);
+        panR = 1.0f;
+    }
     // TODO: i think this makes rings quieter. fuck
-    //if (snd->pan)
+    // if (snd->pan)
     //    volume -= (abs(snd->pan / 2.0f * (volume / MAX_VOLUME)));
 
     while (len--) {
@@ -430,7 +429,7 @@ bool PlayMusic(int track, int musStartPos)
         }
 
         musInfo.vorbBitstream = -1;
-        musInfo.vorbisFile.vi      = ov_info(&musInfo.vorbisFile, -1);
+        musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
 
         samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
 
@@ -661,15 +660,15 @@ void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
     int sfxChannel = -1;
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
         if (sfxChannels[i].sfxID == sfx) {
-            sfxChannel     = i;
+            sfxChannel = i;
             break;
         }
     }
     if (sfxChannel == -1)
-        return; //wasn't found
+        return; // wasn't found
 
     ChannelInfo *sfxInfo = &sfxChannels[sfxChannel];
-    sfxInfo->loopSFX      = loopCount == -1 ? sfxInfo->loopSFX : loopCount;
-    sfxInfo->pan          = pan;
-    sfxInfo->sfxID        = sfx;
+    sfxInfo->loopSFX     = loopCount == -1 ? sfxInfo->loopSFX : loopCount;
+    sfxInfo->pan         = pan;
+    sfxInfo->sfxID       = sfx;
 }
