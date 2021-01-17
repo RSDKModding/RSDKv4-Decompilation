@@ -14,7 +14,7 @@ int scriptCodePos     = 0;
 int jumpTablePos      = 0;
 int jumpTableStackPos = 0;
 int functionStackPos  = 0;
-int foreachStackPos  = 0;
+int foreachStackPos   = 0;
 
 ScriptEngine scriptEng = ScriptEngine();
 char scriptText[0x4000];
@@ -45,21 +45,21 @@ struct AliasInfo {
     char value[0x20];
 };
 
-#define STATICVAR_COUNT (0x200)
-#define ARRVAR_COUNT (0x200)
+#define STATICVAR_COUNT   (0x200)
+#define ARRVAR_COUNT      (0x200)
 #define ARRAY_VALUE_COUNT (0x400)
 
 struct StaticInfo {
     StaticInfo()
     {
         StrCopy(name, "");
-        value = 0;
+        value   = 0;
         dataPos = SCRIPTDATA_COUNT - 1;
     }
     StaticInfo(const char *aliasName, int val)
     {
         StrCopy(name, aliasName);
-        value = val;
+        value   = val;
         dataPos = SCRIPTDATA_COUNT - 1;
     }
 
@@ -73,13 +73,13 @@ struct ArrInfo {
     {
         StrCopy(name, "");
         valueCount = 0;
-        dataPos = SCRIPTDATA_COUNT - 1;
+        dataPos    = SCRIPTDATA_COUNT - 1;
     }
     ArrInfo(const char *aliasName, int valCnt)
     {
         StrCopy(name, aliasName);
         valueCount = valCnt;
-        dataPos = SCRIPTDATA_COUNT - 1;
+        dataPos    = SCRIPTDATA_COUNT - 1;
     }
 
     char name[0x20];
@@ -577,17 +577,22 @@ AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
 StaticInfo staticVariables[STATICVAR_COUNT];
 ArrInfo arrayVariables[ARRVAR_COUNT];
 int staticVarCount = 0;
-int arrVarCount = 0;
+int arrVarCount    = 0;
 
-const char scriptEvaluationTokens[][0x4] = {
-    "=", "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=", "|=", "^=", "%=", "==", ">", ">=", "<", "<=", "!="
-};
+const char scriptEvaluationTokens[][0x4] = { "=",  "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=",
+                                             "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
 
 int scriptFunctionCount = 0;
 char scriptFunctionNames[FUNCTION_COUNT][0x20];
 
 enum ScriptReadModes { READMODE_NORMAL = 0, READMODE_STRING = 1, READMODE_COMMENTLINE = 2, READMODE_ENDLINE = 3, READMODE_EOF = 4 };
-enum ScriptParseModes { PARSEMODE_SCOPELESS = 0, PARSEMODE_PLATFORMSKIP = 1, PARSEMODE_FUNCTION = 2, PARSEMODE_SWITCHREAD = 3, PARSEMODE_ERROR = 0xFF };
+enum ScriptParseModes {
+    PARSEMODE_SCOPELESS    = 0,
+    PARSEMODE_PLATFORMSKIP = 1,
+    PARSEMODE_FUNCTION     = 2,
+    PARSEMODE_SWITCHREAD   = 3,
+    PARSEMODE_ERROR        = 0xFF
+};
 
 enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCONST = 3 };
 enum ScriptVarArrTypes { VARARR_NONE = 0, VARARR_ARRAY = 1, VARARR_ENTNOPLUS1 = 2, VARARR_ENTNOMINUS1 = 3 };
@@ -1003,9 +1008,9 @@ void CheckAliasText(char *text)
             }
         }
         else if (text[textPos] == ':') {
-            aliases[aliasCount].value[aliasStrPos]        = 0;
-            aliasStrPos                             = 0;
-            aliasMatch                              = 1;
+            aliases[aliasCount].value[aliasStrPos] = 0;
+            aliasStrPos                            = 0;
+            aliasMatch                             = 1;
         }
         else {
             aliases[aliasCount].value[aliasStrPos++] = text[textPos];
@@ -1016,9 +1021,9 @@ void CheckAliasText(char *text)
 }
 void CheckStaticText(char *text)
 {
-    if (FindStringToken(text, "#constant", 1) || staticVarCount >= STATICVAR_COUNT)
+    if (FindStringToken(text, "#static", 1) || staticVarCount >= STATICVAR_COUNT)
         return;
-    int textPos     = 6;
+    int textPos      = 6;
     int staticStrPos = 0;
     int staticMatch  = 0;
     char strBuffer[0x10];
@@ -1030,15 +1035,15 @@ void CheckStaticText(char *text)
             }
             else {
                 staticVariables[staticVarCount].dataPos = scriptDataPos;
-                scriptData[scriptDataPos++] = staticVariables[staticVarCount].value;
-                staticStrPos = 0;
+                scriptData[scriptDataPos++]             = staticVariables[staticVarCount].value;
+                staticStrPos                            = 0;
                 ++staticMatch;
             }
         }
         else if (text[textPos] == ':') {
-            strBuffer[staticStrPos]                  = 0;
-            staticStrPos                             = 0;
-            staticMatch                              = 1;
+            strBuffer[staticStrPos] = 0;
+            staticStrPos            = 0;
+            staticMatch             = 1;
             ConvertStringToInteger(strBuffer, &staticVariables[staticVarCount].value);
         }
         else {
@@ -1055,76 +1060,43 @@ void CheckArrayText(char *text)
     int textPos     = 6;
     int arrayStrPos = 0;
     int arrayMatch  = 0;
-    int arrayMode = 0;
     char strBuffer[0x10];
     while (arrayMatch < 2) {
         if (arrayMatch == 1) {
-            switch (arrayMode) {
-                case 1: {
-                    if (text[textPos] == ']') {
-                        strBuffer[arrayStrPos] = 0;
-                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].valueCount);
-                        
-                        arrayVariables[arrVarCount].dataPos = scriptDataPos;
-                        scriptData[scriptDataPos++] = arrayVariables[arrVarCount].valueCount;
-                        for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
-                            arrayVariables[arrVarCount].values[v].value = 0;
-                            
-                            arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
-                            scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
-                        }
-                        arrayMatch = 2;
-                    }
-                    else {
-                        strBuffer[arrayStrPos] = text[textPos];
-                        arrayStrPos++;
-                    }
-                    break;
+            if (text[textPos] == ')') {
+                strBuffer[arrayStrPos] = 0;
+                int cnt                = arrayVariables[arrVarCount].valueCount;
+                ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
+                arrayVariables[arrVarCount].valueCount++;
+
+                arrayVariables[arrVarCount].dataPos = scriptDataPos;
+                scriptData[scriptDataPos++]         = arrayVariables[arrVarCount].valueCount;
+                for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
+                    arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
+                    scriptData[scriptDataPos++]                   = arrayVariables[arrVarCount].values[v].value;
                 }
-                case 2: {
-                    if (text[textPos] == ')') {
-                        strBuffer[arrayStrPos] = 0;
-                        int cnt = arrayVariables[arrVarCount].valueCount;
-                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
-                        arrayVariables[arrVarCount].valueCount++;
-                        
-                        arrayVariables[arrVarCount].dataPos = scriptDataPos;
-                        scriptData[scriptDataPos++] = arrayVariables[arrVarCount].valueCount;
-                        for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
-                            arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
-                            scriptData[scriptDataPos++] = arrayVariables[arrVarCount].values[v].value;
-                        }
-                        arrayMatch = 2;
-                    }
-                    else if (text[textPos] == ',') {
-                        strBuffer[arrayStrPos] = 0;
-                        int cnt = arrayVariables[arrVarCount].valueCount;
-                        ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
-                        arrayVariables[arrVarCount].valueCount++;
-                        
-                        strBuffer[0] = 0;
-                        arrayStrPos = 0;
-                    }
-                    else {
-                        strBuffer[arrayStrPos] = text[textPos];
-                        arrayStrPos++;
-                    }
-                    break;
-                }
+                arrayMatch = 2;
+            }
+            else if (text[textPos] == ',') {
+                strBuffer[arrayStrPos] = 0;
+                int cnt                = arrayVariables[arrVarCount].valueCount;
+                ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
+                arrayVariables[arrVarCount].valueCount++;
+
+                strBuffer[0] = 0;
+                arrayStrPos  = 0;
+            }
+            else {
+                strBuffer[arrayStrPos] = text[textPos];
+                arrayStrPos++;
             }
         }
         else if (text[textPos] == ':') {
-            arrayVariables[aliasCount].name[arrayStrPos]        = 0;
-            arrayVariables[arrVarCount].valueCount = 0;
-            arrayStrPos                                         = 0;
-            arrayMatch                                          = 1;
+            arrayVariables[arrVarCount].name[arrayStrPos] = 0;
+            arrayVariables[arrVarCount].valueCount        = 0;
+            arrayStrPos                                   = 0;
+            arrayMatch                                    = 1;
             textPos++;
-            if (text[textPos] == '[') {
-                arrayMode = 1;
-            }
-            else if (text[textPos] == '(') {
-                arrayMode = 2;
-            }
         }
         else {
             arrayVariables[arrVarCount].name[arrayStrPos] = text[textPos];
@@ -1182,7 +1154,7 @@ void ConvertIfWhileStatement(char *text)
             for (int i = 0; i < 6; ++i) {
                 destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
                 if (destStrPos > -1) {
-                    strPos = destStrPos;
+                    strPos    = destStrPos;
                     compareOp = i;
                 }
             }
@@ -1210,7 +1182,7 @@ void ConvertIfWhileStatement(char *text)
         for (int i = 0; i < 6; ++i) {
             destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
             if (destStrPos > -1) {
-                strPos = destStrPos;
+                strPos    = destStrPos;
                 compareOp = i;
             }
         }
@@ -1241,7 +1213,7 @@ void ConvertForeachStatement(char *text)
     char dest[260];
     int destStrPos = 0;
 
-    if (!FindStringToken(text, "foreachTypeGroup", 1)) { //foreach TypeGroup[
+    if (!FindStringToken(text, "foreachTypeGroup", 1)) { // foreach TypeGroup[
         StrCopy(dest, functions[FUNC_FOREACHTYPEGROUP].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
@@ -1258,7 +1230,7 @@ void ConvertForeachStatement(char *text)
         jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
         jumpTableData[jumpTableDataPos++]   = 0;
     }
-    else { //foreach TypeName[
+    else { // foreach TypeName[
         StrCopy(dest, functions[FUNC_FOREACHTYPENAME].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
@@ -1344,7 +1316,7 @@ void ConvertFunctionText(char *text)
             jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos + 2] == -1) {
                 jumpTableData[jPos + 2] = (scriptDataPos - scriptDataOffset) - 1;
-                int caseCnt                = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
+                int caseCnt             = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
 
                 int jOffset = jPos + 4;
                 for (int c = 0; c < caseCnt; ++c) {
@@ -1384,7 +1356,7 @@ void ConvertFunctionText(char *text)
                     ++textPos;
                 }
             }
-            funcName[funcNamePos]       = 0;
+            funcName[funcNamePos]      = 0;
             arrayStr[scriptTextByteID] = 0;
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
@@ -1457,8 +1429,8 @@ void ConvertFunctionText(char *text)
                     }
                 }
             }
-            
-            //Storing Values
+
+            // Storing Values
             if (ConvertStringToInteger(funcName, &value)) {
                 scriptData[scriptDataPos++] = SCRIPTVAR_INTCONST;
                 scriptData[scriptDataPos++] = value;
@@ -1574,7 +1546,7 @@ void CheckCaseNumber(char *text)
     int destStrPos = 0;
     char caseChar  = text[4];
     if (text[4]) {
-        int textPos    = 5;
+        int textPos = 5;
         do {
             if (caseChar != ':')
                 dest[destStrPos++] = caseChar;
@@ -1628,7 +1600,7 @@ bool ReadSwitchCase(char *text)
         }
     }
     else {
-        int textPos      = 4;
+        int textPos       = 4;
         int caseStringPos = 0;
         while (text[textPos]) {
             if (text[textPos] != ':')
@@ -1665,7 +1637,7 @@ void AppendIntegerToString(char *text, int value)
     while (v != 0) {
         v /= 10;
         cnt++;
-    } 
+    }
 
     v = 0;
     for (int i = cnt - 1; i >= 0; --i) {
@@ -1674,7 +1646,7 @@ void AppendIntegerToString(char *text, int value)
 
         int strValue = v + '0';
         if (strValue < '0' || strValue > '9') {
-            //what
+            // what
         }
         text[textPos++] = strValue;
     }
@@ -1713,12 +1685,12 @@ void AppendIntegerToStringW(ushort *text, int value)
         text[textPos++] = '0';
     text[textPos] = 0;
 }
-bool ConvertStringToInteger(char *text, int *value)
+bool ConvertStringToInteger(const char *text, int *value)
 {
-    int charID   = 0;
+    int charID    = 0;
     bool negative = false;
     int base      = 10;
-    *value       = 0;
+    *value        = 0;
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
     int strLength = StrLength(text) - 1;
@@ -1746,7 +1718,20 @@ bool ConvertStringToInteger(char *text, int *value)
             return 0;
         }
         if (strLength <= 0) {
-            *value = text[charID] + *value - '0';
+            if (text[charID] >= '0' && text[charID] <= '9') {
+                *value = text[charID] + *value - '0';
+            }
+            else if (text[charID] >= 'a' && text[charID] <= 'f') {
+                charVal = text[charID] - 'a';
+                charVal += 10;
+                *value += charVal;
+            }
+            else if (text[charID] >= 'A' && text[charID] <= 'F') {
+                charVal = text[charID] - 'A';
+                charVal += 10;
+                *value += charVal;
+            }
+            
         }
         else {
             int strlen = strLength + 1;
@@ -1768,7 +1753,6 @@ bool ConvertStringToInteger(char *text, int *value)
         }
         --strLength;
         ++charID;
-
     }
     if (negative)
         *value = -*value;
@@ -1831,7 +1815,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
     jumpTableStackPos = 0;
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
-    
+
     for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
         StrCopy(aliases[i].name, "");
         StrCopy(aliases[i].value, "");
@@ -1842,11 +1826,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
     StrAdd(scriptPath, scriptName);
     FileInfo info;
     if (LoadFile(scriptPath, &info)) {
-        int readMode                      = READMODE_NORMAL;
-        int parseMode                     = PARSEMODE_SCOPELESS;
-        char prevChar                     = 0;
-        char curChar                      = 0;
-        int switchDeep                    = 0;
+        int readMode   = READMODE_NORMAL;
+        int parseMode  = PARSEMODE_SCOPELESS;
+        char prevChar  = 0;
+        char curChar   = 0;
+        int switchDeep = 0;
         while (readMode < READMODE_EOF) {
             int textPos = 0;
             readMode    = READMODE_NORMAL;
@@ -2014,7 +1998,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         else if (FindStringToken(scriptText, Engine.gamePlatform, 1) == -1
                                  && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
 #if RETRO_USE_HAPTICS
-                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1) 
+                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1)
 #endif
                         {
                             parseMode = PARSEMODE_PLATFORMSKIP;
@@ -2255,9 +2239,9 @@ void ClearScriptData()
     memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
 
     scriptFrameCount = 0;
-    
-    scriptCodePos = 0;
-    jumpTablePos  = 0;
+
+    scriptCodePos     = 0;
+    jumpTablePos      = 0;
     jumpTableStackPos = 0;
     functionStackPos  = 0;
 
@@ -2271,7 +2255,6 @@ void ClearScriptData()
     aliasCount = COMMONALIAS_COUNT;
     lineID     = 0;
 
-    
     staticVarCount = 0;
     arrVarCount    = 0;
 
@@ -2290,17 +2273,17 @@ void ClearScriptData()
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo                       = &objectScriptList[o];
-        scriptInfo->subMain.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subDraw.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subStartup.scriptCodePtr           = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT - 1;
-        scriptInfo->frameListOffset                    = 0;
-        scriptInfo->spriteSheetID                      = 0;
-        scriptInfo->animFile                           = GetDefaultAnimationRef();
-        typeNames[o][0]                                = 0;
+        ObjectScript *scriptInfo             = &objectScriptList[o];
+        scriptInfo->subMain.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subMain.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->subDraw.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->subStartup.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subStartup.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        scriptInfo->frameListOffset          = 0;
+        scriptInfo->spriteSheetID            = 0;
+        scriptInfo->animFile                 = GetDefaultAnimationRef();
+        typeNames[o][0]                      = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
@@ -2313,12 +2296,12 @@ void ClearScriptData()
 
 void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
 {
-    bool running         = true;
-    int scriptDataPtr    = scriptCodePtr;
-    //int jumpTableDataPtr = jumpTablePtr;
-    jumpTableStackPos    = 0;
-    functionStackPos     = 0;
-    foreachStackPos     = 0;
+    bool running      = true;
+    int scriptDataPtr = scriptCodePtr;
+    // int jumpTableDataPtr = jumpTablePtr;
+    jumpTableStackPos = 0;
+    functionStackPos  = 0;
+    foreachStackPos   = 0;
 
     while (running) {
         int opcode           = scriptData[scriptDataPtr++];
@@ -2625,7 +2608,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                             scriptEng.operands[i] = 1;
                         }
                         else {
-                            pos               = objectEntityList[arrayVal].YPos >> 16;
+                            pos                   = objectEntityList[arrayVal].YPos >> 16;
                             scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >= yScrollOffset + OBJECT_BORDER_Y2;
                         }
                         break;
@@ -3115,7 +3098,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
                     if (loop >= objectTypeGroupList[typeGroup].listSize) {
-                        opcodeSize                 = 0;
+                        opcodeSize                      = 0;
                         foreachStack[foreachStackPos--] = -1;
                         scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                         break;
@@ -3134,7 +3117,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             case FUNC_FOREACHTYPENAME: {
                 int objType = scriptEng.operands[1];
                 if (objType < OBJECT_COUNT) {
-                    int loop                   = foreachStack[++foreachStackPos] + 1;
+                    int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
 
                     if (scriptSub == SUB_SETUP) {
@@ -3176,8 +3159,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                 }
                 else {
-                    opcodeSize                      = 0;
-                    scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    opcodeSize    = 0;
+                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                 }
                 break;
             }
@@ -3301,7 +3284,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
             case FUNC_DRAWACTNAME: {
                 opcodeSize = 0;
-                switch (scriptEng.operands[3]) { //Alignment
+                switch (scriptEng.operands[3]) { // Alignment
                     case 0: {
                         int charID = 0;
                         for (charID = 0;; ++charID) {
@@ -3490,12 +3473,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 SetPaletteFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                scriptEng.operands[5]);
                 break;
-            case FUNC_SETPALETTEENTRY:
-                SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
-                break;
-            case FUNC_GETPALETTEENTRY:
-                scriptEng.operands[2] = GetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1]);
-                break;
+            case FUNC_SETPALETTEENTRY: SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]); break;
+            case FUNC_GETPALETTEENTRY: scriptEng.operands[2] = GetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1]); break;
             case FUNC_COPYPALETTE:
                 opcodeSize = 0;
                 CopyPalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4]);
@@ -3772,7 +3751,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 opcodeSize = 0;
                 if (objectEntityList[scriptEng.arrayPosition[8]].type > OBJ_TYPE_BLANKOBJECT && ++scriptEng.arrayPosition[8] == ENTITY_COUNT)
                     scriptEng.arrayPosition[8] = TEMPENTITY_START;
-                Entity *temp         = &objectEntityList[scriptEng.arrayPosition[8]];
+                Entity *temp = &objectEntityList[scriptEng.arrayPosition[8]];
                 memset(temp, 0, sizeof(Entity));
                 temp->type               = scriptEng.operands[0];
                 temp->propertyValue      = scriptEng.operands[1];
@@ -4026,13 +4005,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 drawListEntries[scriptEng.operands[0]].listSize = 0;
                 break;
             case FUNC_ADDDRAWLISTENTITYREF: {
-                opcodeSize                                              = 0;
+                opcodeSize                                                                                           = 0;
                 drawListEntries[scriptEng.operands[0]].entityRefs[drawListEntries[scriptEng.operands[0]].listSize++] = scriptEng.operands[1];
                 break;
             }
             case FUNC_GETDRAWLISTENTITYREF: scriptEng.operands[0] = drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]]; break;
             case FUNC_SETDRAWLISTENTITYREF:
-                opcodeSize                                      = 0;
+                opcodeSize                                                               = 0;
                 drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]] = scriptEng.operands[0];
                 break;
             case FUNC_GET16X16TILEINFO: {
@@ -4171,7 +4150,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             case FUNC_ENGINECALLBACKEXT:
                 if (scriptEng.operands[0] <= 0xFu)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1], reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
+                                                          reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
             case FUNC_SETOBJECTBORDERX: {
                 opcodeSize       = 0;
@@ -4190,14 +4170,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
             case FUNC_SETOBJECTVALUE: {
                 opcodeSize = 0;
-                int valID = scriptEng.operands[1];
+                int valID  = scriptEng.operands[1];
                 if (valID <= 47)
                     objectEntityList[scriptEng.operands[2]].values[valID] = scriptEng.operands[0];
                 break;
             }
             case FUNC_COPYOBJECT: {
-                opcodeSize   = 0;
-                //start index, copy offset, count
+                opcodeSize = 0;
+                // start index, copy offset, count
                 Entity *src = &objectEntityList[scriptEng.operands[0]];
                 for (int e = 0; e < scriptEng.operands[2]; ++e) {
                     Entity *dst = &src[scriptEng.operands[1]];
@@ -4816,7 +4796,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         SetGameVolumes(bgmVolume, sfxVolume);
                         break;
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
-                    case VAR_ENGINEPLATFORMID:  break;
+                    case VAR_ENGINEPLATFORMID: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

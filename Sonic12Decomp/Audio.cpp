@@ -399,13 +399,10 @@ bool PlayMusic(int track, int musStartPos)
         oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
     }
 
-#if RETRO_USING_SDL
-    SDL_LockAudio();
-#endif
+    if (musInfo.loaded)
+        StopMusic();
 
     if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
-        if (musInfo.loaded)
-            StopMusic();
 
 #if RETRO_USING_SDL
         SDL_LockAudio();

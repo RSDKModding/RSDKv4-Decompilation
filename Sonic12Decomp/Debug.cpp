@@ -3,6 +3,7 @@
 #if RSDK_DEBUG
 bool endLine = true;
 #endif
+int touchTimer = 0;
 
 void initDevMenu()
 {
@@ -25,6 +26,7 @@ void initDevMenu()
     setTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ           = false;
     Engine.finishedStartMenu     = true;
+    touchTimer               = 0;
 }
 void initErrorMessage()
 {
@@ -51,12 +53,47 @@ void initErrorMessage()
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
     Engine.finishedStartMenu     = true;
+    touchTimer                   = 0;
 }
 void processStageSelect()
 {
     ClearScreen(0xF0);
+    keyDown.start = false;
+    keyDown.up    = false;
+    keyDown.down  = false;
+
     CheckKeyDown(&keyDown, 0x13);
     CheckKeyPress(&keyPress, 0xB3);
+
+    DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
+    DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
+    DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
+
+    if (!keyDown.start && !keyDown.up && !keyDown.down) {
+        if (touches > 0) {
+            if (touchDown[0] && !(touchTimer % 8)) {
+                if (touchX[0] < SCREEN_CENTERY) {
+                    if (touchY[0] >= SCREEN_CENTERY) {
+                        if (!keyDown.down)
+                            keyPress.down = true;
+                        keyDown.down = true;
+                    }
+                    else {
+                        if (!keyDown.up)
+                            keyPress.up = true;
+                        keyDown.up = true;
+                    }
+                }
+                else if (touchX[0] != SCREEN_CENTERY && touchY[0] > SCREEN_CENTERY) {
+                    if (!keyDown.start)
+                        keyPress.start = true;
+                    keyDown.start = true;
+                }
+            }
+        }
+    }
+
+    touchTimer++;
 
     switch (stageMode) {
         case DEVMENU_MAIN: // Main Menu
@@ -299,46 +336,48 @@ void initStartMenu(int mode) {
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
 
+    
+    ReadSaveRAMData();
+    if (saveRAM[0x100] != Engine.gameType) {
+        saveRAM[0x100] = Engine.gameType;
+        if (Engine.gameType == GAME_SONIC1) {
+            saveRAM[0x101] = 1;
+            saveRAM[0x102] = 0;
+            saveRAM[0x103] = 0;
+            saveRAM[0x104] = 0;
+            saveRAM[0x105] = 0;
+        }
+        else {
+            saveRAM[0x101] = 0;
+            saveRAM[0x102] = 1;
+            saveRAM[0x103] = 1;
+            saveRAM[0x104] = 0;
+            saveRAM[0x105] = 0;
+        }
+        WriteSaveRAMData();
+    }
+    else {
+        if (Engine.gameType == GAME_SONIC1) {
+            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
+        }
+        else {
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+    }
+
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
         setTextMenu(STARTMENU_MAIN);
     }
     else {
-        ReadSaveRAMData();
-        if (!saveRAM[0x100]) {
-            saveRAM[0x100] = Engine.gameType;
-            if (Engine.gameType == GAME_SONIC1) {
-                saveRAM[0x101] = GetGlobalVariableByName("options.spindash");
-                saveRAM[0x102] = GetGlobalVariableByName("options.speedCap");
-                saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
-                saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
-                saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
-            }
-            else {
-                saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
-                saveRAM[0x102] = GetGlobalVariableByName("options.tailsFlight");
-                saveRAM[0x103] = GetGlobalVariableByName("options.superTails");
-                saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
-                saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
-            }
-            WriteSaveRAMData();
-        }
-        else {
-            if (Engine.gameType == GAME_SONIC1) {
-                SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-                SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-                SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-                SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-                SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-            }
-            else {
-                SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-                SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-                SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-                SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-                SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-            }
-        }
-
         //finished TA act
         int listPos = stageListPosition;
         int max     = listPos < stageListCount[STAGELIST_REGULAR];
@@ -349,11 +388,16 @@ void initStartMenu(int mode) {
             }
         }
 
-        if (stageListPosition >= max) {
-            if (activeStageList == STAGELIST_BONUS) {
-                listPos ^= 1;
-                listPos += max;
-            }
+        
+        if (activeStageList == STAGELIST_SPECIAL) {
+            listPos += max;
+        }
+
+        if (activeStageList == STAGELIST_BONUS) {
+            if (listPos > 1)
+                listPos = 1;
+            listPos ^= 1;
+            listPos += max;
         }
 
         int result = GetGlobalVariableByName("timeAttack.result");
@@ -655,6 +699,12 @@ void setTextMenu(int sm) {
 
                 char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
                 AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
+
+                AddTextMenuEntry(&gameMenu[1], "");
+                if (GetGlobalVariableByName("options.superStates"))
+                    AddTextMenuEntry(&gameMenu[1], "SUPER FORMS: ENABLED");
+                else
+                    AddTextMenuEntry(&gameMenu[1], "SUPER FORMS: DISABLED");
             }
             else {
                 if (GetGlobalVariableByName("options.airSpeedCap"))
@@ -687,8 +737,45 @@ void setTextMenu(int sm) {
 
 void processStartMenu() {
     ClearScreen(0xF0);
+    keyDown.start = false;
+    keyDown.up    = false;
+    keyDown.down  = false;
+
     CheckKeyDown(&keyDown, 0xFF);
     CheckKeyPress(&keyPress, 0xFF);
+
+    if (!keyDown.start && !keyDown.up && !keyDown.down) {
+        if (touches > 0) {
+            if (touchDown[0] && !(touchTimer % 8)) {
+                if (touchX[0] < SCREEN_CENTERX) {
+                    if (touchY[0] >= SCREEN_CENTERY) {
+                        if (!keyDown.down)
+                            keyPress.down = true;
+                        keyDown.down = true;
+                    }
+                    else {
+                        if (!keyDown.up)
+                            keyPress.up = true;
+                        keyDown.up = true;
+                    }
+                }
+                else if (touchX[0] > SCREEN_CENTERX) {
+                    if (touchY[0] > SCREEN_CENTERY) {
+                        if (!keyDown.start)
+                            keyPress.start = true;
+                        keyDown.start = true;
+                    }
+                    else {
+                        if (!keyDown.B)
+                            keyPress.B = true;
+                        keyDown.B = true;
+                    }
+                }
+            }
+        }
+    }
+
+    touchTimer++;
 
     switch (stageMode) {
         case STARTMENU_MAIN: {
@@ -930,7 +1017,7 @@ void processStartMenu() {
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
-            if (keyPress.left || keyPress.right) {
+            if (keyPress.left || keyPress.right || keyPress.start) {
                 if (Engine.gameType == GAME_SONIC1) {
                     switch (gameMenu[1].selection1) {
                         case 0: // Spindash
@@ -943,25 +1030,25 @@ void processStartMenu() {
                         case 2: // Ground Spd Cap
                             SetGlobalVariableByName("options.speedCap", GetGlobalVariableByName("options.speedCap") ^ 1);
                             if (GetGlobalVariableByName("options.speedCap"))
-                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: ENABLED", 2);
                             else
-                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "GROUND SPEED CAP: DISABLED", 2);
                             break;
                         case 4: // Air Spd Cap
                             SetGlobalVariableByName("options.airSpeedCap", GetGlobalVariableByName("options.airSpeedCap") ^ 1);
                             if (GetGlobalVariableByName("options.airSpeedCap"))
-                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: ENABLED", 4);
                             else
-                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED", 4);
                             break;
                         case 6: // S1 Spikes
-                            SetGlobalVariableByName("options.spikeBehavior", GetGlobalVariableByName("options.speedcap") ^ 1);
+                            SetGlobalVariableByName("options.spikeBehavior", GetGlobalVariableByName("options.spikeBehavior") ^ 1);
                             if (GetGlobalVariableByName("options.spikeBehavior"))
-                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED", 6);
                             else
-                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED", 0);
+                                SetTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED", 6);
                             break;
-                        case 8:
+                        case 8: {
                             if (keyPress.left) {
                                 int var = (GetGlobalVariableByName("options.shieldType") - 1);
                                 if (var < 0)
@@ -974,6 +1061,14 @@ void processStartMenu() {
                             int type                   = GetGlobalVariableByName("options.shieldType");
                             char itemBoxTypes[4][0x20] = { "ITEM TYPE: S1", "ITEM TYPE: S2", "ITEM TYPE: S1+S3", "ITEM TYPE: S2+S3" };
                             SetTextMenuEntry(&gameMenu[1], itemBoxTypes[type], 8);
+                            break;
+                        }
+                        case 10: // Super forms
+                            SetGlobalVariableByName("options.superStates", GetGlobalVariableByName("options.superStates") ^ 1);
+                            if (GetGlobalVariableByName("options.superStates"))
+                                SetTextMenuEntry(&gameMenu[1], "SUPER FORMS: ENABLED", 10);
+                            else
+                                SetTextMenuEntry(&gameMenu[1], "SUPER FORMS: DISABLED", 10);
                             break;
                     }
                 }
@@ -1035,6 +1130,7 @@ void processStartMenu() {
                     saveRAM[0x103] = GetGlobalVariableByName("options.airSpeedCap");
                     saveRAM[0x104] = GetGlobalVariableByName("options.spikeBehavior");
                     saveRAM[0x105] = GetGlobalVariableByName("options.shieldType");
+                    saveRAM[0x106] = GetGlobalVariableByName("options.superStates");
                 }
                 else {
                     saveRAM[0x101] = GetGlobalVariableByName("options.airSpeedCap");
@@ -1109,8 +1205,6 @@ void processStartMenu() {
                     if (Engine.gameType == GAME_SONIC1) {
                         activeStageList   = STAGELIST_SPECIAL;
                         stageListPosition = listPos - max;
-                        if (stageListPosition < 2)
-                            stageListPosition ^= 1;
                     }
                     else if (Engine.gameType == GAME_SONIC2) {
                         activeStageList = STAGELIST_BONUS;
@@ -1120,10 +1214,17 @@ void processStartMenu() {
                     }
                 }
 
-                if (!saveRAM[3 * (listPos) + 0x40]) {
+                if (!saveRAM[0x40]) {
                     for (int s = 0; s < (gameMenu[1].rowCount / 2) * 3; ++s) {
                         saveRAM[s + 0x40] = 60000;
                     }
+                    WriteSaveRAMData();
+                }
+                if (!saveRAM[3 * (listPos) + 0x40]) {
+                    for (int s = 0; s < 3; ++s) {
+                        saveRAM[(3 * (listPos) + 0x40) + s] = 60000;
+                    }
+                    WriteSaveRAMData();
                 }
 
                 char strBuffer[0x100];
@@ -1241,6 +1342,7 @@ void processStartMenu() {
                         SetGlobalVariableByName("options.airSpeedCap", 0);
                         SetGlobalVariableByName("options.spikeBehavior", 0);
                         SetGlobalVariableByName("options.shieldType", 0);
+                        SetGlobalVariableByName("options.superStates", 0);
                     }
                     else {
                         SetGlobalVariableByName("options.airSpeedCap", 0);
@@ -1310,4 +1412,8 @@ void processStartMenu() {
         }
         default: break;
     }
+
+    DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
+    DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
+    DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
 }

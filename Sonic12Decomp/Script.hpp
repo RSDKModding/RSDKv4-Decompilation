@@ -78,7 +78,7 @@ void CheckCaseNumber(char *text);
 bool ReadSwitchCase(char *text);
 void AppendIntegerToString(char *text, int value);
 void AppendIntegerToStringW(ushort *text, int value);
-bool ConvertStringToInteger(char *text, int *value);
+bool ConvertStringToInteger(const char *text, int *value);
 void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 bool CheckOpcodeType(char *text); // Never actually used
 

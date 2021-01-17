@@ -67,6 +67,25 @@ void ProcessStartupObjects()
     }
     entity->type  = 0;
     curObjectType = 0;
+
+    //Temp(?): forces game options to load on non-no save slots
+    if (GetGlobalVariableByName("options.saveSlot")) {
+        if (Engine.gameType == GAME_SONIC1) {
+            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
+        }
+        else {
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+    }
 }
 
 void ProcessObjects()
