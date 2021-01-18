@@ -252,7 +252,7 @@ void RetroEngine::Init()
             if (InitAudioPlayback()) {
                 SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
                 SDL_GameControllerEventState(SDL_ENABLE);
-                // SDL_GameControllerAddMappingsFromFile("./gamecontrollerdb.txt");
+                SDL_GameControllerAddMappingsFromFile("./gamecontrollerdb.txt");
                 controllerInit(0);
                 InitFirstStage();
                 ClearScriptData();
