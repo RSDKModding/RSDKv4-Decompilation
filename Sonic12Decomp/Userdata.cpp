@@ -209,6 +209,11 @@ void writeSettings()
         "Dev", "UseHQComment",
         "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
     ini.SetBool("Dev", "UseHQModes", Engine.useHQModes);
+    
+    ini.SetComment(
+        "Dev", "DataFileComment",
+        "Determines what RSDK file will be loaded");
+    ini.SetString("Dev", "DataFile", Engine.dataFile);
 
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
