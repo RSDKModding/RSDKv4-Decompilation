@@ -35,6 +35,7 @@ typedef unsigned int uint;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 // Custom Platforms start here
+#define RETRO_VITA     (7)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD      (0)
@@ -51,14 +52,31 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_OSX)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
+#elif defined __vita__
+#define RETRO_PLATFORM (RETRO_VITA)
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
 
+#if RETRO_PLATFORM == RETRO_VITA
+#if RETRO_GAME_SONIC == 1
+#define BASE_PATH            "ux0:data/Sonic1/"
+#elif RETRO_GAME_SONIC == 2
+#define BASE_PATH            "ux0:data/Sonic2/"
+#else
+#error "RETRO_GAME_SONIC not defined"
+#endif
+#define DEFAULT_SCREEN_XSIZE 480
+#define DEFAULT_FULLSCREEN   false
+#define SCREEN_YSIZE (272)
+
+#else
 #define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
+#define SCREEN_YSIZE (240)
+#endif
 
 #if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
 #define RETRO_USING_SDL (1)
@@ -117,7 +135,6 @@ enum RetroGameType {
 };
 
 // General Defines
-#define SCREEN_YSIZE (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #if RETRO_PLATFORM == RETRO_WIN
@@ -128,6 +145,13 @@ enum RetroGameType {
 #include <Vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
+
+#elif RETRO_USING_SDL
+#include <SDL2/SDL.h>
+#include <Vorbis/vorbisfile.h>
+
+#else
+
 #endif
 
 extern bool usingCWD;
