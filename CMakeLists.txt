@@ -148,4 +148,5 @@ set(TITLE_VER2 "01.00")
 dolce_create_vpk("${VPK2}" "${TITLE_ID2}" "${SELF2}"
   NAME "${TITLE_NAME2}"
   VERSION "${TITLE_VER2}"
+  FILE sce_sys2 sce_sys
 )
