@@ -22,6 +22,7 @@ bld/
 bin/
 [Bb]in/
 [Oo]bj/
+objects/
 
 #dependencies
 [Dd]ependencies/windows/*

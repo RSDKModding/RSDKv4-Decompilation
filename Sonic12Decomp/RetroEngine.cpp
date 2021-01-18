@@ -190,6 +190,14 @@ bool processEvents()
                 }
                 break;
             case SDL_QUIT: return false;
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+                ProcessButton(
+                    Engine.sdlEvents.cbutton.which,
+                    Engine.sdlEvents.cbutton.button,
+                    Engine.sdlEvents.cbutton.state
+                );
+                break;
         }
     }
 #endif
@@ -242,6 +250,10 @@ void RetroEngine::Init()
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
+                SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+                SDL_GameControllerEventState(SDL_ENABLE);
+                // SDL_GameControllerAddMappingsFromFile("./gamecontrollerdb.txt");
+                controllerInit(0);
                 InitFirstStage();
                 ClearScriptData();
                 initialised = true;
@@ -339,6 +351,7 @@ void RetroEngine::Run()
                 RenderRenderDevice();
                 frameStep = false;
             }
+            ProcessInputPost();
         }
     }
 
