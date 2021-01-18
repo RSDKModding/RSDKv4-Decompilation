@@ -34,5 +34,5 @@ bin/sonic2013: $(SOURCES:%=objects/%.o)
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $^ -o $@ $(LIBS_ALL)
 
-install: sonic2013
+install: bin/sonic2013
 	install -Dp -m755 bin/sonic2013 $(prefix)/bin/sonic2013
