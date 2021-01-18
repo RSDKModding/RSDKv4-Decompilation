@@ -82,6 +82,7 @@ set(TITLE_VER "01.00")
 dolce_create_vpk("${VPK}" "${TITLE_ID}" "${SELF}"
   NAME "${TITLE_NAME}"
   VERSION "${TITLE_VER}"
+  FILE sonic1_livearea sce_sys
 )
 
 # Build self
@@ -148,5 +149,5 @@ set(TITLE_VER2 "01.00")
 dolce_create_vpk("${VPK2}" "${TITLE_ID2}" "${SELF2}"
   NAME "${TITLE_NAME2}"
   VERSION "${TITLE_VER2}"
-  FILE sce_sys2 sce_sys
+  FILE sonic2_livearea sce_sys
 )
