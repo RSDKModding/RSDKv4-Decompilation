@@ -24,7 +24,11 @@ int sendCounter    = 0;
 void InitUserdata()
 {
     // userdata files are loaded from this directory
+#if RETRO_PLATFORM == RETRO_VITA
+    sprintf(gamePath, "ux0:data/Sonic12/");
+#else
     sprintf(gamePath, "%s", BASE_PATH);
+#endif
 
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX

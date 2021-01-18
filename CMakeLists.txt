@@ -11,7 +11,7 @@ endif()
 project(GLES20_Cube)
 include("${DOLCESDK}/share/dolce.cmake" REQUIRED)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Ofast -Wall -fno-lto -fno-pic -fno-plt")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Ofast -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -std=c++11")
 set(DOLCE_MKSFOEX_FLAGS "${DOLCE_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
