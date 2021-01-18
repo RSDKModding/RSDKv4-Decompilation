@@ -1,0 +1,1 @@
+place Data.rsdk from Sonic 1 in this directory before building

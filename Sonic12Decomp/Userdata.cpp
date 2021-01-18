@@ -12,7 +12,7 @@ int saveRAM[SAVEDATA_MAX];
 Achievement achievements[ACHIEVEMENT_MAX];
 LeaderboardEntry leaderboard[LEADERBOARD_MAX];
 
-MultiplayerData multiplayerDataIN = MultiplayerData();
+MultiplayerData multiplayerDataIN  = MultiplayerData();
 MultiplayerData multiplayerDataOUT = MultiplayerData();
 int matchValueData[0x100];
 int matchValueReadPos  = 0;
@@ -50,7 +50,7 @@ void InitUserdata()
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
+        ini.SetInteger("Window", "WindowScale", Engine.windowScale = DEFAULT_WINDOW_SCALE);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 
@@ -75,6 +75,9 @@ void InitUserdata()
         ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings = SDL_CONTROLLER_BUTTON_X);
         ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings = SDL_CONTROLLER_BUTTON_START);
 
+        StrCopy(Engine.dataFile, "Data.rsdk");
+        ini.SetString("Dev", "DataFile", Engine.dataFile);
+
         ini.Write(BASE_PATH "settings.ini");
     }
     else {
@@ -91,6 +94,9 @@ void InitUserdata()
             Engine.fastForwardSpeed = 8;
         if (!ini.GetBool("Dev", "UseHQModes", &Engine.useHQModes))
             Engine.useHQModes = true;
+
+        if (!ini.GetString("Dev", "DataFile", Engine.dataFile))
+            StrCopy(Engine.dataFile, "Data.rsdk");
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
@@ -181,7 +187,8 @@ void InitUserdata()
     }
 }
 
-void writeSettings() {
+void writeSettings()
+{
     IniParser ini;
 
     ini.SetComment("Dev", "DevMenuComment", "Enable this flag to activate dev menu via the ESC key");
@@ -192,10 +199,13 @@ void writeSettings() {
     ini.SetBool("Dev", "StartingScene", Engine.startStage);
     ini.SetComment("Dev", "FFComment", "Determines how fast the game will be when fastforwarding is active");
     ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed);
-    ini.SetComment("Dev", "UseHQComment", "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
+    ini.SetComment(
+        "Dev", "UseHQComment",
+        "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
     ini.SetBool("Dev", "UseHQModes", Engine.useHQModes);
 
-    ini.SetComment("Game", "LangComment", "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
+    ini.SetComment("Game", "LangComment",
+                   "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
@@ -312,7 +322,7 @@ void AwardAchievement(int id, int status)
     WriteUserdata();
 }
 
-int SetAchievement(int achievementID, void* achDone)
+int SetAchievement(int achievementID, void *achDone)
 {
     int achievementDone = static_cast<int>(reinterpret_cast<intptr_t>(achDone));
     if (!Engine.trialMode && !debugMode) {
@@ -361,7 +371,7 @@ int SetLeaderboard(int leaderboardID, void *res)
 
 int Connect2PVS(int gameLength, void *itemMode)
 {
-#if RSDK_DEBUG 
+#if RSDK_DEBUG
     printLog("Attempting to connect to 2P game (%d) (%p)", gameLength, itemMode);
 #endif
     multiplayerDataIN.type = 0;
@@ -372,7 +382,7 @@ int Connect2PVS(int gameLength, void *itemMode)
     Engine.gameMode        = ENGINE_CONNECT2PVS;
     PauseSound();
 
-    //actual connection code
+    // actual connection code
     if (Engine.onlineActive) {
         // Do online code
         return 1;
@@ -381,7 +391,7 @@ int Connect2PVS(int gameLength, void *itemMode)
 }
 int Disconnect2PVS(int a1, void *a2)
 {
-#if RSDK_DEBUG 
+#if RSDK_DEBUG
     printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
 #endif
     if (Engine.onlineActive) {
@@ -416,7 +426,7 @@ int SendValue(int a1, void *value)
 #if RSDK_DEBUG
     printLog("Attempting to send value (%d) (%p)", a1, value);
 #endif
-    multiplayerDataOUT.type = 0;
+    multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
     if (Engine.onlineActive && sendDataMethod) {
 #if RETRO_USE_NETWORKING
@@ -471,7 +481,7 @@ int ReceiveValue(int dataSlot, void *value)
 int TransmitGlobal(int globalValue, void *globalName)
 {
 #if RSDK_DEBUG
-    printLog("Attempting to transmit global (%s) (%d)", (char*)globalName, globalValue);
+    printLog("Attempting to transmit global (%s) (%d)", (char *)globalName, globalValue);
 #endif
     multiplayerDataOUT.type    = 2;
     multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
@@ -485,7 +495,8 @@ int TransmitGlobal(int globalValue, void *globalName)
     return 0;
 }
 
-void receive2PVSData(MultiplayerData* data) {
+void receive2PVSData(MultiplayerData *data)
+{
     switch (data->type) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
@@ -496,7 +507,8 @@ void receive2PVSData(MultiplayerData* data) {
     }
 }
 
-void receive2PVSMatchCode(int code) {
+void receive2PVSMatchCode(int code)
+{
     matchValueData[matchValueWritePos++] = code;
     ResumeSound();
     Engine.gameMode = ENGINE_MAINGAME;
@@ -508,7 +520,7 @@ int ShowPromoPopup(int a1, void *a2)
     printLog("Attempting to show promo popup (%d) (%p)", a1, a2);
 #endif
     if (Engine.onlineActive) {
-        //Do online code
+        // Do online code
         return 1;
     }
     return 0;
