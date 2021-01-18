@@ -27,8 +27,8 @@ MusicPlaybackInfo musInfo;
 SDL_AudioDeviceID audioDevice;
 SDL_AudioSpec audioDeviceFormat;
 
-#define LOCK_AUDIO_DEVICE() SDL_LockAudioDevice(audioDevice);
-#define UNLOCK_AUDIO_DEVICE() SDL_UnlockAudioDevice(audioDevice);
+#define LOCK_AUDIO_DEVICE() SDL_LockAudio();
+#define UNLOCK_AUDIO_DEVICE() SDL_UnlockAudio();
 
 #define AUDIO_FREQUENCY (44100)
 #define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */
