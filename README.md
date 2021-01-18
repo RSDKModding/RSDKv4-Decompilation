@@ -3,6 +3,7 @@ A Full Decompilation of Sonic 1 & 2 (2013)
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
++ video tutorial on how to find your legally obtained data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
 
 + You can get the official release of sonic 1 & sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
