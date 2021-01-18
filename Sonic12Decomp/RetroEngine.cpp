@@ -52,6 +52,7 @@ bool processEvents()
             case SDL_APP_WILLENTERFOREGROUND: /*Engine.Callback(CALLBACK_ENTERFG);*/ break;
             case SDL_APP_TERMINATING:
                 break;
+#if RETRO_PLATFORM != RETRO_VITA
             case SDL_MOUSEMOTION:
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
@@ -97,6 +98,7 @@ bool processEvents()
                 }
                 break;
             case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)); break;
+#endif
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
