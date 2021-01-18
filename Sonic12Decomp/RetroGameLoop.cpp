@@ -10,7 +10,7 @@ void RetroGameLoop_Main(void *objPtr)
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU: 
-            if (entity->pauseMenu) //dumb fix but yknow how it is
+            if (entity->pauseMenu && nativeEntityCount > 1) // dumb fix but yknow how it is
                 RemoveNativeObject(entity->pauseMenu);
             entity->pauseMenu = nullptr;
 

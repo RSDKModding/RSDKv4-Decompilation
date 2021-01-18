@@ -821,6 +821,7 @@ void processStartMenu() {
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
                         SetGlobalVariableByName("options.vsMode", 0);
+                        SetGlobalVariableByName("stage.player2Enabled", true); //2P
                         SetGlobalVariableByName("player.lives", 3);
                         SetGlobalVariableByName("player.score", 0);
                         SetGlobalVariableByName("player.scoreBonus", 50000);
@@ -884,6 +885,7 @@ void processStartMenu() {
                                 SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
                                 SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
                                 SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
+                                SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
                                 SetGlobalVariableByName("lampPostID", 0); // For S1
                                 SetGlobalVariableByName("starPostID", 0); // For S2
                                 SetGlobalVariableByName("options.vsMode", 0);
@@ -991,6 +993,7 @@ void processStartMenu() {
                 SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
                 SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
                 SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
+                SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
                 SetGlobalVariableByName("lampPostID", 0); //For S1
                 SetGlobalVariableByName("starPostID", 0); //For S2
                 SetGlobalVariableByName("options.vsMode", 0);
@@ -1325,6 +1328,7 @@ void processStartMenu() {
                 if (gameMenu[1].selection1 == 0) {
                     SetGlobalVariableByName("options.saveSlot", 0);
                     SetGlobalVariableByName("options.gameMode", 2);
+                    SetGlobalVariableByName("stage.player2Enabled", false);
                     SetGlobalVariableByName("player.lives", 1);
                     SetGlobalVariableByName("player.score", 0);
                     SetGlobalVariableByName("player.scoreBonus", 50000);
