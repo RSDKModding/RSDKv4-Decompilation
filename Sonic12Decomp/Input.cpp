@@ -12,7 +12,11 @@ int touchID[8];
 int touches = 0;
 
 InputButton inputDevice[9];
+#ifdef RETRO_USING_KEYBOARD
 int inputType = 0;
+#else
+int inputType = 1;
+#endif
 
 int LSTICK_DEADZONE   = 20000;
 int RSTICK_DEADZONE   = 20000;

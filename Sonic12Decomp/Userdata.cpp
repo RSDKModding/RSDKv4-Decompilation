@@ -50,7 +50,7 @@ void InitUserdata()
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
+        ini.SetInteger("Window", "WindowScale", Engine.windowScale = DEFAULT_WINDOW_SCALE);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 

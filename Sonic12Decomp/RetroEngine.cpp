@@ -38,8 +38,10 @@ bool processEvents()
                     case SDL_WINDOWEVENT_CLOSE: return false;
                 }
                 break;
+#ifndef RETRO_DISABLE_CONTROLLER_HOTSWAP
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
+#endif
             case SDL_WINDOWEVENT_CLOSE:
                 if (Engine.window) {
                     SDL_DestroyWindow(Engine.window);
@@ -211,7 +213,7 @@ void RetroEngine::Init()
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
-    CheckRSDKFile(BASE_PATH "Data.rsdk");
+    CheckRSDKFile(BASE_RO_PATH "Data.rsdk");
     InitUserdata();
     InitNativeObjectSystem();
 
