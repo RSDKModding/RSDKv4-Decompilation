@@ -36,7 +36,6 @@ bool processEvents()
                         break;
                     }
                     case SDL_WINDOWEVENT_CLOSE:
-                        Engine.gameMode = ENGINE_EXITGAME;
                         return false;
                         break;
                 }
@@ -52,7 +51,6 @@ bool processEvents()
             case SDL_APP_WILLENTERBACKGROUND: /*Engine.Callback(CALLBACK_ENTERBG);*/ break;
             case SDL_APP_WILLENTERFOREGROUND: /*Engine.Callback(CALLBACK_ENTERFG);*/ break;
             case SDL_APP_TERMINATING:
-                Engine.gameMode = ENGINE_EXITGAME;
                 break;
             case SDL_MOUSEMOTION:
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
