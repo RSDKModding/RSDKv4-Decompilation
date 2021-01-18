@@ -31,7 +31,7 @@ objects/%.o: %
 	$(CXX) $(CXXFLAGS_ALL) $^ -o $@ -c
 
 bin/sonic2013: $(SOURCES:%=objects/%.o)
-	mkdir bin/
+	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $^ -o $@ $(LIBS_ALL)
 
 install: sonic2013
