@@ -36,16 +36,12 @@ int InitRenderDevice()
     Engine.renderer = SDL_CreateRenderer(Engine.window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!Engine.window) {
-#if RSDK_DEBUG
         printLog("ERROR: failed to create window!");
-#endif
         return 0;
     }
 
     if (!Engine.renderer) {
-#if RSDK_DEBUG
         printLog("ERROR: failed to create renderer!");
-#endif
         return 0;
     }
 

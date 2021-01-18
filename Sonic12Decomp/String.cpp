@@ -467,12 +467,10 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                         stringStorage[stringStorePos][charID++] = 0;
                         CloseFile();
 
-#if RSDK_DEBUG
                         endLine = false;
                         //printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
                         //printLog(stringStorage[stringStorePos]);
                         endLine = true;
-#endif
 
                         return stringStorage[stringStorePos++];
                     }
@@ -505,9 +503,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
         CloseFile();
     }
 
-#if RSDK_DEBUG
     printLog("Failed to load string... (%s, %s)", language, stringName);
-#endif
     return NULL;
 }
 

@@ -40,6 +40,7 @@ void InitUserdata()
         IniParser ini;
 
         ini.SetBool("Dev", "DevMenu", Engine.devMenu = false);
+        ini.SetBool("Dev", "EngineDebugMode", engineDebugMode = false);
         ini.SetInteger("Dev", "StartingCategory", Engine.startList = 0);
         ini.SetInteger("Dev", "StartingScene", Engine.startStage = 0);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
@@ -86,6 +87,8 @@ void InitUserdata()
 
         if (!ini.GetBool("Dev", "DevMenu", &Engine.devMenu))
             Engine.devMenu = false;
+        if (!ini.GetBool("Dev", "EngineDebugMode", &engineDebugMode))
+            engineDebugMode = false;
         if (!ini.GetInteger("Dev", "StartingCategory", &Engine.startList))
             Engine.startList = 0;
         if (!ini.GetInteger("Dev", "StartingScene", &Engine.startStage))
@@ -193,6 +196,9 @@ void writeSettings()
 
     ini.SetComment("Dev", "DevMenuComment", "Enable this flag to activate dev menu via the ESC key");
     ini.SetBool("Dev", "DevMenu", Engine.devMenu);
+    ini.SetComment("Dev", "DebugModeComment",
+                   "Enable this flag to activate features used for debugging the engine (may result in slightly slower game speed)");
+    ini.SetBool("Dev", "EngineDebugMode", engineDebugMode);
     ini.SetComment("Dev", "SCComment", "Sets the starting category ID");
     ini.SetBool("Dev", "StartingCategory", Engine.startList);
     ini.SetComment("Dev", "SSComment", "Sets the starting scene ID");
@@ -309,10 +315,8 @@ void AwardAchievement(int id, int status)
     if (id < 0 || id >= ACHIEVEMENT_MAX)
         return;
 
-#if RSDK_DEBUG
     if (status == 100 && status != achievements[id].status)
         printLog("Achieved achievement: %s (%d)!", achievements[id].name, status);
-#endif
 
     achievements[id].status = status;
 
@@ -335,9 +339,7 @@ int SetLeaderboard(int leaderboardID, void *res)
 {
     int result = static_cast<int>(reinterpret_cast<intptr_t>(res));
     if (!Engine.trialMode && !debugMode) {
-#if RSDK_DEBUG
         printLog("Set leaderboard (%d) value to %d", leaderboard, result);
-#endif
         switch (leaderboardID) {
             case 0:
             case 1:
@@ -371,9 +373,8 @@ int SetLeaderboard(int leaderboardID, void *res)
 
 int Connect2PVS(int gameLength, void *itemMode)
 {
-#if RSDK_DEBUG
     printLog("Attempting to connect to 2P game (%d) (%p)", gameLength, itemMode);
-#endif
+
     multiplayerDataIN.type = 0;
     matchValueData[0]      = 0;
     matchValueData[1]      = 0;
@@ -391,9 +392,8 @@ int Connect2PVS(int gameLength, void *itemMode)
 }
 int Disconnect2PVS(int a1, void *a2)
 {
-#if RSDK_DEBUG
     printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
-#endif
+
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
@@ -404,9 +404,8 @@ int Disconnect2PVS(int a1, void *a2)
 }
 int SendEntity(int dataSlot, void *entityID)
 {
-#if RSDK_DEBUG
     printLog("Attempting to send entity (%d) (%p)", dataSlot, entityID);
-#endif
+
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
         memcpy(multiplayerDataOUT.data, &objectEntityList[static_cast<int>(reinterpret_cast<intptr_t>(entityID))], sizeof(Entity));
@@ -423,9 +422,8 @@ int SendEntity(int dataSlot, void *entityID)
 }
 int SendValue(int a1, void *value)
 {
-#if RSDK_DEBUG
     printLog("Attempting to send value (%d) (%p)", a1, value);
-#endif
+
     multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
     if (Engine.onlineActive && sendDataMethod) {
@@ -438,9 +436,8 @@ int SendValue(int a1, void *value)
 }
 int ReceiveEntity(int dataSlotID, void *entityID)
 {
-#if RSDK_DEBUG
     printLog("Attempting to receive entity (%d) (%p)", dataSlotID, entityID);
-#endif
+
     if (Engine.onlineActive) {
         // Do online code
         int entitySlot = static_cast<int>(reinterpret_cast<intptr_t>(entityID));
@@ -458,9 +455,8 @@ int ReceiveEntity(int dataSlotID, void *entityID)
 }
 int ReceiveValue(int dataSlot, void *value)
 {
-#if RSDK_DEBUG
     printLog("Attempting to receive value (%d) (%p)", dataSlot, value);
-#endif
+
     if (Engine.onlineActive) {
         // Do online code
         int *val = (int *)value;
@@ -480,9 +476,8 @@ int ReceiveValue(int dataSlot, void *value)
 }
 int TransmitGlobal(int globalValue, void *globalName)
 {
-#if RSDK_DEBUG
     printLog("Attempting to transmit global (%s) (%d)", (char *)globalName, globalValue);
-#endif
+
     multiplayerDataOUT.type    = 2;
     multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
     multiplayerDataOUT.data[1] = globalValue;

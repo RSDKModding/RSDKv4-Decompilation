@@ -316,7 +316,6 @@ void Process2PObjects() {
     }
 }
 
-#if RSDK_DEBUG
 void SetObjectTypeName(const char *objectName, int objectID)
 {
     int objNameID  = 0;
@@ -329,7 +328,6 @@ void SetObjectTypeName(const char *objectName, int objectID)
     typeNames[objectID][typeNameID] = 0;
     printLog("Set Object (%d) name to: %s", objectID, objectName);
 }
-#endif
 
 void ProcessPlayerControl(Entity *player)
 {

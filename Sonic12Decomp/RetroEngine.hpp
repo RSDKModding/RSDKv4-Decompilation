@@ -19,8 +19,6 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 // typedef unsigned long long ulong;
 
-#define RSDK_DEBUG (1)
-
 #define RETRO_USE_NETWORKING (0)
 #if !RETRO_USE_NETWORKING
 #define NETWORK_H // easy way to fuck over network header LOL
@@ -181,6 +179,7 @@ enum RetroGameType {
 #endif
 
 extern bool usingCWD;
+extern bool engineDebugMode;
 
 // Utils
 #include "Ini.hpp"

@@ -148,20 +148,7 @@ inline void StopSfx(int sfx)
 }
 void SetSfxAttributes(int sfx, int loopCount, sbyte pan);
 
-#if !RSDK_DEBUG
-inline void SetSfxName(const char* sfxName, int sfxID) {
-    int sfxNameID  = 0;
-    int soundNameID = 0;
-    while (sfxName[sfxNameID]) {
-        if (sfxName[sfxNameID] != ' ')
-            sfxNames[sfxID][soundNameID++] = sfxName[sfxNameID];
-        ++sfxNameID;
-    }
-    sfxNames[sfxID][soundNameID] = 0;
-}
-#else
 void SetSfxName(const char *sfxName, int sfxID);
-#endif
 
 //Helper Func
 inline bool PlaySFXByName(const char* sfx, sbyte loopCnt) {

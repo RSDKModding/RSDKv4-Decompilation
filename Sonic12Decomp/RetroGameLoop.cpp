@@ -65,9 +65,7 @@ void RetroGameLoop_Main(void *objPtr)
             //connect screen goes here
             break;
         default:
-#if RSDK_DEBUG
             printLog("GameMode '%d' Called", Engine.gameMode);
-#endif
             activeStageList   = 0;
             stageListPosition = 0;
             stageMode         = STAGEMODE_LOAD;

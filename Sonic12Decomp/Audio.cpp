@@ -463,7 +463,6 @@ bool PlayMusic(int track, int musStartPos)
     return false;
 }
 
-#if RSDK_DEBUG
 void SetSfxName(const char *sfxName, int sfxID)
 {
     int sfxNameID   = 0;
@@ -476,7 +475,6 @@ void SetSfxName(const char *sfxName, int sfxID)
     sfxNames[sfxID][soundNameID] = 0;
     printLog("Set SFX (%d) name to: %s", sfxID, sfxName);
 }
-#endif
 
 void LoadSfx(char *filePath, byte sfxID)
 {
@@ -495,9 +493,7 @@ void LoadSfx(char *filePath, byte sfxID)
 
             SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
             if (src == NULL) {
-#if RSDK_DEBUG
                 printLog("Unable to open sfx: %s", info.fileName);
-#endif
             }
             else {
                 SDL_AudioSpec wav_spec;
@@ -508,9 +504,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 SDL_RWclose(src);
                 delete[] sfx;
                 if (wav == NULL) {
-#if RSDK_DEBUG
                     printLog("Unable to read sfx: %s", info.fileName);
-#endif
                 }
                 else {
                     SDL_AudioCVT convert;
@@ -565,9 +559,7 @@ void LoadSfx(char *filePath, byte sfxID)
             int error = ov_open_callbacks(&info, &vf, NULL, 0, callbacks);
             if (error != 0) {
                 ov_clear(&vf);
-#if RSDK_DEBUG
                 printLog("failed to load ogg sfx!");
-#endif
                 return;
             }
 
@@ -594,9 +586,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 if (read < 0) {
                     free(audioBuf);
                     ov_clear(&vf);
-#if RSDK_DEBUG
                     printLog("failed to read ogg sfx!");
-#endif
                     return;
                 }
                 toRead -= read;
@@ -638,9 +628,7 @@ void LoadSfx(char *filePath, byte sfxID)
         else {
             // wtf lol
             CloseFile();
-#if RSDK_DEBUG
             printLog("Sfx format not supported!");
-#endif
         }
     }
 }

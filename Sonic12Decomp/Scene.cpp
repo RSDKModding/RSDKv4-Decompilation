@@ -549,9 +549,7 @@ void LoadStageFiles(void)
     char strBuffer[0x100];
 
     if (!CheckCurrentStageFolder(stageListPosition)) {
-#if RSDK_DEBUG
         printLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
-#endif
         ReleaseStageSfx();
         ClearScriptData();
         for (int i = SPRITESHEETS_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
@@ -672,11 +670,9 @@ void LoadStageFiles(void)
         LoadStageCollisions();
         LoadStageBackground();
     }
-#if RSDK_DEBUG
     else {
         printLog("Reloading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
     }
-#endif
     LoadStageChunks();
     for (int i = 0; i < TRACK_COUNT; ++i) SetMusicTrack("", i, false, 0);
 

@@ -1,6 +1,7 @@
 #include "RetroEngine.hpp"
 
-bool usingCWD = false;
+bool usingCWD        = false;
+bool engineDebugMode = false;
 
 RetroEngine Engine = RetroEngine();
 
@@ -206,7 +207,7 @@ bool processEvents()
     return true;
 }
 
-#if RETRO_USE_NETWORKING && RSDK_DEBUG
+#if RETRO_USE_NETWORKING
 #include <string>
 #endif
 void RetroEngine::Init()
@@ -497,9 +498,7 @@ void RetroEngine::Callback(int callbackID)
 {
     switch (callbackID) {
         default:
-#if RSDK_DEBUG
             printLog("Callback: Unknown (%d)", callbackID);
-#endif
             break;
     }
 }

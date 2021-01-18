@@ -1,8 +1,6 @@
 #include "RetroEngine.hpp"
 
-#if RSDK_DEBUG
 bool endLine = true;
-#endif
 int touchTimer = 0;
 
 void initDevMenu()
