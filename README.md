@@ -1,5 +1,5 @@
 # Sonic 1/2 2013 Decompilation
-A Full Decompilation of Sonic 1 & 2 (2013)
+A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
@@ -12,7 +12,24 @@ A Full Decompilation of Sonic 1 & 2 (2013)
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets)
+Even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets).
+
+## Installation Instructions
+You can find downloads in [releases](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/releases).
+
+1. Make sure your Switch can run homebrew.
+2. Extract the contents of the zip to the root of your SD card.
+3. Copy Data.rsdk to `/switch/s12013` or `/switch/s22013` on your Switch's SD card. You can get it from the "assets" folder of the APK. (Which you can open using 7-zip.)
+    - If you find "Data.rsdk.xmf" instead, just rename it to "Data.rsdk".
+4. Start Sonic 1/2 via hbmenu (or whatever method you prefer).
+
+NOTE: It is recommended to give the game full RAM access. This means you shouldn't launch hbmenu from the album applet when running this. With the latest Atmosphere build and its default config, you can hold R while starting any game to open hbmenu with full RAM access. If you have any issues make sure the game has full RAM access before reporting them; launching as an applet will not be supported.
+
+----
+
+Sections below are lifted directly from the source repository.
+
+-----
 
 # Additional Tweaks
 * added a built in script compiler, similar to CD, but tweaked up to match the new syntax for the scripts used in RSDKv4
