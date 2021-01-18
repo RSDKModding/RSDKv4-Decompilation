@@ -54,6 +54,7 @@ typedef unsigned int uint;
 #endif
 #elif defined __vita__
 #define RETRO_PLATFORM (RETRO_VITA)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
@@ -73,12 +74,15 @@ typedef unsigned int uint;
 
 #else
 #define BASE_PATH            ""
-#define DEFAULT_SCREEN_XSIZE 424
+#define DEFAULT_SCREEN_XSIZE 424 
 #define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE (240)
+#define RETRO_USING_MOUSE
+#define RETRO_USING_TOUCH
+
 #endif
 
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
 #define RETRO_USING_SDL (1)
 #else //Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL (0)
@@ -148,7 +152,7 @@ enum RetroGameType {
 
 #elif RETRO_USING_SDL
 #include <SDL2/SDL.h>
-#include <Vorbis/vorbisfile.h>
+#include <vorbis/vorbisfile.h>
 
 #else
 
