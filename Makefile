@@ -1,4 +1,4 @@
-CXXFLAGS_ALL = $(shell pkg-config --cflags sdl2 vorbisfile vorbis theoradec) -Idependencies/all/theoraplay $(CXXFLAGS)
+CXXFLAGS_ALL = $(shell pkg-config --cflags sdl2 vorbisfile vorbis) $(CXXFLAGS)
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs sdl2 vorbisfile vorbis) -pthread $(LIBS)
 
