@@ -37,8 +37,10 @@ bool processEvents()
                     case SDL_WINDOWEVENT_CLOSE: return false;
                 }
                 break;
+#ifndef RETRO_DISABLE_CONTROLLER_HOTSWAP
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
+#endif
             case SDL_WINDOWEVENT_CLOSE:
                 if (Engine.window) {
                     SDL_DestroyWindow(Engine.window);
@@ -211,7 +213,7 @@ void RetroEngine::Init()
 
     InitUserdata();
     char *dest = new char[0x200];
-    StrCopy(dest, BASE_PATH);
+    StrCopy(dest, BASE_RO_PATH);
     StrAdd(dest, Engine.dataFile);
     CheckRSDKFile(dest);
     InitNativeObjectSystem();
