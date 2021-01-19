@@ -235,6 +235,7 @@ int IniParser::SetComment(const char *section, const char *key, const char *comm
 
 void IniParser::Write(const char *filename)
 {
+#ifndef RETRO_DISABLE_SETTINGS_SAVE
     char pathBuffer[0x80];
 
 #if RETRO_PLATFORM == RETRO_OSX
@@ -299,4 +300,6 @@ void IniParser::Write(const char *filename)
     }
 
     fClose(f);
+    RETRO_FILE_COMMIT_FUNC();
+#endif
 }
