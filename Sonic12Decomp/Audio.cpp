@@ -61,7 +61,8 @@ int InitAudioPlayback()
     }
     else {
         printLog("Unable to open audio device: %s", SDL_GetError());
-        return false;
+        audioEnabled = false;
+        return true; // no audio but game wont crash now
     }
 #endif
 
@@ -385,6 +386,8 @@ void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint rat
 
 bool PlayMusic(int track, int musStartPos)
 {
+    if (!audioEnabled)
+        return false;
     musicStartPos = musStartPos;
     if (track < 0 || track >= TRACK_COUNT) {
         StopMusic();
@@ -478,6 +481,9 @@ void SetSfxName(const char *sfxName, int sfxID)
 
 void LoadSfx(char *filePath, byte sfxID)
 {
+    if (!audioEnabled)
+        return;
+
     FileInfo info;
     char fullPath[0x80];
 
