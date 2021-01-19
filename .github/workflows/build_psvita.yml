@@ -19,7 +19,7 @@ jobs:
         run: |
           cd Sonic1.Vita
           cmake .
-          make
+          make -j$(nproc)
       - name: Upload VPK
         uses: actions/upload-artifact@v2
         with:
@@ -38,7 +38,7 @@ jobs:
         run: |
           cd Sonic2.Vita
           cmake .
-          make
+          make -j$(nproc)
       - name: Upload VPK
         uses: actions/upload-artifact@v2
         with:
