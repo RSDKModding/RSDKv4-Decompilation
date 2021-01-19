@@ -324,6 +324,8 @@ void WriteUserdata()
     if (Engine.onlineActive) {
         // Load from online
     }
+
+    RETRO_FILE_COMMIT_FUNC();
 }
 
 void AwardAchievement(int id, int status)

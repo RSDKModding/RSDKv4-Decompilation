@@ -9,7 +9,8 @@ include $(DEVKITPRO)/libnx/switch_rules
 
 TARGET		:=	sonic1
 BUILD		:=	build
-SOURCES		:=	../Sonic12Decomp/ \    
+SOURCES		:=	../Sonic12Decomp/ \
+				../Sonic12Decomp/platform/
 
 DATA		:=	data
 INCLUDES	:=	../Sonic12Decomp
@@ -25,6 +26,10 @@ CFLAGS	:=	-O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -I/opt/devkitpro/portlibs/switch/include/SDL2/
+
+ifneq ($(strip $(APPLICATION_ID)),)
+	CFLAGS	+= -DNX_APPLICATION_ID=0
+endif
 
 CXXFLAGS	:= $(CFLAGS) -std=gnu++17 -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-variable -Wno-unused-parameter -fpermissive -Wno-address-of-packed-member
 
@@ -68,8 +73,6 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export BUILD_EXEFS_SRC := $(TOPDIR)/$(EXEFS_SRC)
 
-$(info $$OFILES is [${SOURCES}])
-
 ifeq ($(strip $(ICON)),)
 	icons := $(wildcard *.jpg)
 	ifneq (,$(findstring $(TARGET).jpg,$(icons)))
@@ -98,8 +101,6 @@ endif
 ifneq ($(ROMFS),)
 	export NROFLAGS += --romfsdir=$(CURDIR)/$(ROMFS)
 endif
-
-
 
 
 .PHONY: $(BUILD) clean all

@@ -4,6 +4,7 @@
 extern bool endLine;
 inline void printLog(const char *msg, ...)
 {
+#ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
         char buffer[0x100];
 
@@ -33,12 +34,15 @@ inline void printLog(const char *msg, ...)
         if (file) {
             fWrite(&buffer, 1, StrLength(buffer), file);
             fClose(file);
+            RETRO_FILE_COMMIT_FUNC();
         }
     }
+#endif
 }
 
 inline void printLog(const ushort *msg)
 {
+#ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
         int mPos = 0;
         while (msg[mPos]) {
@@ -69,8 +73,10 @@ inline void printLog(const ushort *msg)
             if (endLine)
                 fWrite(&el, 2, 1, file);
             fClose(file);
+            RETRO_FILE_COMMIT_FUNC();
         }
     }
+#endif
 }
 
 enum DevMenuMenus {
