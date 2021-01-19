@@ -64,8 +64,8 @@ void ProcessStartupObjects()
         scriptInfo->spriteSheetID   = 0;
         entity->type                = i;
 
-        if (scriptData[scriptInfo->subStartup.scriptCodePtr] > 0)
-            ProcessScript(scriptInfo->subStartup.scriptCodePtr, scriptInfo->subStartup.jumpTablePtr, SUB_SETUP);
+        if (scriptData[scriptInfo->eventStartup.scriptCodePtr] > 0)
+            ProcessScript(scriptInfo->eventStartup.scriptCodePtr, scriptInfo->eventStartup.jumpTablePtr, EVENT_SETUP);
         scriptInfo->frameCount = scriptFrameCount - scriptInfo->frameListOffset;
     }
     entity->type  = 0;
@@ -131,8 +131,8 @@ void ProcessObjects()
 
         if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
-                ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
+            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+                ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
@@ -165,8 +165,8 @@ void ProcessPausedObjects()
 
         if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
-                ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
+            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+                ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
@@ -212,8 +212,8 @@ void ProcessFrozenObjects()
 
         if (entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
-                ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
+            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
+                ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
@@ -295,8 +295,8 @@ void Process2PObjects() {
 
         if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->subMain.scriptCodePtr] > 0)
-                ProcessScript(scriptInfo->subMain.scriptCodePtr, scriptInfo->subMain.jumpTablePtr, SUB_MAIN);
+            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+                ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
