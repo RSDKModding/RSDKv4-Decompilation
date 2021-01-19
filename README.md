@@ -3,7 +3,7 @@ A Full Decompilation of Sonic 1 & 2 (2013)
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
-+ video tutorial on how to find your legally obtained data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
++ Video tutorial on how to find your legally obtained data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
 
 + You can get the official release of sonic 1 & sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
@@ -13,7 +13,9 @@ A Full Decompilation of Sonic 1 & 2 (2013)
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets)
+Even if your platform isn't supported by the official releases, buy it for the assets (you don't need to run the official release, you just need the game assets)
+
+If you want to transfer your save from the **Android pre-forever versions,** you can go to `Android/data/com.sega.sonic1 or 2/SGame.bin` and copy it to the `SData.bin` in the EXE folder.
 
 # Additional Tweaks
 * added a built in script compiler, similar to CD, but tweaked up to match the new syntax for the scripts used in RSDKv4
