@@ -219,7 +219,7 @@ int AddGraphicsFile(const char *filePath)
     while (StrLength(gfxSurface[sheetID].fileName) > 0) {
         if (StrComp(gfxSurface[sheetID].fileName, sheetPath))
             return sheetID;
-        if (++sheetID == SPRITESHEETS_MAX) // Max Sheet cnt
+        if (++sheetID == SURFACE_MAX) // Max Sheet cnt
             return 0;
     }
     byte fileExtension = (byte)sheetPath[(StrLength(sheetPath) - 1) & 0xFF];
