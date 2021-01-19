@@ -37,11 +37,11 @@ jobs:
           Rename-Item ./dependencies/windows/libvorbis-1.3.7 libvorbis
       - name: Build libvorbis
         run: |
-          devenv -Upgrade ./dependencies/windows/libvorbis/win32/VS2010/libogg.sln
-          cmd \c "set `"VCTargetsPath=C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V142`" && msbuild ./dependencies/windows/libvorbis/win32/VS2010/libvorbis.sln /p:Configuration=Release /p:Platform=Win32" 
+          devenv -Upgrade ./dependencies/windows/libvorbis/win32/VS2010/vorbis_static.sln
+          cmd \c "set `"VCTargetsPath=C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V142`" && msbuild ./dependencies/windows/libvorbis/win32/VS2010/vorbis_static.sln /p:Configuration=Release /p:Platform=Win32" 
       - name: Run MSBuild
         run: |
-          msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x86  
+          cmd \c "set `"VCTargetsPath=C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V142`" && msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x86"
       - name: Move artifacts
         run: |
           mkdir artifacts
