@@ -26,6 +26,7 @@ jobs:
           Rename-Item ./dependencies/windows/libogg-1.3.4 libogg
       - name: Build libogg
         run: |
+          devenv -Upgrade ./dependencies/windows/libogg/win32/VS2015/libogg.sln
           msbuild ./dependencies/windows/libogg/win32/VS2015/libogg.sln /p:Configuration=Release /p:Platform=Win32 
       - name: Download libvorbis
         run : |
@@ -34,6 +35,7 @@ jobs:
           Rename-Item ./dependencies/windows/libvorbis-1.3.7 libvorbis
       - name: Build libvorbis
         run: |
+          devenv -Upgrade ./dependencies/windows/libogg/win32/VS2015/libogg.sln
           msbuild ./dependencies/windows/libvorbis/win32/VS2010/libvorbis.sln /p:Configuration=Release /p:Platform=Win32 
       - name: Run MSBuild
         run: |
