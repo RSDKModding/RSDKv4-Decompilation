@@ -3,6 +3,8 @@
 bool endLine = true;
 int touchTimer = 0;
 
+int taListStore = 0;
+
 void initDevMenu()
 {
     // DrawStageGFXHQ = 0;
@@ -377,7 +379,7 @@ void initStartMenu(int mode) {
     }
     else {
         //finished TA act
-        int listPos = stageListPosition;
+        int listPos = taListStore;
         int max     = listPos < stageListCount[STAGELIST_REGULAR];
         for (int s = 0; s < stageListCount[STAGELIST_REGULAR]; ++s) {
             if (StrComp(stageList[STAGELIST_REGULAR][s].name, "STAGE MENU")) {
@@ -623,7 +625,9 @@ void setTextMenu(int sm) {
             int cnt = 0;
             for (int i = 0; i < stageStrCount; ++i) {
                 if (strSaveStageList[i] && !StrCompW(strSaveStageList[i], "Complete")
-                    && !(Engine.gameType == GAME_SONIC2 && StrCompW(strSaveStageList[i], "Special Stage 6"))) {
+                    && !(Engine.gameType == GAME_SONIC2
+                         && (StrCompW(strSaveStageList[i], "Special Stage 6") || StrCompW(strSaveStageList[i], "SKY CHASE ZONE")
+                             || StrCompW(strSaveStageList[i], "DEATH EGG ZONE")))) {
                     AddTextMenuEntry(&gameMenu[1], "");
                     AddTextMenuEntryW(&gameMenu[1], strSaveStageList[i]);
                     cnt++;
@@ -1198,6 +1202,13 @@ void processStartMenu() {
                     }
                 }
 
+                if (Engine.gameType == GAME_SONIC2) {
+                    if (listPos >= 17)
+                        listPos++; // SCZ patch
+                    if (listPos >= 19)
+                        listPos++; // DEZ patch
+                }
+
                 if (listPos < max) {
                     activeStageList = STAGELIST_REGULAR;
                     stageListPosition = listPos;
@@ -1226,6 +1237,13 @@ void processStartMenu() {
                         saveRAM[(3 * (listPos) + 0x40) + s] = 60000;
                     }
                     WriteSaveRAMData();
+                }
+
+                if (Engine.gameType == GAME_SONIC2) {
+                    if (listPos >= 17)
+                        listPos--; // SCZ patch 2
+                    if (listPos >= 19)
+                        listPos--; // DEZ patch 2
                 }
 
                 char strBuffer[0x100];
@@ -1317,7 +1335,7 @@ void processStartMenu() {
                 gameMenu[1].selection1 = 0;
 
             if (gameMenu[1].selection1 < 0)
-                gameMenu[1].selection1 = 3;
+                gameMenu[1].selection1 = 2;
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX, SCREEN_CENTERY);
@@ -1354,6 +1372,7 @@ void processStartMenu() {
                         SetGlobalVariableByName("options.shieldType", 0);
                     }
 
+                    taListStore  = gameMenu[1].selection2;
                     InitStartingStage(activeStageList, stageListPosition, 0);
                     Engine.finishedStartMenu = true;
                 }
