@@ -53,6 +53,9 @@ void ProcessStartupObjects()
     memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
     memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
 
+    int flagStore = GetGlobalVariableByName("options.stageSelectFlag");
+    SetGlobalVariableByName("options.stageSelectFlag", 1); //temp, to allow game opts
+
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];
         objectEntityPos                  = TEMPENTITY_START;
@@ -69,7 +72,8 @@ void ProcessStartupObjects()
     curObjectType = 0;
 
     //Temp(?): forces game options to load on non-no save slots
-    if (GetGlobalVariableByName("options.saveSlot")) {
+    SetGlobalVariableByName("options.stageSelectFlag", flagStore);
+    if (GetGlobalVariableByName("options.gameMode") == 1) {
         if (Engine.gameType == GAME_SONIC1) {
             SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
             SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
