@@ -39,6 +39,7 @@ jobs:
         run: |
           devenv /upgrade ./dependencies/windows/libvorbis/win32/VS2010/vorbis_static.sln
           devenv /build ./dependencies/windows/libvorbis/win32/VS2010/vorbis_static.sln /projectconfig Release|Win32       - name: Run MSBuild
+      - name: Build RSDKv4
         run: |
           devenv /build Sonic12Decomp.sln /projectconfig Release|x86
       - name: Move artifacts
