@@ -118,7 +118,7 @@ inline bool WriteSaveRAMData()
         return false;
     fWrite(saveRAM, 4u, SAVEDATA_MAX, saveFile);
     fClose(saveFile);
-    RETRO_FILE_COMMIT_FUNC();
+    RETRO_FILE_COMMIT_FUNC(0);
     return true;
 }
 

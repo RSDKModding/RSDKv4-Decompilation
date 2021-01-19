@@ -253,6 +253,7 @@ void RetroEngine::Init()
 
     gameMode = ENGINE_MAINGAME;
     running  = false;
+    finishedStartMenu = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -260,6 +261,71 @@ void RetroEngine::Init()
                 ClearScriptData();
                 initialised = true;
                 running     = true;
+
+                if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
+                    finishedStartMenu = true;
+                    InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
+                }
+                else if (startSave != 0xFF && startSave < 4) {
+                    if (startSave == 0) {
+                        SetGlobalVariableByName("options.saveSlot", 0);
+                        SetGlobalVariableByName("options.gameMode", 0);
+
+                        SetGlobalVariableByName("options.stageSelectFlag", 0);
+                        SetGlobalVariableByName("player.lives", 3);
+                        SetGlobalVariableByName("player.score", 0);
+                        SetGlobalVariableByName("player.scoreBonus", 50000);
+                        SetGlobalVariableByName("specialStage.emeralds", 0);
+                        SetGlobalVariableByName("specialStage.listPos", 0);
+                        SetGlobalVariableByName("stage.player2Enabled", 0);
+                        SetGlobalVariableByName("lampPostID", 0); // For S1
+                        SetGlobalVariableByName("starPostID", 0); // For S2
+                        SetGlobalVariableByName("options.vsMode", 0);
+
+                        SetGlobalVariableByName("specialStage.nextZone", 0);
+                        InitStartingStage(STAGELIST_REGULAR, 0, 0);
+                    }
+                    else {
+                        SetGlobalVariableByName("options.saveSlot", startSave);
+                        SetGlobalVariableByName("options.gameMode", 1);
+                        int slot = (startSave - 1) << 3;
+
+                        SetGlobalVariableByName("options.stageSelectFlag", 0);
+                        SetGlobalVariableByName("player.lives", saveRAM[slot + 1]);
+                        SetGlobalVariableByName("player.score", saveRAM[slot + 2]);
+                        SetGlobalVariableByName("player.scoreBonus", saveRAM[slot + 3]);
+                        SetGlobalVariableByName("specialStage.emeralds", saveRAM[slot + 5]);
+                        SetGlobalVariableByName("specialStage.listPos", saveRAM[slot + 6]);
+                        SetGlobalVariableByName("stage.player2Enabled", saveRAM[slot + 0] == 3);
+                        SetGlobalVariableByName("lampPostID", 0); // For S1
+                        SetGlobalVariableByName("starPostID", 0); // For S2
+                        SetGlobalVariableByName("options.vsMode", 0);
+
+                        int nextZone = saveRAM[slot + 4];
+                        if (nextZone > 127) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
+                            InitStartingStage(STAGELIST_SPECIAL, saveRAM[slot + 6], saveRAM[slot + 0]);
+                        }
+                        else if (nextZone >= 1) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
+                            InitStartingStage(STAGELIST_REGULAR, saveRAM[slot + 4] - 1, saveRAM[slot + 0]);
+                        }
+                        else {
+                            saveRAM[slot + 0] = 0;
+                            saveRAM[slot + 1] = 3;
+                            saveRAM[slot + 2] = 0;
+                            saveRAM[slot + 3] = 50000;
+                            saveRAM[slot + 4] = 0;
+                            saveRAM[slot + 5] = 0;
+                            saveRAM[slot + 6] = 0;
+                            saveRAM[slot + 7] = 0;
+
+                            SetGlobalVariableByName("specialStage.nextZone", 0);
+                            InitStartingStage(STAGELIST_REGULAR, 0, 0);
+                        }
+                    }
+                    finishedStartMenu = true;
+                }
             }
         }
     }
@@ -326,7 +392,9 @@ void RetroEngine::Init()
         StrCopy(achievements[10].name, "Scrambled Egg");
         StrCopy(achievements[11].name, "Beat the Clock");
     }
-    initStartMenu(0);
+
+    if (!finishedStartMenu)
+        initStartMenu(0);
 }
 
 void RetroEngine::Run()

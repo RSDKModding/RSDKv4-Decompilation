@@ -241,8 +241,10 @@ public:
 
     // Ported from RSDKv5
     bool devMenu         = false;
-    int startList        = 0;
-    int startStage       = 0;
+    int startList        = -1;
+    int startStage       = -1;
+    int startPlayer      = -1;
+    int startSave        = -1;
     int gameSpeed        = 1;
     int fastForwardSpeed = 8;
     bool masterPaused    = false;

@@ -41,8 +41,10 @@ void InitUserdata()
 
         ini.SetBool("Dev", "DevMenu", Engine.devMenu = false);
         ini.SetBool("Dev", "EngineDebugMode", engineDebugMode = false);
-        ini.SetInteger("Dev", "StartingCategory", Engine.startList = 0);
-        ini.SetInteger("Dev", "StartingScene", Engine.startStage = 0);
+        ini.SetInteger("Dev", "StartingCategory", Engine.startList = 255);
+        ini.SetInteger("Dev", "StartingScene", Engine.startStage = 255);
+        ini.SetInteger("Dev", "StartingPlayer", Engine.startPlayer = 255);
+        ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
 
@@ -90,9 +92,13 @@ void InitUserdata()
         if (!ini.GetBool("Dev", "EngineDebugMode", &engineDebugMode))
             engineDebugMode = false;
         if (!ini.GetInteger("Dev", "StartingCategory", &Engine.startList))
-            Engine.startList = 0;
+            Engine.startList = 255;
         if (!ini.GetInteger("Dev", "StartingScene", &Engine.startStage))
-            Engine.startStage = 0;
+            Engine.startStage = 255;
+        if (!ini.GetInteger("Dev", "StartingPlayer", &Engine.startPlayer))
+            Engine.startPlayer = 255;
+        if (!ini.GetInteger("Dev", "StartingSaveFile", &Engine.startSave))
+            Engine.startSave = 255;
         if (!ini.GetInteger("Dev", "FastForwardSpeed", &Engine.fastForwardSpeed))
             Engine.fastForwardSpeed = 8;
         if (!ini.GetBool("Dev", "UseHQModes", &Engine.useHQModes))
@@ -200,9 +206,13 @@ void writeSettings()
                    "Enable this flag to activate features used for debugging the engine (may result in slightly slower game speed)");
     ini.SetBool("Dev", "EngineDebugMode", engineDebugMode);
     ini.SetComment("Dev", "SCComment", "Sets the starting category ID");
-    ini.SetBool("Dev", "StartingCategory", Engine.startList);
+    ini.SetInteger("Dev", "StartingCategory", Engine.startList);
     ini.SetComment("Dev", "SSComment", "Sets the starting scene ID");
-    ini.SetBool("Dev", "StartingScene", Engine.startStage);
+    ini.SetInteger("Dev", "StartingScene", Engine.startStage);
+    ini.SetComment("Dev", "SPComment", "Sets the starting player ID");
+    ini.SetInteger("Dev", "StartingPlayer", Engine.startPlayer);
+    ini.SetComment("Dev", "SSaveComment", "Sets the starting save file ID");
+    ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave);
     ini.SetComment("Dev", "FFComment", "Determines how fast the game will be when fastforwarding is active");
     ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed);
     ini.SetComment(
@@ -325,7 +335,7 @@ void WriteUserdata()
         // Load from online
     }
 
-    RETRO_FILE_COMMIT_FUNC();
+    RETRO_FILE_COMMIT_FUNC(0);
 }
 
 void AwardAchievement(int id, int status)

@@ -285,7 +285,7 @@ void DrawStageGFX()
     if (waterDrawPos > SCREEN_YSIZE)
         waterDrawPos = SCREEN_YSIZE;
 
-    if (tLayerMidPoint <= 2) {
+    if (tLayerMidPoint < 3) {
         DrawObjectList(0);
         if (activeTileLayers[0] < LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[0]].type) {

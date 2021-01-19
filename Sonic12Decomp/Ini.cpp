@@ -300,6 +300,6 @@ void IniParser::Write(const char *filename)
     }
 
     fClose(f);
-    RETRO_FILE_COMMIT_FUNC();
+    RETRO_FILE_COMMIT_FUNC(0);
 #endif
 }
