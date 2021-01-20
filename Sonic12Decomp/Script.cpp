@@ -2419,7 +2419,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
         int opcodeSize       = functions[opcode].opcodeSize;
         int scriptCodeOffset = scriptDataPtr;
 
-        StrCopy(scriptText, "");
+        scriptText[0] = '\0';
 
         // Get Values
         for (int i = 0; i < opcodeSize; ++i) {
