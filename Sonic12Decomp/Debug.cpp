@@ -865,11 +865,11 @@ void processStartMenu() {
                 }
                 else if (gameMenu[1].selection1 == 2) {
                     if (!gameMenu[1].selection2) {
-                        SetTextMenuEntry(&gameMenu[1], "CANCEL", 0);
+                        SetTextMenuEntry(&gameMenu[1], "CANCEL", 2);
                         gameMenu[1].selection2 ^= 1;
                     }
                     else {
-                        SetTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE", 0);
+                        SetTextMenuEntry(&gameMenu[1], "DELETE SAVE FILE", 2);
                         gameMenu[1].selection2 ^= 1;
                     }
                 }
