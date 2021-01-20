@@ -328,12 +328,6 @@ void RetroEngine::Init()
         }
     }
 
-    FileIO *ver = fOpen("gamever.txt", "w");
-    if (ver) {
-        fWrite(ENGINE_VER, sizeof(ENGINE_VER), 1, ver);
-        fClose(ver);
-    }
-
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
