@@ -214,7 +214,7 @@ void RetroEngine::Init()
     GenerateBlendLookupTable();
 
     InitUserdata();
-    char *dest = new char[0x200];
+    char dest[0x200];
     StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile);
     CheckRSDKFile(dest);
