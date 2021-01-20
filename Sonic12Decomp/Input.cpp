@@ -12,11 +12,7 @@ int touchID[8];
 int touches = 0;
 
 InputButton inputDevice[9];
-#ifdef RETRO_USING_KEYBOARD
 int inputType = 0;
-#else
-int inputType = 1;
-#endif
 
 int LSTICK_DEADZONE   = 20000;
 int RSTICK_DEADZONE   = 20000;
@@ -51,39 +47,25 @@ bool getControllerButton(byte buttonID)
     else {
         switch (buttonID) {
             default: break;
-            case SDL_CONTROLLER_BUTTON_DPAD_UP:
-                return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-                return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-                return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-                return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
+            case SDL_CONTROLLER_BUTTON_DPAD_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
+            case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
+            case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
+            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
         }
     }
 
     switch (buttonID) {
         default: break;
-        case SDL_CONTROLLER_BUTTON_ZL:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > LTRIGGER_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_ZR:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > RTRIGGER_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_UP:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_DOWN:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_LEFT:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_RIGHT:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_UP:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) < -RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_DOWN:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) > RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_LEFT:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) < -RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_RIGHT:
-            return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) > RSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_ZL: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > LTRIGGER_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_ZR: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > RTRIGGER_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_LSTICK_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_LSTICK_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_LSTICK_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_LSTICK_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_RSTICK_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) < -RSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_RSTICK_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) > RSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_RSTICK_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) < -RSTICK_DEADZONE;
+        case SDL_CONTROLLER_BUTTON_RSTICK_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) > RSTICK_DEADZONE;
     }
 
     return false;
@@ -184,6 +166,6 @@ void CheckKeyDown(InputData *input, byte flags)
         input->C = inputDevice[6].hold;
     if (flags & 0x80)
         input->start = inputDevice[7].hold;
-    //if (flags & 0x80)
+    // if (flags & 0x80)
     //   anyHold = inputDevice[8].hold;
 }

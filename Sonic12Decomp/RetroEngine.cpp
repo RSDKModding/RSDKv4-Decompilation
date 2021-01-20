@@ -39,10 +39,8 @@ bool processEvents()
                     case SDL_WINDOWEVENT_CLOSE: return false;
                 }
                 break;
-#ifndef RETRO_DISABLE_CONTROLLER_HOTSWAP
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
-#endif
             case SDL_WINDOWEVENT_CLOSE:
                 if (Engine.window) {
                     SDL_DestroyWindow(Engine.window);
@@ -217,7 +215,7 @@ void RetroEngine::Init()
 
     InitUserdata();
     char *dest = new char[0x200];
-    StrCopy(dest, BASE_RO_PATH);
+    StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile);
     CheckRSDKFile(dest);
     InitNativeObjectSystem();
@@ -251,8 +249,8 @@ void RetroEngine::Init()
 #endif // RSDK_DEBUG
 #endif // RETRO_USE_NETWORKING
 
-    gameMode = ENGINE_MAINGAME;
-    running  = false;
+    gameMode          = ENGINE_MAINGAME;
+    running           = false;
     finishedStartMenu = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
@@ -330,7 +328,7 @@ void RetroEngine::Init()
         }
     }
 
-    FileIO* ver = fOpen("gamever.txt", "w");
+    FileIO *ver = fOpen("gamever.txt", "w");
     if (ver) {
         fWrite(ENGINE_VER, sizeof(ENGINE_VER), 1, ver);
         fClose(ver);
@@ -571,8 +569,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 void RetroEngine::Callback(int callbackID)
 {
     switch (callbackID) {
-        default:
-            printLog("Callback: Unknown (%d)", callbackID);
-            break;
+        default: printLog("Callback: Unknown (%d)", callbackID); break;
     }
 }

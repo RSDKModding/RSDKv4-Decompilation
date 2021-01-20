@@ -33,8 +33,7 @@ typedef unsigned int uint;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 // Custom Platforms start here
-#define RETRO_VITA     (7)
-#define RETRO_NX       (8)
+#define RETRO_VITA (7)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -54,9 +53,6 @@ typedef unsigned int uint;
 #elif defined __vita__
 #define RETRO_PLATFORM (RETRO_VITA)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
-#elif defined __SWITCH__
-#define RETRO_PLATFORM (RETRO_NX)
-#define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
@@ -64,55 +60,25 @@ typedef unsigned int uint;
 
 #if RETRO_PLATFORM == RETRO_VITA
 #if RETRO_GAME_SONIC == 1
-#define BASE_PATH            "ux0:data/Sonic1/"
-#define BASE_RO_PATH         "ux0:data/Sonic1/"
+#define BASE_PATH "ux0:data/Sonic1/"
 #elif RETRO_GAME_SONIC == 2
-#define BASE_PATH            "ux0:data/Sonic2/"
-#define BASE_RO_PATH         "ux0:data/Sonic2/"
+#define BASE_PATH "ux0:data/Sonic2/"
 #else
 #error "RETRO_GAME_SONIC not defined"
 #endif
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   false
-#define SCREEN_YSIZE (272)
-#elif RETRO_PLATFORM == RETRO_NX
-#include "platform/nx.h"
-
-#ifdef NX_APPLICATION_ID
-#define BASE_PATH "save:/"
-#else
-#define BASE_PATH ""
-#endif
-#define BASE_RO_PATH "romfs:/"
-#define DEFAULT_SCREEN_XSIZE 480
-#define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE         (272)
-#define DEFAULT_WINDOW_SCALE 4
-#define RETRO_DISABLE_CONTROLLER_HOTSWAP
-#define RETRO_DISABLE_SETTINGS_SAVE
-#define RETRO_DISABLE_LOG
-#define RETRO_FILE_COMMIT_FUNC commitSave
 #else
 #define BASE_PATH            ""
-#define BASE_RO_PATH         ""
-#define DEFAULT_SCREEN_XSIZE 424 
+#define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE         (240)
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
-#define RETRO_USING_KEYBOARD
-
 #endif
 
-#ifndef DEFAULT_WINDOW_SCALE
-#define DEFAULT_WINDOW_SCALE 2
-#endif
-
-#ifndef RETRO_FILE_COMMIT_FUNC
-#define RETRO_FILE_COMMIT_FUNC(x)
-#endif
-
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA || RETRO_PLATFORM == RETRO_NX
+#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
 #define RETRO_USING_SDL (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL (0)
