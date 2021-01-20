@@ -70,12 +70,15 @@ typedef unsigned int uint;
 #define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE         (272)
 #else
-#define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE         (240)
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
+#endif
+
+#ifndef BASE_PATH
+#define BASE_PATH            ""
 #endif
 
 #if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
