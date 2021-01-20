@@ -37,7 +37,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 
 ## Mac:
 * Clone the repo, then follow the instructions in the [depencencies readme for mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project
-* note: a proper mac release is being worked on, and hopefully will be released soon
+* a mac build of v1.0.0 by sappharad can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.0.0mac)
 
 ## Switch:
 * head on over to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme
