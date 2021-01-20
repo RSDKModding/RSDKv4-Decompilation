@@ -1992,23 +1992,21 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         scriptDataOffset                                      = scriptDataPos;
                         jumpTableDataOffset                                   = jumpTableDataPos;
                     }
-                    if (FindStringToken(scriptText, "function", 1)) {
-                        if (FindStringToken(scriptText, "function", 1) == 1) {
-                            char funcName[0x20];
-                            for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
-                            funcName[textPos - 9] = 0;
-                            int funcID            = -1;
-                            for (int f = 0; f < scriptFunctionCount; ++f) {
-                                if (StrComp(funcName, scriptFunctionNames[f]))
-                                    funcID = f;
-                            }
-                            if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
-                                StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
-                            }
-                            parseMode = PARSEMODE_SCOPELESS;
+                    if (!FindStringToken(scriptText, "reservefunction", 1)) { //forward decl
+                        char funcName[0x20];
+                        for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
+                        funcName[textPos - 9] = 0;
+                        int funcID            = -1;
+                        for (int f = 0; f < scriptFunctionCount; ++f) {
+                            if (StrComp(funcName, scriptFunctionNames[f]))
+                                funcID = f;
                         }
+                        if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
+                            StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
+                        }
+                        parseMode = PARSEMODE_SCOPELESS;
                     }
-                    else {
+                    else { //regular decl
                         char funcName[0x20];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
