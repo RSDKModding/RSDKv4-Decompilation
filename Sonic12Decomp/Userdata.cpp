@@ -274,7 +274,7 @@ void writeSettings()
     ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings);
 
-    ini.Write("settings.ini");
+    ini.Write(BASE_PATH"settings.ini");
 }
 
 void ReadUserdata()
