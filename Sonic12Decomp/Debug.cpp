@@ -693,7 +693,7 @@ void setTextMenu(int sm) {
                 else
                     AddTextMenuEntry(&gameMenu[1], "AIR SPEED CAP: DISABLED");
                 AddTextMenuEntry(&gameMenu[1], "");
-                if (GetGlobalVariableByName("options.spikeBehaviour"))
+                if (GetGlobalVariableByName("options.spikeBehavior"))
                     AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
                 else
                     AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
@@ -724,7 +724,7 @@ void setTextMenu(int sm) {
                 else
                     AddTextMenuEntry(&gameMenu[1], "SUPER TAILS: DISABLED");
                 AddTextMenuEntry(&gameMenu[1], "");
-                if (GetGlobalVariableByName("options.spikeBehaviour"))
+                if (GetGlobalVariableByName("options.spikeBehavior"))
                     AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: ENABLED");
                 else
                     AddTextMenuEntry(&gameMenu[1], "S1 SPIKES: DISABLED");
