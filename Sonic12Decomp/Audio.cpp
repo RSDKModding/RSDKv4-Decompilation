@@ -10,7 +10,6 @@ int sfxVolume     = MAX_VOLUME;
 int bgmVolume     = MAX_VOLUME;
 bool audioEnabled = false;
 
-int nextChannelPos = 0;
 bool musicEnabled  = 0;
 int musicStatus    = MUSIC_STOPPED;
 int musicStartPos  = 0;
@@ -134,8 +133,6 @@ int InitAudioPlayback()
         CloseFile();
     }
 
-    // sfxDataPosStage = sfxDataPos;
-    nextChannelPos = 0;
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
 
     return true;
@@ -643,13 +640,11 @@ void PlaySfx(int sfx, bool loop)
     LOCK_AUDIO_DEVICE()
     int sfxChannelID = -1;
     for (int c = 0; c < CHANNEL_COUNT; ++c) {
-        if (sfxChannels[c].sfxID == sfx) {
+        if (sfxChannels[c].sfxID == sfx || sfxChannels[c].sfxID == -1) {
             sfxChannelID = c;
             break;
         }
     }
-    if (sfxChannelID == -1)
-        sfxChannelID = nextChannelPos++;
 
     ChannelInfo *sfxInfo  = &sfxChannels[sfxChannelID];
     sfxInfo->sfxID        = sfx;
@@ -657,8 +652,6 @@ void PlaySfx(int sfx, bool loop)
     sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loop;
     sfxInfo->pan          = 0;
-    if (nextChannelPos == CHANNEL_COUNT)
-        nextChannelPos = 0;
     UNLOCK_AUDIO_DEVICE()
 }
 void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
