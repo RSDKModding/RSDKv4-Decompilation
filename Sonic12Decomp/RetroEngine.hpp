@@ -59,13 +59,6 @@ typedef unsigned int uint;
 #endif
 
 #if RETRO_PLATFORM == RETRO_VITA
-#if RETRO_GAME_SONIC == 1
-#define BASE_PATH "ux0:data/Sonic1/"
-#elif RETRO_GAME_SONIC == 2
-#define BASE_PATH "ux0:data/Sonic2/"
-#else
-#error "RETRO_GAME_SONIC not defined"
-#endif
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   false
 #define SCREEN_YSIZE         (272)
