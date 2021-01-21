@@ -1,4 +1,3 @@
-#include <SDL_main.h>
 #include "RetroEngine.hpp"
 
 int main(int argc, char *argv[])

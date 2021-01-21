@@ -108,6 +108,13 @@ typedef unsigned int uint;
 
 #define RETRO_USE_HAPTICS (1)
 
+// this macro defines the touch device read by the game (UWP requires DIRECT)
+#if RETRO_UWP
+#define RETRO_TOUCH_DEVICE SDL_TOUCH_DEVICE_DIRECT
+#else
+#define RETRO_TOUCH_DEVICE SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE
+#endif
+
 enum RetroLanguages {
     RETRO_EN = 0,
     RETRO_FR = 1,

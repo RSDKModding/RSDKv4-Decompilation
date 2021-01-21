@@ -1,4 +1,6 @@
 #pragma once 
+#include <SDL_main.h>
+
 #include <windows.h>
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
