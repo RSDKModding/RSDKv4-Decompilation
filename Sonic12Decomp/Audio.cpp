@@ -256,14 +256,12 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             return;
         }
 
-        if (musInfo.loaded)
-            StopMusic();
-
         uint oldPos   = 0;
         uint oldTotal = 0;
-        if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
+        if (musInfo.loaded) {
             oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
             oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
+            StopMusic();
         }
 
         if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
