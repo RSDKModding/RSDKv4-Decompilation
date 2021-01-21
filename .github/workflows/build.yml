@@ -40,6 +40,7 @@ jobs:
           mkdir artifacts
           move ./build/Win32/Release/*.dll ./artifacts 
           move ./build/Win32/Release/*.exe ./artifacts
+          move C:/vcpkg/installed/bin/*.dll ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
