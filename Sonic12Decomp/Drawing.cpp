@@ -496,7 +496,10 @@ void DrawHLineScrollLayer(int layerID)
                 hParallax.tilePos[i] %= fullLayerwidth;
             }
         }
-        lastXSize = layerwidth;
+        int w = -1;
+        if (activeTileLayers[layerID])
+            w = layerwidth;
+        lastXSize = w;
     }
 
     ushort *frameBufferPtr = Engine.frameBuffer;
