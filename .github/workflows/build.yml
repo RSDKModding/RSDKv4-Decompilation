@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir ./cmake
           cd ./cmake
-          cmake ..
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           cmake --build
       - name: Move artifacts
         run: |
