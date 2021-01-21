@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
-          name: RSDKv4-Windows 
+          name: v4-windows 
           path: artifacts      
   v4-windows-x64:
     runs-on: windows-latest
@@ -81,7 +81,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
-          name: RSDKv4-Windows-x64 
+          name: v4-windows-x64 
           path: artifacts      
   v4-linux:
     runs-on: ubuntu-latest
@@ -115,7 +115,7 @@ jobs:
       - name: Upload VPK
         uses: actions/upload-artifact@v2
         with:
-          name: Sonic1-vita
+          name: sonic1-vita
           path: Sonic1.Vita/Sonic1.vpk
           if-no-files-found: error
   sonic2-psvita:
