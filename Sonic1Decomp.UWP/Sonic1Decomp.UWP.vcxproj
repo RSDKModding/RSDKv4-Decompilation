@@ -105,10 +105,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(SolutionDir)$(Platform)\$(Configuration)\SDL-UWP\;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libtheora/win32/VS2008/$(Platform)/$(Configuration)/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
@@ -130,10 +130,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)dependencies\windows-uwp\SDL2\include;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/libtheora/include/;$(SolutionDir)dependencies/all/asio/include;$(SolutionDir)dependencies\windows-uwp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -196,6 +196,7 @@
     <ClCompile Include="..\Sonic12Decomp\Userdata.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\dependencies\windows-uwp\WinRTIncludes.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Animation.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Audio.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Collision.hpp" />
@@ -219,7 +220,6 @@
     <ClInclude Include="..\Sonic12Decomp\String.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Text.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Userdata.hpp" />
-    <ClInclude Include="..\Sonic12Decomp\WinRTIncludes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LargeTile.scale-100.png" />

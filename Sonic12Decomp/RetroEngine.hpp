@@ -34,8 +34,7 @@ typedef unsigned int uint;
 #define RETRO_WP7      (6)
 // Custom Platforms start here
 #define RETRO_VITA (7)
-#define RETRO_NX   (8)
-#define RETRO_UWP  (9)
+#define RETRO_UWP  (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -48,8 +47,10 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
+#include <WInRTIncludes.hpp>
+
 #define RETRO_PLATFORM (RETRO_UWP)
-#define RETRO_PLATTYPE (RETRO_MOBILE)
+#define RETRO_PLATTYPE (UAP_GetRetroGamePlatform())
 #endif
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
@@ -87,7 +88,7 @@ typedef unsigned int uint;
 #define BASE_PATH            ""
 #endif
 
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA || RETRO_PLATFORM == RETRO_UWP
 #define RETRO_USING_SDL (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL (0)

@@ -49,7 +49,7 @@
     <ClInclude Include="..\Sonic12Decomp\String.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Text.hpp" />
     <ClInclude Include="..\Sonic12Decomp\Userdata.hpp" />
-    <ClInclude Include="..\Sonic12Decomp\WinRTIncludes.hpp" />
+    <ClInclude Include="..\dependencies\windows-uwp\WinRTIncludes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
