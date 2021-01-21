@@ -3,7 +3,7 @@
 
 #define TRACK_COUNT (0x10)
 #define SFX_COUNT (0x100)
-#define CHANNEL_COUNT (0x8) //4 in the original, 8 for convenience
+#define CHANNEL_COUNT (0x10) //4 in the original, 16 for convenience
 
 #define MAX_VOLUME (100)
 
