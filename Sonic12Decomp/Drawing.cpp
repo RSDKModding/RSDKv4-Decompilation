@@ -154,14 +154,14 @@ void RenderRenderDevice()
     }
 
     int pitch = 0;
-    SDL_SetRenderTarget(Engine.renderer, texTarget);
-
+    SDL_SetRenderTarget(Engine.renderer, NULL); 
+    
     // Clear the screen. This is needed to keep the
     // pillarboxes in fullscreen from displaying garbage data.
     SDL_RenderClear(Engine.renderer);
 
     ushort *pixels = NULL;
-
+    
     if (!drawStageGFXHQ) {
         SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
         memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
@@ -229,6 +229,8 @@ void RenderRenderDevice()
         // no change here
         SDL_RenderPresent(Engine.renderer);
     }
+
+    SDL_RenderPresent(Engine.renderer);
 #endif
 }
 void ReleaseRenderDevice()

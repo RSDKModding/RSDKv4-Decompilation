@@ -27,7 +27,7 @@ void InitUserdata()
     sprintf(gamePath, "%s", BASE_PATH);
 
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/settings.ini", getResourcesPath());
     else
@@ -53,7 +53,6 @@ void InitUserdata()
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        ini.SetBool("Window", "EnhancedScaling", Engine.enhancedScaling = true);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
@@ -117,8 +116,6 @@ void InitUserdata()
             Engine.borderless = false;
         if (!ini.GetBool("Window", "VSync", &Engine.vsync))
             Engine.vsync = false;
-        if (!ini.GetBool("Window", "EnhancedScaling", &Engine.enhancedScaling))
-            Engine.enhancedScaling = true;
         if (!ini.GetInteger("Window", "WindowScale", &Engine.windowScale))
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE))
@@ -181,7 +178,7 @@ void InitUserdata()
     }
     SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
@@ -236,8 +233,6 @@ void writeSettings()
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
     ini.SetBool("Window", "VSync", Engine.vsync);
-    ini.SetComment("Window", "ESComment", "Determines if Enhanced Scaling will be active or not. Only affects non-multiple resolutions.");
-    ini.SetBool("Window", "EnhancedScaling", Engine.enhancedScaling);
     ini.SetComment("Window", "WSComment", "How big the window will be");
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
     ini.SetComment("Window", "SWComment", "How wide the base screen will be in pixels");
@@ -285,7 +280,7 @@ void writeSettings()
 void ReadUserdata()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
@@ -317,7 +312,7 @@ void ReadUserdata()
 void WriteUserdata()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
