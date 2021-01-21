@@ -86,7 +86,7 @@ int InitRenderDevice()
         Engine.screenRefreshRate = disp.refresh_rate;
     }
 
-#if RETRO_PLATFORM == RETRO_iOS
+#if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_UWP
     SDL_RestoreWindow(Engine.window);
     SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     Engine.isFullScreen = true;

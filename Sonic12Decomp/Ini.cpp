@@ -16,7 +16,7 @@ IniParser::IniParser(const char *filename)
 
     char pathBuffer[0x80];
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
@@ -238,7 +238,7 @@ void IniParser::Write(const char *filename)
 #ifndef RETRO_DISABLE_SETTINGS_SAVE
     char pathBuffer[0x80];
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
