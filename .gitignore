@@ -38,10 +38,20 @@ bin/
 cmake/
 
 #dependencies
+[Dd]ependencies/windows-uwp/**
 [Dd]ependencies/windows/*
 [Dd]ependencies/mac/*
 [Dd]ependencies/all/*
 ![Dd]ependencies/all/dependencies.txt
+
+# UWP
+**/Generated Files
+**/BundleArtifacts
+**/AppPackages
+**/Assets/*.png
+
+# safety
+*.rsdk
 
 #OSX files
 *.DS_Store

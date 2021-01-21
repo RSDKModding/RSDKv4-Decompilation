@@ -1,0 +1,3 @@
+Download the latest SDL2 source tarball from https://www.libsdl.org/download-2.0.php, and extract it's contents to a folder called `SDL2`. 
+
+If you wish to build ARM/ARM64 architecture variants, be sure to retarget and build libogg and libvorbis for these platforms. 

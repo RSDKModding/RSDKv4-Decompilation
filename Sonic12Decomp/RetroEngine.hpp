@@ -34,17 +34,32 @@ typedef unsigned int uint;
 #define RETRO_WP7      (6)
 // Custom Platforms start here
 #define RETRO_VITA (7)
+#define RETRO_UWP  (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
 #define RETRO_MOBILE   (1)
 
 #if defined _WIN32
+
+#if defined WINAPI_FAMILY
+#if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define RETRO_PLATFORM (RETRO_WIN)
 #define RETRO_PLATTYPE (RETRO_STANDARD)
+#else
+#include <WInRTIncludes.hpp>
+
+#define RETRO_PLATFORM (RETRO_UWP)
+#define RETRO_PLATTYPE (UAP_GetRetroGamePlatform())
+#endif
+#else
+#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
+#endif
+
 #elif defined __APPLE__
 #if __IPHONEOS__
-#define RETRO_PLATTYPE (RETRO_iOS)
+#define RETRO_PLATFORM (RETRO_iOS)
 #define RETRO_PLATTYPE (RETRO_MOBILE)
 #else
 #define RETRO_PLATFORM (RETRO_OSX)
@@ -74,19 +89,18 @@ typedef unsigned int uint;
 #define BASE_PATH            ""
 #endif
 
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA || RETRO_PLATFORM == RETRO_UWP
 #define RETRO_USING_SDL (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL (0)
 #endif
 
-#define RETRO_GAME_STANDARD (0)
-#define RETRO_GAME_MOBILE   (1)
-
 #if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
-#define RETRO_GAMEPLATFORM (RETRO_GAME_MOBILE)
+#define RETRO_GAMEPLATFORM (RETRO_MOBILE)
+#elif RETRO_PLATFORM == RETRO_UWP
+#define RETRO_GAMEPLATFORM (UAP_GetRetroGamePlatform())
 #else
-#define RETRO_GAMEPLATFORM (RETRO_GAME_STANDARD)
+#define RETRO_GAMEPLATFORM (RETRO_STANDARD)
 #endif
 
 #define RETRO_SW_RENDER  (0)
@@ -94,6 +108,13 @@ typedef unsigned int uint;
 #define RETRO_RENDERTYPE (RETRO_SW_RENDER)
 
 #define RETRO_USE_HAPTICS (1)
+
+// this macro defines the touch device read by the game (UWP requires DIRECT)
+#if RETRO_UWP
+#define RETRO_TOUCH_DEVICE 0
+#else
+#define RETRO_TOUCH_DEVICE 1
+#endif
 
 enum RetroLanguages {
     RETRO_EN = 0,
@@ -133,7 +154,7 @@ enum RetroGameType {
 // General Defines
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
 #include <SDL.h>
 #include <vorbis/vorbisfile.h>
 #elif RETRO_PLATFORM == RETRO_OSX
@@ -182,6 +203,14 @@ extern bool engineDebugMode;
 class RetroEngine
 {
 public:
+    RetroEngine()
+    {
+        if (RETRO_GAMEPLATFORM == RETRO_STANDARD)
+            gamePlatform = "STANDARD";
+        else
+            gamePlatform = "MOBILE";
+    }
+
     bool usingDataFile = false;
     bool usingBytecode = false;
 
@@ -230,16 +259,12 @@ public:
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
     const char *gameVersion = "1.1.0";
-#if RETRO_GAMEPLATFORM == RETRO_GAME_STANDARD
-    const char *gamePlatform = "STANDARD";
-#elif RETRO_GAMEPLATFORM == RETRO_GAME_MOBILE
-    const char *gamePlatform = "MOBILE";
-#endif
+    const char *gamePlatform = nullptr;    
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     const char *gameRenderType = "SW_RENDERING";
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType = "HW_RENDERING";
+    const char *gameRenderType    = "HW_RENDERING";
 #endif
 
 #if RETRO_USE_HAPTICS
