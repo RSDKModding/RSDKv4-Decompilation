@@ -1,4 +1,4 @@
-name: Build Sonic 1 and 2 for multiple platforms
+name: Build RSDKv4
 on:
   push:
     branches:
