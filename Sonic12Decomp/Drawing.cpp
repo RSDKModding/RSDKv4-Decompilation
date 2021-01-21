@@ -167,7 +167,7 @@ void RenderRenderDevice()
         memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE);
         SDL_UnlockTexture(Engine.screenBuffer);
 
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, destScreenPos);
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
     }
     else {
         int w = 0, h = 0;
@@ -208,7 +208,7 @@ void RenderRenderDevice()
         }
 
         SDL_UnlockTexture(Engine.screenBuffer2x);
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, destScreenPos);
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
     }
     if (tmpEnhancedScaling) {
         // set render target back to the screen.
