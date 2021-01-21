@@ -33,7 +33,7 @@ void InitUserdata()
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
 #else
-    sprintf(buffer, "%s%s", BASE_PATH, "settings.ini");
+    sprintf(buffer, BASE_PATH "settings.ini");
 #endif
     FileIO *file = fOpen(buffer, "rb");
     if (!file) {
