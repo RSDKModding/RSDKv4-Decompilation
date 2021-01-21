@@ -54,6 +54,7 @@ typedef unsigned int uint;
 #endif
 #else
 #define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #endif
 
 #elif defined __APPLE__
