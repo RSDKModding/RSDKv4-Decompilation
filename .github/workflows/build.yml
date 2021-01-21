@@ -1,4 +1,4 @@
-name: Build Sonic 1 and 2 for multiple platforms
+name: Build RSDKv4
 on:
   push:
     branches:
@@ -35,7 +35,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
-          name: RSDKv4-Windows 
+          name: v4-windows 
           path: artifacts      
   v4-windows-x64:
     runs-on: windows-latest
@@ -72,7 +72,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -81,9 +81,9 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
-          name: RSDKv4-Windows-x64 
+          name: v4-windows-x64 
           path: artifacts      
-  v4-liunx:
+  v4-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -115,7 +115,7 @@ jobs:
       - name: Upload VPK
         uses: actions/upload-artifact@v2
         with:
-          name: Sonic1-vita
+          name: sonic1-vita
           path: Sonic1.Vita/Sonic1.vpk
           if-no-files-found: error
   sonic2-psvita:

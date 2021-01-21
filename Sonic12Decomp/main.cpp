@@ -13,3 +13,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+#if RETRO_PLATFORM == RETRO_UWP
+int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) { return SDL_WinRTRunApp(main, NULL); }
+#endif
