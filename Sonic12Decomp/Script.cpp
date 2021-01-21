@@ -27,7 +27,7 @@ int jumpTableDataOffset = 0;
 #define COMMONALIAS_COUNT (0x4E)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
-int lineID     = 0;
+int lineID = 0;
 
 struct AliasInfo {
     AliasInfo()
@@ -45,7 +45,7 @@ struct AliasInfo {
     char value[0x20];
 };
 
-#define STATICVAR_COUNT   (0x200)
+#define STATICVAR_COUNT (0x200)
 
 struct FunctionInfo {
     FunctionInfo()
@@ -508,90 +508,90 @@ const FunctionInfo functions[] = {
 };
 
 AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
-                                   AliasInfo("false", "0"),
-                                   AliasInfo("FX_SCALE", "0"),
-                                   AliasInfo("FX_ROTATE", "1"),
-                                   AliasInfo("FX_ROTOZOOM", "2"),
-                                   AliasInfo("FX_INK", "3"),
-                                   AliasInfo("PRESENTATION_STAGE", "0"),
-                                   AliasInfo("REGULAR_STAGE", "1"),
-                                   AliasInfo("BONUS_STAGE", "2"),
-                                   AliasInfo("SPECIAL_STAGE", "3"),
-                                   AliasInfo("MENU_1", "0"),
-                                   AliasInfo("MENU_2", "1"),
-                                   AliasInfo("C_TOUCH", "0"),
-                                   AliasInfo("C_BOX", "1"),
-                                   AliasInfo("C_BOX2", "2"),
-                                   AliasInfo("C_PLATFORM", "3"),
-                                   AliasInfo("MAT_WORLD", "0"),
-                                   AliasInfo("MAT_VIEW", "1"),
-                                   AliasInfo("MAT_TEMP", "2"),
-                                   AliasInfo("FX_FLIP", "5"),
-                                   AliasInfo("FACING_LEFT", "1"),
-                                   AliasInfo("FACING_RIGHT", "0"),
-                                   AliasInfo("FLIP_NONE", "0"),
-                                   AliasInfo("FLIP_X", "1"),
-                                   AliasInfo("FLIP_Y", "2"),
-                                   AliasInfo("FLIP_XY", "3"),
-                                   AliasInfo("STAGE_PAUSED", "2"),
-                                   AliasInfo("STAGE_RUNNING", "1"),
-                                   AliasInfo("RESET_GAME", "2"),
-                                   AliasInfo("RETRO_STANDARD", "0"),
-                                   AliasInfo("RETRO_MOBILE", "1"),
-                                   AliasInfo("INK_NONE", "0"),
-                                   AliasInfo("INK_BLEND", "1"),
-                                   AliasInfo("INK_ALPHA", "2"),
-                                   AliasInfo("INK_ADD", "3"),
-                                   AliasInfo("INK_SUB", "4"),
-                                   AliasInfo("CSIDE_FLOOR", "0"),
-                                   AliasInfo("CSIDE_LWALL", "1"),
-                                   AliasInfo("CSIDE_RWALL", "2"),
-                                   AliasInfo("CSIDE_ROOF", "3"),
-                                   AliasInfo("CMODE_FLOOR", "0"),
-                                   AliasInfo("CMODE_LWALL", "1"),
-                                   AliasInfo("CMODE_ROOF", "2"),
-                                   AliasInfo("CMODE_RWALL", "3"),
-                                   AliasInfo("PATH_A", "0"),
-                                   AliasInfo("PATH_B", "1"),
-                                   AliasInfo("GRAVITY_GROUND", "0"),
-                                   AliasInfo("GRAVITY_AIR", "1"),
-                                   AliasInfo("FACE_TEXTURED_3D", "0"),
-                                   AliasInfo("FACE_TEXTURED_2D", "1"),
-                                   AliasInfo("FACE_COLOURED_3D", "2"),
-                                   AliasInfo("FACE_COLOURED_2D", "3"),
-                                   AliasInfo("FACE_FADED", "4"),
-                                   AliasInfo("FACE_TEXTURED_C", "5"),
-                                   AliasInfo("FACE_TEXTURED_D", "6"),
-                                   AliasInfo("FACE_SPRITE_3D", "7"),
-                                   AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
-                                   AliasInfo("PRIORITY_ACTIVE", "1"),
-                                   AliasInfo("PRIORITY_ACTIVE_PAUSED", "2"),
-                                   AliasInfo("PRIORITY_XBOUNDS", "3"),
-                                   AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
-                                   AliasInfo("PRIORITY_INACTIVE", "5"),
-                                   AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
-                                   AliasInfo("PRIORITY_UNKNOWN", "7"),
-                                   AliasInfo("TILEINFO_INDEX", "0"),
-                                   AliasInfo("TILEINFO_DIRECTION", "1"),
-                                   AliasInfo("TILEINFO_VISUALPLANE", "2"),
-                                   AliasInfo("TILEINFO_SOLIDITYA", "3"),
-                                   AliasInfo("TILEINFO_SOLIDITYB", "4"),
-                                   AliasInfo("TILEINFO_FLAGSA", "5"),
-                                   AliasInfo("TILEINFO_ANGLEA", "6"),
-                                   AliasInfo("TILEINFO_FLAGSB", "7"),
-                                   AliasInfo("TILEINFO_ANGLEB", "8"),
-                                   AliasInfo("TEXTINFO_TEXTDATA", "0"),
-                                   AliasInfo("TEXTINFO_TEXTSIZE", "1"),
-                                   AliasInfo("TEXTINFO_ROWCOUNT", "1"),
-                                   AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
-                                   AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
-                                   AliasInfo("TILELAYER_NOSCROLL", "0"),
-                                   AliasInfo("TILELAYER_HSCROLL", "1"),
-                                   AliasInfo("TILELAYER_VSCROLL", "2"),
-                                   AliasInfo("TILELAYER_3DFLOOR", "3"),
-                                   AliasInfo("TILELAYER_3DSKY", "4") };
+                                         AliasInfo("false", "0"),
+                                         AliasInfo("FX_SCALE", "0"),
+                                         AliasInfo("FX_ROTATE", "1"),
+                                         AliasInfo("FX_ROTOZOOM", "2"),
+                                         AliasInfo("FX_INK", "3"),
+                                         AliasInfo("PRESENTATION_STAGE", "0"),
+                                         AliasInfo("REGULAR_STAGE", "1"),
+                                         AliasInfo("BONUS_STAGE", "2"),
+                                         AliasInfo("SPECIAL_STAGE", "3"),
+                                         AliasInfo("MENU_1", "0"),
+                                         AliasInfo("MENU_2", "1"),
+                                         AliasInfo("C_TOUCH", "0"),
+                                         AliasInfo("C_BOX", "1"),
+                                         AliasInfo("C_BOX2", "2"),
+                                         AliasInfo("C_PLATFORM", "3"),
+                                         AliasInfo("MAT_WORLD", "0"),
+                                         AliasInfo("MAT_VIEW", "1"),
+                                         AliasInfo("MAT_TEMP", "2"),
+                                         AliasInfo("FX_FLIP", "5"),
+                                         AliasInfo("FACING_LEFT", "1"),
+                                         AliasInfo("FACING_RIGHT", "0"),
+                                         AliasInfo("FLIP_NONE", "0"),
+                                         AliasInfo("FLIP_X", "1"),
+                                         AliasInfo("FLIP_Y", "2"),
+                                         AliasInfo("FLIP_XY", "3"),
+                                         AliasInfo("STAGE_PAUSED", "2"),
+                                         AliasInfo("STAGE_RUNNING", "1"),
+                                         AliasInfo("RESET_GAME", "2"),
+                                         AliasInfo("RETRO_STANDARD", "0"),
+                                         AliasInfo("RETRO_MOBILE", "1"),
+                                         AliasInfo("INK_NONE", "0"),
+                                         AliasInfo("INK_BLEND", "1"),
+                                         AliasInfo("INK_ALPHA", "2"),
+                                         AliasInfo("INK_ADD", "3"),
+                                         AliasInfo("INK_SUB", "4"),
+                                         AliasInfo("CSIDE_FLOOR", "0"),
+                                         AliasInfo("CSIDE_LWALL", "1"),
+                                         AliasInfo("CSIDE_RWALL", "2"),
+                                         AliasInfo("CSIDE_ROOF", "3"),
+                                         AliasInfo("CMODE_FLOOR", "0"),
+                                         AliasInfo("CMODE_LWALL", "1"),
+                                         AliasInfo("CMODE_ROOF", "2"),
+                                         AliasInfo("CMODE_RWALL", "3"),
+                                         AliasInfo("PATH_A", "0"),
+                                         AliasInfo("PATH_B", "1"),
+                                         AliasInfo("GRAVITY_GROUND", "0"),
+                                         AliasInfo("GRAVITY_AIR", "1"),
+                                         AliasInfo("FACE_TEXTURED_3D", "0"),
+                                         AliasInfo("FACE_TEXTURED_2D", "1"),
+                                         AliasInfo("FACE_COLOURED_3D", "2"),
+                                         AliasInfo("FACE_COLOURED_2D", "3"),
+                                         AliasInfo("FACE_FADED", "4"),
+                                         AliasInfo("FACE_TEXTURED_C", "5"),
+                                         AliasInfo("FACE_TEXTURED_D", "6"),
+                                         AliasInfo("FACE_SPRITE_3D", "7"),
+                                         AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
+                                         AliasInfo("PRIORITY_ACTIVE", "1"),
+                                         AliasInfo("PRIORITY_ACTIVE_PAUSED", "2"),
+                                         AliasInfo("PRIORITY_XBOUNDS", "3"),
+                                         AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
+                                         AliasInfo("PRIORITY_INACTIVE", "5"),
+                                         AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
+                                         AliasInfo("PRIORITY_UNKNOWN", "7"),
+                                         AliasInfo("TILEINFO_INDEX", "0"),
+                                         AliasInfo("TILEINFO_DIRECTION", "1"),
+                                         AliasInfo("TILEINFO_VISUALPLANE", "2"),
+                                         AliasInfo("TILEINFO_SOLIDITYA", "3"),
+                                         AliasInfo("TILEINFO_SOLIDITYB", "4"),
+                                         AliasInfo("TILEINFO_FLAGSA", "5"),
+                                         AliasInfo("TILEINFO_ANGLEA", "6"),
+                                         AliasInfo("TILEINFO_FLAGSB", "7"),
+                                         AliasInfo("TILEINFO_ANGLEB", "8"),
+                                         AliasInfo("TEXTINFO_TEXTDATA", "0"),
+                                         AliasInfo("TEXTINFO_TEXTSIZE", "1"),
+                                         AliasInfo("TEXTINFO_ROWCOUNT", "1"),
+                                         AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
+                                         AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
+                                         AliasInfo("TILELAYER_NOSCROLL", "0"),
+                                         AliasInfo("TILELAYER_HSCROLL", "1"),
+                                         AliasInfo("TILELAYER_VSCROLL", "2"),
+                                         AliasInfo("TILELAYER_3DFLOOR", "3"),
+                                         AliasInfo("TILELAYER_3DSKY", "4") };
 AliasInfo privateAliases[ALIAS_COUNT_TRIM];
-int publicAliasCount = 0;
+int publicAliasCount  = 0;
 int privateAliasCount = 0;
 
 StaticInfo publicStaticVariables[STATICVAR_COUNT];
@@ -1025,7 +1025,6 @@ void CheckAliasText(char *text)
     int aliasStrPos = 0;
     int aliasMatch  = 0;
 
-    
     if (publicAliasCount >= ALIAS_COUNT) {
         if (FindStringToken(text, "privatealias", 1)) // public alias & we reached the cap
             return;
@@ -1034,7 +1033,7 @@ void CheckAliasText(char *text)
     AliasInfo *a = &publicAliases[publicAliasCount];
     int *cnt     = &publicAliasCount;
     if (FindStringToken(text, "privatealias", 1) == 0) {
-        a        = &privateAliases[privateAliasCount];
+        a   = &privateAliases[privateAliasCount];
         cnt = &privateAliasCount;
         if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
             return;
@@ -1084,8 +1083,8 @@ void CheckStaticText(char *text)
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
             return;
-        var = &privateStaticVariables[privateStaticVarCount];
-        cnt = &privateStaticVarCount;
+        var     = &privateStaticVariables[privateStaticVarCount];
+        cnt     = &privateStaticVarCount;
         textPos = 12;
     }
 
@@ -1131,8 +1130,8 @@ TableInfo *CheckTableText(char *text)
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateTableCount >= TABLE_COUNT) // private table and we reached the cap
             return NULL;
-        table = &privateTables[privateTableCount];
-        strPos = 12;
+        table          = &privateTables[privateTableCount];
+        strPos         = 12;
         curTablePublic = false;
     }
 
@@ -1242,7 +1241,7 @@ void ConvertForeachStatement(char *text)
     char dest[260];
     int destStrPos = 0;
 
-    if (FindStringToken(text, "ACTIVE_ENTITIES", 1) > 0) { // foreach TypeGroup[
+    if (FindStringToken(text, "ACTIVE_ENTITIES", 1) > 0) { // foreach (just actively interacting entities)
         StrCopy(dest, functions[FUNC_FOREACHACTIVE].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
@@ -1254,7 +1253,8 @@ void ConvertForeachStatement(char *text)
                 dest[destStrPos++] = text[i];
             }
             else {
-                dest[destStrPos++] = text[i];
+                if (!cnt)
+                    dest[destStrPos++] = text[i];
                 ++cnt;
             }
         }
@@ -1265,7 +1265,7 @@ void ConvertForeachStatement(char *text)
         jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
         jumpTableData[jumpTableDataPos++]   = 0;
     }
-    else if (FindStringToken(text, "ALL_ENTITIES", 1) > 0) { // foreach TypeName[
+    else if (FindStringToken(text, "ALL_ENTITIES", 1) > 0) { // foreach (all entities)
         StrCopy(dest, functions[FUNC_FOREACHALL].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
@@ -1277,7 +1277,8 @@ void ConvertForeachStatement(char *text)
                 dest[destStrPos++] = text[i];
             }
             else {
-                dest[destStrPos++] = text[i];
+                if (!cnt)
+                    dest[destStrPos++] = text[i];
                 ++cnt;
             }
         }
@@ -1396,7 +1397,7 @@ void ConvertFunctionText(char *text)
             funcName[funcNamePos]      = 0;
             arrayStr[scriptTextByteID] = 0;
             // Eg: TempValue0 = FX_SCALE
-            //Private (this script only)
+            // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
                 if (StrComp(funcName, privateAliases[a].name)) {
                     CopyAliasStr(funcName, privateAliases[a].value, 0);
@@ -1414,7 +1415,7 @@ void ConvertFunctionText(char *text)
             }
 
             // Eg: TempValue0 = value0
-            //Private (this script only)
+            // Private (this script only)
             for (int s = 0; s < privateStaticVarCount; ++s) {
                 if (StrComp(funcName, privateStaticVariables[s].name)) {
                     StrCopy(funcName, "local");
@@ -1432,7 +1433,7 @@ void ConvertFunctionText(char *text)
             }
 
             // Eg: GetTableValue(TempValue0, 1, array0)
-            //Private (this script only)
+            // Private (this script only)
             for (int a = 0; a < privateTableCount; ++a) {
                 if (StrComp(funcName, privateTables[a].name)) {
                     funcName[0] = 0;
@@ -1810,7 +1811,6 @@ bool ConvertStringToInteger(const char *text, int *value)
                 charVal += 10;
                 *value += charVal;
             }
-            
         }
         else {
             int strlen = strLength + 1;
@@ -1967,48 +1967,46 @@ void ParseScriptFile(char *scriptName, int scriptID)
 
                     currentTable = CheckTableText(scriptText);
                     if (currentTable) {
-                        parseMode    = PARSEMODE_TABLEREAD;
+                        parseMode = PARSEMODE_TABLEREAD;
                         StrCopy(scriptText, "");
                     }
 
                     if (StrComp(scriptText, "eventObjectMain")) {
-                        parseMode                                        = PARSEMODE_FUNCTION;
+                        parseMode                                          = PARSEMODE_FUNCTION;
                         objectScriptList[scriptID].eventMain.scriptCodePtr = scriptDataPos;
                         objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                 = scriptDataPos;
-                        jumpTableDataOffset                              = jumpTableDataPos;
+                        scriptDataOffset                                   = scriptDataPos;
+                        jumpTableDataOffset                                = jumpTableDataPos;
                     }
                     if (StrComp(scriptText, "eventObjectDraw")) {
-                        parseMode                                        = PARSEMODE_FUNCTION;
+                        parseMode                                          = PARSEMODE_FUNCTION;
                         objectScriptList[scriptID].eventDraw.scriptCodePtr = scriptDataPos;
                         objectScriptList[scriptID].eventDraw.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                 = scriptDataPos;
-                        jumpTableDataOffset                              = jumpTableDataPos;
+                        scriptDataOffset                                   = scriptDataPos;
+                        jumpTableDataOffset                                = jumpTableDataPos;
                     }
                     if (StrComp(scriptText, "eventObjectStartup")) {
-                        parseMode                                           = PARSEMODE_FUNCTION;
+                        parseMode                                             = PARSEMODE_FUNCTION;
                         objectScriptList[scriptID].eventStartup.scriptCodePtr = scriptDataPos;
                         objectScriptList[scriptID].eventStartup.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                    = scriptDataPos;
-                        jumpTableDataOffset                                 = jumpTableDataPos;
+                        scriptDataOffset                                      = scriptDataPos;
+                        jumpTableDataOffset                                   = jumpTableDataPos;
                     }
-                    if (FindStringToken(scriptText, "function", 1)) {
-                        if (FindStringToken(scriptText, "function", 1) == 1) {
-                            char funcName[0x20];
-                            for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
-                            funcName[textPos - 9] = 0;
-                            int funcID            = -1;
-                            for (int f = 0; f < scriptFunctionCount; ++f) {
-                                if (StrComp(funcName, scriptFunctionNames[f]))
-                                    funcID = f;
-                            }
-                            if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
-                                StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
-                            }
-                            parseMode = PARSEMODE_SCOPELESS;
+                    if (!FindStringToken(scriptText, "reservefunction", 1)) { //forward decl
+                        char funcName[0x20];
+                        for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
+                        funcName[textPos - 9] = 0;
+                        int funcID            = -1;
+                        for (int f = 0; f < scriptFunctionCount; ++f) {
+                            if (StrComp(funcName, scriptFunctionNames[f]))
+                                funcID = f;
                         }
+                        if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
+                            StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
+                        }
+                        parseMode = PARSEMODE_SCOPELESS;
                     }
-                    else {
+                    else { //regular decl
                         char funcName[0x20];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
@@ -2384,17 +2382,17 @@ void ClearScriptData()
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo             = &objectScriptList[o];
+        ObjectScript *scriptInfo               = &objectScriptList[o];
         scriptInfo->eventMain.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
         scriptInfo->eventMain.jumpTablePtr     = JUMPTABLE_COUNT - 1;
         scriptInfo->eventDraw.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
         scriptInfo->eventDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
         scriptInfo->eventStartup.scriptCodePtr = SCRIPTDATA_COUNT - 1;
         scriptInfo->eventStartup.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->frameListOffset          = 0;
-        scriptInfo->spriteSheetID            = 0;
-        scriptInfo->animFile                 = GetDefaultAnimationRef();
-        typeNames[o][0]                      = 0;
+        scriptInfo->frameListOffset            = 0;
+        scriptInfo->spriteSheetID              = 0;
+        scriptInfo->animFile                   = GetDefaultAnimationRef();
+        typeNames[o][0]                        = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
@@ -2419,7 +2417,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
         int opcodeSize       = functions[opcode].opcodeSize;
         int scriptCodeOffset = scriptDataPtr;
 
-        StrCopy(scriptText, "");
+        scriptText[0] = '\0';
 
         // Get Values
         for (int i = 0; i < opcodeSize; ++i) {

@@ -36,7 +36,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fsigned-char -fno-lto -f
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
-add_definitions(-DRETRO_GAME_SONIC=2)
+add_definitions(-DBASE_PATH="ux0:data/Sonic2/")
 
 # Add any additional include paths here
 include_directories(

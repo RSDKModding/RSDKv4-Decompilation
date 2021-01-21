@@ -58,7 +58,6 @@ extern int sfxVolume;
 extern int bgmVolume;
 extern bool audioEnabled;
 
-extern int nextChannelPos;
 extern bool musicEnabled;
 extern int musicStatus;
 extern int musicStartPos;

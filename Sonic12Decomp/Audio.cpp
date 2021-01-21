@@ -10,7 +10,6 @@ int sfxVolume     = MAX_VOLUME;
 int bgmVolume     = MAX_VOLUME;
 bool audioEnabled = false;
 
-int nextChannelPos = 0;
 bool musicEnabled  = 0;
 int musicStatus    = MUSIC_STOPPED;
 int musicStartPos  = 0;
@@ -22,6 +21,8 @@ char sfxNames[SFX_COUNT][0x40];
 ChannelInfo sfxChannels[CHANNEL_COUNT];
 
 MusicPlaybackInfo musInfo;
+
+int trackBuffer = -1;
 
 #if RETRO_USING_SDL
 SDL_AudioDeviceID audioDevice;
@@ -134,12 +135,61 @@ int InitAudioPlayback()
         CloseFile();
     }
 
-    // sfxDataPosStage = sfxDataPos;
-    nextChannelPos = 0;
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
 
     return true;
 }
+
+
+#if RETRO_USING_SDL
+size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)
+{
+    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
+    return FileRead2(&info->fileInfo, mem, (int)(size * nmemb));
+}
+int seekVorbis(void *ptr, ogg_int64_t offset, int whence)
+{
+    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
+    switch (whence) {
+        case SEEK_SET: whence = 0; break;
+        case SEEK_CUR: whence = (int)GetFilePosition2(&info->fileInfo); break;
+        case SEEK_END: whence = info->fileInfo.vfileSize; break;
+        default: break;
+    }
+    SetFilePosition2(&info->fileInfo, (int)(whence + offset));
+    return (int)GetFilePosition2(&info->fileInfo) <= info->fileInfo.vfileSize;
+}
+long tellVorbis(void *ptr)
+{
+    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
+    return GetFilePosition2(&info->fileInfo);
+}
+int closeVorbis(void *ptr) { return CloseFile2((FileInfo *)ptr); }
+
+size_t readVorbis_Sfx(void *mem, size_t size, size_t nmemb, void *ptr)
+{
+    FileInfo *info = (FileInfo *)ptr;
+    return FileRead2(info, mem, (int)(size * nmemb));
+}
+int seekVorbis_Sfx(void *ptr, ogg_int64_t offset, int whence)
+{
+    FileInfo *info = (FileInfo *)ptr;
+    switch (whence) {
+        case SEEK_SET: whence = 0; break;
+        case SEEK_CUR: whence = (int)GetFilePosition2(info); break;
+        case SEEK_END: whence = info->vfileSize; break;
+        default: break;
+    }
+    SetFilePosition2(info, (int)(whence + offset));
+    return (int)GetFilePosition2(info) <= info->vfileSize;
+}
+long tellVorbis_Sfx(void *ptr)
+{
+    FileInfo *info = (FileInfo *)ptr;
+    return GetFilePosition2(info);
+}
+int closeVorbis_Sfx(void *ptr) { return CloseFile2((FileInfo *)ptr); }
+#endif
 
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
 {
@@ -192,6 +242,79 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 
     if (!audioEnabled)
         return;
+
+    if (musicStatus == MUSIC_LOADING) {
+        if (trackBuffer < 0 || trackBuffer >= TRACK_COUNT) {
+            StopMusic();
+            return;
+        }
+
+        TrackInfo *trackPtr = &musicTracks[trackBuffer];
+
+        if (!trackPtr->fileName[0]) {
+            StopMusic();
+            return;
+        }
+
+        if (musInfo.loaded)
+            StopMusic();
+
+        uint oldPos   = 0;
+        uint oldTotal = 0;
+        if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
+            oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
+            oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
+        }
+
+        if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
+            musInfo.fileInfo.cFileHandle = cFileHandle;
+            cFileHandle                  = nullptr;
+
+            musInfo.trackLoop = trackPtr->trackLoop;
+            musInfo.loopPoint = trackPtr->loopPoint;
+            musInfo.loaded    = true;
+
+            unsigned long long samples = 0;
+#if RETRO_USING_SDL
+            ov_callbacks callbacks;
+
+            callbacks.read_func  = readVorbis;
+            callbacks.seek_func  = seekVorbis;
+            callbacks.tell_func  = tellVorbis;
+            callbacks.close_func = closeVorbis;
+
+            int error = ov_open_callbacks(&musInfo, &musInfo.vorbisFile, NULL, 0, callbacks);
+            if (error != 0) {
+            }
+
+            musInfo.vorbBitstream = -1;
+            musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
+
+            samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
+
+            musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
+                                                audioDeviceFormat.channels, audioDeviceFormat.freq);
+            if (!musInfo.stream) {
+                printLog("Failed to create stream: %s", SDL_GetError());
+            }
+
+            musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
+#endif
+
+            if (musicStartPos) {
+                float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+                musicStartPos = fmod(newPos, samples);
+
+                ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
+            }
+            musicStartPos = 0;
+
+            musicStatus  = MUSIC_PLAYING;
+            masterVolume = MAX_VOLUME;
+            trackID      = trackBuffer;
+            trackBuffer  = -1;
+        }
+    }
 
     Sint16 *output_buffer = (Sint16 *)stream;
 
@@ -305,55 +428,6 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
 }
 #endif
 
-#if RETRO_USING_SDL
-size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)
-{
-    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
-    return FileRead2(&info->fileInfo, mem, (int)(size * nmemb));
-}
-int seekVorbis(void *ptr, ogg_int64_t offset, int whence)
-{
-    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
-    switch (whence) {
-        case SEEK_SET: whence = 0; break;
-        case SEEK_CUR: whence = (int)GetFilePosition2(&info->fileInfo); break;
-        case SEEK_END: whence = info->fileInfo.vfileSize; break;
-        default: break;
-    }
-    SetFilePosition2(&info->fileInfo, (int)(whence + offset));
-    return (int)GetFilePosition2(&info->fileInfo) <= info->fileInfo.vfileSize;
-}
-long tellVorbis(void *ptr)
-{
-    MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
-    return GetFilePosition2(&info->fileInfo);
-}
-int closeVorbis(void *ptr) { return CloseFile2((FileInfo *)ptr); }
-
-size_t readVorbis_Sfx(void *mem, size_t size, size_t nmemb, void *ptr)
-{
-    FileInfo *info = (FileInfo *)ptr;
-    return FileRead2(info, mem, (int)(size * nmemb));
-}
-int seekVorbis_Sfx(void *ptr, ogg_int64_t offset, int whence)
-{
-    FileInfo *info = (FileInfo *)ptr;
-    switch (whence) {
-        case SEEK_SET: whence = 0; break;
-        case SEEK_CUR: whence = (int)GetFilePosition2(info); break;
-        case SEEK_END: whence = info->vfileSize; break;
-        default: break;
-    }
-    SetFilePosition2(info, (int)(whence + offset));
-    return (int)GetFilePosition2(info) <= info->vfileSize;
-}
-long tellVorbis_Sfx(void *ptr)
-{
-    FileInfo *info = (FileInfo *)ptr;
-    return GetFilePosition2(info);
-}
-int closeVorbis_Sfx(void *ptr) { return CloseFile2((FileInfo *)ptr); }
-#endif
 
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint)
 {
@@ -388,82 +462,18 @@ bool PlayMusic(int track, int musStartPos)
 {
     if (!audioEnabled)
         return false;
+
+    LOCK_AUDIO_DEVICE()
     musicStartPos = musStartPos;
     if (track < 0 || track >= TRACK_COUNT) {
         StopMusic();
+        trackBuffer = -1;
         return false;
     }
-
-    TrackInfo *trackPtr = &musicTracks[track];
-
-    if (!trackPtr->fileName[0]) {
-        StopMusic();
-        return false;
-    }
-    
-    if (musInfo.loaded)
-        StopMusic();
-    
-    LOCK_AUDIO_DEVICE()
-    uint oldPos   = 0;
-    uint oldTotal = 0;
-    if (musInfo.loaded && musicStatus == MUSIC_PLAYING) {
-        oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
-        oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
-    }
-
-    if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
-        musInfo.fileInfo.cFileHandle = cFileHandle;
-        cFileHandle                  = nullptr;
-
-        musInfo.trackLoop = trackPtr->trackLoop;
-        musInfo.loopPoint = trackPtr->loopPoint;
-        musInfo.loaded    = true;
-
-        unsigned long long samples = 0;
-#if RETRO_USING_SDL
-        ov_callbacks callbacks;
-
-        callbacks.read_func  = readVorbis;
-        callbacks.seek_func  = seekVorbis;
-        callbacks.tell_func  = tellVorbis;
-        callbacks.close_func = closeVorbis;
-
-        int error = ov_open_callbacks(&musInfo, &musInfo.vorbisFile, NULL, 0, callbacks);
-        if (error != 0) {
-            UNLOCK_AUDIO_DEVICE()
-            return false;
-        }
-
-        musInfo.vorbBitstream = -1;
-        musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
-
-        samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
-
-        musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
-                                            audioDeviceFormat.channels, audioDeviceFormat.freq);
-        if (!musInfo.stream) {
-            printLog("Failed to create stream: %s", SDL_GetError());
-        }
-
-        musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
-#endif
-
-        if (musicStartPos) {
-            float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
-            musicStartPos = fmod(newPos, samples);
-
-            ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
-        }
-
-        musicStatus  = MUSIC_PLAYING;
-        masterVolume = MAX_VOLUME;
-        trackID      = track;
-        UNLOCK_AUDIO_DEVICE()
-        return true;
-    }
+    trackBuffer = track;
+    musicStatus = MUSIC_LOADING;
     UNLOCK_AUDIO_DEVICE()
-    return false;
+    return true;
 }
 
 void SetSfxName(const char *sfxName, int sfxID)
@@ -643,13 +653,11 @@ void PlaySfx(int sfx, bool loop)
     LOCK_AUDIO_DEVICE()
     int sfxChannelID = -1;
     for (int c = 0; c < CHANNEL_COUNT; ++c) {
-        if (sfxChannels[c].sfxID == sfx) {
+        if (sfxChannels[c].sfxID == sfx || sfxChannels[c].sfxID == -1) {
             sfxChannelID = c;
             break;
         }
     }
-    if (sfxChannelID == -1)
-        sfxChannelID = nextChannelPos++;
 
     ChannelInfo *sfxInfo  = &sfxChannels[sfxChannelID];
     sfxInfo->sfxID        = sfx;
@@ -657,8 +665,6 @@ void PlaySfx(int sfx, bool loop)
     sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loop;
     sfxInfo->pan          = 0;
-    if (nextChannelPos == CHANNEL_COUNT)
-        nextChannelPos = 0;
     UNLOCK_AUDIO_DEVICE()
 }
 void SetSfxAttributes(int sfx, int loopCount, sbyte pan)

@@ -34,7 +34,6 @@ inline void printLog(const char *msg, ...)
         if (file) {
             fWrite(&buffer, 1, StrLength(buffer), file);
             fClose(file);
-            RETRO_FILE_COMMIT_FUNC(0);
         }
     }
 #endif
@@ -73,7 +72,6 @@ inline void printLog(const ushort *msg)
             if (endLine)
                 fWrite(&el, 2, 1, file);
             fClose(file);
-            RETRO_FILE_COMMIT_FUNC(0);
         }
     }
 #endif
@@ -104,7 +102,7 @@ void processStageSelect();
 
 // added due to lack of normal main menu
 void initStartMenu(int mode);
-void processStartMenu(); 
+void processStartMenu();
 void setTextMenu(int mode);
 
-#endif //!DEBUG_H
+#endif //! DEBUG_H
