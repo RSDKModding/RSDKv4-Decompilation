@@ -83,7 +83,7 @@ jobs:
         with:
           name: RSDKv4-Windows-x64 
           path: artifacts      
-  v4-liunx:
+  v4-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
