@@ -391,6 +391,8 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
+    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM);
+
     if (!finishedStartMenu)
         initStartMenu(0);
 }
@@ -556,8 +558,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
-
-    SetGlobalVariableByName("Engine.PlatformID", 1);
 
     return loaded;
 }
