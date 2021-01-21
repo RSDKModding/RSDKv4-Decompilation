@@ -60,9 +60,9 @@ typedef unsigned int uint;
 #endif
 
 #if RETRO_PLATFORM == RETRO_VITA
-#define DEFAULT_SCREEN_XSIZE 480
+#define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
-#define SCREEN_YSIZE         (272)
+#define SCREEN_YSIZE         (240)
 #else
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
