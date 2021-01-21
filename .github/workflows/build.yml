@@ -5,6 +5,7 @@ on:
       - master
       - main
       - win-actions
+      - linux-actions
       - psvita
 
 jobs:
@@ -46,6 +47,22 @@ jobs:
         with:
           name: RSDKv4-Windows 
           path: artifacts      
+  v4-liunx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev
+      - name: Build RSDKv4
+        run: make
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: v4-linux
+          path: bin/sonic2013
   sonic1-psvita:
     runs-on: ubuntu-latest
     container: vitasdk/vitasdk:latest
