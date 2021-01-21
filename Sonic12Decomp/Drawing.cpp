@@ -127,17 +127,7 @@ void RenderRenderDevice()
         screenysize *= 2;
     }
 
-    if (!tmpEnhancedScaling) {
-        // everything here remains the same except for assinging the rect to the switching pointer.
-        // the pointer has to be NULL when using enhanced scaling, or else the screen will be black.
-        SDL_Rect destScreenPosRect;
-        destScreenPosRect.x = 0;
-        destScreenPosRect.y = 0;
-        destScreenPosRect.w = SCREEN_XSIZE;
-        destScreenPosRect.h = SCREEN_YSIZE;
-        // destScreenPos       = &destScreenPosRect;
-    }
-    else {
+    if (tmpEnhancedScaling) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
         // before you make a texture that's larger than the window itself. This texture will then be scaled
         // up to the actual screen size using linear interpolation. This makes even window/screen scales
