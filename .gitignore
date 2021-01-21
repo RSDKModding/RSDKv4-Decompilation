@@ -48,7 +48,6 @@ cmake/
 **/Generated Files
 **/BundleArtifacts
 **/AppPackages
-**/Assets/*.png
 
 # safety
 *.rsdk
