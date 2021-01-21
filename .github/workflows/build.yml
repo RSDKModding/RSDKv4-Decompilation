@@ -34,7 +34,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$GITHUB_WORKSPACE/winactions.props"
+          msbuild /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="${{GITHUB_WORKSPACE}}/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
