@@ -716,6 +716,8 @@ int LoadStageFile(const char *filePath, int stageID, FileInfo *info)
 void LoadActLayout()
 {
     FileInfo info;
+    for (int a = 0; a < 4; ++a) activeTileLayers[a] = 9; //disables missing scenes from rendering
+
     if (LoadActFile(".bin", stageListPosition, &info)) {
         byte fileBuffer[4];
 

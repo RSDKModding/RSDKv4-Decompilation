@@ -53,7 +53,7 @@ void InitUserdata()
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        ini.SetInteger("Window", "WindowScale", Engine.windowScale = DEFAULT_WINDOW_SCALE);
+        ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 
@@ -274,7 +274,7 @@ void writeSettings()
     ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings);
 
-    ini.Write("settings.ini");
+    ini.Write(BASE_PATH"settings.ini");
 }
 
 void ReadUserdata()
@@ -332,8 +332,6 @@ void WriteUserdata()
     if (Engine.onlineActive) {
         // Load from online
     }
-
-    RETRO_FILE_COMMIT_FUNC(0);
 }
 
 void AwardAchievement(int id, int status)

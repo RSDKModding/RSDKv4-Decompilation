@@ -116,6 +116,7 @@ void PauseMenu_Main(void *objPtr)
             // wait (again)
             pauseMenu->barPos -= 16;
             if (pauseMenu->barPos + 64 < 0) {
+                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 switch (pauseMenu->state) {
                     default: break;
                     case 3:
@@ -128,7 +129,6 @@ void PauseMenu_Main(void *objPtr)
                         initDevMenu();
                         break;
                 }
-                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
             }

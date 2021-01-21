@@ -152,6 +152,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         return false;
     }
     else {
+        StrCopy(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
 
         cFileHandle = fOpen(fileInfo->fileName, "rb");

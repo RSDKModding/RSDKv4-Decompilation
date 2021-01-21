@@ -6,6 +6,8 @@
 
 #define CREDITS_LIST_SIZE (0x200)
 
+#define USE_STDLIB
+
 extern ushort *strPressStart;
 extern ushort *strTouchToStart;
 extern ushort *strStartGame;
@@ -79,11 +81,17 @@ extern float creditsAdvanceY[CREDITS_LIST_SIZE];
 
 inline void StrCopy(char *dest, const char *src)
 {
+    #ifdef USE_STDLIB
+    strcpy(dest, src);
+
+    #else
     int i = 0;
 
     for (; src[i]; ++i) dest[i] = src[i];
 
     dest[i] = 0;
+
+    #endif
 }
 
 inline void StrAdd(char *dest, const char *src)
@@ -124,10 +132,16 @@ inline bool StrComp(const char *stringA, const char *stringB)
 
 inline int StrLength(const char *string)
 {
+    #ifdef USE_STDLIB
+    return strlen(string);
+
+    #else
     int len = 0;
     for (len = 0; string[len]; len++)
         ;
     return len;
+
+    #endif
 }
 int FindStringToken(const char *string, const char *token, char stopID);
 

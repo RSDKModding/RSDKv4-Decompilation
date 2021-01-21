@@ -35,6 +35,7 @@ bld/
 bin/
 [Bb]in/
 [Oo]bj/
+cmake/
 
 #dependencies
 [Dd]ependencies/windows-uwp/**
