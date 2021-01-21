@@ -222,7 +222,7 @@ void RenderRenderDevice()
         // reset everything just in case
         SDL_RenderSetLogicalSize(Engine.renderer, SCREEN_XSIZE, SCREEN_YSIZE);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-        // putting some FLEX TAPE® on that memory leak
+        // putting some FLEX TAPEï¿½ on that memory leak
         SDL_DestroyTexture(texTarget);
     }
     else {
