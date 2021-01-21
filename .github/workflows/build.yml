@@ -31,7 +31,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg libvorbis
+          vcpkg install libogg:x86-windows-static libvorbis:x86-windows-static
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
@@ -41,7 +41,6 @@ jobs:
           mkdir artifacts
           move ./build/Win32/Release/*.dll ./artifacts 
           move ./build/Win32/Release/*.exe ./artifacts
-          move C:/vcpkg/installed/x86-windows/bin/*.dll ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0  
         with:
