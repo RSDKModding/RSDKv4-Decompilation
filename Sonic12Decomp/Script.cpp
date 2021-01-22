@@ -1139,6 +1139,7 @@ TableInfo *CheckTableText(char *text)
     while (text[strPos]) {
         table->name[namePos++] = text[strPos++];
     }
+    return table;
 }
 void ConvertArithmaticSyntax(char *text)
 {
