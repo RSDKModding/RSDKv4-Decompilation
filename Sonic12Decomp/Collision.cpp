@@ -2772,16 +2772,19 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
     sensors[1].collided = false;
     sensors[2].collided = false;
 
-    sensors[0].XPos = otherEntity->XPos + (otherLeft << 16);
-    sensors[1].XPos = otherEntity->XPos;
-    sensors[2].XPos = otherEntity->XPos + (otherRight << 16);
-    sensors[3].XPos = (otherEntity->XPos + sensors[0].XPos) >> 1;
-    sensors[4].XPos = (sensors[2].XPos + otherEntity->XPos) >> 1;
+    int rx = otherEntity->XPos >> 16 << 16;
+    int ry = otherEntity->YPos >> 16 << 16;
 
-    sensors[0].YPos = (otherBottom << 16) + otherEntity->YPos;
+    sensors[0].XPos = rx + (otherLeft << 16);
+    sensors[1].XPos = rx;
+    sensors[2].XPos = rx + (otherRight << 16);
+    sensors[3].XPos = (rx + sensors[0].XPos) >> 1;
+    sensors[4].XPos = (sensors[2].XPos + rx) >> 1;
+
+    sensors[0].YPos = (otherBottom << 16) + ry;
 
     for (int i = 0; i < 5; ++i) {
-        if (thisLeft <= sensors[i].XPos && thisRight > sensors[i].XPos && sensors[0].YPos >= thisTop - 1 && thisBottom > sensors[0].YPos
+        if (thisLeft < sensors[i].XPos && thisRight > sensors[i].XPos && thisTop - 1 <= sensors[0].YPos && thisBottom > sensors[0].YPos
             && otherEntity->YVelocity >= 0) {
             sensors[i].collided      = true;
             otherEntity->flailing[i] = true;

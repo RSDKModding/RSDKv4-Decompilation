@@ -30,22 +30,19 @@ int InitRenderDevice()
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, Engine.vsync ? "1" : "0");
 
-    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE, SCREEN_YSIZE,
+    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale,
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     Engine.renderer = SDL_CreateRenderer(Engine.window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!Engine.window) {
-#if RSDK_DEBUG
         printLog("ERROR: failed to create window!");
-#endif
         return 0;
     }
 
     if (!Engine.renderer) {
-#if RSDK_DEBUG
         printLog("ERROR: failed to create renderer!");
-#endif
         return 0;
     }
 
@@ -70,10 +67,8 @@ int InitRenderDevice()
     if (Engine.startFullScreen) {
         SDL_RestoreWindow(Engine.window);
         SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_ShowCursor(SDL_FALSE);
         Engine.isFullScreen = true;
-    }
-    else {
-        SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
     }
 
     if (Engine.borderless) {
@@ -274,8 +269,8 @@ void DrawObjectList(int Layer)
         objectEntityPos = drawListEntries[Layer].entityRefs[i];
         int type           = objectEntityList[objectEntityPos].type;
         if (type) {
-            if (scriptData[objectScriptList[type].subDraw.scriptCodePtr] > 0)
-                ProcessScript(objectScriptList[type].subDraw.scriptCodePtr, objectScriptList[type].subDraw.jumpTablePtr, SUB_DRAW);
+            if (scriptData[objectScriptList[type].eventDraw.scriptCodePtr] > 0)
+                ProcessScript(objectScriptList[type].eventDraw.scriptCodePtr, objectScriptList[type].eventDraw.jumpTablePtr, EVENT_DRAW);
         }
     }
 }
@@ -288,7 +283,7 @@ void DrawStageGFX()
     if (waterDrawPos > SCREEN_YSIZE)
         waterDrawPos = SCREEN_YSIZE;
 
-    if (tLayerMidPoint <= 2) {
+    if (tLayerMidPoint < 3) {
         DrawObjectList(0);
         if (activeTileLayers[0] < LAYER_COUNT) {
             switch (stageLayouts[activeTileLayers[0]].type) {
@@ -499,7 +494,10 @@ void DrawHLineScrollLayer(int layerID)
                 hParallax.tilePos[i] %= fullLayerwidth;
             }
         }
-        lastXSize = layerwidth;
+        int w = -1;
+        if (activeTileLayers[layerID])
+            w = layerwidth;
+        lastXSize = w;
     }
 
     ushort *frameBufferPtr = Engine.frameBuffer;

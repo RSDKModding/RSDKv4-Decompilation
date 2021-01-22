@@ -24,15 +24,7 @@ int sendCounter    = 0;
 void InitUserdata()
 {
     // userdata files are loaded from this directory
-#if RETRO_PLATFORM == RETRO_VITA
-#ifndef SONICTWO
-    sprintf(gamePath, "ux0:data/Sonic1/");
-#else
-    sprintf(gamePath, "ux0:data/Sonic2/");
-#endif
-#else
     sprintf(gamePath, "%s", BASE_PATH);
-#endif
 
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX
@@ -40,12 +32,6 @@ void InitUserdata()
         sprintf(buffer, "%s/settings.ini", getResourcesPath());
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
-#elif RETRO_PLATFORM == RETRO_VITA
-#ifndef SONICTWO
-    sprintf(buffer, "ux0:data/Sonic1/settings.ini");
-#else
-    sprintf(buffer, "ux0:data/Sonic2/settings.ini");
-#endif
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
 #endif
@@ -248,7 +234,7 @@ void writeSettings() {
     ini.SetInteger("Controller 1", "C", inputDevice[6].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[7].contMappings);
 
-    ini.Write("settings.ini");
+    ini.Write(BASE_PATH "settings.ini");
 }
 
 void ReadUserdata()

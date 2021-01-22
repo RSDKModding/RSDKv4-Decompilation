@@ -85,14 +85,14 @@ bool CheckRSDKFile(const char *filePath)
 bool LoadFile(const char *filePath, FileInfo *fileInfo)
 {
     MEM_ZEROP(fileInfo);
-    StringLowerCase(fileInfo->fileName, filePath);
-    StrCopy(fileName, fileInfo->fileName);
 
     if (cFileHandle)
         fClose(cFileHandle);
 
     cFileHandle = NULL;
     if (Engine.usingDataFile) {
+        StringLowerCase(fileInfo->fileName, filePath);
+        StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
         int len = StrLength(fileInfo->fileName);
         GenerateMD5FromString(fileInfo->fileName, len, buffer);
@@ -145,22 +145,19 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fileInfo->eNybbleSwap       = eNybbleSwap;
             fileInfo->bufferPosition    = bufferPosition;
             fileInfo->useEncryption     = useEncryption;
-#if RSDK_DEBUG
             printLog("Loaded File '%s'", filePath);
-#endif
             return true;
         }
-#if RSDK_DEBUG
         printLog("Couldn't load file '%s'", filePath);
-#endif
         return false;
     }
     else {
+        StrCopy(fileInfo->fileName, filePath);
+        StrCopy(fileName, fileInfo->fileName);
+
         cFileHandle = fOpen(fileInfo->fileName, "rb");
         if (!cFileHandle) {
-#if RSDK_DEBUG
             printLog("Couldn't load file '%s'", filePath);
-#endif
             return false;
         }
         virtualFileOffset = 0;
@@ -173,10 +170,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         bufferPosition              = 0;
         readSize                    = 0;
 
-#if RSDK_DEBUG
         printLog("Loaded File '%s'", filePath);
-#endif
-
         return true;
     }
 }

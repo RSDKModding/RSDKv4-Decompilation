@@ -33,6 +33,8 @@ add_executable("${ELF}"
     ${sonic_SRC}
 )
 
+target_compile_definitions("${ELF}" PUBLIC -DBASE_PATH="ux0:data/Sonic1/")
+
 target_link_libraries("${ELF}"
   SDL2
   SDL2_image
@@ -98,7 +100,7 @@ add_executable("${ELF2}"
     ${sonic_SRC2}
 )
 
-target_compile_definitions("${ELF2}" PUBLIC -DSONICTWO)
+target_compile_definitions("${ELF2}" PUBLIC -DBASE_PATH="ux0:data/Sonic2/")
 
 target_link_libraries("${ELF2}"
   SDL2
