@@ -102,14 +102,16 @@ int InitRenderDevice()
 void RenderRenderDevice()
 {
 #if RETRO_USING_SDL
-    //SDL_Rect *destScreenPos = NULL;
+    //SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
+
     // allows me to disable it to prevent blur on resolutions that match only on 1 axis
     bool tmpEnhancedScaling = Engine.enhancedScaling;
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
     float screenxsize = SCREEN_XSIZE;
     float screenysize = SCREEN_YSIZE;
+
     // check if enhanced scaling is even necessary to be calculated by checking if the screen size is close enough on one axis
     // unfortunately it has to be "close enough" because of floating point precision errors. dang it
     if (tmpEnhancedScaling) {
