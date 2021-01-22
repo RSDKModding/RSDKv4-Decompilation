@@ -40,4 +40,4 @@ install: bin/sonic2013
 	install -Dp -m755 bin/sonic2013 $(prefix)/bin/sonic2013
 
 clean:
-	rm -r -f bin
+	rm -r -f bin && rm -r -f objects
