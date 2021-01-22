@@ -283,6 +283,7 @@ public:
     bool startFullScreen  = false; // if should start as fullscreen
     bool borderless       = false;
     bool vsync            = false;
+	bool enhancedScaling  = true; // enable enhanced scaling
     int windowScale       = 2;
     int refreshRate       = 60; // user-picked screen update rate
     int screenRefreshRate = 60; // hardware screen update rate
@@ -291,6 +292,9 @@ public:
     uint frameCount      = 0; // frames since scene load
     int renderFrameIndex = 0;
     int skipFrameIndex   = 0;
+	
+	int windowXSize; // width of window/screen in the previous frame
+    int windowYSize; // height of window/screen in the previous frame
 
 #if RETRO_USING_SDL
     SDL_Window *window          = nullptr;
