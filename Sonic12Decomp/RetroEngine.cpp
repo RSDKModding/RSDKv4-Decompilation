@@ -5,10 +5,6 @@ bool engineDebugMode = false;
 
 RetroEngine Engine = RetroEngine();
 
-FILE _iob[] = { *stdin, *stdout, *stderr };
-
-extern "C" FILE *__cdecl __iob_func(void) { return _iob; }
-
 inline int getLowerRate(int intendRate, int targetRate)
 {
     int result   = 0;
