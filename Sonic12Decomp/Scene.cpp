@@ -156,7 +156,6 @@ void ProcessStage(void)
 
             ResetBackgroundSettings();
             LoadStageFiles();
-
             break;
         case STAGEMODE_NORMAL:
             drawStageGFXHQ = false;
