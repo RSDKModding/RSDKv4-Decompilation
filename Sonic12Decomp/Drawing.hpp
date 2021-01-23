@@ -53,7 +53,7 @@ void GenerateBlendLookupTable();
 
 inline void ClearGraphicsData()
 {
-    for (int i = 0; i < SURFACE_MAX; ++i) StrCopy(gfxSurface[i].fileName, "");
+    for (int i = 0; i < SURFACE_MAX; ++i) MEM_ZERO(gfxSurface[i]);
     gfxDataPosition = 0;
 }
 void ClearScreen(byte index);

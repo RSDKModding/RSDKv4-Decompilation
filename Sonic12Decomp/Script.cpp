@@ -2375,11 +2375,12 @@ void ClearScriptData()
         StrCopy(publicAliases[i].value, "");
     }
 
-    for (int i = 0; i < ALIAS_COUNT; ++i) {
+    for (int i = 0; i < ALIAS_COUNT_TRIM; ++i) {
         StrCopy(privateAliases[i].name, "");
         StrCopy(privateAliases[i].value, "");
     }
 
+    ClearGraphicsData();
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {

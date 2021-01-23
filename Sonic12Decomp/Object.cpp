@@ -449,7 +449,25 @@ NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain
 }
 void RemoveNativeObject(NativeEntityBase *entity)
 {
-    if (nativeEntityCount <= 0) {
+    for (int o = 0; o < nativeEntityCount; ++o) {
+        if (objectEntityBank[o].createPtr == entity->createPtr && objectEntityBank[o].mainPtr == entity->mainPtr
+            && objectEntityBank[o].slotID == entity->slotID && objectEntityBank[o].objectID == entity->objectID) {
+            objectEntityBank[o].createPtr = nullptr;
+            objectEntityBank[o].mainPtr   = nullptr;
+            objectEntityBank[o].slotID    = 0;
+            objectEntityBank[o].objectID  = 0;
+
+            nativeEntityCount--;
+            for (int i = o; i < nativeEntityCount; ++i) {
+                objectEntityBank[i].createPtr = objectEntityBank[i + 1].createPtr;
+                objectEntityBank[i].mainPtr   = objectEntityBank[i + 1].mainPtr;
+                objectEntityBank[i].slotID    = objectEntityBank[i + 1].slotID;
+                objectEntityBank[i].objectID  = objectEntityBank[i + 1].objectID;
+            }
+        }
+    }
+
+    /*if (nativeEntityCount <= 0) {
         objectRemoveFlag[entity->slotID] = 1;
     }
     else {
@@ -469,7 +487,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
             ++curSlot;
         } while (curSlot != nativeEntityCount);
         nativeEntityCount = curSlot - 1;
-    }
+    }*/
 }
 void ProcessNativeObjects()
 {

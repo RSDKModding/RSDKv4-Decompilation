@@ -9,7 +9,7 @@ int SCREEN_CENTERX = 424 / 2;
 
 DrawListEntry drawListEntries[DRAWLAYER_COUNT];
 
-int gfxDataPosition;
+int gfxDataPosition = 0;
 GFXSurface gfxSurface[SURFACE_MAX];
 byte graphicData[GFXDATA_MAX];
 
