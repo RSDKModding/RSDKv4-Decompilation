@@ -1,4 +1,4 @@
-CXXFLAGS_ALL = $(shell pkg-config --cflags -mwindows sdl2 vorbisfile vorbis -static) $(CXXFLAGS) \
+CXXFLAGS_ALL = $(shell pkg-config --cflags -mwindows sdl2 vorbisfile vorbis) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"'
 
 LDFLAGS_ALL = $(LDFLAGS)
