@@ -64,6 +64,7 @@ extern bool audioEnabled;
 extern bool musicEnabled;
 extern int musicStatus;
 extern int musicStartPos;
+extern int musicPosition;
 extern int musicRatio;
 extern TrackInfo musicTracks[TRACK_COUNT];
 

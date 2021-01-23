@@ -13,6 +13,7 @@ bool audioEnabled = false;
 bool musicEnabled  = 0;
 int musicStatus    = MUSIC_STOPPED;
 int musicStartPos  = 0;
+int musicPosition  = 0;
 int musicRatio     = 0;
 TrackInfo musicTracks[TRACK_COUNT];
 SFXInfo sfxList[SFX_COUNT];
