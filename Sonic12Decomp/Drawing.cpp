@@ -435,7 +435,7 @@ void DrawStageGFX()
 
     if (Engine.showPaletteOverlay) {
         for (int p = 0; p < PALETTE_COUNT; ++p) {
-            int x = (SCREEN_XSIZE - (0xF << 4));
+            int x = (SCREEN_XSIZE - (0xF << 3));
             int y = (SCREEN_YSIZE - (0xF << 2));
             for (int c = 0; c < PALETTE_SIZE; ++c) {
                 DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
