@@ -79,7 +79,7 @@ dolce_create_self("${SELF}"
 set(VPK "Sonic1.vpk")
 set(TITLE_NAME "Sonic 1")
 set(TITLE_ID "SONIC0001")
-set(TITLE_VER "01.00")
+set(TITLE_VER "01.10")
 
 dolce_create_vpk("${VPK}" "${TITLE_ID}" "${SELF}"
   NAME "${TITLE_NAME}"
@@ -146,7 +146,7 @@ dolce_create_self("${SELF2}"
 set(VPK2 "Sonic2.vpk")
 set(TITLE_NAME2 "Sonic 2")
 set(TITLE_ID2 "SONIC0002")
-set(TITLE_VER2 "01.00")
+set(TITLE_VER2 "01.10")
 
 dolce_create_vpk("${VPK2}" "${TITLE_ID2}" "${SELF2}"
   NAME "${TITLE_NAME2}"
