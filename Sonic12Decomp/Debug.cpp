@@ -62,8 +62,8 @@ void processStageSelect()
     keyDown.up    = false;
     keyDown.down  = false;
 
-    CheckKeyDown(&keyDown, 0x13);
-    CheckKeyPress(&keyPress, 0xB3);
+    CheckKeyDown(&keyDown);
+    CheckKeyPress(&keyPress);
 
     DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
     DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
@@ -744,8 +744,8 @@ void processStartMenu()
     keyDown.up    = false;
     keyDown.down  = false;
 
-    CheckKeyDown(&keyDown, 0xFF);
-    CheckKeyPress(&keyPress, 0xFF);
+    CheckKeyDown(&keyDown);
+    CheckKeyPress(&keyPress);
 
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
         if (touches > 0) {

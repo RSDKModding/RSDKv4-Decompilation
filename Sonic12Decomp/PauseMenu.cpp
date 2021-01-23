@@ -39,8 +39,8 @@ void PauseMenu_Create(void *objPtr)
 }
 void PauseMenu_Main(void *objPtr)
 {
-    CheckKeyDown(&keyDown, 0xFF);
-    CheckKeyPress(&keyPress, 0xFF);
+    CheckKeyDown(&keyDown);
+    CheckKeyPress(&keyPress);
 
     NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
 

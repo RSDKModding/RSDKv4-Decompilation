@@ -8,7 +8,9 @@ int main(int argc, char *argv[])
     }
 
     Engine.Init();
+#if RETRO_USING_SDL2
     controllerInit(0);
+#endif
     Engine.Run();
 
     return 0;

@@ -24,7 +24,7 @@ int InitRenderDevice()
     memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
     memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL2
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
@@ -92,14 +92,63 @@ int InitRenderDevice()
 
 #endif
 
+    
+#if RETRO_USING_SDL1
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 32, SDL_SWSURFACE);
+    if (!Engine.windowSurface) {
+        printLog("ERROR: failed to create window!\nerror msg: %s", SDL_GetError());
+        return 0;
+    }
+    //Set the window caption
+    SDL_WM_SetCaption(gameTitle, NULL);
+
+    Engine.screenBuffer =
+        SDL_CreateRGBSurface(0, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, 0xF800, 0x7E0, 0x1F, 0x00);
+
+    if (!Engine.screenBuffer) {
+        printLog("ERROR: failed to create screen buffer!\nerror msg: %s", SDL_GetError());
+        return 0;
+    }
+
+    /*Engine.screenBuffer2x = SDL_SetVideoMode(SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, 16, SDL_SWSURFACE);
+
+    if (!Engine.screenBuffer2x) {
+        printLog("ERROR: failed to create screen buffer HQ!\nerror msg: %s", SDL_GetError());
+        return 0;
+    }*/
+
+    if (Engine.startFullScreen) {
+        Engine.windowSurface =
+            SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE | SDL_FULLSCREEN);
+        SDL_ShowCursor(SDL_FALSE);
+        Engine.isFullScreen = true;
+    }
+
+    //TODO: not supported in 1.2?
+    if (Engine.borderless) {
+        //SDL_RestoreWindow(Engine.window);
+        //SDL_SetWindowBordered(Engine.window, SDL_FALSE);
+    }
+
+    //SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+    Engine.useHQModes = false; // disabled
+    Engine.borderless = false; // disabled
+#endif
+
+
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
+    OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
+    // OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
 
     return 1;
 }
 void RenderRenderDevice()
 {
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL2
     //SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
@@ -228,17 +277,53 @@ void RenderRenderDevice()
         SDL_RenderPresent(Engine.renderer);
     }
 #endif
+
+#if RETRO_USING_SDL1
+    ushort *px = (ushort *)Engine.screenBuffer->pixels;
+    int w      = SCREEN_XSIZE * Engine.windowScale;
+    int h      = SCREEN_YSIZE * Engine.windowScale;
+
+    if (Engine.windowScale == 1) {
+        memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
+    }
+    else {
+        //TODO: this better, I really dont know how to use SDL1.2 well lol
+        int dx = 0, dy = 0;
+        do {
+            do {
+                int x = (int)(dx * (1.0f / Engine.windowScale));
+                int y = (int)(dy * (1.0f / Engine.windowScale));
+
+                px[dx + (dy * w)] = Engine.frameBuffer[x + (y * SCREEN_XSIZE)];
+
+                dx++;
+            } while (dx < w);
+            dy++;
+            dx = 0;
+        } while (dy < h);
+    }
+
+    // Apply image to screen
+    SDL_BlitSurface(Engine.screenBuffer, NULL, Engine.windowSurface, NULL);
+
+    // Update Screen
+    SDL_Flip(Engine.windowSurface);
+#endif
 }
 void ReleaseRenderDevice()
 {
     if (Engine.frameBuffer)
         delete[] Engine.frameBuffer;
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL2
     SDL_DestroyTexture(Engine.screenBuffer);
     Engine.screenBuffer = NULL;
 
     SDL_DestroyRenderer(Engine.renderer);
     SDL_DestroyWindow(Engine.window);
+#endif
+
+#if RETRO_USING_SDL1
+    SDL_FreeSurface(Engine.screenBuffer);
 #endif
 }
 
@@ -281,12 +366,14 @@ void SetScreenSize(int width, int height)
     SCREEN_SCROLL_LEFT  = SCREEN_CENTERX - 8;
     SCREEN_SCROLL_RIGHT = SCREEN_CENTERX + 8;
     OBJECT_BORDER_X2    = width + 0x80;
+    OBJECT_BORDER_X4    = width + 0x20;
 
     // SCREEN_YSIZE       = height;
     // SCREEN_CENTERY     = (height / 2);
     // SCREEN_SCROLL_UP   = (height / 2) - 8;
     // SCREEN_SCROLL_DOWN = (height / 2) + 8;
     // OBJECT_BORDER_Y2   = height + 0x100;
+    // OBJECT_BORDER_Y4   = height + 0x80;
 }
 
 void CopyFrameOverlay2x()
@@ -1936,7 +2023,7 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int w                    = width;
+        int w = width;
         while (w--) {
             if (*gfxDataPtr > 0)
                 *frameBufferPtr = activePalette[*gfxDataPtr];

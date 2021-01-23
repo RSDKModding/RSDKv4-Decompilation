@@ -164,8 +164,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (pauseEnabled && keyPress.start) {
                 // stageMode = STAGEMODE_STEPOVER;
                 // PauseSound();
@@ -222,8 +222,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
 
             if (pauseEnabled && keyPress.start) {
                 // stageMode = STAGEMODE_PAUSED_STEPOVER;
@@ -259,8 +259,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (pauseEnabled && keyPress.start) {
                 stageMode = STAGEMODE_STEPOVER;
                 PauseSound();
@@ -304,8 +304,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (pauseEnabled && keyPress.start) {
                 stageMode = STAGEMODE_2P_PAUSED;
                 PauseSound();
@@ -362,8 +362,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
 
             if (keyPress.C) {
                 keyPress.C = false;
@@ -410,8 +410,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
 
             if (keyPress.C) {
                 keyPress.C = false;
@@ -437,8 +437,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (pauseEnabled && keyPress.start) {
                 stageMode = STAGEMODE_FROZEN;
                 PauseSound();
@@ -482,8 +482,8 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown, 0xFF);
-            CheckKeyPress(&keyPress, 0xFF);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (pauseEnabled && keyPress.start) {
                 stageMode = STAGEMODE_2P;
                 PauseSound();

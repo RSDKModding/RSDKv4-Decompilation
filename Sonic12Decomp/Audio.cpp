@@ -24,8 +24,11 @@ MusicPlaybackInfo musInfo;
 
 int trackBuffer = -1;
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+
+#if RETRO_USING_SDL2
 SDL_AudioDeviceID audioDevice;
+#endif
 SDL_AudioSpec audioDeviceFormat;
 
 #define LOCK_AUDIO_DEVICE() SDL_LockAudio();
@@ -48,7 +51,7 @@ SDL_AudioSpec audioDeviceFormat;
 int InitAudioPlayback()
 {
     StopAllSfx(); //"init"
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_AudioSpec want;
     want.freq     = AUDIO_FREQUENCY;
     want.format   = AUDIO_FORMAT;
@@ -56,6 +59,7 @@ int InitAudioPlayback()
     want.channels = AUDIO_CHANNELS;
     want.callback = ProcessAudioPlayback;
 
+#if RETRO_USING_SDL2
     if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
         audioEnabled = true;
         SDL_PauseAudioDevice(audioDevice, 0);
@@ -65,6 +69,17 @@ int InitAudioPlayback()
         audioEnabled = false;
         return true; // no audio but game wont crash now
     }
+#elif RETRO_USING_SDL1
+    if (SDL_OpenAudio(&want, &audioDeviceFormat) == 0) {
+        audioEnabled = true;
+        SDL_PauseAudio(0);
+    }
+    else {
+        printLog("Unable to open audio device: %s", SDL_GetError());
+        audioEnabled = false;
+        return true; // no audio but game wont crash now
+    }
+#endif // !RETRO_USING_SDL1
 #endif
 
     FileInfo info;
@@ -141,7 +156,7 @@ int InitAudioPlayback()
 }
 
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)
 {
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
@@ -198,7 +213,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
     switch (musicStatus) {
         case MUSIC_READY:
         case MUSIC_PLAYING: {
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL2
             while (SDL_AudioStreamAvailable(musInfo.stream) < bytes_wanted) {
                 // We need more samples: get some
                 long bytes_read = ov_read(&musInfo.vorbisFile, (char *)musInfo.buffer, sizeof(musInfo.buffer), 0, 2, 1, &musInfo.vorbBitstream);
@@ -227,7 +242,71 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
             if (bytes_done != 0)
                 ProcessAudioMixing(stream, musInfo.buffer, bytes_done / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
 #endif
-        } break;
+
+#if RETRO_USING_SDL1
+            size_t bytes_gotten = 0;
+            byte *buffer        = (byte *)malloc(bytes_wanted);
+            memset(buffer, 0, bytes_wanted);
+            while (bytes_gotten < bytes_wanted) {
+                // We need more samples: get some
+                long bytes_read =
+                    ov_read(&musInfo.vorbisFile, (char *)musInfo.buffer,
+                            sizeof(musInfo.buffer) > (bytes_wanted - bytes_gotten) ? (bytes_wanted - bytes_gotten) : sizeof(musInfo.buffer), 0, 2, 1,
+                            &musInfo.vorbBitstream);
+
+                if (bytes_read == 0) {
+                    // We've reached the end of the file
+                    if (musInfo.trackLoop) {
+                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.loopPoint);
+                        continue;
+                    }
+                    else {
+                        musicStatus = MUSIC_STOPPED;
+                        break;
+                    }
+                }
+
+                if (bytes_read > 0) {
+                    memcpy(buffer + bytes_gotten, musInfo.buffer, bytes_read);
+                    bytes_gotten += bytes_read;
+                }
+                else {
+                    printLog("Music read error: vorbis error: %d", bytes_read);
+                }
+            }
+
+            if (bytes_gotten > 0) {
+                SDL_AudioCVT convert;
+                MEM_ZERO(convert);
+                int cvtResult = SDL_BuildAudioCVT(&convert, musInfo.spec.format, musInfo.spec.channels, musInfo.spec.freq, audioDeviceFormat.format,
+                                                  audioDeviceFormat.channels, audioDeviceFormat.freq);
+                if (cvtResult == 0) {
+                    if (convert.len_mult > 0) {
+                        convert.buf = (byte *)malloc(bytes_gotten * convert.len_mult);
+                        convert.len = bytes_gotten;
+                        memcpy(convert.buf, buffer, bytes_gotten);
+                        SDL_ConvertAudio(&convert);
+                    }
+                }
+
+                // Now that we know there are enough samples, read them and mix them
+                // int bytes_done = SDL_AudioStreamGet(musInfo.stream, musInfo.buffer, bytes_wanted);
+                // if (bytes_done == -1) {
+                //    return;
+                //}
+
+                if (cvtResult == 0)
+                    ProcessAudioMixing(stream, (const Sint16 *)convert.buf, bytes_gotten / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME,
+                                       0);
+
+                if (convert.len > 0 && convert.buf)
+                    free(convert.buf);
+            }
+            if (bytes_wanted > 0)
+                free(buffer);
+#endif
+            break;
+        } 
         case MUSIC_STOPPED:
         case MUSIC_PAUSED:
         case MUSIC_LOADING:
@@ -273,7 +352,6 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             musInfo.loaded    = true;
 
             unsigned long long samples = 0;
-#if RETRO_USING_SDL
             ov_callbacks callbacks;
 
             callbacks.read_func  = readVorbis;
@@ -290,14 +368,21 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 
             samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
 
+#if RETRO_USING_SDL2
             musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
                                                 audioDeviceFormat.channels, audioDeviceFormat.freq);
             if (!musInfo.stream) {
                 printLog("Failed to create stream: %s", SDL_GetError());
             }
+#endif
+
+#if RETRO_USING_SDL1
+            musInfo.spec.format          = AUDIO_S16;
+            musInfo.spec.channels        = musInfo.vorbisFile.vi->channels;
+            musInfo.spec.freq            = (int)musInfo.vorbisFile.vi->rate;
+#endif
 
             musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
-#endif
 
             if (musicStartPos) {
                 float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
@@ -359,7 +444,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                     }
                 }
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
                 ProcessAudioMixing(mix_buffer, buffer, samples_done, sfxVolume, sfx->pan);
 #endif
             }
@@ -384,7 +469,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
     }
 }
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
