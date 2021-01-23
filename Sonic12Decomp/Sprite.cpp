@@ -246,7 +246,7 @@ void RemoveGraphicsFile(const char *filePath, int sheetID)
         int dataPosEnd   = gfxSurface[sheetID].dataPosition + gfxSurface[sheetID].height * gfxSurface[sheetID].width;
         for (int i = 0x200000 - dataPosEnd; i > 0; --i) graphicData[dataPosStart++] = graphicData[dataPosEnd++];
         gfxDataPosition -= gfxSurface[sheetID].height * gfxSurface[sheetID].width;
-        for (int i = 0; i < SURFACE_MAX; ++i) {
+        for (int i = 0; i < GFXDATA_MAX; ++i) {
             if (gfxSurface[i].dataPosition > gfxSurface[sheetID].dataPosition)
                 gfxSurface[i].dataPosition -= gfxSurface[sheetID].height * gfxSurface[sheetID].width;
         }
@@ -299,8 +299,11 @@ int LoadBMPFile(const char *filePath, byte sheetID)
             w >>= 1;
             ++surface->widthShift;
         }
-        if (gfxDataPosition >= 0x400000)
+
+        if (gfxDataPosition >= GFXDATA_MAX) {
             gfxDataPosition = 0;
+            printLog("WARNING: Exceeded max gfx size!");
+        }
 
         CloseFile();
         return true;
@@ -347,11 +350,11 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         bool interlaced = (fileBuffer & 0x40) >> 6;
         if (fileBuffer >> 7 == 1) {
-            int c = 128;
+            int c = 0x80;
             do {
                 ++c;
                 FileRead(clr, 3);
-            } while (c != 256);
+            } while (c != 0x100);
         }
 
         surface->dataPosition = gfxDataPosition;
@@ -363,10 +366,13 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         }
 
         gfxDataPosition += surface->width * surface->height;
-        if (gfxDataPosition <= 0x3FFFFF)
+        if (gfxDataPosition < GFXDATA_MAX) {
             ReadGifPictureData(surface->width, surface->height, interlaced, graphicData, surface->dataPosition);
-        else
+        }
+        else {
             gfxDataPosition = 0;
+            printLog("WARNING: Exceeded max gfx size!");
+        }
 
         CloseFile();
         return true;
@@ -397,6 +403,11 @@ int LoadPVRFile(const char *filePath, byte sheetID)
         surface->height       = height;
         surface->dataPosition = gfxDataPosition;
         gfxDataPosition += surface->width * surface->height;
+
+        if (gfxDataPosition >= GFXDATA_MAX) {
+            gfxDataPosition = 0;
+            printLog("WARNING: Exceeded max gfx size!");
+        }
 
         surface->widthShift = 0;
         int w               = surface->width;
