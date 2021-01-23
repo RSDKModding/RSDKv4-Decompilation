@@ -70,10 +70,10 @@ void ProcessInput()
     const byte *keyState = SDL_GetKeyboardState(&length);
 
     if (inputType == 0) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < INPUT_MAX; i++) {
             if (keyState[inputDevice[i].keyMappings]) {
                 inputDevice[i].setHeld();
-                inputDevice[8].setHeld();
+                inputDevice[INPUT_ANY].setHeld();
                 continue;
             }
             else if (inputDevice[i].hold)
@@ -81,10 +81,10 @@ void ProcessInput()
         }
     }
     else if (inputType == 1) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < INPUT_MAX; i++) {
             if (getControllerButton(inputDevice[i].contMappings)) {
                 inputDevice[i].setHeld();
-                inputDevice[8].setHeld();
+                inputDevice[INPUT_ANY].setHeld();
                 continue;
             }
             else if (inputDevice[i].hold)
@@ -92,37 +92,36 @@ void ProcessInput()
         }
     }
 
-    if (keyState[inputDevice[0].keyMappings] || keyState[inputDevice[1].keyMappings] || keyState[inputDevice[2].keyMappings]
-        || keyState[inputDevice[3].keyMappings] || keyState[inputDevice[4].keyMappings] || keyState[inputDevice[5].keyMappings]
-        || keyState[inputDevice[6].keyMappings] || keyState[inputDevice[7].keyMappings]) {
+    bool isPressed = false;
+    for (int i = 0; i < INPUT_MAX; i++) {
+        if (keyState[inputDevice[i].keyMappings]) {
+            isPressed = true;
+            break;
+        }
+    }
+    if (isPressed)
         inputType = 0;
-    }
     else if (inputType == 0)
-        inputDevice[8].setReleased();
+        inputDevice[INPUT_ANY].setReleased();
 
-    if (getControllerButton(SDL_CONTROLLER_BUTTON_A) || getControllerButton(SDL_CONTROLLER_BUTTON_B) || getControllerButton(SDL_CONTROLLER_BUTTON_X)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_Y) || getControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) || getControllerButton(SDL_CONTROLLER_BUTTON_ZL)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_ZR) || getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_UP)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN) || getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_LEFT)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || getControllerButton(SDL_CONTROLLER_BUTTON_LSTICK_UP)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_LSTICK_DOWN) || getControllerButton(SDL_CONTROLLER_BUTTON_LSTICK_LEFT)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_LSTICK_RIGHT) || getControllerButton(SDL_CONTROLLER_BUTTON_RSTICK_UP)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_RSTICK_DOWN) || getControllerButton(SDL_CONTROLLER_BUTTON_RSTICK_LEFT)
-        || getControllerButton(SDL_CONTROLLER_BUTTON_RSTICK_RIGHT) || getControllerButton(SDL_CONTROLLER_BUTTON_START)) {
-        inputType = 1;
+    isPressed = false;
+    for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++) {
+        if (getControllerButton(i)) {
+            isPressed = true;
+            break;
+        }
     }
+    if (isPressed)
+        inputType = 1;
     else if (inputType == 1)
-        inputDevice[8].setReleased();
-#endif
-
-#if RETRO_USING_SDL1
+        inputDevice[INPUT_ANY].setReleased();
+#elif RETRO_USING_SDL1
     if (SDL_NumJoysticks() > 0) {
         controller = SDL_JoystickOpen(0);
-        
+
         // There's a problem opening the joystick
         if (controller == NULL) {
-            //Uh oh
+            // Uh oh
         }
         else {
             inputType = 1;
@@ -138,10 +137,10 @@ void ProcessInput()
     }
 
     if (inputType == 0) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < INPUT_MAX; i++) {
             if (keyState[inputDevice[i].keyMappings]) {
                 inputDevice[i].setHeld();
-                inputDevice[8].setHeld();
+                inputDevice[INPUT_ANY].setHeld();
                 continue;
             }
             else if (inputDevice[i].hold)
@@ -149,10 +148,10 @@ void ProcessInput()
         }
     }
     else if (inputType == 1 && controller) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < INPUT_MAX; i++) {
             if (SDL_JoystickGetButton(controller, inputDevice[i].contMappings)) {
                 inputDevice[i].setHeld();
-                inputDevice[8].setHeld();
+                inputDevice[INPUT_ANY].setHeld();
                 continue;
             }
             else if (inputDevice[i].hold)
@@ -160,13 +159,17 @@ void ProcessInput()
         }
     }
 
-    if (keyState[inputDevice[0].keyMappings] || keyState[inputDevice[1].keyMappings] || keyState[inputDevice[2].keyMappings]
-        || keyState[inputDevice[3].keyMappings] || keyState[inputDevice[4].keyMappings] || keyState[inputDevice[5].keyMappings]
-        || keyState[inputDevice[6].keyMappings] || keyState[inputDevice[7].keyMappings]) {
-        inputType = 0;
+    bool isPressed = false;
+    for (int i = 0; i < INPUT_MAX; i++) {
+        if (keyState[inputDevice[i].keyMappings]) {
+            isPressed = true;
+            break;
+        }
     }
+    if (isPressed)
+        inputType = 0;
     else if (inputType == 0)
-        inputDevice[8].setReleased();
+        inputDevice[INPUT_ANY].setReleased();
 
     int buttonCnt = 0;
     if (controller)
@@ -177,7 +180,7 @@ void ProcessInput()
         inputType = 1;
     }
     if (!flag && inputType == 1) {
-        inputDevice[8].setReleased();
+        inputDevice[INPUT_ANY].setReleased();
     }
 #endif
 }
