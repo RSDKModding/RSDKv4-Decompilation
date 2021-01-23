@@ -32,7 +32,7 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->menu->selection1     = 0;
     pauseMenu->menu->selection2     = 0;
     pauseMenu->lastSurfaceNo        = textMenuSurfaceNo;
-    textMenuSurfaceNo               = SPRITESHEETS_MAX - 1;
+    textMenuSurfaceNo               = SURFACE_MAX - 1;
 
     SetPaletteEntryPacked(7, 0x08, GetPaletteEntryPacked(0, 8));
     SetPaletteEntryPacked(7, 0xFF, 0xFFFFFF);
@@ -116,7 +116,6 @@ void PauseMenu_Main(void *objPtr)
             // wait (again)
             pauseMenu->barPos -= 16;
             if (pauseMenu->barPos + 64 < 0) {
-                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 switch (pauseMenu->state) {
                     default: break;
                     case 3:
@@ -129,6 +128,7 @@ void PauseMenu_Main(void *objPtr)
                         initDevMenu();
                         break;
                 }
+                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
             }
