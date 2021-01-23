@@ -2490,12 +2490,12 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     int rx = otherEntity->XPos >> 16 << 16;
     int ry = otherEntity->YPos >> 16 << 16;
 
-    int xDif = thisLeft - thisEntity->XPos;
-    if (thisEntity->XPos <= otherEntity->XPos)
-        xDif = otherEntity->XPos - thisRight;
-    int yDif = thisTop - thisEntity->YPos;
-    if (thisEntity->YPos <= otherEntity->YPos)
-        yDif = otherEntity->YPos - thisBottom;
+    int xDif = thisLeft - rx;
+    if (thisEntity->XPos <= rx)
+        xDif = rx - thisRight;
+    int yDif = thisTop - ry;
+    if (thisEntity->YPos <= ry)
+        yDif = ry - thisBottom;
 
     if (xDif <= yDif) {
         sensors[0].collided = false;

@@ -34,7 +34,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
 inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 {
     if (newActivePal < PALETTE_COUNT)
-        for (int l = startLine; l < endLine && startLine < SCREEN_YSIZE; l++) gfxLineBuffer[l] = newActivePal;
+        for (int l = startLine; l < endLine && l < SCREEN_YSIZE; l++) gfxLineBuffer[l] = newActivePal;
 
     activePalette   = fullPalette[gfxLineBuffer[0]];
     activePalette32 = fullPalette32[gfxLineBuffer[0]];
