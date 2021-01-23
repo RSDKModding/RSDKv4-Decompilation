@@ -42,7 +42,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 ## Linux:
 * To setup your build enviroment and library dependecies run the following commands:
 * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev`
-* Arch Linux: `sudo pacman -Sy base-devel git sdl2 libvorbis libogg`
+* Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Then run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
