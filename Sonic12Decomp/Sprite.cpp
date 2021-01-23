@@ -246,7 +246,7 @@ void RemoveGraphicsFile(const char *filePath, int sheetID)
         int dataPosEnd   = gfxSurface[sheetID].dataPosition + gfxSurface[sheetID].height * gfxSurface[sheetID].width;
         for (int i = 0x200000 - dataPosEnd; i > 0; --i) graphicData[dataPosStart++] = graphicData[dataPosEnd++];
         gfxDataPosition -= gfxSurface[sheetID].height * gfxSurface[sheetID].width;
-        for (int i = 0; i < GFXDATA_MAX; ++i) {
+        for (int i = 0; i < SURFACE_MAX; ++i) {
             if (gfxSurface[i].dataPosition > gfxSurface[sheetID].dataPosition)
                 gfxSurface[i].dataPosition -= gfxSurface[sheetID].height * gfxSurface[sheetID].width;
         }
