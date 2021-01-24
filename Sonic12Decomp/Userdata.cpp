@@ -249,6 +249,8 @@ void InitUserdata()
             inputDevice[INPUT_START].contMappings = SDL_CONTROLLER_BUTTON_START;
         if (!ini.GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
             inputDevice[INPUT_SELECT].contMappings = SDL_CONTROLLER_BUTTON_GUIDE;
+
+            // we don't need to autoset deadzones: they're already autoset
 #endif
 
 #if RETRO_USING_SDL1
@@ -450,6 +452,10 @@ void writeSettings()
     ini.SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings);
     ini.SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings);
     ini.SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings);
+    ini.SetInteger("Controller 1", "LStickDeadzone", LSTICK_DEADZONE);
+    ini.SetInteger("Controller 1", "RStickDeadzone", RSTICK_DEADZONE);
+    ini.SetInteger("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE);
+    ini.SetInteger("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE);
 
     ini.Write(BASE_PATH "settings.ini");
 }
