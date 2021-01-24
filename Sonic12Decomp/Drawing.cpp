@@ -27,12 +27,13 @@ int InitRenderDevice()
 #if RETRO_USING_SDL2
     SDL_Init(SDL_INIT_EVERYTHING);
 
+    SDL_DisableScreenSaver();
+
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, Engine.vsync ? "1" : "0");
 
-    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
+                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     Engine.renderer = SDL_CreateRenderer(Engine.window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -92,7 +93,6 @@ int InitRenderDevice()
 
 #endif
 
-    
 #if RETRO_USING_SDL1
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -101,7 +101,7 @@ int InitRenderDevice()
         printLog("ERROR: failed to create window!\nerror msg: %s", SDL_GetError());
         return 0;
     }
-    //Set the window caption
+    // Set the window caption
     SDL_WM_SetCaption(gameTitle, NULL);
 
     Engine.screenBuffer =
@@ -126,18 +126,17 @@ int InitRenderDevice()
         Engine.isFullScreen = true;
     }
 
-    //TODO: not supported in 1.2?
+    // TODO: not supported in 1.2?
     if (Engine.borderless) {
-        //SDL_RestoreWindow(Engine.window);
-        //SDL_SetWindowBordered(Engine.window, SDL_FALSE);
+        // SDL_RestoreWindow(Engine.window);
+        // SDL_SetWindowBordered(Engine.window, SDL_FALSE);
     }
 
-    //SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    // SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     Engine.useHQModes = false; // disabled
     Engine.borderless = false; // disabled
 #endif
-
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
@@ -149,7 +148,7 @@ int InitRenderDevice()
 void RenderRenderDevice()
 {
 #if RETRO_USING_SDL2
-    //SDL_Rect *destScreenPos = NULL; // could be useful for Vita
+    // SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
@@ -173,7 +172,6 @@ void RenderRenderDevice()
         screenxsize *= 2;
         screenysize *= 2;
     }
-
 
     if (tmpEnhancedScaling) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
@@ -269,7 +267,7 @@ void RenderRenderDevice()
         // reset everything just in case
         SDL_RenderSetLogicalSize(Engine.renderer, SCREEN_XSIZE, SCREEN_YSIZE);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-        // putting some FLEX TAPE® on that memory leak
+        // putting some FLEX TAPEï¿½ on that memory leak
         SDL_DestroyTexture(texTarget);
     }
     else {
@@ -287,7 +285,7 @@ void RenderRenderDevice()
         memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
     }
     else {
-        //TODO: this better, I really dont know how to use SDL1.2 well lol
+        // TODO: this better, I really dont know how to use SDL1.2 well lol
         int dx = 0, dy = 0;
         do {
             do {
@@ -416,7 +414,7 @@ void DrawObjectList(int Layer)
     int size = drawListEntries[Layer].listSize;
     for (int i = 0; i < size; ++i) {
         objectEntityPos = drawListEntries[Layer].entityRefs[i];
-        int type           = objectEntityList[objectEntityPos].type;
+        int type        = objectEntityList[objectEntityPos].type;
         if (type) {
             if (scriptData[objectScriptList[type].eventDraw.scriptCodePtr] > 0)
                 ProcessScript(objectScriptList[type].eventDraw.scriptCodePtr, objectScriptList[type].eventDraw.jumpTablePtr, EVENT_DRAW);
@@ -598,11 +596,11 @@ void DrawStageGFX()
 void DrawHLineScrollLayer(int layerID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
-    int screenwidth16       = (SCREEN_XSIZE >> 4) - 1;
-    int layerwidth          = layer->width;
-    int layerheight         = layer->height;
-    bool aboveMidPoint      = layerID >= tLayerMidPoint;
+    TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
+    int screenwidth16  = (SCREEN_XSIZE >> 4) - 1;
+    int layerwidth     = layer->width;
+    int layerheight    = layer->height;
+    bool aboveMidPoint = layerID >= tLayerMidPoint;
 
     byte *lineScroll;
     int *deformationData;
@@ -622,9 +620,9 @@ void DrawHLineScrollLayer(int layerID)
         deformationDataW = &bgDeformationData3[(byte)(yscrollOffset + waterDrawPos + layer->deformationOffsetW)];
     }
     else { // FG Layer
-        lastXSize = layer->width;
-        yscrollOffset    = yScrollOffset;
-        lineScroll       = layer->lineScroll;
+        lastXSize     = layer->width;
+        yscrollOffset = yScrollOffset;
+        lineScroll    = layer->lineScroll;
         for (int i = 0; i < PARALLAX_COUNT; ++i) hParallax.tilePos[i] = xScrollOffset;
         deformationData  = &bgDeformationData0[(byte)(yscrollOffset + layer->deformationOffset)];
         deformationDataW = &bgDeformationData1[(byte)(yscrollOffset + waterDrawPos + layer->deformationOffsetW)];
@@ -696,13 +694,13 @@ void DrawHLineScrollLayer(int layerID)
             byte *gfxDataPtr  = NULL;
             int tilePxLineCnt = 0;
 
-            //Draw the first tile to the left
+            // Draw the first tile to the left
             if (tiles128x128.visualPlane[chunk] == (byte)aboveMidPoint) {
                 tilePxLineCnt = TILE_SIZE - tilePxXPos;
                 lineRemain -= tilePxLineCnt;
                 switch (tiles128x128.direction[chunk]) {
                     case FLIP_NONE:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetY + tiles128x128.gfxDataPos[chunk] + tilePxXPos];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetY + tiles128x128.gfxDataPos[chunk] + tilePxXPos];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -711,7 +709,7 @@ void DrawHLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_X:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetYFlipX + tiles128x128.gfxDataPos[chunk] - tilePxXPos];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetYFlipX + tiles128x128.gfxDataPos[chunk] - tilePxXPos];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -720,7 +718,7 @@ void DrawHLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_Y:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetYFlipY + tiles128x128.gfxDataPos[chunk] + tilePxXPos];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetYFlipY + tiles128x128.gfxDataPos[chunk] + tilePxXPos];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -729,7 +727,7 @@ void DrawHLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_XY:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetYFlipXY + tiles128x128.gfxDataPos[chunk] - tilePxXPos];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetYFlipXY + tiles128x128.gfxDataPos[chunk] - tilePxXPos];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -745,7 +743,7 @@ void DrawHLineScrollLayer(int layerID)
                 lineRemain -= tileXPxRemain;
             }
 
-            //Draw the bulk of the tiles
+            // Draw the bulk of the tiles
             int chunkTileX   = ((chunkX & 0x7F) >> 4) + 1;
             int tilesPerLine = screenwidth16;
             while (tilesPerLine--) {
@@ -1039,7 +1037,7 @@ void DrawHLineScrollLayer(int layerID)
                 ++chunkTileX;
             }
 
-            //Draw any remaining tiles
+            // Draw any remaining tiles
             while (lineRemain > 0) {
                 if (chunkTileX++ <= 7) {
                     ++chunk;
@@ -1121,10 +1119,10 @@ void DrawHLineScrollLayer(int layerID)
 void DrawVLineScrollLayer(int layerID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
-    int layerwidth          = layer->width;
-    int layerheight         = layer->height;
-    bool aboveMidPoint      = layerID >= tLayerMidPoint;
+    TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
+    int layerwidth     = layer->width;
+    int layerheight    = layer->height;
+    bool aboveMidPoint = layerID >= tLayerMidPoint;
 
     byte *lineScroll;
     int *deformationData;
@@ -1142,12 +1140,12 @@ void DrawVLineScrollLayer(int layerID)
         deformationData = &bgDeformationData2[(byte)(xscrollOffset + layer->deformationOffset)];
     }
     else { // FG Layer
-        lastYSize           = layer->height;
-        xscrollOffset              = xScrollOffset;
-        lineScroll                 = layer->lineScroll;
-        vParallax.tilePos[0]       = yScrollOffset;
-        vParallax.deform[0] = true;
-        deformationData            = &bgDeformationData0[(byte)(xScrollOffset + layer->deformationOffset)];
+        lastYSize            = layer->height;
+        xscrollOffset        = xScrollOffset;
+        lineScroll           = layer->lineScroll;
+        vParallax.tilePos[0] = yScrollOffset;
+        vParallax.deform[0]  = true;
+        deformationData      = &bgDeformationData0[(byte)(xScrollOffset + layer->deformationOffset)];
     }
 
     if (layer->type == LAYER_VSCROLL) {
@@ -1208,7 +1206,7 @@ void DrawVLineScrollLayer(int layerID)
             lineRemain -= tilePxLineCnt;
             switch (tiles128x128.direction[chunk]) {
                 case FLIP_NONE:
-                    gfxDataPtr    = &tilesetGFXData[0x10 * tileY + tileX16 + tiles128x128.gfxDataPos[chunk]];
+                    gfxDataPtr = &tilesetGFXData[0x10 * tileY + tileX16 + tiles128x128.gfxDataPos[chunk]];
                     while (tilePxLineCnt--) {
                         if (*gfxDataPtr > 0)
                             *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1217,7 +1215,7 @@ void DrawVLineScrollLayer(int layerID)
                     }
                     break;
                 case FLIP_X:
-                    gfxDataPtr    = &tilesetGFXData[0x10 * tileY + tileOffsetXFlipX + tiles128x128.gfxDataPos[chunk]];
+                    gfxDataPtr = &tilesetGFXData[0x10 * tileY + tileOffsetXFlipX + tiles128x128.gfxDataPos[chunk]];
                     while (tilePxLineCnt--) {
                         if (*gfxDataPtr > 0)
                             *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1226,7 +1224,7 @@ void DrawVLineScrollLayer(int layerID)
                     }
                     break;
                 case FLIP_Y:
-                    gfxDataPtr    = &tilesetGFXData[tileOffsetXFlipY + tiles128x128.gfxDataPos[chunk] - 0x10 * tileY];
+                    gfxDataPtr = &tilesetGFXData[tileOffsetXFlipY + tiles128x128.gfxDataPos[chunk] - 0x10 * tileY];
                     while (tilePxLineCnt--) {
                         if (*gfxDataPtr > 0)
                             *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1235,7 +1233,7 @@ void DrawVLineScrollLayer(int layerID)
                     }
                     break;
                 case FLIP_XY:
-                    gfxDataPtr    = &tilesetGFXData[tileOffsetXFlipXY + tiles128x128.gfxDataPos[chunk] - 16 * tileY];
+                    gfxDataPtr = &tilesetGFXData[tileOffsetXFlipXY + tiles128x128.gfxDataPos[chunk] - 16 * tileY];
                     while (tilePxLineCnt--) {
                         if (*gfxDataPtr > 0)
                             *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1251,7 +1249,7 @@ void DrawVLineScrollLayer(int layerID)
             lineRemain -= tileYPxRemain;
         }
 
-        //Draw the bulk of the tiles
+        // Draw the bulk of the tiles
         int chunkTileY   = ((chunkY & 0x7F) >> 4) + 1;
         int tilesPerLine = 14;
         while (tilesPerLine--) {
@@ -1563,7 +1561,7 @@ void DrawVLineScrollLayer(int layerID)
             if (tiles128x128.visualPlane[chunk] == (byte)aboveMidPoint) {
                 switch (tiles128x128.direction[chunk]) {
                     case FLIP_NONE:
-                        gfxDataPtr    = &tilesetGFXData[0x10 * tileY + tileX16 + tiles128x128.gfxDataPos[chunk]];
+                        gfxDataPtr = &tilesetGFXData[0x10 * tileY + tileX16 + tiles128x128.gfxDataPos[chunk]];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1572,7 +1570,7 @@ void DrawVLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_X:
-                        gfxDataPtr    = &tilesetGFXData[0x10 * tileY + tileOffsetXFlipX + tiles128x128.gfxDataPos[chunk]];
+                        gfxDataPtr = &tilesetGFXData[0x10 * tileY + tileOffsetXFlipX + tiles128x128.gfxDataPos[chunk]];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1581,7 +1579,7 @@ void DrawVLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_Y:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetXFlipY + tiles128x128.gfxDataPos[chunk] - 0x10 * tileY];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetXFlipY + tiles128x128.gfxDataPos[chunk] - 0x10 * tileY];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1590,7 +1588,7 @@ void DrawVLineScrollLayer(int layerID)
                         }
                         break;
                     case FLIP_XY:
-                        gfxDataPtr    = &tilesetGFXData[tileOffsetXFlipXY + tiles128x128.gfxDataPos[chunk] - 16 * tileY];
+                        gfxDataPtr = &tilesetGFXData[tileOffsetXFlipXY + tiles128x128.gfxDataPos[chunk] - 16 * tileY];
                         while (tilePxLineCnt--) {
                             if (*gfxDataPtr > 0)
                                 *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -1627,28 +1625,28 @@ void DrawVLineScrollLayer(int layerID)
 void Draw3DFloorLayer(int layerID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
-    int layerWidth          = layer->width << 7;
-    int layerHeight         = layer->height << 7;
-    int layerYPos           = layer->YPos;
-    int layerZPos           = layer->ZPos;
-    int sinValue            = sinValM7[layer->angle];
-    int cosValue            = cosValM7[layer->angle];
-    byte *linePtr           = gfxLineBuffer;
-    ushort *frameBufferPtr  = &Engine.frameBuffer[132 * SCREEN_XSIZE];
-    int layerXPos           = layer->XPos >> 4;
-    int ZBuffer             = layerZPos >> 4;
+    TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
+    int layerWidth         = layer->width << 7;
+    int layerHeight        = layer->height << 7;
+    int layerYPos          = layer->YPos;
+    int layerZPos          = layer->ZPos;
+    int sinValue           = sinValM7[layer->angle];
+    int cosValue           = cosValM7[layer->angle];
+    byte *linePtr          = gfxLineBuffer;
+    ushort *frameBufferPtr = &Engine.frameBuffer[132 * SCREEN_XSIZE];
+    int layerXPos          = layer->XPos >> 4;
+    int ZBuffer            = layerZPos >> 4;
     for (int i = 4; i < 112; ++i) {
         if (!(i & 1)) {
             activePalette   = fullPalette[*linePtr];
             activePalette32 = fullPalette32[*linePtr];
             linePtr++;
         }
-        int XBuffer            = layerYPos / (i << 9) * -cosValue >> 8;
-        int YBuffer            = sinValue * (layerYPos / (i << 9)) >> 8;
-        int XPos               = layerXPos + (3 * sinValue * (layerYPos / (i << 9)) >> 2) - XBuffer * SCREEN_CENTERX;
-        int YPos               = ZBuffer + (3 * cosValue * (layerYPos / (i << 9)) >> 2) - YBuffer * SCREEN_CENTERX;
-        int lineBuffer         = 0;
+        int XBuffer    = layerYPos / (i << 9) * -cosValue >> 8;
+        int YBuffer    = sinValue * (layerYPos / (i << 9)) >> 8;
+        int XPos       = layerXPos + (3 * sinValue * (layerYPos / (i << 9)) >> 2) - XBuffer * SCREEN_CENTERX;
+        int YPos       = ZBuffer + (3 * cosValue * (layerYPos / (i << 9)) >> 2) - YBuffer * SCREEN_CENTERX;
+        int lineBuffer = 0;
         while (lineBuffer < SCREEN_XSIZE) {
             int tileX = XPos >> 12;
             int tileY = YPos >> 12;
@@ -1798,7 +1796,7 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
             while (w--) {
                 short *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
                 short *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
-                *frameBufferPtr  = (blendPtrB[*frameBufferPtr & (BLENDTABLE_XSIZE-1)] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
+                *frameBufferPtr  = (blendPtrB[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
                                   | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
                                   | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
                 ++frameBufferPtr;
@@ -1889,8 +1887,8 @@ void DrawTintRectangle(int XPos, int YPos, int width, int height)
     // TODO: this
 #endif
 }
-void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX,
-                                 int sprY, int sheetID)
+void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                        int sheetID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int roundedYPos = 0;
@@ -1936,10 +1934,10 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
     if (width <= 0 || height <= 0)
         return;
 
-    GFXSurface *surface    = &gfxSurface[sheetID];
-    int pitch              = SCREEN_XSIZE - width;
-    int gfxwidth           = surface->width;
-    //byte *lineBuffer       = &gfxLineBuffer[trueYPos];
+    GFXSurface *surface = &gfxSurface[sheetID];
+    int pitch           = SCREEN_XSIZE - width;
+    int gfxwidth        = surface->width;
+    // byte *lineBuffer       = &gfxLineBuffer[trueYPos];
     byte *gfxData          = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
     ushort *frameBufferPtr = &Engine.frameBuffer[trueXPos + SCREEN_XSIZE * trueYPos];
     if (direction == FLIP_X) {
@@ -2043,7 +2041,7 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
 void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    int widthFlip = width;
+    int widthFlip  = width;
     int heightFlip = height;
 
     if (width + XPos > SCREEN_XSIZE) {
@@ -2085,7 +2083,7 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
                 activePalette   = fullPalette[*lineBuffer];
                 activePalette32 = fullPalette32[*lineBuffer];
                 lineBuffer++;
-                int w                  = width;
+                int w = width;
                 while (w--) {
                     if (*gfxData > 0)
                         *frameBufferPtr = activePalette[*gfxData];
@@ -2106,7 +2104,7 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
                 activePalette   = fullPalette[*lineBuffer];
                 activePalette32 = fullPalette32[*lineBuffer];
                 lineBuffer++;
-                int w                  = width;
+                int w = width;
                 while (w--) {
                     if (*gfxData > 0)
                         *frameBufferPtr = activePalette[*gfxData];
@@ -2128,7 +2126,7 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
                 activePalette   = fullPalette[*lineBuffer];
                 activePalette32 = fullPalette32[*lineBuffer];
                 lineBuffer++;
-                int w                  = width;
+                int w = width;
                 while (w--) {
                     if (*gfxData > 0)
                         *frameBufferPtr = activePalette[*gfxData];
@@ -2149,7 +2147,7 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
                 activePalette   = fullPalette[*lineBuffer];
                 activePalette32 = fullPalette32[*lineBuffer];
                 lineBuffer++;
-                int w                  = width;
+                int w = width;
                 while (w--) {
                     if (*gfxData > 0)
                         *frameBufferPtr = activePalette[*gfxData];
@@ -2168,8 +2166,8 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
         // TODO: this
 #endif
 }
-void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX,
-                               int sprY, int sheetID)
+void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                      int sheetID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int roundedYPos = 0;
@@ -2228,8 +2226,8 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int roundXPos          = roundedXPos;
-            int w                  = width;
+            int roundXPos = roundedXPos;
+            int w         = width;
             while (w--) {
                 if (*gfxDataPtr > 0)
                     *frameBufferPtr = activePalette[*gfxDataPtr];
@@ -2253,8 +2251,8 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int roundXPos          = roundedXPos;
-            int w                  = width;
+            int roundXPos = roundedXPos;
+            int w         = width;
             while (w--) {
                 if (*gfxData > 0)
                     *frameBufferPtr = activePalette[*gfxData];
@@ -2278,7 +2276,7 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
 #endif
 }
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
-                                int sheetID)
+                       int sheetID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     int sprXPos    = (pivotX + sprX) << 9;
@@ -2379,9 +2377,9 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int finalX             = drawX;
-            int finalY             = drawY;
-            int w                  = maxX;
+            int finalX = drawX;
+            int finalY = drawY;
+            int w      = maxX;
             while (w--) {
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
@@ -2404,9 +2402,9 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int finalX             = drawX;
-            int finalY             = drawY;
-            int w                  = maxX;
+            int finalX = drawX;
+            int finalY = drawY;
+            int w      = maxX;
             while (w--) {
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
@@ -2429,8 +2427,8 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
 #endif
 }
 
-void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
-                                 int scale, int sheetID)
+void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
+                        int sheetID)
 {
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     if (scale == 0)
@@ -2537,9 +2535,9 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int finalX             = drawX;
-            int finalY             = drawY;
-            int w                  = maxX;
+            int finalX = drawX;
+            int finalY = drawY;
+            int w      = maxX;
             while (w--) {
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
@@ -2562,9 +2560,9 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int finalX             = drawX;
-            int finalY             = drawY;
-            int w                  = maxX;
+            int finalX = drawX;
+            int finalY = drawY;
+            int w      = maxX;
             while (w--) {
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
@@ -2617,7 +2615,7 @@ void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int 
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int w                  = width;
+        int w = width;
         while (w--) {
             if (*gfxData > 0)
                 *frameBufferPtr = ((activePalette[*gfxData] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1);
@@ -2666,7 +2664,7 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int w                  = width;
+            int w = width;
             while (w--) {
                 if (*gfxData > 0)
                     *frameBufferPtr = activePalette[*gfxData];
@@ -2682,11 +2680,11 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
             lineBuffer++;
-            int w                  = width;
+            int w = width;
             while (w--) {
                 if (*gfxData > 0) {
                     ushort colour         = activePalette[*gfxData];
-                    short *blendTablePtrA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE-1) - alpha)];
+                    short *blendTablePtrA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
                     short *blendTablePtrB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
                     *frameBufferPtr = (blendTablePtrA[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendTablePtrB[colour & (BLENDTABLE_XSIZE - 1)])
                                       | ((blendTablePtrA[(*frameBufferPtr & 0x7E0) >> 6] + blendTablePtrB[(colour & 0x7E0) >> 6]) << 6)
@@ -2740,7 +2738,7 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int w                  = width;
+        int w = width;
         while (w--) {
             if (*gfxData > 0) {
                 ushort colour   = activePalette[*gfxData];
@@ -2757,7 +2755,7 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
                     v21 = v12 | v20;
                 else
                     v21 = v20 | 0x7E0;
-                int v13 = (ushort)blendTablePtr[colour & (BLENDTABLE_XSIZE-1)] + (*frameBufferPtr & 0x1F);
+                int v13 = (ushort)blendTablePtr[colour & (BLENDTABLE_XSIZE - 1)] + (*frameBufferPtr & 0x1F);
                 if (v13 <= 31)
                     finalColour = v13 | v21;
                 else
@@ -2811,7 +2809,7 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int w                  = width;
+        int w = width;
         while (w--) {
             if (*gfxData > 0) {
                 ushort colour      = activePalette[*gfxData];
@@ -2843,18 +2841,18 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
 
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
 {
-    ObjectScript *objectScript  = (ObjectScript *)objScr;
-    Entity *entity              = (Entity *)ent;
-    SpriteAnimation *sprAnim = &animationList[objectScript->animFile->aniListOffset + entity->animation];
-    SpriteFrame *frame          = &animFrames[sprAnim->frameListOffset + entity->frame];
-    int rotation                        = 0;
+    ObjectScript *objectScript = (ObjectScript *)objScr;
+    Entity *entity             = (Entity *)ent;
+    SpriteAnimation *sprAnim   = &animationList[objectScript->animFile->aniListOffset + entity->animation];
+    SpriteFrame *frame         = &animFrames[sprAnim->frameListOffset + entity->frame];
+    int rotation               = 0;
 
     switch (sprAnim->rotationFlag) {
         case ROTFLAG_NONE:
             switch (entity->direction) {
                 case FLIP_NONE:
-                    DrawSpriteFlipped(frame->pivotX + XPos, frame->pivotY + YPos, frame->width, frame->height, frame->sprX, frame->sprY,
-                                               FLIP_NONE, frame->sheetID);
+                    DrawSpriteFlipped(frame->pivotX + XPos, frame->pivotY + YPos, frame->width, frame->height, frame->sprX, frame->sprY, FLIP_NONE,
+                                      frame->sheetID);
                     break;
                 case FLIP_X:
                     DrawSpriteFlipped(XPos - frame->width - frame->pivotX, frame->pivotY + YPos, frame->width, frame->height, frame->sprX,
@@ -2883,45 +2881,48 @@ void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
                 DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width,
                                   frame->height, (entity->rotation + 20) >> 6 << 6, frame->sheetID);
             break;
-        case ROTFLAG_STATICFRAMES:
-        {
+        case ROTFLAG_STATICFRAMES: {
             if (entity->rotation >= 0x100)
                 rotation = 8 - ((532 - entity->rotation) >> 6);
             else
                 rotation = (entity->rotation + 20) >> 6;
             int frameID = entity->frame;
             switch (rotation) {
-                case 0: //0 deg
+                case 0: // 0 deg
                 case 8: // 360 deg
-                    rotation = 0x00; break;
-                case 1: //45 deg
+                    rotation = 0x00;
+                    break;
+                case 1: // 45 deg
                     frameID += sprAnim->frameCount;
                     if (entity->direction)
                         rotation = 0;
                     else
                         rotation = 0x80;
                     break;
-                case 2: //90 deg
-                    rotation = 0x80; break;
-                case 3: //135 deg
+                case 2: // 90 deg
+                    rotation = 0x80;
+                    break;
+                case 3: // 135 deg
                     frameID += sprAnim->frameCount;
                     if (entity->direction)
                         rotation = 0x80;
                     else
                         rotation = 0x100;
                     break;
-                case 4: //180 deg
-                    rotation = 0x100; break;
-                case 5: //225 deg
+                case 4: // 180 deg
+                    rotation = 0x100;
+                    break;
+                case 5: // 225 deg
                     frameID += sprAnim->frameCount;
                     if (entity->direction)
                         rotation = 0x100;
                     else
                         rotation = 384;
                     break;
-                case 6: //270 deg
-                    rotation = 384; break;
-                case 7: //315 deg
+                case 6: // 270 deg
+                    rotation = 384;
+                    break;
+                case 7: // 315 deg
                     frameID += sprAnim->frameCount;
                     if (entity->direction)
                         rotation = 384;
@@ -2933,8 +2934,9 @@ void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
 
             frame = &animFrames[sprAnim->frameListOffset + frameID];
             DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width, frame->height,
-                               rotation, frame->sheetID);
-            //DrawSpriteRotozoom(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width, frame->height,
+                              rotation, frame->sheetID);
+            // DrawSpriteRotozoom(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width,
+            // frame->height,
             //                  rotation, entity->scale, frame->sheetID);
             break;
         }
@@ -3263,10 +3265,10 @@ void DrawTexturedFace(void *v, byte sheetID)
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int startX             = faceLineStart[faceTop];
-        int endX               = faceLineEnd[faceTop];
-        int UPos               = faceLineStartU[faceTop];
-        int VPos               = faceLineStartV[faceTop];
+        int startX = faceLineStart[faceTop];
+        int endX   = faceLineEnd[faceTop];
+        int UPos   = faceLineStartU[faceTop];
+        int VPos   = faceLineStartV[faceTop];
         if (startX >= SCREEN_XSIZE || endX <= 0) {
             frameBufferPtr += SCREEN_XSIZE;
         }
@@ -3392,10 +3394,10 @@ void DrawTexturedFace2(void *v, byte sheetID)
         activePalette   = fullPalette[*lineBuffer];
         activePalette32 = fullPalette32[*lineBuffer];
         lineBuffer++;
-        int startX    = faceLineStart[faceTop];
-        int endX      = faceLineEnd[faceTop];
-        int UPos      = faceLineStartU[faceTop];
-        int VPos      = faceLineStartV[faceTop];
+        int startX = faceLineStart[faceTop];
+        int endX   = faceLineEnd[faceTop];
+        int UPos   = faceLineStartU[faceTop];
+        int VPos   = faceLineStartV[faceTop];
         if (startX >= SCREEN_XSIZE || endX <= 0) {
             frameBufferPtr += SCREEN_XSIZE;
         }
@@ -3449,8 +3451,8 @@ void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighli
     TextMenu *tMenu = (TextMenu *)menu;
     int id          = tMenu->entryStart[rowID];
     for (int i = 0; i < tMenu->entrySize[rowID]; ++i) {
-        DrawSprite(XPos + (i << 3) - (((tMenu->entrySize[rowID] % 2) & (tMenu->alignment == 2)) * 4), YPos, 8, 8, (int)((int)(tMenu->textData[id] & 0xF) << 3),
-                            (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
+        DrawSprite(XPos + (i << 3) - (((tMenu->entrySize[rowID] % 2) & (tMenu->alignment == 2)) * 4), YPos, 8, 8,
+                   (int)((int)(tMenu->textData[id] & 0xF) << 3), (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
         id++;
     }
 }
@@ -3460,12 +3462,12 @@ void DrawStageTextEntry(void *menu, int rowID, int XPos, int YPos, int textHighl
     int id          = tMenu->entryStart[rowID];
     for (int i = 0; i < tMenu->entrySize[rowID]; ++i) {
         if (i == tMenu->entrySize[rowID] - 1) {
-            DrawSprite(XPos + (i << 3), YPos, 8, 8, (int)((int)(tMenu->textData[id] & 0xF) << 3),
-                                (int)((int)(tMenu->textData[id] >> 4) << 3), textMenuSurfaceNo);
+            DrawSprite(XPos + (i << 3), YPos, 8, 8, (int)((int)(tMenu->textData[id] & 0xF) << 3), (int)((int)(tMenu->textData[id] >> 4) << 3),
+                       textMenuSurfaceNo);
         }
         else {
             DrawSprite(XPos + (i << 3), YPos, 8, 8, (int)((int)(tMenu->textData[id] & 0xF) << 3),
-                                (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
+                       (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
         }
         id++;
     }
@@ -3476,7 +3478,7 @@ void DrawBlendedTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int tex
     int id          = tMenu->entryStart[rowID];
     for (int i = 0; i < tMenu->entrySize[rowID]; ++i) {
         DrawBlendedSprite(XPos + (i << 3), YPos, 8, 8, (int)((int)(tMenu->textData[id] & 0xF) << 3),
-                                   (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
+                          (int)((int)(tMenu->textData[id] >> 4) << 3) + textHighlight, textMenuSurfaceNo);
         id++;
     }
 }
@@ -3505,23 +3507,23 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
             for (int i = (int)tMenu->visibleRowOffset; i < cnt; ++i) {
                 switch (tMenu->selectionCount) {
                     case 1:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
                         break;
                     case 2:
-                        if (i == tMenu->selection1 || i == tMenu->selection2) 
+                        if (i == tMenu->selection1 || i == tMenu->selection2)
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
                         break;
                     case 3:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
-                        if (i == tMenu->selection2 && i != tMenu->selection1) 
+                        if (i == tMenu->selection2 && i != tMenu->selection1)
                             DrawStageTextEntry(tMenu, i, XPos, YPos, 128);
                         break;
                 }
@@ -3533,23 +3535,23 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
                 int XPos2 = XPos - (tMenu->entrySize[i] << 3);
                 switch (tMenu->selectionCount) {
                     case 1:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
                         break;
                     case 2:
-                        if (i == tMenu->selection1 || i == tMenu->selection2) 
+                        if (i == tMenu->selection1 || i == tMenu->selection2)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
                         break;
                     case 3:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
-                        if (i == tMenu->selection2 && i != tMenu->selection1) 
+                        if (i == tMenu->selection2 && i != tMenu->selection1)
                             DrawStageTextEntry(tMenu, i, XPos2, YPos, 128);
                         break;
                 }
@@ -3561,24 +3563,24 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
                 int XPos2 = XPos - (tMenu->entrySize[i] >> 1 << 3);
                 switch (tMenu->selectionCount) {
                     case 1:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
                         break;
                     case 2:
-                        if (i == tMenu->selection1 || i == tMenu->selection2) 
+                        if (i == tMenu->selection1 || i == tMenu->selection2)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
                         break;
                     case 3:
-                        if (i == tMenu->selection1) 
+                        if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else 
+                        else
                             DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
 
-                        if (i == tMenu->selection2 && i != tMenu->selection1) 
+                        if (i == tMenu->selection2 && i != tMenu->selection1)
                             DrawStageTextEntry(tMenu, i, XPos2, YPos, 128);
                         break;
                 }
