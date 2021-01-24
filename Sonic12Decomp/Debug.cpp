@@ -380,24 +380,6 @@ void initStartMenu(int mode)
     else {
         // finished TA act
         int listPos = taListStore;
-        int max     = listPos < stageListCount[STAGELIST_REGULAR];
-        for (int s = 0; s < stageListCount[STAGELIST_REGULAR]; ++s) {
-            if (StrComp(stageList[STAGELIST_REGULAR][s].name, "STAGE MENU")) {
-                max = s;
-                break;
-            }
-        }
-
-        if (activeStageList == STAGELIST_SPECIAL) {
-            listPos += max;
-        }
-
-        if (activeStageList == STAGELIST_BONUS) {
-            if (listPos > 1)
-                listPos = 1;
-            listPos ^= 1;
-            listPos += max;
-        }
 
         int result = GetGlobalVariableByName("timeAttack.result");
         if (result < saveRAM[3 * listPos + 0x40]) {
