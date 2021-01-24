@@ -1,8 +1,8 @@
-CXXFLAGS_ALL = $(shell pkg-config --cflags sdl2 vorbisfile vorbis) $(CXXFLAGS) \
+CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"'
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = $(shell pkg-config --libs sdl2 vorbisfile vorbis) -pthread $(LIBS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis) -pthread $(LIBS)
 
 SOURCES = Sonic12Decomp/Animation.cpp     \
           Sonic12Decomp/Audio.cpp         \
