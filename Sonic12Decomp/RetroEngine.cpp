@@ -54,7 +54,7 @@ bool processEvents()
             case SDL_MOUSEMOTION:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
                     touchX[0] /= Engine.windowScale;
                     touchY[0] /= Engine.windowScale;
@@ -66,7 +66,7 @@ bool processEvents()
             case SDL_MOUSEBUTTONDOWN:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 1; break;
                     }
@@ -78,7 +78,7 @@ bool processEvents()
             case SDL_MOUSEBUTTONUP:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 0; break;
                     }
@@ -89,8 +89,7 @@ bool processEvents()
                 break;
 #endif
 
-#ifdef RETRO_USING_TOUCH
-#if RETRO_USING_SDL2
+#if defined(RETRO_USING_TOUCH) && defined(RETRO_USING_SDL2)
             case SDL_FINGERMOTION:
                 touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
                 for (int i = 0; i < touches; i++) {
@@ -113,7 +112,6 @@ bool processEvents()
                 break;
             case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)); break;
 #endif //! RETRO_USING_SDL2
-#endif
 
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
@@ -129,9 +127,7 @@ bool processEvents()
                             Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16,
                                                                     SDL_SWSURFACE | SDL_FULLSCREEN);
                             SDL_ShowCursor(SDL_FALSE);
-#endif
-
-#if RETRO_USING_SDL2
+#elif RETRO_USING_SDL2
                             SDL_RestoreWindow(Engine.window);
                             SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                             SDL_ShowCursor(SDL_FALSE);
@@ -142,9 +138,7 @@ bool processEvents()
                             Engine.windowSurface =
                                 SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
                             SDL_ShowCursor(SDL_TRUE);
-#endif
-                        
-#if RETRO_USING_SDL2
+#elif RETRO_USING_SDL2
                             SDL_SetWindowFullscreen(Engine.window, false);
                             SDL_ShowCursor(SDL_TRUE);
                             SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
@@ -431,7 +425,8 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
+    SetGlobalVariableByName("Engine.PlatformID",
+                            RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
 
     if (!finishedStartMenu)
         initStartMenu(0);

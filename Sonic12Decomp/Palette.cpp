@@ -1,11 +1,11 @@
 #include "RetroEngine.hpp"
 
 // Palettes (as RGB888 Colours)
-PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
+PaletteEntry fullPalette32[PALETTE_COUNT + 2][PALETTE_SIZE];
 PaletteEntry *activePalette32 = fullPalette32[0];
 
 // Palettes (as RGB565 Colours)
-ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
+ushort fullPalette[PALETTE_COUNT + 2][PALETTE_SIZE];
 ushort *activePalette = fullPalette[0]; // Ptr to the 256 colour set thats active
 
 byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
@@ -46,8 +46,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
     }
 }
 
-void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex,
-                    int endIndex)
+void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex, int endIndex)
 {
     if (destPaletteID >= PALETTE_COUNT || srcPaletteA >= PALETTE_COUNT || srcPaletteB >= PALETTE_COUNT)
         return;
@@ -59,11 +58,11 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
     if (startIndex >= endIndex)
         return;
 
-    uint blendA = 0xFF - blendAmount;
-    ushort *dst = &fullPalette[destPaletteID][startIndex];
+    uint blendA         = 0xFF - blendAmount;
+    ushort *dst         = &fullPalette[destPaletteID][startIndex];
     PaletteEntry *dst32 = &fullPalette32[destPaletteID][startIndex];
     for (int l = startIndex; l < endIndex; ++l) {
-        *dst = RGB888_TO_RGB565((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
+        *dst     = RGB888_TO_RGB565((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
                                 (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8),
                                 (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8));
         dst32->r = (byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8);

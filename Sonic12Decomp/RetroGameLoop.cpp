@@ -1,6 +1,7 @@
 #include "RetroEngine.hpp"
 
-void RetroGameLoop_Create(void *objPtr) {
+void RetroGameLoop_Create(void *objPtr)
+{
     NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
     entity->pauseMenu                  = nullptr;
 }
@@ -9,12 +10,13 @@ void RetroGameLoop_Main(void *objPtr)
     NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
 
     switch (Engine.gameMode) {
-        case ENGINE_DEVMENU: 
+        case ENGINE_DEVMENU:
             if (entity->pauseMenu && nativeEntityCount > 1) // dumb fix but yknow how it is
                 RemoveNativeObject(entity->pauseMenu);
             entity->pauseMenu = nullptr;
 
-            processStageSelect(); break;
+            processStageSelect();
+            break;
         case ENGINE_MAINGAME:
             if (Engine.finishedStartMenu)
                 ProcessStage();
@@ -34,35 +36,35 @@ void RetroGameLoop_Main(void *objPtr)
             break;
         case ENGINE_INITPAUSE:
             PauseSound();
-            //ClearNativeObjects();
-            Engine.gameMode = ENGINE_WAIT; //temp (maybe?) so pause menu renders on top
+            // ClearNativeObjects();
+            Engine.gameMode = ENGINE_WAIT; // temp (maybe?) so pause menu renders on top
             // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete
             if (entity->pauseMenu && nativeEntityCount > 1)
                 RemoveNativeObject(entity->pauseMenu);
-            entity->pauseMenu = (NativeEntity_PauseMenu*)CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+            entity->pauseMenu = (NativeEntity_PauseMenu *)CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
             Engine.gameMode = ENGINE_MAINGAME;
             ResumeSound();
-            if (entity->pauseMenu)
-                RemoveNativeObject(entity->pauseMenu);
-            entity->pauseMenu = nullptr;
+            // if (entity->pauseMenu)
+            //    RemoveNativeObject(entity->pauseMenu);
+            // entity->pauseMenu = nullptr;
             break;
         case ENGINE_ENDGAME:
             ClearScreen(1);
-            //RestoreNativeObjects();
+            // RestoreNativeObjects();
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             activeStageList   = 0;
             stageListPosition = 0;
             initStartMenu(0);
             break;
-        case ENGINE_RESETGAME: //Also called when 2P VS disconnects
-            ClearScreen(1); 
-            //RestoreNativeObjects();
+        case ENGINE_RESETGAME: // Also called when 2P VS disconnects
+            ClearScreen(1);
+            // RestoreNativeObjects();
             initStartMenu(1);
             break;
-        case ENGINE_CONNECT2PVS: 
-            //connect screen goes here
+        case ENGINE_CONNECT2PVS:
+            // connect screen goes here
             break;
         default:
             printLog("GameMode '%d' Called", Engine.gameMode);

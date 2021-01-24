@@ -109,9 +109,9 @@ void ClearAnimationData()
     animationFileCount = 0;
     hitboxCount        = 0;
 
-    //Used for pause menu
-    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
-    StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Data/Game/SystemText.gif");
+    // Used for pause menu
+    LoadGIFFile("Data/Sprites/Global/PauseMenu.gif", SURFACE_MAX - 1);
+    StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Data/Sprites/Global/PauseMenu.gif");
 }
 
 AnimationFile *AddAnimationFile(char *filePath)
@@ -137,7 +137,7 @@ void ProcessObjectAnimation(void *objScr, void *ent)
 {
     ObjectScript *objectScript = (ObjectScript *)objScr;
     Entity *entity             = (Entity *)ent;
-    SpriteAnimation *sprAnim           = &animationList[objectScript->animFile->aniListOffset + entity->animation];
+    SpriteAnimation *sprAnim   = &animationList[objectScript->animFile->aniListOffset + entity->animation];
 
     if (entity->animationSpeed <= 0) {
         entity->animationTimer += sprAnim->speed;

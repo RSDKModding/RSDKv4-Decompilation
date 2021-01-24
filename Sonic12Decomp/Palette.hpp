@@ -11,8 +11,8 @@ struct PaletteEntry {
 };
 
 // Palettes (as RGB565 Colours)
-extern PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
-extern ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
+extern PaletteEntry fullPalette32[PALETTE_COUNT + 2][PALETTE_SIZE];
+extern ushort fullPalette[PALETTE_COUNT + 2][PALETTE_SIZE];
 extern ushort *activePalette; // Ptr to the 256 colour set thats active
 extern PaletteEntry *activePalette32;
 
@@ -27,7 +27,7 @@ extern byte fadeB;
 extern int paletteMode;
 
 #define RGB888_TO_RGB5551(r, g, b) (2 * ((b) >> 3) | ((g) >> 3 << 6) | ((r) >> 3 << 11) | 1) // used in mobile vers
-#define RGB888_TO_RGB565(r, g, b)  ((b) >> 3) | (((g) >> 2) << 5) | (((r) >> 3) << 11)       // used in pc vers
+#define RGB888_TO_RGB565(r, g, b)  ((b) >> 3) | (((g) >> 2) << 5) | (((r) >> 3) << 11) // used in pc vers
 
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex);
 
@@ -86,20 +86,20 @@ inline void RotatePalette(int palID, byte startIndex, byte endIndex, bool right)
         ushort startClr         = fullPalette[palID][endIndex];
         PaletteEntry startClr32 = fullPalette32[palID][endIndex];
         for (int i = endIndex; i > startIndex; --i) {
-            fullPalette[palID][i] = fullPalette[palID][i - 1];
+            fullPalette[palID][i]   = fullPalette[palID][i - 1];
             fullPalette32[palID][i] = fullPalette32[palID][i - 1];
         }
-        fullPalette[palID][startIndex] = startClr;
+        fullPalette[palID][startIndex]   = startClr;
         fullPalette32[palID][startIndex] = startClr32;
     }
     else {
-        ushort startClr = fullPalette[palID][startIndex];
+        ushort startClr         = fullPalette[palID][startIndex];
         PaletteEntry startClr32 = fullPalette32[palID][startIndex];
         for (int i = startIndex; i < endIndex; ++i) {
-            fullPalette[palID][i] = fullPalette[palID][i + 1];
+            fullPalette[palID][i]   = fullPalette[palID][i + 1];
             fullPalette32[palID][i] = fullPalette32[palID][i + 1];
         }
-        fullPalette[palID][endIndex] = startClr;
+        fullPalette[palID][endIndex]   = startClr;
         fullPalette32[palID][endIndex] = startClr32;
     }
 }
