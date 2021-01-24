@@ -7,6 +7,7 @@ on:
       - win-actions
       - linux-actions
       - psvita
+      - 1.2.0
 
 jobs:
   v4-windows:
