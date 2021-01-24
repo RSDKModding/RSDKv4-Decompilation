@@ -38,7 +38,7 @@ byte TraceGifPrefix(uint *prefix, int code, int clearCode);
 
 void InitGifDecoder()
 {
-    int val = 0;
+    byte val = 0;
     FileRead(&val, 1);
     gifDecoder.fileState      = LOADING_IMAGE;
     gifDecoder.position       = 0;
@@ -244,7 +244,7 @@ void RemoveGraphicsFile(const char *filePath, int sheetID)
         StrCopy(gfxSurface[sheetID].fileName, "");
         int dataPosStart = gfxSurface[sheetID].dataPosition;
         int dataPosEnd   = gfxSurface[sheetID].dataPosition + gfxSurface[sheetID].height * gfxSurface[sheetID].width;
-        for (int i = 0x200000 - dataPosEnd; i > 0; --i) graphicData[dataPosStart++] = graphicData[dataPosEnd++];
+        for (int i = GFXDATA_MAX - dataPosEnd; i > 0; --i) graphicData[dataPosStart++] = graphicData[dataPosEnd++];
         gfxDataPosition -= gfxSurface[sheetID].height * gfxSurface[sheetID].width;
         for (int i = 0; i < SURFACE_MAX; ++i) {
             if (gfxSurface[i].dataPosition > gfxSurface[sheetID].dataPosition)
@@ -260,7 +260,7 @@ int LoadBMPFile(const char *filePath, byte sheetID)
         GFXSurface *surface = &gfxSurface[sheetID];
         StrCopy(surface->fileName, filePath);
 
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
 
         SetFilePosition(18);
         FileRead(&fileBuffer, 1);
@@ -317,7 +317,7 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         GFXSurface *surface = &gfxSurface[sheetID];
         StrCopy(surface->fileName, filePath);
 
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
 
         SetFilePosition(6); // GIF89a
         FileRead(&fileBuffer, 1);
@@ -343,10 +343,11 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         while (fileBuffer != ',') FileRead(&fileBuffer, 1); // gif image start identifier
 
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
+        ushort fileBuffer2 = 0;
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
         FileRead(&fileBuffer, 1);
         bool interlaced = (fileBuffer & 0x40) >> 6;
         if (fileBuffer >> 7 == 1) {

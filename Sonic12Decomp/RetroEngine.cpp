@@ -471,8 +471,8 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    int fileBuffer  = 0;
-    int fileBuffer2 = 0;
+    byte fileBuffer = 0;
+    byte fileBuffer2 = 0;
     char strBuffer[0x40];
 
     bool loaded = LoadFile(filePath, &info);
@@ -492,20 +492,20 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read Obect Names
-        int objectCount = 0;
+        byte objectCount = 0;
         FileRead(&objectCount, 1);
-        for (int o = 0; o < objectCount; ++o) {
+        for (byte o = 0; o < objectCount; ++o) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
         // Read Script Paths
-        for (int s = 0; s < objectCount; ++s) {
+        for (byte s = 0; s < objectCount; ++s) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
-        int varCount = 0;
+        byte varCount = 0;
         FileRead(&varCount, 1);
         globalVariablesCount = varCount;
         for (int v = 0; v < varCount; ++v) {
@@ -526,28 +526,28 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read SFX
-        int globalSFXCount = 0;
+        byte globalSFXCount = 0;
         FileRead(&globalSFXCount, 1);
         for (int s = 0; s < globalSFXCount; ++s) { // SFX Names
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             strBuffer[fileBuffer] = 0;
         }
-        for (int s = 0; s < globalSFXCount; ++s) { // SFX Paths
+        for (byte s = 0; s < globalSFXCount; ++s) { // SFX Paths
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             strBuffer[fileBuffer] = 0;
         }
 
         // Read Player Names
-        int playerCount = 0;
+        byte playerCount = 0;
         FileRead(&playerCount, 1);
-        for (int p = 0; p < playerCount; ++p) {
+        for (byte p = 0; p < playerCount; ++p) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
-        for (int c = 0; c < 4; ++c) {
+        for (byte c = 0; c < 4; ++c) {
             // Special Stages are stored as cat 2 in file, but cat 3 in game :(
             int cat = c;
             if (c == 2)
@@ -555,8 +555,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             else if (c == 3)
                 cat = 2;
             stageListCount[cat] = 0;
-            FileRead(&stageListCount[cat], 1);
-            for (int s = 0; s < stageListCount[cat]; ++s) {
+            FileRead(&fileBuffer, 1);
+            stageListCount[cat] = fileBuffer;
+            for (byte s = 0; s < stageListCount[cat]; ++s) {
 
                 // Read Stage Folder
                 FileRead(&fileBuffer, 1);

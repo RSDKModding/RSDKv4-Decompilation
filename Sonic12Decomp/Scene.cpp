@@ -548,8 +548,8 @@ void LoadStageFiles(void)
     StopAllSfx();
     FileInfo infoStore;
     FileInfo info;
-    int fileBuffer  = 0;
-    int fileBuffer2 = 0;
+    byte fileBuffer = 0;
+    byte fileBuffer2 = 0;
     int scriptID    = 1;
     char strBuffer[0x100];
 
@@ -576,9 +576,9 @@ void LoadStageFiles(void)
                 SetPaletteEntry(-1, c, buf[0], buf[1], buf[2]);
             }
 
-            int globalObjectCount = 0;
+            byte globalObjectCount = 0;
             FileRead(&globalObjectCount, 1);
-            for (int i = 0; i < globalObjectCount; ++i) {
+            for (byte i = 0; i < globalObjectCount; ++i) {
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
@@ -593,7 +593,7 @@ void LoadStageFiles(void)
                 SetFileInfo(&infoStore);
             }
             else {
-                for (int i = 0; i < globalObjectCount; ++i) {
+                for (byte i = 0; i < globalObjectCount; ++i) {
                     FileRead(&fileBuffer2, 1);
                     FileRead(strBuffer, fileBuffer2);
                     strBuffer[fileBuffer2] = 0;
@@ -617,15 +617,16 @@ void LoadStageFiles(void)
                 SetPaletteEntry(-1, i, clr[0], clr[1], clr[2]);
             }
 
-            FileRead(&stageSFXCount, 1);
-            for (int i = 0; i < stageSFXCount; ++i) {
+            FileRead(&fileBuffer, 1);
+            stageSFXCount = fileBuffer;
+            for (byte i = 0; i < stageSFXCount; ++i) {
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
 
                 SetSfxName(strBuffer, i + globalSFXCount);
             }
-            for (int i = 0; i < stageSFXCount; ++i) {
+            for (byte i = 0; i < stageSFXCount; ++i) {
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
@@ -635,9 +636,9 @@ void LoadStageFiles(void)
                 SetFileInfo(&infoStore);
             }
 
-            int stageObjectCount = 0;
+            byte stageObjectCount = 0;
             FileRead(&stageObjectCount, 1);
-            for (int i = 0; i < stageObjectCount; ++i) {
+            for (byte i = 0; i < stageObjectCount; ++i) {
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
@@ -645,7 +646,7 @@ void LoadStageFiles(void)
             }
 
             if (Engine.usingBytecode) {
-                for (int i = 0; i < stageObjectCount; ++i) {
+                for (byte i = 0; i < stageObjectCount; ++i) {
                     FileRead(&fileBuffer2, 1);
                     FileRead(strBuffer, fileBuffer2);
                     strBuffer[fileBuffer2] = 0;
@@ -656,7 +657,7 @@ void LoadStageFiles(void)
                 SetFileInfo(&infoStore);
             }
             else {
-                for (int i = 0; i < stageObjectCount; ++i) {
+                for (byte i = 0; i < stageObjectCount; ++i) {
                     FileRead(&fileBuffer2, 1);
                     FileRead(strBuffer, fileBuffer2);
                     strBuffer[fileBuffer2] = 0;
@@ -725,7 +726,7 @@ void LoadActLayout()
     if (LoadActFile(".bin", stageListPosition, &info)) {
         byte fileBuffer[4];
 
-        int length = 0;
+        byte length = 0;
         FileRead(&length, 1);
         titleCardWord2 = (byte)length;
         for (int i = 0; i < length; ++i) {
@@ -869,11 +870,11 @@ void LoadStageBackground()
 
     FileInfo info;
     if (LoadStageFile("Backgrounds.bin", stageListPosition, &info)) {
-        int fileBuffer = 0;
-        int layerCount = 0;
+        byte fileBuffer = 0;
+        byte layerCount = 0;
         FileRead(&layerCount, 1);
         FileRead(&hParallax.entryCount, 1);
-        for (int i = 0; i < hParallax.entryCount; ++i) {
+        for (byte i = 0; i < hParallax.entryCount; ++i) {
             FileRead(&fileBuffer, 1);
             hParallax.parallaxFactor[i] = fileBuffer;
             FileRead(&fileBuffer, 1);
@@ -888,7 +889,7 @@ void LoadStageBackground()
         }
 
         FileRead(&vParallax.entryCount, 1);
-        for (int i = 0; i < vParallax.entryCount; ++i) {
+        for (byte i = 0; i < vParallax.entryCount; ++i) {
             FileRead(&fileBuffer, 1);
             vParallax.parallaxFactor[i] = fileBuffer;
             FileRead(&fileBuffer, 1);
@@ -902,7 +903,7 @@ void LoadStageBackground()
             FileRead(&vParallax.deform[i], 1);
         }
 
-        for (int i = 1; i < layerCount + 1; ++i) {
+        for (byte i = 1; i < layerCount + 1; ++i) {
             FileRead(&fileBuffer, 1);
             stageLayouts[i].width = fileBuffer;
             FileRead(&fileBuffer, 1); // Unused (???)
@@ -990,10 +991,10 @@ void LoadStageCollisions()
     FileInfo info;
     if (LoadStageFile("CollisionMasks.bin", stageListPosition, &info)) {
 
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
         int tileIndex  = 0;
-        for (int t = 0; t < 1024; ++t) {
-            for (int p = 0; p < 2; ++p) {
+        for (int t = 0; t < TILE_COUNT; ++t) {
+            for (int p = 0; p < CPATH_COUNT; ++p) {
                 FileRead(&fileBuffer, 1);
                 bool isCeiling             = fileBuffer >> 4;
                 collisionMasks[p].flags[t] = fileBuffer & 0xF;
@@ -1159,7 +1160,7 @@ void LoadStageGIFFile(int stageID)
 {
     FileInfo info;
     if (LoadStageFile("16x16Tiles.gif", stageID, &info)) {
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
 
         SetFilePosition(6); // GIF89a
         FileRead(&fileBuffer, 1);
@@ -1185,10 +1186,11 @@ void LoadStageGIFFile(int stageID)
         FileRead(&fileBuffer, 1);
         while (fileBuffer != ',') FileRead(&fileBuffer, 1); // gif image start identifier
 
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
-        FileRead(&fileBuffer, 2);
+        ushort fileBuffer2 = 0;
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
+        FileRead(&fileBuffer2, 2);
         FileRead(&fileBuffer, 1);
         bool interlaced = (fileBuffer & 0x40) >> 6;
         if ((unsigned int)fileBuffer >> 7 == 1) {
@@ -1202,7 +1204,7 @@ void LoadStageGIFFile(int stageID)
         ReadGifPictureData(width, height, interlaced, tilesetGFXData, 0);
 
         byte transparent = tilesetGFXData[0];
-        for (int i = 0; i < 0x40000; ++i) {
+        for (int i = 0; i < TILESET_SIZE; ++i) {
             if (tilesetGFXData[i] == transparent)
                 tilesetGFXData[i] = 0;
         }

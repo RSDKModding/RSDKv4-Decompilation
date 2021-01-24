@@ -48,7 +48,7 @@ void InitUserdata()
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
 
-        ini.SetBool("Game", "Language", Engine.language = RETRO_EN);
+        ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);

@@ -17,12 +17,12 @@ void LoadAnimationFile(char *filePath)
 {
     FileInfo info;
     if (LoadFile(filePath, &info)) {
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
         char strBuf[0x21];
         byte sheetIDs[0x18];
         sheetIDs[0] = 0;
 
-        int sheetCount = 0;
+        byte sheetCount = 0;
         FileRead(&sheetCount, 1); // Sheet Count
 
         for (int s = 0; s < sheetCount; ++s) {
@@ -38,7 +38,7 @@ void LoadAnimationFile(char *filePath)
             }
         }
 
-        int animCount = 0;
+        byte animCount = 0;
         FileRead(&animCount, 1);
         AnimationFile *animFile = &animationFileList[animationFileCount];
         animFile->animCount     = animCount;
@@ -60,10 +60,14 @@ void LoadAnimationFile(char *filePath)
                 FileRead(&frame->sheetID, 1);
                 frame->sheetID = sheetIDs[frame->sheetID];
                 FileRead(&frame->hitboxID, 1);
-                FileRead(&frame->sprX, 1);
-                FileRead(&frame->sprY, 1);
-                FileRead(&frame->width, 1);
-                FileRead(&frame->height, 1);
+                FileRead(&fileBuffer, 1);
+                frame->sprX = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                frame->sprY = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                frame->width = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                frame->height = fileBuffer;
 
                 sbyte buffer = 0;
                 FileRead(&buffer, 1);
