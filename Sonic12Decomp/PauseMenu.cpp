@@ -216,7 +216,7 @@ void PauseMenu_Main(void *objPtr)
         // DrawSprite(pauseMenu->barPos)
     }
     // OPTIONS
-    int margins[4][3] = { { 0, 46, 65 }, { 0, 58, 55 }, { 66, 46, 38 }, { 56, 58, 64 } };
+    int margins[4][3] = { { 0, 46, 65 }, { 0, 58, 55 }, { 66, 46, 30 }, { 56, 58, 64 } };
 
     for (int i = 0; i < 4; i++) {
         if (i == pauseMenu->selectedOption) {
