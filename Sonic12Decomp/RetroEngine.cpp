@@ -174,6 +174,8 @@ bool processEvents()
                             }
                             stageMode       = STAGEMODE_LOAD;
                             Engine.gameMode = ENGINE_MAINGAME;
+                            SetGlobalVariableByName("lampPostID", 0); // For S1
+                            SetGlobalVariableByName("starPostID", 0); // For S2
                         }
                         break;
                     case SDLK_F3:
@@ -190,6 +192,8 @@ bool processEvents()
                             }
                             stageMode       = STAGEMODE_LOAD;
                             Engine.gameMode = ENGINE_MAINGAME;
+                            SetGlobalVariableByName("lampPostID", 0); // For S1
+                            SetGlobalVariableByName("starPostID", 0); // For S2
                         }
                         break;
                     case SDLK_F10:

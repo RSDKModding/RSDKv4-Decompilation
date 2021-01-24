@@ -530,7 +530,7 @@ void setTextMenu(int sm)
             StrAdd(title, " START MENU");
             AddTextMenuEntry(&gameMenu[0], title);
             AddTextMenuEntry(&gameMenu[0], " ");
-            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
