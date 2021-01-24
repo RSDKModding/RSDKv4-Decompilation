@@ -65,11 +65,11 @@ void processStageSelect()
     CheckKeyDown(&keyDown);
     CheckKeyPress(&keyPress);
 
-    #if defined RETRO_USING_MOUSE || defined RETRO_USING_TOUCH
+#if defined RETRO_USING_MOUSE || defined RETRO_USING_TOUCH
     DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
     DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
     DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
-    #endif
+#endif
 
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
         if (touches > 0) {
@@ -293,6 +293,8 @@ void processStageSelect()
                 Engine.gameMode   = ENGINE_MAINGAME;
                 stageListPosition = gameMenu[1].selection1;
                 SetGlobalVariableByName("options.gameMode", 0);
+                SetGlobalVariableByName("lampPostID", 0); // For S1
+                SetGlobalVariableByName("starPostID", 0); // For S2
             }
             else if (keyPress.B) {
                 setTextMenu(DEVMENU_STAGELISTSEL);
@@ -1422,10 +1424,10 @@ void processStartMenu()
     }
 
     if (!Engine.finishedStartMenu) {
-        #if defined RETRO_USING_MOUSE || defined RETRO_USING_TOUCH
+#if defined RETRO_USING_MOUSE || defined RETRO_USING_TOUCH
         DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
         DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
         DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
-        #endif
+#endif
     }
 }
