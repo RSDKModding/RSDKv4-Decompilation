@@ -27,6 +27,11 @@ SOURCES = Sonic12Decomp/Animation.cpp     \
           Sonic12Decomp/String.cpp        \
           Sonic12Decomp/Text.cpp          \
           Sonic12Decomp/Userdata.cpp      \
+	  
+ifneq ($(FORCE_CASE_INSENSITIVE),)
+	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
+	SOURCES += Sonic12Decomp/fcaseopen.c
+endif
 
 objects/%.o: %
 	mkdir -p $(@D)
