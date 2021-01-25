@@ -167,7 +167,6 @@ void RenderRenderDevice()
         case 3: bilinearScaling = true; break;    // regular old bilinear
     }
 
-
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
     float screenxsize = SCREEN_XSIZE;
     float screenysize = SCREEN_YSIZE;
@@ -206,10 +205,9 @@ void RenderRenderDevice()
         texTarget = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
 
         // keep aspect
-        float aspectScale      = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
-        if (integerScaling) {
-            aspectScale = std::floor(aspectScale);
-        }
+        float aspectScale = (integerScaling) ? std::fminf(
+            std::floor(Engine.windowYSize / screenysize), std::floor(Engine.windowXSize / screenxsize))
+        : std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
         float xoffset          = (Engine.windowXSize - (screenxsize * aspectScale)) / 2;
         float yoffset          = (Engine.windowYSize - (screenysize * aspectScale)) / 2;
         destScreenPos_scaled.x = std::round(xoffset);
