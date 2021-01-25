@@ -205,9 +205,10 @@ void RenderRenderDevice()
         texTarget = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
 
         // keep aspect
-        float aspectScale = (integerScaling) ? std::fminf(
-            std::floor(Engine.windowYSize / screenysize), std::floor(Engine.windowXSize / screenxsize))
-        : std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
+        float aspectScale = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
+        if (integerScaling) {
+            aspectScale = int(aspectScale);
+        }
         float xoffset          = (Engine.windowXSize - (screenxsize * aspectScale)) / 2;
         float yoffset          = (Engine.windowYSize - (screenysize * aspectScale)) / 2;
         destScreenPos_scaled.x = std::round(xoffset);
