@@ -249,8 +249,22 @@ void RetroEngine::Init()
 
     InitUserdata();
     char dest[0x200];
+#if RETRO_PLATFORM == RETRO_UWP
+    static char resourcePath[256] = { 0 };
+
+    if (strlen(resourcePath) == 0) {
+        auto folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
+        auto path   = to_string(folder.Path());
+
+        std::copy(path.begin(), path.end(), resourcePath);
+    }
+
+    strcpy(dest, resourcePath);
+    strcat(dest, "\\Data.rsdk");
+#else
     StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile);
+#endif
     CheckRSDKFile(dest);
     InitNativeObjectSystem();
 
@@ -398,8 +412,8 @@ void RetroEngine::Init()
 
     if (Engine.gameType == GAME_SONIC1) {
         StrCopy(achievements[5].name, "Ring King");
-        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[1].name, "Ramp Ring Acrobatics");
+        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[2].name, "Secret of Marble Zone");
         StrCopy(achievements[3].name, "Block Buster");
         StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
