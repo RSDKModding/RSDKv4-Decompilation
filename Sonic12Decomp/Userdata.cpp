@@ -169,7 +169,7 @@ void InitUserdata()
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE))
             SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE;
-        if (!ini.GetInteger("Window", "Refresh Rate", &Engine.refreshRate))
+        if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
             Engine.refreshRate = 60;
 
         float bv = 0, sv = 0;

@@ -77,11 +77,9 @@ typedef unsigned int uint;
 #if RETRO_PLATFORM == RETRO_VITA
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   false
-#define SCREEN_YSIZE         (272)
 #else
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
-#define SCREEN_YSIZE         (240)
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
 #endif
@@ -155,6 +153,7 @@ enum RetroGameType {
 };
 
 // General Defines
+#define SCREEN_YSIZE (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
