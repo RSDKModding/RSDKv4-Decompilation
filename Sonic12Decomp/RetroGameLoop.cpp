@@ -35,10 +35,10 @@ void RetroGameLoop_Main(void *objPtr)
             ResetCurrentStageFolder();
             break;
         case ENGINE_INITPAUSE:
-            if (entity->pauseMenu) {
+            /*if (entity->pauseMenu) {
                 Engine.gameMode = ENGINE_MAINGAME;
                 break;
-            }
+            }//*/
             PauseSound();
             // ClearNativeObjects();
             Engine.gameMode = ENGINE_WAIT; // temp (maybe?) so pause menu renders on top
