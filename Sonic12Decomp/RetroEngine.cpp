@@ -255,8 +255,22 @@ void RetroEngine::Init()
 
     InitUserdata();
     char dest[0x200];
+#if RETRO_PLATFORM == RETRO_UWP
+    static char resourcePath[256] = { 0 };
+
+    if (strlen(resourcePath) == 0) {
+        auto folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
+        auto path   = to_string(folder.Path());
+
+        std::copy(path.begin(), path.end(), resourcePath);
+    }
+
+    strcpy(dest, resourcePath);
+    strcat(dest, "\\Data.rsdk");
+#else
     StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile);
+#endif
     CheckRSDKFile(dest);
     InitNativeObjectSystem();
 
