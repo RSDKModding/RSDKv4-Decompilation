@@ -158,6 +158,14 @@ void RenderRenderDevice()
     // enable bilinear scaling, which just disables the fancy upscaling that enhanced scaling does.
     bool bilinearScaling = false;
 
+    #if RETRO_PLATFORM == RETRO_VITA // Vita crashes with the switchcase for some reason
+    if (Engine.scalingMode != (0 || 1 || 2 || 3))
+        Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
+    if (Engine.scalingMode == 1)
+        integerScaling = true;
+    if (Engine.scalingMode == 3)
+        bilinearScaling = true;
+    #else
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
@@ -166,6 +174,7 @@ void RenderRenderDevice()
         case 2: break;                            // sharp bilinear
         case 3: bilinearScaling = true; break;    // regular old bilinear
     }
+    #endif
 
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
     float screenxsize = SCREEN_XSIZE;
@@ -207,7 +216,7 @@ void RenderRenderDevice()
         // keep aspect
         float aspectScale = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
         if (integerScaling) {
-            aspectScale = int(aspectScale);
+            aspectScale = std::floor(aspectScale);
         }
         float xoffset          = (Engine.windowXSize - (screenxsize * aspectScale)) / 2;
         float yoffset          = (Engine.windowYSize - (screenysize * aspectScale)) / 2;
