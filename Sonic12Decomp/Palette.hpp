@@ -11,8 +11,8 @@ struct PaletteEntry {
 };
 
 // Palettes (as RGB565 Colours)
-extern PaletteEntry fullPalette32[PALETTE_COUNT + 2][PALETTE_SIZE];
-extern ushort fullPalette[PALETTE_COUNT + 2][PALETTE_SIZE];
+extern PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
+extern ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
 extern ushort *activePalette; // Ptr to the 256 colour set thats active
 extern PaletteEntry *activePalette32;
 

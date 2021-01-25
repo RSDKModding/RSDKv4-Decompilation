@@ -1,35 +1,11 @@
 #include "RetroEngine.hpp"
-
-TextMenu pauseTextMenu;
+#include <algorithm>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-void uncheckedPalBlend(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount)
-{
-    int startIndex = 0, endIndex = 256;
-    if (blendAmount > 0xFF)
-        blendAmount = 0xFF;
-    uint blendA = 0xFF - blendAmount;
-    ushort *dst = &fullPalette[destPaletteID][startIndex];
-    for (int l = startIndex; l < endIndex; ++l) {
-        *dst = RGB888_TO_RGB565((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
-                                (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8),
-                                (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8));
-        ++dst;
-    }
-#if RETRO_DEVICETYPE == RETRO_STANDARD && (RETRO_USING_SDL1 || RETRO_USING_SDL2)
-    if (Engine.isFullScreen)
-        SDL_ShowCursor(SDL_TRUE);
-#endif
-}
-
-void uncheckedPalCopy(byte destinationPalette, byte sourcePalette)
-{
-    for (int i = 0; i < 256; ++i) {
-        fullPalette[destinationPalette][i]   = fullPalette[sourcePalette][i];
-        fullPalette32[destinationPalette][i] = fullPalette32[sourcePalette][i];
-    }
-}
+ushort *fbcopy    = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+ushort *displayed = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+ushort *lookup    = new ushort[0xFFFF];
 
 void PauseMenu_Create(void *objPtr)
 {
@@ -43,47 +19,21 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->barPos                 = SCREEN_XSIZE + 67;
     pauseMenu->slowTimer              = 0;
 
-    pauseMenu->lastSurfaceNo = textMenuSurfaceNo;
-    textMenuSurfaceNo        = SURFACE_MAX - 1;
-
     snapDataFile(1);
     LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56);
     snapDataFile(0);
-    CopyPalette(0, 0, 5, 0, 256); // land
-    CopyPalette(1, 0, 6, 0, 256); // water
 
-    uncheckedPalCopy(8, 0); // land
-    uncheckedPalCopy(9, 1); // water
-
-    for (int j = 0; j < 2; ++j) {
-        for (int i = 0; i < 256; ++i) {
-            int p = GetPaletteEntryPacked(8 + j, i);
-
-            int r = (p >> 16) & 0xff;
-            int g = (p >> 8) & 0xff;
-            int b = p & 0xff;
-            int tr, tg, tb;
-            tr = 0.393 * r + 0.769 * g + 0.189 * b + 10;
-            tg = 0.349 * r + 0.686 * g + 0.168 * b - 9;
-            tb = 0.272 * r + 0.534 * g + 0.131 * b - 30;
-
-            if (j) {
-                tr -= 10;
-                tg -= 10;
-                tb += 20;
-            }
-
-            if (tr < 0)
-                tr = 0;
-            if (tg < 0)
-                tg = 0;
-            if (tb < 0)
-                tb = 0;
-            SetPaletteEntry(8 + j, i, MIN(tr, 255), MIN(tg, 255), MIN(tb, 255));
-        }
-    }
     SetPaletteEntry(7, 8, 0xca, 0x51, 0);
     SetPaletteEntry(7, 9, 0xca, 0x51, 0);
+
+    memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+}
+
+inline int lerp(float a, float b, float amount)
+{
+    if (amount > 1)
+        amount = 1;
+    return a + amount * (b - a);
 }
 
 void PauseMenu_Destroy(NativeEntity_PauseMenu *pauseMenu)
@@ -95,8 +45,6 @@ void PauseMenu_Destroy(NativeEntity_PauseMenu *pauseMenu)
     if (Engine.isFullScreen)
         SDL_ShowCursor(SDL_FALSE);
 #endif
-    CopyPalette(5, 0, 0, 0, 256);
-    CopyPalette(6, 0, 1, 0, 256);
 }
 void PauseMenu_Main(void *objPtr)
 {
@@ -108,6 +56,8 @@ void PauseMenu_Main(void *objPtr)
     int amount = (pauseMenu->direction ? 15 - pauseMenu->barTimer : pauseMenu->barTimer) * 17.1;
     if (amount < 0)
         amount = 0;
+    if (amount > 0xFF)
+        amount = 0xFF;
 
     switch (pauseMenu->state) {
         case 0:
@@ -150,10 +100,8 @@ void PauseMenu_Main(void *objPtr)
         case 2: pauseMenu->revokeTimer++;
         case 6:
             pauseMenu->barPos += sin256(pauseMenu->timer * 3) / 21;
-            if (++pauseMenu->timer > 21) {
-                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
+            if (++pauseMenu->timer > 21)
                 return PauseMenu_Destroy(pauseMenu);
-            }
             break;
         case 3:
         case 4:
@@ -164,7 +112,7 @@ void PauseMenu_Main(void *objPtr)
             pauseMenu->revokeTimer++;
 
             if (pauseMenu->barPos + 128 < 0 && pauseMenu->slowTimer++ > 7) {
-                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
+
                 switch (pauseMenu->state) {
                     case 3:
                         stageMode       = STAGEMODE_LOAD;
@@ -181,13 +129,55 @@ void PauseMenu_Main(void *objPtr)
             break;
     }
 
-    uncheckedPalBlend(0, 5, 8, amount);
-    uncheckedPalBlend(1, 6, 9, amount);
+    if (pauseMenu->direction) // we copy to ensure it gets sepia'd
+        memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 
-    SetActivePalette(0, 0, SCREEN_YSIZE);
-    if (!pauseMenu->direction) {
-        DrawStageGFX();
+    memset(lookup, 0, 0xFFFF * sizeof(ushort));
+    float famount = (float)amount / 0xFF;
+
+    for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; i++) {
+        ushort color = fbcopy[i];
+        if (!color) {
+            displayed[i] = 0;
+            continue;
+        }
+        if (lookup[color]) {
+            displayed[i] = lookup[color];
+            continue;
+        }
+        int r = ((color >> 11) * 527 + 23) >> 6;
+        int g = (((color >> 5) & 0b111111) * 259 + 33) >> 6;
+        int b = ((color & 0b11111) * 527 + 23) >> 6;
+
+        int tr, tg, tb;
+        tr = 0.393 * r + 0.769 * g + 0.189 * b + 10;
+        tg = 0.349 * r + 0.686 * g + 0.168 * b - 9;
+        tb = 0.272 * r + 0.534 * g + 0.131 * b - 30;
+        if (tg < 0)
+            tg = 0;
+        if (tb < 0)
+            tb = 0;
+
+        // lerp
+        int fr, fg, fb;
+        if (amount < 0xFF) {
+            fr = lerp(r, tr, famount);
+            fg = lerp(g, tg, famount);
+            fb = lerp(b, tb, famount);
+        }
+        else {
+            fr = tr;
+            fg = tg;
+            fb = tb;
+        }
+        fr = MIN(255, fr);
+        fg = MIN(255, fg);
+        fb = MIN(255, fb);
+
+        lookup[color] = RGB888_TO_RGB565(fr, fg, fb);
+        displayed[i]  = lookup[color];
     }
+    memcpy(Engine.frameBuffer, displayed, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
     pauseMenu->direction = pauseMenu->state == 2 || pauseMenu->state == 6;
 
     SetActivePalette(7, 0, SCREEN_YSIZE);

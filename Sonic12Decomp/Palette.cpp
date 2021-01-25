@@ -1,11 +1,11 @@
 #include "RetroEngine.hpp"
 
 // Palettes (as RGB888 Colours)
-PaletteEntry fullPalette32[PALETTE_COUNT + 2][PALETTE_SIZE];
+PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
 PaletteEntry *activePalette32 = fullPalette32[0];
 
 // Palettes (as RGB565 Colours)
-ushort fullPalette[PALETTE_COUNT + 2][PALETTE_SIZE];
+ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
 ushort *activePalette = fullPalette[0]; // Ptr to the 256 colour set thats active
 
 byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
