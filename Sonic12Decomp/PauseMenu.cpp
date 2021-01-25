@@ -86,14 +86,15 @@ void PauseMenu_Create(void *objPtr)
 
 void PauseMenu_Destroy(NativeEntity_PauseMenu *pauseMenu)
 {
-    CopyPalette(5, 0, 0, 0, 256);
-    CopyPalette(6, 0, 1, 0, 256);
+
     RemoveNativeObject(pauseMenu);
     pauseMenu = nullptr;
 #if RETRO_DEVICETYPE == RETRO_STANDARD && (RETRO_USING_SDL1 || RETRO_USING_SDL2)
     if (Engine.isFullScreen)
         SDL_ShowCursor(SDL_FALSE);
 #endif
+    CopyPalette(5, 0, 0, 0, 256);
+    CopyPalette(6, 0, 1, 0, 256);
 }
 void PauseMenu_Main(void *objPtr)
 {

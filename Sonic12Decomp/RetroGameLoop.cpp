@@ -35,12 +35,14 @@ void RetroGameLoop_Main(void *objPtr)
             ResetCurrentStageFolder();
             break;
         case ENGINE_INITPAUSE:
+            if (entity->pauseMenu) {
+                Engine.gameMode = ENGINE_MAINGAME;
+                break;
+            }
             PauseSound();
             // ClearNativeObjects();
             Engine.gameMode = ENGINE_WAIT; // temp (maybe?) so pause menu renders on top
             // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete
-            if (entity->pauseMenu && nativeEntityCount > 1)
-                RemoveNativeObject(entity->pauseMenu);
             entity->pauseMenu = (NativeEntity_PauseMenu *)CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
             break;
         case ENGINE_EXITPAUSE:
