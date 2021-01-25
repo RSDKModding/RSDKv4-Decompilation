@@ -110,8 +110,10 @@ void ClearAnimationData()
     hitboxCount        = 0;
 
     // Used for pause menu
-    LoadGIFFile("Data/Sprites/Global/PauseMenu.gif", SURFACE_MAX - 1);
-    StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Data/Sprites/Global/PauseMenu.gif");
+    snapDataFile(1);
+    LoadGIFFile("Menu/Pause/PauseMenu.gif", SURFACE_MAX - 1);
+    StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Menu/Pause/PauseMenu.gif");
+    snapDataFile(0);
 }
 
 AnimationFile *AddAnimationFile(char *filePath)

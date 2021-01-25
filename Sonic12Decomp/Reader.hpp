@@ -64,8 +64,15 @@ struct RSDKContainer {
     int fileCount;
 };
 
+extern RSDKContainer *currentContainer;
+
 extern RSDKContainer rsdkContainer;
 extern char rsdkName[0x400];
+
+extern RSDKContainer menuRSDK;
+extern char menuRSDKName[0x400];
+
+extern byte dataMode;
 
 extern char fileName[0x100];
 extern byte fileBuffer[0x2000];
@@ -84,6 +91,15 @@ extern byte encryptionStringA[0x10];
 extern byte encryptionStringB[0x10];
 
 extern FileIO *cFileHandle;
+
+inline void snapDataFile(byte m)
+{
+    dataMode = m;
+    switch (dataMode) {
+        case 0: currentContainer = &rsdkContainer; break;
+        case 1: currentContainer = &menuRSDK; break;
+    }
+}
 
 inline void CopyFilePath(char *dest, const char *src)
 {
@@ -118,7 +134,7 @@ inline size_t FillFileBuffer()
 {
     if (readPos + 0x2000 <= fileSize)
         readSize = 0x2000;
-    else 
+    else
         readSize = fileSize - readPos;
 
     size_t result = fRead(fileBuffer, 1u, readSize, cFileHandle);
@@ -132,7 +148,6 @@ void SetFileInfo(FileInfo *fileInfo);
 size_t GetFilePosition();
 void SetFilePosition(int newPos);
 bool ReachedEndOfFile();
-
 
 size_t FileRead2(FileInfo *info, void *dest, int size); // For Music Streaming
 inline bool CloseFile2(FileInfo *info)

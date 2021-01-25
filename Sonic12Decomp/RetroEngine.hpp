@@ -45,32 +45,32 @@ typedef unsigned int uint;
 
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #include <WInRTIncludes.hpp>
 
-#define RETRO_PLATFORM (RETRO_UWP)
+#define RETRO_PLATFORM   (RETRO_UWP)
 #define RETRO_DEVICETYPE (UAP_GetRetroGamePlatform())
 #endif
 #else
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #elif defined __APPLE__
 #if __IPHONEOS__
-#define RETRO_PLATFORM (RETRO_iOS)
+#define RETRO_PLATFORM   (RETRO_iOS)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #else
-#define RETRO_PLATFORM (RETRO_OSX)
+#define RETRO_PLATFORM   (RETRO_OSX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 #elif defined __vita__
-#define RETRO_PLATFORM (RETRO_VITA)
+#define RETRO_PLATFORM   (RETRO_VITA)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
-#define RETRO_PLATFORM (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
@@ -85,7 +85,7 @@ typedef unsigned int uint;
 #endif
 
 #ifndef BASE_PATH
-#define BASE_PATH            ""
+#define BASE_PATH ""
 #endif
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_VITA || RETRO_PLATFORM == RETRO_UWP
@@ -153,7 +153,7 @@ enum RetroGameType {
 };
 
 // General Defines
-#define SCREEN_YSIZE (240)
+#define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
@@ -220,6 +220,8 @@ public:
     bool usingDataFile = false;
     bool usingBytecode = false;
 
+    bool usingMenuFile = false;
+
     char *dataFile = new char[0x80];
 
     bool initialised = false;
@@ -264,13 +266,13 @@ public:
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-    const char *gameVersion = "1.1.0";
-    const char *gamePlatform = nullptr;    
+    const char *gameVersion  = "1.1.0";
+    const char *gamePlatform = nullptr;
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     const char *gameRenderType = "SW_RENDERING";
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType    = "HW_RENDERING";
+    const char *gameRenderType = "HW_RENDERING";
 #endif
 
 #if RETRO_USE_HAPTICS

@@ -266,6 +266,10 @@ void RetroEngine::Init()
     StrAdd(dest, Engine.dataFile);
 #endif
     CheckRSDKFile(dest);
+    snapDataFile(1);
+    // TODO: bother UWP folk to make this work similarly
+    CheckRSDKFile(BASE_PATH "Menu.rsdk");
+    snapDataFile(0);
     InitNativeObjectSystem();
 
 #if RETRO_USE_NETWORKING
@@ -484,7 +488,7 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    byte fileBuffer = 0;
+    byte fileBuffer  = 0;
     byte fileBuffer2 = 0;
     char strBuffer[0x40];
 

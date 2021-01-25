@@ -4,6 +4,13 @@
 RSDKContainer rsdkContainer;
 char rsdkName[0x400];
 
+RSDKContainer menuRSDK;
+char menuRSDKName[0x400];
+
+RSDKContainer *currentContainer = &rsdkContainer;
+
+byte dataMode = 0;
+
 char fileName[0x100];
 byte fileBuffer[0x2000];
 int fileSize;
@@ -26,8 +33,13 @@ bool CheckRSDKFile(const char *filePath)
 {
     FileInfo info;
 
-    Engine.usingDataFile = false;
-    Engine.usingBytecode = false;
+    if (!dataMode) {
+        Engine.usingDataFile = false;
+        Engine.usingBytecode = false;
+    }
+    else {
+        Engine.usingMenuFile = false;
+    }
 
     // CopyFilePath(filename, &rsdkName);
     cFileHandle = fOpen(filePath, "rb");
@@ -39,26 +51,30 @@ bool CheckRSDKFile(const char *filePath)
             if (buf != signature[i])
                 return false;
         }
-        Engine.usingDataFile = true;
-        StrCopy(rsdkName, filePath);
+        if (!dataMode)
+            Engine.usingDataFile = true;
+        else
+            Engine.usingMenuFile = true;
 
-        rsdkContainer.fileCount = 0;
-        fRead(&rsdkContainer.fileCount, 2, 1, cFileHandle);
-        for (int f = 0; f < rsdkContainer.fileCount; ++f) {
+        StrCopy(dataMode ? menuRSDKName : rsdkName, filePath);
+
+        currentContainer->fileCount = 0;
+        fRead(&currentContainer->fileCount, 2, 1, cFileHandle);
+        for (int f = 0; f < currentContainer->fileCount; ++f) {
             for (int y = 0; y < 16; y += 4) {
-                fRead(&rsdkContainer.files[f].hash[y + 3], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 2], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 1], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 0], 1, 1, cFileHandle);
+                fRead(&currentContainer->files[f].hash[y + 3], 1, 1, cFileHandle);
+                fRead(&currentContainer->files[f].hash[y + 2], 1, 1, cFileHandle);
+                fRead(&currentContainer->files[f].hash[y + 1], 1, 1, cFileHandle);
+                fRead(&currentContainer->files[f].hash[y + 0], 1, 1, cFileHandle);
             }
 
-            fRead(&rsdkContainer.files[f].offset, 4, 1, cFileHandle);
-            fRead(&rsdkContainer.files[f].filesize, 4, 1, cFileHandle);
+            fRead(&currentContainer->files[f].offset, 4, 1, cFileHandle);
+            fRead(&currentContainer->files[f].filesize, 4, 1, cFileHandle);
 
-            rsdkContainer.files[f].encrypted = (rsdkContainer.files[f].filesize & 0x80000000);
-            rsdkContainer.files[f].filesize &= 0x7FFFFFFF;
+            currentContainer->files[f].encrypted = (currentContainer->files[f].filesize & 0x80000000);
+            currentContainer->files[f].filesize &= 0x7FFFFFFF;
 
-            rsdkContainer.files[f].fileID = f;
+            currentContainer->files[f].fileID = f;
         }
 
         fClose(cFileHandle);
@@ -70,7 +86,11 @@ bool CheckRSDKFile(const char *filePath)
         return true;
     }
     else {
-        Engine.usingDataFile = false;
+        if (!dataMode)
+            Engine.usingDataFile = false;
+        else
+            Engine.usingMenuFile = false;
+
         cFileHandle = NULL;
         if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
@@ -90,16 +110,15 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         fClose(cFileHandle);
 
     cFileHandle = NULL;
-    if (Engine.usingDataFile) {
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
         StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
         int len = StrLength(fileInfo->fileName);
         GenerateMD5FromString(fileInfo->fileName, len, buffer);
 
-
-        for (int f = 0; f < rsdkContainer.fileCount; ++f) {
-            RSDKFileInfo *file = &rsdkContainer.files[f];
+        for (int f = 0; f < currentContainer->fileCount; ++f) {
+            RSDKFileInfo *file = &currentContainer->files[f];
 
             bool match = true;
             for (int h = 0; h < 0x10; ++h) {
@@ -113,9 +132,9 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
             cFileHandle = fOpen(rsdkName, "rb");
             fSeek(cFileHandle, 0, SEEK_END);
-            fileSize       = (int)fTell(cFileHandle);
+            fileSize = (int)fTell(cFileHandle);
 
-            vFileSize = file->filesize;
+            vFileSize         = file->filesize;
             virtualFileOffset = file->offset;
             readPos           = file->offset;
             readSize          = 0;
@@ -134,7 +153,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
                 memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
             }
-            
+
             fileInfo->readPos           = readPos;
             fileInfo->fileSize          = fileSize;
             fileInfo->vfileSize         = vFileSize;
@@ -165,10 +184,10 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         fileInfo->fileSize = (int)fTell(cFileHandle);
         fileSize = fileInfo->vfileSize = fileInfo->fileSize;
         fSeek(cFileHandle, 0, SEEK_SET);
-        readPos = 0;
-        fileInfo->readPos           = readPos;
-        bufferPosition              = 0;
-        readSize                    = 0;
+        readPos           = 0;
+        fileInfo->readPos = readPos;
+        bufferPosition    = 0;
+        readSize          = 0;
 
         printLog("Loaded File '%s'", filePath);
         return true;
@@ -180,7 +199,7 @@ void GenerateELoadKeys(uint key1, uint key2)
     char buffer[0x20];
     byte hash[0x10];
 
-    //StringA
+    // StringA
     ConvertIntegerToString(buffer, key1);
     int len = StrLength(buffer);
     GenerateMD5FromString(buffer, len, hash);
@@ -203,7 +222,6 @@ void GenerateELoadKeys(uint key1, uint key2)
         encryptionStringB[y + 1] = hash[y + 2];
         encryptionStringB[y + 0] = hash[y + 3];
     }
-
 }
 
 const uint ENC_KEY_2 = 0x24924925;
@@ -301,7 +319,7 @@ void GetFileInfo(FileInfo *fileInfo)
 
 void SetFileInfo(FileInfo *fileInfo)
 {
-    if (Engine.usingDataFile) {
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
         cFileHandle       = fOpen(rsdkName, "rb");
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
@@ -339,7 +357,7 @@ void SetFileInfo(FileInfo *fileInfo)
 
 size_t GetFilePosition()
 {
-    if (Engine.usingDataFile)
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
         return bufferPosition + readPos - readSize - virtualFileOffset;
     else
         return bufferPosition + readPos - readSize;
@@ -397,7 +415,7 @@ void SetFilePosition(int newPos)
         }
     }
     else {
-        if (Engine.usingDataFile)
+        if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
             readPos = virtualFileOffset + newPos;
         else
             readPos = newPos;
@@ -408,7 +426,7 @@ void SetFilePosition(int newPos)
 
 bool ReachedEndOfFile()
 {
-    if (Engine.usingDataFile)
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
         return bufferPosition + readPos - readSize - virtualFileOffset >= vFileSize;
     else
         return bufferPosition + readPos - readSize >= fileSize;
@@ -455,8 +473,8 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
                     info->eStringNo &= 0x7F;
 
                     if (info->eNybbleSwap != 0) {
-                        int key1    = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                        int key2    = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
+                        int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                        int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
                         info->eNybbleSwap = 0;
 
                         int temp1 = key2 + (info->eStringNo - key2) / 2;
@@ -466,8 +484,8 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
                         info->eStringPosB = info->eStringNo - temp2 * 4 + 2;
                     }
                     else {
-                        int key1    = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                        int key2    = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
+                        int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
+                        int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
                         info->eNybbleSwap = 1;
 
                         int temp1 = key2 + (info->eStringNo - key2) / 2;
@@ -498,9 +516,9 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
     return 0;
 }
 
-size_t GetFilePosition2(FileInfo* info)
+size_t GetFilePosition2(FileInfo *info)
 {
-    if (Engine.usingDataFile)
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
         return info->bufferPosition + info->readPos - info->virtualFileOffset;
     else
         return info->bufferPosition + info->readPos;
@@ -558,7 +576,7 @@ void SetFilePosition2(FileInfo *info, int newPos)
         }
     }
     else {
-        if (Engine.usingDataFile)
+        if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
             info->readPos = info->virtualFileOffset + newPos;
         else
             info->readPos = newPos;

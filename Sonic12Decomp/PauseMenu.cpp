@@ -46,7 +46,9 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->lastSurfaceNo = textMenuSurfaceNo;
     textMenuSurfaceNo        = SURFACE_MAX - 1;
 
-    LoadPalette("PauseMenu.act", 7, 0, 0, 56);
+    snapDataFile(1);
+    LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56);
+    snapDataFile(0);
     CopyPalette(0, 0, 5, 0, 256); // land
     CopyPalette(1, 0, 6, 0, 256); // water
 
