@@ -418,8 +418,8 @@ void RetroEngine::Init()
 
     if (Engine.gameType == GAME_SONIC1) {
         StrCopy(achievements[5].name, "Ring King");
-        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[1].name, "Ramp Ring Acrobatics");
+        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[2].name, "Secret of Marble Zone");
         StrCopy(achievements[3].name, "Block Buster");
         StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
