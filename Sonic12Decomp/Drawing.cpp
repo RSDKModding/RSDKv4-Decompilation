@@ -159,12 +159,12 @@ void RenderRenderDevice()
     bool bilinearScaling = false;
 
     #if RETRO_PLATFORM == RETRO_VITA // Vita crashes with the switchcase for some reason
-    if (Engine.scalingMode != (0 || 1 || 2 || 3))
-        Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
-    if (Engine.scalingMode == 1)
-        integerScaling = true;
-    if (Engine.scalingMode == 3)
-        bilinearScaling = true;
+    //if (Engine.scalingMode != (0 || 1 || 2 || 3))
+    //    Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
+    //if (Engine.scalingMode == 1)
+    //    integerScaling = true;
+    //if (Engine.scalingMode == 3)
+    //    bilinearScaling = true;
     #else
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
@@ -215,9 +215,9 @@ void RenderRenderDevice()
 
         // keep aspect
         float aspectScale = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
-        if (integerScaling) {
+        //if (integerScaling) {
             aspectScale = std::floor(aspectScale);
-        }
+        //}
         float xoffset          = (Engine.windowXSize - (screenxsize * aspectScale)) / 2;
         float yoffset          = (Engine.windowYSize - (screenysize * aspectScale)) / 2;
         destScreenPos_scaled.x = std::round(xoffset);
