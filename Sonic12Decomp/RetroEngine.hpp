@@ -77,11 +77,14 @@ typedef unsigned int uint;
 #if RETRO_PLATFORM == RETRO_VITA
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   false
+#define RETRO_DEFAULTSCALINGMODE 1
 #else
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
+// set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size.
+#define RETRO_DEFAULTSCALINGMODE 2
 #endif
 
 #ifndef BASE_PATH
@@ -289,7 +292,7 @@ public:
     bool startFullScreen  = false; // if should start as fullscreen
     bool borderless       = false;
     bool vsync            = false;
-    bool enhancedScaling  = true; // enable enhanced scaling
+    int scalingMode       = RETRO_DEFAULTSCALINGMODE;
     int windowScale       = 2;
     int refreshRate       = 60; // user-picked screen update rate
     int screenRefreshRate = 60; // hardware screen update rate

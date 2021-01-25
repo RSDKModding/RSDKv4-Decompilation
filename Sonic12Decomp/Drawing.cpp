@@ -151,20 +151,34 @@ void RenderRenderDevice()
     // SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
-
+    // enable integer scaling, which is a modification of enhanced scaling
+    bool integerScaling  = false;
     // allows me to disable it to prevent blur on resolutions that match only on 1 axis
-    bool tmpEnhancedScaling = Engine.enhancedScaling;
+    bool disableEnhancedScaling = false;
+    // enable bilinear scaling, which just disables the fancy upscaling that enhanced scaling does.
+    bool bilinearScaling = false;
+
+    switch (Engine.scalingMode) {
+        // reset to default if value is invalid.
+        default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
+        case 0: break;                            // nearest
+        case 1: integerScaling = true; break;     // integer scaling
+        case 2: break;                            // sharp bilinear
+        case 3: bilinearScaling = true; break;    // regular old bilinear
+    }
+
+
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
     float screenxsize = SCREEN_XSIZE;
     float screenysize = SCREEN_YSIZE;
 
     // check if enhanced scaling is even necessary to be calculated by checking if the screen size is close enough on one axis
     // unfortunately it has to be "close enough" because of floating point precision errors. dang it
-    if (tmpEnhancedScaling) {
+    if (Engine.scalingMode == 2) {
         bool cond1 = (std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize)) ? true : false;
         bool cond2 = (std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize)) ? true : false;
         if (cond1 || cond2)
-            tmpEnhancedScaling = false;
+            disableEnhancedScaling = true;
     }
 
     // get 2x resolution if HQ is enabled.
@@ -173,7 +187,7 @@ void RenderRenderDevice()
         screenysize *= 2;
     }
 
-    if (tmpEnhancedScaling) {
+    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
         // before you make a texture that's larger than the window itself. This texture will then be scaled
         // up to the actual screen size using linear interpolation. This makes even window/screen scales
@@ -181,14 +195,21 @@ void RenderRenderDevice()
         // creating a nice image.
 
         // get integer scale
-        float scale =
-            std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
+        float scale = 1;
+        if (!bilinearScaling) 
+        {
+            scale =
+                std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
+        }
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear"); // set interpolation to linear
         // create texture that's integer scaled.
         texTarget = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
 
         // keep aspect
         float aspectScale      = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
+        if (integerScaling) {
+            aspectScale = std::floor(aspectScale);
+        }
         float xoffset          = (Engine.windowXSize - (screenxsize * aspectScale)) / 2;
         float yoffset          = (Engine.windowYSize - (screenysize * aspectScale)) / 2;
         destScreenPos_scaled.x = std::round(xoffset);
@@ -255,7 +276,7 @@ void RenderRenderDevice()
         SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
     }
 
-    if (tmpEnhancedScaling) {
+    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set render target back to the screen.
         SDL_SetRenderTarget(Engine.renderer, NULL);
         // clear the screen itself now, for same reason as above
