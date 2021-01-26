@@ -102,9 +102,11 @@ void PauseMenu_Main(void *objPtr)
             break;
         case 2: pauseMenu->revokeTimer++;
         case 6:
-            pauseMenu->barPos += sin256(pauseMenu->timer * 3) / 21;
-            if (++pauseMenu->timer > 21)
-                return PauseMenu_Destroy(pauseMenu);
+            if (pauseMenu->state != 2 || pauseMenu->revokeTimer >= 12) {
+                pauseMenu->barPos += sin256(pauseMenu->timer * 3) / 21;
+                if (++pauseMenu->timer > 21)
+                    return PauseMenu_Destroy(pauseMenu);
+            }
             break;
         case 3:
         case 4:
