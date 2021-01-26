@@ -159,16 +159,16 @@ void RenderRenderDevice()
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
-    #if RETRO_PLATFORM == RETRO_VITA // Vita crashes with cases 1 and 3
+#if RETRO_PLATFORM == RETRO_VITA // Vita crashes with cases 1 and 3
     Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
-    #endif
+#endif
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
-        case 0: break;                            // nearest
-        case 1: integerScaling = true; break;     // integer scaling
-        case 2: break;                            // sharp bilinear
-        case 3: bilinearScaling = true; break;    // regular old bilinear
+        case 0: break;                         // nearest
+        case 1: integerScaling = true; break;  // integer scaling
+        case 2: break;                         // sharp bilinear
+        case 3: bilinearScaling = true; break; // regular old bilinear
     }
 
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
@@ -178,8 +178,8 @@ void RenderRenderDevice()
     // check if enhanced scaling is even necessary to be calculated by checking if the screen size is close enough on one axis
     // unfortunately it has to be "close enough" because of floating point precision errors. dang it
     if (Engine.scalingMode == 2) {
-        bool cond1 = (std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize)) ? true : false;
-        bool cond2 = (std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize)) ? true : false;
+        bool cond1 = std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize);
+        bool cond2 = std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize);
         if (cond1 || cond2)
             disableEnhancedScaling = true;
     }
@@ -199,8 +199,7 @@ void RenderRenderDevice()
 
         // get integer scale
         float scale = 1;
-        if (!bilinearScaling) 
-        {
+        if (!bilinearScaling) {
             scale =
                 std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
         }
