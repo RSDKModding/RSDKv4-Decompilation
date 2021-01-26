@@ -174,8 +174,8 @@ void RenderRenderDevice()
     // check if enhanced scaling is even necessary to be calculated by checking if the screen size is close enough on one axis
     // unfortunately it has to be "close enough" because of floating point precision errors. dang it
     if (Engine.scalingMode == 2) {
-        bool cond1 = (std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize)) ? true : false;
-        bool cond2 = (std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize)) ? true : false;
+        bool cond1 = std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize);
+        bool cond2 = std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize);
         if (cond1 || cond2)
             disableEnhancedScaling = true;
     }
