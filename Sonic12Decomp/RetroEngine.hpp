@@ -267,7 +267,7 @@ public:
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-    const char *gameVersion  = "1.1.0";
+    const char *gameVersion  = "hello, RMG"; //"1.2.0"
     const char *gamePlatform = nullptr;
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
