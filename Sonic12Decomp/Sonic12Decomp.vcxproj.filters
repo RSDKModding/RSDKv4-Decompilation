@@ -90,6 +90,9 @@
     <ClInclude Include="Network.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StartMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -160,6 +163,9 @@
     </ClCompile>
     <ClCompile Include="Network.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

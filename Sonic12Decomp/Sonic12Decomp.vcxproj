@@ -220,6 +220,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene3D.cpp" />
     <ClCompile Include="Script.cpp" />
+    <ClCompile Include="StartMenu.cpp" />
     <ClCompile Include="Userdata.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="String.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="RetroEngine.hpp" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Script.hpp" />
+    <ClInclude Include="StartMenu.hpp" />
     <ClInclude Include="String.hpp" />
     <ClInclude Include="Text.hpp" />
     <ClInclude Include="Userdata.hpp" />

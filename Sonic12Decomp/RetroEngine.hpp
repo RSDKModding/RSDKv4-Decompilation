@@ -204,6 +204,7 @@ extern bool engineDebugMode;
 
 // Native Entities
 #include "PauseMenu.hpp"
+#include "StartMenu.hpp"
 #include "RetroGameLoop.hpp"
 
 class RetroEngine
