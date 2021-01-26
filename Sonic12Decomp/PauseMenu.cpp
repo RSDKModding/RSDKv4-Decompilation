@@ -3,9 +3,9 @@
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-ushort *fbcopy    = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
-ushort *displayed = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
-ushort *lookup    = new ushort[0xFFFF];
+ushort *fbcopy;
+ushort *displayed;
+ushort *lookup = new ushort[0xFFFF];
 
 void PauseMenu_Create(void *objPtr)
 {
@@ -19,6 +19,9 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->barPos                 = SCREEN_XSIZE + 67;
     pauseMenu->slowTimer              = 0;
 
+    fbcopy    = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    displayed = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+
     snapDataFile(1);
     LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56);
     snapDataFile(0);
@@ -29,22 +32,18 @@ void PauseMenu_Create(void *objPtr)
     memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 }
 
-inline int lerp(float a, float b, float amount)
-{
-    if (amount > 1)
-        amount = 1;
-    return a + amount * (b - a);
-}
+inline int lerp(float a, float b, float amount) { return a + amount * (b - a); }
 
 void PauseMenu_Destroy(NativeEntity_PauseMenu *pauseMenu)
 {
-
     RemoveNativeObject(pauseMenu);
     pauseMenu = nullptr;
 #if RETRO_DEVICETYPE == RETRO_STANDARD && (RETRO_USING_SDL1 || RETRO_USING_SDL2)
     if (Engine.isFullScreen)
         SDL_ShowCursor(SDL_FALSE);
 #endif
+    delete[] fbcopy;
+    delete[] displayed;
 }
 void PauseMenu_Main(void *objPtr)
 {
@@ -102,7 +101,7 @@ void PauseMenu_Main(void *objPtr)
             break;
         case 2: pauseMenu->revokeTimer++;
         case 6:
-            if (pauseMenu->state != 2 || pauseMenu->revokeTimer >= 12) {
+            if (pauseMenu->state != 2 || pauseMenu->revokeTimer >= 8) {
                 pauseMenu->barPos += sin256(pauseMenu->timer * 3) / 21;
                 if (++pauseMenu->timer > 21)
                     return PauseMenu_Destroy(pauseMenu);
@@ -138,7 +137,7 @@ void PauseMenu_Main(void *objPtr)
         memset(lookup, 0, 0xFFFF * sizeof(ushort));
         float famount = (float)amount / 0xFF;
 
-        for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; i++) {
+        for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; ++i) {
             ushort color = fbcopy[i];
             if (!color) {
                 displayed[i] = 0;
