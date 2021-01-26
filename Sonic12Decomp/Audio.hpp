@@ -1,9 +1,9 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#define TRACK_COUNT (0x10)
-#define SFX_COUNT (0x100)
-#define CHANNEL_COUNT (0x10) //4 in the original, 16 for convenience
+#define TRACK_COUNT   (0x10)
+#define SFX_COUNT     (0x100)
+#define CHANNEL_COUNT (0x10) // 4 in the original, 16 for convenience
 
 #define MAX_VOLUME (100)
 
@@ -86,7 +86,6 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
 void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
 
-
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
@@ -99,7 +98,7 @@ inline void freeMusInfo()
             SDL_FreeAudioStream(musInfo.stream);
 #endif
         ov_clear(&musInfo.vorbisFile);
-        musInfo.buffer    = nullptr;
+        musInfo.buffer = nullptr;
 #if RETRO_USING_SDL2
         musInfo.stream = nullptr;
 #endif
@@ -157,11 +156,22 @@ void SetSfxAttributes(int sfx, int loopCount, sbyte pan);
 
 void SetSfxName(const char *sfxName, int sfxID);
 
-//Helper Func
-inline bool PlaySFXByName(const char* sfx, sbyte loopCnt) {
+// Helper Funcs
+inline bool PlaySFXByName(const char *sfx, sbyte loopCnt)
+{
     for (int s = 0; s < globalSFXCount + stageSFXCount; ++s) {
         if (StrComp(sfxNames[s], sfx)) {
             PlaySfx(s, loopCnt);
+            return true;
+        }
+    }
+    return false;
+}
+inline bool StopSFXByName(const char *sfx)
+{
+    for (int s = 0; s < globalSFXCount + stageSFXCount; ++s) {
+        if (StrComp(sfxNames[s], sfx)) {
+            StopSfx(s);
             return true;
         }
     }
@@ -177,10 +187,11 @@ inline void SetMusicVolume(int volume)
     masterVolume = volume;
 }
 
-inline void SetGameVolumes(int bgmVolume, int sfxVolume) {
-    //musicVolumeSetting = bgmVolume;
+inline void SetGameVolumes(int bgmVolume, int sfxVolume)
+{
+    // musicVolumeSetting = bgmVolume;
     SetMusicVolume(masterVolume);
-    //sfxVolumeSetting = ((sfxVolume << 7) / 100);
+    // sfxVolumeSetting = ((sfxVolume << 7) / 100);
 }
 
 inline void PauseSound()
@@ -194,7 +205,6 @@ inline void ResumeSound()
     if (musicStatus == MUSIC_PAUSED)
         musicStatus = MUSIC_PLAYING;
 }
-
 
 inline void StopAllSfx()
 {

@@ -134,53 +134,55 @@ void PauseMenu_Main(void *objPtr)
             break;
     }
 
-    memset(lookup, 0, 0xFFFF * sizeof(ushort));
-    float famount = (float)amount / 0xFF;
+    if (amount) {
+        memset(lookup, 0, 0xFFFF * sizeof(ushort));
+        float famount = (float)amount / 0xFF;
 
-    for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; i++) {
-        ushort color = fbcopy[i];
-        if (!color) {
-            displayed[i] = 0;
-            continue;
-        }
-        if (lookup[color]) {
-            displayed[i] = lookup[color];
-            continue;
-        }
-        int r = ((color >> 11) * 527 + 23) >> 6;
-        int g = (((color >> 5) & 0b111111) * 259 + 33) >> 6;
-        int b = ((color & 0b11111) * 527 + 23) >> 6;
+        for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; i++) {
+            ushort color = fbcopy[i];
+            if (!color) {
+                displayed[i] = 0;
+                continue;
+            }
+            if (lookup[color]) {
+                displayed[i] = lookup[color];
+                continue;
+            }
+            int r = ((color >> 11) * 527 + 23) >> 6;
+            int g = (((color >> 5) & 0b111111) * 259 + 33) >> 6;
+            int b = ((color & 0b11111) * 527 + 23) >> 6;
 
-        int tr, tg, tb;
-        tr = 0.393 * r + 0.769 * g + 0.189 * b + 10;
-        tg = 0.349 * r + 0.686 * g + 0.168 * b - 9;
-        tb = 0.272 * r + 0.534 * g + 0.131 * b - 30;
-        if (tg < 0)
-            tg = 0;
-        if (tb < 0)
-            tb = 0;
+            int tr, tg, tb;
+            tr = 0.393 * r + 0.769 * g + 0.189 * b + 10;
+            tg = 0.349 * r + 0.686 * g + 0.168 * b - 9;
+            tb = 0.272 * r + 0.534 * g + 0.131 * b - 30;
+            if (tg < 0)
+                tg = 0;
+            if (tb < 0)
+                tb = 0;
 
-        // lerp
-        int fr, fg, fb;
-        if (amount < 0xFF) {
-            fr = lerp(r, tr, famount);
-            fg = lerp(g, tg, famount);
-            fb = lerp(b, tb, famount);
-        }
-        else {
-            fr = tr;
-            fg = tg;
-            fb = tb;
-        }
-        fr = MIN(255, fr);
-        fg = MIN(255, fg);
-        fb = MIN(255, fb);
+            // lerp
+            int fr, fg, fb;
+            if (amount < 0xFF) {
+                fr = lerp(r, tr, famount);
+                fg = lerp(g, tg, famount);
+                fb = lerp(b, tb, famount);
+            }
+            else {
+                fr = tr;
+                fg = tg;
+                fb = tb;
+            }
+            fr = MIN(255, fr);
+            fg = MIN(255, fg);
+            fb = MIN(255, fb);
 
-        lookup[color] = RGB888_TO_RGB565(fr, fg, fb);
-        displayed[i]  = lookup[color];
+            lookup[color] = RGB888_TO_RGB565(fr, fg, fb);
+            displayed[i]  = lookup[color];
+        }
+        memcpy(Engine.frameBuffer, displayed, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+        pauseMenu->direction = pauseMenu->state == 2 || pauseMenu->state == 6;
     }
-    memcpy(Engine.frameBuffer, displayed, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
-    pauseMenu->direction = pauseMenu->state == 2 || pauseMenu->state == 6;
 
     SetActivePalette(7, 0, SCREEN_YSIZE);
 
