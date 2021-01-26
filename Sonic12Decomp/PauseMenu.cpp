@@ -53,11 +53,14 @@ void PauseMenu_Main(void *objPtr)
 
     NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
 
-    int amount = (pauseMenu->direction ? 15 - pauseMenu->barTimer : pauseMenu->barTimer) * 17.1;
+    int amount = (pauseMenu->direction ? 20 - (pauseMenu->barTimer * 1.5f) : pauseMenu->barTimer) * 17.5f;
     if (amount < 0)
         amount = 0;
     if (amount > 0xFF)
         amount = 0xFF;
+
+    if (pauseMenu->direction) // we copy to ensure it gets sepia'd
+        memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 
     switch (pauseMenu->state) {
         case 0:
@@ -128,9 +131,6 @@ void PauseMenu_Main(void *objPtr)
             }
             break;
     }
-
-    if (pauseMenu->direction) // we copy to ensure it gets sepia'd
-        memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 
     memset(lookup, 0, 0xFFFF * sizeof(ushort));
     float famount = (float)amount / 0xFF;
