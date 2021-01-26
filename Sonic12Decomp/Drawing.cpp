@@ -155,20 +155,16 @@ int InitRenderDevice()
 void RenderRenderDevice()
 {
 #if RETRO_USING_SDL2
-    // SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
-    #if RETRO_PLATFORM == RETRO_VITA // Vita crashes with cases 1 and 3
-    Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
-    #endif
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
-        case 0: break;                            // nearest
-        case 1: integerScaling = true; break;     // integer scaling
-        case 2: break;                            // sharp bilinear
-        case 3: bilinearScaling = true; break;    // regular old bilinear
+        case 0: break;                         // nearest
+        case 1: integerScaling = true; break;  // integer scaling
+        case 2: break;                         // sharp bilinear
+        case 3: bilinearScaling = true; break; // regular old bilinear
     }
 
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
@@ -199,8 +195,7 @@ void RenderRenderDevice()
 
         // get integer scale
         float scale = 1;
-        if (!bilinearScaling) 
-        {
+        if (!bilinearScaling) {
             scale =
                 std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
         }

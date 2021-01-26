@@ -6,7 +6,6 @@ on:
       - main
       - win-actions
       - linux-actions
-      - psvita
       - 1.2.0
 
 jobs:
@@ -100,41 +99,3 @@ jobs:
         with:
           name: v4-linux
           path: bin/sonic2013
-  sonic1-psvita:
-    runs-on: ubuntu-latest
-    container: vitasdk/vitasdk:latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: apk add --no-cache make cmake
-      - name: Build Sonic 1
-        run: |
-          cd Sonic1.Vita
-          cmake .
-          make
-      - name: Upload VPK
-        uses: actions/upload-artifact@v2
-        with:
-          name: sonic1-vita
-          path: Sonic1.Vita/Sonic1.vpk
-          if-no-files-found: error
-  sonic2-psvita:
-    runs-on: ubuntu-latest
-    container: vitasdk/vitasdk:latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: apk add --no-cache make cmake
-      - name: Build Sonic 2
-        run: |
-          cd Sonic2.Vita
-          cmake .
-          make
-      - name: Upload VPK
-        uses: actions/upload-artifact@v2
-        with:
-          name: sonic2-vita
-          path: Sonic2.Vita/Sonic2.vpk
-          if-no-files-found: error
