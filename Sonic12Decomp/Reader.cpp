@@ -74,11 +74,16 @@ bool CheckRSDKFile(const char *filePath)
             currentContainer->files[f].encrypted = (currentContainer->files[f].filesize & 0x80000000);
             currentContainer->files[f].filesize &= 0x7FFFFFFF;
 
+            // if (dataMode)
+            //    currentContainer->files[f].encrypted = true;
+
             currentContainer->files[f].fileID = f;
         }
 
         fClose(cFileHandle);
         cFileHandle = NULL;
+        if (dataMode)
+            return true;
         if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
@@ -92,6 +97,9 @@ bool CheckRSDKFile(const char *filePath)
             Engine.usingMenuFile = false;
 
         cFileHandle = NULL;
+        if (dataMode)
+            return false;
+
         if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
@@ -130,7 +138,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             if (!match)
                 continue;
 
-            cFileHandle = fOpen(rsdkName, "rb");
+            cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
             fSeek(cFileHandle, 0, SEEK_END);
             fileSize = (int)fTell(cFileHandle);
 
@@ -320,7 +328,7 @@ void GetFileInfo(FileInfo *fileInfo)
 void SetFileInfo(FileInfo *fileInfo)
 {
     if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
-        cFileHandle       = fOpen(rsdkName, "rb");
+        cFileHandle       = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
         fSeek(cFileHandle, 0, SEEK_END);
