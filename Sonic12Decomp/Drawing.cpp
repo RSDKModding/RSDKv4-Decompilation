@@ -154,13 +154,9 @@ int InitRenderDevice()
 void RenderRenderDevice()
 {
 #if RETRO_USING_SDL2
-    // SDL_Rect *destScreenPos = NULL; // could be useful for Vita
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
-#if RETRO_PLATFORM == RETRO_VITA // Vita crashes with cases 1 and 3
-    Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
-#endif
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
