@@ -278,22 +278,83 @@ void RenderRenderDevice()
 
     for (int i = 0; i < renderQueueSize; ++i) {
         RenderState *state = &renderQueue[i];
-        SDL_Rect src;
-        src.x = state->sprX;
-        src.y = state->sprY;
-        src.w = state->width;
-        src.h = state->height;
+        switch (state->type) {
+            default: break;
+            case 0: {
+                if (state->inkEffect && state->alpha <= 0)
+                    continue;
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, (SDL_BlendMode)state->inkEffect);
 
-        SDL_Rect dst;
-        dst.x = state->XPos;
-        dst.y = state->YPos;
-        dst.w = state->width;
-        dst.h = state->height;
+                SDL_Rect src;
+                src.x = state->sprX;
+                src.y = state->sprY;
+                src.w = state->width;
+                src.h = state->height;
 
-        SDL_Point center;
-        center.x = state->centerX;
-        center.y = state->centerY;
-        SDL_RenderCopyEx(Engine.renderer, (SDL_Texture *)state->tex, &src, &dst, state->angle, &center, (SDL_RendererFlip)state->flip);
+                SDL_Rect dst;
+                dst.x = state->XPos;
+                dst.y = state->YPos;
+                dst.w = state->width * state->scaleX;
+                dst.h = state->height * state->scaleY;
+
+                if (state->inkEffect && state->alpha > 0) {
+                    SDL_SetTextureAlphaMod((SDL_Texture *)state->tex, state->alpha > 0xFF ? 0xFF : state->alpha);
+                }
+
+                SDL_Point center;
+                center.x = state->centerX;
+                center.y = state->centerY;
+                SDL_RenderCopyEx(Engine.renderer, (SDL_Texture *)state->tex, &src, &dst, state->angle, &center, (SDL_RendererFlip)state->flip);
+
+                if (state->inkEffect && state->alpha > 0) {
+                    SDL_SetTextureAlphaMod((SDL_Texture *)state->tex, 0xFF);
+                }
+
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, SDL_BLENDMODE_BLEND);
+                break;
+            }
+            case 1: {
+                if (state->inkEffect && state->alpha <= 0)
+                    continue;
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, (SDL_BlendMode)state->inkEffect);
+
+                SDL_SetRenderDrawColor(Engine.renderer, state->colour.r, state->colour.g, state->colour.b, state->alpha >= 0xFF ? 0xFF : state->alpha);
+                SDL_Rect dst;
+                dst.x = state->XPos;
+                dst.y = state->YPos;
+                dst.w = state->width;
+                dst.h = state->height;
+                SDL_RenderFillRect(Engine.renderer, &dst);
+                SDL_SetRenderDrawColor(Engine.renderer, 0, 0, 0, 0xFF);
+
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, SDL_BLENDMODE_BLEND);
+                break;
+            }
+            case 2: {
+                if (state->inkEffect && state->alpha <= 0)
+                    continue;
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, (SDL_BlendMode)state->inkEffect);
+
+                SDL_SetRenderDrawColor(Engine.renderer, state->colour.r, state->colour.g, state->colour.b,
+                                       state->alpha >= 0xFF ? 0xFF : state->alpha);
+                SDL_Rect dst;
+                dst.x = state->XPos;
+                dst.y = state->YPos;
+                dst.w = state->width;
+                dst.h = state->height;
+                SDL_RenderDrawRect(Engine.renderer, &dst);
+                SDL_SetRenderDrawColor(Engine.renderer, 0, 0, 0, 0xFF);
+
+                if (state->inkEffect)
+                    SDL_SetRenderDrawBlendMode(Engine.renderer, SDL_BLENDMODE_BLEND);
+                break;
+            }
+        }
     }
 
     if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
@@ -3634,8 +3695,149 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
     }
 }
 
+void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
 
-void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID) {
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->scaleX = 1.0f;
+    state->scaleY = 1.0f;
+}
+
+void RenderSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->flip   = direction;
+    state->scaleX = 1.0f;
+    state->scaleY = 1.0f;
+}
+void RenderSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                        int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->scaleX = scaleX / 512.0f;
+    state->scaleY = scaleY / 512.0f;
+}
+void RenderSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                         int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->scaleX = 1.0f;
+    state->scaleY = 1.0f;
+    state->angle  = (rotation / 512.0f) * 360;
+}
+void RenderSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                          int scale, int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->scaleX = scale / 512.0f;
+    state->scaleY = scale / 512.0f;
+    state->angle  = (rotation / 512.0f) * 360;
+}
+void RenderAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID)
+{
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
+    state->height = height;
+    state->alpha     = alpha;
+    state->inkEffect = SDL_BLENDMODE_BLEND;
+    state->scaleX    = 1.0f;
+    state->scaleY    = 1.0f;
+}
+void RenderAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID)
+{
     if (sheetID < 0 || sheetID >= TEXTURE_MAX)
         return;
 
@@ -3651,11 +3853,35 @@ void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
     MEM_ZEROP(state);
     state->tex = textureList[sheetID].tex;
 
-    state->XPos = XPos;
-    state->YPos = YPos;
-    state->sprX = sprX;
-    state->sprY = sprY;
-    state->width = width;
+    state->type   = 0;
+    state->XPos   = XPos;
+    state->YPos   = YPos;
+    state->sprX   = sprX;
+    state->sprY   = sprY;
+    state->width  = width;
     state->height = height;
-#endif
+    state->alpha  = alpha;
+    state->inkEffect = SDL_BLENDMODE_ADD;
+    state->scaleX    = 1.0f;
+    state->scaleY    = 1.0f;
+#endif 
+}
+
+void RenderRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A)
+{
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+
+    state->type     = 1;
+    state->XPos     = XPos;
+    state->YPos     = YPos;
+    state->width    = width;
+    state->height   = height;
+    state->colour.r = R;
+    state->colour.g = G;
+    state->colour.b = B;
+    state->alpha    = A;
 }

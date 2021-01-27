@@ -33,6 +33,7 @@ struct GFXSurface
 };
 
 struct RenderState {
+    byte type;
     int XPos;
     int YPos;
     int sprX;
@@ -42,8 +43,13 @@ struct RenderState {
     int centerX;
     int centerY;
     void* tex;
+    float scaleX;
+    float scaleY;
     float angle;
     byte flip;
+    PaletteEntry colour;
+    short alpha;
+    byte inkEffect;
 };
 
 #define RENDERQUEUE_MAX (0x200)
@@ -122,13 +128,23 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
 void DrawTexturedFace2(void *v, byte sheetID);
 
-void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount);
-
 void DrawTextMenu(void *menu, int XPos, int YPos);
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawStageTextEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawBlendedTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 
 void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
+void RenderSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID);
+void RenderSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                      int sheetID);
+void RenderSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                       int sheetID);
+void RenderSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                          int scale,
+                        int sheetID);
+void RenderAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
+void RenderAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
+
+void RenderRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A);
 
 #endif // !DRAWING_H
