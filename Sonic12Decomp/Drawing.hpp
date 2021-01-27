@@ -32,6 +32,25 @@ struct GFXSurface
     int dataPosition;
 };
 
+struct RenderState {
+    int XPos;
+    int YPos;
+    int sprX;
+    int sprY;
+    int width;
+    int height;
+    int centerX;
+    int centerY;
+    void* tex;
+    float angle;
+    byte flip;
+};
+
+#define RENDERQUEUE_MAX (0x200)
+
+extern int renderQueueSize;
+extern RenderState renderQueue[RENDERQUEUE_MAX];
+
 extern short blendLookupTable[BLENDTABLE_SIZE];
 extern short subtractLookupTable[BLENDTABLE_SIZE];
 extern short tintLookupTable[TINTTABLE_SIZE];
@@ -109,5 +128,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos);
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawStageTextEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawBlendedTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
+
+void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
 
 #endif // !DRAWING_H

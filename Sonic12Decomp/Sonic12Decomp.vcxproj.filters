@@ -19,6 +19,12 @@
     <Filter Include="Header Files\nativeEntities">
       <UniqueIdentifier>{65197e20-a952-4014-93ca-c21e07885ac7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\dependencies">
+      <UniqueIdentifier>{b34ad261-a437-4aef-b822-e0d4a7b20d57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{93c27dff-7a1a-4397-83ba-1e4b4a53e1aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -93,6 +99,9 @@
     <ClInclude Include="StartMenu.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
+    <ClInclude Include="..\dependencies\all\upng\upng.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -166,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="StartMenu.cpp">
       <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\all\upng\upng.cpp">
+      <Filter>Source Files\dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -17,12 +17,7 @@ void RetroGameLoop_Main(void *objPtr)
 
             processStageSelect();
             break;
-        case ENGINE_MAINGAME:
-            if (Engine.finishedStartMenu)
-                ProcessStage();
-            else
-                processStartMenu();
-            break;
+        case ENGINE_MAINGAME: ProcessStage(); break;
         case ENGINE_INITDEVMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             initDevMenu();
@@ -66,6 +61,7 @@ void RetroGameLoop_Main(void *objPtr)
             // RestoreNativeObjects();
             initStartMenu(1);
             break;
+        case ENGINE_STARTMENU: processStartMenu(); break;
         case ENGINE_CONNECT2PVS:
             // connect screen goes here
             break;

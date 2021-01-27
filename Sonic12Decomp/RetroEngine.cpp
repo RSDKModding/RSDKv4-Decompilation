@@ -303,7 +303,7 @@ void RetroEngine::Init()
 
     gameMode          = ENGINE_MAINGAME;
     running           = false;
-    finishedStartMenu = false;
+    bool skipStart = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -313,7 +313,7 @@ void RetroEngine::Init()
                 running     = true;
 
                 if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
-                    finishedStartMenu = true;
+                    skipStart = true;
                     InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
                 }
                 else if (startSave != 0xFF && startSave < 4) {
@@ -374,7 +374,7 @@ void RetroEngine::Init()
                             InitStartingStage(STAGELIST_REGULAR, 0, 0);
                         }
                     }
-                    finishedStartMenu = true;
+                    skipStart = true;
                 }
             }
         }
@@ -446,7 +446,7 @@ void RetroEngine::Init()
     SetGlobalVariableByName("Engine.PlatformID",
                             RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
 
-    if (!finishedStartMenu)
+    if (!skipStart)
         initStartMenu(0);
 }
 

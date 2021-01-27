@@ -1,5 +1,8 @@
 #include "RetroEngine.hpp"
 
+int renderQueueSize;
+RenderState renderQueue[RENDERQUEUE_MAX];
+
 short blendLookupTable[BLENDTABLE_SIZE];
 short subtractLookupTable[BLENDTABLE_SIZE];
 short tintLookupTable[TINTTABLE_SIZE];
@@ -273,6 +276,26 @@ void RenderRenderDevice()
         SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
     }
 
+    for (int i = 0; i < renderQueueSize; ++i) {
+        RenderState *state = &renderQueue[i];
+        SDL_Rect src;
+        src.x = state->sprX;
+        src.y = state->sprY;
+        src.w = state->width;
+        src.h = state->height;
+
+        SDL_Rect dst;
+        dst.x = state->XPos;
+        dst.y = state->YPos;
+        dst.w = state->width;
+        dst.h = state->height;
+
+        SDL_Point center;
+        center.x = state->centerX;
+        center.y = state->centerY;
+        SDL_RenderCopyEx(Engine.renderer, (SDL_Texture *)state->tex, &src, &dst, state->angle, &center, (SDL_RendererFlip)state->flip);
+    }
+
     if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set render target back to the screen.
         SDL_SetRenderTarget(Engine.renderer, NULL);
@@ -325,6 +348,8 @@ void RenderRenderDevice()
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
+
+    renderQueueSize = 0;
 }
 void ReleaseRenderDevice()
 {
@@ -3607,4 +3632,30 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
             return;
         default: return;
     }
+}
+
+
+void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID) {
+    if (sheetID < 0 || sheetID >= TEXTURE_MAX)
+        return;
+
+    if (renderQueueSize >= RENDERQUEUE_MAX)
+        return;
+
+#if RETRO_USING_SDL1
+
+#endif
+
+#if RETRO_USING_SDL2
+    RenderState *state = &renderQueue[renderQueueSize++];
+    MEM_ZEROP(state);
+    state->tex = textureList[sheetID].tex;
+
+    state->XPos = XPos;
+    state->YPos = YPos;
+    state->sprX = sprX;
+    state->sprY = sprY;
+    state->width = width;
+    state->height = height;
+#endif
 }

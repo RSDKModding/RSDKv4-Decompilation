@@ -1,6 +1,18 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#define TEXTURE_MAX (0x20)
+
+struct texInfo {
+    char fileName[0x40];
+    int width;
+    int height;
+    void *tex;
+};
+
+extern int textureCount;
+extern texInfo textureList[TEXTURE_MAX];
+
 int AddGraphicsFile(const char *filePath);
 void RemoveGraphicsFile(const char *filePath, int sheetID);
 
@@ -9,5 +21,8 @@ int LoadGIFFile(const char *filePath, byte sheetID);
 int LoadPVRFile(const char *filePath, byte sheetID);
 
 void ReadGifPictureData(int width, int height, bool interlaced, byte *gfxData, int offset);
+
+int LoadTexture(const char *filePath, byte dMode);
+void ClearTextures();
 
 #endif // !SPRITE_H

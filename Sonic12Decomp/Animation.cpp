@@ -109,6 +109,8 @@ void ClearAnimationData()
     animationFileCount = 0;
     hitboxCount        = 0;
 
+    ClearTextures();
+
     // Used for pause menu
     snapDataFile(1);
     LoadGIFFile("Menu/Pause/PauseMenu.gif", SURFACE_MAX - 1);

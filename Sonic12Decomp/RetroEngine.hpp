@@ -136,7 +136,8 @@ enum RetroStates {
     ENGINE_RESETGAME   = 8,
 
     // Custom GameModes (required to make some features work
-    ENGINE_CONNECT2PVS = 0x80,
+    ENGINE_STARTMENU   = 0x80,
+    ENGINE_CONNECT2PVS = 0x81,
 };
 
 enum RetroGameType {
@@ -256,11 +257,9 @@ public:
     int waitValue       = 0;
     void Callback(int callbackID);
 
-    bool finishedStartMenu = false;
-
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-    const char *gameVersion  = "hello, RMG"; //"1.2.0"
+    const char *gameVersion  = "1.2.0";
     const char *gamePlatform = nullptr;
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER

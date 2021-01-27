@@ -25,7 +25,6 @@ void initDevMenu()
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     setTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ           = false;
-    Engine.finishedStartMenu = true;
     touchTimer               = 0;
 }
 void initErrorMessage()
@@ -52,7 +51,6 @@ void initErrorMessage()
     gameMenu[1].visibleRowOffset = 0;
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
-    Engine.finishedStartMenu     = true;
     touchTimer                   = 0;
 }
 void processStageSelect()
@@ -331,8 +329,7 @@ void initStartMenu(int mode)
     ReleaseStageSfx();
     fadeMode                 = 0;
     playerListPos            = 0;
-    Engine.gameMode          = ENGINE_MAINGAME;
-    Engine.finishedStartMenu = false;
+    Engine.gameMode          = ENGINE_STARTMENU;
     ClearGraphicsData();
     ClearAnimationData();
     SetActivePalette(0, 0, 256);
@@ -380,6 +377,7 @@ void initStartMenu(int mode)
 
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
         setTextMenu(STARTMENU_MAIN);
+        LoadTexture("Mods/Cocky/Pause.png", 0xFF);
     }
     else {
         // finished TA act
@@ -823,7 +821,6 @@ void processStartMenu()
 
                         // if (Engine.onlineActive)
                         InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
-                        Engine.finishedStartMenu = true;
                     }
                 }
             }
@@ -888,7 +885,6 @@ void processStartMenu()
                                     SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
                                     InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
                                 }
-                                Engine.finishedStartMenu = true;
                             }
                             else {
                                 // new save
@@ -991,7 +987,6 @@ void processStartMenu()
                 WriteSaveRAMData();
 
                 InitStartingStage(STAGELIST_PRESENTATION, 0, saveRAM[savePos + 0]);
-                Engine.finishedStartMenu = true;
             }
             else if (keyPress.B) {
                 setTextMenu(STARTMENU_SAVESEL);
@@ -1363,7 +1358,6 @@ void processStartMenu()
 
                     taListStore = gameMenu[1].selection2;
                     InitStartingStage(activeStageList, stageListPosition, 0);
-                    Engine.finishedStartMenu = true;
                 }
                 else {
                     // TA
@@ -1423,11 +1417,13 @@ void processStartMenu()
         default: break;
     }
 
-    if (!Engine.finishedStartMenu) {
+    if (Engine.gameMode == ENGINE_STARTMENU) {
 #if defined RETRO_USING_MOUSE || defined RETRO_USING_TOUCH
         DrawSprite(32, 0x42, 16, 16, 78, 240, textMenuSurfaceNo);
         DrawSprite(32, 0xB2, 16, 16, 95, 240, textMenuSurfaceNo);
         DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
 #endif
     }
+
+    RenderSprite(25, 25, 89, 22, 0, 0, 0);
 }
