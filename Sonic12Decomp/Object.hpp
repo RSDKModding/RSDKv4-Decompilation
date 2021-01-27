@@ -169,7 +169,7 @@ inline void RestoreNativeObjectsSettings()
     nativeEntityCount = nativeEntityCountBackupS;
     memcpy(objectEntityBank, objectEntityBackupS, sizeof(NativeEntity) * NATIVEENTITY_COUNT);
 }
-inline void GetNativeObject(NativeEntity *obj, void (*newCreate)(void *objPtr), void (*newMain)(void *objPtr))
+inline void ResetNativeObject(NativeEntity *obj, void (*newCreate)(void *objPtr), void (*newMain)(void *objPtr))
 {
     int slotID = obj->slotID;
     int objID  = obj->objectID;
@@ -187,6 +187,16 @@ inline NativeEntity *GetNativeObject(uint objID)
         return nullptr;
     else
         return &objectEntityBank[objID];
+}
+
+//Custom, used for cleaning purposes
+inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
+{
+    for (int i = nativeEntityCount - 1; i >= 0; --i) {
+        if (objectEntityBank[i].createPtr == objCreate && objectEntityBank[i].mainPtr == objMain) {
+            RemoveNativeObject((NativeEntityBase*)&objectEntityBank[i]);
+        }
+    }
 }
 inline void ClearNativeObjects() {
     nativeEntityCount = 0;

@@ -375,101 +375,11 @@ void initStartMenu(int mode)
         }
     }
 
+    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
+    CreateNativeObject(StartMenu_Create, StartMenu_Main);
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
-        setTextMenu(STARTMENU_MAIN);
     }
     else {
-        // finished TA act
-        int listPos = taListStore;
-
-        int result = GetGlobalVariableByName("timeAttack.result");
-        if (result < saveRAM[3 * listPos + 0x40]) {
-            saveRAM[3 * listPos + 0x42] = saveRAM[3 * listPos + 0x41];
-            saveRAM[3 * listPos + 0x41] = saveRAM[3 * listPos + 0x40];
-            saveRAM[3 * listPos + 0x40] = result;
-        }
-        else if (result < saveRAM[3 * listPos + 0x41]) {
-            saveRAM[3 * listPos + 0x42] = saveRAM[3 * listPos + 0x41];
-            saveRAM[3 * listPos + 0x41] = result;
-        }
-        else if (result < saveRAM[3 * listPos + 0x42]) {
-            saveRAM[3 * listPos + 0x42] = result;
-        }
-        WriteSaveRAMData();
-
-        char strBuffer[0x100];
-        SetupTextMenu(&gameMenu[0], 0);
-        AddTextMenuEntry(&gameMenu[0], "BEST TIMES");
-        AddTextMenuEntry(&gameMenu[0], "");
-        StrCopy(strBuffer, "1ST: ");
-        int mins = saveRAM[3 * (listPos) + 0x40] / 6000;
-        int secs = saveRAM[3 * (listPos) + 0x40] / 100 % 60;
-        int ms   = saveRAM[3 * (listPos) + 0x40] % 100;
-        if (mins < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, mins);
-        StrAdd(strBuffer, ":");
-        if (secs < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, secs);
-        StrAdd(strBuffer, ":");
-        if (ms < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, ms);
-        AddTextMenuEntry(&gameMenu[0], strBuffer);
-        AddTextMenuEntry(&gameMenu[0], "");
-        StrCopy(strBuffer, "2ND: ");
-        mins = saveRAM[3 * (listPos) + 0x41] / 6000;
-        secs = saveRAM[3 * (listPos) + 0x41] / 100 % 60;
-        ms   = saveRAM[3 * (listPos) + 0x41] % 100;
-        if (mins < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, mins);
-        StrAdd(strBuffer, ":");
-        if (secs < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, secs);
-        StrAdd(strBuffer, ":");
-        if (ms < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, ms);
-        AddTextMenuEntry(&gameMenu[0], strBuffer);
-        AddTextMenuEntry(&gameMenu[0], "");
-        StrCopy(strBuffer, "3RD: ");
-        mins = saveRAM[3 * (listPos) + 0x42] / 6000;
-        secs = saveRAM[3 * (listPos) + 0x42] / 100 % 60;
-        ms   = saveRAM[3 * (listPos) + 0x42] % 100;
-        if (mins < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, mins);
-        StrAdd(strBuffer, ":");
-        if (secs < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, secs);
-        StrAdd(strBuffer, ":");
-        if (ms < 10)
-            AppendIntegerToString(strBuffer, 0);
-        AppendIntegerToString(strBuffer, ms);
-        AddTextMenuEntry(&gameMenu[0], strBuffer);
-        AddTextMenuEntry(&gameMenu[0], "");
-
-        SetupTextMenu(&gameMenu[1], 0);
-        AddTextMenuEntry(&gameMenu[1], "PLAY");
-        AddTextMenuEntry(&gameMenu[1], "");
-        AddTextMenuEntry(&gameMenu[1], "BACK");
-        AddTextMenuEntry(&gameMenu[1], "");
-
-        gameMenu[1].alignment       = 2;
-        gameMenu[1].selectionCount  = 1;
-        gameMenu[1].selection1      = 0;
-        gameMenu[1].selection2      = listPos;
-        gameMenu[1].visibleRowCount = 0;
-
-        gameMenu[0].alignment      = 2;
-        gameMenu[0].selectionCount = 1;
-        gameMenu[1].timer          = 0;
-
-        stageMode = STARTMENU_TACONFIRMSEL;
     }
 }
 

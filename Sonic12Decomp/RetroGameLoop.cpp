@@ -61,7 +61,9 @@ void RetroGameLoop_Main(void *objPtr)
             // RestoreNativeObjects();
             initStartMenu(1);
             break;
-        case ENGINE_STARTMENU: processStartMenu(); break;
+        case ENGINE_STARTMENU: 
+            //Do nothing (this is handled by StartMenu obj)
+            break;
         case ENGINE_CONNECT2PVS:
             // connect screen goes here
             break;
