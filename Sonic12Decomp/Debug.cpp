@@ -377,7 +377,6 @@ void initStartMenu(int mode)
 
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
         setTextMenu(STARTMENU_MAIN);
-        LoadTexture("Mods/Cocky/Pause.png", 0xFF);
     }
     else {
         // finished TA act
@@ -1424,13 +1423,4 @@ void processStartMenu()
         DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
 #endif
     }
-
-    RenderSprite(25, 25, 89, 22, 0, 0, 0);
-    RenderSpriteFlipped(25, 50, 89, 22, 0, 0, FLIP_XY, 0);
-    RenderSpriteScaled(FLIP_NONE, 100, 100, 0, 0, 0x400, 0x400, 89, 22, 0, 0, 0);
-    RenderSpriteRotated(FLIP_NONE, 150, 125, 0, 0, 0, 0, 89, 22, 0x40, 0);
-    RenderSpriteRotozoom(FLIP_X, 25, 125, 0, 0, 0, 0, 89, 22, 0xC0, 0x100, 0);
-    RenderAlphaBlendedSprite(50, 200, 89, 22, 0, 0, 0x40, 0);
-    RenderAdditiveBlendedSprite(300, 20, 89, 22, 0, 0, 0x60, 0);
-    RenderRectangle(10, 25, 50, 50, 0x60, 0x40, 0x20, 0x80);
 }
