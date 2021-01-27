@@ -334,7 +334,12 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         surface->height += (fileBuffer << 8);
 
-        FileRead(&fileBuffer, 1); // Palette Size (thrown away) :/
+        FileRead(&fileBuffer, 1); // Palette Size
+        int has_pallete  = (fileBuffer & 0x80) >> 7;
+        int colors       = ((fileBuffer & 0x70) >> 4) + 1;
+        int palette_size = (fileBuffer & 0x7) + 1;
+        if (palette_size > 0)
+            palette_size = 1 << palette_size;
         FileRead(&fileBuffer, 1); // BG Colour index (thrown away)
         FileRead(&fileBuffer, 1); // idk actually (still thrown away)
 
@@ -343,7 +348,7 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         do {
             ++c;
             FileRead(clr, 3);
-        } while (c != 0x100);
+        } while (c != palette_size);
 
         FileRead(&fileBuffer, 1);
         while (fileBuffer != ',') FileRead(&fileBuffer, 1); // gif image start identifier
@@ -480,141 +485,251 @@ int LoadTexture(const char *filePath, byte dMode)
 
     if (LoadFile(filePath, &info)) {
 
-        byte *fileData = (byte *)malloc(info.vfileSize);
-        FileRead(fileData, info.vfileSize);
+        byte fileExtension = (byte)filePath[(StrLength(filePath) - 1) & 0xFF];
+        switch (fileExtension) {
+            default:
+                CloseFile();
+                snapDataFile(0);
+                return NULL;
+            case 'f': {
+                byte fileBuffer = 0;
 
-        upng_t *upng = upng_new_from_bytes(fileData, info.vfileSize);
-        upng_decode(upng);
+                PaletteEntry colours[0x100];
+                memset(colours, 0, 0x100 * sizeof(PaletteEntry));
 
-        if (dMode == 0xFF)
-            Engine.usingDataFile = dataStore;
+                SetFilePosition(6); // GIF89a
+                FileRead(&fileBuffer, 1);
+                int width = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                width += (fileBuffer << 8);
+                FileRead(&fileBuffer, 1);
+                int height = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                height += (fileBuffer << 8);
 
-        if (upng_get_error(upng) != UPNG_EOK) {
-            char errorText[9][0x30] = { "No error",
-                                        "Memory allocation Failed",
-                                        "Resource not found",
-                                        "Invalid or missing PNG header",
-                                        "Invalid image data",
-                                        "Critical type not supported",
-                                        "Interlacing not supported",
-                                        "Colour format not supported",
-                                        "Invalid parameter to method call" };
-            byte error              = upng_get_error(upng);
-            char buf[0x80];
-            sprintf(buf, "PNG error: \"%s\" at line: %d", errorText[error], upng_get_error_line(upng));
-            printLog(buf);
-            free(fileData);
-            upng_free(upng);
-            snapDataFile(0);
-            return 0;
-        }
+                FileRead(&fileBuffer, 1); // Palette Size
+                int has_pallete  = (fileBuffer & 0x80) >> 7;
+                int colors       = ((fileBuffer & 0x70) >> 4) + 1;
+                int palette_size = (fileBuffer & 0x7) + 1;
+                if (palette_size > 0)
+                    palette_size = 1 << palette_size;
+                FileRead(&fileBuffer, 1); // BG Colour index (thrown away)
+                FileRead(&fileBuffer, 1); // idk actually (still thrown away)
 
-        int width  = upng_get_width(upng);
-        int height = upng_get_height(upng);
-        int format = upng_get_format(upng);
+                int c = 0;
+                byte clr[3];
+                do {
+                    FileRead(clr, 3);
+                    colours[c].r = clr[0];
+                    colours[c].g = clr[1];
+                    colours[c].b = clr[2];
+                    ++c;
+                } while (c != palette_size);
 
-        Uint32 rmask = 0, gmask = 0, bmask = 0, amask = 0;
+                FileRead(&fileBuffer, 1);
+                while (fileBuffer != ',') FileRead(&fileBuffer, 1); // gif image start identifier
+
+                ushort fileBuffer2 = 0;
+                FileRead(&fileBuffer2, 2);
+                FileRead(&fileBuffer2, 2);
+                FileRead(&fileBuffer2, 2);
+                FileRead(&fileBuffer2, 2);
+                FileRead(&fileBuffer, 1);
+                bool interlaced = (fileBuffer & 0x40) >> 6;
+                if (fileBuffer >> 7 == 1) {
+                    int c = 0x80;
+                    do {
+                        FileRead(clr, 3);
+                        colours[c].r = clr[0];
+                        colours[c].g = clr[1];
+                        colours[c].b = clr[2];
+                        ++c;
+                    } while (c != 0x100);
+                }
+
+                byte *fileData = (byte *)malloc((width * height) + 1);
+                memset(fileData, 0, (width * height) + 1 * sizeof(byte));
+
+                ReadGifPictureData(width, height, interlaced, fileData, 0);
+
+                Uint32 rmask = 0, gmask = 0, bmask = 0, amask = 0;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        amask = 0x000000FF;
-        rmask = 0x0000FF00;
-        gmask = 0x00FF0000;
-        bmask = 0xFF000000;
+                amask = 0x000000FF;
+                rmask = 0x0000FF00;
+                gmask = 0x00FF0000;
+                bmask = 0xFF000000;
 #else
-        amask = 0xFF000000;
-        rmask = 0x00FF0000;
-        gmask = 0x0000FF00;
-        bmask = 0x000000FF;
+                amask = 0xFF000000;
+                rmask = 0x00FF0000;
+                gmask = 0x0000FF00;
+                bmask = 0x000000FF;
 #endif
 
-        SDL_Surface *img = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
+                SDL_Surface *img = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
+                byte *dst        = (byte *)img->pixels;
 
-        byte *dst = (byte *)img->pixels;
-        byte *src = (byte *)upng_get_buffer(upng);
+                int bufPos = 0;
+                for (int p = 0; p < width * height; p++) {
+                    *dst++ = colours[fileData[bufPos]].r;
+                    *dst++ = colours[fileData[bufPos]].g;
+                    *dst++ = colours[fileData[bufPos]].b;
+                    *dst++ = 0xFF;
+                    bufPos++;
+                }
 
-        int dstID  = 0;
-        int bufPos = 0;
-        for (int p = 0; p < width * height; p++) {
-            byte A = 0xFF, R = 0xFF, G = 0, B = 0xFF;
-            int buffer    = 0;
-            int buffer2   = 0;
-            float fBuffer = 0.0f;
-            switch (format) {
-                case UPNG_RGB8:
-                    R = src[bufPos++]; // R
-                    G = src[bufPos++]; // G
-                    B = src[bufPos++]; // B
-                    break;
-                case UPNG_RGBA8:
-                    R = src[bufPos++]; // R
-                    G = src[bufPos++]; // G
-                    B = src[bufPos++]; // B
-                    A = src[bufPos++]; // A
-                    break;
-                case UPNG_RGB16:
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    R       = (int)floor(fBuffer * 0xFF);
+                SDL_SetColorKey(img, 1, (colours[0].r << 16) | (colours[0].r << 8) | (colours[0].b));
+                SDL_Texture *tex = SDL_CreateTextureFromSurface(Engine.renderer, img);
 
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    G       = (int)floor(fBuffer * 0xFF);
+                StrCopy(texture->fileName, filePath);
+                texture->tex    = tex;
+                texture->width  = width;
+                texture->height = height;
 
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    B       = (int)floor(fBuffer * 0xFF);
-                    break;
-                case UPNG_RGBA16:
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    R       = (int)floor(fBuffer * 0xFF);
-
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    G       = (int)floor(fBuffer * 0xFF);
-
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    B       = (int)floor(fBuffer * 0xFF);
-
-                    buffer  = src[bufPos++];
-                    buffer2 = src[bufPos++];
-                    fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
-                    A       = (int)floor(fBuffer * 0xFF);
-                    break;
-                case UPNG_LUMINANCE1: printLog("Unsupported format: Luminace1"); break;
-                case UPNG_LUMINANCE2: printLog("Unsupported format: Luminace2"); break;
-                case UPNG_LUMINANCE4: printLog("Unsupported format: Luminace4"); break;
-                case UPNG_LUMINANCE8: printLog("Unsupported format: Luminace8"); break;
-                case UPNG_LUMINANCE_ALPHA1: printLog("Unsupported format: Luminace1A"); break;
-                case UPNG_LUMINANCE_ALPHA2: printLog("Unsupported format: Luminace2A"); break;
-                case UPNG_LUMINANCE_ALPHA4: printLog("Unsupported format: Luminace4A"); break;
-                case UPNG_LUMINANCE_ALPHA8: printLog("Unsupported format: Luminace8A"); break;
+                SDL_FreeSurface(img);
+                free(fileData);
+                snapDataFile(0);
+                CloseFile();
+                return texID;
             }
-            *dst++ = B;
-            *dst++ = G;
-            *dst++ = R;
-            *dst++ = A;
+            case 'g': {
+                byte *fileData = (byte *)malloc(info.vfileSize);
+                FileRead(fileData, info.vfileSize);
+
+                upng_t *upng = upng_new_from_bytes(fileData, info.vfileSize);
+                upng_decode(upng);
+
+                if (dMode == 0xFF)
+                    Engine.usingDataFile = dataStore;
+
+                if (upng_get_error(upng) != UPNG_EOK) {
+                    char errorText[9][0x30] = { "No error",
+                                                "Memory allocation Failed",
+                                                "Resource not found",
+                                                "Invalid or missing PNG header",
+                                                "Invalid image data",
+                                                "Critical type not supported",
+                                                "Interlacing not supported",
+                                                "Colour format not supported",
+                                                "Invalid parameter to method call" };
+                    byte error              = upng_get_error(upng);
+                    char buf[0x80];
+                    sprintf(buf, "PNG error: \"%s\" at line: %d", errorText[error], upng_get_error_line(upng));
+                    printLog(buf);
+                    free(fileData);
+                    upng_free(upng);
+                    snapDataFile(0);
+                    return 0;
+                }
+
+                int width  = upng_get_width(upng);
+                int height = upng_get_height(upng);
+                int format = upng_get_format(upng);
+
+                Uint32 rmask = 0, gmask = 0, bmask = 0, amask = 0;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                amask = 0x000000FF;
+                rmask = 0x0000FF00;
+                gmask = 0x00FF0000;
+                bmask = 0xFF000000;
+#else
+                amask = 0xFF000000;
+                rmask = 0x00FF0000;
+                gmask = 0x0000FF00;
+                bmask = 0x000000FF;
+#endif
+
+                SDL_Surface *img = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
+
+                byte *dst = (byte *)img->pixels;
+                byte *src = (byte *)upng_get_buffer(upng);
+
+                int dstID  = 0;
+                int bufPos = 0;
+                for (int p = 0; p < width * height; p++) {
+                    byte A = 0xFF, R = 0xFF, G = 0, B = 0xFF;
+                    int buffer    = 0;
+                    int buffer2   = 0;
+                    float fBuffer = 0.0f;
+                    switch (format) {
+                        case UPNG_RGB8:
+                            R = src[bufPos++]; // R
+                            G = src[bufPos++]; // G
+                            B = src[bufPos++]; // B
+                            break;
+                        case UPNG_RGBA8:
+                            R = src[bufPos++]; // R
+                            G = src[bufPos++]; // G
+                            B = src[bufPos++]; // B
+                            A = src[bufPos++]; // A
+                            break;
+                        case UPNG_RGB16:
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            R       = (int)floor(fBuffer * 0xFF);
+
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            G       = (int)floor(fBuffer * 0xFF);
+
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            B       = (int)floor(fBuffer * 0xFF);
+                            break;
+                        case UPNG_RGBA16:
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            R       = (int)floor(fBuffer * 0xFF);
+
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            G       = (int)floor(fBuffer * 0xFF);
+
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            B       = (int)floor(fBuffer * 0xFF);
+
+                            buffer  = src[bufPos++];
+                            buffer2 = src[bufPos++];
+                            fBuffer = (buffer + (buffer2 << 8)) / 65536.0f;
+                            A       = (int)floor(fBuffer * 0xFF);
+                            break;
+                        case UPNG_LUMINANCE1: printLog("Unsupported format: Luminace1"); break;
+                        case UPNG_LUMINANCE2: printLog("Unsupported format: Luminace2"); break;
+                        case UPNG_LUMINANCE4: printLog("Unsupported format: Luminace4"); break;
+                        case UPNG_LUMINANCE8: printLog("Unsupported format: Luminace8"); break;
+                        case UPNG_LUMINANCE_ALPHA1: printLog("Unsupported format: Luminace1A"); break;
+                        case UPNG_LUMINANCE_ALPHA2: printLog("Unsupported format: Luminace2A"); break;
+                        case UPNG_LUMINANCE_ALPHA4: printLog("Unsupported format: Luminace4A"); break;
+                        case UPNG_LUMINANCE_ALPHA8: printLog("Unsupported format: Luminace8A"); break;
+                    }
+                    *dst++ = B;
+                    *dst++ = G;
+                    *dst++ = R;
+                    *dst++ = A;
+                }
+
+                SDL_SetColorKey(img, 1, 0xFF00FF);
+                SDL_Texture *tex = SDL_CreateTextureFromSurface(Engine.renderer, img);
+
+                StrCopy(texture->fileName, filePath);
+                texture->tex    = tex;
+                texture->width  = width;
+                texture->height = height;
+
+                SDL_FreeSurface(img);
+                free(fileData);
+                upng_free(upng);
+                snapDataFile(0);
+                CloseFile();
+                return texID;
+            }
         }
-
-        SDL_SetColorKey(img, 1, 0xFF00FF);
-        SDL_Texture *tex = SDL_CreateTextureFromSurface(Engine.renderer, img);
-
-        StrCopy(texture->fileName, filePath);
-        texture->tex    = tex;
-        texture->width  = width;
-        texture->height = height;
-
-        SDL_FreeSurface(img);
-        free(fileData);
-        upng_free(upng);
-        snapDataFile(0);
-        return texID;
     }
 
 #endif

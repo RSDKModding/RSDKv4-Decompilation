@@ -1021,7 +1021,7 @@ void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) && FindStringToken(text, "privatealias", 1))
         return;
-    int textPos     = 6;
+    int textPos     = 11;
     int aliasStrPos = 0;
     int aliasMatch  = 0;
 
@@ -1034,7 +1034,8 @@ void CheckAliasText(char *text)
     int *cnt     = &publicAliasCount;
     if (FindStringToken(text, "privatealias", 1) == 0) {
         a   = &privateAliases[privateAliasCount];
-        cnt = &privateAliasCount;
+        cnt         = &privateAliasCount;
+        textPos = 12;
         if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
             return;
     }
@@ -1617,19 +1618,23 @@ void CheckCaseNumber(char *text)
         destStrPos = 0;
     }
     dest[destStrPos] = 0;
-    int aliasVarID   = 0;
-    if (publicAliasCount) {
-        aliasVarID = 0;
-        do {
-            while (!StrComp(dest, publicAliases[aliasVarID].name)) {
-                if (publicAliasCount <= ++aliasVarID)
-                    goto CONV_VAL;
-            }
-            StrCopy(dest, publicAliases[aliasVarID++].value);
-        } while (publicAliasCount > aliasVarID);
+
+    for (int a = 0; a < privateAliasCount; ++a) {
+        if (StrComp(privateAliases[a].name, dest)) {
+            StrCopy(dest, privateAliases[a].value);
+            goto CONV_VAL;
+        }
+    }
+
+    for (int a = 0; a < publicAliasCount; ++a) {
+        if (StrComp(publicAliases[a].name, dest)) {
+            StrCopy(dest, publicAliases[a].value);
+            goto CONV_VAL;
+        }
     }
 
 CONV_VAL:
+    int aliasVarID = 0;
     if (ConvertStringToInteger(dest, &aliasVarID) != 1)
         return;
     int stackValue = jumpTableStack[jumpTableStackPos];
