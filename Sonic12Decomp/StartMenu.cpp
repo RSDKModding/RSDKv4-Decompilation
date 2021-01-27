@@ -42,7 +42,7 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
     }
     if (menu->transitionTimer--) {
         DrawRectangle(0, 0, SCREEN_XSIZE / 15 * menu->transitionTimer, SCREEN_YSIZE, 0, 0, 0, 255);
-        for (int i = 0; i < SCREEN_YSIZE / 22 + 1; i++) {
+        for (int i = 0; i < SCREEN_YSIZE / 22 + 2; i++) {
             RenderSprite(SCREEN_XSIZE / 15 * menu->transitionTimer, i * 22 - 11, 12, 22, 33, 48, mainID);
         }
     }

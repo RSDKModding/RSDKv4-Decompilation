@@ -446,7 +446,7 @@ int LoadTexture(const char *filePath, byte dMode)
 
     texInfo *texture = nullptr;
 
-    for (int i = 0; i < TEXTURE_MAX; ++i) {
+    for (int i = 0; i < textureCount; ++i) {
         if (StrComp(filePath, textureList[i].fileName))
             return i;
     }
@@ -461,6 +461,7 @@ int LoadTexture(const char *filePath, byte dMode)
     }
     if (!texture)
         return 0;
+    textureCount++;
 
     int dataStore = Engine.usingDataFile;
     if (dMode == 0xFF)
