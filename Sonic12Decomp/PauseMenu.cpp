@@ -32,15 +32,15 @@ void PauseMenu_Create(void *objPtr)
     pauseMenu->menu->selection1     = 0;
     pauseMenu->menu->selection2     = 0;
     pauseMenu->lastSurfaceNo        = textMenuSurfaceNo;
-    textMenuSurfaceNo               = SPRITESHEETS_MAX - 1;
+    textMenuSurfaceNo               = SURFACE_MAX - 1;
 
     SetPaletteEntryPacked(7, 0x08, GetPaletteEntryPacked(0, 8));
     SetPaletteEntryPacked(7, 0xFF, 0xFFFFFF);
 }
 void PauseMenu_Main(void *objPtr)
 {
-    CheckKeyDown(&keyDown, 0xFF);
-    CheckKeyPress(&keyPress, 0xFF);
+    CheckKeyDown(&keyDown);
+    CheckKeyPress(&keyPress);
 
     NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
 
@@ -116,11 +116,17 @@ void PauseMenu_Main(void *objPtr)
             // wait (again)
             pauseMenu->barPos -= 16;
             if (pauseMenu->barPos + 64 < 0) {
+                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 switch (pauseMenu->state) {
                     default: break;
                     case 3:
                         stageMode       = STAGEMODE_LOAD;
                         Engine.gameMode = ENGINE_MAINGAME;
+                        if (GetGlobalVariableByName("options.gameMode") <= 1) {
+                            SetGlobalVariableByName("options.lives", GetGlobalVariableByName("options.lives") - 1);
+                        }
+                        SetGlobalVariableByName("lampPostID", 0);
+                        SetGlobalVariableByName("starPostID", 0);
                         break;
                     case 4: initStartMenu(0); break;
                     case 5:
@@ -128,7 +134,6 @@ void PauseMenu_Main(void *objPtr)
                         initDevMenu();
                         break;
                 }
-                textMenuSurfaceNo = pauseMenu->lastSurfaceNo;
                 RemoveNativeObject(pauseMenu);
                 return;
             }

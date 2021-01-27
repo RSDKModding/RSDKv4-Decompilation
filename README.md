@@ -3,6 +3,7 @@ A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
++ Video tutorial on how to find your legally obtained data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
 
 + You can get the official release of sonic 1 & sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
@@ -12,7 +13,9 @@ A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-Even if your platform isn't supported by the official releases, buy it for the assets (you dont need to run the official release, you just need the game assets).
+Even if your platform isn't supported by the official releases, buy it for the assets (you don't need to run the official release, you just need the game assets)
+
+If you want to transfer your save from the **Android pre-forever versions,** you can go to `Android/data/com.sega.sonic1 or 2/SGame.bin` and copy it to the `SData.bin` in the EXE folder.
 
 ## Installation Instructions
 You can find downloads in [releases](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/releases).
@@ -49,9 +52,35 @@ Sections below are lifted directly from the source repository.
 * Clone the repo, then follow the instructions in the [depencencies readme for windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
 * or grab a prebuilt executable from the releases section
 
+## Windows via MSYS2 (64-bit Only):
+
+* Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it.
+* Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter. Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
+* Now install the dependencies with the following command: `pacman -S make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis`
+* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
+* Then run `make CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+
+## Windows UWP (Phone, Xbox, etc.):
+* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
+* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
+
+## Linux:
+* To setup your build enviroment and library dependecies run the following commands:
+* Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev`
+* Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg`
+* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
+* Then run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+
 ## Mac:
 * Clone the repo, then follow the instructions in the [depencencies readme for mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project
-* note: a proper mac release is being worked on, and hopefully will be released soon
+* a mac build of v1.0.0 by sappharad can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.0.0mac)
+
+## Vita
+* For Vita installation, [Xeeynamo's vita branch](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation) has you covered.
+## Switch:
+* head on over to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme
 
 ## Other platforms:
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
@@ -74,10 +103,5 @@ A: No. Sonic Mania is a ton bigger and requires that I'd decompile not only how 
 * [RMGRich](https://github.com/MGRich): for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine): for being supportive of me and for giving me a place to show off these things that I've found
 
-# Background:
-in 2018 I started researching Christan Whitehead's 'Retro Engine' as a side project since I was bored, I started with Sonic CD (RSDKv3) since it was the most well known version that hadn't had much support, since at that time Sonic Mania's (RSDKv5) modding scene was already thriving, and eventually I expanded my range to Retro-Sonic (Retro-Sonic Engine), Sonic Nexus (RSDKv1) & Sonic 1/2 (RSDKv4), since then I have worked during spare moments to document and reverse all that I can of all versions of RSDK as it was just interesting to see how things worked under the hood or how features evolved and changed over time. Fast forward to 2020 and [Sappharad](https://github.com/Sappharad) shows me his decompilation of Sonic CD based on the windows phone 7 port since they'd seen my other github repositories relating to RSDK reversing. After seeing their decompilation I had the idea to start my own Sonic CD decompilation based on the PC port, with improvements and tweaks android port, though I didn't have much time to get around to it, so the project was shelved until I had more time to work on it. in mid-december 2020, I remembered the sonic CD decompilation that I started and finally had the time to work on it more, so after around 2 weeks of on/off working the decompilation was finally in a solid working state, though I continued tweaking it for another few weeks just to iron out all the glitches and bugs that I found. in early january 2021 it was released to almost universal praise, and since I enjoyed working on that I decided I would try to make a decompilation of RSDKv4 (Sonic 1/Sonic 2), since the engine was similar enough to v3's that I could translate much of the core over from the v3 decompilation, which I was sucessfully able to do. a few days into working on the v4 decompilation I asked [RMGRich](https://github.com/MGRich) if they wanted to help work on this with me since there's a lot about v4 that hasn't been very documented that I'd have to figure out, they accepted and over the first half of january 2021 we got to work in finishing the decompilation
-
 # Contact:
-Here's some other platforms I'm more active on if more specific questions need to be asked or you just wanna check out other stuff I do
-- [Twitter](https://twitter.com/Rubberduckcooly)
-- Discord: Rubberduckycooly#6438
+you can join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any extra questions you may need to know about the decompilation or modding it

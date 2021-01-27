@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemDefinitionGroup>
+        <Link>
+            <AdditionalLibraryDirectories>C:/vcpkg/installed/x86-windows-static/lib/;$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/</AdditionalLibraryDirectories>
+            <AdditionalDependencies>SDL2.lib;SDL2main.lib;ogg.lib;vorbis.lib;vorbisfile.lib;Shell32.lib</AdditionalDependencies>
+        </Link>
+    </ItemDefinitionGroup>
+</Project>

@@ -16,7 +16,7 @@ IniParser::IniParser(const char *filename)
 
     char pathBuffer[0x80];
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
@@ -27,9 +27,7 @@ IniParser::IniParser(const char *filename)
 
     FileIO *f;
     if ((f = fOpen(pathBuffer, "r")) == NULL) {
-#if RSDK_DEBUG
         printLog("ERROR: Couldn't open file '%s'!", filename);
-#endif
         return;
     }
 
@@ -239,7 +237,7 @@ void IniParser::Write(const char *filename)
 {
     char pathBuffer[0x80];
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(pathBuffer, "%s/%s", getResourcesPath(), filename);
     else
@@ -250,9 +248,7 @@ void IniParser::Write(const char *filename)
 
     FileIO *f;
     if ((f = fOpen(pathBuffer, "w")) == NULL) {
-#if RSDK_DEBUG
         printLog("ERROR: Couldn't open file '%s' for writing!", filename);
-#endif
         return;
     }
 

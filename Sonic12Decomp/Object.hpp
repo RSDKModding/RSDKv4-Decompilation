@@ -128,21 +128,7 @@ void ProcessPausedObjects();
 void ProcessFrozenObjects();
 void Process2PObjects();
 
-#if !RSDK_DEBUG
-inline void SetObjectTypeName(const char *objectName, int objectID)
-{
-    int objNameID  = 0;
-    int typeNameID = 0;
-    while (objectName[objNameID]) {
-        if (objectName[objNameID] != ' ')
-            typeNames[objectID][typeNameID++] = objectName[objNameID];
-        ++objNameID;
-    }
-    typeNames[objectID][typeNameID] = 0;
-}
-#else
 void SetObjectTypeName(const char *objectName, int objectID);
-#endif
 
 extern int playerListPos;
 

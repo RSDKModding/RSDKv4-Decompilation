@@ -9,6 +9,7 @@
 // ================
 #include <stdio.h>
 #include <string.h>
+#include <cmath>
 
 // ================
 // STANDARD TYPES
@@ -17,13 +18,11 @@ typedef unsigned char byte;
 typedef signed char sbyte;
 typedef unsigned short ushort;
 typedef unsigned int uint;
-//typedef unsigned long long ulong;
-
-#define RSDK_DEBUG (1)
+// typedef unsigned long long ulong;
 
 #define RETRO_USE_NETWORKING (0)
 #if !RETRO_USE_NETWORKING
-#define NETWORK_H //easy way to fuck over network header LOL
+#define NETWORK_H // easy way to fuck over network header LOL
 #endif
 
 // Platforms (RSDKv4 only defines these 7 (I assume), but feel free to add your own custom platform define for easier platform code changes)
@@ -35,44 +34,67 @@ typedef unsigned int uint;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 // Custom Platforms start here
+#define RETRO_UWP (7)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
-#define RETRO_STANDARD      (0)
-#define RETRO_MOBILE        (1)
+#define RETRO_STANDARD (0)
+#define RETRO_MOBILE   (1)
 
 #if defined _WIN32
-#define RETRO_PLATFORM (RETRO_WIN)
-#define RETRO_PLATTYPE (RETRO_STANDARD)
+
+#if defined WINAPI_FAMILY
+#if WINAPI_FAMILY != WINAPI_FAMILY_APP
+#define RETRO_PLATFORM   (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#else
+#include <WInRTIncludes.hpp>
+
+#define RETRO_PLATFORM   (RETRO_UWP)
+#define RETRO_DEVICETYPE (UAP_GetRetroGamePlatform())
+#endif
+#else
+#define RETRO_PLATFORM   (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#endif
+
 #elif defined __APPLE__
 #if __IPHONEOS__
-#define RETRO_PLATTYPE (RETRO_iOS)
-#define RETRO_PLATTYPE (RETRO_MOBILE)
+#define RETRO_PLATFORM   (RETRO_iOS)
+#define RETRO_DEVICETYPE (RETRO_MOBILE)
 #else
-#define RETRO_PLATFORM (RETRO_OSX)
-#define RETRO_PLATTYPE (RETRO_STANDARD)
+#define RETRO_PLATFORM   (RETRO_OSX)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 #else
-#define RETRO_PLATFORM (RETRO_WIN)
-#define RETRO_PLATTYPE (RETRO_STANDARD)
+#define RETRO_PLATFORM   (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
-#define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
+#define RETRO_USING_MOUSE
+#define RETRO_USING_TOUCH
+// set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size
+#define RETRO_DEFAULTSCALINGMODE 2
 
-#if RETRO_PLATFORM == RETRO_WINDOWS || RETRO_PLATFORM == RETRO_OSX
-#define RETRO_USING_SDL (1)
-#else //Since its an else & not an elif these platforms probably aren't supported yet
-#define RETRO_USING_SDL (0)
+#ifndef BASE_PATH
+#define BASE_PATH ""
 #endif
 
-#define RETRO_GAME_STANDARD (0)
-#define RETRO_GAME_MOBILE   (1)
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#define RETRO_USING_SDL1 (0)
+#define RETRO_USING_SDL2 (1)
+#else // Since its an else & not an elif these platforms probably aren't supported yet
+#define RETRO_USING_SDL1 (0)
+#define RETRO_USING_SDL2 (0)
+#endif
 
 #if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
-#define RETRO_GAMEPLATFORM (RETRO_GAME_MOBILE)
+#define RETRO_GAMEPLATFORM (RETRO_MOBILE)
+#elif RETRO_PLATFORM == RETRO_UWP
+#define RETRO_GAMEPLATFORM (UAP_GetRetroGamePlatform())
 #else
-#define RETRO_GAMEPLATFORM (RETRO_GAME_STANDARD)
+#define RETRO_GAMEPLATFORM (RETRO_STANDARD)
 #endif
 
 #define RETRO_SW_RENDER  (0)
@@ -80,6 +102,13 @@ typedef unsigned int uint;
 #define RETRO_RENDERTYPE (RETRO_SW_RENDER)
 
 #define RETRO_USE_HAPTICS (1)
+
+// this macro defines the touch device read by the game (UWP requires DIRECT)
+#if RETRO_UWP
+#define RETRO_TOUCH_DEVICE 0
+#else
+#define RETRO_TOUCH_DEVICE 1
+#endif
 
 enum RetroLanguages {
     RETRO_EN = 0,
@@ -104,7 +133,7 @@ enum RetroStates {
     ENGINE_INITPAUSE   = 5,
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
-    ENGINE_RESETGAME    = 8,
+    ENGINE_RESETGAME   = 8,
 
     // Custom GameModes (required to make some features work
     ENGINE_CONNECT2PVS = 0x80,
@@ -117,22 +146,34 @@ enum RetroGameType {
 };
 
 // General Defines
-#define SCREEN_YSIZE (240)
+#define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_USING_SDL2
 #include <SDL.h>
+#elif RETRO_USING_SDL1
+#include <SDL.h>
+#endif
 #include <vorbis/vorbisfile.h>
 #elif RETRO_PLATFORM == RETRO_OSX
 #include <SDL2/SDL.h>
 #include <Vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
+
+#elif RETRO_USING_SDL2
+#include <SDL2/SDL.h>
+#include <vorbis/vorbisfile.h>
+
+#else
+
 #endif
 
 extern bool usingCWD;
+extern bool engineDebugMode;
 
-//Utils
+// Utils
 #include "Ini.hpp"
 #include "Network.hpp"
 
@@ -154,22 +195,32 @@ extern bool usingCWD;
 #include "Userdata.hpp"
 #include "Debug.hpp"
 
-//Native Entities
+// Native Entities
 #include "PauseMenu.hpp"
 #include "RetroGameLoop.hpp"
 
 class RetroEngine
 {
 public:
+    RetroEngine()
+    {
+        if (RETRO_GAMEPLATFORM == RETRO_STANDARD)
+            gamePlatform = "STANDARD";
+        else
+            gamePlatform = "MOBILE";
+    }
+
     bool usingDataFile = false;
     bool usingBytecode = false;
+
+    char *dataFile = new char[0x80];
 
     bool initialised = false;
     bool running     = false;
 
-    int gameMode     = 1;
-    int language     = RETRO_EN;
-    int message      = 0;
+    int gameMode = 1;
+    int language = RETRO_EN;
+    int message  = 0;
 
     bool trialMode      = false;
     bool onlineActive   = true;
@@ -178,11 +229,12 @@ public:
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;
 
-    
     // Ported from RSDKv5
-    bool devMenu = false;
-    int startList  = 0;
-    int startStage = 0;
+    bool devMenu         = false;
+    int startList        = -1;
+    int startStage       = -1;
+    int startPlayer      = -1;
+    int startSave        = -1;
     int gameSpeed        = 1;
     int fastForwardSpeed = 8;
     bool masterPaused    = false;
@@ -205,35 +257,32 @@ public:
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-    const char *gameVersion       = "1.0.0";
-#if RETRO_GAMEPLATFORM == RETRO_GAME_STANDARD
-    const char *gamePlatform = "Standard"; // "STANDARD"
-#elif RETRO_GAMEPLATFORM == RETRO_GAME_MOBILE
-    const char *gamePlatform   = "Mobile"; // "MOBILE"
-#endif
+    const char *gameVersion  = "1.1.0";
+    const char *gamePlatform = nullptr;
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
-    const char *gameRenderType = "SW_Rendering"; //"SW_RENDERING"
+    const char *gameRenderType = "SW_RENDERING";
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType = "HW_Rendering"; // "HW_RENDERING"
+    const char *gameRenderType = "HW_RENDERING";
 #endif
 
 #if RETRO_USE_HAPTICS
-    const char *gameHapticSetting = "Use_Haptics"; //"USE_F_FEEDBACK"; // None is default, but people with controllers exist
+    const char *gameHapticSetting = "USE_F_FEEDBACK"; // None is default, but people with controllers exist
 #else
-    const char *gameHapticSetting = "No_Haptics"; //"NO_F_FEEDBACK";
+    const char *gameHapticSetting = "NO_F_FEEDBACK";
 #endif
 
     byte gameType = GAME_UNKNOWN;
 
-    ushort *frameBuffer = nullptr;
+    ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
 
     bool isFullScreen = false;
 
-    bool startFullScreen = false; // if should start as fullscreen
-    bool borderless = false;
-    bool vsync = false;
+    bool startFullScreen  = false; // if should start as fullscreen
+    bool borderless       = false;
+    bool vsync            = false;
+    int scalingMode       = RETRO_DEFAULTSCALINGMODE;
     int windowScale       = 2;
     int refreshRate       = 60; // user-picked screen update rate
     int screenRefreshRate = 60; // hardware screen update rate
@@ -243,11 +292,23 @@ public:
     int renderFrameIndex = 0;
     int skipFrameIndex   = 0;
 
-#if RETRO_USING_SDL
-    SDL_Window *window        = nullptr;
-    SDL_Renderer *renderer    = nullptr;
+    int windowXSize; // width of window/screen in the previous frame
+    int windowYSize; // height of window/screen in the previous frame
+
+#if RETRO_USING_SDL2
+    SDL_Window *window          = nullptr;
+    SDL_Renderer *renderer      = nullptr;
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
+
+    SDL_Event sdlEvents;
+#endif
+
+#if RETRO_USING_SDL1
+    SDL_Surface *windowSurface = nullptr;
+
+    SDL_Surface *screenBuffer   = nullptr;
+    SDL_Surface *screenBuffer2x = nullptr;
 
     SDL_Event sdlEvents;
 #endif

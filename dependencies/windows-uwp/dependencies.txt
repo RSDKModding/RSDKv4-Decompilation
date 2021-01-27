@@ -1,0 +1,11 @@
+SDL2: https://www.libsdl.org/download-2.0.php
+download the appropriate development library for your compiler and unzip it in "./SDL2/"
+
+SDL1 (optional, use SDL2 if you're unsure): https://libsdl.org/download-1.2.php
+download the appropriate development library for your compiler and unzip it in "./SDL1/"
+
+libogg: https://xiph.org/downloads/ (libogg)
+download libogg and unzip it in "./libogg/", then build the static library
+
+libvorbis: https://xiph.org/downloads/ (libvorbis)
+download libvorbis and unzip it in "./libvorbis/", then build the VS2010 static library (win32/VS2010/vorbis_static.sln)

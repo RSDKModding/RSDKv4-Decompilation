@@ -43,7 +43,8 @@ void AddTextMenuEntry(TextMenu *menu, const char *text)
 {
     menu->entryStart[menu->rowCount] = menu->textDataPos;
     menu->entrySize[menu->rowCount]  = 0;
-    for (int i = 0; i < StrLength(text);) {
+    int textLength                   = StrLength(text);
+    for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
             menu->entrySize[menu->rowCount]++;
@@ -59,7 +60,8 @@ void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
 {
     menu->entryStart[menu->rowCount] = menu->textDataPos;
     menu->entrySize[menu->rowCount]  = 0;
-    for (int i = 0; i < StrLengthW(text);) {
+    int textLength                   = StrLengthW(text);
+    for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
             menu->entrySize[menu->rowCount]++;
@@ -75,7 +77,8 @@ void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
     menu->entryStart[rowID] = menu->textDataPos;
     menu->entrySize[rowID]  = 0;
-    for (int i = 0; i < StrLength(text);) {
+    int textLength          = StrLength(text);
+    for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
             menu->entrySize[rowID]++;
@@ -90,7 +93,8 @@ void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
 {
     menu->entryStart[rowID] = menu->textDataPos;
     menu->entrySize[rowID]  = 0;
-    for (int i = 0; i < StrLengthW(text);) {
+    int textLength          = StrLengthW(text);
+    for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
             menu->entrySize[rowID]++;
@@ -105,7 +109,8 @@ void EditTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
     int entryPos             = menu->entryStart[rowID];
     menu->entrySize[rowID] = 0;
-    for (int i = 0; i < StrLength(text);) {
+    int textLength         = StrLength(text);
+    for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[entryPos++] = text[i];
             menu->entrySize[rowID]++;
@@ -120,9 +125,9 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 {
     FileInfo info;
     char strBuf[0x100];
-    int fileBuffer = 0;
-    int count      = 0;
-    int strLen     = 0;
+    byte fileBuffer = 0;
+    byte count      = 0;
+    byte strLen     = 0;
     if (LoadFile("Data/Game/GameConfig.bin", &info)) {
         // Name
         FileRead(&strLen, 1);
@@ -139,14 +144,14 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // Object Names
         FileRead(&count, 1);
-        for (int o = 0; o < count; ++o) {
+        for (byte o = 0; o < count; ++o) {
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = 0;
         }
 
         // Script Paths
-        for (int s = 0; s < count; ++s) {
+        for (byte s = 0; s < count; ++s) {
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = 0;
@@ -154,7 +159,7 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // Variables
         FileRead(&count, 1);
-        for (int v = 0; v < count; ++v) {
+        for (byte v = 0; v < count; ++v) {
             //Var Name
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
@@ -169,13 +174,13 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // SFX Names
         FileRead(&count, 1);
-        for (int s = 0; s < count; ++s) {
+        for (byte s = 0; s < count; ++s) {
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = 0;
         }
         // SFX Paths
-        for (int s = 0; s < count; ++s) {
+        for (byte s = 0; s < count; ++s) {
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = 0;
@@ -183,7 +188,7 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // Players
         FileRead(&count, 1);
-        for (int p = 0; p < count; ++p) {
+        for (byte p = 0; p < count; ++p) {
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = '\0';
@@ -195,10 +200,10 @@ void LoadConfigListText(TextMenu *menu, int listNo)
         }
 
         // Categories
-        for (int c = 1; c <= 4; ++c) {
+        for (byte c = 1; c <= 4; ++c) {
             int stageCnt = 0;
             FileRead(&stageCnt, 1);
-            for (int s = 0; s < stageCnt; ++s) {
+            for (byte s = 0; s < stageCnt; ++s) {
                 //Stage Folder
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);

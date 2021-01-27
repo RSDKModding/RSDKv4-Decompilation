@@ -27,7 +27,7 @@ struct MultiplayerData {
     int data[0x1FF];
 };
 
-extern int(*nativeFunction[16])(int, void *);
+extern int (*nativeFunction[16])(int, void *);
 extern int nativeFunctionCount;
 
 extern int globalVariablesCount;
@@ -75,7 +75,8 @@ inline int GetGlobalVariableID(const char *name)
     return 0;
 }
 
-inline void AddNativeFunction(const char* name, int (*funcPtr)(int, void*)) {
+inline void AddNativeFunction(const char *name, int (*funcPtr)(int, void *))
+{
     if (nativeFunctionCount > 0xF)
         return;
     SetGlobalVariableByName(name, nativeFunctionCount);
@@ -85,7 +86,7 @@ inline void AddNativeFunction(const char* name, int (*funcPtr)(int, void*)) {
 inline bool ReadSaveRAMData()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
@@ -104,7 +105,7 @@ inline bool ReadSaveRAMData()
 inline bool WriteSaveRAMData()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
@@ -128,7 +129,7 @@ void WriteUserdata();
 
 void AwardAchievement(int id, int status);
 
-int SetAchievement(int achievementID, void* achDone);
+int SetAchievement(int achievementID, void *achDone);
 int SetLeaderboard(int leaderboardID, void *res);
 inline void LoadAchievementsMenu() { ReadUserdata(); }
 inline void LoadLeaderboardsMenu() { ReadUserdata(); }
@@ -146,4 +147,4 @@ void receive2PVSMatchCode(int code);
 
 int ShowPromoPopup(int a1, void *a2);
 
-#endif //!USERDATA_H
+#endif //! USERDATA_H

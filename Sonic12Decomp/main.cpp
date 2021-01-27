@@ -6,9 +6,17 @@ int main(int argc, char *argv[])
         if (StrComp(argv[i], "UsingCWD"))
             usingCWD = true;
     }
-
+    
+    SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
     Engine.Init();
+#if RETRO_USING_SDL2
+    controllerInit(0);
+#endif
     Engine.Run();
 
     return 0;
 }
+
+#if RETRO_PLATFORM == RETRO_UWP
+int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) { return SDL_WinRTRunApp(main, NULL); }
+#endif

@@ -17,24 +17,66 @@ struct ScriptPtr {
 struct ObjectScript {
     int frameCount;
     int spriteSheetID;
-    ScriptPtr subMain;
-    ScriptPtr subDraw;
-    ScriptPtr subStartup;
+    ScriptPtr eventMain;
+    ScriptPtr eventDraw;
+    ScriptPtr eventStartup;
     int frameListOffset;
     AnimationFile* animFile;
 };
 
 struct ScriptEngine {
-    int operands[0x16];
+    int operands[0x10];
     int tempValue[8];
     int arrayPosition[9];
-    // int playerObjectPos;     // ArrayPos[6]
-    // int playerObjectCount;   // ArrayPos[7]
-    // int tempObjectPos;       // ArrayPos[8]
+    // int currentPlayer;   // ArrayPos[6]
+    // int playerCount;     // ArrayPos[7]
+    // int tempObjectPos;   // ArrayPos[8]
     int checkResult;
 };
 
-enum ScriptSubs { SUB_MAIN = 0, SUB_DRAW = 1, SUB_SETUP = 2 };
+#define TABLE_COUNT       (0x200)
+#define TABLE_ENTRY_COUNT (0x400)
+
+struct StaticInfo {
+    StaticInfo()
+    {
+        StrCopy(name, "");
+        value   = 0;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    StaticInfo(const char *aliasName, int val)
+    {
+        StrCopy(name, aliasName);
+        value   = val;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+
+    char name[0x20];
+    int value;
+    int dataPos;
+};
+
+struct TableInfo {
+    TableInfo()
+    {
+        StrCopy(name, "");
+        valueCount = 0;
+        dataPos    = SCRIPTDATA_COUNT - 1;
+    }
+    TableInfo(const char *aliasName, int valCnt)
+    {
+        StrCopy(name, aliasName);
+        valueCount = valCnt;
+        dataPos    = SCRIPTDATA_COUNT - 1;
+    }
+
+    char name[0x20];
+    int valueCount;
+    StaticInfo values[TABLE_ENTRY_COUNT];
+    int dataPos;
+};
+
+enum ScriptSubs { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_SETUP = 2 };
 
 extern ObjectScript objectScriptList[OBJECT_COUNT];
 extern ScriptPtr functionScriptList[FUNCTION_COUNT];
@@ -63,12 +105,11 @@ extern int jumpTableDataOffset;
 extern int scriptFunctionCount;
 extern char scriptFunctionNames[FUNCTION_COUNT][0x20];
 
-extern int aliasCount;
 extern int lineID;
 
 void CheckAliasText(char *text);
 void CheckStaticText(char *text);
-void CheckArrayText(char *text);
+TableInfo *CheckTableText(char *text);
 void ConvertArithmaticSyntax(char *text);
 void ConvertIfWhileStatement(char *text);
 void ConvertForeachStatement(char *text);
@@ -76,6 +117,7 @@ bool ConvertSwitchStatement(char *text);
 void ConvertFunctionText(char *text);
 void CheckCaseNumber(char *text);
 bool ReadSwitchCase(char *text);
+void ReadTableValues(char *text);
 void AppendIntegerToString(char *text, int value);
 void AppendIntegerToStringW(ushort *text, int value);
 bool ConvertStringToInteger(const char *text, int *value);

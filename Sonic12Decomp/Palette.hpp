@@ -34,7 +34,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
 inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 {
     if (newActivePal < PALETTE_COUNT)
-        while (startLine++ < endLine) gfxLineBuffer[startLine % SCREEN_YSIZE] = newActivePal;
+        for (int l = startLine; l < endLine && l < SCREEN_YSIZE; l++) gfxLineBuffer[l] = newActivePal;
 
     activePalette   = fullPalette[gfxLineBuffer[0]];
     activePalette32 = fullPalette32[gfxLineBuffer[0]];
@@ -70,7 +70,7 @@ inline uint GetPaletteEntryPacked(byte paletteIndex, byte index)
     return (clr.r << 16) | (clr.g << 8) | (clr.b);
 }
 
-inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinationPalette, byte destPaletteStart, byte count)
+inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinationPalette, byte destPaletteStart, ushort count)
 {
     if (sourcePalette < PALETTE_COUNT && destinationPalette < PALETTE_COUNT) {
         for (int i = 0; i < count; ++i) {
@@ -84,13 +84,13 @@ inline void RotatePalette(int palID, byte startIndex, byte endIndex, bool right)
 {
     if (right) {
         ushort startClr         = fullPalette[palID][endIndex];
-        PaletteEntry startClr32 = fullPalette32[palID][startIndex];
+        PaletteEntry startClr32 = fullPalette32[palID][endIndex];
         for (int i = endIndex; i > startIndex; --i) {
             fullPalette[palID][i] = fullPalette[palID][i - 1];
             fullPalette32[palID][i] = fullPalette32[palID][i - 1];
         }
         fullPalette[palID][startIndex] = startClr;
-        fullPalette32[palID][endIndex] = startClr32;
+        fullPalette32[palID][startIndex] = startClr32;
     }
     else {
         ushort startClr = fullPalette[palID][startIndex];

@@ -25,9 +25,9 @@ int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
 #define COMMONALIAS_COUNT (0x4E)
-#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0xE0)
-int aliasCount = 0;
-int lineID     = 0;
+#define ALIAS_COUNT_TRIM  (0xE0)
+#define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
+int lineID = 0;
 
 struct AliasInfo {
     AliasInfo()
@@ -45,48 +45,7 @@ struct AliasInfo {
     char value[0x20];
 };
 
-#define STATICVAR_COUNT   (0x200)
-#define ARRVAR_COUNT      (0x200)
-#define ARRAY_VALUE_COUNT (0x400)
-
-struct StaticInfo {
-    StaticInfo()
-    {
-        StrCopy(name, "");
-        value   = 0;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-    StaticInfo(const char *aliasName, int val)
-    {
-        StrCopy(name, aliasName);
-        value   = val;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-
-    char name[0x20];
-    int value;
-    int dataPos;
-};
-
-struct ArrInfo {
-    ArrInfo()
-    {
-        StrCopy(name, "");
-        valueCount = 0;
-        dataPos    = SCRIPTDATA_COUNT - 1;
-    }
-    ArrInfo(const char *aliasName, int valCnt)
-    {
-        StrCopy(name, aliasName);
-        valueCount = valCnt;
-        dataPos    = SCRIPTDATA_COUNT - 1;
-    }
-
-    char name[0x20];
-    int valueCount;
-    StaticInfo values[ARRAY_VALUE_COUNT];
-    int dataPos;
-};
+#define STATICVAR_COUNT (0x200)
 
 struct FunctionInfo {
     FunctionInfo()
@@ -105,479 +64,548 @@ struct FunctionInfo {
 };
 
 const char variableNames[][0x20] = {
-    "TempValue0",
-    "TempValue1",
-    "TempValue2",
-    "TempValue3",
-    "TempValue4",
-    "TempValue5",
-    "TempValue6",
-    "TempValue7",
-    "CheckResult",
-    "ArrayPos0",
-    "ArrayPos1",
-    "ArrayPos2",
-    "ArrayPos3",
-    "ArrayPos4",
-    "ArrayPos5",
-    "PlayerObjectPos",
-    "PlayerObjectCount",
-    "Global",
-    "ScriptData",
-    "Object.EntityNo",
-    "Object.TypeGroup",
-    "Object.Type",
-    "Object.PropertyValue",
-    "Object.XPos",
-    "Object.YPos",
-    "Object.iXPos",
-    "Object.iYPos",
-    "Object.XVelocity",
-    "Object.YVelocity",
-    "Object.Speed",
-    "Object.State",
-    "Object.Rotation",
-    "Object.Scale",
-    "Object.Priority",
-    "Object.DrawOrder",
-    "Object.Direction",
-    "Object.InkEffect",
-    "Object.Alpha",
-    "Object.Frame",
-    "Object.Animation",
-    "Object.PrevAnimation",
-    "Object.AnimationSpeed",
-    "Object.AnimationTimer",
-    "Object.Angle",
-    "Object.CamOffsetX",
-    "Object.LookPos",
-    "Object.CollisionMode",
-    "Object.CollisionPlane",
-    "Object.ControlMode",
-    "Object.ControlLock",
-    "Object.Pushing",
-    "Object.Visible",
-    "Object.TileCollisions",
-    "Object.ObjectInteractions",
-    "Object.Gravity",
-    "Object.Up",
-    "Object.Down",
-    "Object.Left",
-    "Object.Right",
-    "Object.JumpPress",
-    "Object.JumpHold",
-    "Object.TrackScroll",
-    "Object.Flailing0",
-    "Object.Flailing1",
-    "Object.Flailing2",
-    "Object.Flailing3",
-    "Object.Flailing4",
-    "Object.CollisionLeft",
-    "Object.CollisionTop",
-    "Object.CollisionRight",
-    "Object.CollisionBottom",
-    "Object.OutOfBounds",
-    "Object.SpriteSheet",
-    "Object.Value0",
-    "Object.Value1",
-    "Object.Value2",
-    "Object.Value3",
-    "Object.Value4",
-    "Object.Value5",
-    "Object.Value6",
-    "Object.Value7",
-    "Object.Value8",
-    "Object.Value9",
-    "Object.Value10",
-    "Object.Value11",
-    "Object.Value12",
-    "Object.Value13",
-    "Object.Value14",
-    "Object.Value15",
-    "Object.Value16",
-    "Object.Value17",
-    "Object.Value18",
-    "Object.Value19",
-    "Object.Value20",
-    "Object.Value21",
-    "Object.Value22",
-    "Object.Value23",
-    "Object.Value24",
-    "Object.Value25",
-    "Object.Value26",
-    "Object.Value27",
-    "Object.Value28",
-    "Object.Value29",
-    "Object.Value30",
-    "Object.Value31",
-    "Object.Value32",
-    "Object.Value33",
-    "Object.Value34",
-    "Object.Value35",
-    "Object.Value36",
-    "Object.Value37",
-    "Object.Value38",
-    "Object.Value39",
-    "Object.Value40",
-    "Object.Value41",
-    "Object.Value42",
-    "Object.Value43",
-    "Object.Value44",
-    "Object.Value45",
-    "Object.Value46",
-    "Object.Value47",
-    "Stage.State",
-    "Stage.ActiveList",
-    "Stage.ListPos",
-    "Stage.TimeEnabled",
-    "Stage.MilliSeconds",
-    "Stage.Seconds",
-    "Stage.Minutes",
-    "Stage.ActNo",
-    "Stage.PauseEnabled",
-    "Stage.ListSize",
-    "Stage.NewXBoundary1",
-    "Stage.NewXBoundary2",
-    "Stage.NewYBoundary1",
-    "Stage.NewYBoundary2",
-    "Stage.XBoundary1",
-    "Stage.XBoundary2",
-    "Stage.YBoundary1",
-    "Stage.YBoundary2",
-    "Stage.DeformationData0",
-    "Stage.DeformationData1",
-    "Stage.DeformationData2",
-    "Stage.DeformationData3",
-    "Stage.WaterLevel",
-    "Stage.ActiveLayer",
-    "Stage.MidPoint",
-    "Stage.PlayerListPos",
-    "Stage.DebugMode",
-    "Stage.ObjectEntityPos",
-    "Screen.CameraEnabled",
-    "Screen.CameraTarget",
-    "Screen.CameraStyle",
-    "Screen.CameraXPos",
-    "Screen.CameraYPos",
-    "Screen.DrawListSize",
-    "Screen.CenterX",
-    "Screen.CenterY",
-    "Screen.XSize",
-    "Screen.YSize",
-    "Screen.XOffset",
-    "Screen.YOffset",
-    "Screen.ShakeX",
-    "Screen.ShakeY",
-    "Screen.AdjustCameraY",
-    "TouchScreen.Down",
-    "TouchScreen.XPos",
-    "TouchScreen.YPos",
-    "Music.Volume",
-    "Music.CurrentTrack",
-    "Unknown",
-    "KeyDown.Up",
-    "KeyDown.Down",
-    "KeyDown.Left",
-    "KeyDown.Right",
-    "KeyDown.ButtonA",
-    "KeyDown.ButtonB",
-    "KeyDown.ButtonC",
-    "KeyDown.ButtonA2", // ButtonX?
-    "KeyDown.ButtonB2", // ButtonY?
-    "KeyDown.ButtonC2", // ButtonZ?
-    "KeyDown.ButtonA3",
-    "KeyDown.ButtonB3",
-    "KeyDown.Start",
-    "KeyDown.Start2",
-    "KeyPress.Up",
-    "KeyPress.Down",
-    "KeyPress.Left",
-    "KeyPress.Right",
-    "KeyPress.ButtonA",
-    "KeyPress.ButtonB",
-    "KeyPress.ButtonC",
-    "KeyPress.ButtonA2",
-    "KeyPress.ButtonB2",
-    "KeyPress.ButtonC2",
-    "KeyPress.ButtonA3",
-    "KeyPress.ButtonB3",
-    "KeyPress.Start",
-    "KeyPress.Start2",
-    "Menu1.Selection",
-    "Menu2.Selection",
-    "TileLayer.XSize",
-    "TileLayer.YSize",
-    "TileLayer.Type",
-    "TileLayer.Angle",
-    "TileLayer.XPos",
-    "TileLayer.YPos",
-    "TileLayer.ZPos",
-    "TileLayer.ParallaxFactor",
-    "TileLayer.ScrollSpeed",
-    "TileLayer.ScrollPos",
-    "TileLayer.DeformationOffset",
-    "TileLayer.DeformationOffsetW",
-    "HParallax.ParallaxFactor",
-    "HParallax.ScrollSpeed",
-    "HParallax.ScrollPos",
-    "VParallax.ParallaxFactor",
-    "VParallax.ScrollSpeed",
-    "VParallax.ScrollPos",
-    "3DScene.NoVertices",
-    "3DScene.NoFaces",
-    "3DScene.ProjectionX",
-    "3DScene.ProjectionY",
-    "3DScene.FogColor",
-    "3DScene.FogStrength",
-    "VertexBuffer.x",
-    "VertexBuffer.y",
-    "VertexBuffer.z",
-    "VertexBuffer.u",
-    "VertexBuffer.v",
-    "FaceBuffer.a",
-    "FaceBuffer.b",
-    "FaceBuffer.c",
-    "FaceBuffer.d",
-    "FaceBuffer.Flag",
-    "FaceBuffer.Color",
-    "SaveRAM",
-    "Engine.State",
-    "Engine.Language",
-    "Engine.OnlineActive",
-    "Engine.SFXVolume",
-    "Engine.BGMVolume",
-    "Engine.TrialMode",
-    "Engine.PlatformID",
+    // Internal Script Values
+    "temp0",
+    "temp1",
+    "temp2",
+    "temp3",
+    "temp4",
+    "temp5",
+    "temp6",
+    "temp7",
+    "checkResult",
+    "arrayPos0",
+    "arrayPos1",
+    "arrayPos2",
+    "arrayPos3",
+    "arrayPos4",
+    "arrayPos5",
+    "arrayPos6",
+    "arrayPos7",
+    "global",
+    "local",
+
+    // Object Properties
+    "object.entityPos",
+    "object.groupID",
+    "object.type",
+    "object.propertyValue",
+    "object.xpos",
+    "object.ypos",
+    "object.ixpos",
+    "object.iypos",
+    "object.xvel",
+    "object.yvel",
+    "object.speed",
+    "object.state",
+    "object.rotation",
+    "object.scale",
+    "object.priority",
+    "object.drawOrder",
+    "object.direction",
+    "object.inkEffect",
+    "object.alpha",
+    "object.frame",
+    "object.animation",
+    "object.prevAnimation",
+    "object.animationSpeed",
+    "object.animationTimer",
+    "object.angle",
+    "object.lookPosX",
+    "object.lookPosY",
+    "object.collisionMode",
+    "object.collisionPlane",
+    "object.controlMode",
+    "object.controlLock",
+    "object.pushing",
+    "object.visible",
+    "object.tileCollisions",
+    "object.interaction",
+    "object.gravity",
+    "object.up",
+    "object.down",
+    "object.left",
+    "object.right",
+    "object.jumpPress",
+    "object.jumpHold",
+    "object.scrollTracking",
+    "object.floorSensorL",
+    "object.floorSensorC",
+    "object.floorSensorR",
+    "object.floorSensorLC",
+    "object.floorSensorRC",
+    "object.collisionLeft",
+    "object.collisionTop",
+    "object.collisionRight",
+    "object.collisionBottom",
+    "object.outOfBounds",
+    "object.spriteSheet",
+
+    // Object Values
+    "object.value0",
+    "object.value1",
+    "object.value2",
+    "object.value3",
+    "object.value4",
+    "object.value5",
+    "object.value6",
+    "object.value7",
+    "object.value8",
+    "object.value9",
+    "object.value10",
+    "object.value11",
+    "object.value12",
+    "object.value13",
+    "object.value14",
+    "object.value15",
+    "object.value16",
+    "object.value17",
+    "object.value18",
+    "object.value19",
+    "object.value20",
+    "object.value21",
+    "object.value22",
+    "object.value23",
+    "object.value24",
+    "object.value25",
+    "object.value26",
+    "object.value27",
+    "object.value28",
+    "object.value29",
+    "object.value30",
+    "object.value31",
+    "object.value32",
+    "object.value33",
+    "object.value34",
+    "object.value35",
+    "object.value36",
+    "object.value37",
+    "object.value38",
+    "object.value39",
+    "object.value40",
+    "object.value41",
+    "object.value42",
+    "object.value43",
+    "object.value44",
+    "object.value45",
+    "object.value46",
+    "object.value47",
+
+    // Stage Properties
+    "stage.state",
+    "stage.activeList",
+    "stage.listPos",
+    "stage.timeEnabled",
+    "stage.milliSeconds",
+    "stage.seconds",
+    "stage.minutes",
+    "stage.actNum",
+    "stage.pauseEnabled",
+    "stage.listSize",
+    "stage.newXBoundary1",
+    "stage.newXBoundary2",
+    "stage.newYBoundary1",
+    "stage.newYBoundary2",
+    "stage.curXBoundary1",
+    "stage.curXBoundary2",
+    "stage.curYBoundary1",
+    "stage.curYBoundary2",
+    "stage.deformationData0",
+    "stage.deformationData1",
+    "stage.deformationData2",
+    "stage.deformationData3",
+    "stage.waterLevel",
+    "stage.activeLayer",
+    "stage.midPoint",
+    "stage.playerListPos",
+    "stage.debugMode",
+    "stage.entityPos",
+
+    // Screen Properties
+    "screen.cameraEnabled",
+    "screen.cameraTarget",
+    "screen.cameraStyle",
+    "screen.cameraX",
+    "screen.cameraY",
+    "screen.drawListSize",
+    "screen.xcenter",
+    "screen.ycenter",
+    "screen.xsize",
+    "screen.ysize",
+    "screen.xoffset",
+    "screen.yoffset",
+    "screen.shakeX",
+    "screen.shakeY",
+    "screen.adjustCameraY",
+
+    "touchscreen.down",
+    "touchscreen.xpos",
+    "touchscreen.ypos",
+
+    // Sound Properties
+    "music.volume",
+    "music.currentTrack",
+    "music.position",
+
+    // Input Properties
+    "inputDown.up",
+    "inputDown.down",
+    "inputDown.left",
+    "inputDown.right",
+    "inputDown.buttonA",
+    "inputDown.buttonB",
+    "inputDown.buttonC",
+    "inputDown.buttonX",
+    "inputDown.buttonY",
+    "inputDown.buttonZ",
+    "inputDown.buttonL",
+    "inputDown.buttonR",
+    "inputDown.start",
+    "inputDown.select",
+    "inputPress.up",
+    "inputPress.down",
+    "inputPress.left",
+    "inputPress.right",
+    "inputPress.buttonA",
+    "inputPress.buttonB",
+    "inputPress.buttonC",
+    "inputPress.buttonX",
+    "inputPress.buttonY",
+    "inputPress.buttonZ",
+    "inputPress.buttonL",
+    "inputPress.buttonR",
+    "inputPress.start",
+    "inputPress.select",
+
+    // Menu Properties
+    "menu1.selection",
+    "menu2.selection",
+
+    // Tile Layer Properties
+    "tileLayer.xsize",
+    "tileLayer.ysize",
+    "tileLayer.type",
+    "tileLayer.angle",
+    "tileLayer.xpos",
+    "tileLayer.ypos",
+    "tileLayer.zpos",
+    "tileLayer.parallaxFactor",
+    "tileLayer.scrollSpeed",
+    "tileLayer.scrollPos",
+    "tileLayer.deformationOffset",
+    "tileLayer.deformationOffsetW",
+    "hParallax.parallaxFactor",
+    "hParallax.scrollSpeed",
+    "hParallax.scrollPos",
+    "vParallax.parallaxFactor",
+    "vParallax.scrollSpeed",
+    "vParallax.scrollPos",
+
+    // 3D Scene Properties
+    "scene3D.vertexCount",
+    "scene3D.faceCount",
+    "scene3D.projectionX",
+    "scene3D.projectionY",
+    "scene3D.fogColor",
+    "scene3D.fogStrength",
+
+    "vertexBuffer.x",
+    "vertexBuffer.y",
+    "vertexBuffer.z",
+    "vertexBuffer.u",
+    "vertexBuffer.v",
+
+    "faceBuffer.a",
+    "faceBuffer.b",
+    "faceBuffer.c",
+    "faceBuffer.d",
+    "faceBuffer.flag",
+    "faceBuffer.color",
+
+    "saveRAM",
+    "engine.state",
+    "engine.language",
+    "engine.onlineActive",
+    "engine.sfxVolume",
+    "engine.bgmVolume",
+    "engine.trialMode",
+    "engine.deviceType",
 };
 
-const FunctionInfo functions[] = { FunctionInfo("End", 0),
-                                   FunctionInfo("Equal", 2),
-                                   FunctionInfo("Add", 2),
-                                   FunctionInfo("Sub", 2),
-                                   FunctionInfo("Inc", 1),
-                                   FunctionInfo("Dec", 1),
-                                   FunctionInfo("Mul", 2),
-                                   FunctionInfo("Div", 2),
-                                   FunctionInfo("ShR", 2),
-                                   FunctionInfo("ShL", 2),
-                                   FunctionInfo("And", 2),
-                                   FunctionInfo("Or", 2),
-                                   FunctionInfo("Xor", 2),
-                                   FunctionInfo("Mod", 2),
-                                   FunctionInfo("FlipSign", 1),
-                                   FunctionInfo("CheckEqual", 2),
-                                   FunctionInfo("CheckGreater", 2),
-                                   FunctionInfo("CheckLower", 2),
-                                   FunctionInfo("CheckNotEqual", 2),
-                                   FunctionInfo("IfEqual", 3),
-                                   FunctionInfo("IfGreater", 3),
-                                   FunctionInfo("IfGreaterOrEqual", 3),
-                                   FunctionInfo("IfLower", 3),
-                                   FunctionInfo("IfLowerOrEqual", 3),
-                                   FunctionInfo("IfNotEqual", 3),
-                                   FunctionInfo("else", 0),
-                                   FunctionInfo("endif", 0),
-                                   FunctionInfo("WEqual", 3),
-                                   FunctionInfo("WGreater", 3),
-                                   FunctionInfo("WGreaterOrEqual", 3),
-                                   FunctionInfo("WLower", 3),
-                                   FunctionInfo("WLowerOrEqual", 3),
-                                   FunctionInfo("WNotEqual", 3),
-                                   FunctionInfo("loop", 0),
-                                   FunctionInfo("foreachGroup", 3),
-                                   FunctionInfo("foreachObj", 3),
-                                   FunctionInfo("floop", 0),
-                                   FunctionInfo("switch", 2),
-                                   FunctionInfo("break", 0),
-                                   FunctionInfo("endswitch", 0),
-                                   FunctionInfo("Rand", 2),
-                                   FunctionInfo("Sin", 2),
-                                   FunctionInfo("Cos", 2),
-                                   FunctionInfo("Sin256", 2),
-                                   FunctionInfo("Cos256", 2),
-                                   FunctionInfo("ATan2", 3),
-                                   FunctionInfo("Interpolate", 4),
-                                   FunctionInfo("InterpolateXY", 7),
-                                   FunctionInfo("LoadSpriteSheet", 1),
-                                   FunctionInfo("RemoveSpriteSheet", 1),
-                                   FunctionInfo("DrawSprite", 1),
-                                   FunctionInfo("DrawSpriteXY", 3),
-                                   FunctionInfo("DrawSpriteScreenXY", 3),
-                                   FunctionInfo("DrawTintRect", 4),
-                                   FunctionInfo("DrawNumbers", 7),
-                                   FunctionInfo("DrawActName", 7),
-                                   FunctionInfo("DrawMenu", 3),
-                                   FunctionInfo("SpriteFrame", 6),
-                                   FunctionInfo("EditFrame", 7),
-                                   FunctionInfo("LoadPalette", 5),
-                                   FunctionInfo("RotatePalette", 4),
-                                   FunctionInfo("SetScreenFade", 4),
-                                   FunctionInfo("SetActivePalette", 3),
-                                   FunctionInfo("SetPaletteFade", 6),
-                                   FunctionInfo("SetPaletteEntry", 3),
-                                   FunctionInfo("GetPaletteEntry", 3),
-                                   FunctionInfo("CopyPalette", 5),
-                                   FunctionInfo("ClearScreen", 1),
-                                   FunctionInfo("DrawSpriteFX", 4),
-                                   FunctionInfo("DrawSpriteScreenFX", 4),
-                                   FunctionInfo("LoadAnimation", 1),
-                                   FunctionInfo("SetupMenu", 4),
-                                   FunctionInfo("AddMenuEntry", 3),
-                                   FunctionInfo("EditMenuEntry", 4),
-                                   FunctionInfo("LoadStage", 0),
-                                   FunctionInfo("DrawRect", 8),
-                                   FunctionInfo("ResetObjectEntity", 5),
-                                   FunctionInfo("PlayerObjectCollision", 0xB),
-                                   FunctionInfo("CreateTempObject", 4),
-                                   FunctionInfo("PlayerTileCollision", 0),
-                                   FunctionInfo("ProcessPlayerControl", 0),
-                                   FunctionInfo("ProcessObjectAnimation", 0),
-                                   FunctionInfo("DrawObjectAnimation", 0),
-                                   FunctionInfo("SetMusicTrack", 3),
-                                   FunctionInfo("PlayMusic", 1),
-                                   FunctionInfo("StopMusic", 0),
-                                   FunctionInfo("PauseMusic", 0),
-                                   FunctionInfo("ResumeMusic", 0),
-                                   FunctionInfo("SwapMusicTrack", 4),
-                                   FunctionInfo("PlaySfx", 2),
-                                   FunctionInfo("StopSfx", 1),
-                                   FunctionInfo("SetSfxAttributes", 3),
-                                   FunctionInfo("ObjectTileCollision", 4),
-                                   FunctionInfo("ObjectTileGrip", 4),
-                                   FunctionInfo("Not", 1),
-                                   FunctionInfo("Draw3DScene", 0),
-                                   FunctionInfo("SetIdentityMatrix", 1),
-                                   FunctionInfo("MatrixMultiply", 2),
-                                   FunctionInfo("MatrixTranslateXYZ", 4),
-                                   FunctionInfo("MatrixScaleXYZ", 4),
-                                   FunctionInfo("MatrixRotateX", 2),
-                                   FunctionInfo("MatrixRotateY", 2),
-                                   FunctionInfo("MatrixRotateZ", 2),
-                                   FunctionInfo("MatrixRotateXYZ", 4),
-                                   FunctionInfo("MatrixInverse", 1),
-                                   FunctionInfo("TransformVertices", 3),
-                                   FunctionInfo("CallFunction", 1),
-                                   FunctionInfo("EndFunction", 0),
-                                   FunctionInfo("SetLayerDeformation", 6),
-                                   FunctionInfo("CheckTouchRect", 4),
-                                   FunctionInfo("GetTileLayerEntry", 4),
-                                   FunctionInfo("SetTileLayerEntry", 4),
-                                   FunctionInfo("GetBit", 3),
-                                   FunctionInfo("SetBit", 3),
-                                   FunctionInfo("ClearDrawList", 1),
-                                   FunctionInfo("AddDrawListEntityRef", 2),
-                                   FunctionInfo("GetDrawListEntityRef", 3),
-                                   FunctionInfo("SetDrawListEntityRef", 3),
-                                   FunctionInfo("Get16x16TileInfo", 4),
-                                   FunctionInfo("Set16x16TileInfo", 4),
-                                   FunctionInfo("Copy16x16Tile", 2),
-                                   FunctionInfo("GetAnimationByName", 2),
-                                   FunctionInfo("ReadSaveRAM", 0),
-                                   FunctionInfo("WriteSaveRAM", 0),
-                                   FunctionInfo("LoadTextFile", 2),
-                                   FunctionInfo("GetTextInfo", 5),
-                                   FunctionInfo("GetVersionNumber", 2),
-                                   FunctionInfo("GetArrayValue", 3),
-                                   FunctionInfo("SetArrayValue", 3),
-                                   FunctionInfo("CheckStageFolder", 1),
-                                   FunctionInfo("Absolute", 1),
-                                   FunctionInfo("EngineCallbackFunc", 1),
-                                   FunctionInfo("EngineCallback", 3),
-                                   FunctionInfo("EngineCallbackExt", 5),
-                                   FunctionInfo("SetObjectBorderX", 1),
-                                   FunctionInfo("GetObjectValue", 3),
-                                   FunctionInfo("SetObjectValue", 3),
-                                   FunctionInfo("CopyObject", 3),
-                                   FunctionInfo("HapticEffect", 3) };
+const FunctionInfo functions[] = {
+    FunctionInfo("End", 0),      // End of Script
+    FunctionInfo("Equal", 2),    // Equal
+    FunctionInfo("Add", 2),      // Add
+    FunctionInfo("Sub", 2),      // Subtract
+    FunctionInfo("Inc", 1),      // Increment
+    FunctionInfo("Dec", 1),      // Decrement
+    FunctionInfo("Mul", 2),      // Multiply
+    FunctionInfo("Div", 2),      // Divide
+    FunctionInfo("ShR", 2),      // Bit Shift Right
+    FunctionInfo("ShL", 2),      // Bit Shift Left
+    FunctionInfo("And", 2),      // Bitwise And
+    FunctionInfo("Or", 2),       // Bitwise Or
+    FunctionInfo("Xor", 2),      // Bitwise Xor
+    FunctionInfo("Mod", 2),      // Mod
+    FunctionInfo("FlipSign", 1), // Flips the Sign of the value
 
-AliasInfo aliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
-                                   AliasInfo("false", "0"),
-                                   AliasInfo("FX_SCALE", "0"),
-                                   AliasInfo("FX_ROTATE", "1"),
-                                   AliasInfo("FX_ROTOZOOM", "2"),
-                                   AliasInfo("FX_INK", "3"),
-                                   AliasInfo("PRESENTATION_STAGE", "0"),
-                                   AliasInfo("REGULAR_STAGE", "1"),
-                                   AliasInfo("BONUS_STAGE", "2"),
-                                   AliasInfo("SPECIAL_STAGE", "3"),
-                                   AliasInfo("MENU_1", "0"),
-                                   AliasInfo("MENU_2", "1"),
-                                   AliasInfo("C_TOUCH", "0"),
-                                   AliasInfo("C_BOX", "1"),
-                                   AliasInfo("C_BOX2", "2"),
-                                   AliasInfo("C_PLATFORM", "3"),
-                                   AliasInfo("MAT_WORLD", "0"),
-                                   AliasInfo("MAT_VIEW", "1"),
-                                   AliasInfo("MAT_TEMP", "2"),
-                                   AliasInfo("FX_FLIP", "5"),
-                                   AliasInfo("FACING_LEFT", "1"),
-                                   AliasInfo("FACING_RIGHT", "0"),
-                                   AliasInfo("FLIP_NONE", "0"),
-                                   AliasInfo("FLIP_X", "1"),
-                                   AliasInfo("FLIP_Y", "2"),
-                                   AliasInfo("FLIP_XY", "3"),
-                                   AliasInfo("STAGE_PAUSED", "2"),
-                                   AliasInfo("STAGE_RUNNING", "1"),
-                                   AliasInfo("RESET_GAME", "2"),
-                                   AliasInfo("RETRO_STANDARD", "0"),
-                                   AliasInfo("RETRO_MOBILE", "1"),
-                                   AliasInfo("INK_NONE", "0"),
-                                   AliasInfo("INK_BLEND", "1"),
-                                   AliasInfo("INK_ALPHA", "2"),
-                                   AliasInfo("INK_ADD", "3"),
-                                   AliasInfo("INK_SUB", "4"),
-                                   AliasInfo("CSIDE_FLOOR", "0"),
-                                   AliasInfo("CSIDE_LWALL", "1"),
-                                   AliasInfo("CSIDE_RWALL", "2"),
-                                   AliasInfo("CSIDE_ROOF", "3"),
-                                   AliasInfo("CMODE_FLOOR", "0"),
-                                   AliasInfo("CMODE_LWALL", "1"),
-                                   AliasInfo("CMODE_ROOF", "2"),
-                                   AliasInfo("CMODE_RWALL", "3"),
-                                   AliasInfo("PATH_A", "0"),
-                                   AliasInfo("PATH_B", "1"),
-                                   AliasInfo("GRAVITY_GROUND", "0"),
-                                   AliasInfo("GRAVITY_AIR", "1"),
-                                   AliasInfo("FACE_TEXTURED_3D", "0"),
-                                   AliasInfo("FACE_TEXTURED_2D", "1"),
-                                   AliasInfo("FACE_COLOURED_3D", "2"),
-                                   AliasInfo("FACE_COLOURED_2D", "3"),
-                                   AliasInfo("FACE_FADED", "4"),
-                                   AliasInfo("FACE_TEXTURED_C", "5"),
-                                   AliasInfo("FACE_TEXTURED_D", "6"),
-                                   AliasInfo("FACE_SPRITE_3D", "7"),
-                                   AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
-                                   AliasInfo("PRIORITY_ACTIVE", "1"),
-                                   AliasInfo("PRIORITY_ACTIVE_PAUSED", "2"),
-                                   AliasInfo("PRIORITY_XBOUNDS", "3"),
-                                   AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
-                                   AliasInfo("PRIORITY_INACTIVE", "5"),
-                                   AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
-                                   AliasInfo("PRIORITY_UNKNOWN", "7"),
-                                   AliasInfo("TILEINFO_INDEX", "0"),
-                                   AliasInfo("TILEINFO_DIRECTION", "1"),
-                                   AliasInfo("TILEINFO_VISUALPLANE", "2"),
-                                   AliasInfo("TILEINFO_SOLIDITYA", "3"),
-                                   AliasInfo("TILEINFO_SOLIDITYB", "4"),
-                                   AliasInfo("TILEINFO_FLAGSA", "5"),
-                                   AliasInfo("TILEINFO_ANGLEA", "6"),
-                                   AliasInfo("TILEINFO_FLAGSB", "7"),
-                                   AliasInfo("TILEINFO_ANGLEB", "8"),
-                                   AliasInfo("TEXTINFO_TEXTDATA", "0"),
-                                   AliasInfo("TEXTINFO_TEXTSIZE", "1"),
-                                   AliasInfo("TEXTINFO_ROWCOUNT", "1"),
-                                   AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
-                                   AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
-                                   AliasInfo("TILELAYER_NOSCROLL", "0"),
-                                   AliasInfo("TILELAYER_HSCROLL", "1"),
-                                   AliasInfo("TILELAYER_VSCROLL", "2"),
-                                   AliasInfo("TILELAYER_3DFLOOR", "3"),
-                                   AliasInfo("TILELAYER_3DSKY", "4") };
+    FunctionInfo("CheckEqual", 2),    // compare a=b, return result in CheckResult Variable
+    FunctionInfo("CheckGreater", 2),  // compare a>b, return result in CheckResult Variable
+    FunctionInfo("CheckLower", 2),    // compare a<b, return result in CheckResult Variable
+    FunctionInfo("CheckNotEqual", 2), // compare a!=b, return result in CheckResult Variable
 
-StaticInfo staticVariables[STATICVAR_COUNT];
-ArrInfo arrayVariables[ARRVAR_COUNT];
-int staticVarCount = 0;
-int arrVarCount    = 0;
+    FunctionInfo("IfEqual", 3),          // compare a=b, jump if condition met
+    FunctionInfo("IfGreater", 3),        // compare a>b, jump if condition met
+    FunctionInfo("IfGreaterOrEqual", 3), // compare a>=b, jump if condition met
+    FunctionInfo("IfLower", 3),          // compare a<b, jump if condition met
+    FunctionInfo("IfLowerOrEqual", 3),   // compare a<=b, jump if condition met
+    FunctionInfo("IfNotEqual", 3),       // compare a!=b, jump if condition met
+    FunctionInfo("else", 0),             // The else for an if statement
+    FunctionInfo("endif", 0),            // The end if
+
+    FunctionInfo("WEqual", 3),          // compare a=b, loop if condition met
+    FunctionInfo("WGreater", 3),        // compare a>b, loop if condition met
+    FunctionInfo("WGreaterOrEqual", 3), // compare a>=b, loop if condition met
+    FunctionInfo("WLower", 3),          // compare a<b, loop if condition met
+    FunctionInfo("WLowerOrEqual", 3),   // compare a<=b, loop if condition met
+    FunctionInfo("WNotEqual", 3),       // compare a!=b, loop if condition met
+    FunctionInfo("loop", 0),            // While Loop marker
+
+    FunctionInfo("ForEachActive", 3), // foreach loop, iterates through object group lists only if they are active and interaction is true
+    FunctionInfo("ForEachAll", 3),    // foreach loop, iterates through objects matching type
+    FunctionInfo("next", 0),          // foreach loop, next marker
+
+    FunctionInfo("switch", 2),    // Switch Statement
+    FunctionInfo("break", 0),     // break
+    FunctionInfo("endswitch", 0), // endswitch
+
+    // Math Functions
+    FunctionInfo("Rand", 2),
+    FunctionInfo("Sin", 2),
+    FunctionInfo("Cos", 2),
+    FunctionInfo("Sin256", 2),
+    FunctionInfo("Cos256", 2),
+    FunctionInfo("ATan2", 3),
+    FunctionInfo("Interpolate", 4),
+    FunctionInfo("InterpolateXY", 7),
+
+    // Graphics Functions
+    FunctionInfo("LoadSpriteSheet", 1),
+    FunctionInfo("RemoveSpriteSheet", 1),
+    FunctionInfo("DrawSprite", 1),
+    FunctionInfo("DrawSpriteXY", 3),
+    FunctionInfo("DrawSpriteScreenXY", 3),
+    FunctionInfo("DrawTintRect", 4),
+    FunctionInfo("DrawNumbers", 7),
+    FunctionInfo("DrawActName", 7),
+    FunctionInfo("DrawMenu", 3),
+    FunctionInfo("SpriteFrame", 6),
+    FunctionInfo("EditFrame", 7),
+    FunctionInfo("LoadPalette", 5),
+    FunctionInfo("RotatePalette", 4),
+    FunctionInfo("SetScreenFade", 4),
+    FunctionInfo("SetActivePalette", 3),
+    FunctionInfo("SetPaletteFade", 6),
+    FunctionInfo("SetPaletteEntry", 3),
+    FunctionInfo("GetPaletteEntry", 3),
+    FunctionInfo("CopyPalette", 5),
+    FunctionInfo("ClearScreen", 1),
+    FunctionInfo("DrawSpriteFX", 4),
+    FunctionInfo("DrawSpriteScreenFX", 4),
+
+    // More Useful Stuff
+    FunctionInfo("LoadAnimation", 1),
+    FunctionInfo("SetupMenu", 4),
+    FunctionInfo("AddMenuEntry", 3),
+    FunctionInfo("EditMenuEntry", 4),
+    FunctionInfo("LoadStage", 0),
+    FunctionInfo("DrawRect", 8),
+    FunctionInfo("ResetObjectEntity", 5),
+    FunctionInfo("BoxCollisionTest", 11),
+    FunctionInfo("CreateTempObject", 4),
+
+    // Player and Animation Functions
+    FunctionInfo("ProcessObjectMovement", 0),
+    FunctionInfo("ProcessObjectControl", 0),
+    FunctionInfo("ProcessAnimation", 0),
+    FunctionInfo("DrawObjectAnimation", 0),
+
+    // Music
+    FunctionInfo("SetMusicTrack", 3),
+    FunctionInfo("PlayMusic", 1),
+    FunctionInfo("StopMusic", 0),
+    FunctionInfo("PauseMusic", 0),
+    FunctionInfo("ResumeMusic", 0),
+    FunctionInfo("SwapMusicTrack", 4),
+
+    // Sound FX
+    FunctionInfo("PlaySfx", 2),
+    FunctionInfo("StopSfx", 1),
+    FunctionInfo("SetSfxAttributes", 3),
+
+    // More Collision Stuff
+    FunctionInfo("ObjectTileCollision", 4),
+    FunctionInfo("ObjectTileGrip", 4),
+
+    // Bitwise Not
+    FunctionInfo("Not", 1),
+
+    // 3D Stuff
+    FunctionInfo("Draw3DScene", 0),
+    FunctionInfo("SetIdentityMatrix", 1),
+    FunctionInfo("MatrixMultiply", 2),
+    FunctionInfo("MatrixTranslateXYZ", 4),
+    FunctionInfo("MatrixScaleXYZ", 4),
+    FunctionInfo("MatrixRotateX", 2),
+    FunctionInfo("MatrixRotateY", 2),
+    FunctionInfo("MatrixRotateZ", 2),
+    FunctionInfo("MatrixRotateXYZ", 4),
+    FunctionInfo("MatrixInverse", 1),
+    FunctionInfo("TransformVertices", 3),
+
+    FunctionInfo("CallFunction", 1),
+    FunctionInfo("return", 0),
+
+    FunctionInfo("SetLayerDeformation", 6),
+    FunctionInfo("CheckTouchRect", 4),
+    FunctionInfo("GetTileLayerEntry", 4),
+    FunctionInfo("SetTileLayerEntry", 4),
+
+    FunctionInfo("GetBit", 3),
+    FunctionInfo("SetBit", 3),
+
+    FunctionInfo("ClearDrawList", 1),
+    FunctionInfo("AddDrawListEntityRef", 2),
+    FunctionInfo("GetDrawListEntityRef", 3),
+    FunctionInfo("SetDrawListEntityRef", 3),
+
+    FunctionInfo("Get16x16TileInfo", 4),
+    FunctionInfo("Set16x16TileInfo", 4),
+    FunctionInfo("Copy16x16Tile", 2),
+    FunctionInfo("GetAnimationByName", 2),
+    FunctionInfo("ReadSaveRAM", 0),
+    FunctionInfo("WriteSaveRAM", 0),
+
+    FunctionInfo("LoadTextFile", 2),
+    FunctionInfo("GetTextInfo", 5),
+    FunctionInfo("GetVersionNumber", 2),
+
+    FunctionInfo("GetTableValue", 3),
+    FunctionInfo("SetTableValue", 3),
+
+    FunctionInfo("CheckCurrentStageFolder", 1),
+    FunctionInfo("Abs", 1),
+
+    FunctionInfo("CallNativeFunction", 1),
+    FunctionInfo("CallNativeFunction2", 3),
+    FunctionInfo("CallNativeFunction4", 5),
+
+    FunctionInfo("SetObjectRange", 1),
+    FunctionInfo("GetObjectValue", 3),
+    FunctionInfo("SetObjectValue", 3),
+    FunctionInfo("CopyObject", 3),
+    FunctionInfo("Print", 3),
+};
+
+AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
+                                         AliasInfo("false", "0"),
+                                         AliasInfo("FX_SCALE", "0"),
+                                         AliasInfo("FX_ROTATE", "1"),
+                                         AliasInfo("FX_ROTOZOOM", "2"),
+                                         AliasInfo("FX_INK", "3"),
+                                         AliasInfo("PRESENTATION_STAGE", "0"),
+                                         AliasInfo("REGULAR_STAGE", "1"),
+                                         AliasInfo("BONUS_STAGE", "2"),
+                                         AliasInfo("SPECIAL_STAGE", "3"),
+                                         AliasInfo("MENU_1", "0"),
+                                         AliasInfo("MENU_2", "1"),
+                                         AliasInfo("C_TOUCH", "0"),
+                                         AliasInfo("C_BOX", "1"),
+                                         AliasInfo("C_BOX2", "2"),
+                                         AliasInfo("C_PLATFORM", "3"),
+                                         AliasInfo("MAT_WORLD", "0"),
+                                         AliasInfo("MAT_VIEW", "1"),
+                                         AliasInfo("MAT_TEMP", "2"),
+                                         AliasInfo("FX_FLIP", "5"),
+                                         AliasInfo("FACING_LEFT", "1"),
+                                         AliasInfo("FACING_RIGHT", "0"),
+                                         AliasInfo("FLIP_NONE", "0"),
+                                         AliasInfo("FLIP_X", "1"),
+                                         AliasInfo("FLIP_Y", "2"),
+                                         AliasInfo("FLIP_XY", "3"),
+                                         AliasInfo("STAGE_PAUSED", "2"),
+                                         AliasInfo("STAGE_RUNNING", "1"),
+                                         AliasInfo("RESET_GAME", "2"),
+                                         AliasInfo("RETRO_STANDARD", "0"),
+                                         AliasInfo("RETRO_MOBILE", "1"),
+                                         AliasInfo("INK_NONE", "0"),
+                                         AliasInfo("INK_BLEND", "1"),
+                                         AliasInfo("INK_ALPHA", "2"),
+                                         AliasInfo("INK_ADD", "3"),
+                                         AliasInfo("INK_SUB", "4"),
+                                         AliasInfo("CSIDE_FLOOR", "0"),
+                                         AliasInfo("CSIDE_LWALL", "1"),
+                                         AliasInfo("CSIDE_RWALL", "2"),
+                                         AliasInfo("CSIDE_ROOF", "3"),
+                                         AliasInfo("CMODE_FLOOR", "0"),
+                                         AliasInfo("CMODE_LWALL", "1"),
+                                         AliasInfo("CMODE_ROOF", "2"),
+                                         AliasInfo("CMODE_RWALL", "3"),
+                                         AliasInfo("PATH_A", "0"),
+                                         AliasInfo("PATH_B", "1"),
+                                         AliasInfo("GRAVITY_GROUND", "0"),
+                                         AliasInfo("GRAVITY_AIR", "1"),
+                                         AliasInfo("FACE_TEXTURED_3D", "0"),
+                                         AliasInfo("FACE_TEXTURED_2D", "1"),
+                                         AliasInfo("FACE_COLOURED_3D", "2"),
+                                         AliasInfo("FACE_COLOURED_2D", "3"),
+                                         AliasInfo("FACE_FADED", "4"),
+                                         AliasInfo("FACE_TEXTURED_C", "5"),
+                                         AliasInfo("FACE_TEXTURED_D", "6"),
+                                         AliasInfo("FACE_SPRITE_3D", "7"),
+                                         AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
+                                         AliasInfo("PRIORITY_ACTIVE", "1"),
+                                         AliasInfo("PRIORITY_ACTIVE_PAUSED", "2"),
+                                         AliasInfo("PRIORITY_XBOUNDS", "3"),
+                                         AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
+                                         AliasInfo("PRIORITY_INACTIVE", "5"),
+                                         AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
+                                         AliasInfo("PRIORITY_UNKNOWN", "7"),
+                                         AliasInfo("TILEINFO_INDEX", "0"),
+                                         AliasInfo("TILEINFO_DIRECTION", "1"),
+                                         AliasInfo("TILEINFO_VISUALPLANE", "2"),
+                                         AliasInfo("TILEINFO_SOLIDITYA", "3"),
+                                         AliasInfo("TILEINFO_SOLIDITYB", "4"),
+                                         AliasInfo("TILEINFO_FLAGSA", "5"),
+                                         AliasInfo("TILEINFO_ANGLEA", "6"),
+                                         AliasInfo("TILEINFO_FLAGSB", "7"),
+                                         AliasInfo("TILEINFO_ANGLEB", "8"),
+                                         AliasInfo("TEXTINFO_TEXTDATA", "0"),
+                                         AliasInfo("TEXTINFO_TEXTSIZE", "1"),
+                                         AliasInfo("TEXTINFO_ROWCOUNT", "1"),
+                                         AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
+                                         AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
+                                         AliasInfo("TILELAYER_NOSCROLL", "0"),
+                                         AliasInfo("TILELAYER_HSCROLL", "1"),
+                                         AliasInfo("TILELAYER_VSCROLL", "2"),
+                                         AliasInfo("TILELAYER_3DFLOOR", "3"),
+                                         AliasInfo("TILELAYER_3DSKY", "4") };
+AliasInfo privateAliases[ALIAS_COUNT_TRIM];
+int publicAliasCount  = 0;
+int privateAliasCount = 0;
+
+StaticInfo publicStaticVariables[STATICVAR_COUNT];
+StaticInfo privateStaticVariables[STATICVAR_COUNT];
+int publicStaticVarCount  = 0;
+int privateStaticVarCount = 0;
+
+TableInfo *currentTable = NULL;
+bool curTablePublic     = false;
+
+TableInfo publicTables[TABLE_COUNT];
+TableInfo privateTables[TABLE_COUNT];
+int publicTableCount  = 0;
+int privateTableCount = 0;
 
 const char scriptEvaluationTokens[][0x4] = { "=",  "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=",
                                              "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
@@ -591,6 +619,7 @@ enum ScriptParseModes {
     PARSEMODE_PLATFORMSKIP = 1,
     PARSEMODE_FUNCTION     = 2,
     PARSEMODE_SWITCHREAD   = 3,
+    PARSEMODE_TABLEREAD    = 4,
     PARSEMODE_ERROR        = 0xFF
 };
 
@@ -598,14 +627,14 @@ enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCO
 enum ScriptVarArrTypes { VARARR_NONE = 0, VARARR_ARRAY = 1, VARARR_ENTNOPLUS1 = 2, VARARR_ENTNOMINUS1 = 3 };
 
 enum ScrVar {
-    VAR_TEMPVALUE0,
-    VAR_TEMPVALUE1,
-    VAR_TEMPVALUE2,
-    VAR_TEMPVALUE3,
-    VAR_TEMPVALUE4,
-    VAR_TEMPVALUE5,
-    VAR_TEMPVALUE6,
-    VAR_TEMPVALUE7,
+    VAR_TEMP0,
+    VAR_TEMP1,
+    VAR_TEMP2,
+    VAR_TEMP3,
+    VAR_TEMP4,
+    VAR_TEMP5,
+    VAR_TEMP6,
+    VAR_TEMP7,
     VAR_CHECKRESULT,
     VAR_ARRAYPOS0,
     VAR_ARRAYPOS1,
@@ -613,20 +642,20 @@ enum ScrVar {
     VAR_ARRAYPOS3,
     VAR_ARRAYPOS4,
     VAR_ARRAYPOS5,
-    VAR_PLAYEROBJECTPOS,
-    VAR_PLAYEROBJECTCOUNT,
+    VAR_ARRAYPOS6,
+    VAR_ARRAYPOS7,
     VAR_GLOBAL,
-    VAR_SCRIPTDATA,
-    VAR_OBJECTENTITYNO,
-    VAR_OBJECTTYPEGROUP,
+    VAR_LOCAL,
+    VAR_OBJECTENTITYPOS,
+    VAR_OBJECTGROUPID,
     VAR_OBJECTTYPE,
     VAR_OBJECTPROPERTYVALUE,
     VAR_OBJECTXPOS,
     VAR_OBJECTYPOS,
     VAR_OBJECTIXPOS,
     VAR_OBJECTIYPOS,
-    VAR_OBJECTXVELOCITY,
-    VAR_OBJECTYVELOCITY,
+    VAR_OBJECTXVEL,
+    VAR_OBJECTYVEL,
     VAR_OBJECTSPEED,
     VAR_OBJECTSTATE,
     VAR_OBJECTROTATION,
@@ -642,8 +671,8 @@ enum ScrVar {
     VAR_OBJECTANIMATIONSPEED,
     VAR_OBJECTANIMATIONTIMER,
     VAR_OBJECTANGLE,
-    VAR_OBJECTCAMOFFSETX,
-    VAR_OBJECTLOOKPOS,
+    VAR_OBJECTLOOKPOSX,
+    VAR_OBJECTLOOKPOSY,
     VAR_OBJECTCOLLISIONMODE,
     VAR_OBJECTCOLLISIONPLANE,
     VAR_OBJECTCONTROLMODE,
@@ -651,7 +680,7 @@ enum ScrVar {
     VAR_OBJECTPUSHING,
     VAR_OBJECTVISIBLE,
     VAR_OBJECTTILECOLLISIONS,
-    VAR_OBJECTOBJECTINTERACTIONS,
+    VAR_OBJECTINTERACTION,
     VAR_OBJECTGRAVITY,
     VAR_OBJECTUP,
     VAR_OBJECTDOWN,
@@ -659,12 +688,12 @@ enum ScrVar {
     VAR_OBJECTRIGHT,
     VAR_OBJECTJUMPPRESS,
     VAR_OBJECTJUMPHOLD,
-    VAR_OBJECTTRACKSCROLL,
-    VAR_OBJECTFLAILING0,
-    VAR_OBJECTFLAILING1,
-    VAR_OBJECTFLAILING2,
-    VAR_OBJECTFLAILING3,
-    VAR_OBJECTFLAILING4,
+    VAR_OBJECTSCROLLTRACKING,
+    VAR_OBJECTFLOORSENSORL,
+    VAR_OBJECTFLOORSENSORC,
+    VAR_OBJECTFLOORSENSORR,
+    VAR_OBJECTFLOORSENSORLC,
+    VAR_OBJECTFLOORSENSORRC,
     VAR_OBJECTCOLLISIONLEFT,
     VAR_OBJECTCOLLISIONTOP,
     VAR_OBJECTCOLLISIONRIGHT,
@@ -726,17 +755,17 @@ enum ScrVar {
     VAR_STAGEMILLISECONDS,
     VAR_STAGESECONDS,
     VAR_STAGEMINUTES,
-    VAR_STAGEACTNO,
+    VAR_STAGEACTNUM,
     VAR_STAGEPAUSEENABLED,
     VAR_STAGELISTSIZE,
     VAR_STAGENEWXBOUNDARY1,
     VAR_STAGENEWXBOUNDARY2,
     VAR_STAGENEWYBOUNDARY1,
     VAR_STAGENEWYBOUNDARY2,
-    VAR_STAGEXBOUNDARY1,
-    VAR_STAGEXBOUNDARY2,
-    VAR_STAGEYBOUNDARY1,
-    VAR_STAGEYBOUNDARY2,
+    VAR_STAGECURXBOUNDARY1,
+    VAR_STAGECURXBOUNDARY2,
+    VAR_STAGECURYBOUNDARY1,
+    VAR_STAGECURYBOUNDARY2,
     VAR_STAGEDEFORMATIONDATA0,
     VAR_STAGEDEFORMATIONDATA1,
     VAR_STAGEDEFORMATIONDATA2,
@@ -746,15 +775,15 @@ enum ScrVar {
     VAR_STAGEMIDPOINT,
     VAR_STAGEPLAYERLISTPOS,
     VAR_STAGEDEBUGMODE,
-    VAR_STAGEOBJECTENTITYPOS,
+    VAR_STAGEENTITYPOS,
     VAR_SCREENCAMERAENABLED,
     VAR_SCREENCAMERATARGET,
     VAR_SCREENCAMERASTYLE,
-    VAR_SCREENCAMERAXPOS,
-    VAR_SCREENCAMERAYPOS,
+    VAR_SCREENCAMERAX,
+    VAR_SCREENCAMERAY,
     VAR_SCREENDRAWLISTSIZE,
-    VAR_SCREENCENTERX,
-    VAR_SCREENCENTERY,
+    VAR_SCREENXCENTER,
+    VAR_SCREENYCENTER,
     VAR_SCREENXSIZE,
     VAR_SCREENYSIZE,
     VAR_SCREENXOFFSET,
@@ -767,35 +796,35 @@ enum ScrVar {
     VAR_TOUCHSCREENYPOS,
     VAR_MUSICVOLUME,
     VAR_MUSICCURRENTTRACK,
-    VAR_UNKNOWN,
-    VAR_KEYDOWNUP,
-    VAR_KEYDOWNDOWN,
-    VAR_KEYDOWNLEFT,
-    VAR_KEYDOWNRIGHT,
-    VAR_KEYDOWNBUTTONA,
-    VAR_KEYDOWNBUTTONB,
-    VAR_KEYDOWNBUTTONC,
-    VAR_KEYDOWNBUTTONA2,
-    VAR_KEYDOWNBUTTONB2,
-    VAR_KEYDOWNBUTTONC2,
-    VAR_KEYDOWNBUTTONA3,
-    VAR_KEYDOWNBUTTONB3,
-    VAR_KEYDOWNSTART,
-    VAR_KEYDOWNSTART2,
-    VAR_KEYPRESSUP,
-    VAR_KEYPRESSDOWN,
-    VAR_KEYPRESSLEFT,
-    VAR_KEYPRESSRIGHT,
-    VAR_KEYPRESSBUTTONA,
-    VAR_KEYPRESSBUTTONB,
-    VAR_KEYPRESSBUTTONC,
-    VAR_KEYPRESSBUTTONA2,
-    VAR_KEYPRESSBUTTONB2,
-    VAR_KEYPRESSBUTTONC2,
-    VAR_KEYPRESSBUTTONA3,
-    VAR_KEYPRESSBUTTONB3,
-    VAR_KEYPRESSSTART,
-    VAR_KEYPRESSSTART2,
+    VAR_MUSICPOSITION,
+    VAR_INPUTDOWNUP,
+    VAR_INPUTDOWNDOWN,
+    VAR_INPUTDOWNLEFT,
+    VAR_INPUTDOWNRIGHT,
+    VAR_INPUTDOWNBUTTONA,
+    VAR_INPUTDOWNBUTTONB,
+    VAR_INPUTDOWNBUTTONC,
+    VAR_INPUTDOWNBUTTONX,
+    VAR_INPUTDOWNBUTTONY,
+    VAR_INPUTDOWNBUTTONZ,
+    VAR_INPUTDOWNBUTTONL,
+    VAR_INPUTDOWNBUTTONR,
+    VAR_INPUTDOWNSTART,
+    VAR_INPUTDOWNSELECT,
+    VAR_INPUTPRESSUP,
+    VAR_INPUTPRESSDOWN,
+    VAR_INPUTPRESSLEFT,
+    VAR_INPUTPRESSRIGHT,
+    VAR_INPUTPRESSBUTTONA,
+    VAR_INPUTPRESSBUTTONB,
+    VAR_INPUTPRESSBUTTONC,
+    VAR_INPUTPRESSBUTTONX,
+    VAR_INPUTPRESSBUTTONY,
+    VAR_INPUTPRESSBUTTONZ,
+    VAR_INPUTPRESSBUTTONL,
+    VAR_INPUTPRESSBUTTONR,
+    VAR_INPUTPRESSSTART,
+    VAR_INPUTPRESSSELECT,
     VAR_MENU1SELECTION,
     VAR_MENU2SELECTION,
     VAR_TILELAYERXSIZE,
@@ -816,12 +845,12 @@ enum ScrVar {
     VAR_VPARALLAXPARALLAXFACTOR,
     VAR_VPARALLAXSCROLLSPEED,
     VAR_VPARALLAXSCROLLPOS,
-    VAR_3DSCENENOVERTICES,
-    VAR_3DSCENENOFACES,
-    VAR_3DSCENEPROJECTIONX,
-    VAR_3DSCENEPROJECTIONY,
-    VAR_3DSCENEFOGCOLOR,
-    VAR_3DSCENEFOGSTRENGTH,
+    VAR_SCENE3DVERTEXCOUNT,
+    VAR_SCENE3DFACECOUNT,
+    VAR_SCENE3DPROJECTIONX,
+    VAR_SCENE3DPROJECTIONY,
+    VAR_SCENE3DFOGCOLOR,
+    VAR_SCENE3DFOGSTRENGTH,
     VAR_VERTEXBUFFERX,
     VAR_VERTEXBUFFERY,
     VAR_VERTEXBUFFERZ,
@@ -840,7 +869,7 @@ enum ScrVar {
     VAR_ENGINESFXVOLUME,
     VAR_ENGINEBGMVOLUME,
     VAR_ENGINETRIALMODE,
-    VAR_ENGINEPLATFORMID,
+    VAR_ENGINEDEVICETYPE,
     VAR_MAX_CNT
 };
 
@@ -879,9 +908,9 @@ enum ScrFunc {
     FUNC_WLOWEROREQUAL,
     FUNC_WNOTEQUAL,
     FUNC_LOOP,
-    FUNC_FOREACHTYPEGROUP,
-    FUNC_FOREACHTYPENAME,
-    FUNC_FOREACHLOOP,
+    FUNC_FOREACHACTIVE,
+    FUNC_FOREACHALL,
+    FUNC_NEXT,
     FUNC_SWITCH,
     FUNC_BREAK,
     FUNC_ENDSWITCH,
@@ -922,11 +951,11 @@ enum ScrFunc {
     FUNC_LOADSTAGE,
     FUNC_DRAWRECT,
     FUNC_RESETOBJECTENTITY,
-    FUNC_PLAYEROBJECTCOLLISION,
+    FUNC_BOXCOLLISIONTEST,
     FUNC_CREATETEMPOBJECT,
-    FUNC_PLAYERTILECOLLISION,
-    FUNC_PROCESSPLAYERCONTROL,
-    FUNC_PROCESSOBJECTANIMATION,
+    FUNC_PROCESSOBJECTMOVEMENT,
+    FUNC_PROCESSOBJECTCONTROL,
+    FUNC_PROCESSANIMATION,
     FUNC_DRAWOBJECTANIMATION,
     FUNC_SETMUSICTRACK,
     FUNC_PLAYMUSIC,
@@ -952,7 +981,7 @@ enum ScrFunc {
     FUNC_MATRIXINVERSE,
     FUNC_TRANSFORMVERTICES,
     FUNC_CALLFUNCTION,
-    FUNC_ENDFUNCTION,
+    FUNC_RETURN,
     FUNC_SETLAYERDEFORMATION,
     FUNC_CHECKTOUCHRECT,
     FUNC_GETTILELAYERENTRY,
@@ -972,32 +1001,48 @@ enum ScrFunc {
     FUNC_LOADTEXTFILE,
     FUNC_GETTEXTINFO,
     FUNC_GETVERSIONNUMBER,
-    FUNC_GETARRAYVALUE,
-    FUNC_SETARRAYVALUE,
-    FUNC_CHECKSTAGEFOLDER,
-    FUNC_ABSOLUTE,
-    FUNC_ENGINECALLBACKFUNC,
-    FUNC_ENGINECALLBACK,
-    FUNC_ENGINECALLBACKEXT,
-    FUNC_SETOBJECTBORDERX,
+    FUNC_GETTABLEVALUE,
+    FUNC_SETTABLEVALUE,
+    FUNC_CHECKCURRENTSTAGEFOLDER,
+    FUNC_ABS,
+    FUNC_CALLNATIVEFUNCTION,
+    FUNC_CALLNATIVEFUNCTION2,
+    FUNC_CALLNATIVEFUNCTION4,
+    FUNC_SETOBJECTRANGE,
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
-    FUNC_HAPTICEFFECT,
+    FUNC_PRINT,
     FUNC_MAX_CNT
 };
 
+
 void CheckAliasText(char *text)
 {
-    if (FindStringToken(text, "#alias", 1) || aliasCount >= ALIAS_COUNT)
+    if (FindStringToken(text, "publicalias", 1) && FindStringToken(text, "privatealias", 1))
         return;
     int textPos     = 6;
     int aliasStrPos = 0;
     int aliasMatch  = 0;
+
+    if (publicAliasCount >= ALIAS_COUNT) {
+        if (FindStringToken(text, "privatealias", 1)) // public alias & we reached the cap
+            return;
+    }
+
+    AliasInfo *a = &publicAliases[publicAliasCount];
+    int *cnt     = &publicAliasCount;
+    if (FindStringToken(text, "privatealias", 1) == 0) {
+        a   = &privateAliases[privateAliasCount];
+        cnt = &privateAliasCount;
+        if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
+            return;
+    }
+
     while (aliasMatch < 2) {
         if (aliasMatch) {
             if (aliasMatch == 1) {
-                aliases[aliasCount].name[aliasStrPos] = text[textPos];
+                a->name[aliasStrPos] = text[textPos];
                 if (text[textPos]) {
                     aliasStrPos++;
                 }
@@ -1008,109 +1053,93 @@ void CheckAliasText(char *text)
             }
         }
         else if (text[textPos] == ':') {
-            aliases[aliasCount].value[aliasStrPos] = 0;
-            aliasStrPos                            = 0;
-            aliasMatch                             = 1;
+            a->value[aliasStrPos] = 0;
+            aliasStrPos           = 0;
+            aliasMatch            = 1;
         }
         else {
-            aliases[aliasCount].value[aliasStrPos++] = text[textPos];
+            a->value[aliasStrPos++] = text[textPos];
         }
         ++textPos;
     }
-    ++aliasCount;
+    ++*cnt;
 }
 void CheckStaticText(char *text)
 {
-    if (FindStringToken(text, "#static", 1) || staticVarCount >= STATICVAR_COUNT)
+    if (FindStringToken(text, "publicvalue", 1) && FindStringToken(text, "privatevalue", 1))
         return;
-    int textPos      = 6;
+    int textPos      = 11;
     int staticStrPos = 0;
     int staticMatch  = 0;
     char strBuffer[0x10];
+
+    if (publicStaticVarCount >= STATICVAR_COUNT) {
+        if (FindStringToken(text, "privatevalue", 1)) // public value & we reached the cap
+            return;
+    }
+
+    StaticInfo *var = &publicStaticVariables[publicStaticVarCount];
+    int *cnt        = &publicStaticVarCount;
+    if (FindStringToken(text, "privatevalue", 1) == 0) {
+        if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
+            return;
+        var     = &privateStaticVariables[privateStaticVarCount];
+        cnt     = &privateStaticVarCount;
+        textPos = 12;
+    }
+
     while (staticMatch < 2) {
         if (staticMatch == 1) {
-            staticVariables[staticVarCount].name[staticStrPos] = text[textPos];
-            if (text[textPos]) {
-                staticStrPos++;
+            if (text[staticStrPos] != ';' && text[textPos]) {
+                strBuffer[staticStrPos++] = text[textPos];
             }
             else {
-                staticVariables[staticVarCount].dataPos = scriptDataPos;
-                scriptData[scriptDataPos++]             = staticVariables[staticVarCount].value;
-                staticStrPos                            = 0;
+                strBuffer[staticStrPos] = 0;
+                ConvertStringToInteger(strBuffer, &var->value);
+
+                var->dataPos                = scriptDataPos;
+                scriptData[scriptDataPos++] = var->value;
+                staticStrPos                = 0;
                 ++staticMatch;
             }
         }
-        else if (text[textPos] == ':') {
-            strBuffer[staticStrPos] = 0;
-            staticStrPos            = 0;
-            staticMatch             = 1;
-            ConvertStringToInteger(strBuffer, &staticVariables[staticVarCount].value);
+        else if (text[textPos] == '=') {
+            staticStrPos = 0;
+            staticMatch  = 1;
         }
         else {
-            strBuffer[staticStrPos++] = text[textPos];
+            var->name[staticStrPos++] = text[textPos];
         }
         ++textPos;
     }
-    ++staticVarCount;
+    ++*cnt;
 }
-void CheckArrayText(char *text)
+TableInfo *CheckTableText(char *text)
 {
-    if ((FindStringToken(text, "#array", 1) && FindStringToken(text, "#table", 1)) || arrVarCount >= ARRVAR_COUNT)
-        return;
-    int textPos     = 6;
-    int arrayStrPos = 0;
-    int arrayMatch  = 0;
-    char strBuffer[0x10];
-    while (arrayMatch < 2) {
-        if (arrayMatch == 1) {
-            if (text[textPos] == ')') {
-                strBuffer[arrayStrPos] = 0;
-                int cnt                = arrayVariables[arrVarCount].valueCount;
-                ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
-                arrayVariables[arrVarCount].valueCount++;
+    if (FindStringToken(text, "publictable", 1) && FindStringToken(text, "privatetable", 1))
+        return NULL;
 
-                arrayVariables[arrVarCount].dataPos = scriptDataPos;
-                scriptData[scriptDataPos++]         = arrayVariables[arrVarCount].valueCount;
-                for (int v = 0; v < arrayVariables[arrVarCount].valueCount; ++v) {
-                    arrayVariables[arrVarCount].values[v].dataPos = scriptDataPos;
-                    scriptData[scriptDataPos++]                   = arrayVariables[arrVarCount].values[v].value;
-                }
-                arrayMatch = 2;
-            }
-            else if (text[textPos] == ',') {
-                strBuffer[arrayStrPos] = 0;
-                int cnt                = arrayVariables[arrVarCount].valueCount;
-                ConvertStringToInteger(strBuffer, &arrayVariables[arrVarCount].values[cnt].value);
-                arrayVariables[arrVarCount].valueCount++;
-
-                strBuffer[0] = 0;
-                arrayStrPos  = 0;
-            }
-            else {
-                strBuffer[arrayStrPos] = text[textPos];
-                arrayStrPos++;
-            }
-        }
-        else if (text[textPos] == ':') {
-            arrayVariables[arrVarCount].name[arrayStrPos] = 0;
-            arrayVariables[arrVarCount].valueCount        = 0;
-            arrayStrPos                                   = 0;
-            arrayMatch                                    = 1;
-            textPos++;
-        }
-        else {
-            arrayVariables[arrVarCount].name[arrayStrPos] = text[textPos];
-            if (text[textPos]) {
-                arrayStrPos++;
-            }
-            else {
-                arrayStrPos = 0;
-                ++arrayMatch;
-            }
-        }
-        ++textPos;
+    if (publicTableCount >= TABLE_COUNT) {
+        if (FindStringToken(text, "privatetable", 1)) // public table & we reached the cap
+            return NULL;
     }
-    ++arrVarCount;
+
+    TableInfo *table = &publicTables[publicTableCount];
+    int strPos       = 11;
+    curTablePublic   = true;
+    if (FindStringToken(text, "privatevalue", 1) == 0) {
+        if (privateTableCount >= TABLE_COUNT) // private table and we reached the cap
+            return NULL;
+        table          = &privateTables[privateTableCount];
+        strPos         = 12;
+        curTablePublic = false;
+    }
+
+    int namePos = 0;
+    while (text[strPos]) {
+        table->name[namePos++] = text[strPos++];
+    }
+    return table;
 }
 void ConvertArithmaticSyntax(char *text)
 {
@@ -1213,15 +1242,22 @@ void ConvertForeachStatement(char *text)
     char dest[260];
     int destStrPos = 0;
 
-    if (!FindStringToken(text, "foreachTypeGroup", 1)) { // foreach TypeGroup[
-        StrCopy(dest, functions[FUNC_FOREACHTYPEGROUP].name);
+    if (FindStringToken(text, "ACTIVE_ENTITIES", 1) > 0) { // foreach (just actively interacting entities)
+        StrCopy(dest, functions[FUNC_FOREACHACTIVE].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
         StrAdd(dest, ",");
         destStrPos = StrLength(dest);
+        int cnt    = 0;
         for (int i = 7; text[i]; ++i) {
-            if (text[i] != '(' && text[i] != ')')
+            if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
+            }
+            else {
+                if (!cnt)
+                    dest[destStrPos++] = text[i];
+                ++cnt;
+            }
         }
         dest[destStrPos] = 0;
         StrAdd(dest, ")");
@@ -1230,15 +1266,22 @@ void ConvertForeachStatement(char *text)
         jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
         jumpTableData[jumpTableDataPos++]   = 0;
     }
-    else { // foreach TypeName[
-        StrCopy(dest, functions[FUNC_FOREACHTYPENAME].name);
+    else if (FindStringToken(text, "ALL_ENTITIES", 1) > 0) { // foreach (all entities)
+        StrCopy(dest, functions[FUNC_FOREACHALL].name);
         StrAdd(dest, "(");
         AppendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
         StrAdd(dest, ",");
         destStrPos = StrLength(dest);
-        for (int i = 7; text[i]; ++i) {
-            if (text[i] != '(' && text[i] != ')')
+        int cnt    = 0;
+        for (int i = 7; text[i] && cnt < 2; ++i) {
+            if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
+            }
+            else {
+                if (!cnt)
+                    dest[destStrPos++] = text[i];
+                ++cnt;
+            }
         }
         dest[destStrPos] = 0;
         StrAdd(dest, ")");
@@ -1327,11 +1370,7 @@ void ConvertFunctionText(char *text)
             --jumpTableStackPos;
         }
 
-        if (StrComp("loop", functions[opcode].name)) {
-            jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
-        }
-
-        if (StrComp("floop", functions[opcode].name)) {
+        if (StrComp("loop", functions[opcode].name) || StrComp("next", functions[opcode].name)) {
             jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
         }
 
@@ -1359,33 +1398,63 @@ void ConvertFunctionText(char *text)
             funcName[funcNamePos]      = 0;
             arrayStr[scriptTextByteID] = 0;
             // Eg: TempValue0 = FX_SCALE
-            for (int a = 0; a < aliasCount; ++a) {
-                if (StrComp(funcName, aliases[a].name)) {
-                    CopyAliasStr(funcName, aliases[a].value, 0);
-                    if (FindStringToken(aliases[a].value, "[", 1) > -1)
-                        CopyAliasStr(arrayStr, aliases[a].value, 1);
+            // Private (this script only)
+            for (int a = 0; a < privateAliasCount; ++a) {
+                if (StrComp(funcName, privateAliases[a].name)) {
+                    CopyAliasStr(funcName, privateAliases[a].value, 0);
+                    if (FindStringToken(privateAliases[a].value, "[", 1) > -1)
+                        CopyAliasStr(arrayStr, privateAliases[a].value, 1);
                 }
             }
-            // Eg: TempValue0 = constant0
-            for (int s = 0; s < staticVarCount; ++s) {
-                if (StrComp(funcName, staticVariables[s].name)) {
-                    StrCopy(funcName, "ScriptData");
+            // Private (this script & all following scripts)
+            for (int a = 0; a < publicAliasCount; ++a) {
+                if (StrComp(funcName, publicAliases[a].name)) {
+                    CopyAliasStr(funcName, publicAliases[a].value, 0);
+                    if (FindStringToken(publicAliases[a].value, "[", 1) > -1)
+                        CopyAliasStr(arrayStr, publicAliases[a].value, 1);
+                }
+            }
+
+            // Eg: TempValue0 = value0
+            // Private (this script only)
+            for (int s = 0; s < privateStaticVarCount; ++s) {
+                if (StrComp(funcName, privateStaticVariables[s].name)) {
+                    StrCopy(funcName, "local");
                     arrayStr[0] = 0;
-                    AppendIntegerToString(arrayStr, staticVariables[s].dataPos);
+                    AppendIntegerToString(arrayStr, privateStaticVariables[s].dataPos);
                 }
             }
-            // Eg: =GetArrayValue(TempValue0, 1, array0)
-            for (int a = 0; a < arrVarCount; ++a) {
-                if (StrComp(funcName, arrayVariables[a].name)) {
+            // Private (this script & all following scripts)
+            for (int s = 0; s < publicStaticVarCount; ++s) {
+                if (StrComp(funcName, publicStaticVariables[s].name)) {
+                    StrCopy(funcName, "local");
+                    arrayStr[0] = 0;
+                    AppendIntegerToString(arrayStr, publicStaticVariables[s].dataPos);
+                }
+            }
+
+            // Eg: GetTableValue(TempValue0, 1, array0)
+            // Private (this script only)
+            for (int a = 0; a < privateTableCount; ++a) {
+                if (StrComp(funcName, privateTables[a].name)) {
                     funcName[0] = 0;
-                    AppendIntegerToString(funcName, arrayVariables[a].dataPos);
+                    AppendIntegerToString(funcName, privateTables[a].dataPos);
                     arrayStr[0] = 0;
                 }
             }
+            // Private (this script & all following scripts)
+            for (int a = 0; a < publicTableCount; ++a) {
+                if (StrComp(funcName, publicTables[a].name)) {
+                    funcName[0] = 0;
+                    AppendIntegerToString(funcName, publicTables[a].dataPos);
+                    arrayStr[0] = 0;
+                }
+            }
+
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariablesCount; ++v) {
                 if (StrComp(funcName, globalVariableNames[v])) {
-                    StrCopy(funcName, "Global");
+                    StrCopy(funcName, "global");
                     arrayStr[0] = 0;
                     AppendIntegerToString(arrayStr, v);
                 }
@@ -1408,16 +1477,7 @@ void ConvertFunctionText(char *text)
                     }
                 }
             }
-            // Eg: TempValue0 = TypeGroup[0]
-            if (StrComp(funcName, "TypeGroup")) {
-                funcName[0] = 0;
-                AppendIntegerToString(funcName, 0);
-                int typeGroup = 0;
-                if (ConvertStringToInteger(arrayStr, &typeGroup)) {
-                    funcName[0] = 0;
-                    AppendIntegerToString(funcName, typeGroup);
-                }
-            }
+
             // Eg: TempValue0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
@@ -1487,23 +1547,23 @@ void ConvertFunctionText(char *text)
                         scriptData[scriptDataPos++] = value;
                     }
                     else {
-                        if (StrComp(arrayStr, "ArrayPos0"))
+                        if (StrComp(arrayStr, "arrayPos0"))
                             value = 0;
-                        if (StrComp(arrayStr, "ArrayPos1"))
+                        if (StrComp(arrayStr, "arrayPos1"))
                             value = 1;
-                        if (StrComp(arrayStr, "ArrayPos2"))
+                        if (StrComp(arrayStr, "arrayPos2"))
                             value = 2;
-                        if (StrComp(arrayStr, "ArrayPos3"))
+                        if (StrComp(arrayStr, "arrayPos3"))
                             value = 3;
-                        if (StrComp(arrayStr, "ArrayPos4"))
+                        if (StrComp(arrayStr, "arrayPos4"))
                             value = 4;
-                        if (StrComp(arrayStr, "ArrayPos5"))
+                        if (StrComp(arrayStr, "arrayPos5"))
                             value = 5;
-                        if (StrComp(arrayStr, "PlayerObjectPos"))
+                        if (StrComp(arrayStr, "arrayPos6"))
                             value = 6;
-                        if (StrComp(arrayStr, "PlayerObjectCount"))
+                        if (StrComp(arrayStr, "arrayPos7"))
                             value = 7;
-                        if (StrComp(arrayStr, "TempObjectPos"))
+                        if (StrComp(arrayStr, "tempObjectPos"))
                             value = 8;
                         scriptData[scriptDataPos++] = 1;
                         scriptData[scriptDataPos++] = value;
@@ -1558,15 +1618,15 @@ void CheckCaseNumber(char *text)
     }
     dest[destStrPos] = 0;
     int aliasVarID   = 0;
-    if (aliasCount) {
+    if (publicAliasCount) {
         aliasVarID = 0;
         do {
-            while (!StrComp(dest, aliases[aliasVarID].name)) {
-                if (aliasCount <= ++aliasVarID)
+            while (!StrComp(dest, publicAliases[aliasVarID].name)) {
+                if (publicAliasCount <= ++aliasVarID)
                     goto CONV_VAL;
             }
-            StrCopy(dest, aliases[aliasVarID++].value);
-        } while (aliasCount > aliasVarID);
+            StrCopy(dest, publicAliases[aliasVarID++].value);
+        } while (publicAliasCount > aliasVarID);
     }
 
 CONV_VAL:
@@ -1608,9 +1668,9 @@ bool ReadSwitchCase(char *text)
             ++textPos;
         }
         caseText[caseStringPos] = 0;
-        for (int a = 0; a < aliasCount; ++a) {
-            if (StrComp(caseText, aliases[a].name))
-                StrCopy(caseText, aliases[a].value);
+        for (int a = 0; a < publicAliasCount; ++a) {
+            if (StrComp(caseText, publicAliases[a].name))
+                StrCopy(caseText, publicAliases[a].value);
         }
 
         int val = 0;
@@ -1622,6 +1682,27 @@ bool ReadSwitchCase(char *text)
         return true;
     }
     return false;
+}
+void ReadTableValues(char *text)
+{
+    int textPos = 0;
+    char strBuffer[0x20];
+    int strPos = 0;
+    while (text[textPos]) {
+        if (text[textPos] == ',') {
+            strBuffer[strPos] = 0;
+
+            int cnt = currentTable->valueCount;
+            ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value);
+            currentTable->valueCount++;
+
+            strPos = 0;
+        }
+        else {
+            strBuffer[strPos++] = text[textPos];
+        }
+        textPos++;
+    }
 }
 void AppendIntegerToString(char *text, int value)
 {
@@ -1731,7 +1812,6 @@ bool ConvertStringToInteger(const char *text, int *value)
                 charVal += 10;
                 *value += charVal;
             }
-            
         }
         else {
             int strlen = strLength + 1;
@@ -1814,12 +1894,10 @@ void ParseScriptFile(char *scriptName, int scriptID)
 {
     jumpTableStackPos = 0;
     lineID            = 0;
-    aliasCount        = COMMONALIAS_COUNT;
 
-    for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
-        StrCopy(aliases[i].name, "");
-        StrCopy(aliases[i].value, "");
-    }
+    privateAliasCount     = 0;
+    privateStaticVarCount = 0;
+    privateTableCount     = 0;
 
     char scriptPath[0x40];
     StrCopy(scriptPath, "Scripts/");
@@ -1887,45 +1965,49 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     ++lineID;
                     CheckAliasText(scriptText);
                     CheckStaticText(scriptText);
-                    CheckArrayText(scriptText);
-                    if (StrComp(scriptText, "subObjectMain")) {
-                        parseMode                                        = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                 = scriptDataPos;
-                        jumpTableDataOffset                              = jumpTableDataPos;
+
+                    currentTable = CheckTableText(scriptText);
+                    if (currentTable) {
+                        parseMode = PARSEMODE_TABLEREAD;
+                        StrCopy(scriptText, "");
                     }
-                    if (StrComp(scriptText, "subObjectDraw")) {
-                        parseMode                                        = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subDraw.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                 = scriptDataPos;
-                        jumpTableDataOffset                              = jumpTableDataPos;
+
+                    if (StrComp(scriptText, "eventObjectMain")) {
+                        parseMode                                          = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].eventMain.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                   = scriptDataPos;
+                        jumpTableDataOffset                                = jumpTableDataPos;
                     }
-                    if (StrComp(scriptText, "subObjectStartup")) {
-                        parseMode                                           = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subStartup.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                    = scriptDataPos;
-                        jumpTableDataOffset                                 = jumpTableDataPos;
+                    if (StrComp(scriptText, "eventObjectDraw")) {
+                        parseMode                                          = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].eventDraw.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].eventDraw.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                   = scriptDataPos;
+                        jumpTableDataOffset                                = jumpTableDataPos;
                     }
-                    if (FindStringToken(scriptText, "function", 1)) {
-                        if (FindStringToken(scriptText, "function", 1) == 1) {
-                            char funcName[0x20];
-                            for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
-                            funcName[textPos - 9] = 0;
-                            int funcID            = -1;
-                            for (int f = 0; f < scriptFunctionCount; ++f) {
-                                if (StrComp(funcName, scriptFunctionNames[f]))
-                                    funcID = f;
-                            }
-                            if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
-                                StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
-                            }
-                            parseMode = PARSEMODE_SCOPELESS;
+                    if (StrComp(scriptText, "eventObjectStartup")) {
+                        parseMode                                             = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].eventStartup.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].eventStartup.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                      = scriptDataPos;
+                        jumpTableDataOffset                                   = jumpTableDataPos;
+                    }
+                    if (!FindStringToken(scriptText, "reservefunction", 1)) { //forward decl
+                        char funcName[0x20];
+                        for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
+                        funcName[textPos - 9] = 0;
+                        int funcID            = -1;
+                        for (int f = 0; f < scriptFunctionCount; ++f) {
+                            if (StrComp(funcName, scriptFunctionNames[f]))
+                                funcID = f;
                         }
+                        if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
+                            StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
+                        }
+                        parseMode = PARSEMODE_SCOPELESS;
                     }
-                    else {
+                    else { //regular decl
                         char funcName[0x20];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
@@ -1966,12 +2048,12 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 case PARSEMODE_FUNCTION:
                     ++lineID;
                     if (scriptText[0]) {
-                        if (StrComp(scriptText, "endsub")) {
+                        if (StrComp(scriptText, "endevent")) {
                             scriptData[scriptDataPos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
                         else if (StrComp(scriptText, "endfunction")) {
-                            scriptData[scriptDataPos++] = FUNC_ENDFUNCTION;
+                            scriptData[scriptDataPos++] = FUNC_RETURN;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
                         else if (FindStringToken(scriptText, "#platform:", 1)) {
@@ -2023,6 +2105,31 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         for (textPos = 0; textPos < switchDeep; ++textPos) jumpTableData[jumpTableDataPos++] = -1;
                     }
                     break;
+                case PARSEMODE_TABLEREAD:
+                    if (FindStringToken(scriptText, "endtable", 1)) {
+                        ReadTableValues(scriptText);
+                    }
+                    else {
+                        currentTable->dataPos       = scriptDataPos;
+                        scriptData[scriptDataPos++] = currentTable->valueCount;
+                        for (int v = 0; v < currentTable->valueCount; ++v) {
+                            currentTable->values[v].dataPos = scriptDataPos;
+                            scriptData[scriptDataPos++]     = currentTable->values[v].value;
+                        }
+
+                        if (curTablePublic) {
+                            publicTables[publicTableCount] = *currentTable;
+                            ++publicTableCount;
+                        }
+                        else {
+                            privateTables[privateTableCount] = *currentTable;
+                            ++privateTableCount;
+                        }
+
+                        currentTable = NULL;
+                        parseMode    = PARSEMODE_SCOPELESS;
+                    }
+                    break;
                 default: break;
             }
         }
@@ -2048,7 +2155,7 @@ void LoadBytecode(int stageListID, int scriptID)
 
     FileInfo info;
     if (LoadFile(scriptPath, &info)) {
-        int fileBuffer = 0;
+        byte fileBuffer = 0;
         int *scrData   = &scriptData[scriptCodePos];
         FileRead(&fileBuffer, 1);
         int scriptDataCount = fileBuffer;
@@ -2147,7 +2254,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType].subMain.scriptCodePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType].eventMain.scriptCodePtr = buf + (fileBuffer << 24);
 
             FileRead(&fileBuffer, 1);
             buf = fileBuffer;
@@ -2156,7 +2263,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType].subDraw.scriptCodePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType].eventDraw.scriptCodePtr = buf + (fileBuffer << 24);
 
             FileRead(&fileBuffer, 1);
             buf = fileBuffer;
@@ -2165,7 +2272,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType++].subStartup.scriptCodePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType++].eventStartup.scriptCodePtr = buf + (fileBuffer << 24);
         }
 
         objType = scriptID;
@@ -2177,7 +2284,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType].subMain.jumpTablePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType].eventMain.jumpTablePtr = buf + (fileBuffer << 24);
 
             FileRead(&fileBuffer, 1);
             buf = fileBuffer;
@@ -2186,7 +2293,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType].subDraw.jumpTablePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType].eventDraw.jumpTablePtr = buf + (fileBuffer << 24);
 
             FileRead(&fileBuffer, 1);
             buf = fileBuffer;
@@ -2195,7 +2302,7 @@ void LoadBytecode(int stageListID, int scriptID)
             FileRead(&fileBuffer, 1);
             buf += (fileBuffer << 16);
             FileRead(&fileBuffer, 1);
-            objectScriptList[objType++].subStartup.jumpTablePtr = buf + (fileBuffer << 24);
+            objectScriptList[objType++].eventStartup.jumpTablePtr = buf + (fileBuffer << 24);
         }
 
         FileRead(&fileBuffer, 1);
@@ -2252,38 +2359,42 @@ void ClearScriptData()
 
     scriptFunctionCount = 0;
 
-    aliasCount = COMMONALIAS_COUNT;
-    lineID     = 0;
+    lineID = 0;
 
-    staticVarCount = 0;
-    arrVarCount    = 0;
+    publicAliasCount  = COMMONALIAS_COUNT;
+    privateAliasCount = 0;
 
-    for (int i = 0; i < ARRVAR_COUNT; ++i) {
-        StrCopy(arrayVariables[i].name, "");
-        arrayVariables[i].valueCount = 0;
-        arrayVariables[i].dataPos    = SCRIPTDATA_COUNT - 1;
+    publicStaticVarCount  = 0;
+    privateStaticVarCount = 0;
+
+    publicTableCount  = 0;
+    privateTableCount = 0;
+
+    for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
+        StrCopy(publicAliases[i].name, "");
+        StrCopy(publicAliases[i].value, "");
     }
 
-    for (int i = 0; i < STATICVAR_COUNT; ++i) {
-        StrCopy(staticVariables[i].name, "");
-        staticVariables[i].value   = 0;
-        staticVariables[i].dataPos = SCRIPTDATA_COUNT - 1;
+    for (int i = 0; i < ALIAS_COUNT_TRIM; ++i) {
+        StrCopy(privateAliases[i].name, "");
+        StrCopy(privateAliases[i].value, "");
     }
 
+    ClearGraphicsData();
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo             = &objectScriptList[o];
-        scriptInfo->subMain.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subMain.jumpTablePtr     = JUMPTABLE_COUNT - 1;
-        scriptInfo->subDraw.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
-        scriptInfo->subStartup.scriptCodePtr = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subStartup.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->frameListOffset          = 0;
-        scriptInfo->spriteSheetID            = 0;
-        scriptInfo->animFile                 = GetDefaultAnimationRef();
-        typeNames[o][0]                      = 0;
+        ObjectScript *scriptInfo               = &objectScriptList[o];
+        scriptInfo->eventMain.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
+        scriptInfo->eventMain.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->eventDraw.scriptCodePtr    = SCRIPTDATA_COUNT - 1;
+        scriptInfo->eventDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->eventStartup.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->eventStartup.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        scriptInfo->frameListOffset            = 0;
+        scriptInfo->spriteSheetID              = 0;
+        scriptInfo->animFile                   = GetDefaultAnimationRef();
+        typeNames[o][0]                        = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
@@ -2294,7 +2405,7 @@ void ClearScriptData()
     SetObjectTypeName("Blank Object", OBJ_TYPE_BLANKOBJECT);
 }
 
-void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
+void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
 {
     bool running      = true;
     int scriptDataPtr = scriptCodePtr;
@@ -2308,7 +2419,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
         int opcodeSize       = functions[opcode].opcodeSize;
         int scriptCodeOffset = scriptDataPtr;
 
-        StrCopy(scriptText, "");
+        scriptText[0] = '\0';
 
         // Get Values
         for (int i = 0; i < opcodeSize; ++i) {
@@ -2342,14 +2453,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
-                    case VAR_TEMPVALUE0: scriptEng.operands[i] = scriptEng.tempValue[0]; break;
-                    case VAR_TEMPVALUE1: scriptEng.operands[i] = scriptEng.tempValue[1]; break;
-                    case VAR_TEMPVALUE2: scriptEng.operands[i] = scriptEng.tempValue[2]; break;
-                    case VAR_TEMPVALUE3: scriptEng.operands[i] = scriptEng.tempValue[3]; break;
-                    case VAR_TEMPVALUE4: scriptEng.operands[i] = scriptEng.tempValue[4]; break;
-                    case VAR_TEMPVALUE5: scriptEng.operands[i] = scriptEng.tempValue[5]; break;
-                    case VAR_TEMPVALUE6: scriptEng.operands[i] = scriptEng.tempValue[6]; break;
-                    case VAR_TEMPVALUE7: scriptEng.operands[i] = scriptEng.tempValue[7]; break;
+                    case VAR_TEMP0: scriptEng.operands[i] = scriptEng.tempValue[0]; break;
+                    case VAR_TEMP1: scriptEng.operands[i] = scriptEng.tempValue[1]; break;
+                    case VAR_TEMP2: scriptEng.operands[i] = scriptEng.tempValue[2]; break;
+                    case VAR_TEMP3: scriptEng.operands[i] = scriptEng.tempValue[3]; break;
+                    case VAR_TEMP4: scriptEng.operands[i] = scriptEng.tempValue[4]; break;
+                    case VAR_TEMP5: scriptEng.operands[i] = scriptEng.tempValue[5]; break;
+                    case VAR_TEMP6: scriptEng.operands[i] = scriptEng.tempValue[6]; break;
+                    case VAR_TEMP7: scriptEng.operands[i] = scriptEng.tempValue[7]; break;
                     case VAR_CHECKRESULT: scriptEng.operands[i] = scriptEng.checkResult; break;
                     case VAR_ARRAYPOS0: scriptEng.operands[i] = scriptEng.arrayPosition[0]; break;
                     case VAR_ARRAYPOS1: scriptEng.operands[i] = scriptEng.arrayPosition[1]; break;
@@ -2357,12 +2468,12 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ARRAYPOS3: scriptEng.operands[i] = scriptEng.arrayPosition[3]; break;
                     case VAR_ARRAYPOS4: scriptEng.operands[i] = scriptEng.arrayPosition[4]; break;
                     case VAR_ARRAYPOS5: scriptEng.operands[i] = scriptEng.arrayPosition[5]; break;
-                    case VAR_PLAYEROBJECTPOS: scriptEng.operands[i] = scriptEng.arrayPosition[6]; break;
-                    case VAR_PLAYEROBJECTCOUNT: scriptEng.operands[i] = scriptEng.arrayPosition[7]; break;
+                    case VAR_ARRAYPOS6: scriptEng.operands[i] = scriptEng.arrayPosition[6]; break;
+                    case VAR_ARRAYPOS7: scriptEng.operands[i] = scriptEng.arrayPosition[7]; break;
                     case VAR_GLOBAL: scriptEng.operands[i] = globalVariables[arrayVal]; break;
-                    case VAR_SCRIPTDATA: scriptEng.operands[i] = scriptData[arrayVal]; break;
-                    case VAR_OBJECTENTITYNO: scriptEng.operands[i] = arrayVal; break;
-                    case VAR_OBJECTTYPEGROUP: {
+                    case VAR_LOCAL: scriptEng.operands[i] = scriptData[arrayVal]; break;
+                    case VAR_OBJECTENTITYPOS: scriptEng.operands[i] = arrayVal; break;
+                    case VAR_OBJECTGROUPID: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].typeGroup;
                         break;
                     }
@@ -2390,11 +2501,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
                         break;
                     }
-                    case VAR_OBJECTXVELOCITY: {
+                    case VAR_OBJECTXVEL: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].XVelocity;
                         break;
                     }
-                    case VAR_OBJECTYVELOCITY: {
+                    case VAR_OBJECTYVEL: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].YVelocity;
                         break;
                     }
@@ -2458,11 +2569,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         scriptEng.operands[i] = objectEntityList[arrayVal].angle;
                         break;
                     }
-                    case VAR_OBJECTCAMOFFSETX: {
+                    case VAR_OBJECTLOOKPOSX: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].camOffsetX;
                         break;
                     }
-                    case VAR_OBJECTLOOKPOS: {
+                    case VAR_OBJECTLOOKPOSY: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].lookPos;
                         break;
                     }
@@ -2494,7 +2605,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         scriptEng.operands[i] = objectEntityList[arrayVal].tileCollisions;
                         break;
                     }
-                    case VAR_OBJECTOBJECTINTERACTIONS: {
+                    case VAR_OBJECTINTERACTION: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].objectInteractions;
                         break;
                     }
@@ -2526,27 +2637,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         scriptEng.operands[i] = objectEntityList[arrayVal].jumpHold;
                         break;
                     }
-                    case VAR_OBJECTTRACKSCROLL: {
+                    case VAR_OBJECTSCROLLTRACKING: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].trackScroll;
                         break;
                     }
-                    case VAR_OBJECTFLAILING0: {
+                    case VAR_OBJECTFLOORSENSORL: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].flailing[0];
                         break;
                     }
-                    case VAR_OBJECTFLAILING1: {
+                    case VAR_OBJECTFLOORSENSORC: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].flailing[1];
                         break;
                     }
-                    case VAR_OBJECTFLAILING2: {
+                    case VAR_OBJECTFLOORSENSORR: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].flailing[2];
                         break;
                     }
-                    case VAR_OBJECTFLAILING3: {
+                    case VAR_OBJECTFLOORSENSORLC: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].flailing[3];
                         break;
                     }
-                    case VAR_OBJECTFLAILING4: {
+                    case VAR_OBJECTFLOORSENSORRC: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].flailing[4];
                         break;
                     }
@@ -2816,17 +2927,17 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMILLISECONDS: scriptEng.operands[i] = stageMilliseconds; break;
                     case VAR_STAGESECONDS: scriptEng.operands[i] = stageSeconds; break;
                     case VAR_STAGEMINUTES: scriptEng.operands[i] = stageMinutes; break;
-                    case VAR_STAGEACTNO: scriptEng.operands[i] = actID; break;
+                    case VAR_STAGEACTNUM: scriptEng.operands[i] = actID; break;
                     case VAR_STAGEPAUSEENABLED: scriptEng.operands[i] = pauseEnabled; break;
                     case VAR_STAGELISTSIZE: scriptEng.operands[i] = stageListCount[activeStageList]; break;
                     case VAR_STAGENEWXBOUNDARY1: scriptEng.operands[i] = newXBoundary1; break;
                     case VAR_STAGENEWXBOUNDARY2: scriptEng.operands[i] = newXBoundary2; break;
                     case VAR_STAGENEWYBOUNDARY1: scriptEng.operands[i] = newYBoundary1; break;
                     case VAR_STAGENEWYBOUNDARY2: scriptEng.operands[i] = newYBoundary2; break;
-                    case VAR_STAGEXBOUNDARY1: scriptEng.operands[i] = curXBoundary1; break;
-                    case VAR_STAGEXBOUNDARY2: scriptEng.operands[i] = curXBoundary2; break;
-                    case VAR_STAGEYBOUNDARY1: scriptEng.operands[i] = curYBoundary1; break;
-                    case VAR_STAGEYBOUNDARY2: scriptEng.operands[i] = curYBoundary2; break;
+                    case VAR_STAGECURXBOUNDARY1: scriptEng.operands[i] = curXBoundary1; break;
+                    case VAR_STAGECURXBOUNDARY2: scriptEng.operands[i] = curXBoundary2; break;
+                    case VAR_STAGECURYBOUNDARY1: scriptEng.operands[i] = curYBoundary1; break;
+                    case VAR_STAGECURYBOUNDARY2: scriptEng.operands[i] = curYBoundary2; break;
                     case VAR_STAGEDEFORMATIONDATA0: scriptEng.operands[i] = bgDeformationData0[arrayVal]; break;
                     case VAR_STAGEDEFORMATIONDATA1: scriptEng.operands[i] = bgDeformationData1[arrayVal]; break;
                     case VAR_STAGEDEFORMATIONDATA2: scriptEng.operands[i] = bgDeformationData2[arrayVal]; break;
@@ -2836,15 +2947,15 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMIDPOINT: scriptEng.operands[i] = tLayerMidPoint; break;
                     case VAR_STAGEPLAYERLISTPOS: scriptEng.operands[i] = playerListPos; break;
                     case VAR_STAGEDEBUGMODE: scriptEng.operands[i] = debugMode; break;
-                    case VAR_STAGEOBJECTENTITYPOS: scriptEng.operands[i] = objectEntityPos; break;
+                    case VAR_STAGEENTITYPOS: scriptEng.operands[i] = objectEntityPos; break;
                     case VAR_SCREENCAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
                     case VAR_SCREENCAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
                     case VAR_SCREENCAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
-                    case VAR_SCREENCAMERAXPOS: scriptEng.operands[i] = cameraXPos; break;
-                    case VAR_SCREENCAMERAYPOS: scriptEng.operands[i] = cameraYPos; break;
+                    case VAR_SCREENCAMERAX: scriptEng.operands[i] = cameraXPos; break;
+                    case VAR_SCREENCAMERAY: scriptEng.operands[i] = cameraYPos; break;
                     case VAR_SCREENDRAWLISTSIZE: scriptEng.operands[i] = drawListEntries[arrayVal].listSize; break;
-                    case VAR_SCREENCENTERX: scriptEng.operands[i] = SCREEN_CENTERX; break;
-                    case VAR_SCREENCENTERY: scriptEng.operands[i] = SCREEN_CENTERY; break;
+                    case VAR_SCREENXCENTER: scriptEng.operands[i] = SCREEN_CENTERX; break;
+                    case VAR_SCREENYCENTER: scriptEng.operands[i] = SCREEN_CENTERY; break;
                     case VAR_SCREENXSIZE: scriptEng.operands[i] = SCREEN_XSIZE; break;
                     case VAR_SCREENYSIZE: scriptEng.operands[i] = SCREEN_YSIZE; break;
                     case VAR_SCREENXOFFSET: scriptEng.operands[i] = xScrollOffset; break;
@@ -2857,35 +2968,35 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_TOUCHSCREENYPOS: scriptEng.operands[i] = touchY[arrayVal]; break;
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
-                    case VAR_UNKNOWN: scriptEng.operands[i] = 0; break;
-                    case VAR_KEYDOWNUP: scriptEng.operands[i] = keyDown.up; break;
-                    case VAR_KEYDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
-                    case VAR_KEYDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
-                    case VAR_KEYDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
-                    case VAR_KEYDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
-                    case VAR_KEYDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
-                    case VAR_KEYDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
-                    case VAR_KEYDOWNBUTTONA2: scriptEng.operands[i] = keyDown.A; break;
-                    case VAR_KEYDOWNBUTTONB2: scriptEng.operands[i] = keyDown.B; break;
-                    case VAR_KEYDOWNBUTTONC2: scriptEng.operands[i] = keyDown.C; break;
-                    case VAR_KEYDOWNBUTTONA3: scriptEng.operands[i] = keyDown.A; break;
-                    case VAR_KEYDOWNBUTTONB3: scriptEng.operands[i] = keyDown.B; break;
-                    case VAR_KEYDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
-                    case VAR_KEYDOWNSTART2: scriptEng.operands[i] = keyDown.start; break;
-                    case VAR_KEYPRESSUP: scriptEng.operands[i] = keyPress.up; break;
-                    case VAR_KEYPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
-                    case VAR_KEYPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
-                    case VAR_KEYPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
-                    case VAR_KEYPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
-                    case VAR_KEYPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
-                    case VAR_KEYPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
-                    case VAR_KEYPRESSBUTTONA2: scriptEng.operands[i] = keyPress.A; break;
-                    case VAR_KEYPRESSBUTTONB2: scriptEng.operands[i] = keyPress.B; break;
-                    case VAR_KEYPRESSBUTTONC2: scriptEng.operands[i] = keyPress.C; break;
-                    case VAR_KEYPRESSBUTTONA3: scriptEng.operands[i] = keyPress.A; break;
-                    case VAR_KEYPRESSBUTTONB3: scriptEng.operands[i] = keyPress.B; break;
-                    case VAR_KEYPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
-                    case VAR_KEYPRESSSTART2: scriptEng.operands[i] = keyPress.start; break;
+                    case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
+                    case VAR_INPUTDOWNUP: scriptEng.operands[i] = keyDown.up; break;
+                    case VAR_INPUTDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
+                    case VAR_INPUTDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
+                    case VAR_INPUTDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
+                    case VAR_INPUTDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
+                    case VAR_INPUTDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
+                    case VAR_INPUTDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
+                    case VAR_INPUTDOWNBUTTONX: scriptEng.operands[i] = keyDown.X; break;
+                    case VAR_INPUTDOWNBUTTONY: scriptEng.operands[i] = keyDown.Y; break;
+                    case VAR_INPUTDOWNBUTTONZ: scriptEng.operands[i] = keyDown.Z; break;
+                    case VAR_INPUTDOWNBUTTONL: scriptEng.operands[i] = keyDown.L; break;
+                    case VAR_INPUTDOWNBUTTONR: scriptEng.operands[i] = keyDown.R; break;
+                    case VAR_INPUTDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
+                    case VAR_INPUTDOWNSELECT: scriptEng.operands[i] = keyDown.select; break;
+                    case VAR_INPUTPRESSUP: scriptEng.operands[i] = keyPress.up; break;
+                    case VAR_INPUTPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
+                    case VAR_INPUTPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
+                    case VAR_INPUTPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
+                    case VAR_INPUTPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
+                    case VAR_INPUTPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
+                    case VAR_INPUTPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
+                    case VAR_INPUTPRESSBUTTONX: scriptEng.operands[i] = keyPress.X; break;
+                    case VAR_INPUTPRESSBUTTONY: scriptEng.operands[i] = keyPress.Y; break;
+                    case VAR_INPUTPRESSBUTTONZ: scriptEng.operands[i] = keyPress.Z; break;
+                    case VAR_INPUTPRESSBUTTONL: scriptEng.operands[i] = keyPress.L; break;
+                    case VAR_INPUTPRESSBUTTONR: scriptEng.operands[i] = keyPress.R; break;
+                    case VAR_INPUTPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
+                    case VAR_INPUTPRESSSELECT: scriptEng.operands[i] = keyPress.select; break;
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
                     case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].width; break;
@@ -2906,12 +3017,12 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_VPARALLAXPARALLAXFACTOR: scriptEng.operands[i] = vParallax.parallaxFactor[arrayVal]; break;
                     case VAR_VPARALLAXSCROLLSPEED: scriptEng.operands[i] = vParallax.scrollSpeed[arrayVal]; break;
                     case VAR_VPARALLAXSCROLLPOS: scriptEng.operands[i] = vParallax.scrollPos[arrayVal]; break;
-                    case VAR_3DSCENENOVERTICES: scriptEng.operands[i] = vertexCount; break;
-                    case VAR_3DSCENENOFACES: scriptEng.operands[i] = faceCount; break;
-                    case VAR_3DSCENEPROJECTIONX: scriptEng.operands[i] = projectionX; break;
-                    case VAR_3DSCENEPROJECTIONY: scriptEng.operands[i] = projectionY; break;
-                    case VAR_3DSCENEFOGCOLOR: scriptEng.operands[i] = fogColour; break;
-                    case VAR_3DSCENEFOGSTRENGTH: scriptEng.operands[i] = fogStrength; break;
+                    case VAR_SCENE3DVERTEXCOUNT: scriptEng.operands[i] = vertexCount; break;
+                    case VAR_SCENE3DFACECOUNT: scriptEng.operands[i] = faceCount; break;
+                    case VAR_SCENE3DPROJECTIONX: scriptEng.operands[i] = projectionX; break;
+                    case VAR_SCENE3DPROJECTIONY: scriptEng.operands[i] = projectionY; break;
+                    case VAR_SCENE3DFOGCOLOR: scriptEng.operands[i] = fogColour; break;
+                    case VAR_SCENE3DFOGSTRENGTH: scriptEng.operands[i] = fogStrength; break;
                     case VAR_VERTEXBUFFERX: scriptEng.operands[i] = vertexBuffer[arrayVal].x; break;
                     case VAR_VERTEXBUFFERY: scriptEng.operands[i] = vertexBuffer[arrayVal].y; break;
                     case VAR_VERTEXBUFFERZ: scriptEng.operands[i] = vertexBuffer[arrayVal].z; break;
@@ -2930,7 +3041,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ENGINESFXVOLUME: scriptEng.operands[i] = sfxVolume; break;
                     case VAR_ENGINEBGMVOLUME: scriptEng.operands[i] = bgmVolume; break;
                     case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
-                    case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_PLATTYPE; break;
+                    case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3092,7 +3203,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 opcodeSize    = 0;
                 scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
                 break;
-            case FUNC_FOREACHTYPEGROUP: {
+            case FUNC_FOREACHACTIVE: {
                 int typeGroup = scriptEng.operands[1];
                 if (typeGroup < TYPEGROUP_COUNT) {
                     int loop                      = foreachStack[++foreachStackPos] + 1;
@@ -3114,13 +3225,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 }
                 break;
             }
-            case FUNC_FOREACHTYPENAME: {
+            case FUNC_FOREACHALL: {
                 int objType = scriptEng.operands[1];
                 if (objType < OBJECT_COUNT) {
                     int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
 
-                    if (scriptSub == SUB_SETUP) {
+                    if (scriptEvent == EVENT_SETUP) {
                         while (true) {
                             if (loop >= TEMPENTITY_START) {
                                 opcodeSize                      = 0;
@@ -3164,7 +3275,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 }
                 break;
             }
-            case FUNC_FOREACHLOOP:
+            case FUNC_NEXT:
                 opcodeSize    = 0;
                 scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
                 --foreachStackPos;
@@ -3432,7 +3543,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
-                if (scriptSub == SUB_SETUP && scriptFrameCount < SPRITEFRAME_COUNT) {
+                if (scriptEvent == EVENT_SETUP && scriptFrameCount < SPRITEFRAME_COUNT) {
                     scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
                     scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
                     scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];
@@ -3721,7 +3832,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 newEnt->tileCollisions     = true;
                 break;
             }
-            case FUNC_PLAYEROBJECTCOLLISION:
+            case FUNC_BOXCOLLISIONTEST:
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
                     default: break;
@@ -3767,7 +3878,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 temp->tileCollisions     = true;
                 break;
             }
-            case FUNC_PLAYERTILECOLLISION:
+            case FUNC_PROCESSOBJECTMOVEMENT:
                 opcodeSize = 0;
                 if (entity->tileCollisions) {
                     ProcessPlayerTileCollisions(entity);
@@ -3777,11 +3888,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     entity->YPos += entity->YVelocity;
                 }
                 break;
-            case FUNC_PROCESSPLAYERCONTROL:
+            case FUNC_PROCESSOBJECTCONTROL:
                 opcodeSize = 0;
                 ProcessPlayerControl(entity);
                 break;
-            case FUNC_PROCESSOBJECTANIMATION:
+            case FUNC_PROCESSANIMATION:
                 opcodeSize = 0;
                 ProcessObjectAnimation(scriptInfo, entity);
                 break;
@@ -3966,7 +4077,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 jumpTablePtr                      = functionScriptList[scriptEng.operands[0]].jumpTablePtr;
                 scriptDataPtr                     = scriptCodePtr;
             } break;
-            case FUNC_ENDFUNCTION:
+            case FUNC_RETURN:
                 opcodeSize    = 0;
                 scriptCodePtr = functionStack[--functionStackPos];
                 jumpTablePtr  = functionStack[--functionStackPos];
@@ -4103,7 +4214,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 AddTextMenuEntry(menu, Engine.gameVersion);
                 break;
             }
-            case FUNC_GETARRAYVALUE: {
+            case FUNC_GETTABLEVALUE: {
                 int arrPos = scriptEng.operands[1];
                 if (arrPos >= 0) {
                     int pos     = scriptEng.operands[2];
@@ -4113,7 +4224,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 }
                 break;
             }
-            case FUNC_SETARRAYVALUE: {
+            case FUNC_SETTABLEVALUE: {
                 opcodeSize = 0;
                 int arrPos = scriptEng.operands[1];
                 if (arrPos >= 0) {
@@ -4124,20 +4235,20 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 }
                 break;
             }
-            case FUNC_CHECKSTAGEFOLDER:
+            case FUNC_CHECKCURRENTSTAGEFOLDER:
                 opcodeSize            = 0;
                 scriptEng.checkResult = StrComp(stageList[activeStageList][stageListPosition].folder, scriptText);
                 break;
-            case FUNC_ABSOLUTE: {
+            case FUNC_ABS: {
                 scriptEng.operands[0] = abs(scriptEng.operands[0]);
                 break;
             }
-            case FUNC_ENGINECALLBACKFUNC:
+            case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] <= 0xFu)
                     nativeFunction[scriptEng.operands[0]](0x00, NULL);
                 break;
-            case FUNC_ENGINECALLBACK:
+            case FUNC_CALLNATIVEFUNCTION2:
                 if (scriptEng.operands[0] <= 0xFu) {
                     if (StrLength(scriptText)) {
                         nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
@@ -4148,12 +4259,12 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     }
                 }
                 break;
-            case FUNC_ENGINECALLBACKEXT:
+            case FUNC_CALLNATIVEFUNCTION4:
                 if (scriptEng.operands[0] <= 0xFu)
                     nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
                                                           reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
-            case FUNC_SETOBJECTBORDERX: {
+            case FUNC_SETOBJECTRANGE: {
                 opcodeSize       = 0;
                 int offset       = (scriptEng.operands[0] >> 1) - SCREEN_CENTERX;
                 OBJECT_BORDER_X1 = offset + 0x80;
@@ -4186,7 +4297,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 }
                 break;
             }
-            case FUNC_HAPTICEFFECT: {
+            case FUNC_PRINT: {
+                if (scriptEng.operands[1])
+                    printf("%d", scriptEng.operands[0]);
+                else
+                    printf("%s", scriptText);
+
+                if (scriptEng.operands[2])
+                    printf("\n");
                 break;
             }
         }
@@ -4224,14 +4342,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
-                    case VAR_TEMPVALUE0: scriptEng.tempValue[0] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE1: scriptEng.tempValue[1] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE2: scriptEng.tempValue[2] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE3: scriptEng.tempValue[3] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE4: scriptEng.tempValue[4] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE5: scriptEng.tempValue[5] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE6: scriptEng.tempValue[6] = scriptEng.operands[i]; break;
-                    case VAR_TEMPVALUE7: scriptEng.tempValue[7] = scriptEng.operands[i]; break;
+                    case VAR_TEMP0: scriptEng.tempValue[0] = scriptEng.operands[i]; break;
+                    case VAR_TEMP1: scriptEng.tempValue[1] = scriptEng.operands[i]; break;
+                    case VAR_TEMP2: scriptEng.tempValue[2] = scriptEng.operands[i]; break;
+                    case VAR_TEMP3: scriptEng.tempValue[3] = scriptEng.operands[i]; break;
+                    case VAR_TEMP4: scriptEng.tempValue[4] = scriptEng.operands[i]; break;
+                    case VAR_TEMP5: scriptEng.tempValue[5] = scriptEng.operands[i]; break;
+                    case VAR_TEMP6: scriptEng.tempValue[6] = scriptEng.operands[i]; break;
+                    case VAR_TEMP7: scriptEng.tempValue[7] = scriptEng.operands[i]; break;
                     case VAR_CHECKRESULT: scriptEng.checkResult = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS0: scriptEng.arrayPosition[0] = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS1: scriptEng.arrayPosition[1] = scriptEng.operands[i]; break;
@@ -4239,12 +4357,12 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_ARRAYPOS3: scriptEng.arrayPosition[3] = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS4: scriptEng.arrayPosition[4] = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS5: scriptEng.arrayPosition[5] = scriptEng.operands[i]; break;
-                    case VAR_PLAYEROBJECTPOS: scriptEng.arrayPosition[6] = scriptEng.operands[i]; break;
-                    case VAR_PLAYEROBJECTCOUNT: scriptEng.arrayPosition[7] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS6: scriptEng.arrayPosition[6] = scriptEng.operands[i]; break;
+                    case VAR_ARRAYPOS7: scriptEng.arrayPosition[7] = scriptEng.operands[i]; break;
                     case VAR_GLOBAL: globalVariables[arrayVal] = scriptEng.operands[i]; break;
-                    case VAR_SCRIPTDATA: scriptData[arrayVal] = scriptEng.operands[i]; break;
-                    case VAR_OBJECTENTITYNO: break;
-                    case VAR_OBJECTTYPEGROUP: {
+                    case VAR_LOCAL: scriptData[arrayVal] = scriptEng.operands[i]; break;
+                    case VAR_OBJECTENTITYPOS: break;
+                    case VAR_OBJECTGROUPID: {
                         objectEntityList[arrayVal].typeGroup = scriptEng.operands[i];
                         break;
                     }
@@ -4272,11 +4390,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
                         break;
                     }
-                    case VAR_OBJECTXVELOCITY: {
+                    case VAR_OBJECTXVEL: {
                         objectEntityList[arrayVal].XVelocity = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTYVELOCITY: {
+                    case VAR_OBJECTYVEL: {
                         objectEntityList[arrayVal].YVelocity = scriptEng.operands[i];
                         break;
                     }
@@ -4340,11 +4458,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         objectEntityList[arrayVal].angle = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTCAMOFFSETX: {
+                    case VAR_OBJECTLOOKPOSX: {
                         objectEntityList[arrayVal].camOffsetX = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTLOOKPOS: {
+                    case VAR_OBJECTLOOKPOSY: {
                         objectEntityList[arrayVal].lookPos = scriptEng.operands[i];
                         break;
                     }
@@ -4376,7 +4494,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         objectEntityList[arrayVal].tileCollisions = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTOBJECTINTERACTIONS: {
+                    case VAR_OBJECTINTERACTION: {
                         objectEntityList[arrayVal].objectInteractions = scriptEng.operands[i];
                         break;
                     }
@@ -4408,27 +4526,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         objectEntityList[arrayVal].jumpHold = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTTRACKSCROLL: {
+                    case VAR_OBJECTSCROLLTRACKING: {
                         objectEntityList[arrayVal].trackScroll = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTFLAILING0: {
+                    case VAR_OBJECTFLOORSENSORL: {
                         objectEntityList[arrayVal].flailing[0] = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTFLAILING1: {
+                    case VAR_OBJECTFLOORSENSORC: {
                         objectEntityList[arrayVal].flailing[1] = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTFLAILING2: {
+                    case VAR_OBJECTFLOORSENSORR: {
                         objectEntityList[arrayVal].flailing[2] = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTFLAILING3: {
+                    case VAR_OBJECTFLOORSENSORLC: {
                         objectEntityList[arrayVal].flailing[3] = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTFLAILING4: {
+                    case VAR_OBJECTFLOORSENSORRC: {
                         objectEntityList[arrayVal].flailing[4] = scriptEng.operands[i];
                         break;
                     }
@@ -4650,32 +4768,32 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMILLISECONDS: stageMilliseconds = scriptEng.operands[i]; break;
                     case VAR_STAGESECONDS: stageSeconds = scriptEng.operands[i]; break;
                     case VAR_STAGEMINUTES: stageMinutes = scriptEng.operands[i]; break;
-                    case VAR_STAGEACTNO: actID = scriptEng.operands[i]; break;
+                    case VAR_STAGEACTNUM: actID = scriptEng.operands[i]; break;
                     case VAR_STAGEPAUSEENABLED: pauseEnabled = scriptEng.operands[i]; break;
                     case VAR_STAGELISTSIZE: break;
                     case VAR_STAGENEWXBOUNDARY1: newXBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWXBOUNDARY2: newXBoundary2 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY1: newYBoundary1 = scriptEng.operands[i]; break;
                     case VAR_STAGENEWYBOUNDARY2: newYBoundary2 = scriptEng.operands[i]; break;
-                    case VAR_STAGEXBOUNDARY1:
+                    case VAR_STAGECURXBOUNDARY1:
                         if (curXBoundary1 != scriptEng.operands[i]) {
                             curXBoundary1 = scriptEng.operands[i];
                             newXBoundary1 = scriptEng.operands[i];
                         }
                         break;
-                    case VAR_STAGEXBOUNDARY2:
+                    case VAR_STAGECURXBOUNDARY2:
                         if (curXBoundary2 != scriptEng.operands[i]) {
                             curXBoundary2 = scriptEng.operands[i];
                             newXBoundary2 = scriptEng.operands[i];
                         }
                         break;
-                    case VAR_STAGEYBOUNDARY1:
+                    case VAR_STAGECURYBOUNDARY1:
                         if (curYBoundary1 != scriptEng.operands[i]) {
                             curYBoundary1 = scriptEng.operands[i];
                             newYBoundary1 = scriptEng.operands[i];
                         }
                         break;
-                    case VAR_STAGEYBOUNDARY2:
+                    case VAR_STAGECURYBOUNDARY2:
                         if (curYBoundary2 != scriptEng.operands[i]) {
                             curYBoundary2 = scriptEng.operands[i];
                             newYBoundary2 = scriptEng.operands[i];
@@ -4690,15 +4808,15 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_STAGEMIDPOINT: tLayerMidPoint = scriptEng.operands[i]; break;
                     case VAR_STAGEPLAYERLISTPOS: playerListPos = scriptEng.operands[i]; break;
                     case VAR_STAGEDEBUGMODE: debugMode = scriptEng.operands[i]; break;
-                    case VAR_STAGEOBJECTENTITYPOS: objectEntityPos = scriptEng.operands[i]; break;
+                    case VAR_STAGEENTITYPOS: objectEntityPos = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERAENABLED: cameraEnabled = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERATARGET: cameraTarget = scriptEng.operands[i]; break;
                     case VAR_SCREENCAMERASTYLE: cameraStyle = scriptEng.operands[i]; break;
-                    case VAR_SCREENCAMERAXPOS: cameraXPos = scriptEng.operands[i]; break;
-                    case VAR_SCREENCAMERAYPOS: cameraYPos = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERAX: cameraXPos = scriptEng.operands[i]; break;
+                    case VAR_SCREENCAMERAY: cameraYPos = scriptEng.operands[i]; break;
                     case VAR_SCREENDRAWLISTSIZE: drawListEntries[arrayVal].listSize = scriptEng.operands[i]; break;
-                    case VAR_SCREENCENTERX: break;
-                    case VAR_SCREENCENTERY: break;
+                    case VAR_SCREENXCENTER: break;
+                    case VAR_SCREENYCENTER: break;
                     case VAR_SCREENXSIZE: break;
                     case VAR_SCREENYSIZE: break;
                     case VAR_SCREENXOFFSET: xScrollOffset = scriptEng.operands[i]; break;
@@ -4711,35 +4829,35 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_TOUCHSCREENYPOS: break;
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
-                    case VAR_UNKNOWN: break;
-                    case VAR_KEYDOWNUP: keyDown.up = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONA2: keyDown.A = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONB2: keyDown.B = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONC2: keyDown.C = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONA3: keyDown.A = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONB3: keyDown.B = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNSTART2: keyDown.start = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSUP: keyPress.up = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONA2: keyPress.A = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONB2: keyPress.B = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONC2: keyPress.C = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONA3: keyPress.A = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONB3: keyPress.B = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSSTART2: keyPress.start = scriptEng.operands[i]; break;
+                    case VAR_MUSICPOSITION: break;
+                    case VAR_INPUTDOWNUP: keyDown.up = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONX: keyDown.X = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONY: keyDown.Y = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONZ: keyDown.Z = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONL: keyDown.L = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONR: keyDown.R = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNSELECT: keyDown.select = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSUP: keyPress.up = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONX: keyPress.X = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONY: keyPress.Y = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONZ: keyPress.Z = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONL: keyPress.L = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONR: keyPress.R = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSSELECT: keyPress.select = scriptEng.operands[i]; break;
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].width = scriptEng.operands[i]; break;
@@ -4766,12 +4884,12 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                     case VAR_VPARALLAXPARALLAXFACTOR: vParallax.parallaxFactor[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_VPARALLAXSCROLLSPEED: vParallax.scrollSpeed[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_VPARALLAXSCROLLPOS: vParallax.scrollPos[arrayVal] = scriptEng.operands[i]; break;
-                    case VAR_3DSCENENOVERTICES: vertexCount = scriptEng.operands[i]; break;
-                    case VAR_3DSCENENOFACES: faceCount = scriptEng.operands[i]; break;
-                    case VAR_3DSCENEPROJECTIONX: projectionX = scriptEng.operands[i]; break;
-                    case VAR_3DSCENEPROJECTIONY: projectionY = scriptEng.operands[i]; break;
-                    case VAR_3DSCENEFOGCOLOR: fogColour = scriptEng.operands[i]; break;
-                    case VAR_3DSCENEFOGSTRENGTH: fogStrength = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DVERTEXCOUNT: vertexCount = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DFACECOUNT: faceCount = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DPROJECTIONX: projectionX = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DPROJECTIONY: projectionY = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DFOGCOLOR: fogColour = scriptEng.operands[i]; break;
+                    case VAR_SCENE3DFOGSTRENGTH: fogStrength = scriptEng.operands[i]; break;
                     case VAR_VERTEXBUFFERX: vertexBuffer[arrayVal].x = scriptEng.operands[i]; break;
                     case VAR_VERTEXBUFFERY: vertexBuffer[arrayVal].y = scriptEng.operands[i]; break;
                     case VAR_VERTEXBUFFERZ: vertexBuffer[arrayVal].z = scriptEng.operands[i]; break;
@@ -4796,7 +4914,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                         SetGameVolumes(bgmVolume, sfxVolume);
                         break;
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
-                    case VAR_ENGINEPLATFORMID: break;
+                    case VAR_ENGINEDEVICETYPE: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

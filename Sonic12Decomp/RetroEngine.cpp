@@ -1,6 +1,7 @@
 #include "RetroEngine.hpp"
 
-bool usingCWD = false;
+bool usingCWD        = false;
+bool engineDebugMode = false;
 
 RetroEngine Engine = RetroEngine();
 
@@ -20,18 +21,19 @@ inline int getLowerRate(int intendRate, int targetRate)
     return result;
 }
 
-
 bool processEvents()
 {
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     while (SDL_PollEvent(&Engine.sdlEvents)) {
         // Main Events
         switch (Engine.sdlEvents.type) {
+#if RETRO_USING_SDL2
             case SDL_WINDOWEVENT:
                 switch (Engine.sdlEvents.window.event) {
                     case SDL_WINDOWEVENT_MAXIMIZED: {
                         SDL_RestoreWindow(Engine.window);
                         SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        SDL_ShowCursor(SDL_FALSE);
                         Engine.isFullScreen = true;
                         break;
                     }
@@ -46,54 +48,73 @@ bool processEvents()
                     Engine.window = NULL;
                 }
                 return false;
-            case SDL_APP_WILLENTERBACKGROUND: /*Engine.Callback(CALLBACK_ENTERBG);*/ break;
-            case SDL_APP_WILLENTERFOREGROUND: /*Engine.Callback(CALLBACK_ENTERFG);*/ break;
-            case SDL_APP_TERMINATING:  break;
+#endif
+
+#ifdef RETRO_USING_MOUSE
             case SDL_MOUSEMOTION:
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
+#if RETRO_USING_SDL2
+                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
+#endif                                                                                     //! RETRO_USING_SDL2
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
                     touchX[0] /= Engine.windowScale;
                     touchY[0] /= Engine.windowScale;
                     touches = 1;
+#if RETRO_USING_SDL2
                 }
+#endif //! RETRO_USING_SDL2
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
+#if RETRO_USING_SDL2
+                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
+#endif                                                                                     //! RETRO_USING_SDL2
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 1; break;
                     }
                     touches = 1;
+#if RETRO_USING_SDL2
                 }
+#endif //! RETRO_USING_SDL2
                 break;
             case SDL_MOUSEBUTTONUP:
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)) <= 0) { // Touch always takes priority over mouse
+#if RETRO_USING_SDL2
+                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
+#endif                                                                                     //! RETRO_USING_SDL2
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 0; break;
                     }
                     touches = 1;
+#if RETRO_USING_SDL2
                 }
+#endif //! RETRO_USING_SDL2
                 break;
+#endif
+
+#ifdef RETRO_USING_TOUCH
+#if RETRO_USING_SDL2
             case SDL_FINGERMOTION:
-                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(1));
+                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
                 for (int i = 0; i < touches; i++) {
                     touchDown[i]       = true;
-                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(1), i);
+                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE), i);
                     touchX[i]          = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
 
                     touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
                 }
                 break;
             case SDL_FINGERDOWN:
-                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(1));
+                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
                 for (int i = 0; i < touches; i++) {
                     touchDown[i]       = true;
-                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(1), i);
+                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE), i);
                     touchX[i]          = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
 
                     touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
                 }
                 break;
-            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(1)); break;
+            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)); break;
+#endif //! RETRO_USING_SDL2
+#endif
+
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
@@ -104,14 +125,32 @@ bool processEvents()
                     case SDLK_F4:
                         Engine.isFullScreen ^= 1;
                         if (Engine.isFullScreen) {
+#if RETRO_USING_SDL1
+                            Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16,
+                                                                    SDL_SWSURFACE | SDL_FULLSCREEN);
+                            SDL_ShowCursor(SDL_FALSE);
+#endif
+
+#if RETRO_USING_SDL2
                             SDL_RestoreWindow(Engine.window);
                             SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                            SDL_ShowCursor(SDL_FALSE);
+#endif
                         }
                         else {
+#if RETRO_USING_SDL1
+                            Engine.windowSurface =
+                                SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
+                            SDL_ShowCursor(SDL_TRUE);
+#endif
+                        
+#if RETRO_USING_SDL2
                             SDL_SetWindowFullscreen(Engine.window, false);
+                            SDL_ShowCursor(SDL_TRUE);
                             SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
                             SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                             SDL_RestoreWindow(Engine.window);
+#endif
                         }
                         break;
                     case SDLK_F1:
@@ -135,6 +174,8 @@ bool processEvents()
                             }
                             stageMode       = STAGEMODE_LOAD;
                             Engine.gameMode = ENGINE_MAINGAME;
+                            SetGlobalVariableByName("lampPostID", 0); // For S1
+                            SetGlobalVariableByName("starPostID", 0); // For S2
                         }
                         break;
                     case SDLK_F3:
@@ -151,6 +192,8 @@ bool processEvents()
                             }
                             stageMode       = STAGEMODE_LOAD;
                             Engine.gameMode = ENGINE_MAINGAME;
+                            SetGlobalVariableByName("lampPostID", 0); // For S1
+                            SetGlobalVariableByName("starPostID", 0); // For S2
                         }
                         break;
                     case SDLK_F10:
@@ -181,13 +224,19 @@ bool processEvents()
                         break;
 #endif
                 }
+
+#if RETRO_USING_SDL1
+                keyState[Engine.sdlEvents.key.keysym.sym] = 1;
+#endif
                 break;
             case SDL_KEYUP:
                 switch (Engine.sdlEvents.key.keysym.sym) {
-                    default:
-                        break;
+                    default: break;
                     case SDLK_BACKSPACE: Engine.gameSpeed = 1; break;
                 }
+#if RETRO_USING_SDL1
+                keyState[Engine.sdlEvents.key.keysym.sym] = 0;
+#endif
                 break;
             case SDL_QUIT: return false;
             case SDL_CONTROLLERBUTTONDOWN:
@@ -204,7 +253,7 @@ bool processEvents()
     return true;
 }
 
-#if RETRO_USE_NETWORKING && RSDK_DEBUG
+#if RETRO_USE_NETWORKING
 #include <string>
 #endif
 void RetroEngine::Init()
@@ -212,26 +261,43 @@ void RetroEngine::Init()
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
-    CheckRSDKFile(BASE_PATH "Data.rsdk");
     InitUserdata();
+    char dest[0x200];
+#if RETRO_PLATFORM == RETRO_UWP
+    static char resourcePath[256] = { 0 };
+
+    if (strlen(resourcePath) == 0) {
+        auto folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
+        auto path   = to_string(folder.Path());
+
+        std::copy(path.begin(), path.end(), resourcePath);
+    }
+
+    strcpy(dest, resourcePath);
+    strcat(dest, "\\Data.rsdk");
+#else
+    StrCopy(dest, BASE_PATH);
+    StrAdd(dest, Engine.dataFile);
+#endif
+    CheckRSDKFile(dest);
     InitNativeObjectSystem();
 
 #if RETRO_USE_NETWORKING
     buildNetworkIndex();
 #if RSDK_DEBUG
-//here lies the networking test.
-//check Network.cpp for the network code i've written so far
-//it should be commented enough
+// here lies the networking test.
+// check Network.cpp for the network code i've written so far
+// it should be commented enough
 
-//TO TEST: build client in x86, server in x64
-//please PLEASE, if you solve networking, make a PR and i (RMG) will gladly review it and
-//put the server code in it's correct spot (2P versus menu)
+// TO TEST: build client in x86, server in x64
+// please PLEASE, if you solve networking, make a PR and i (RMG) will gladly review it and
+// put the server code in it's correct spot (2P versus menu)
 #if WIN32
     {
-        ushort port = 300;
-        playerListPos = 2;
+        ushort port      = 300;
+        playerListPos    = 2;
         std::string code = generateCode(port, 6, 2);
-        CodeData c = parseCode("put the code generated by the server here");
+        CodeData c       = parseCode("put the code generated by the server here");
         initClient(c);
     }
 #else
@@ -245,8 +311,9 @@ void RetroEngine::Init()
 #endif // RSDK_DEBUG
 #endif // RETRO_USE_NETWORKING
 
-    gameMode = ENGINE_MAINGAME;
-    running  = false;
+    gameMode          = ENGINE_MAINGAME;
+    running           = false;
+    finishedStartMenu = false;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -258,6 +325,71 @@ void RetroEngine::Init()
                 ClearScriptData();
                 initialised = true;
                 running     = true;
+
+                if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
+                    finishedStartMenu = true;
+                    InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
+                }
+                else if (startSave != 0xFF && startSave < 4) {
+                    if (startSave == 0) {
+                        SetGlobalVariableByName("options.saveSlot", 0);
+                        SetGlobalVariableByName("options.gameMode", 0);
+
+                        SetGlobalVariableByName("options.stageSelectFlag", 0);
+                        SetGlobalVariableByName("player.lives", 3);
+                        SetGlobalVariableByName("player.score", 0);
+                        SetGlobalVariableByName("player.scoreBonus", 50000);
+                        SetGlobalVariableByName("specialStage.emeralds", 0);
+                        SetGlobalVariableByName("specialStage.listPos", 0);
+                        SetGlobalVariableByName("stage.player2Enabled", 0);
+                        SetGlobalVariableByName("lampPostID", 0); // For S1
+                        SetGlobalVariableByName("starPostID", 0); // For S2
+                        SetGlobalVariableByName("options.vsMode", 0);
+
+                        SetGlobalVariableByName("specialStage.nextZone", 0);
+                        InitStartingStage(STAGELIST_REGULAR, 0, 0);
+                    }
+                    else {
+                        SetGlobalVariableByName("options.saveSlot", startSave);
+                        SetGlobalVariableByName("options.gameMode", 1);
+                        int slot = (startSave - 1) << 3;
+
+                        SetGlobalVariableByName("options.stageSelectFlag", 0);
+                        SetGlobalVariableByName("player.lives", saveRAM[slot + 1]);
+                        SetGlobalVariableByName("player.score", saveRAM[slot + 2]);
+                        SetGlobalVariableByName("player.scoreBonus", saveRAM[slot + 3]);
+                        SetGlobalVariableByName("specialStage.emeralds", saveRAM[slot + 5]);
+                        SetGlobalVariableByName("specialStage.listPos", saveRAM[slot + 6]);
+                        SetGlobalVariableByName("stage.player2Enabled", saveRAM[slot + 0] == 3);
+                        SetGlobalVariableByName("lampPostID", 0); // For S1
+                        SetGlobalVariableByName("starPostID", 0); // For S2
+                        SetGlobalVariableByName("options.vsMode", 0);
+
+                        int nextZone = saveRAM[slot + 4];
+                        if (nextZone > 127) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
+                            InitStartingStage(STAGELIST_SPECIAL, saveRAM[slot + 6], saveRAM[slot + 0]);
+                        }
+                        else if (nextZone >= 1) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
+                            InitStartingStage(STAGELIST_REGULAR, saveRAM[slot + 4] - 1, saveRAM[slot + 0]);
+                        }
+                        else {
+                            saveRAM[slot + 0] = 0;
+                            saveRAM[slot + 1] = 3;
+                            saveRAM[slot + 2] = 0;
+                            saveRAM[slot + 3] = 50000;
+                            saveRAM[slot + 4] = 0;
+                            saveRAM[slot + 5] = 0;
+                            saveRAM[slot + 6] = 0;
+                            saveRAM[slot + 7] = 0;
+
+                            SetGlobalVariableByName("specialStage.nextZone", 0);
+                            InitStartingStage(STAGELIST_REGULAR, 0, 0);
+                        }
+                    }
+                    finishedStartMenu = true;
+                }
             }
         }
     }
@@ -275,7 +407,6 @@ void RetroEngine::Init()
         gameType = GAME_SONIC2;
     }
 
-    
     ReadSaveRAMData();
     if (saveRAM[0x100] != Engine.gameType) {
         saveRAM[0x100] = Engine.gameType;
@@ -299,8 +430,8 @@ void RetroEngine::Init()
 
     if (Engine.gameType == GAME_SONIC1) {
         StrCopy(achievements[5].name, "Ring King");
-        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[1].name, "Ramp Ring Acrobatics");
+        StrCopy(achievements[0].name, "Blast Processing");
         StrCopy(achievements[2].name, "Secret of Marble Zone");
         StrCopy(achievements[3].name, "Block Buster");
         StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
@@ -325,7 +456,11 @@ void RetroEngine::Init()
         StrCopy(achievements[10].name, "Scrambled Egg");
         StrCopy(achievements[11].name, "Beat the Clock");
     }
-    initStartMenu(0);
+
+    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
+
+    if (!finishedStartMenu)
+        initStartMenu(0);
 }
 
 void RetroEngine::Run()
@@ -359,7 +494,7 @@ void RetroEngine::Run()
     ReleaseRenderDevice();
     writeSettings();
 
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
 #endif
 }
@@ -367,8 +502,8 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    int fileBuffer  = 0;
-    int fileBuffer2 = 0;
+    byte fileBuffer = 0;
+    byte fileBuffer2 = 0;
     char strBuffer[0x40];
 
     bool loaded = LoadFile(filePath, &info);
@@ -388,20 +523,20 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read Obect Names
-        int objectCount = 0;
+        byte objectCount = 0;
         FileRead(&objectCount, 1);
-        for (int o = 0; o < objectCount; ++o) {
+        for (byte o = 0; o < objectCount; ++o) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
         // Read Script Paths
-        for (int s = 0; s < objectCount; ++s) {
+        for (byte s = 0; s < objectCount; ++s) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
-        int varCount = 0;
+        byte varCount = 0;
         FileRead(&varCount, 1);
         globalVariablesCount = varCount;
         for (int v = 0; v < varCount; ++v) {
@@ -422,28 +557,28 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read SFX
-        int globalSFXCount = 0;
+        byte globalSFXCount = 0;
         FileRead(&globalSFXCount, 1);
         for (int s = 0; s < globalSFXCount; ++s) { // SFX Names
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             strBuffer[fileBuffer] = 0;
         }
-        for (int s = 0; s < globalSFXCount; ++s) { // SFX Paths
+        for (byte s = 0; s < globalSFXCount; ++s) { // SFX Paths
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             strBuffer[fileBuffer] = 0;
         }
 
         // Read Player Names
-        int playerCount = 0;
+        byte playerCount = 0;
         FileRead(&playerCount, 1);
-        for (int p = 0; p < playerCount; ++p) {
+        for (byte p = 0; p < playerCount; ++p) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
         }
 
-        for (int c = 0; c < 4; ++c) {
+        for (byte c = 0; c < 4; ++c) {
             // Special Stages are stored as cat 2 in file, but cat 3 in game :(
             int cat = c;
             if (c == 2)
@@ -451,8 +586,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             else if (c == 3)
                 cat = 2;
             stageListCount[cat] = 0;
-            FileRead(&stageListCount[cat], 1);
-            for (int s = 0; s < stageListCount[cat]; ++s) {
+            FileRead(&fileBuffer, 1);
+            stageListCount[cat] = fileBuffer;
+            for (byte s = 0; s < stageListCount[cat]; ++s) {
 
                 // Read Stage Folder
                 FileRead(&fileBuffer, 1);
@@ -478,8 +614,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         CloseFile();
     }
 
-    
-    //These need to be set every time its reloaded
+    // These need to be set every time its reloaded
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
@@ -498,10 +633,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 void RetroEngine::Callback(int callbackID)
 {
     switch (callbackID) {
-        default:
-#if RSDK_DEBUG
-            printLog("Callback: Unknown (%d)", callbackID);
-#endif
-            break;
+        default: printLog("Callback: Unknown (%d)", callbackID); break;
     }
 }
