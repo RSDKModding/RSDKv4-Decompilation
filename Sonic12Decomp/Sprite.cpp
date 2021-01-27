@@ -64,10 +64,10 @@ void InitGifDecoder()
 void ReadGifLine(byte *line, int length, int offset)
 {
     int i         = 0;
-    int stackPtr       = gifDecoder.stackPtr;
+    int stackPtr  = gifDecoder.stackPtr;
     int eofCode   = gifDecoder.eofCode;
     int clearCode = gifDecoder.clearCode;
-    int prevCode      = gifDecoder.prevCode;
+    int prevCode  = gifDecoder.prevCode;
     if (stackPtr != 0) {
         while (stackPtr != 0) {
             if (i >= length) {
@@ -120,7 +120,7 @@ void ReadGifLine(byte *line, int length, int offset)
                     int c = 0;
                     while (c++ <= LZ_MAX_CODE && code > clearCode && code <= LZ_MAX_CODE) {
                         gifDecoder.stack[stackPtr++] = gifDecoder.suffix[code];
-                        code                    = gifDecoder.prefix[code];
+                        code                         = gifDecoder.prefix[code];
                     }
                     if (c >= LZ_MAX_CODE | code > LZ_MAX_CODE) {
                         return;
@@ -441,7 +441,8 @@ int LoadPVRFile(const char *filePath, byte sheetID)
 }
 
 // 0 = data, 1 = menu, 0xFF = no datafile
-int LoadTexture(const char* filePath, byte dMode) {
+int LoadTexture(const char *filePath, byte dMode)
+{
 
     texInfo *texture = nullptr;
 
@@ -465,10 +466,10 @@ int LoadTexture(const char* filePath, byte dMode) {
     if (dMode == 0xFF)
         Engine.usingDataFile = false;
     else
-        snapDataFile(dataMode);
+        snapDataFile(dMode);
 
 #if RETRO_USING_SDL1
-    //Returns SDL_Surface*
+        // Returns SDL_Surface*
 #endif
 
 #if RETRO_USING_SDL2
@@ -488,16 +489,16 @@ int LoadTexture(const char* filePath, byte dMode) {
             Engine.usingDataFile = dataStore;
 
         if (upng_get_error(upng) != UPNG_EOK) {
-            char errorText[9][0x30]  = { "No error",
-                                         "Memory allocation Failed",
-                                         "Resource not found",
-                                         "Invalid or missing PNG header",
-                                         "Invalid image data",
-                                         "Critical type not supported",
-                                         "Interlacing not supported",
-                                         "Colour format not supported",
-                                         "Invalid parameter to method call" };
-            byte error               = upng_get_error(upng);
+            char errorText[9][0x30] = { "No error",
+                                        "Memory allocation Failed",
+                                        "Resource not found",
+                                        "Invalid or missing PNG header",
+                                        "Invalid image data",
+                                        "Critical type not supported",
+                                        "Interlacing not supported",
+                                        "Colour format not supported",
+                                        "Invalid parameter to method call" };
+            byte error              = upng_get_error(upng);
             char buf[0x80];
             sprintf(buf, "PNG error: \"%s\" at line: %d", errorText[error], upng_get_error_line(upng));
             printLog(buf);
@@ -527,9 +528,9 @@ int LoadTexture(const char* filePath, byte dMode) {
         SDL_Surface *img = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
 
         byte *dst = (byte *)img->pixels;
-        byte *src  = (byte*)upng_get_buffer(upng);
+        byte *src = (byte *)upng_get_buffer(upng);
 
-        int dstID = 0;
+        int dstID  = 0;
         int bufPos = 0;
         for (int p = 0; p < width * height; p++) {
             byte A = 0xFF, R = 0xFF, G = 0, B = 0xFF;
@@ -543,10 +544,10 @@ int LoadTexture(const char* filePath, byte dMode) {
                     B = src[bufPos++]; // B
                     break;
                 case UPNG_RGBA8:
-                    R      = src[bufPos++]; // R
-                    G      = src[bufPos++]; // G
-                    B      = src[bufPos++]; // B
-                    A      = src[bufPos++]; // A
+                    R = src[bufPos++]; // R
+                    G = src[bufPos++]; // G
+                    B = src[bufPos++]; // B
+                    A = src[bufPos++]; // A
                     break;
                 case UPNG_RGB16:
                     buffer  = src[bufPos++];
@@ -604,8 +605,8 @@ int LoadTexture(const char* filePath, byte dMode) {
         SDL_Texture *tex = SDL_CreateTextureFromSurface(Engine.renderer, img);
 
         StrCopy(texture->fileName, filePath);
-        texture->tex   = tex;
-        texture->width = width;
+        texture->tex    = tex;
+        texture->width  = width;
         texture->height = height;
 
         SDL_FreeSurface(img);
