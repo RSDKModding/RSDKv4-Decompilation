@@ -111,9 +111,8 @@ void PauseMenu_Main(void *objPtr)
         case 4:
         case 5:
             // wait (again)
-            if (pauseMenu->revokeTimer >= 12)
+            if (pauseMenu->revokeTimer++ >= 12)
                 pauseMenu->barPos -= pow(pauseMenu->timer++, 2) / 10;
-            pauseMenu->revokeTimer++;
 
             if (pauseMenu->barPos + 128 < 0 && pauseMenu->slowTimer++ > 7) {
 
