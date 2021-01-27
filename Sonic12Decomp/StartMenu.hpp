@@ -7,10 +7,12 @@ struct NativeEntity_StartMenu : NativeEntityBase {
     bool changingStates;
 
     bool transitioning = false;
-    int transTimer     = 0;
+    int transTimer     = 0; // trans rights
 
     int timers[10]; // LOL i really do not wanna do what i did with pause menu
     int positions[10];
+
+    int offset = 0;
 
     int selected;
 };
