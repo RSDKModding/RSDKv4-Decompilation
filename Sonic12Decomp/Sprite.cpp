@@ -484,13 +484,13 @@ int LoadTexture(const char *filePath, byte dMode)
     FileInfo info;
 
     if (LoadFile(filePath, &info)) {
-
         byte fileExtension = (byte)filePath[(StrLength(filePath) - 1) & 0xFF];
         switch (fileExtension) {
-            default:
+            default: {
                 CloseFile();
                 snapDataFile(0);
                 return NULL;
+            }
             case 'f': {
                 byte fileBuffer = 0;
 
@@ -570,14 +570,14 @@ int LoadTexture(const char *filePath, byte dMode)
 
                 int bufPos = 0;
                 for (int p = 0; p < width * height; p++) {
-                    *dst++ = colours[fileData[bufPos]].r;
-                    *dst++ = colours[fileData[bufPos]].g;
                     *dst++ = colours[fileData[bufPos]].b;
+                    *dst++ = colours[fileData[bufPos]].g;
+                    *dst++ = colours[fileData[bufPos]].r;
                     *dst++ = 0xFF;
                     bufPos++;
                 }
 
-                SDL_SetColorKey(img, 1, (colours[0].r << 16) | (colours[0].r << 8) | (colours[0].b));
+                SDL_SetColorKey(img, 1, (colours[0].r << 16) | (colours[0].g << 8) | (colours[0].b));
                 SDL_Texture *tex = SDL_CreateTextureFromSurface(Engine.renderer, img);
 
                 StrCopy(texture->fileName, filePath);

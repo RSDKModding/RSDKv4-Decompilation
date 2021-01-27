@@ -440,6 +440,97 @@ bool ReachedEndOfFile()
         return bufferPosition + readPos - readSize >= fileSize;
 }
 
+bool LoadFile2(const char *filePath, FileInfo *fileInfo)
+{
+
+    if (fileInfo->cFileHandle)
+        fClose(fileInfo->cFileHandle);
+
+    MEM_ZEROP(fileInfo);
+    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
+        StringLowerCase(fileInfo->fileName, filePath);
+        StrCopy(fileName, fileInfo->fileName);
+        byte buffer[0x10];
+        int len = StrLength(fileInfo->fileName);
+        GenerateMD5FromString(fileInfo->fileName, len, buffer);
+
+        for (int f = 0; f < currentContainer->fileCount; ++f) {
+            RSDKFileInfo *file = &currentContainer->files[f];
+
+            bool match = true;
+            for (int h = 0; h < 0x10; ++h) {
+                if (buffer[h] != file->hash[h]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (!match)
+                continue;
+
+            fileInfo->cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
+            fSeek(fileInfo->cFileHandle, 0, SEEK_END);
+            fileSize = (int)fTell(fileInfo->cFileHandle);
+
+            vFileSize         = file->filesize;
+            virtualFileOffset = file->offset;
+            readPos           = file->offset;
+            readSize          = 0;
+            bufferPosition    = 0;
+            fSeek(fileInfo->cFileHandle, virtualFileOffset, SEEK_SET);
+
+            useEncryption = file->encrypted;
+            memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
+            memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
+            if (useEncryption) {
+                GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
+                eStringNo   = (vFileSize & 0x1FC) >> 2;
+                eStringPosA = 0;
+                eStringPosB = 8;
+                eNybbleSwap = 0;
+                memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
+                memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
+            }
+
+            fileInfo->readPos           = readPos;
+            fileInfo->fileSize          = fileSize;
+            fileInfo->vfileSize         = vFileSize;
+            fileInfo->virtualFileOffset = virtualFileOffset;
+            fileInfo->eStringNo         = eStringNo;
+            fileInfo->eStringPosB       = eStringPosB;
+            fileInfo->eStringPosA       = eStringPosA;
+            fileInfo->eNybbleSwap       = eNybbleSwap;
+            fileInfo->bufferPosition    = bufferPosition;
+            fileInfo->useEncryption     = useEncryption;
+            printLog("Loaded File '%s'", filePath);
+            return true;
+        }
+        printLog("Couldn't load file '%s'", filePath);
+        return false;
+    }
+    else {
+        StrCopy(fileInfo->fileName, filePath);
+        StrCopy(fileName, fileInfo->fileName);
+
+        fileInfo->cFileHandle = fOpen(fileInfo->fileName, "rb");
+        if (!fileInfo->cFileHandle) {
+            printLog("Couldn't load file '%s'", filePath);
+            return false;
+        }
+        virtualFileOffset = 0;
+        fSeek(fileInfo->cFileHandle, 0, SEEK_END);
+        fileInfo->fileSize = (int)fTell(fileInfo->cFileHandle);
+        fileSize = fileInfo->vfileSize = fileInfo->fileSize;
+        fSeek(fileInfo->cFileHandle, 0, SEEK_SET);
+        readPos           = 0;
+        fileInfo->readPos = readPos;
+        bufferPosition    = 0;
+        readSize          = 0;
+
+        printLog("Loaded File '%s'", filePath);
+        return true;
+    }
+}
+
 size_t FileRead2(FileInfo *info, void *dest, int size)
 {
     byte *data = (byte *)dest;

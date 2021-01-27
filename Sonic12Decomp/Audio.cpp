@@ -345,10 +345,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             StopMusic();
         }
 
-        if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
-            musInfo.fileInfo.cFileHandle = cFileHandle;
-            cFileHandle                  = nullptr;
-
+        if (LoadFile2(trackPtr->fileName, &musInfo.fileInfo)) {
             musInfo.trackLoop = trackPtr->trackLoop;
             musInfo.loopPoint = trackPtr->loopPoint;
             musInfo.loaded    = true;
