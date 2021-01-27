@@ -465,7 +465,7 @@ int LoadTexture(const char* filePath, byte dMode) {
     if (dMode == 0xFF)
         Engine.usingDataFile = false;
     else
-        dataMode = dMode;
+        snapDataFile(dataMode);
 
 #if RETRO_USING_SDL1
     //Returns SDL_Surface*
@@ -475,6 +475,7 @@ int LoadTexture(const char* filePath, byte dMode) {
     // Returns SDL_Texture*
 
     FileInfo info;
+
     if (LoadFile(filePath, &info)) {
 
         byte *fileData = (byte *)malloc(info.vfileSize);
@@ -502,7 +503,8 @@ int LoadTexture(const char* filePath, byte dMode) {
             printLog(buf);
             free(fileData);
             upng_free(upng);
-            return false;
+            snapDataFile(0);
+            return 0;
         }
 
         int width  = upng_get_width(upng);
@@ -530,7 +532,7 @@ int LoadTexture(const char* filePath, byte dMode) {
         int dstID = 0;
         int bufPos = 0;
         for (int p = 0; p < width * height; p++) {
-            byte A, R, G, B;
+            byte A = 0xFF, R = 0xFF, G = 0, B = 0xFF;
             int buffer    = 0;
             int buffer2   = 0;
             float fBuffer = 0.0f;
@@ -609,12 +611,15 @@ int LoadTexture(const char* filePath, byte dMode) {
         SDL_FreeSurface(img);
         free(fileData);
         upng_free(upng);
+        snapDataFile(0);
         return texID;
     }
 
 #endif
     if (dMode == 0xFF)
         Engine.usingDataFile = dataStore;
+    else
+        snapDataFile(0);
 
     return 0;
 }

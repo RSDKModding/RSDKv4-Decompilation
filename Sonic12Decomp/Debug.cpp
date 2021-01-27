@@ -377,7 +377,6 @@ void initStartMenu(int mode)
 
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
         setTextMenu(STARTMENU_MAIN);
-        LoadTexture("Mods/Cocky/Pause.png", 0xFF);
     }
     else {
         // finished TA act
@@ -1424,6 +1423,4 @@ void processStartMenu()
         DrawSprite(SCREEN_XSIZE - 32, SCREEN_YSIZE - 32, 16, 16, 112, 240, textMenuSurfaceNo);
 #endif
     }
-
-    RenderSprite(25, 25, 89, 22, 0, 0, 0);
 }
