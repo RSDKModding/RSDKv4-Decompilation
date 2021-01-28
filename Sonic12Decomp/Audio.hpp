@@ -18,9 +18,14 @@ struct MusicPlaybackInfo {
     int vorbBitstream;
 #if RETRO_USING_SDL1
     SDL_AudioSpec spec;
-#endif
-#if RETRO_USING_SDL2
+#elif RETRO_USING_SDL2
     SDL_AudioStream *stream;
+#else
+    char *musicFile;
+    char *stream;
+    int pos;
+    int len;
+    void *currentTrack;
 #endif
     Sint16 *buffer;
     FileInfo fileInfo;
@@ -111,9 +116,13 @@ inline void freeMusInfo()
     }
 }
 #else
-void ProcessMusicStream() {}
-void ProcessAudioPlayback() {}
-void ProcessAudioMixing() {}
+//void ProcessMusicStream() {}
+//void ProcessAudioPlayback() {}
+//void ProcessAudioMixing() {}
+void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
+void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
+void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
+
 
 inline void freeMusInfo()
 {
@@ -137,9 +146,13 @@ bool PlayMusic(int track, int musStartPos);
 inline void StopMusic()
 {
     musicStatus = MUSIC_STOPPED;
+#if RETRO_USING_SDL
     SDL_LockAudio();
+#endif
     freeMusInfo();
+#if RETRO_USING_SDL
     SDL_UnlockAudio();
+#endif
 }
 
 void LoadSfx(char *filePath, byte sfxID);

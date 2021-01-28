@@ -158,7 +158,7 @@ int InitAudioPlayback()
 }
 
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+//#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)
 {
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
@@ -206,7 +206,7 @@ long tellVorbis_Sfx(void *ptr)
     return GetFilePosition2(info);
 }
 int closeVorbis_Sfx(void *ptr) { return CloseFile2((FileInfo *)ptr); }
-#endif
+//#endif
 
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
 {
@@ -576,6 +576,7 @@ void SetSfxName(const char *sfxName, int sfxID)
 
 void LoadSfx(char *filePath, byte sfxID)
 {
+#if RETRO_USING_SDL
     if (!audioEnabled)
         return;
 
@@ -732,6 +733,7 @@ void LoadSfx(char *filePath, byte sfxID)
             printLog("Sfx format not supported!");
         }
     }
+#endif
 }
 void PlaySfx(int sfx, bool loop)
 {

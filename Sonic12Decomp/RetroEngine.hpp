@@ -35,6 +35,7 @@ typedef unsigned int uint;
 #define RETRO_WP7      (6)
 // Custom Platforms start here
 #define RETRO_UWP (7)
+#define RETRO_3DS (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -42,35 +43,47 @@ typedef unsigned int uint;
 
 #if defined _WIN32
 
-#if defined WINAPI_FAMILY
-#if WINAPI_FAMILY != WINAPI_FAMILY_APP
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
-#else
-#include <WInRTIncludes.hpp>
+    #if defined WINAPI_FAMILY
+        #if WINAPI_FAMILY != WINAPI_FAMILY_APP
+            #define RETRO_PLATFORM   (RETRO_WIN)
+            #define RETRO_DEVICETYPE (RETRO_STANDARD)
+        #else
+            #include <WInRTIncludes.hpp>
 
-#define RETRO_PLATFORM   (RETRO_UWP)
-#define RETRO_DEVICETYPE (UAP_GetRetroGamePlatform())
-#endif
-#else
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
-#endif
+            #define RETRO_PLATFORM   (RETRO_UWP)
+            #define RETRO_DEVICETYPE (UAP_GetRetroGamePlatform())
+        #endif
+    #else
+        #define RETRO_PLATFORM   (RETRO_WIN)
+        #define RETRO_DEVICETYPE (RETRO_STANDARD)
+    #endif
 
 #elif defined __APPLE__
-#if __IPHONEOS__
-#define RETRO_PLATFORM   (RETRO_iOS)
-#define RETRO_DEVICETYPE (RETRO_MOBILE)
+    #if __IPHONEOS__
+        #define RETRO_PLATFORM   (RETRO_iOS)
+        #define RETRO_DEVICETYPE (RETRO_MOBILE)
+    #else
+        #define RETRO_PLATFORM   (RETRO_OSX)
+        #define RETRO_DEVICETYPE (RETRO_STANDARD)
+    #endif
+#elif defined __3DS__
+    #include "platform/3ds.h"
+    #define RETRO_PLATFORM (RETRO_3DS)
+    #define RETRO_DEVICETYPE (RETRO_STANDARD)
+    #define DEFAULT_SCREEN_XSIZE 400
+    #ifdef BUILD_SONIC_1
+        #define BASE_PATH "sdmc:/3ds/Sonic1/"
+    #else
+        #define BASE_PATH "sdmc:/3ds/Sonic2/"
+    #endif    
 #else
-#define RETRO_PLATFORM   (RETRO_OSX)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
-#endif
-#else
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
+    #define RETRO_PLATFORM   (RETRO_WIN)
+    #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
+#ifndef DEFAULT_SCREEN_XSIZE
 #define DEFAULT_SCREEN_XSIZE 424
+#endif
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
@@ -88,6 +101,8 @@ typedef unsigned int uint;
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (0)
 #endif
+
+#define RETRO_USING_SDL (RETRO_USING_SDL1 || RETRO_USING_SDL2)
 
 #if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
 #define RETRO_GAMEPLATFORM (RETRO_MOBILE)
@@ -161,6 +176,9 @@ enum RetroGameType {
 #include <Vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
+
+#elif RETRO_PLATFORM == RETRO_3DS
+#include <tremor/ivorbisfile.h>
 
 #elif RETRO_USING_SDL2
 #include <SDL2/SDL.h>

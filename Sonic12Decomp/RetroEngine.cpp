@@ -453,18 +453,26 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
+#if RETRO_USING_SDL
     uint frameStart, frameEnd = SDL_GetTicks();
+#else
+    uint frameStart, frameEnd = sys_GetTicks();
+#endif
     float frameDelta = 0.0f;
 
     while (running) {
+#if RETRO_USING_SDL
         frameStart = SDL_GetTicks();
+#else
+        frameStart = sys_GetTicks();
+#endif
         frameDelta = frameStart - frameEnd;
-
+#if RETRO_USING_SDL
         if (frameDelta < 1000.0f / (float)refreshRate)
             SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
 
         frameEnd = SDL_GetTicks();
-
+#endif
         running = processEvents();
         for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
