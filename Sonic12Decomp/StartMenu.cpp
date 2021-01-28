@@ -21,7 +21,7 @@ void RenderText(ushort *text, int xpos, int ypos, int wrap, bool hilight)
         }
         ushort chr = text[i];
         if (chr == ' ') {
-            xpos += 9;
+            xpos += 2;
             continue;
         }
         int xsp = 0;
@@ -139,9 +139,8 @@ void StartMenu_Main(void *objPtr)
     }
 }
 
-void StartMenu_Title(NativeEntity_StartMenu *menu) { menu->state = StartMenu_SaveSelect; }
-
-void StartMenu_MainMenu(NativeEntity_StartMenu *menu) {}
+void StartMenu_Title(NativeEntity_StartMenu *menu) {}
+void StartMenu_MainMenu(NativeEntity_StartMenu *menu) { RenderRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 255); }
 void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
 {
     // soft BG
@@ -150,10 +149,23 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
     // CONTROLS
     if (!menu->transitioning) {
         if (keyPress.A || keyPress.start) {
-            menu->transitioning = true;
-            target              = StartMenu_LoadStage;
-            menu->positions[9]  = menu->selected;
+            if (menu->selected > 3)
+                PlaySFXByName("Hurt", 0);
+            else {
+                menu->transitioning = true;
+                target              = StartMenu_LoadStage;
+                menu->variables[9]  = menu->selected;
+                PlaySFXByName("MenuSelect", 0);
+                StopMusic();
+            }
         }
+        if (keyPress.B) {
+            menu->transitioning = true;
+            target              = StartMenu_MainMenu;
+            PlaySFXByName("MenuBack", 0);
+        }
+        if (keyPress.up || keyPress.down)
+            PlaySFXByName("MenuMove", 0);
         if (keyPress.up) {
             menu->selected--;
             if (menu->selected < 0) {
@@ -180,6 +192,8 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
             menu->selected %= 7;
         }
         if (isWide) {
+            if (keyPress.left || keyPress.right)
+                PlaySFXByName("MenuMove", 0);
             if (keyPress.left) {
                 if (menu->selected > 4)
                     menu->selected--;
@@ -202,18 +216,24 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
         }
     }
 
+    RenderSprite(SCREEN_CENTERX - 41, 31, 82, 13, 2, 1, saveID);
+
     // RENDER
     for (int i = 0; i < 4; i++) {
+        if (i == menu->selected && menu->transitioning) {
+            if (menu->transTimer / 6 > 2)
+                continue;
+        }
         ushort buf[0x30];
         memset(buf, 0, 0x30 * sizeof(ushort));
         ushort act[0x10];
         memset(act, 0, 0x10 * sizeof(ushort));
 
         int xp = SCREEN_CENTERX - (186 / 2);
-        int yp = 39 + i * (3 + 46) - menu->offset;
+        int yp = 55 + i * (3 + 46) - menu->offset;
         if (isWide) {
-            xp = SCREEN_CENTERX + (i < 2 ? -(6 + 182) : 6);
-            yp = 39 + (i % 2 ? 51 : 0);
+            xp = SCREEN_CENTERX + (i < 2 ? -(5 + 186) : 5);
+            yp = 55 + (i % 2 ? 51 : 0);
         }
         RenderSprite(xp, yp, 186, 46, 289 - (menu->selected == i ? 188 : 0), 2, saveID);
         int stagePos = saveRAM[i * 8 + 4];
@@ -227,69 +247,78 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
             else {
                 StrAddW(buf, strSaveStageList[(saveRAM[i * 8 + 4] - 1)]);
                 for (int i = 0; i < StrLengthW(buf); i++) {
-                    ushort actbuf[7];
-                    actbuf[6] = 0;
-                    for (int j = 0; j < 6; j++) actbuf[j] = buf[i + j];
-                    if (StrCompW(actbuf, "- ACT ")) {
-                        buf[i - 1] = 0;
-                        StrCopyW(act, &buf[i + 2]);
+                    ushort actbuf[4];
+                    actbuf[3] = 0;
+                    for (int j = 0; j < 3; j++) actbuf[j] = buf[i + j];
+                    if (StrCompW(actbuf, " - ")) {
+                        buf[i] = 0;
+                        StrCopyW(act, &buf[i + 3]);
                         break;
                     }
                 }
             }
             byte player = saveRAM[i * 8 + 0];
+            SpriteFrame toUse;
             if (Engine.gameType == GAME_SONIC1) {
-                LoadGIFFile("Data/Sprites/Special/Objects.gif", 1); // is 0 safe???
-                // render the sprites properly
+                toUse.sheetID = LoadTexture("Data/Sprites/Special/Objects.gif", 0);
+                toUse.sprX    = 399;
+                toUse.sprY    = 376;
             }
             else {
-                LoadGIFFile("Data/Sprites/Continue/Objects.gif", 1); // is 0 safe???
-                // s2 render the sprites properly
+                toUse.sheetID = LoadTexture("Data/Sprites/Continue/Objects.gif", 0);
+                toUse.sprX    = 1;
+                toUse.sprY    = 18;
             }
-            // for now i'll just render them based on the sheet (can we just do this instaad? will be easier but i guess there's sonic)
-            if (player < 3)
-                RenderSprite(xp + 9, yp + 13, 16, 23, 310 + player * 18, 244 + ((Engine.gameType - 1) * 24), saveID);
-            ushort buf[4];
-            buf[0] = '*';
-            buf[1] = 0;
+            if (player != 3)
+                RenderSprite(xp + 8, yp + 13, 16, 23, toUse.sprX + player * 18, toUse.sprY, toUse.sheetID);
+            else {
+                RenderSpriteFlipped(xp + 2, yp + 13, 16, 23, toUse.sprX + 18, toUse.sprY, FLIP_X, toUse.sheetID);
+                RenderSprite(xp + 8, yp + 13, 16, 23, toUse.sprX, toUse.sprY, toUse.sheetID);
+            }
+
+            ushort buf[3];
+            MEM_ZERO(buf);
+            ushort asterisk[] = { '*', 0 }; // really?
             AppendIntegerToStringW(buf, saveRAM[i * 8 + 1] / 10);
             AppendIntegerToStringW(buf, saveRAM[i * 8 + 1] % 10);
-            RenderText(buf, xp + 9 + 14, yp + 13 + 21, 0, false);
+            RenderText(asterisk, xp + 9 + 14, yp + 13 + 21, 0, false);
+            RenderText(buf, xp + 9 + 16 + 5, yp + 13 + 21, 0, false);
         }
         else
             StrAddW(buf, strNewGame);
-        RenderText(buf, xp + 29, yp + 14, 0, false);
+        RenderText(buf, xp + 28, yp + 12, 0, false);
         if (StrLengthW(act))
-            RenderText(act, xp + 29, yp + 24, 0, true);
+            RenderText(act, xp + 28, yp + 21, 0, true);
     }
 }
 
 void StartMenu_LoadStage(NativeEntity_StartMenu *menu)
 {
-    int savePos = menu->positions[9] << 3;
-    if (saveRAM[savePos + 4]) {
-        SetGlobalVariableByName("options.saveSlot", menu->positions[9]);
-        SetGlobalVariableByName("options.gameMode", 1);
-        SetGlobalVariableByName("options.stageSelectFlag", 0);
-        SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
-        SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
-        SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
-        SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
-        SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
-        SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
-        SetGlobalVariableByName("lampPostID", 0); // For S1
-        SetGlobalVariableByName("starPostID", 0); // For S2
-        SetGlobalVariableByName("options.vsMode", 0);
+    RenderRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 255);
+    if (menu->transTimer)
+        return;
+    int savePos = menu->variables[9] << 3;
+    SetGlobalVariableByName("options.saveSlot", menu->variables[9]);
+    SetGlobalVariableByName("options.gameMode", 1);
+    SetGlobalVariableByName("options.stageSelectFlag", 0);
+    SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
+    SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
+    SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
+    SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
+    SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
+    SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
+    SetGlobalVariableByName("lampPostID", 0); // For S1
+    SetGlobalVariableByName("starPostID", 0); // For S2
+    SetGlobalVariableByName("options.vsMode", 0);
 
-        int nextZone = saveRAM[savePos + 4];
-        if (nextZone > 127) {
-            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
-            InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
-        }
-        else {
-            SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
-            InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
-        }
+    int nextZone = saveRAM[savePos + 4];
+    if (nextZone > 127) {
+        SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
+        InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
+    }
+    else {
+        SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
+        InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
     }
     StartMenu_Destroy(menu);
 }
