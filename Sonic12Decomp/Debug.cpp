@@ -26,6 +26,9 @@ void initDevMenu()
     setTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ           = false;
     touchTimer               = 0;
+
+    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
+    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
 }
 void initErrorMessage()
 {
