@@ -1128,7 +1128,7 @@ TableInfo *CheckTableText(char *text)
     TableInfo *table = &publicTables[publicTableCount];
     int strPos       = 11;
     curTablePublic   = true;
-    if (FindStringToken(text, "privatevalue", 1) == 0) {
+    if (FindStringToken(text, "privatetable", 1) == 0) {
         if (privateTableCount >= TABLE_COUNT) // private table and we reached the cap
             return NULL;
         table          = &privateTables[privateTableCount];
@@ -2016,7 +2016,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         }
                         parseMode = PARSEMODE_SCOPELESS;
                     }
-                    else { //regular decl
+                    else if (!FindStringToken(scriptText, "function", 1)) { // regular decl
                         char funcName[0x20];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
