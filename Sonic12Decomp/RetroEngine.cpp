@@ -242,6 +242,10 @@ bool processEvents()
         }
     }
 #endif
+
+#if RETRO_USING_SDL == 0
+    return sys_MainLoop();
+#endif
     return true;
 }
 
@@ -250,6 +254,11 @@ bool processEvents()
 #endif
 void RetroEngine::Init()
 {
+#ifdef RETRO_PLATFORM == RETRO_3DS
+    sys_Init();
+    gfx_Init();
+#endif
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 

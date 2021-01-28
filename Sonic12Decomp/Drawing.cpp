@@ -325,6 +325,10 @@ void RenderRenderDevice()
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    gfx_UpdateScreen(Engine.frameBuffer, Engine.vsync);
+#endif
 }
 void ReleaseRenderDevice()
 {
