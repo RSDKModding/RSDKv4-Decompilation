@@ -71,6 +71,7 @@ typedef unsigned int uint;
     #define RETRO_PLATFORM (RETRO_3DS)
     #define RETRO_DEVICETYPE (RETRO_STANDARD)
     #define DEFAULT_SCREEN_XSIZE 400
+    #define DEFAULT_VSYNC true
     #ifdef BUILD_SONIC_1
         #define BASE_PATH "sdmc:/3ds/Sonic1/"
     #else
@@ -84,7 +85,13 @@ typedef unsigned int uint;
 #ifndef DEFAULT_SCREEN_XSIZE
 #define DEFAULT_SCREEN_XSIZE 424
 #endif
+#ifndef DEFAULT_FULLSCREEN
 #define DEFAULT_FULLSCREEN   false
+#endif
+#ifndef DEFAULT_VSYNC
+#define DEFAULT_VSYNC false
+#endif
+
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
 // set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size

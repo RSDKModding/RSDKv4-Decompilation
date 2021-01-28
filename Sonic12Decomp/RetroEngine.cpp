@@ -244,6 +244,7 @@ bool processEvents()
 #endif
 
 #if RETRO_USING_SDL == 0
+    inp_ScanInput();
     return sys_MainLoop();
 #endif
     return true;

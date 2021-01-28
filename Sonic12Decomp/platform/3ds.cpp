@@ -25,9 +25,9 @@ Uint32 sys_GetTicks()
 void gfx_Init()
 {
 	gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
 	gfxSetWide(false);
 	gfxSet3D(false);
-	consoleInit(GFX_BOTTOM, NULL);
 }
 
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
@@ -53,5 +53,28 @@ void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 }
 
 //Input
+static u32 kBuffer = 0;
+
+void inp_ScanInput()
+{
+	hidScanInput();
+	u32 kDown = hidKeysHeld();
+
+	kBuffer = 0;
+	if (kDown & KEY_UP)    kBuffer |= BTN_UP;
+	if (kDown & KEY_DOWN)  kBuffer |= BTN_DOWN;
+	if (kDown & KEY_LEFT)  kBuffer |= BTN_LEFT;
+	if (kDown & KEY_RIGHT) kBuffer |= BTN_RIGHT;
+	if (kDown & KEY_A)     kBuffer |= BTN_A;
+	if (kDown & KEY_B)     kBuffer |= BTN_B;
+	if (kDown & KEY_Y)     kBuffer |= BTN_C;
+	if (kDown & KEY_START) kBuffer |= BTN_START;
+	if (kDown & KEY_X) 	   kBuffer |= BTN_START;
+}
+
+bool inp_GetButtonDown(int btn)
+{
+	return (kBuffer & btn);
+}
 
 //Audio

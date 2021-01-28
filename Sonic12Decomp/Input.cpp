@@ -183,6 +183,35 @@ void ProcessInput()
         inputDevice[INPUT_ANY].setReleased();
     }
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    unsigned int map[] = {
+        BTN_UP,
+        BTN_DOWN,
+        BTN_LEFT,
+        BTN_RIGHT,
+        BTN_A,
+        BTN_B,
+        BTN_C,
+        0,
+        0,
+        0,
+        0,
+        0,
+        BTN_START,
+        0
+    };
+    
+    for (int i = 0; i < 14; ++i)
+    {
+        if (inp_GetButtonDown(map[i])) {
+            inputDevice[i].setHeld();
+            inputDevice[INPUT_ANY].setHeld();
+        } else if (inputDevice[i].hold) {
+            inputDevice[i].setReleased();
+        }
+    }
+#endif
 }
 
 void CheckKeyPress(InputData *input)

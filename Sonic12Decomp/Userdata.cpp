@@ -52,7 +52,7 @@ void InitUserdata()
 
         ini->SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini->SetBool("Window", "Borderless", Engine.borderless = false);
-        ini->SetBool("Window", "VSync", Engine.vsync = false);
+        ini->SetBool("Window", "VSync", Engine.vsync = DEFAULT_VSYNC);
         ini->SetInteger("Window", "ScalingMode", Engine.scalingMode = RETRO_DEFAULTSCALINGMODE);
         ini->SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini->SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
@@ -164,7 +164,7 @@ void InitUserdata()
         if (!ini->GetBool("Window", "Borderless", &Engine.borderless))
             Engine.borderless = false;
         if (!ini->GetBool("Window", "VSync", &Engine.vsync))
-            Engine.vsync = false;
+            Engine.vsync = DEFAULT_VSYNC;
         if (!ini->GetInteger("Window", "ScalingMode", &Engine.scalingMode))
             Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
         if (!ini->GetInteger("Window", "WindowScale", &Engine.windowScale))
