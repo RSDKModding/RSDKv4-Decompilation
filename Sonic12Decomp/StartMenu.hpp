@@ -10,7 +10,7 @@ struct NativeEntity_StartMenu : NativeEntityBase {
     int transTimer     = 0; // trans rights
 
     int timers[10]; // LOL i really do not wanna do what i did with pause menu
-    int positions[10];
+    int variables[10];
 
     int offset = 0;
 
