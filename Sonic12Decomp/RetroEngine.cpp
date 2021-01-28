@@ -469,6 +469,49 @@ void RetroEngine::Run()
     uint frameStart, frameEnd = sys_GetTicks();
 #endif
     float frameDelta = 0.0f;
+    float msPerFrame = 1000.f / 59.94f;
+
+    while (running) {
+#if RETRO_USING_SDL
+        frameStart = SDL_GetTicks();
+#else
+        frameStart = sys_GetTicks();
+#endif
+        frameDelta += frameStart - frameEnd;
+        frameEnd = frameStart;
+
+        if (frameDelta > msPerFrame * 4)
+            frameDelta = msPerFrame * 4;
+        else if (frameDelta > msPerFrame && frameDelta <= msPerFrame + 0.1)
+            frameDelta = msPerFrame;
+
+#if RETRO_USING_SDL
+        if (frameDelta < 1000.0f / (float)refreshRate)
+            SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
+
+        frameEnd = SDL_GetTicks();
+#endif
+        running = processEvents();
+        //for (int s = 0; s < gameSpeed; ++s) {
+        for (; frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
+            ProcessInput();
+
+            if (!masterPaused || frameStep) {
+                ProcessNativeObjects();
+                //RenderRenderDevice();
+                //frameStep = false;
+            }
+        }
+
+        RenderRenderDevice();
+        frameStep = false;
+    }
+/*#if RETRO_USING_SDL
+    uint frameStart, frameEnd = SDL_GetTicks();
+#else
+    uint frameStart, frameEnd = sys_GetTicks();
+#endif
+    float frameDelta = 0.0f;
 
     while (running) {
 #if RETRO_USING_SDL
@@ -494,7 +537,7 @@ void RetroEngine::Run()
             }
         }
     }
-
+*/
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();

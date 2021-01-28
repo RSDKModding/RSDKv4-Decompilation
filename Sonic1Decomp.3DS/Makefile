@@ -43,7 +43,7 @@ GFXBUILD	:=	$(BUILD)
 #GFXBUILD	:=	$(ROMFS)/gfx
 
 APP_TITLE		:= Sonic the Hedgehog 1
-APP_DESCRIPTION := Sonic the Hedgehog 1
+APP_DESCRIPTION := Sonic 1 2013 Decompilation
 APP_AUTHOR		:= SEGA
 
 ICON := banner/icon.png
