@@ -611,7 +611,7 @@ const char scriptEvaluationTokens[][0x4] = { "=",  "+=", "-=", "++", "--", "*=",
                                              "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
 
 int scriptFunctionCount = 0;
-char scriptFunctionNames[FUNCTION_COUNT][0x20];
+char scriptFunctionNames[FUNCTION_COUNT][0x40];
 
 enum ScriptReadModes { READMODE_NORMAL = 0, READMODE_STRING = 1, READMODE_COMMENTLINE = 2, READMODE_ENDLINE = 3, READMODE_EOF = 4 };
 enum ScriptParseModes {
@@ -1105,6 +1105,7 @@ void CheckStaticText(char *text)
             }
         }
         else if (text[textPos] == '=') {
+            var->name[staticStrPos] = 0;
             staticStrPos = 0;
             staticMatch  = 1;
         }
@@ -1140,6 +1141,7 @@ TableInfo *CheckTableText(char *text)
     while (text[strPos]) {
         table->name[namePos++] = text[strPos++];
     }
+    table->name[namePos] = 0;
     return table;
 }
 void ConvertArithmaticSyntax(char *text)
@@ -1697,8 +1699,8 @@ void ReadTableValues(char *text)
     int textPos = 0;
     char strBuffer[0x20];
     int strPos = 0;
-    while (text[textPos]) {
-        if (text[textPos] == ',') {
+    while (true) {
+        if (text[textPos] == ',' || !text[textPos]) {
             strBuffer[strPos] = 0;
 
             int cnt = currentTable->valueCount;
@@ -1706,6 +1708,9 @@ void ReadTableValues(char *text)
             currentTable->valueCount++;
 
             strPos = 0;
+
+            if (!text[textPos])
+                break;
         }
         else {
             strBuffer[strPos++] = text[textPos];
@@ -2003,9 +2008,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         jumpTableDataOffset                                   = jumpTableDataPos;
                     }
                     if (!FindStringToken(scriptText, "reservefunction", 1)) { //forward decl
-                        char funcName[0x20];
-                        for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
-                        funcName[textPos - 9] = 0;
+                        char funcName[0x40];
+                        for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
+                        funcName[textPos - 15] = 0;
                         int funcID            = -1;
                         for (int f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionNames[f]))
@@ -2017,7 +2022,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         parseMode = PARSEMODE_SCOPELESS;
                     }
                     else if (!FindStringToken(scriptText, "function", 1)) { // regular decl
-                        char funcName[0x20];
+                        char funcName[0x40];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
                         int funcID            = -1;
@@ -2388,6 +2393,12 @@ void ClearScriptData()
         StrCopy(privateAliases[i].name, "");
         StrCopy(privateAliases[i].value, "");
     }
+
+    memset(publicStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+    memset(privateStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+
+    memset(publicTables, 0, TABLE_COUNT * sizeof(TableInfo));
+    memset(privateTables, 0, TABLE_COUNT * sizeof(TableInfo));
 
     ClearGraphicsData();
     ClearAnimationData();
@@ -4085,7 +4096,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 scriptCodePtr                     = functionScriptList[scriptEng.operands[0]].scriptCodePtr;
                 jumpTablePtr                      = functionScriptList[scriptEng.operands[0]].jumpTablePtr;
                 scriptDataPtr                     = scriptCodePtr;
-            } break;
+                break;
+            } 
             case FUNC_RETURN:
                 opcodeSize    = 0;
                 scriptCodePtr = functionStack[--functionStackPos];

@@ -103,7 +103,7 @@ extern int jumpTableDataPos;
 extern int jumpTableDataOffset;
 
 extern int scriptFunctionCount;
-extern char scriptFunctionNames[FUNCTION_COUNT][0x20];
+extern char scriptFunctionNames[FUNCTION_COUNT][0x40];
 
 extern int lineID;
 
