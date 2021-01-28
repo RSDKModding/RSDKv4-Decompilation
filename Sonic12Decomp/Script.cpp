@@ -1254,9 +1254,11 @@ void ConvertForeachStatement(char *text)
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
                     dest[destStrPos++] = text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
@@ -1278,9 +1280,11 @@ void ConvertForeachStatement(char *text)
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
                     dest[destStrPos++] = text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
