@@ -35,6 +35,7 @@ cmake/
 [Dd]ependencies/mac/*
 [Dd]ependencies/all/*
 ![Dd]ependencies/all/upng/
+![Dd]ependencies/all/filesystem/
 ![Dd]ependencies/all/dependencies.txt
 
 # UWP
