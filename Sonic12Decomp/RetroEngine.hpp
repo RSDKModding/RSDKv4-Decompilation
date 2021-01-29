@@ -70,8 +70,12 @@ typedef unsigned int uint;
     #include "platform/3ds.h"
     #define RETRO_PLATFORM (RETRO_3DS)
     #define RETRO_DEVICETYPE (RETRO_STANDARD)
-    #define DEFAULT_SCREEN_XSIZE 400
-    #define DEFAULT_VSYNC true
+    #define DEFAULT_SCREEN_XSIZE (400)
+    #define DEFAULT_USE_HQ_MODES (false)
+    #define RETRO_DEFAULTSCALINGMODE (1)
+    #define RETRO_DEFAULTWINDOWSCALE (1)
+    #define DEFAULT_VSYNC (true)
+    #define RETRO_USING_SDL1_AUDIO (1)
     #ifdef BUILD_SONIC_1
         #define BASE_PATH "sdmc:/3ds/Sonic1/"
     #else
@@ -95,7 +99,17 @@ typedef unsigned int uint;
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
 // set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size
+#ifndef RETRO_DEFAULTSCALINGMODE
 #define RETRO_DEFAULTSCALINGMODE 2
+#endif
+
+#ifndef RETRO_DEFAULTWINDOWSCALE
+#define RETRO_DEFAULTWINDOWSCALE 2
+#endif
+
+#ifndef RETRO_DEFAULT_USE_HQ_MODES
+#define RETRO_DEFAULT_USE_HQ_MODES true
+#endif
 
 #ifndef BASE_PATH
 #define BASE_PATH ""
@@ -110,6 +124,10 @@ typedef unsigned int uint;
 #endif
 
 #define RETRO_USING_SDL (RETRO_USING_SDL1 || RETRO_USING_SDL2)
+
+#ifndef RETRO_USING_SDL1_AUDIO
+#define RETRO_USING_SDL1_AUDIO (RETRO_USING_SDL1)
+#endif
 
 #if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
 #define RETRO_GAMEPLATFORM (RETRO_MOBILE)
@@ -185,6 +203,7 @@ enum RetroGameType {
 #include "cocoaHelpers.hpp"
 
 #elif RETRO_PLATFORM == RETRO_3DS
+#include <SDL/SDL.h>
 #include <tremor/ivorbisfile.h>
 
 #elif RETRO_USING_SDL2

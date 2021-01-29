@@ -60,12 +60,13 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DBUILD_SONIC_1
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 \
-	-Wno-unknown-pragmas -Wno-sign-compare
+	-Wno-unknown-pragmas -Wno-sign-compare -Wno-format-overflow \
+	-Wno-class-memaccess -Wno-restrict -Wno-parentheses -Wno-sequence-point -Wno-format-zero-length
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lvorbisidec -logg -lctru -lm
+LIBS	:= -lSDL -lvorbisidec -logg -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

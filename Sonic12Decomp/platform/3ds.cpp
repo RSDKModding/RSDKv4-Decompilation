@@ -9,6 +9,7 @@ void sys_Init()
 {
 	srand(time(0));
 	osSetSpeedupEnable(true);
+	cfguInit();
 }
 
 bool sys_MainLoop()
@@ -21,6 +22,42 @@ Uint32 sys_GetTicks()
 	return osGetTime();
 }
 
+int sys_GetLanguage()
+{
+	u8 l;
+	CFGU_GetSystemLanguage(&l);
+
+	int ret = 0;
+
+	switch (l)
+	{
+		case CFG_LANGUAGE_EN: ret = 0; break;
+		case CFG_LANGUAGE_FR: ret = 1; break;
+		case CFG_LANGUAGE_IT: ret = 2; break;
+		case CFG_LANGUAGE_DE: ret = 3; break;
+		case CFG_LANGUAGE_ES: ret = 4; break;
+		//case CFG_LANGUAGE_JP: ret = 5; break;
+		case CFG_LANGUAGE_PT: ret = 6; break;
+		//case CFG_LANGUAGE_RU: ret = 7; break;
+		//case CFG_LANGUAGE_KO: ret = 8; break;
+		//case CFG_LANGUAGE_ZH: ret = 9; break;
+		//case CFG_LANGUAGE_TW: ret = 10; break;
+		default: ret = 0;
+	};
+
+	return ret;
+}
+
+void* sys_LinearAlloc(Uint32 size)
+{
+	return linearAlloc(size);
+}
+
+void sys_LinearFree(void* data)
+{
+	linearFree(data);
+}
+
 //Graphics
 void gfx_Init()
 {
@@ -28,6 +65,11 @@ void gfx_Init()
 	consoleInit(GFX_BOTTOM, NULL);
 	gfxSetWide(false);
 	gfxSet3D(false);
+}
+
+void gfx_Exit()
+{
+	gfxExit();
 }
 
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync)

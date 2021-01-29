@@ -255,7 +255,7 @@ bool processEvents()
 #endif
 void RetroEngine::Init()
 {
-#ifdef RETRO_PLATFORM == RETRO_3DS
+#if RETRO_PLATFORM == RETRO_3DS
     sys_Init();
     gfx_Init();
 #endif
@@ -468,8 +468,10 @@ void RetroEngine::Run()
 #else
     uint frameStart, frameEnd = sys_GetTicks();
 #endif
-    float frameDelta = 0.0f;
+    float frameDelta = 0.f;
     float msPerFrame = 1000.f / 59.94f;
+    unsigned int frameTime = 0;
+    bool fullspeed = false;
 
     while (running) {
 #if RETRO_USING_SDL
@@ -477,13 +479,18 @@ void RetroEngine::Run()
 #else
         frameStart = sys_GetTicks();
 #endif
-        frameDelta += frameStart - frameEnd;
+        frameTime = frameStart - frameEnd;
         frameEnd = frameStart;
 
-        if (frameDelta > msPerFrame * 4)
-            frameDelta = msPerFrame * 4;
-        else if (frameDelta > msPerFrame && frameDelta <= msPerFrame + 0.1)
-            frameDelta = msPerFrame;
+        if (frameTime <= ceil(msPerFrame*2)+1) {
+            fullspeed = true;
+        } else {
+            //printf("Lag: %d\n", frameTime);
+            frameDelta += frameTime;
+
+            if (frameDelta > msPerFrame * 4)
+                frameDelta = msPerFrame * 4;
+        }        
 
 #if RETRO_USING_SDL
         if (frameDelta < 1000.0f / (float)refreshRate)
@@ -492,57 +499,33 @@ void RetroEngine::Run()
         frameEnd = SDL_GetTicks();
 #endif
         running = processEvents();
-        //for (int s = 0; s < gameSpeed; ++s) {
-        for (; frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
+
+        for (; fullspeed == true || frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
             ProcessInput();
 
-            if (!masterPaused || frameStep) {
+            if (!masterPaused/* || frameStep*/) {
                 ProcessNativeObjects();
                 //RenderRenderDevice();
                 //frameStep = false;
             }
+
+            if (fullspeed) break;
+        }
+
+        if (fullspeed) {
+            frameDelta = 0;
+            fullspeed = false;
         }
 
         RenderRenderDevice();
-        frameStep = false;
+        //frameStep = false;
     }
-/*#if RETRO_USING_SDL
-    uint frameStart, frameEnd = SDL_GetTicks();
-#else
-    uint frameStart, frameEnd = sys_GetTicks();
-#endif
-    float frameDelta = 0.0f;
 
-    while (running) {
-#if RETRO_USING_SDL
-        frameStart = SDL_GetTicks();
-#else
-        frameStart = sys_GetTicks();
-#endif
-        frameDelta = frameStart - frameEnd;
-#if RETRO_USING_SDL
-        if (frameDelta < 1000.0f / (float)refreshRate)
-            SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
-
-        frameEnd = SDL_GetTicks();
-#endif
-        running = processEvents();
-        for (int s = 0; s < gameSpeed; ++s) {
-            ProcessInput();
-
-            if (!masterPaused || frameStep) {
-                ProcessNativeObjects();
-                RenderRenderDevice();
-                frameStep = false;
-            }
-        }
-    }
-*/
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
     SDL_Quit();
 #endif
 }

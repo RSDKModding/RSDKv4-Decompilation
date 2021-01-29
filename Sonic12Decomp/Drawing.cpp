@@ -345,6 +345,10 @@ void ReleaseRenderDevice()
 #if RETRO_USING_SDL1
     SDL_FreeSurface(Engine.screenBuffer);
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    gfx_Exit();
+#endif
 }
 
 void GenerateBlendLookupTable(void)

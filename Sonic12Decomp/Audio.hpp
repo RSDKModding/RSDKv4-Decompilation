@@ -16,7 +16,7 @@ struct TrackInfo {
 struct MusicPlaybackInfo {
     OggVorbis_File vorbisFile;
     int vorbBitstream;
-#if RETRO_USING_SDL1
+#if RETRO_USING_SDL1 || RETRO_USING_SDL1_AUDIO
     SDL_AudioSpec spec;
 #elif RETRO_USING_SDL2
     SDL_AudioStream *stream;
@@ -86,7 +86,7 @@ extern SDL_AudioSpec audioDeviceFormat;
 
 int InitAudioPlayback();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
 void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
@@ -211,11 +211,11 @@ inline void ResumeSound()
 
 inline void StopAllSfx()
 {
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
     SDL_LockAudio();
 #endif
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
     SDL_UnlockAudio();
 #endif
 }
@@ -225,7 +225,7 @@ inline void ReleaseGlobalSfx()
         if (sfxList[i].loaded) {
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
-            free(sfxList[i].buffer);
+            sys_LinearFree(sfxList[i].buffer);
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
         }
@@ -238,7 +238,7 @@ inline void ReleaseStageSfx()
         if (sfxList[i].loaded) {
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
-            free(sfxList[i].buffer);
+            sys_LinearFree(sfxList[i].buffer);
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
         }

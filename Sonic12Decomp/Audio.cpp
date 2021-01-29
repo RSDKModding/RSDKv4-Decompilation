@@ -25,7 +25,7 @@ MusicPlaybackInfo musInfo;
 
 int trackBuffer = -1;
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
 
 #if RETRO_USING_SDL2
 SDL_AudioDeviceID audioDevice;
@@ -51,8 +51,12 @@ SDL_AudioSpec audioDeviceFormat;
 
 int InitAudioPlayback()
 {
+#if RETRO_USING_SDL1_AUDIO
+    SDL_Init(SDL_INIT_AUDIO);
+#endif
+
     StopAllSfx(); //"init"
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
     SDL_AudioSpec want;
     want.freq     = AUDIO_FREQUENCY;
     want.format   = AUDIO_FORMAT;
@@ -70,7 +74,7 @@ int InitAudioPlayback()
         audioEnabled = false;
         return true; // no audio but game wont crash now
     }
-#elif RETRO_USING_SDL1
+#elif RETRO_USING_SDL1 || RETRO_USING_SDL1_AUDIO
     if (SDL_OpenAudio(&want, &audioDeviceFormat) == 0) {
         audioEnabled = true;
         SDL_PauseAudio(0);
@@ -245,15 +249,15 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                 ProcessAudioMixing(stream, musInfo.buffer, bytes_done / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
 #endif
 
-#if RETRO_USING_SDL1
+#if RETRO_USING_SDL1 || RETRO_USING_SDL1_AUDIO
             size_t bytes_gotten = 0;
-            byte *buffer        = (byte *)malloc(bytes_wanted);
+            byte *buffer        = (byte *)sys_LinearAlloc(bytes_wanted);
             memset(buffer, 0, bytes_wanted);
             while (bytes_gotten < bytes_wanted) {
                 // We need more samples: get some
                 long bytes_read =
                     ov_read(&musInfo.vorbisFile, (char *)musInfo.buffer,
-                            sizeof(musInfo.buffer) > (bytes_wanted - bytes_gotten) ? (bytes_wanted - bytes_gotten) : sizeof(musInfo.buffer), 0, 2, 1,
+                            sizeof(musInfo.buffer) > (bytes_wanted - bytes_gotten) ? (bytes_wanted - bytes_gotten) : sizeof(musInfo.buffer),// 0, 2, 1,
                             &musInfo.vorbBitstream);
 
                 if (bytes_read == 0) {
@@ -284,7 +288,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                                                   audioDeviceFormat.channels, audioDeviceFormat.freq);
                 if (cvtResult == 0) {
                     if (convert.len_mult > 0) {
-                        convert.buf = (byte *)malloc(bytes_gotten * convert.len_mult);
+                        convert.buf = (byte *)sys_LinearAlloc(bytes_gotten * convert.len_mult);
                         convert.len = bytes_gotten;
                         memcpy(convert.buf, buffer, bytes_gotten);
                         SDL_ConvertAudio(&convert);
@@ -302,10 +306,10 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                                        0);
 
                 if (convert.len > 0 && convert.buf)
-                    free(convert.buf);
+                    sys_LinearFree(convert.buf);
             }
             if (bytes_wanted > 0)
-                free(buffer);
+                sys_LinearFree(buffer);
 #endif
             break;
         } 
@@ -338,10 +342,10 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
         }
 
         uint oldPos   = 0;
-        uint oldTotal = 0;
+        //uint oldTotal = 0;
         if (musInfo.loaded) {
             oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
-            oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
+            //oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
             StopMusic();
         }
 
@@ -378,7 +382,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             }
 #endif
 
-#if RETRO_USING_SDL1
+#if RETRO_USING_SDL1 || RETRO_USING_SDL1_AUDIO
             musInfo.spec.format          = AUDIO_S16;
             musInfo.spec.channels        = musInfo.vorbisFile.vi->channels;
             musInfo.spec.freq            = (int)musInfo.vorbisFile.vi->rate;
@@ -446,7 +450,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                     }
                 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
                 ProcessAudioMixing(mix_buffer, buffer, samples_done, sfxVolume, sfx->pan);
 #endif
             }
@@ -471,7 +475,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
     }
 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
@@ -576,7 +580,7 @@ void SetSfxName(const char *sfxName, int sfxID)
 
 void LoadSfx(char *filePath, byte sfxID)
 {
-#if RETRO_USING_SDL
+#if RETRO_USING_SDL || RETRO_USING_SDL1_AUDIO
     if (!audioEnabled)
         return;
 
@@ -599,7 +603,7 @@ void LoadSfx(char *filePath, byte sfxID)
             }
             else {
                 SDL_AudioSpec wav_spec;
-                uint wav_length;
+                uint32_t wav_length;
                 byte *wav_buffer;
                 SDL_AudioSpec *wav = SDL_LoadWAV_RW(src, 0, &wav_spec, &wav_buffer, &wav_length);
 
@@ -613,7 +617,7 @@ void LoadSfx(char *filePath, byte sfxID)
                     if (SDL_BuildAudioCVT(&convert, wav->format, wav->channels, wav->freq, audioDeviceFormat.format, audioDeviceFormat.channels,
                                           audioDeviceFormat.freq)
                         > 0) {
-                        convert.buf = (byte *)malloc(wav_length * convert.len_mult);
+                        convert.buf = (byte *)sys_LinearAlloc(wav_length * convert.len_mult);
                         convert.len = wav_length;
                         memcpy(convert.buf, wav_buffer, wav_length);
                         SDL_ConvertAudio(&convert);
@@ -640,7 +644,7 @@ void LoadSfx(char *filePath, byte sfxID)
         else if (type == 'o') {
             // ogg sfx :(
             OggVorbis_File vf;
-            ov_callbacks callbacks = OV_CALLBACKS_NOCLOSE;
+            ov_callbacks callbacks;// = OV_CALLBACKS_NOCLOSE;
             vorbis_info *vinfo;
             byte *buf;
             SDL_AudioSpec spec;
@@ -679,14 +683,14 @@ void LoadSfx(char *filePath, byte sfxID)
             samples = (long)ov_pcm_total(&vf, -1);
 
             audioLen = spec.size = (Uint32)(samples * spec.channels * 2);
-            audioBuf             = (byte *)malloc(audioLen);
+            audioBuf             = (byte *)sys_LinearAlloc(audioLen);
             buf                  = audioBuf;
             toRead               = audioLen;
 
-            for (read = (int)ov_read(&vf, (char *)buf, toRead, 0, 2, 1, &bitstream); read > 0;
-                 read = (int)ov_read(&vf, (char *)buf, toRead, 0, 2, 1, &bitstream)) {
+            for (read = (int)ov_read(&vf, (char *)buf, toRead, /*0, 2, 1,*/ &bitstream); read > 0;
+                 read = (int)ov_read(&vf, (char *)buf, toRead, /*0, 2, 1,*/ &bitstream)) {
                 if (read < 0) {
-                    free(audioBuf);
+                    sys_LinearFree(audioBuf);
                     ov_clear(&vf);
                     printLog("failed to read ogg sfx!");
                     return;
@@ -705,7 +709,7 @@ void LoadSfx(char *filePath, byte sfxID)
             if (SDL_BuildAudioCVT(&convert, spec.format, spec.channels, spec.freq, audioDeviceFormat.format, audioDeviceFormat.channels,
                                   audioDeviceFormat.freq)
                 > 0) {
-                convert.buf = (byte *)malloc(audioLen * convert.len_mult);
+                convert.buf = (byte *)sys_LinearAlloc(audioLen * convert.len_mult);
                 convert.len = audioLen;
                 memcpy(convert.buf, audioBuf, audioLen);
                 SDL_ConvertAudio(&convert);
@@ -716,7 +720,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
                 UNLOCK_AUDIO_DEVICE()
-                free(audioBuf);
+                sys_LinearFree(audioBuf);
             }
             else {
                 LOCK_AUDIO_DEVICE()

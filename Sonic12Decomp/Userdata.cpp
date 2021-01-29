@@ -46,15 +46,15 @@ void InitUserdata()
         ini->SetInteger("Dev", "StartingPlayer", Engine.startPlayer = 255);
         ini->SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini->SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
-        ini->SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
+        ini->SetBool("Dev", "UseHQModes", Engine.useHQModes = DEFAULT_USE_HQ_MODES);
 
-        ini->SetInteger("Game", "Language", Engine.language = RETRO_EN);
+        ini->SetInteger("Game", "Language", Engine.language = sys_GetLanguage());
 
         ini->SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini->SetBool("Window", "Borderless", Engine.borderless = false);
         ini->SetBool("Window", "VSync", Engine.vsync = DEFAULT_VSYNC);
         ini->SetInteger("Window", "ScalingMode", Engine.scalingMode = RETRO_DEFAULTSCALINGMODE);
-        ini->SetInteger("Window", "WindowScale", Engine.windowScale = 2);
+        ini->SetInteger("Window", "WindowScale", Engine.windowScale = RETRO_DEFAULTWINDOWSCALE);
         ini->SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini->SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
 
@@ -151,13 +151,13 @@ void InitUserdata()
         if (!ini->GetInteger("Dev", "FastForwardSpeed", &Engine.fastForwardSpeed))
             Engine.fastForwardSpeed = 8;
         if (!ini->GetBool("Dev", "UseHQModes", &Engine.useHQModes))
-            Engine.useHQModes = true;
+            Engine.useHQModes = DEFAULT_USE_HQ_MODES;
 
         if (!ini->GetString("Dev", "DataFile", Engine.dataFile))
             StrCopy(Engine.dataFile, "Data.rsdk");
 
         if (!ini->GetInteger("Game", "Language", &Engine.language))
-            Engine.language = RETRO_EN;
+            Engine.language = sys_GetLanguage();
 
         if (!ini->GetBool("Window", "FullScreen", &Engine.startFullScreen))
             Engine.startFullScreen = DEFAULT_FULLSCREEN;
@@ -168,7 +168,7 @@ void InitUserdata()
         if (!ini->GetInteger("Window", "ScalingMode", &Engine.scalingMode))
             Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
         if (!ini->GetInteger("Window", "WindowScale", &Engine.windowScale))
-            Engine.windowScale = 2;
+            Engine.windowScale = RETRO_DEFAULTWINDOWSCALE;
         if (!ini->GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE))
             SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE;
         if (!ini->GetInteger("Window", "RefreshRate", &Engine.refreshRate))
