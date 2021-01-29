@@ -1413,12 +1413,50 @@ void ConvertFunctionText(char *text)
                         CopyAliasStr(arrayStr, privateAliases[a].value, 1);
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int a = 0; a < publicAliasCount; ++a) {
                 if (StrComp(funcName, publicAliases[a].name)) {
                     CopyAliasStr(funcName, publicAliases[a].value, 0);
                     if (FindStringToken(publicAliases[a].value, "[", 1) > -1)
                         CopyAliasStr(arrayStr, publicAliases[a].value, 1);
+                }
+            }
+
+            if (arrayStr[0]) {
+                char arrStrBuf[0x80];
+                int arrPos = 0;
+                int bufPos = 0;
+                if (arrayStr[0] == '+' || arrayStr[0] == '-')
+                    ++arrPos;
+                while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+                arrStrBuf[bufPos] = 0;
+
+                // Private (this script only)
+                for (int a = 0; a < privateAliasCount; ++a) {
+                    if (StrComp(arrStrBuf, privateAliases[a].name)) {
+                        char pref = arrayStr[0];
+                        CopyAliasStr(arrayStr, privateAliases[a].value, 0);
+
+                        if (pref == '+' || pref == '-') {
+                            int len = StrLength(arrayStr);
+                            for (int i = len; i >= 0; --i) arrayStr[i + 1] = arrayStr[i];
+                            arrayStr[0] = pref;
+                        }
+                    }
+                }
+                // Public (this script & all following scripts)
+                for (int a = 0; a < publicAliasCount; ++a) {
+                    if (StrComp(arrStrBuf, publicAliases[a].name)) {
+                        char pref = arrayStr[0];
+                        CopyAliasStr(arrayStr, publicAliases[a].value, 0);
+                        
+                        if (pref == '+' || pref == '-') {
+                            int len = StrLength(arrayStr);
+                            for (int i = len; i >= 0; --i) 
+                                arrayStr[i + 1] = arrayStr[i];
+                            arrayStr[0] = pref;
+                        }
+                    }
                 }
             }
 
@@ -1431,7 +1469,7 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(arrayStr, privateStaticVariables[s].dataPos);
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int s = 0; s < publicStaticVarCount; ++s) {
                 if (StrComp(funcName, publicStaticVariables[s].name)) {
                     StrCopy(funcName, "local");
@@ -1449,7 +1487,7 @@ void ConvertFunctionText(char *text)
                     arrayStr[0] = 0;
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int a = 0; a < publicTableCount; ++a) {
                 if (StrComp(funcName, publicTables[a].name)) {
                     funcName[0] = 0;
