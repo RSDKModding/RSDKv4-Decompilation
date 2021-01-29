@@ -1039,6 +1039,7 @@ void CheckAliasText(char *text)
         if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
             return;
     }
+    MEM_ZEROP(a);
 
     while (aliasMatch < 2) {
         if (aliasMatch) {
@@ -1088,6 +1089,7 @@ void CheckStaticText(char *text)
         cnt     = &privateStaticVarCount;
         textPos = 12;
     }
+    MEM_ZEROP(var);
 
     while (staticMatch < 2) {
         if (staticMatch == 1) {
@@ -1136,6 +1138,7 @@ TableInfo *CheckTableText(char *text)
         strPos         = 12;
         curTablePublic = false;
     }
+    MEM_ZEROP(table);
 
     int namePos = 0;
     while (text[strPos]) {
