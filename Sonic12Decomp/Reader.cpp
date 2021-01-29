@@ -74,9 +74,6 @@ bool CheckRSDKFile(const char *filePath)
             currentContainer->files[f].encrypted = (currentContainer->files[f].filesize & 0x80000000);
             currentContainer->files[f].filesize &= 0x7FFFFFFF;
 
-            // if (dataMode)
-            //    currentContainer->files[f].encrypted = true;
-
             currentContainer->files[f].fileID = f;
         }
 
@@ -84,7 +81,7 @@ bool CheckRSDKFile(const char *filePath)
         cFileHandle = NULL;
         if (dataMode)
             return true;
-        if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
+        if (LoadFile("ByteCode/GlobalCode.bin", &info) && !forceUseScripts) {
             Engine.usingBytecode = true;
             CloseFile();
         }
@@ -100,7 +97,7 @@ bool CheckRSDKFile(const char *filePath)
         if (dataMode)
             return false;
 
-        if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
+        if (LoadFile("ByteCode/GlobalCode.bin", &info) && !forceUseScripts) {
             Engine.usingBytecode = true;
             CloseFile();
         }
@@ -117,9 +114,23 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     if (cFileHandle)
         fClose(cFileHandle);
 
+    bool forceFolder = false;
+    char filePathBuf[0x100];
+    StrCopy(filePathBuf, filePath);
+    for (int m = 0; m < modCount; ++m) {
+        if (modList[m].active) {
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
+            if (iter != modList[m].fileMap.cend()) {
+                StrCopy(filePathBuf, iter->second.c_str());
+                forceFolder = true;
+                break;
+            }
+        }
+    }
+
     cFileHandle = NULL;
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
-        StringLowerCase(fileInfo->fileName, filePath);
+    if ((dataMode ? Engine.usingMenuFile : Engine.usingDataFile) && !forceFolder) {
+        StringLowerCase(fileInfo->fileName, filePathBuf);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
         int len = StrLength(fileInfo->fileName);
@@ -172,19 +183,19 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fileInfo->eNybbleSwap       = eNybbleSwap;
             fileInfo->bufferPosition    = bufferPosition;
             fileInfo->useEncryption     = useEncryption;
-            printLog("Loaded File '%s'", filePath);
+            printLog("Loaded File '%s'", filePathBuf);
             return true;
         }
-        printLog("Couldn't load file '%s'", filePath);
+        printLog("Couldn't load file '%s'", filePathBuf);
         return false;
     }
     else {
-        StrCopy(fileInfo->fileName, filePath);
+        StrCopy(fileInfo->fileName, filePathBuf);
         StrCopy(fileName, fileInfo->fileName);
 
         cFileHandle = fOpen(fileInfo->fileName, "rb");
         if (!cFileHandle) {
-            printLog("Couldn't load file '%s'", filePath);
+            printLog("Couldn't load file '%s'", filePathBuf);
             return false;
         }
         virtualFileOffset = 0;
@@ -197,7 +208,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         bufferPosition    = 0;
         readSize          = 0;
 
-        printLog("Loaded File '%s'", filePath);
+        printLog("Loaded File '%s'", filePathBuf);
         return true;
     }
 }

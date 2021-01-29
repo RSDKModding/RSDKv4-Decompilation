@@ -248,6 +248,7 @@ void RetroEngine::Init()
     GenerateBlendLookupTable();
 
     InitUserdata();
+    initMods();
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
     static char resourcePath[256] = { 0 };
@@ -303,7 +304,7 @@ void RetroEngine::Init()
 
     gameMode          = ENGINE_MAINGAME;
     running           = false;
-    bool skipStart = false;
+    bool skipStart = skipStartMenu;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -479,6 +480,7 @@ void RetroEngine::Run()
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
+    saveMods();
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();

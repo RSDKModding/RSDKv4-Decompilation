@@ -21,6 +21,11 @@ int matchValueWritePos = 0;
 int sendDataMethod = 0;
 int sendCounter    = 0;
 
+ModInfo modList[MOD_MAX];
+int modCount = 0;
+bool forceUseScripts = false;
+bool skipStartMenu = false;
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -49,6 +54,7 @@ void InitUserdata()
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
+        ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -156,6 +162,8 @@ void InitUserdata()
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
+        if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
+            skipStartMenu = false;
 
         if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
             Engine.startFullScreen = DEFAULT_FULLSCREEN;
@@ -384,6 +392,9 @@ void writeSettings()
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
+    ini.SetComment("Game", "SSMenuComment",
+                   "if set to true, disables the start menu");
+    ini.SetBool("Game", "SkipStartMenu", skipStartMenu);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
@@ -727,4 +738,249 @@ int ShowPromoPopup(int a1, void *a2)
         return 1;
     }
     return 0;
+}
+
+#include <string>
+#include <include/ghc/filesystem.hpp>
+
+void initMods()
+{
+    modCount        = 0;
+    forceUseScripts = false;
+    
+    char modBuf[0x100];
+    sprintf(modBuf, "%smods/", gamePath);
+    ghc::filesystem::path modPath(modBuf);
+
+    if (ghc::filesystem::exists(modPath) && ghc::filesystem::is_directory(modPath)) {
+        try {
+            auto rdi = ghc::filesystem::directory_iterator(modPath);
+            for (auto de : rdi) {
+                if (de.is_directory()) {
+                    ghc::filesystem::path modDirPath = de.path();
+
+                    ModInfo *info = &modList[modCount];
+
+                    char modName[0x100];
+                    info->active = false;
+
+                    std::string modDir            = modDirPath.c_str();
+                    const std::string mod_inifile = modDir + "/mod.ini";
+
+                    FileIO *f = fOpen(mod_inifile.c_str(), "r");
+                    if (f) {
+                        fClose(f);
+                        IniParser modSettings(mod_inifile.c_str());
+
+                        info->name = "Unnamed Mod";
+                        info->desc = "";
+                        info->author = "Unknown Author";
+                        info->version = "1.0.0";
+                        info->folder  = modDirPath.filename();
+
+                        char infoBuf[0x100];
+                        // Name
+                        StrCopy(infoBuf, "");
+                        modSettings.GetString("", "Name", infoBuf);
+                        if (!StrComp(infoBuf, ""))
+                            info->name = infoBuf;
+                        // Desc
+                        StrCopy(infoBuf, "");
+                        modSettings.GetString("", "Description", infoBuf);
+                        if (!StrComp(infoBuf, ""))
+                            info->desc = infoBuf;
+                        // Author
+                        StrCopy(infoBuf, "");
+                        modSettings.GetString("", "Author", infoBuf);
+                        if (!StrComp(infoBuf, ""))
+                            info->author = infoBuf;
+                        // Version
+                        StrCopy(infoBuf, "");
+                        modSettings.GetString("", "Version", infoBuf);
+                        if (!StrComp(infoBuf, ""))
+                            info->version = infoBuf;
+
+                        info->active = false;
+                        modSettings.GetBool("", "Active", &info->active);
+
+                        // Check for Data replacements.
+                        ghc::filesystem::path dataPath(modDir + "\\Data");
+
+                        if (ghc::filesystem::exists(dataPath) && ghc::filesystem::is_directory(dataPath)) {
+                            try {
+                                auto data_rdi = ghc::filesystem::recursive_directory_iterator(dataPath);
+                                for (auto data_de : data_rdi) {
+                                    if (data_de.is_regular_file()) {
+                                        char modBuf[0x100];
+                                        StrCopy(modBuf, data_de.path().c_str());
+                                        char folderTest[4][0x10] = {
+                                            "Data/",
+                                            "Data\\",
+                                            "data/",
+                                            "data\\",
+                                        };
+                                        int tokenPos = -1;
+                                        for (int i = 0; i < 4; ++i) {
+                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                                            if (tokenPos >= 0)
+                                                break;
+                                        }
+
+                                        if (tokenPos >= 0) {
+                                            char buffer[0x80];
+                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                                            }
+
+                                            printLog(modBuf);
+                                            std::string path(buffer);
+                                            std::string modPath(modBuf);
+                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                        }
+                                    }
+                                }
+                            } catch (ghc::filesystem::filesystem_error fe) {
+                                endLine = false;
+                                printLog("Data Folder Scanning Error: ");
+                                endLine = true;
+                                printLog(fe.what());
+                            }
+                        }
+
+                        // Check for Data replacements.
+                        ghc::filesystem::path bytecodePath(modDir + "\\Bytecode");
+                        if (ghc::filesystem::exists(bytecodePath) && ghc::filesystem::is_directory(bytecodePath)) {
+                            try {
+                                auto bytecode_rdi = ghc::filesystem::recursive_directory_iterator(bytecodePath);
+                                for (auto bytecode_de : bytecode_rdi) {
+                                    if (bytecode_de.is_regular_file()) {
+                                        char modBuf[0x100];
+                                        StrCopy(modBuf, bytecode_de.path().c_str());
+                                        char folderTest[4][0x10] = {
+                                            "Data/",
+                                            "Data\\",
+                                            "data/",
+                                            "data\\",
+                                        };
+                                        int tokenPos = -1;
+                                        for (int i = 0; i < 4; ++i) {
+                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                                            if (tokenPos >= 0)
+                                                break;
+                                        }
+
+                                        if (tokenPos >= 0) {
+                                            char buffer[0x80];
+                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                                            }
+
+                                            printLog(modBuf);
+                                            std::string path(buffer);
+                                            std::string modPath(modBuf);
+                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                        }
+                                    }
+                                }
+                            } catch (ghc::filesystem::filesystem_error fe) {
+                                endLine = false;
+                                printLog("Bytecode Folder Scanning Error: ");
+                                endLine = true;
+                                printLog(fe.what());
+                            }
+                        }
+
+                        // Check for Data replacements.
+                        ghc::filesystem::path scriptsPath(modDir + "\\Scripts");
+                        if (ghc::filesystem::exists(scriptsPath) && ghc::filesystem::is_directory(scriptsPath)) {
+                            try {
+                                auto scripts_rdi = ghc::filesystem::recursive_directory_iterator(scriptsPath);
+                                for (auto scripts_de : scripts_rdi) {
+                                    if (scripts_de.is_regular_file()) {
+                                        char modBuf[0x100];
+                                        StrCopy(modBuf, scripts_de.path().c_str());
+                                        char folderTest[4][0x10] = {
+                                            "Data/",
+                                            "Data\\",
+                                            "data/",
+                                            "data\\",
+                                        };
+                                        int tokenPos = -1;
+                                        for (int i = 0; i < 4; ++i) {
+                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                                            if (tokenPos >= 0)
+                                                break;
+                                        }
+
+                                        if (tokenPos >= 0) {
+                                            char buffer[0x80];
+                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                                            }
+
+                                            printLog(modBuf);
+                                            std::string path(buffer);
+                                            std::string modPath(modBuf);
+                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                        }
+                                    }
+                                }
+                            } catch (ghc::filesystem::filesystem_error fe) {
+                                endLine = false;
+                                printLog("Scripts Folder Scanning Error: ");
+                                endLine = true;
+                                printLog(fe.what());
+                            }
+                        }
+
+                        info->useScripts = false;
+                        modSettings.GetBool("", "TxtScripts", &info->useScripts);
+                        if (info->useScripts)
+                            forceUseScripts = true;
+                        modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
+                        if (info->skipStartMenu)
+                            skipStartMenu = true;
+                    }
+                    modCount++;
+                }
+            }
+        } catch (ghc::filesystem::filesystem_error fe) {
+            endLine = false;
+            printLog("Mods Folder Scanning Error: ");
+            endLine = true;
+            printLog(fe.what());
+        }
+    }
+}
+void saveMods()
+{
+    char modBuf[0x100];
+    sprintf(modBuf, "%smods/", gamePath);
+    ghc::filesystem::path modPath(modBuf);
+
+    if (ghc::filesystem::exists(modPath) && ghc::filesystem::is_directory(modPath)) {
+        for (int m = 0; m < modCount; ++m) {
+            ModInfo *info                 = &modList[m];
+            std::string modDir            = modPath.c_str();
+            const std::string mod_inifile = modDir +  info->folder + "/mod.ini";
+
+            FileIO *f = fOpen(mod_inifile.c_str(), "w");
+            if (f) {
+                fClose(f);
+                IniParser modSettings;
+
+                modSettings.SetString("", "Name", (char*)info->name.c_str());
+                modSettings.SetString("", "Description", (char*)info->desc.c_str());
+                modSettings.SetString("", "Author", (char*)info->author.c_str());
+                modSettings.SetString("", "Version", (char*)info->version.c_str());
+                if (info->useScripts)
+                    modSettings.SetBool("", "TxtScripts", info->useScripts);
+                if (info->skipStartMenu)
+                    modSettings.SetBool("", "SkipStartMenu", info->skipStartMenu);
+                modSettings.SetBool("", "Active", info->active);
+
+                modSettings.Write(mod_inifile.c_str());
+            }
+        }
+    }
 }

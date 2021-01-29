@@ -6,7 +6,14 @@
 #define ACHIEVEMENT_MAX (0x40)
 #define LEADERBOARD_MAX (0x80)
 
+
+#define MOD_MAX (0x100)
+
 #define SAVEDATA_MAX (0x2000)
+
+#include <string>
+#include <map>
+#include <unordered_map>
 
 enum OnlineMenuTypes {
     ONLINEMENU_ACHIEVEMENTS = 0,
@@ -25,6 +32,19 @@ struct LeaderboardEntry {
 struct MultiplayerData {
     int type;
     int data[0x1FF];
+};
+
+struct ModInfo {
+    std::string name;
+    std::string desc;
+    std::string author;
+    std::string version;
+    std::map<std::string, std::string> fileMap;
+    std::string folder;
+    int iconTexture;
+    bool useScripts;
+    bool skipStartMenu;
+    bool active;
 };
 
 extern int (*nativeFunction[16])(int, void *);
@@ -47,6 +67,11 @@ extern int matchValueWritePos;
 
 extern int sendDataMethod;
 extern int sendCounter;
+
+extern ModInfo modList[MOD_MAX];
+extern int modCount;
+extern bool forceUseScripts;
+extern bool skipStartMenu;
 
 inline int GetGlobalVariableByName(const char *name)
 {
@@ -146,5 +171,8 @@ void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
 int ShowPromoPopup(int a1, void *a2);
+
+void initMods();
+void saveMods();
 
 #endif //! USERDATA_H
