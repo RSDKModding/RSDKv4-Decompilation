@@ -6,8 +6,11 @@ struct NativeEntity_StartMenu : NativeEntityBase {
     void (*state)(NativeEntity_StartMenu *);
     bool changingStates;
 
+    bool transition    = false;
     bool transitioning = false;
-    int transTimer     = 0; // trans rights
+    bool back          = false;
+    int transPos       = 0; // trans rights
+    int transTimer     = 0;
 
     int timers[10]; // LOL i really do not wanna do what i did with pause menu
     int variables[10];

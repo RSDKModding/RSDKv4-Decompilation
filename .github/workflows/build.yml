@@ -6,7 +6,7 @@ on:
       - main
       - win-actions
       - linux-actions
-#      - 1.2.0
+      - 1.2.0
 
 jobs:
   v4-windows:

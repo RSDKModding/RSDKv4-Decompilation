@@ -116,25 +116,34 @@ void StartMenu_Main(void *objPtr)
     menu->timers[9] = (menu->timers[9] + 1) % 48;
 
     // TRANSITION
+    if (menu->transition) {
+        menu->transPos      = -15;
+        menu->transTimer    = menu->back * 26;
+        menu->transitioning = true;
+        menu->transition    = false;
+    }
+
     if (menu->transitioning) {
-        if (menu->transTimer <= 0)
-            menu->transTimer = 32;
-        if (--menu->transTimer <= 17) {
+        if (menu->transTimer++ >= 25)
+            menu->transPos += SCREEN_XSIZE / 8;
+        if (menu->transPos >= SCREEN_XSIZE * 1.5) {
             menu->transitioning = false;
             if (target)
                 menu->state = target;
             menu->selected = 0;
         }
-        int val = (menu->transTimer - 17);
-        RenderRectangle(SCREEN_XSIZE / 15 * val, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 255);
+        RenderRectangle(SCREEN_XSIZE - menu->transPos, 0, SCREEN_XSIZE + menu->transPos, SCREEN_YSIZE, 0, 0, 0, 255);
         for (int i = 0; i < SCREEN_YSIZE / 22 + 2; i++) {
-            RenderSpriteFlipped(SCREEN_XSIZE / 15 * val - 12, i * 22 - 11, 12, 22, 33, 48, FLIP_X, mainID);
+            RenderSpriteFlipped(SCREEN_XSIZE - menu->transPos - 12, i * 22 - 11, 12, 22, 33, 48, FLIP_X, mainID);
         }
     }
-    else if (menu->transTimer--) {
-        RenderRectangle(0, 0, SCREEN_XSIZE / 15 * menu->transTimer, SCREEN_YSIZE, 0, 0, 0, 255);
+    else if (menu->transPos >= -12) {
+        menu->transTimer = 0;
+        menu->back       = false;
+        menu->transPos -= SCREEN_XSIZE / 8;
+        RenderRectangle(0, 0, menu->transPos, SCREEN_YSIZE, 0, 0, 0, 255);
         for (int i = 0; i < SCREEN_YSIZE / 22 + 2; i++) {
-            RenderSprite(SCREEN_XSIZE / 15 * menu->transTimer, i * 22 - 11, 12, 22, 33, 48, mainID);
+            RenderSprite(menu->transPos, i * 22 - 11, 12, 22, 33, 48, mainID);
         }
     }
 }
@@ -148,70 +157,92 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
 
     // CONTROLS
     if (!menu->transitioning) {
-        if (keyPress.A || keyPress.start) {
-            if (menu->selected > 3)
-                PlaySFXByName("Hurt", 0);
-            else {
-                menu->transitioning = true;
-                target              = StartMenu_LoadStage;
-                menu->variables[9]  = menu->selected;
+        if (!menu->variables[8] || menu->variables[6]) {
+            if (keyPress.A || keyPress.start) {
+                if (menu->selected > 3)
+                    PlaySFXByName("Hurt", 0);
+                else {
+                    if (saveRAM[menu->selected * 8 + 4]) {
+                        menu->transition   = true;
+                        target             = StartMenu_LoadStage;
+                        menu->variables[9] = menu->selected;
+                        PlaySFXByName("MenuSelect", 0);
+                        StopMusic();
+                    }
+                    else {
+                        PlaySFXByName("MenuSelect", 0);
+                        menu->variables[8]++;
+                    }
+                }
+            }
+            if (keyPress.B) {
+                menu->transition = true;
+                target           = StartMenu_SaveSelect;
+                menu->back       = true;
+                PlaySFXByName("MenuBack", 0);
+            }
+            if (keyPress.up || keyPress.down)
+                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up) {
+                menu->selected--;
+                if (menu->selected < 0)
+                    menu->selected = isWide ? 4 : 7;
+                else if (isWide && (menu->selected != 0 && menu->selected != 2)) {
+                    menu->selected += 5;
+                    if (menu->selected == 9)
+                        menu->selected = 1;
+                    else
+                        menu->selected %= 7;
+                }
+            }
+            else if (keyPress.down) {
+                menu->selected++;
+                if (isWide && (menu->selected != 1 && menu->selected != 3)) {
+                    menu->selected += 2;
+                    if (menu->selected == 8)
+                        menu->selected = 0;
+                }
+                menu->selected %= 7;
+            }
+            if (isWide) {
+                if (keyPress.left || keyPress.right)
+                    PlaySFXByName("MenuMove", 0);
+                if (keyPress.left) {
+                    if (menu->selected > 4)
+                        menu->selected--;
+                    else if (menu->selected < 2 || menu->selected == 4)
+                        menu->selected += 2;
+                    else
+                        menu->selected -= 2;
+                }
+                else if (keyPress.right) {
+                    if (menu->selected >= 4)
+                        menu->selected = menu->selected == 6 ? 4 : ++menu->selected;
+                    else
+                        menu->selected += menu->selected < 2 ? 2 : -2;
+                }
+            }
+        }
+        else {
+            if (keyPress.right || keyPress.left) {
+                PlaySFXByName("MenuMove", 0);
+                menu->variables[7] += keyPress.right ? 1 : -1;
+                if (menu->variables[7] < 0)
+                    menu->variables[7] = 3;
+                else
+                    menu->variables[7] %= 4;
+            }
+            else if (keyPress.B) {
+                menu->variables[6] = true;
+                PlaySFXByName("MenuBack", 0);
+            }
+            else if (keyPress.A || keyPress.start) {
+                menu->transition   = true;
+                menu->variables[6] = true;
+                target             = StartMenu_LoadStage;
+                menu->variables[9] = menu->selected;
                 PlaySFXByName("MenuSelect", 0);
                 StopMusic();
-            }
-        }
-        if (keyPress.B) {
-            menu->transitioning = true;
-            target              = StartMenu_MainMenu;
-            PlaySFXByName("MenuBack", 0);
-        }
-        if (keyPress.up || keyPress.down)
-            PlaySFXByName("MenuMove", 0);
-        if (keyPress.up) {
-            menu->selected--;
-            if (menu->selected < 0) {
-                if (isWide)
-                    menu->selected = 4;
-                else
-                    menu->selected = 7;
-            }
-            else if (isWide && (menu->selected != 0 && menu->selected != 2)) {
-                menu->selected += 5;
-                if (menu->selected == 9)
-                    menu->selected = 1;
-                else
-                    menu->selected %= 7;
-            }
-        }
-        else if (keyPress.down) {
-            menu->selected++;
-            if (isWide && (menu->selected != 1 && menu->selected != 3)) {
-                menu->selected += 2;
-                if (menu->selected == 8)
-                    menu->selected = 0;
-            }
-            menu->selected %= 7;
-        }
-        if (isWide) {
-            if (keyPress.left || keyPress.right)
-                PlaySFXByName("MenuMove", 0);
-            if (keyPress.left) {
-                if (menu->selected > 4)
-                    menu->selected--;
-                else if (menu->selected < 2 || menu->selected == 4)
-                    menu->selected += 2;
-                else
-                    menu->selected -= 2;
-            }
-            else if (keyPress.right) {
-                if (menu->selected >= 4) {
-                    menu->selected++;
-                    if (menu->selected == 7)
-                        menu->selected = 4;
-                }
-                else if (menu->selected < 2)
-                    menu->selected += 2;
-                else
-                    menu->selected -= 2;
             }
         }
     }
@@ -219,15 +250,30 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
     RenderSprite(SCREEN_CENTERX - 41, 31, 82, 13, 2, 1, saveID);
 
     // RENDER
+    SpriteFrame playerBase;
+
+    if (Engine.gameType == GAME_SONIC1) {
+        playerBase.sheetID = LoadTexture("Data/Sprites/Special/Objects.gif", 0);
+        playerBase.sprX    = 399;
+        playerBase.sprY    = 376;
+    }
+    else {
+        playerBase.sheetID = LoadTexture("Data/Sprites/Continue/Objects.gif", 0);
+        playerBase.sprX    = 1;
+        playerBase.sprY    = 18;
+    }
+
     for (int i = 0; i < 4; i++) {
-        if (i == menu->selected && menu->transitioning) {
-            if (menu->transTimer / 6 > 2)
+        if (i == menu->selected && menu->transitioning && !menu->back) {
+            if (menu->transTimer % 6 > 2)
                 continue;
         }
+        SpriteFrame playerFrame;
+
         ushort buf[0x30];
-        memset(buf, 0, 0x30 * sizeof(ushort));
+        MEM_ZEROP(buf);
         ushort act[0x10];
-        memset(act, 0, 0x10 * sizeof(ushort));
+        MEM_ZEROP(act);
 
         int xp = SCREEN_CENTERX - (186 / 2);
         int yp = 55 + i * (3 + 46) - menu->offset;
@@ -235,6 +281,7 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
             xp = SCREEN_CENTERX + (i < 2 ? -(5 + 186) : 5);
             yp = 55 + (i % 2 ? 51 : 0);
         }
+        byte player = 0, emeralds = 0, lives = 0;
         RenderSprite(xp, yp, 186, 46, 289 - (menu->selected == i ? 188 : 0), 2, saveID);
         int stagePos = saveRAM[i * 8 + 4];
         if (stagePos) {
@@ -257,38 +304,69 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
                     }
                 }
             }
-            byte player = saveRAM[i * 8 + 0];
-            SpriteFrame toUse;
-            if (Engine.gameType == GAME_SONIC1) {
-                toUse.sheetID = LoadTexture("Data/Sprites/Special/Objects.gif", 0);
-                toUse.sprX    = 399;
-                toUse.sprY    = 376;
-            }
-            else {
-                toUse.sheetID = LoadTexture("Data/Sprites/Continue/Objects.gif", 0);
-                toUse.sprX    = 1;
-                toUse.sprY    = 18;
-            }
-            if (player != 3)
-                RenderSprite(xp + 8, yp + 13, 16, 23, toUse.sprX + player * 18, toUse.sprY, toUse.sheetID);
-            else {
-                RenderSpriteFlipped(xp + 2, yp + 13, 16, 23, toUse.sprX + 18, toUse.sprY, FLIP_X, toUse.sheetID);
-                RenderSprite(xp + 8, yp + 13, 16, 23, toUse.sprX, toUse.sprY, toUse.sheetID);
-            }
+            player      = saveRAM[i * 8 + 0];
+            playerFrame = playerBase;
 
-            ushort buf[3];
-            MEM_ZERO(buf);
-            ushort asterisk[] = { '*', 0 }; // really?
-            AppendIntegerToStringW(buf, saveRAM[i * 8 + 1] / 10);
-            AppendIntegerToStringW(buf, saveRAM[i * 8 + 1] % 10);
-            RenderText(asterisk, xp + 9 + 14, yp + 13 + 21, 0, false);
-            RenderText(buf, xp + 9 + 16 + 5, yp + 13 + 21, 0, false);
+            if (player != 3)
+                playerFrame.sprX += player * 34;
+
+            lives    = saveRAM[i * 8 + 1];
+            emeralds = saveRAM[i * 8 + 5];
         }
-        else
+        else {
             StrAddW(buf, strNewGame);
+            playerFrame.sheetID = saveID;
+            playerFrame.sprX    = 339;
+            playerFrame.sprY    = 98;
+        }
+        if (player != 3)
+            RenderSprite(xp + 8, yp + 13, 16, 23, playerFrame.sprX, playerFrame.sprY, playerFrame.sheetID);
+        else {
+            RenderSpriteFlipped(xp + 2, yp + 13, 16, 23, playerFrame.sprX + 34, playerFrame.sprY, FLIP_X, playerFrame.sheetID);
+            RenderSprite(xp + 8, yp + 13, 16, 23, playerFrame.sprX, playerFrame.sprY, playerFrame.sheetID);
+        }
+        ushort liveBuf[3];
+        MEM_ZEROP(liveBuf);
+        AppendIntegerToStringW(liveBuf, lives / 10);
+        AppendIntegerToStringW(liveBuf, lives % 10);
+        RenderSprite(xp + 23, yp + 36, 7, 7, 104, 52, saveID);
+        RenderText(liveBuf, xp + 30, yp + 35, 0, false);
+
         RenderText(buf, xp + 28, yp + 12, 0, false);
         if (StrLengthW(act))
             RenderText(act, xp + 28, yp + 21, 0, true);
+    }
+
+    if (menu->variables[6] && !--menu->variables[8])
+        menu->variables[6] = false;
+
+    if (menu->variables[8]) {
+        if (!menu->variables[6] && ++menu->variables[8] > 12)
+            menu->variables[8] = 12;
+
+        int pos = SCREEN_YSIZE - (menu->variables[8] - 2) * 10;
+        RenderRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, menu->variables[8] * 12);
+
+        RenderRectangle(0, pos, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 255);
+        for (int i = 0; i < SCREEN_XSIZE / 24 + 2; i++) {
+            RenderSprite(i * 24 + (menu->timers[9] / 2) - 24, pos - 14, 24, 22, 293, 127, saveID);
+        }
+
+        RenderSprite(SCREEN_CENTERX - (99 / 2), pos + 5, 99, 11, 256, 86, saveID);
+
+        int startX = SCREEN_CENTERX - (46 + 7) * 4 / 2;
+        for (int i = 0; i < 4; i++) {
+            int X = startX + i * (46 + 7);
+            RenderSprite(X, pos + 25, 46, 45, 314, 253 + (i == menu->variables[7]) * 46, saveID);
+            if (i != 3)
+                RenderSprite(X + 46 / 2 - 16 / 2, pos + 25 + 45 / 2 - 23 / 2, 16, 23, playerBase.sprX + i * 34, playerBase.sprY, playerBase.sheetID);
+            else {
+                RenderSpriteFlipped(X + 46 / 2 - 16 / 2 - 3, pos + 25 + 45 / 2 - 23 / 2, 16, 23, playerBase.sprX + 1 * 34, playerBase.sprY, FLIP_X,
+                                    playerBase.sheetID);
+                RenderSprite(X + 46 / 2 - 16 / 2 + 3, pos + 25 + 45 / 2 - 23 / 2, 16, 23, playerBase.sprX + 0 * 34, playerBase.sprY,
+                             playerBase.sheetID);
+            }
+        }
     }
 }
 
@@ -298,27 +376,62 @@ void StartMenu_LoadStage(NativeEntity_StartMenu *menu)
     if (menu->transTimer)
         return;
     int savePos = menu->variables[9] << 3;
-    SetGlobalVariableByName("options.saveSlot", menu->variables[9]);
-    SetGlobalVariableByName("options.gameMode", 1);
-    SetGlobalVariableByName("options.stageSelectFlag", 0);
-    SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
-    SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
-    SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
-    SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
-    SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
-    SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
-    SetGlobalVariableByName("lampPostID", 0); // For S1
-    SetGlobalVariableByName("starPostID", 0); // For S2
-    SetGlobalVariableByName("options.vsMode", 0);
+    if (saveRAM[savePos + 4]) {
 
-    int nextZone = saveRAM[savePos + 4];
-    if (nextZone > 127) {
-        SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
-        InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
+        SetGlobalVariableByName("options.saveSlot", menu->variables[9]);
+        SetGlobalVariableByName("options.gameMode", 1);
+        SetGlobalVariableByName("options.stageSelectFlag", 0);
+        SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
+        SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
+        SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
+        SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
+        SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
+        SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
+        SetGlobalVariableByName("lampPostID", 0); // For S1
+        SetGlobalVariableByName("starPostID", 0); // For S2
+        SetGlobalVariableByName("options.vsMode", 0);
+
+        int nextZone = saveRAM[savePos + 4];
+        if (nextZone > 127) {
+            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
+            InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
+        }
+        else {
+            SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
+            InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
+        }
     }
     else {
-        SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
-        InitStartingStage(STAGELIST_REGULAR, saveRAM[savePos + 4] - 1, saveRAM[savePos + 0]);
+        if (menu->variables[9] < 0) {
+            SetGlobalVariableByName("options.gameMode", 0);
+            menu->variables[9] = 0;
+        }
+        else {
+            SetGlobalVariableByName("options.gameMode", 1);
+            SetGlobalVariableByName("options.stageSelectFlag", 0);
+        }
+        saveRAM[savePos + 0] = menu->variables[7];
+        saveRAM[savePos + 1] = 3;
+        saveRAM[savePos + 2] = 0;
+        saveRAM[savePos + 3] = 50000;
+        saveRAM[savePos + 4] = 1;
+        saveRAM[savePos + 5] = 0;
+        saveRAM[savePos + 6] = 0;
+        saveRAM[savePos + 7] = 0;
+
+        SetGlobalVariableByName("options.saveSlot", menu->variables[9]);
+        SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
+        SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
+        SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
+        SetGlobalVariableByName("specialStage.emeralds", saveRAM[savePos + 5]);
+        SetGlobalVariableByName("specialStage.listPos", saveRAM[savePos + 6]);
+        SetGlobalVariableByName("stage.player2Enabled", saveRAM[savePos + 0] == 3);
+        SetGlobalVariableByName("lampPostID", 0); // For S1
+        SetGlobalVariableByName("starPostID", 0); // For S2
+        SetGlobalVariableByName("options.vsMode", 0);
+        WriteSaveRAMData();
+
+        InitStartingStage(STAGELIST_PRESENTATION, 0, saveRAM[savePos + 0]);
     }
     StartMenu_Destroy(menu);
 }
