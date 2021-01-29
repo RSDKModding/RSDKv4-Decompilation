@@ -1,10 +1,13 @@
 CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"'
+CXXFLAGS += -Idependencies/all/filesystem \
+            -Idependencies/all/upng
 
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis) -pthread $(LIBS)
 
-SOURCES = Sonic12Decomp/Animation.cpp     \
+SOURCES = dependencies/all/upng/upng.cpp  \
+          Sonic12Decomp/Animation.cpp     \
           Sonic12Decomp/Audio.cpp         \
           Sonic12Decomp/Collision.cpp     \
           Sonic12Decomp/Debug.cpp         \
@@ -24,6 +27,7 @@ SOURCES = Sonic12Decomp/Animation.cpp     \
           Sonic12Decomp/Scene3D.cpp       \
           Sonic12Decomp/Script.cpp        \
           Sonic12Decomp/Sprite.cpp        \
+          Sonic12Decomp/StartMenu.cpp     \
           Sonic12Decomp/String.cpp        \
           Sonic12Decomp/Text.cpp          \
           Sonic12Decomp/Userdata.cpp      \

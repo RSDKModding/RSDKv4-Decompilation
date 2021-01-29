@@ -98,4 +98,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: v4-linux
-          path: bin/sonic2013
+          path: bin
