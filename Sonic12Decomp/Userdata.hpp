@@ -6,7 +6,6 @@
 #define ACHIEVEMENT_MAX (0x40)
 #define LEADERBOARD_MAX (0x80)
 
-
 #define MOD_MAX (0x100)
 
 #define SAVEDATA_MAX (0x2000)

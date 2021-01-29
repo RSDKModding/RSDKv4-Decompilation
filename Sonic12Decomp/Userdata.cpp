@@ -52,6 +52,8 @@ void InitUserdata()
         ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
+        ini.SetBool("Dev", "DataFile", "Data.rsdk");
+        StrCopy(Engine.dataFile, "Data.rsdk");
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
@@ -130,9 +132,6 @@ void InitUserdata()
         ini.SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings = 8);
         ini.SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings = 14);
 #endif
-
-        StrCopy(Engine.dataFile, "Data.rsdk");
-        ini.SetString("Dev", "DataFile", Engine.dataFile);
 
         ini.Write(BASE_PATH "settings.ini");
     }

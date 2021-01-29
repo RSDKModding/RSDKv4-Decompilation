@@ -261,15 +261,22 @@ void RetroEngine::Init()
     }
 
     strcpy(dest, resourcePath);
-    strcat(dest, "\\Data.rsdk");
+    strcat(dest, "\\");
+    strcat(dest, Engine.dataFile);
 #else
     StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile);
 #endif
     CheckRSDKFile(dest);
     snapDataFile(1);
-    // TODO: bother UWP folk to make this work similarly
-    CheckRSDKFile(BASE_PATH "Menu.rsdk");
+#if RETRO_PLATFORM == RETRO_UWP
+    strcpy(dest, resourcePath);
+    strcat(dest, "\\Menu.rsdk");
+#else
+    StrCopy(dest, BASE_PATH);
+    StrAdd(dest, "Menu.rsdk");
+#endif
+    CheckRSDKFile(dest);
     snapDataFile(0);
     InitNativeObjectSystem();
 

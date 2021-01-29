@@ -585,7 +585,7 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, i + scriptID);
             }
 
-            if (Engine.usingBytecode) {
+            if (Engine.usingBytecode && !forceUseScripts) {
                 GetFileInfo(&infoStore);
                 CloseFile();
                 LoadBytecode(4, scriptID);
@@ -645,7 +645,7 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
-            if (Engine.usingBytecode) {
+            if (Engine.usingBytecode && !forceUseScripts) {
                 for (byte i = 0; i < stageObjectCount; ++i) {
                     FileRead(&fileBuffer2, 1);
                     FileRead(strBuffer, fileBuffer2);

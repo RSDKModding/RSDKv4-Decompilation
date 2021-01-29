@@ -58,16 +58,18 @@ typedef unsigned int uint;
 #endif
 
 #elif defined __APPLE__
-#if __IPHONEOS__
-#define RETRO_PLATFORM   (RETRO_iOS)
-#define RETRO_DEVICETYPE (RETRO_MOBILE)
+#define RETRO_USING_MOUSE
+#define RETRO_USING_TOUCH
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR
+#define RETRO_PLATFORM (RETRO_iOS)
+#elif TARGET_OS_IPHONE
+#define RETRO_PLATFORM (RETRO_iOS)
+#elif TARGET_OS_MAC
+#define RETRO_PLATFORM (RETRO_OSX)
 #else
-#define RETRO_PLATFORM   (RETRO_OSX)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#error "Unknown Apple platform"
 #endif
-#else
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #define DEFAULT_SCREEN_XSIZE 424
@@ -217,7 +219,7 @@ public:
 
     bool usingMenuFile = false;
 
-    char *dataFile = new char[0x80];
+    char dataFile[0x80];
 
     bool initialised = false;
     bool running     = false;

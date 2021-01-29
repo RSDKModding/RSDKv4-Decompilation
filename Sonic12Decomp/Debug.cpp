@@ -59,9 +59,6 @@ void initErrorMessage()
 void processStageSelect()
 {
     ClearScreen(0xF0);
-    keyDown.start = false;
-    keyDown.up    = false;
-    keyDown.down  = false;
 
     CheckKeyDown(&keyDown);
     CheckKeyPress(&keyPress);
@@ -75,7 +72,7 @@ void processStageSelect()
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
         if (touches > 0) {
             if (touchDown[0] && !(touchTimer % 8)) {
-                if (touchX[0] < SCREEN_CENTERY) {
+                if (touchX[0] < SCREEN_CENTERX) {
                     if (touchY[0] >= SCREEN_CENTERY) {
                         if (!keyDown.down)
                             keyPress.down = true;
@@ -87,10 +84,17 @@ void processStageSelect()
                         keyDown.up = true;
                     }
                 }
-                else if (touchX[0] != SCREEN_CENTERY && touchY[0] > SCREEN_CENTERY) {
-                    if (!keyDown.start)
-                        keyPress.start = true;
-                    keyDown.start = true;
+                else if (touchX[0] > SCREEN_CENTERX) {
+                    if (touchY[0] > SCREEN_CENTERY) {
+                        if (!keyDown.start)
+                            keyPress.start = true;
+                        keyDown.start = true;
+                    }
+                    else {
+                        if (!keyDown.B)
+                            keyPress.B = true;
+                        keyDown.B = true;
+                    }
                 }
             }
         }
@@ -637,6 +641,7 @@ void processStartMenu()
 {
     ClearScreen(0xF0);
     keyDown.start = false;
+    keyDown.B = false;
     keyDown.up    = false;
     keyDown.down  = false;
 
