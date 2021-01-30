@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if BUILD_SONIC_1
+#include "splash_sonic1.h"
+#elif BUILD_SONIC_2
+#include "splash_sonic2.h"
+#endif
+
 //System
 void sys_Init()
 {
@@ -65,6 +71,24 @@ void gfx_Init()
 	consoleInit(GFX_BOTTOM, NULL);
 	gfxSetWide(false);
 	gfxSet3D(false);
+
+	//display splash screen
+	u8* splash = nullptr;
+	#ifdef BUILD_SONIC_1
+	splash = SPLASH_SONIC1;
+	#elif BUILD_SONIC_2
+	splash = SPLASH_SONIC2;
+	#endif
+
+	if (splash != nullptr)
+	{
+		u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+		memcpy(fb, splash, 400*240*3);
+		
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gspWaitForVBlank();
+	}
 }
 
 void gfx_Exit()

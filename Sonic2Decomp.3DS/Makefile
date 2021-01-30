@@ -46,7 +46,12 @@ APP_TITLE		:= Sonic the Hedgehog 2
 APP_DESCRIPTION := Sonic 2 2013 Decompilation
 APP_AUTHOR		:= SEGA
 
-ICON := banner/icon.png
+ICON 		:= banner/icon.png
+BANNER 		:= banner/$(TARGET).bnr
+BANNER_PNG 	:= banner/banner.png
+BANNER_WAV 	:= banner/sound.wav
+CIA_SMDH 	:= $(TARGET).smdh
+CIA_RSF 	:= banner/info.rsf
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -197,6 +202,20 @@ $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
 	@echo $(notdir $<)
 	@tex3ds -i $< -H $(BUILD)/$*.h -d $(DEPSDIR)/$*.d -o $(GFXBUILD)/$*.t3x
 
+#---------------------------------------------------------------------------------
+$(BANNER): $(BANNER_PNG) $(BANNER_WAV)
+	@bannertool makebanner -i $(BANNER_PNG) -a $(BANNER_WAV) -o $(BANNER)
+	@echo built ... $(BANNER)
+
+$(TARGET).smdh: $(ICON)
+	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
+	@echo built ... $(TARGET).smdh
+
+cia: $(BUILD) $(BANNER)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(BANNER) -icon $(CIA_SMDH)
+	@echo built ... $(TARGET).cia
+	
 #---------------------------------------------------------------------------------
 else
 

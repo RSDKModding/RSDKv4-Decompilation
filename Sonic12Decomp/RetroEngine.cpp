@@ -260,9 +260,12 @@ void RetroEngine::Init()
     gfx_Init();
 #endif
 
+    printf("starting up\n");
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
+    printf("init user data\n");
     InitUserdata();
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
@@ -316,8 +319,11 @@ void RetroEngine::Init()
     gameMode          = ENGINE_MAINGAME;
     running           = false;
     finishedStartMenu = false;
+    printf("load game config\n");
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
+        printf("init render device\n");
         if (InitRenderDevice()) {
+            printf("init audio playback\n");
             if (InitAudioPlayback()) {
                 InitFirstStage();
                 ClearScriptData();
@@ -459,6 +465,9 @@ void RetroEngine::Init()
 
     if (!finishedStartMenu)
         initStartMenu(0);
+
+    if (engineDebugMode == false)
+        iprintf("\x1b[2J");
 }
 
 void RetroEngine::Run()
