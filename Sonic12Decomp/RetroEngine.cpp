@@ -268,6 +268,7 @@ void RetroEngine::Init()
     StrAdd(dest, Engine.dataFile);
 #endif
     CheckRSDKFile(dest);
+
     snapDataFile(1);
 #if RETRO_PLATFORM == RETRO_UWP
     strcpy(dest, resourcePath);

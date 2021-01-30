@@ -207,6 +207,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         fileInfo->readPos = readPos;
         bufferPosition    = 0;
         readSize          = 0;
+        useEncryption     = false;
 
         printLog("Loaded File '%s'", filePathBuf);
         return true;
