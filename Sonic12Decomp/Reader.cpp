@@ -63,7 +63,7 @@ bool CheckRSDKFile(const char *filePath)
 
         fClose(cFileHandle);
         cFileHandle = NULL;
-        if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
+        if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
         }
@@ -72,7 +72,7 @@ bool CheckRSDKFile(const char *filePath)
     else {
         Engine.usingDataFile = false;
         cFileHandle = NULL;
-        if (LoadFile("ByteCode/GlobalCode.bin", &info)) {
+        if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
         }

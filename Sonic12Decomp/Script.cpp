@@ -2145,11 +2145,11 @@ void LoadBytecode(int stageListID, int scriptID)
         case STAGELIST_REGULAR:
         case STAGELIST_BONUS:
         case STAGELIST_SPECIAL:
-            StrCopy(scriptPath, "ByteCode/");
+            StrCopy(scriptPath, "Bytecode/");
             StrAdd(scriptPath, stageList[stageListID][stageListPosition].folder);
             StrAdd(scriptPath, ".bin");
             break;
-        case 4: StrCopy(scriptPath, "ByteCode/GlobalCode.bin"); break;
+        case 4: StrCopy(scriptPath, "Bytecode/GlobalCode.bin"); break;
         default: break;
     }
 
