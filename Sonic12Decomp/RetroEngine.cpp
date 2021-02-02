@@ -491,7 +491,7 @@ void RetroEngine::Run()
         frameTime = frameStart - frameEnd;
         frameEnd = frameStart;
 
-        if (frameTime <= ceil(msPerFrame*2)+1) {
+        if (frameTime <= ceil(msPerFrame)+1) {
             fullspeed = true;
         } else {
             //printf("Lag: %d\n", frameTime);

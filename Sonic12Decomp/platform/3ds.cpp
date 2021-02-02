@@ -89,6 +89,9 @@ void gfx_Init()
 		gfxSwapBuffers();
 		gspWaitForVBlank();
 	}
+	
+	//set screen format to 565 *after* splash screen
+	gfxSetScreenFormat(GFX_TOP, GSP_RGB565_OES);
 }
 
 void gfx_Exit()
@@ -99,20 +102,17 @@ void gfx_Exit()
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 {
 	u8* out = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-	unsigned int pix = 0;
 
 	for (int y = 0; y < 240; ++y)
 	{
 		for (int x = 0; x < 400; ++x)
 		{
-			//B | G | R
-			pix = ((*pixels & 0x1F) << 3) | (((*pixels & 0x7E0) >> 3) << 8) | (((*pixels & 0xF800) >> 8) << 16);
-			memcpy(&out[((x * 240) + (240-y-1)) * 3], &pix, 3);
+			memcpy(&out[((x * 240) + (240-y-1)) * 2], pixels, 2);
 			pixels++;
 		}
 	}	
 	
-	gfxFlushBuffers();
+	//gfxFlushBuffers();
 	gfxSwapBuffers();
 	if (vsync)
 		gspWaitForVBlank();
