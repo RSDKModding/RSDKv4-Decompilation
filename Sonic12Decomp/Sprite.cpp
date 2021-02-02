@@ -468,14 +468,17 @@ int LoadTexture(const char *filePath, byte dMode)
         return 0;
     textureCount++;
 
-    int dataStore = Engine.usingDataFile;
-    if (dMode == 0xFF)
+    int dataStore = 0;
+    if (dMode == 0xFF) {
+        dataStore            = Engine.usingDataFile;
         Engine.usingDataFile = false;
-    else
+    }
+    else {
+        dataStore = dataMode;
         snapDataFile(dMode);
-
+    }
 #if RETRO_USING_SDL1
-        // Returns SDL_Surface*
+    // Returns SDL_Surface*
 #endif
 
 #if RETRO_USING_SDL2
@@ -736,7 +739,7 @@ int LoadTexture(const char *filePath, byte dMode)
     if (dMode == 0xFF)
         Engine.usingDataFile = dataStore;
     else
-        snapDataFile(0);
+        snapDataFile(dataStore);
 
     return 0;
 }
