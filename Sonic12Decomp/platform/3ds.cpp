@@ -101,14 +101,13 @@ void gfx_Exit()
 
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 {
-	u8* out = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+	u16* out = (u16*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 
 	for (int y = 0; y < 240; ++y)
 	{
 		for (int x = 0; x < 400; ++x)
 		{
-			memcpy(&out[((x * 240) + (240-y-1)) * 2], pixels, 2);
-			pixels++;
+			out[((x * 240) + (240-y-1))] = *pixels++;
 		}
 	}	
 	
