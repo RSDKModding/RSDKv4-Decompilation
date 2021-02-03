@@ -21,6 +21,8 @@ int matchValueWritePos = 0;
 int sendDataMethod = 0;
 int sendCounter    = 0;
 
+bool skipStartMenu = false;
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -49,6 +51,7 @@ void InitUserdata()
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
+        ini.SetInteger("Game", "SkipStartMenu", skipStartMenu = false);
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -153,6 +156,8 @@ void InitUserdata()
 
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile))
             StrCopy(Engine.dataFile, "Data.rsdk");
+        if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
+            skipStartMenu = false;
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
@@ -384,6 +389,8 @@ void writeSettings()
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
+    ini.SetComment("Game", "SSMenuComment", "if set to true, disables the start menu");
+    ini.SetBool("Game", "SkipStartMenu", skipStartMenu);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
