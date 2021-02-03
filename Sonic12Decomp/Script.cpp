@@ -1099,7 +1099,7 @@ void CheckStaticText(char *text)
         var       = &privateStaticVariables[privateStaticVarCount];
         cnt       = &privateStaticVarCount;
         textPos   = 12;
-        bool priv = true;
+        priv = true;
     }
     MEM_ZEROP(var);
 

@@ -96,8 +96,10 @@ typedef unsigned int uint;
 #define DEFAULT_VSYNC false
 #endif
 
+#if RETRO_PLATFORM != RETRO_3DS
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
+#endif
 // set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size
 #ifndef RETRO_DEFAULTSCALINGMODE
 #define RETRO_DEFAULTSCALINGMODE 2
@@ -144,7 +146,7 @@ typedef unsigned int uint;
 #define RETRO_USE_HAPTICS (1)
 
 // this macro defines the touch device read by the game (UWP requires DIRECT)
-#if RETRO_UWP
+#if RETRO_UWP || RETRO_PLATFORM != RETRO_3DS
 #define RETRO_TOUCH_DEVICE 0
 #else
 #define RETRO_TOUCH_DEVICE 1

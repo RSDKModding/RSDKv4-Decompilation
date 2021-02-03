@@ -242,6 +242,11 @@ bool processEvents()
         }
     }
 #endif
+
+#if RETRO_USING_SDL == 0
+    inp_ScanInput();
+    return sys_MainLoop();
+#endif
     return true;
 }
 
@@ -250,9 +255,17 @@ bool processEvents()
 #endif
 void RetroEngine::Init()
 {
+#if RETRO_PLATFORM == RETRO_3DS
+    sys_Init();
+    gfx_Init();
+#endif
+
+	printf("starting up\n");
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
+	printf("init user data\n");
     InitUserdata();
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
@@ -306,8 +319,11 @@ void RetroEngine::Init()
     gameMode          = ENGINE_MAINGAME;
     running           = false;
     bool skipStart    = skipStartMenu;
+	printf("load game config\n");
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
+		printf("init render device\n");
         if (InitRenderDevice()) {
+			printf("init audio playback\n");
             if (InitAudioPlayback()) {
                 InitFirstStage();
                 ClearScriptData();
@@ -445,41 +461,79 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    if (!skipStart)
+    if (!skipStart) {
         initStartMenu(0);
+	}
+		
+	if (engineDebugMode == false)
+        printf("\x1b[2J");
 }
 
 void RetroEngine::Run()
 {
+#if RETRO_USING_SDL
     uint frameStart, frameEnd = SDL_GetTicks();
-    float frameDelta = 0.0f;
+#else
+    uint frameStart, frameEnd = sys_GetTicks();
+#endif
+    float frameDelta = 0.f;
+    float msPerFrame = 1000.f / 59.94f;
+    unsigned int frameTime = 0;
+    bool fullspeed = false;
 
     while (running) {
+#if RETRO_USING_SDL
         frameStart = SDL_GetTicks();
-        frameDelta = frameStart - frameEnd;
+#else
+        frameStart = sys_GetTicks();
+#endif
+        frameTime = frameStart - frameEnd;
+        frameEnd = frameStart;
 
+        if (frameTime <= ceil(msPerFrame*2)+1) {
+            fullspeed = true;
+        } else {
+            //printf("Lag: %d\n", frameTime);
+            frameDelta += frameTime;
+
+            if (frameDelta > msPerFrame * 4)
+                frameDelta = msPerFrame * 4;
+        }        
+
+#if RETRO_USING_SDL
         if (frameDelta < 1000.0f / (float)refreshRate)
             SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
 
         frameEnd = SDL_GetTicks();
-
+#endif
         running = processEvents();
-        for (int s = 0; s < gameSpeed; ++s) {
+
+        for (; fullspeed == true || frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
             ProcessInput();
 
-            if (!masterPaused || frameStep) {
+            if (!masterPaused/* || frameStep*/) {
                 ProcessNativeObjects();
-                RenderRenderDevice();
-                frameStep = false;
+                //RenderRenderDevice();
+                //frameStep = false;
             }
+
+            if (fullspeed) break;
         }
+
+        if (fullspeed) {
+            frameDelta = 0;
+            fullspeed = false;
+        }
+
+        RenderRenderDevice();
+        //frameStep = false;
     }
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
     SDL_Quit();
 #endif
 }

@@ -103,10 +103,8 @@ void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 {
 	u16* out = (u16*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 
-	for (int y = 0; y < 240; ++y)
-	{
-		for (int x = 0; x < 400; ++x)
-		{
+	for (int y = 0; y < 240; ++y) {
+		for (int x = 0; x < 400; ++x) {
 			out[((x * 240) + (240-y-1))] = *pixels++;
 		}
 	}	
