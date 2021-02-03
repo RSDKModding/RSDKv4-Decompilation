@@ -93,7 +93,7 @@ int InitAudioPlayback()
     byte fileBuffer = 0;
     int fileBuffer2 = 0;
 
-    if (LoadFile("Data/Game/Gameconfig.bin", &info)) {
+    if (LoadFile("Data/Game/GameConfig.bin", &info)) {
         infoStore = info;
 
         FileRead(&fileBuffer, 1);
@@ -349,10 +349,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             StopMusic();
         }
 
-        if (LoadFile(trackPtr->fileName, &musInfo.fileInfo)) {
-            musInfo.fileInfo.cFileHandle = cFileHandle;
-            cFileHandle                  = nullptr;
-
+        if (LoadFile2(trackPtr->fileName, &musInfo.fileInfo)) {
             musInfo.trackLoop = trackPtr->trackLoop;
             musInfo.loopPoint = trackPtr->loopPoint;
             musInfo.loaded    = true;
