@@ -378,9 +378,11 @@ void StartMenu_LoadStage(NativeEntity_StartMenu *menu)
     int savePos = menu->variables[9] << 3;
     if (saveRAM[savePos + 4]) {
 
+        SetGlobalVariableByName("options.stageSelectFlag", 0);
+        debugMode = false;
+
         SetGlobalVariableByName("options.saveSlot", menu->variables[9]);
         SetGlobalVariableByName("options.gameMode", 1);
-        SetGlobalVariableByName("options.stageSelectFlag", 0);
         SetGlobalVariableByName("player.lives", saveRAM[savePos + 1]);
         SetGlobalVariableByName("player.score", saveRAM[savePos + 2]);
         SetGlobalVariableByName("player.scoreBonus", saveRAM[savePos + 3]);
@@ -392,8 +394,8 @@ void StartMenu_LoadStage(NativeEntity_StartMenu *menu)
         SetGlobalVariableByName("options.vsMode", 0);
 
         int nextZone = saveRAM[savePos + 4];
-        if (nextZone > 127) {
-            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
+        if (nextZone >= 0x80) {
+            SetGlobalVariableByName("specialStage.nextZone", nextZone - 0x81);
             InitStartingStage(STAGELIST_SPECIAL, saveRAM[savePos + 6], saveRAM[savePos + 0]);
         }
         else {

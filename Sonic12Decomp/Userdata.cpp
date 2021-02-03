@@ -934,10 +934,10 @@ void initMods()
 
                         info->useScripts = false;
                         modSettings.GetBool("", "TxtScripts", &info->useScripts);
-                        if (info->useScripts)
+                        if (info->useScripts && info->active)
                             forceUseScripts = true;
                         modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
-                        if (info->skipStartMenu)
+                        if (info->skipStartMenu && info->active)
                             skipStartMenu = true;
                     }
                     modCount++;

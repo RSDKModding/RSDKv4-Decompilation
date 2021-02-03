@@ -1032,12 +1032,14 @@ void CheckAliasText(char *text)
 
     AliasInfo *a = &publicAliases[publicAliasCount];
     int *cnt     = &publicAliasCount;
+    bool priv    = false;
     if (FindStringToken(text, "privatealias", 1) == 0) {
         a   = &privateAliases[privateAliasCount];
         cnt         = &privateAliasCount;
         textPos = 12;
         if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
             return;
+        priv = true;
     }
     MEM_ZEROP(a);
 
@@ -1064,6 +1066,15 @@ void CheckAliasText(char *text)
         }
         ++textPos;
     }
+
+    for (int v = 0; v < *cnt; ++v) {
+        if (StrComp(priv ? privateAliases[v].name : publicAliases[v].name, a->name)) {
+            char buf[0x40];
+            sprintf(buf, "Warning: Alias %s has already been used!", a->name);
+            printLog(buf);
+        }
+    }
+
     ++*cnt;
 }
 void CheckStaticText(char *text)
@@ -1082,12 +1093,14 @@ void CheckStaticText(char *text)
 
     StaticInfo *var = &publicStaticVariables[publicStaticVarCount];
     int *cnt        = &publicStaticVarCount;
+    bool priv       = false;
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
             return;
         var     = &privateStaticVariables[privateStaticVarCount];
         cnt     = &privateStaticVarCount;
-        textPos = 12;
+        textPos   = 12;
+        bool priv = true;
     }
     MEM_ZEROP(var);
 
@@ -1116,6 +1129,15 @@ void CheckStaticText(char *text)
         }
         ++textPos;
     }
+
+    for (int v = 0; v < *cnt; ++v) {
+        if (StrComp(priv ? privateStaticVariables[v].name : publicStaticVariables[v].name, var->name)) {
+            char buf[0x40];
+            sprintf(buf, "Warning: Variable %s has already been used!", var->name);
+            printLog(buf);
+        }
+    }
+
     ++*cnt;
 }
 TableInfo *CheckTableText(char *text)
@@ -1518,11 +1540,19 @@ void ConvertFunctionText(char *text)
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                int o = 0;
+                for (; o < OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
+                        break;
                     }
+                }
+
+                if (o == OBJECT_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown typename \"%s\"", arrayStr);
+                    printLog(buf);
                 }
             }
 
@@ -1530,11 +1560,19 @@ void ConvertFunctionText(char *text)
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < SFX_COUNT; ++o) {
-                    if (StrComp(arrayStr, sfxNames[o])) {
+                int s = 0;
+                for (; s < SFX_COUNT; ++s) {
+                    if (StrComp(arrayStr, sfxNames[s])) {
                         funcName[0] = 0;
-                        AppendIntegerToString(funcName, o);
+                        AppendIntegerToString(funcName, s);
+                        break;
                     }
+                }
+
+                if (s == SFX_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\"", arrayStr);
+                    printLog(buf);
                 }
             }
 
@@ -2060,6 +2098,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
                             StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
                         }
+                        else {
+                            char buf[0x40];
+                            sprintf(buf, "Warning: Function %s has already been reserved!", funcName);
+                            printLog(buf);
+                        }
                         parseMode = PARSEMODE_SCOPELESS;
                     }
                     else if (!FindStringToken(scriptText, "function", 1)) { // regular decl
@@ -2173,10 +2216,26 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         }
 
                         if (curTablePublic) {
+                            for (int t = 0; t < publicTableCount; ++t) {
+                                if (StrComp(publicTables[t].name, currentTable->name)) {
+                                    char buf[0x40];
+                                    sprintf(buf, "Warning: Table %s has already been used!", currentTable->name);
+                                    printLog(buf);
+                                }
+                            }
+
                             publicTables[publicTableCount] = *currentTable;
                             ++publicTableCount;
                         }
                         else {
+                            for (int t = 0; t < privateTableCount; ++t) {
+                                if (StrComp(privateTables[t].name, currentTable->name)) {
+                                    char buf[0x40];
+                                    sprintf(buf, "Warning: Table %s has already been used!", currentTable->name);
+                                    printLog(buf);
+                                }
+                            }
+
                             privateTables[privateTableCount] = *currentTable;
                             ++privateTableCount;
                         }

@@ -316,9 +316,15 @@ void processStageSelect()
                 ClearGraphicsData();
                 ClearAnimationData();
                 activeStageList   = 0;
-                stageMode         = DEVMENU_STAGESEL;
+                stageMode         = STAGEMODE_LOAD;
                 Engine.gameMode   = ENGINE_MAINGAME;
                 stageListPosition = 0;
+            }
+            else if (keyPress.C) {
+                ClearGraphicsData();
+                ClearAnimationData();
+                stageMode       = STAGEMODE_LOAD;
+                Engine.gameMode   = ENGINE_MAINGAME;
             }
             break;
         }
