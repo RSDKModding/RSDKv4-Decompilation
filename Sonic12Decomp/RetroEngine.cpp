@@ -242,11 +242,6 @@ bool processEvents()
         }
     }
 #endif
-
-#if RETRO_USING_SDL == 0
-    inp_ScanInput();
-    return sys_MainLoop();
-#endif
     return true;
 }
 
@@ -255,17 +250,9 @@ bool processEvents()
 #endif
 void RetroEngine::Init()
 {
-#if RETRO_PLATFORM == RETRO_3DS
-    sys_Init();
-    gfx_Init();
-#endif
-
-    printf("starting up\n");
-
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
-    printf("init user data\n");
     InitUserdata();
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
@@ -318,12 +305,9 @@ void RetroEngine::Init()
 
     gameMode          = ENGINE_MAINGAME;
     running           = false;
-    finishedStartMenu = false;
-    printf("load game config\n");
+    bool skipStart    = skipStartMenu;
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
-        printf("init render device\n");
         if (InitRenderDevice()) {
-            printf("init audio playback\n");
             if (InitAudioPlayback()) {
                 InitFirstStage();
                 ClearScriptData();
@@ -331,7 +315,7 @@ void RetroEngine::Init()
                 running     = true;
 
                 if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
-                    finishedStartMenu = true;
+                    skipStart = true;
                     InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
                 }
                 else if (startSave != 0xFF && startSave < 4) {
@@ -392,7 +376,7 @@ void RetroEngine::Init()
                             InitStartingStage(STAGELIST_REGULAR, 0, 0);
                         }
                     }
-                    finishedStartMenu = true;
+                    skipStart = true;
                 }
             }
         }
@@ -461,80 +445,41 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
-
-    if (!finishedStartMenu)
+    if (!skipStart)
         initStartMenu(0);
-
-    if (engineDebugMode == false)
-        iprintf("\x1b[2J");
 }
 
 void RetroEngine::Run()
 {
-#if RETRO_USING_SDL
     uint frameStart, frameEnd = SDL_GetTicks();
-#else
-    uint frameStart, frameEnd = sys_GetTicks();
-#endif
-    float frameDelta = 0.f;
-    float msPerFrame = 1000.f / 59.94f;
-    unsigned int frameTime = 0;
-    bool fullspeed = false;
+    float frameDelta = 0.0f;
 
     while (running) {
-#if RETRO_USING_SDL
         frameStart = SDL_GetTicks();
-#else
-        frameStart = sys_GetTicks();
-#endif
-        frameTime = frameStart - frameEnd;
-        frameEnd = frameStart;
+        frameDelta = frameStart - frameEnd;
 
-        if (frameTime <= ceil(msPerFrame)+1) {
-            fullspeed = true;
-        } else {
-            //printf("Lag: %d\n", frameTime);
-            frameDelta += frameTime;
-
-            if (frameDelta > msPerFrame * 4)
-                frameDelta = msPerFrame * 4;
-        }        
-
-#if RETRO_USING_SDL
         if (frameDelta < 1000.0f / (float)refreshRate)
             SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
 
         frameEnd = SDL_GetTicks();
-#endif
-        running = processEvents();
 
-        for (; fullspeed == true || frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
+        running = processEvents();
+        for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
 
-            if (!masterPaused/* || frameStep*/) {
+            if (!masterPaused || frameStep) {
                 ProcessNativeObjects();
-                //RenderRenderDevice();
-                //frameStep = false;
+                RenderRenderDevice();
+                frameStep = false;
             }
-
-            if (fullspeed) break;
         }
-
-        if (fullspeed) {
-            frameDelta = 0;
-            fullspeed = false;
-        }
-
-        RenderRenderDevice();
-        //frameStep = false;
     }
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
 #endif
 }
