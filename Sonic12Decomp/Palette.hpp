@@ -4,6 +4,13 @@
 #define PALETTE_COUNT (0x8)
 #define PALETTE_SIZE  (0x100)
 
+struct Colour {
+    byte r;
+    byte g;
+    byte b;
+    byte a;
+};
+
 struct PaletteEntry {
     byte r;
     byte g;
@@ -26,39 +33,68 @@ extern byte fadeB;
 
 extern int paletteMode;
 
-#define RGB888_TO_RGB5551(r, g, b) (2 * ((b) >> 3) | ((g) >> 3 << 6) | ((r) >> 3 << 11) | 1) // used in mobile vers
-#define RGB888_TO_RGB565(r, g, b)  ((b) >> 3) | (((g) >> 2) << 5) | (((r) >> 3) << 11) // used in pc vers
+#if RETRO_HARDWARE_RENDER
+extern int texPaletteNum;
+#endif
+
+#define RGB888_TO_RGB5551(r, g, b) (2 * ((b) >> 3) | ((g) >> 3 << 6) | ((r) >> 3 << 11) | 0) // used in mobile vers
+#define RGB888_TO_RGB565(r, g, b)  ((b) >> 3) | (((g) >> 2) << 5) | (((r) >> 3) << 11)       // used in pc vers
+
+#if RETRO_SOFTWARE_RENDER
+#define PACK_RGB888(r, g, b) RGB888_TO_RGB565(r, g, b)
+#elif RETRO_HARDWARE_RENDER
+#define PACK_RGB888(r, g, b) RGB888_TO_RGB5551(r, g, b)
+#endif
 
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex);
 
 inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 {
+#if RETRO_SOFTWARE_RENDER
     if (newActivePal < PALETTE_COUNT)
         for (int l = startLine; l < endLine && l < SCREEN_YSIZE; l++) gfxLineBuffer[l] = newActivePal;
 
     activePalette   = fullPalette[gfxLineBuffer[0]];
     activePalette32 = fullPalette32[gfxLineBuffer[0]];
+#endif
+
+#if RETRO_HARDWARE_RENDER
+    if (newActivePal < PALETTE_COUNT)
+        texPaletteNum = newActivePal;
+#endif
 }
 
 inline void SetPaletteEntry(byte paletteIndex, byte index, byte r, byte g, byte b)
 {
     if (paletteIndex != 0xFF) {
-        fullPalette[paletteIndex][index]     = RGB888_TO_RGB565(r, g, b);
+        fullPalette[paletteIndex][index]     = PACK_RGB888(r, g, b);
         fullPalette32[paletteIndex][index].r = r;
         fullPalette32[paletteIndex][index].g = g;
         fullPalette32[paletteIndex][index].b = b;
+#if RETRO_HARDWARE_RENDER
+        if (index)
+            fullPalette[paletteIndex][index] |= 1;
+#endif
     }
     else {
-        activePalette[index]     = RGB888_TO_RGB565(r, g, b);
+        activePalette[index]     = PACK_RGB888(r, g, b);
         activePalette32[index].r = r;
         activePalette32[index].g = g;
         activePalette32[index].b = b;
+#if RETRO_HARDWARE_RENDER
+        if (index)
+            activePalette[index] |= 1;
+#endif
     }
 }
 
 inline void SetPaletteEntryPacked(byte paletteIndex, byte index, uint colour)
 {
-    fullPalette[paletteIndex][index]     = RGB888_TO_RGB565((byte)(colour >> 16), (byte)(colour >> 8), (byte)(colour >> 0));
+    fullPalette[paletteIndex][index] = PACK_RGB888((byte)(colour >> 16), (byte)(colour >> 8), (byte)(colour >> 0));
+#if RETRO_HARDWARE_RENDER
+    if (index)
+        fullPalette[paletteIndex][index] |= 1;
+#endif
     fullPalette32[paletteIndex][index].r = (byte)(colour >> 16);
     fullPalette32[paletteIndex][index].g = (byte)(colour >> 8);
     fullPalette32[paletteIndex][index].b = (byte)(colour >> 0);

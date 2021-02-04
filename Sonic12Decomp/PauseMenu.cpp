@@ -29,7 +29,9 @@ void PauseMenu_Create(void *objPtr)
     SetPaletteEntry(7, 8, 0xca, 0x51, 0);
     SetPaletteEntry(7, 9, 0xca, 0x51, 0);
 
+#if RETRO_SOFTWARE_RENDER
     memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+#endif
 }
 
 inline int lerp(float a, float b, float amount) { return a + amount * (b - a); }
@@ -58,8 +60,10 @@ void PauseMenu_Main(void *objPtr)
     if (amount > 0xFF)
         amount = 0xFF;
 
+#if RETRO_SOFTWARE_RENDER
     if (pauseMenu->direction) // we copy to ensure it gets sepia'd
         memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+#endif
 
     switch (pauseMenu->state) {
         case 0:
@@ -175,10 +179,12 @@ void PauseMenu_Main(void *objPtr)
             fg = MIN(255, fg);
             fb = MIN(255, fb);
 
-            lookup[color] = RGB888_TO_RGB565(fr, fg, fb);
+            lookup[color] = PACK_RGB888(fr, fg, fb);
             displayed[i]  = lookup[color];
         }
+#if RETRO_SOFTWARE_RENDER
         memcpy(Engine.frameBuffer, displayed, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+#endif
         pauseMenu->direction = pauseMenu->state == 2 || pauseMenu->state == 6;
     }
 

@@ -29,6 +29,10 @@ void initDevMenu()
 
     RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled    = false;
+    UpdateHardwareTextures();
+#endif
 }
 void initErrorMessage()
 {
@@ -55,6 +59,10 @@ void initErrorMessage()
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
     touchTimer                   = 0;
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 void processStageSelect()
 {
@@ -330,6 +338,11 @@ void processStageSelect()
         }
         default: break;
     }
+
+#if RETRO_HARDWARE_RENDER
+    gfxIndexSizeOpaque  = gfxIndexSize;
+    gfxVertexSizeOpaque = gfxVertexSize;
+#endif
 }
 
 void initStartMenu(int mode)
@@ -394,6 +407,10 @@ void initStartMenu(int mode)
     }
     else {
     }
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 
 void setTextMenu(int sm)

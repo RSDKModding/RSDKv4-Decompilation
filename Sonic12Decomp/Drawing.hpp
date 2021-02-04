@@ -27,8 +27,13 @@ struct GFXSurface
     char fileName[0x40];
     int height;
     int width;
-    int widthShift;
-    int depth;
+#if RETRO_SOFTWARE_RENDER
+    int widthShifted;
+#endif
+#if RETRO_HARDWARE_RENDER
+    int texStartX;
+    int texStartY;
+#endif
     int dataPosition;
 };
 
@@ -64,26 +69,124 @@ extern short tintLookupTable[TINTTABLE_SIZE];
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
+extern int touchWidth;
+extern int touchHeight;
+
 extern DrawListEntry drawListEntries[DRAWLAYER_COUNT];
 
 extern int gfxDataPosition;
 extern GFXSurface gfxSurface[SURFACE_MAX];
 extern byte graphicData[GFXDATA_MAX];
 
+#if RETRO_HARDWARE_RENDER
+#define INDEX_LIMIT      (0xC000)
+#define VERTEX_LIMIT     (0x2000)
+#define VERTEX3D_LIMIT   (0x1904)
+#define TEXBUFFER_SIZE   (0x100000)
+#define TILEUV_SIZE      (0x1000)
+#define TEXTURE_LIMIT    (6)
+#define TEXTURE_DATASIZE (1024 * 1024 * 2)
+#define TEXTURE_SIZE     (1024)
+
+struct DrawVertex {
+    short x;
+    short y;
+    short u;
+    short v;
+
+    Colour colour;
+};
+
+struct DrawVertex3D {
+    float x;
+    float y;
+    float z;
+    short u;
+    short v;
+
+    Colour colour;
+};
+
+extern DrawVertex gfxPolyList[VERTEX_LIMIT];
+extern short gfxPolyListIndex[INDEX_LIMIT];
+extern ushort gfxVertexSize;
+extern ushort gfxVertexSizeOpaque;
+extern ushort gfxIndexSize;
+extern ushort gfxIndexSizeOpaque;
+
+extern DrawVertex3D polyList3D[VERTEX3D_LIMIT];
+
+extern ushort vertexSize3D;
+extern ushort indexSize3D;
+extern float tileUVArray[TILEUV_SIZE];
+extern float floor3DXPos;
+extern float floor3DYPos;
+extern float floor3DZPos;
+extern float floor3DAngle;
+extern bool render3DEnabled;
+extern bool hq3DFloorEnabled;
+
+extern ushort texBuffer[TEXBUFFER_SIZE];
+extern byte texBufferMode;
+
+extern int orthWidth;
+extern int viewWidth;
+extern int viewHeight;
+extern float viewAspect;
+extern int bufferWidth;
+extern int bufferHeight;
+extern int virtualX;
+extern int virtualY;
+extern int virtualWidth;
+extern int virtualHeight;
+
+#if RETRO_USING_OPENGL
+extern GLuint gfxTextureID[TEXTURE_LIMIT];
+extern GLuint framebufferId;
+extern GLuint fbTextureId;
+#endif
+
+#endif
+
 int InitRenderDevice();
-void RenderRenderDevice();
+void FlipScreen();
 void ReleaseRenderDevice();
 
 void GenerateBlendLookupTable();
 
 inline void ClearGraphicsData()
 {
-    for (int i = 0; i < SURFACE_MAX; ++i) MEM_ZERO(gfxSurface[i]);
+    for (int i = 0; i < SURFACE_MAX; ++i) StrCopy(gfxSurface[i].fileName, "");
     gfxDataPosition = 0;
 }
 void ClearScreen(byte index);
 
 void SetScreenSize(int width, int height);
+#if RETRO_SOFTWARE_RENDER
+void CopyFrameOverlay2x();
+#endif
+
+#if RETRO_HARDWARE_RENDER
+inline bool CheckSurfaceSize(int size)
+{
+    for (int cnt = 2; cnt < 2048; cnt <<= 1) {
+        if (cnt == size)
+            return true;
+    }
+    return false;
+}
+
+void UpdateHardwareTextures();
+void SetScreenDimensions(int width, int height, int scale);
+void ScaleViewport(int width, int height);
+void CalcPerspective(float fov, float aspectRatio, float nearPlane, float farPlane);
+
+void SetupPolygonLists();
+void UpdateTextureBufferWithTiles();
+void UpdateTextureBufferWithSortedSprites();
+void UpdateTextureBufferWithSprites();
+
+#endif
 
 // Layer Drawing
 void DrawObjectList(int layer);
@@ -126,7 +229,7 @@ void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos);
 void DrawFace(void *v, uint colour);
 void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
-void DrawTexturedFace2(void *v, byte sheetID);
+void DrawTexturedFaceBlended(void *v, byte sheetID);
 
 void DrawTextMenu(void *menu, int XPos, int YPos);
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);

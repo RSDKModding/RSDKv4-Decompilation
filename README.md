@@ -25,10 +25,8 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * If `devMenu` is enabled in the config, pressing `f10` will activate a palette overlay that shows the game's 8 internal palettes in real time
 
 # TODOs:
-* the "native object" system has been implimented, but the objects (aside from RetroGameLoop and a temporary pause menu) and the proper HW rendering system have yet to be added
-* probably some more bug fixes, because there always are a few stragglers
-* create a `cmakelists.txt` file for windows compiling so builds can be added automatically via git actions
-* S2 networking code, we attempted to write code to handle the 2PVS mode in S2 but we couldn't finish for many reasons, we did leave our WIP code in the game, so if you think you could do it by all means give it a shot!
+* fix the HW Renderer, the game wasn't built around it/ it doesn't properly support palettes so all palette effects are broken, and it doesn't play nice with the SDL2 renderer, everything else works though
+* (maybe) S2 networking code, we attempted to write code to handle the 2PVS mode in S2 but we couldn't finish for many reasons, we did leave our WIP code in the game, so if you think you could do it by all means give it a shot!
 
 # How to build:
 ## Windows:

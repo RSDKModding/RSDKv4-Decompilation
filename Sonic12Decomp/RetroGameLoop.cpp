@@ -11,13 +11,30 @@ void RetroGameLoop_Main(void *objPtr)
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:
+#if RETRO_HARDWARE_RENDER
+            gfxIndexSize        = 0;
+            gfxVertexSize       = 0;
+            gfxIndexSizeOpaque  = 0;
+            gfxVertexSizeOpaque = 0;
+#endif
             if (entity->pauseMenu && nativeEntityCount > 1) // dumb fix but yknow how it is
                 RemoveNativeObject(entity->pauseMenu);
             entity->pauseMenu = nullptr;
 
             processStageSelect();
             break;
-        case ENGINE_MAINGAME: ProcessStage(); break;
+        case ENGINE_MAINGAME:
+#if RETRO_HARDWARE_RENDER
+            gfxIndexSize        = 0;
+            gfxVertexSize       = 0;
+            gfxIndexSizeOpaque  = 0;
+            gfxVertexSizeOpaque = 0;
+            vertexSize3D        = 0;
+            indexSize3D         = 0;
+            render3DEnabled     = false;
+#endif
+            ProcessStage(); 
+            break;
         case ENGINE_INITDEVMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             initDevMenu();

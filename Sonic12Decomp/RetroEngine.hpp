@@ -108,6 +108,34 @@ typedef unsigned int uint;
 #define RETRO_HW_RENDER  (1)
 #define RETRO_RENDERTYPE (RETRO_SW_RENDER)
 
+#ifdef USE_SW_REN
+#undef RETRO_RENDERTYPE
+#define RETRO_RENDERTYPE (RETRO_SW_RENDER)
+#endif
+
+#ifdef USE_HW_REN
+#undef RETRO_RENDERTYPE
+#define RETRO_RENDERTYPE (RETRO_HW_RENDER)
+#endif
+
+#if RETRO_RENDERTYPE == RETRO_SW_RENDER
+#define RETRO_USING_OPENGL (0)
+#elif RETRO_RENDERTYPE == RETRO_HW_RENDER
+#define RETRO_USING_OPENGL (1)
+#endif
+
+#define RETRO_SOFTWARE_RENDER (RETRO_RENDERTYPE == RETRO_SW_RENDER)
+#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
+
+#if RETRO_USING_OPENGL
+#include <GL/glew.h>
+#include <GL/glu.h>
+
+#if RETRO_USING_SDL2
+#include <SDL_opengl.h>
+#endif
+#endif
+
 #define RETRO_USE_HAPTICS (1)
 
 // this macro defines the touch device read by the game (UWP requires DIRECT)
@@ -283,8 +311,10 @@ public:
 
     byte gameType = GAME_UNKNOWN;
 
+#if RETRO_SOFTWARE_RENDER
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
+#endif
 
     bool isFullScreen = false;
 
@@ -307,10 +337,16 @@ public:
 #if RETRO_USING_SDL2
     SDL_Window *window          = nullptr;
     SDL_Renderer *renderer      = nullptr;
+#if RETRO_SOFTWARE_RENDER
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
+#endif
 
     SDL_Event sdlEvents;
+
+#if RETRO_USING_OPENGL
+    SDL_GLContext m_glContext; // OpenGL context
+#endif
 #endif
 
 #if RETRO_USING_SDL1

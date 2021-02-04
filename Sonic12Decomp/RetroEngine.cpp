@@ -452,8 +452,8 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    SetGlobalVariableByName("Engine.PlatformID",
-                            RETRO_GAMEPLATFORM); // note to future rdc (or anyone else): what does this do? no vars are named this
+    // note to future rdc (or anyone else): what does this do? no vars are named this
+    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM);
 
     if (!skipStart)
         initStartMenu(0);
@@ -479,7 +479,14 @@ void RetroEngine::Run()
 
             if (!masterPaused || frameStep) {
                 ProcessNativeObjects();
-                RenderRenderDevice();
+                FlipScreen();
+
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
+                if (s == gameSpeed - 1 && !renderQueueSize)
+                    SDL_GL_SwapWindow(Engine.window);
+                renderQueueSize = 0;
+#endif
+
                 frameStep = false;
             }
         }

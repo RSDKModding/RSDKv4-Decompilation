@@ -3983,7 +3983,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 if (objectEntityList[scriptEng.arrayPosition[8]].type > OBJ_TYPE_BLANKOBJECT && ++scriptEng.arrayPosition[8] == ENTITY_COUNT)
                     scriptEng.arrayPosition[8] = TEMPENTITY_START;
                 Entity *temp = &objectEntityList[scriptEng.arrayPosition[8]];
-                memset(temp, 0, sizeof(Entity));
+                MEM_ZEROP(temp);
                 temp->type               = scriptEng.operands[0];
                 temp->propertyValue      = scriptEng.operands[1];
                 temp->XPos               = scriptEng.operands[2];

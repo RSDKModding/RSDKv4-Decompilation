@@ -16,6 +16,10 @@ byte fadeR   = 0;
 byte fadeG   = 0;
 byte fadeB   = 0;
 
+#if RETRO_HARDWARE_RENDER
+int texPaletteNum = 0;
+#endif
+
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex)
 {
     FileInfo info;
@@ -67,12 +71,15 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
     ushort *dst         = &fullPalette[destPaletteID][startIndex];
     PaletteEntry *dst32 = &fullPalette32[destPaletteID][startIndex];
     for (int l = startIndex; l < endIndex; ++l) {
-        *dst     = RGB888_TO_RGB565((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
+        *dst     = PACK_RGB888((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
                                 (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8),
                                 (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8));
         dst32->r = (byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8);
         dst32->g = (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8);
         dst32->b = (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8);
+#if RETRO_HARDWARE_RENDER
+        *dst |= 1;
+#endif
 
         ++dst;
         ++dst32;
