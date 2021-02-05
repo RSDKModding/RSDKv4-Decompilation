@@ -28,6 +28,7 @@ bin/
 [Bb]in/
 [Oo]bj/
 cmake/
+wasm
 
 #dependencies
 [Dd]ependencies/windows-uwp/**

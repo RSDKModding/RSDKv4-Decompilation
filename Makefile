@@ -41,8 +41,12 @@ bin/sonic2013: $(SOURCES:%=objects/%.o)
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $^ -o $@ $(LIBS_ALL)
 
+wasm: $(SOURCES)
+	mkdir wasm; em++ $^ -o wasm/index.html -g -lm --bind  -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='["png"]' -s USE_OGG=1 -s USE_VORBIS=1 -s TOTAL_MEMORY=60MB -s ALLOW_MEMORY_GROWTH=1 --preload-file Data.rsdk
+
 install: bin/sonic2013
 	install -Dp -m755 bin/sonic2013 $(prefix)/bin/sonic2013
 
 clean:
 	rm -r -f bin && rm -r -f objects
+	[ -d wasm ] && rm -r wasm

@@ -1,6 +1,10 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#ifdef __EMSCRIPTEN__
+#include <wchar.h>
+#endif
+
 extern bool endLine;
 inline void printLog(const char *msg, ...)
 {
