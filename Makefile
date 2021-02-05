@@ -40,7 +40,7 @@ PLATFORM ?= Unknown
 # =============================================================================
 
 OUTDIR = bin/$(PLATFORM)
-OBJDIR = objects/$(PLATFORM)
+OBJDIR = obj/$(PLATFORM)
 
 include Makefile_cfgs/Platforms/$(PLATFORM).cfg
 

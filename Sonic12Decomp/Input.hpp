@@ -113,10 +113,6 @@ extern SDL_Joystick *controller;
 #endif
 
 void ProcessInput();
-void ProcessButton(byte controllerID, byte buttonID, byte pressed);
-
-void ProcessInputPost();
-
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
