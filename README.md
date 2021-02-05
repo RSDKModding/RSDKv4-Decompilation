@@ -65,6 +65,15 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 ## Switch:
 * head on over to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme
 
+## Web
+* Download the libraries you need for your OS as if you were compiling for desktop
+* Download Emscripten's WASM compiler [here](https://emscripten.org/docs/getting_started/downloads.html) and make sure you can call it from the command line in this directory
+* Make sure your legally-obtained `Data.rsdk` is in this directory as it gets compiled in
+* Now compile by running `make wasm`
+* Go into the newly created `wasm` directory and run a server. I usually run `python -m http.server`, which will serve locally on port 8000
+* In your browser go to `localhost:8000` and play the game!
+* If there is no sound, reload the page and try clicking/interacting with the canvas (black box). Sound is prevented from autoplaying in Chrome until the user interacts
+
 ## Other platforms:
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
 if you've cloned this repo and ported it to a platform not on the list or made some changes you'd like to see added to this repo, submit a pull request and it'll most likely be added
