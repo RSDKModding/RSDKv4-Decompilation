@@ -3,11 +3,11 @@
 
 #define SCRIPTDATA_COUNT (0x100000)
 #define JUMPTABLE_COUNT  (0x10000)
-#define FUNCTION_COUNT (0x200)
+#define FUNCTION_COUNT   (0x200)
 
 #define JUMPSTACK_COUNT (0x400)
 #define FUNCSTACK_COUNT (0x400)
-#define FORSTACK_COUNT (0x400)
+#define FORSTACK_COUNT  (0x400)
 
 struct ScriptPtr {
     int scriptCodePtr;
@@ -21,7 +21,7 @@ struct ObjectScript {
     ScriptPtr eventDraw;
     ScriptPtr eventStartup;
     int frameListOffset;
-    AnimationFile* animFile;
+    AnimationFile *animFile;
 };
 
 struct ScriptEngine {
@@ -88,8 +88,8 @@ extern int jumpTableStack[JUMPSTACK_COUNT];
 extern int functionStack[FUNCSTACK_COUNT];
 extern int foreachStack[FORSTACK_COUNT];
 
-extern int scriptCodePos; //Bytecode reading offset
-extern int jumpTablePos;  //Bytecode reading offset
+extern int scriptCodePos; // Bytecode reading offset
+extern int jumpTablePos;  // Bytecode reading offset
 extern int jumpTableStackPos;
 extern int functionStackPos;
 extern int foreachStackPos;
@@ -103,7 +103,7 @@ extern int jumpTableDataPos;
 extern int jumpTableDataOffset;
 
 extern int scriptFunctionCount;
-extern char scriptFunctionNames[FUNCTION_COUNT][0x20];
+extern char scriptFunctionNames[FUNCTION_COUNT][0x40];
 
 extern int lineID;
 

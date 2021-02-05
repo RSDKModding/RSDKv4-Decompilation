@@ -94,8 +94,8 @@ void InitFirstStage(void)
     activePalette32   = fullPalette32[0];
     stageMode         = STAGEMODE_LOAD;
     Engine.gameMode   = ENGINE_MAINGAME;
-    activeStageList   = Engine.startList;
-    stageListPosition = Engine.startStage;
+    activeStageList   = Engine.startList == 0xFF ? 0 : Engine.startList;
+    stageListPosition = Engine.startStage == 0xFF ? 0 : Engine.startStage;
 }
 
 void InitStartingStage(int list, int stage, int player)
