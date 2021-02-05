@@ -50,10 +50,12 @@ IniParser::IniParser(const char *filename)
         if (sscanf(buf, "[%[^][]]", section) == 1) {
             hasSection = true;
         }
-        else if (sscanf(buf, "%[^ =]= %s", key, value) == 2 || sscanf(buf, "%[^ =]=%s", key, value) == 2
-                 || sscanf(buf, "%[^ =] = %s", key, value) == 2 || sscanf(buf, "%[^ =] =%s", key, value) == 2) {
+        else if (sscanf(buf, "%[^ =]= %[^\t\r\n]", key, value) == 2 || sscanf(buf, "%[^ =]=%[^\t\r\n]", key, value) == 2
+                 || sscanf(buf, "%[^ =] = %[^\t\r\n]", key, value) == 2 || sscanf(buf, "%[^ =] =%[^\t\r\n]", key, value) == 2) {
             if (hasSection)
                 sprintf(items[count].section, "%s", section);
+            else
+                sprintf(items[count].section, "", section);
 
             sprintf(items[count].key, "%s", key);
             sprintf(items[count].value, "%s", value);
@@ -270,6 +272,30 @@ void IniParser::Write(const char *filename)
     }
 
     char buffer[0x100];
+
+    // Sectionless items
+    for (int i = 0; i < count; ++i) {
+        if (strcmp("", items[i].section) == 0) {
+            switch (items[i].type) {
+                default:
+                case INI_ITEM_STRING:
+                case INI_ITEM_INT:
+                case INI_ITEM_FLOAT:
+                case INI_ITEM_BOOL:
+                    sprintf(buffer, "%s=%s\n", items[i].key, items[i].value);
+                    fWrite(&buffer, 1, StrLength(buffer), f);
+                    break;
+                case INI_ITEM_COMMENT:
+                    sprintf(buffer, "; %s\n", items[i].value);
+                    fWrite(&buffer, 1, StrLength(buffer), f);
+                    break;
+            }
+        }
+    }
+    sprintf(buffer, "\n");
+    fWrite(&buffer, StrLength(buffer), 1, f);
+
+    // Sections
     for (int s = 0; s < c; ++s) {
         sprintf(buffer, "[%s]\n", sections[s]);
         fWrite(&buffer, 1, StrLength(buffer), f);

@@ -48,6 +48,8 @@ extern int matchValueWritePos;
 extern int sendDataMethod;
 extern int sendCounter;
 
+extern bool skipStartMenu;
+
 inline int GetGlobalVariableByName(const char *name)
 {
     for (int v = 0; v < globalVariablesCount; ++v) {

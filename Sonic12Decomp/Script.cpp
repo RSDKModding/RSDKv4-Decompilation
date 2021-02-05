@@ -611,7 +611,7 @@ const char scriptEvaluationTokens[][0x4] = { "=",  "+=", "-=", "++", "--", "*=",
                                              "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
 
 int scriptFunctionCount = 0;
-char scriptFunctionNames[FUNCTION_COUNT][0x20];
+char scriptFunctionNames[FUNCTION_COUNT][0x40];
 
 enum ScriptReadModes { READMODE_NORMAL = 0, READMODE_STRING = 1, READMODE_COMMENTLINE = 2, READMODE_ENDLINE = 3, READMODE_EOF = 4 };
 enum ScriptParseModes {
@@ -1016,12 +1016,11 @@ enum ScrFunc {
     FUNC_MAX_CNT
 };
 
-
 void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) && FindStringToken(text, "privatealias", 1))
         return;
-    int textPos     = 6;
+    int textPos     = 11;
     int aliasStrPos = 0;
     int aliasMatch  = 0;
 
@@ -1032,12 +1031,16 @@ void CheckAliasText(char *text)
 
     AliasInfo *a = &publicAliases[publicAliasCount];
     int *cnt     = &publicAliasCount;
+    bool priv    = false;
     if (FindStringToken(text, "privatealias", 1) == 0) {
-        a   = &privateAliases[privateAliasCount];
-        cnt = &privateAliasCount;
+        a       = &privateAliases[privateAliasCount];
+        cnt     = &privateAliasCount;
+        textPos = 12;
         if (privateAliasCount >= ALIAS_COUNT) // private alias & we reached the cap
             return;
+        priv = true;
     }
+    MEM_ZEROP(a);
 
     while (aliasMatch < 2) {
         if (aliasMatch) {
@@ -1062,6 +1065,15 @@ void CheckAliasText(char *text)
         }
         ++textPos;
     }
+
+    for (int v = 0; v < *cnt; ++v) {
+        if (StrComp(priv ? privateAliases[v].name : publicAliases[v].name, a->name)) {
+            char buf[0x40];
+            sprintf(buf, "Warning: Alias %s has already been used!", a->name);
+            printLog(buf);
+        }
+    }
+
     ++*cnt;
 }
 void CheckStaticText(char *text)
@@ -1080,13 +1092,16 @@ void CheckStaticText(char *text)
 
     StaticInfo *var = &publicStaticVariables[publicStaticVarCount];
     int *cnt        = &publicStaticVarCount;
+    bool priv       = false;
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
             return;
-        var     = &privateStaticVariables[privateStaticVarCount];
-        cnt     = &privateStaticVarCount;
-        textPos = 12;
+        var       = &privateStaticVariables[privateStaticVarCount];
+        cnt       = &privateStaticVarCount;
+        textPos   = 12;
+        bool priv = true;
     }
+    MEM_ZEROP(var);
 
     while (staticMatch < 2) {
         if (staticMatch == 1) {
@@ -1104,14 +1119,24 @@ void CheckStaticText(char *text)
             }
         }
         else if (text[textPos] == '=') {
-            staticStrPos = 0;
-            staticMatch  = 1;
+            var->name[staticStrPos] = 0;
+            staticStrPos            = 0;
+            staticMatch             = 1;
         }
         else {
             var->name[staticStrPos++] = text[textPos];
         }
         ++textPos;
     }
+
+    for (int v = 0; v < *cnt; ++v) {
+        if (StrComp(priv ? privateStaticVariables[v].name : publicStaticVariables[v].name, var->name)) {
+            char buf[0x40];
+            sprintf(buf, "Warning: Variable %s has already been used!", var->name);
+            printLog(buf);
+        }
+    }
+
     ++*cnt;
 }
 TableInfo *CheckTableText(char *text)
@@ -1127,18 +1152,20 @@ TableInfo *CheckTableText(char *text)
     TableInfo *table = &publicTables[publicTableCount];
     int strPos       = 11;
     curTablePublic   = true;
-    if (FindStringToken(text, "privatevalue", 1) == 0) {
+    if (FindStringToken(text, "privatetable", 1) == 0) {
         if (privateTableCount >= TABLE_COUNT) // private table and we reached the cap
             return NULL;
         table          = &privateTables[privateTableCount];
         strPos         = 12;
         curTablePublic = false;
     }
+    MEM_ZEROP(table);
 
     int namePos = 0;
     while (text[strPos]) {
         table->name[namePos++] = text[strPos++];
     }
+    table->name[namePos] = 0;
     return table;
 }
 void ConvertArithmaticSyntax(char *text)
@@ -1253,9 +1280,11 @@ void ConvertForeachStatement(char *text)
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
                     dest[destStrPos++] = text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
@@ -1277,9 +1306,11 @@ void ConvertForeachStatement(char *text)
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest[destStrPos++] = text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
                     dest[destStrPos++] = text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
@@ -1406,12 +1437,49 @@ void ConvertFunctionText(char *text)
                         CopyAliasStr(arrayStr, privateAliases[a].value, 1);
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int a = 0; a < publicAliasCount; ++a) {
                 if (StrComp(funcName, publicAliases[a].name)) {
                     CopyAliasStr(funcName, publicAliases[a].value, 0);
                     if (FindStringToken(publicAliases[a].value, "[", 1) > -1)
                         CopyAliasStr(arrayStr, publicAliases[a].value, 1);
+                }
+            }
+
+            if (arrayStr[0]) {
+                char arrStrBuf[0x80];
+                int arrPos = 0;
+                int bufPos = 0;
+                if (arrayStr[0] == '+' || arrayStr[0] == '-')
+                    ++arrPos;
+                while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+                arrStrBuf[bufPos] = 0;
+
+                // Private (this script only)
+                for (int a = 0; a < privateAliasCount; ++a) {
+                    if (StrComp(arrStrBuf, privateAliases[a].name)) {
+                        char pref = arrayStr[0];
+                        CopyAliasStr(arrayStr, privateAliases[a].value, 0);
+
+                        if (pref == '+' || pref == '-') {
+                            int len = StrLength(arrayStr);
+                            for (int i = len; i >= 0; --i) arrayStr[i + 1] = arrayStr[i];
+                            arrayStr[0] = pref;
+                        }
+                    }
+                }
+                // Public (this script & all following scripts)
+                for (int a = 0; a < publicAliasCount; ++a) {
+                    if (StrComp(arrStrBuf, publicAliases[a].name)) {
+                        char pref = arrayStr[0];
+                        CopyAliasStr(arrayStr, publicAliases[a].value, 0);
+
+                        if (pref == '+' || pref == '-') {
+                            int len = StrLength(arrayStr);
+                            for (int i = len; i >= 0; --i) arrayStr[i + 1] = arrayStr[i];
+                            arrayStr[0] = pref;
+                        }
+                    }
                 }
             }
 
@@ -1424,7 +1492,7 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(arrayStr, privateStaticVariables[s].dataPos);
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int s = 0; s < publicStaticVarCount; ++s) {
                 if (StrComp(funcName, publicStaticVariables[s].name)) {
                     StrCopy(funcName, "local");
@@ -1442,7 +1510,7 @@ void ConvertFunctionText(char *text)
                     arrayStr[0] = 0;
                 }
             }
-            // Private (this script & all following scripts)
+            // Public (this script & all following scripts)
             for (int a = 0; a < publicTableCount; ++a) {
                 if (StrComp(funcName, publicTables[a].name)) {
                     funcName[0] = 0;
@@ -1470,11 +1538,19 @@ void ConvertFunctionText(char *text)
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                int o = 0;
+                for (; o < OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
+                        break;
                     }
+                }
+
+                if (o == OBJECT_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown typename \"%s\"", arrayStr);
+                    printLog(buf);
                 }
             }
 
@@ -1482,11 +1558,19 @@ void ConvertFunctionText(char *text)
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < SFX_COUNT; ++o) {
-                    if (StrComp(arrayStr, sfxNames[o])) {
+                int s = 0;
+                for (; s < SFX_COUNT; ++s) {
+                    if (StrComp(arrayStr, sfxNames[s])) {
                         funcName[0] = 0;
-                        AppendIntegerToString(funcName, o);
+                        AppendIntegerToString(funcName, s);
+                        break;
                     }
+                }
+
+                if (s == SFX_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\"", arrayStr);
+                    printLog(buf);
                 }
             }
 
@@ -1617,19 +1701,23 @@ void CheckCaseNumber(char *text)
         destStrPos = 0;
     }
     dest[destStrPos] = 0;
-    int aliasVarID   = 0;
-    if (publicAliasCount) {
-        aliasVarID = 0;
-        do {
-            while (!StrComp(dest, publicAliases[aliasVarID].name)) {
-                if (publicAliasCount <= ++aliasVarID)
-                    goto CONV_VAL;
-            }
-            StrCopy(dest, publicAliases[aliasVarID++].value);
-        } while (publicAliasCount > aliasVarID);
+
+    for (int a = 0; a < privateAliasCount; ++a) {
+        if (StrComp(privateAliases[a].name, dest)) {
+            StrCopy(dest, privateAliases[a].value);
+            goto CONV_VAL;
+        }
+    }
+
+    for (int a = 0; a < publicAliasCount; ++a) {
+        if (StrComp(publicAliases[a].name, dest)) {
+            StrCopy(dest, publicAliases[a].value);
+            goto CONV_VAL;
+        }
     }
 
 CONV_VAL:
+    int aliasVarID = 0;
     if (ConvertStringToInteger(dest, &aliasVarID) != 1)
         return;
     int stackValue = jumpTableStack[jumpTableStackPos];
@@ -1688,8 +1776,8 @@ void ReadTableValues(char *text)
     int textPos = 0;
     char strBuffer[0x20];
     int strPos = 0;
-    while (text[textPos]) {
-        if (text[textPos] == ',') {
+    while (true) {
+        if (text[textPos] == ',' || !text[textPos]) {
             strBuffer[strPos] = 0;
 
             int cnt = currentTable->valueCount;
@@ -1697,6 +1785,9 @@ void ReadTableValues(char *text)
             currentTable->valueCount++;
 
             strPos = 0;
+
+            if (!text[textPos])
+                break;
         }
         else {
             strBuffer[strPos++] = text[textPos];
@@ -1993,11 +2084,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         scriptDataOffset                                      = scriptDataPos;
                         jumpTableDataOffset                                   = jumpTableDataPos;
                     }
-                    if (!FindStringToken(scriptText, "reservefunction", 1)) { //forward decl
-                        char funcName[0x20];
-                        for (textPos = 9; scriptText[textPos]; ++textPos) funcName[textPos - 9] = scriptText[textPos];
-                        funcName[textPos - 9] = 0;
-                        int funcID            = -1;
+                    if (!FindStringToken(scriptText, "reservefunction", 1)) { // forward decl
+                        char funcName[0x40];
+                        for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
+                        funcName[textPos - 15] = 0;
+                        int funcID             = -1;
                         for (int f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionNames[f]))
                                 funcID = f;
@@ -2005,10 +2096,15 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
                             StrCopy(scriptFunctionNames[scriptFunctionCount++], funcName);
                         }
+                        else {
+                            char buf[0x40];
+                            sprintf(buf, "Warning: Function %s has already been reserved!", funcName);
+                            printLog(buf);
+                        }
                         parseMode = PARSEMODE_SCOPELESS;
                     }
-                    else { //regular decl
-                        char funcName[0x20];
+                    else if (!FindStringToken(scriptText, "function", 1)) { // regular decl
+                        char funcName[0x40];
                         for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
                         funcName[textPos - 8] = 0;
                         int funcID            = -1;
@@ -2118,10 +2214,26 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         }
 
                         if (curTablePublic) {
+                            for (int t = 0; t < publicTableCount; ++t) {
+                                if (StrComp(publicTables[t].name, currentTable->name)) {
+                                    char buf[0x40];
+                                    sprintf(buf, "Warning: Table %s has already been used!", currentTable->name);
+                                    printLog(buf);
+                                }
+                            }
+
                             publicTables[publicTableCount] = *currentTable;
                             ++publicTableCount;
                         }
                         else {
+                            for (int t = 0; t < privateTableCount; ++t) {
+                                if (StrComp(privateTables[t].name, currentTable->name)) {
+                                    char buf[0x40];
+                                    sprintf(buf, "Warning: Table %s has already been used!", currentTable->name);
+                                    printLog(buf);
+                                }
+                            }
+
                             privateTables[privateTableCount] = *currentTable;
                             ++privateTableCount;
                         }
@@ -2145,18 +2257,18 @@ void LoadBytecode(int stageListID, int scriptID)
         case STAGELIST_REGULAR:
         case STAGELIST_BONUS:
         case STAGELIST_SPECIAL:
-            StrCopy(scriptPath, "ByteCode/");
+            StrCopy(scriptPath, "Bytecode/");
             StrAdd(scriptPath, stageList[stageListID][stageListPosition].folder);
             StrAdd(scriptPath, ".bin");
             break;
-        case 4: StrCopy(scriptPath, "ByteCode/GlobalCode.bin"); break;
+        case 4: StrCopy(scriptPath, "Bytecode/GlobalCode.bin"); break;
         default: break;
     }
 
     FileInfo info;
     if (LoadFile(scriptPath, &info)) {
         byte fileBuffer = 0;
-        int *scrData   = &scriptData[scriptCodePos];
+        int *scrData    = &scriptData[scriptCodePos];
         FileRead(&fileBuffer, 1);
         int scriptDataCount = fileBuffer;
         FileRead(&fileBuffer, 1);
@@ -2379,6 +2491,12 @@ void ClearScriptData()
         StrCopy(privateAliases[i].name, "");
         StrCopy(privateAliases[i].value, "");
     }
+
+    memset(publicStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+    memset(privateStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+
+    memset(publicTables, 0, TABLE_COUNT * sizeof(TableInfo));
+    memset(privateTables, 0, TABLE_COUNT * sizeof(TableInfo));
 
     ClearGraphicsData();
     ClearAnimationData();
@@ -4076,7 +4194,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 scriptCodePtr                     = functionScriptList[scriptEng.operands[0]].scriptCodePtr;
                 jumpTablePtr                      = functionScriptList[scriptEng.operands[0]].jumpTablePtr;
                 scriptDataPtr                     = scriptCodePtr;
-            } break;
+                break;
+            }
             case FUNC_RETURN:
                 opcodeSize    = 0;
                 scriptCodePtr = functionStack[--functionStackPos];

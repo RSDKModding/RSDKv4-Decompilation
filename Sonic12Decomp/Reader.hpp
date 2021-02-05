@@ -133,7 +133,7 @@ size_t GetFilePosition();
 void SetFilePosition(int newPos);
 bool ReachedEndOfFile();
 
-
+bool LoadFile2(const char *filePath, FileInfo *fileInfo);
 size_t FileRead2(FileInfo *info, void *dest, int size); // For Music Streaming
 inline bool CloseFile2(FileInfo *info)
 {
