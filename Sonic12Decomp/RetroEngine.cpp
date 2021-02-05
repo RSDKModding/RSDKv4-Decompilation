@@ -40,8 +40,10 @@ bool processEvents()
                     case SDL_WINDOWEVENT_CLOSE: return false;
                 }
                 break;
+            #if RETRO_PLATFORM != RETRO_SWITCH
             case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
+            #endif
             case SDL_WINDOWEVENT_CLOSE:
                 if (Engine.window) {
                     SDL_DestroyWindow(Engine.window);
@@ -309,6 +311,9 @@ void RetroEngine::Init()
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
+                #if RETRO_PLATFORM == RETRO_SWITCH
+                controllerInit(0);
+                #endif
                 InitFirstStage();
                 ClearScriptData();
                 initialised = true;

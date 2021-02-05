@@ -12,7 +12,11 @@ int touchID[8];
 int touches = 0;
 
 InputButton inputDevice[INPUT_MAX];
+#if RETRO_PLATFORM == RETRO_SWITCH
+int inputType = 1;
+#else
 int inputType = 0;
+#endif
 
 int LSTICK_DEADZONE   = 20000;
 int RSTICK_DEADZONE   = 20000;
