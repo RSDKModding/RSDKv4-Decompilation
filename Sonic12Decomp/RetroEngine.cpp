@@ -454,7 +454,10 @@ void RetroEngine::Run()
     uint frameStart, frameEnd = SDL_GetTicks();
     float frameDelta = 0.0f;
 
-    while (running) {
+#ifndef __EMSCRIPTEN__
+    while (running) 
+#endif
+    {
         frameStart = SDL_GetTicks();
         frameDelta = frameStart - frameEnd;
 
@@ -475,12 +478,14 @@ void RetroEngine::Run()
         }
     }
 
+#ifndef __EMSCRIPTEN__
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
+#endif
 #endif
 }
 
