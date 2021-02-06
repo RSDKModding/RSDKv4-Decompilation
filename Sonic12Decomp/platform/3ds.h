@@ -13,7 +13,7 @@
 #define Sint8  int8_t
 
 //System
-void sys_Init();
+void sys_Init(const char* basePath);
 bool sys_MainLoop();
 Uint32 sys_GetTicks();
 int sys_GetLanguage();

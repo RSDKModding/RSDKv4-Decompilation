@@ -256,7 +256,7 @@ bool processEvents()
 void RetroEngine::Init()
 {
 #if RETRO_PLATFORM == RETRO_3DS
-    sys_Init();
+    sys_Init(BASE_PATH);
     gfx_Init();
 #endif
 

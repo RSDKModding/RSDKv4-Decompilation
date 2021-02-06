@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #if BUILD_SONIC_1
 #include "splash_sonic1.h"
@@ -11,11 +12,12 @@
 #endif
 
 //System
-void sys_Init()
+void sys_Init(const char* basePath)
 {
 	srand(time(0));
 	osSetSpeedupEnable(true);
 	cfguInit();
+	chdir(basePath);
 }
 
 bool sys_MainLoop()
