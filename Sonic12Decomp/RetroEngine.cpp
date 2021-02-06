@@ -461,12 +461,12 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
+    if (engineDebugMode == false)
+        printf("\x1b[2J");
+
     if (!skipStart) {
         initStartMenu(0);
 	}
-		
-	if (engineDebugMode == false)
-        printf("\x1b[2J");
 }
 
 void RetroEngine::Run()

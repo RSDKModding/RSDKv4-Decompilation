@@ -471,6 +471,9 @@ void initStartMenu(int mode)
 
         stageMode = STARTMENU_TACONFIRMSEL;
     }
+
+    SetMusicTrack("MainMenu.ogg", 0, true, 0);
+    PlayMusic(0, 1);
 }
 
 void setTextMenu(int sm)
@@ -765,11 +768,15 @@ void processStartMenu()
 
     switch (stageMode) {
         case STARTMENU_MAIN: {
-            if (keyPress.down)
+            if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[0].selection2 += 2;
+            }
 
-            if (keyPress.up)
+            if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[0].selection2 -= 2;
+            }
 
             if (Engine.gameType == GAME_SONIC2) {
                 if (gameMenu[0].selection2 > 17)
@@ -787,12 +794,15 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
                 if (gameMenu[0].selection2 == 9) {
+                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_SAVESEL);
                 }
                 else if (gameMenu[0].selection2 == 11) {
+                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_TASTAGESEL);
                 }
                 else if (gameMenu[0].selection2 == 13) {
+                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_ACHIEVEMENTS);
                 }
                 else if (gameMenu[0].selection2 == 15) {
@@ -829,11 +839,15 @@ void processStartMenu()
             break;
         }
         case STARTMENU_SAVESEL: {
-            if (keyPress.down)
+            if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
+            }
 
-            if (keyPress.up)
+            if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
+            }
 
             if (gameMenu[1].selection1 > 12)
                 gameMenu[1].selection1 = 0;
@@ -843,6 +857,8 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.start || keyPress.A) {
+                PlaySFXByName("MenuSelect", 0);
+
                 if (gameMenu[1].selection1 == 0) {
                     setTextMenu(STARTMENU_GAMEOPTS);
                 }
@@ -935,15 +951,21 @@ void processStartMenu()
                 }
             }
             else if (keyPress.B) {
-                initStartMenu(0);
+                //initStartMenu(0);
+                setTextMenu(STARTMENU_MAIN);
+                PlaySFXByName("MenuBack", 0);
             }
             break;
         }
         case STARTMENU_PLAYERSEL: {
-            if (keyPress.down)
+            if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 ++gameMenu[1].selection1;
-            if (keyPress.up)
+            }
+            if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 --gameMenu[1].selection1;
+            }
             if (gameMenu[1].selection1 == gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
 
@@ -953,6 +975,8 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.start || keyPress.A) {
+                PlaySFXByName("MenuSelect", 0);
+
                 int saveSlot = gameMenu[1].selection2;
                 int savePos  = saveSlot << 3;
 
@@ -989,14 +1013,19 @@ void processStartMenu()
             }
             else if (keyPress.B) {
                 setTextMenu(STARTMENU_SAVESEL);
+                PlaySFXByName("MenuBack", 0);
             }
             break;
         }
         case STARTMENU_GAMEOPTS: {
-            if (keyPress.down)
+            if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
-            if (keyPress.up)
+            }
+            if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
+            }
             if (gameMenu[1].selection1 >= gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
 
@@ -1006,6 +1035,8 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.left || keyPress.right || keyPress.start) {
+                PlaySFXByName("MenuMove", 0);
+
                 if (Engine.gameType == GAME_SONIC1) {
                     switch (gameMenu[1].selection1) {
                         case 0: // Spindash
@@ -1110,6 +1141,7 @@ void processStartMenu()
             }
             else if (keyPress.B) {
                 setTextMenu(STARTMENU_SAVESEL);
+                PlaySFXByName("MenuBack", 0);
 
                 saveRAM[0x100] = Engine.gameType;
                 if (Engine.gameType == GAME_SONIC1) {
@@ -1152,12 +1184,14 @@ void processStartMenu()
                 }
             }
             if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
                     gameMenu[1].visibleRowOffset += 2;
                 }
             }
             if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
                     gameMenu[1].visibleRowOffset -= 2;
@@ -1176,6 +1210,8 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX, 64);
 
             if (keyPress.start || keyPress.A) {
+                PlaySFXByName("MenuSelect", 0);
+
                 int listPos = (gameMenu[1].selection1 - 1) / 2;
                 int max     = stageListCount[STAGELIST_REGULAR];
                 for (int s = 0; s < stageListCount[STAGELIST_REGULAR]; ++s) {
@@ -1304,15 +1340,21 @@ void processStartMenu()
                 stageMode = STARTMENU_TACONFIRMSEL;
             }
             else if (keyPress.B) {
-                initStartMenu(0);
+                //initStartMenu(0);
+                setTextMenu(STARTMENU_MAIN);
+                PlaySFXByName("MenuBack", 0);
             }
             break;
         }
         case STARTMENU_TACONFIRMSEL: {
-            if (keyPress.down)
+            if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
-            if (keyPress.up)
+            }
+            if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
+            }
 
             if (gameMenu[1].selection1 > 3)
                 gameMenu[1].selection1 = 0;
@@ -1324,7 +1366,10 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX, SCREEN_CENTERY);
 
             if (keyPress.start || keyPress.A) {
+
                 if (gameMenu[1].selection1 == 0) {
+                    PlaySFXByName("MenuSelect", 0);
+                    
                     SetGlobalVariableByName("options.saveSlot", 0);
                     SetGlobalVariableByName("options.gameMode", 2);
                     SetGlobalVariableByName("stage.player2Enabled", false);
@@ -1361,6 +1406,7 @@ void processStartMenu()
                 else {
                     // TA
                     setTextMenu(STARTMENU_TASTAGESEL);
+                    PlaySFXByName("MenuBack", 0);
                 }
             }
             break;
@@ -1386,12 +1432,14 @@ void processStartMenu()
                 }
             }
             if (keyPress.down) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
                     gameMenu[1].visibleRowOffset += 2;
                 }
             }
             if (keyPress.up) {
+                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
                     gameMenu[1].visibleRowOffset -= 2;
@@ -1409,7 +1457,9 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.B) {
-                initStartMenu(0);
+                //initStartMenu(0);
+                setTextMenu(STARTMENU_MAIN);
+                PlaySFXByName("MenuBack", 0);
             }
             break;
         }
