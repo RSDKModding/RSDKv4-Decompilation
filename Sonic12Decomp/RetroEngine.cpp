@@ -1,10 +1,13 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_ORIGINAL_CODE
 bool usingCWD        = false;
 bool engineDebugMode = false;
+#endif
 
 RetroEngine Engine = RetroEngine();
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline int getLowerRate(int intendRate, int targetRate)
 {
     int result   = 0;
@@ -20,9 +23,11 @@ inline int getLowerRate(int intendRate, int targetRate)
     }
     return result;
 }
+#endif
 
 bool processEvents()
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     while (SDL_PollEvent(&Engine.sdlEvents)) {
         // Main Events
@@ -236,6 +241,7 @@ bool processEvents()
         }
     }
 #endif
+#endif
     return true;
 }
 
@@ -247,6 +253,7 @@ void RetroEngine::Init()
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
+#if !RETRO_USE_ORIGINAL_CODE
     InitUserdata();
     initMods();
     char dest[0x200];
@@ -268,7 +275,11 @@ void RetroEngine::Init()
     StrAdd(dest, Engine.dataFile);
 #endif
     CheckRSDKFile(dest);
+#else
+    CheckRSDKFile("Data.rsdk");
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
     snapDataFile(1);
 #if RETRO_PLATFORM == RETRO_UWP
     strcpy(dest, resourcePath);
@@ -309,10 +320,13 @@ void RetroEngine::Init()
 #endif // WIN32
 #endif // RSDK_DEBUG
 #endif // RETRO_USE_NETWORKING
+#endif
 
     gameMode          = ENGINE_MAINGAME;
-    running           = false;
+    running  = false;
+#if !RETRO_USE_ORIGINAL_CODE
     bool skipStart = skipStartMenu;
+#endif
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -321,6 +335,7 @@ void RetroEngine::Init()
                 initialised = true;
                 running     = true;
 
+#if !RETRO_USE_ORIGINAL_CODE
                 if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
                     skipStart = true;
                     InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
@@ -385,10 +400,12 @@ void RetroEngine::Init()
                     }
                     skipStart = true;
                 }
+#endif
             }
         }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
@@ -457,6 +474,7 @@ void RetroEngine::Init()
 
     if (!skipStart)
         initStartMenu(0);
+#endif
 }
 
 void RetroEngine::Run()
@@ -465,6 +483,7 @@ void RetroEngine::Run()
     float frameDelta = 0.0f;
 
     while (running) {
+#if !RETRO_USE_ORIGINAL_CODE
         frameStart = SDL_GetTicks();
         frameDelta = frameStart - frameEnd;
 
@@ -472,15 +491,21 @@ void RetroEngine::Run()
             SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
 
         frameEnd = SDL_GetTicks();
+#endif
 
         running = processEvents();
+#if !RETRO_USE_ORIGINAL_CODE
         for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
             if (!masterPaused || frameStep) {
+#endif
                 ProcessNativeObjects();
                 FlipScreen();
 
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
                 if (s == gameSpeed - 1 && !renderQueueSize)
                     SDL_GL_SwapWindow(Engine.window);
@@ -490,12 +515,15 @@ void RetroEngine::Run()
                 frameStep = false;
             }
         }
+#endif
     }
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
+#if !RETRO_USE_ORIGINAL_CODE
     writeSettings();
     saveMods();
+#endif
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
@@ -631,11 +659,4 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
     return loaded;
-}
-
-void RetroEngine::Callback(int callbackID)
-{
-    switch (callbackID) {
-        default: printLog("Callback: Unknown (%d)", callbackID); break;
-    }
 }

@@ -466,12 +466,6 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     if (curChar != '\t' && curChar != '\r') {
                         stringStorage[stringStorePos][charID++] = 0;
                         CloseFile();
-
-                        endLine = false;
-                        //printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
-                        //printLog(stringStorage[stringStorePos]);
-                        endLine = true;
-
                         return stringStorage[stringStorePos++];
                     }
                     if (curChar == '\t') {

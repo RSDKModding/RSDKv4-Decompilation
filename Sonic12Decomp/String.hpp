@@ -6,7 +6,9 @@
 
 #define CREDITS_LIST_SIZE (0x200)
 
+#if !RETRO_USE_ORIGINAL_CODE
 #define USE_STDLIB
+#endif
 
 extern ushort *strPressStart;
 extern ushort *strTouchToStart;
@@ -145,6 +147,7 @@ inline int StrLength(const char *string)
 }
 int FindStringToken(const char *string, const char *token, char stopID);
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline void StrCopyW(ushort *dest, const ushort *src)
 {
     int i = 0;
@@ -242,6 +245,7 @@ inline int StrLengthW(const ushort *string)
         ;
     return len;
 }
+#endif
 
 int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopID);
 

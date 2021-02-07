@@ -2,8 +2,6 @@
 
 void RetroGameLoop_Create(void *objPtr)
 {
-    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
-    entity->pauseMenu                  = nullptr;
 }
 void RetroGameLoop_Main(void *objPtr)
 {
@@ -17,9 +15,11 @@ void RetroGameLoop_Main(void *objPtr)
             gfxIndexSizeOpaque  = 0;
             gfxVertexSizeOpaque = 0;
 #endif
+#if !RETRO_USE_ORIGINAL_CODE
             if (entity->pauseMenu && nativeEntityCount > 1) // dumb fix but yknow how it is
                 RemoveNativeObject(entity->pauseMenu);
             entity->pauseMenu = nullptr;
+#endif
 
             processStageSelect();
             break;
@@ -47,16 +47,20 @@ void RetroGameLoop_Main(void *objPtr)
             ResetCurrentStageFolder();
             break;
         case ENGINE_INITPAUSE:
+#if !RETRO_USE_ORIGINAL_CODE
             if (nativeEntityCount > 1) {
                 Engine.gameMode = ENGINE_MAINGAME;
                 StopSFXByName("MenuBack");
                 break;
             } //*/
+#endif
             PauseSound();
             // ClearNativeObjects();
             Engine.gameMode = ENGINE_WAIT; // temp (maybe?) so pause menu renders on top
             // CreateNativeObject(MenuBG_Create, MenuBG_Main); // temp until/if nativeObjs are fully complete
+#if !RETRO_USE_ORIGINAL_CODE
             entity->pauseMenu = (NativeEntity_PauseMenu *)CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+#endif
             break;
         case ENGINE_EXITPAUSE:
             Engine.gameMode = ENGINE_MAINGAME;
@@ -71,19 +75,25 @@ void RetroGameLoop_Main(void *objPtr)
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             activeStageList   = 0;
             stageListPosition = 0;
+#if !RETRO_USE_ORIGINAL_CODE
             initStartMenu(0);
+#endif
             break;
         case ENGINE_RESETGAME: // Also called when 2P VS disconnects
             ClearScreen(1);
             // RestoreNativeObjects();
+#if !RETRO_USE_ORIGINAL_CODE
             initStartMenu(1);
+#endif
             break;
+#if !RETRO_USE_ORIGINAL_CODE
         case ENGINE_STARTMENU: 
             //Do nothing (this is handled by StartMenu obj)
             break;
         case ENGINE_CONNECT2PVS:
             // connect screen goes here
             break;
+#endif
         default:
             printLog("GameMode '%d' Called", Engine.gameMode);
             activeStageList   = 0;

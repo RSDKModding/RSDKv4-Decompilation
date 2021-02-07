@@ -4,12 +4,16 @@
 RSDKContainer rsdkContainer;
 char rsdkName[0x400];
 
+#if !RETRO_USE_ORIGINAL_CODE
 RSDKContainer menuRSDK;
 char menuRSDKName[0x400];
+#endif
 
 RSDKContainer *currentContainer = &rsdkContainer;
 
+#if !RETRO_USE_ORIGINAL_CODE
 byte dataMode = 0;
+#endif
 
 char fileName[0x100];
 byte fileBuffer[0x2000];
@@ -33,6 +37,7 @@ bool CheckRSDKFile(const char *filePath)
 {
     FileInfo info;
 
+#if !RETRO_USE_ORIGINAL_CODE
     if (!dataMode) {
         Engine.usingDataFile = false;
         Engine.usingBytecode = false;
@@ -40,6 +45,12 @@ bool CheckRSDKFile(const char *filePath)
     else {
         Engine.usingMenuFile = false;
     }
+#endif
+
+#if RETRO_USE_ORIGINAL_CODE
+    Engine.usingDataFile = false;
+    Engine.usingBytecode = false;
+#endif
 
     // CopyFilePath(filename, &rsdkName);
     cFileHandle = fOpen(filePath, "rb");
@@ -51,12 +62,24 @@ bool CheckRSDKFile(const char *filePath)
             if (buf != signature[i])
                 return false;
         }
+
+        
+#if !RETRO_USE_ORIGINAL_CODE
         if (!dataMode)
             Engine.usingDataFile = true;
+#endif
+#if !RETRO_USE_ORIGINAL_CODE
         else
             Engine.usingMenuFile = true;
+#endif
 
+        
+#if !RETRO_USE_ORIGINAL_CODE
         StrCopy(dataMode ? menuRSDKName : rsdkName, filePath);
+#endif
+#if !RETRO_USE_ORIGINAL_CODE
+        StrCopy(rsdkName, filePath);
+#endif
 
         currentContainer->fileCount = 0;
         fRead(&currentContainer->fileCount, 2, 1, cFileHandle);
@@ -79,8 +102,10 @@ bool CheckRSDKFile(const char *filePath)
 
         fClose(cFileHandle);
         cFileHandle = NULL;
+#if !RETRO_USE_ORIGINAL_CODE
         if (dataMode)
             return true;
+#endif
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
@@ -88,14 +113,20 @@ bool CheckRSDKFile(const char *filePath)
         return true;
     }
     else {
+#if !RETRO_USE_ORIGINAL_CODE
         if (!dataMode)
+#endif
             Engine.usingDataFile = false;
+#if !RETRO_USE_ORIGINAL_CODE
         else
             Engine.usingMenuFile = false;
+#endif
 
         cFileHandle = NULL;
+#if !RETRO_USE_ORIGINAL_CODE
         if (dataMode)
             return false;
+#endif
 
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
@@ -114,9 +145,10 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     if (cFileHandle)
         fClose(cFileHandle);
 
-    bool forceFolder = false;
     char filePathBuf[0x100];
     StrCopy(filePathBuf, filePath);
+#if !RETRO_USE_ORIGINAL_CODE
+    bool forceFolder = false;
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
@@ -127,9 +159,14 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             }
         }
     }
+#endif
 
     cFileHandle = NULL;
+#if !RETRO_USE_ORIGINAL_CODE
     if ((dataMode ? Engine.usingMenuFile : Engine.usingDataFile) && !forceFolder) {
+#else
+    if (Engine.usingDataFile) {
+#endif
         StringLowerCase(fileInfo->fileName, filePathBuf);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
@@ -149,7 +186,11 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             if (!match)
                 continue;
 
+#if !RETRO_USE_ORIGINAL_CODE
             cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
+#else
+            cFileHandle = fOpen(rsdkName, "rb");
+#endif
             fSeek(cFileHandle, 0, SEEK_END);
             fileSize = (int)fTell(cFileHandle);
 
@@ -339,8 +380,13 @@ void GetFileInfo(FileInfo *fileInfo)
 
 void SetFileInfo(FileInfo *fileInfo)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
-        cFileHandle       = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
+        cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
+#else
+    if (Engine.usingDataFile) {
+        cFileHandle = fOpen(rsdkName, "rb");
+#endif
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
         fSeek(cFileHandle, 0, SEEK_END);
@@ -377,7 +423,11 @@ void SetFileInfo(FileInfo *fileInfo)
 
 size_t GetFilePosition()
 {
+#if !RETRO_USE_ORIGINAL_CODE
     if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
+#else
+    if (Engine.usingDataFile)
+#endif
         return bufferPosition + readPos - readSize - virtualFileOffset;
     else
         return bufferPosition + readPos - readSize;
@@ -435,7 +485,11 @@ void SetFilePosition(int newPos)
         }
     }
     else {
+#if !RETRO_USE_ORIGINAL_CODE
         if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
+#else
+        if (Engine.usingDataFile)
+#endif
             readPos = virtualFileOffset + newPos;
         else
             readPos = newPos;
@@ -446,12 +500,17 @@ void SetFilePosition(int newPos)
 
 bool ReachedEndOfFile()
 {
+#if !RETRO_USE_ORIGINAL_CODE
     if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
+#else
+    if (Engine.usingDataFile)
+#endif
         return bufferPosition + readPos - readSize - virtualFileOffset >= vFileSize;
     else
         return bufferPosition + readPos - readSize >= fileSize;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
 bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 {
 
@@ -694,3 +753,4 @@ void SetFilePosition2(FileInfo *info, int newPos)
     }
     fSeek(info->cFileHandle, info->readPos, SEEK_SET);
 }
+#endif

@@ -4,6 +4,11 @@
 // Disables POSIX use c++ name blah blah stuff
 #pragma warning(disable : 4996)
 
+// Setting this to true removes (almost) ALL changes from the original code, the trade off is that a playable game cannot be built, it is advised to be set to true only for preservation purposes
+#define RETRO_USE_ORIGINAL_CODE (0)
+
+//Not macroing all this stuff since it'd create errors EVERYWHERE but there's a 50/50 chance it wasn't like this in the original
+
 // ================
 // STANDARD LIBS
 // ================
@@ -170,16 +175,20 @@ enum RetroStates {
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
 
-    // Custom GameModes (required to make some features work
+#if !RETRO_USE_ORIGINAL_CODE
+    // Custom GameModes (required to make some features work)
     ENGINE_STARTMENU   = 0x80,
     ENGINE_CONNECT2PVS = 0x81,
+#endif
 };
 
+#if !RETRO_USE_ORIGINAL_CODE
 enum RetroGameType {
     GAME_UNKNOWN = 0,
     GAME_SONIC1  = 1,
     GAME_SONIC2  = 2,
 };
+#endif
 
 // General Defines
 #define SCREEN_YSIZE   (240)
@@ -206,12 +215,16 @@ enum RetroGameType {
 
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern bool usingCWD;
 extern bool engineDebugMode;
+#endif
 
 // Utils
+#if !RETRO_USE_ORIGINAL_CODE
 #include "Ini.hpp"
 #include "Network.hpp"
+#endif
 
 #include "Math.hpp"
 #include "Reader.hpp"
@@ -232,13 +245,14 @@ extern bool engineDebugMode;
 #include "Debug.hpp"
 
 // Native Entities
+#if !RETRO_USE_ORIGINAL_CODE
 #include "PauseMenu.hpp"
 #include "StartMenu.hpp"
+#endif
 #include "RetroGameLoop.hpp"
 
-class RetroEngine
+struct RetroEngine
 {
-public:
     RetroEngine()
     {
         if (RETRO_GAMEPLATFORM == RETRO_STANDARD)
@@ -250,7 +264,9 @@ public:
     bool usingDataFile = false;
     bool usingBytecode = false;
 
+#if !RETRO_USE_ORIGINAL_CODE
     bool usingMenuFile = false;
+#endif
 
     char dataFile[0x80];
 
@@ -268,6 +284,7 @@ public:
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;
 
+#if !RETRO_USE_ORIGINAL_CODE
     // Ported from RSDKv5
     bool devMenu         = false;
     int startList        = -1;
@@ -281,16 +298,12 @@ public:
 
     bool showPaletteOverlay = false;
     bool useHQModes         = true;
+#endif
 
     void Init();
     void Run();
 
     bool LoadGameConfig(const char *Filepath);
-
-    int callbackMessage = 0;
-    int prevMessage     = 0;
-    int waitValue       = 0;
-    void Callback(int callbackID);
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
@@ -309,13 +322,16 @@ public:
     const char *gameHapticSetting = "NO_F_FEEDBACK";
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
     byte gameType = GAME_UNKNOWN;
+#endif
 
 #if RETRO_SOFTWARE_RENDER
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
     bool isFullScreen = false;
 
     bool startFullScreen  = false; // if should start as fullscreen
@@ -333,7 +349,9 @@ public:
 
     int windowXSize; // width of window/screen in the previous frame
     int windowYSize; // height of window/screen in the previous frame
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
     SDL_Window *window          = nullptr;
     SDL_Renderer *renderer      = nullptr;
@@ -356,6 +374,7 @@ public:
     SDL_Surface *screenBuffer2x = nullptr;
 
     SDL_Event sdlEvents;
+#endif
 #endif
 };
 

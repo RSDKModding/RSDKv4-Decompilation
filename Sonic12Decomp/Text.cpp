@@ -56,6 +56,7 @@ void AddTextMenuEntry(TextMenu *menu, const char *text)
     }
     menu->rowCount++;
 }
+#if !RETRO_USE_ORIGINAL_CODE
 void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
 {
     menu->entryStart[menu->rowCount] = menu->textDataPos;
@@ -73,6 +74,7 @@ void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
     }
     menu->rowCount++;
 }
+#endif
 void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
     menu->entryStart[rowID] = menu->textDataPos;
@@ -89,6 +91,7 @@ void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
         }
     }
 }
+#if !RETRO_USE_ORIGINAL_CODE
 void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
 {
     menu->entryStart[rowID] = menu->textDataPos;
@@ -105,6 +108,7 @@ void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
         }
     }
 }
+#endif
 void EditTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
     int entryPos             = menu->entryStart[rowID];

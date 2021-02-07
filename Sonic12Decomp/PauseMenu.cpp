@@ -1,4 +1,5 @@
 #include "RetroEngine.hpp"
+#if !RETRO_USE_ORIGINAL_CODE
 #include <algorithm>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
@@ -237,3 +238,4 @@ void PauseMenu_Main(void *objPtr)
 
     SetActivePalette(0, 0, SCREEN_YSIZE);
 }
+#endif

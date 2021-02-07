@@ -1,4 +1,5 @@
 #include "RetroEngine.hpp"
+#if !RETRO_USE_ORIGINAL_CODE
 #include <stdlib.h>
 #include <algorithm>
 #include <string>
@@ -327,3 +328,4 @@ void IniParser::Write(const char *filename)
 
     fClose(f);
 }
+#endif

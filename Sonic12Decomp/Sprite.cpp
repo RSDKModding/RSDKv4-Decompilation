@@ -34,8 +34,10 @@ const int NO_SUCH_CODE  = 4098;
 struct GifDecoder gifDecoder;
 int codeMasks[] = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095 };
 
+#if !RETRO_USE_ORIGINAL_CODE
 int textureCount = 0;
 texInfo textureList[TEXTURE_MAX];
+#endif
 
 int ReadGifCode();
 byte ReadGifByte();
@@ -451,6 +453,7 @@ int LoadPVRFile(const char *filePath, byte sheetID)
     return false;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
 // 0 = data, 1 = menu, 0xFF = no datafile
 int LoadTexture(const char *filePath, byte dMode)
 {
@@ -768,3 +771,4 @@ void ClearTextures()
     }
     textureCount = 0;
 }
+#endif

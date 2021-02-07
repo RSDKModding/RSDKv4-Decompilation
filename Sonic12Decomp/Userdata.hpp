@@ -6,13 +6,17 @@
 #define ACHIEVEMENT_MAX (0x40)
 #define LEADERBOARD_MAX (0x80)
 
+#if !RETRO_USE_ORIGINAL_CODE
 #define MOD_MAX (0x100)
+#endif
 
 #define SAVEDATA_MAX (0x2000)
 
+#if !RETRO_USE_ORIGINAL_CODE
 #include <string>
 #include <map>
 #include <unordered_map>
+#endif
 
 enum OnlineMenuTypes {
     ONLINEMENU_ACHIEVEMENTS = 0,
@@ -33,6 +37,7 @@ struct MultiplayerData {
     int data[0x1FF];
 };
 
+#if !RETRO_USE_ORIGINAL_CODE
 struct ModInfo {
     std::string name;
     std::string desc;
@@ -45,6 +50,7 @@ struct ModInfo {
     bool skipStartMenu;
     bool active;
 };
+#endif
 
 extern int (*nativeFunction[16])(int, void *);
 extern int nativeFunctionCount;
@@ -67,10 +73,12 @@ extern int matchValueWritePos;
 extern int sendDataMethod;
 extern int sendCounter;
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern ModInfo modList[MOD_MAX];
 extern int modCount;
 extern bool forceUseScripts;
 extern bool skipStartMenu;
+#endif
 
 inline int GetGlobalVariableByName(const char *name)
 {
@@ -146,17 +154,29 @@ inline bool WriteSaveRAMData()
     return true;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
 void InitUserdata();
 void writeSettings();
 void ReadUserdata();
 void WriteUserdata();
+#endif
 
 void AwardAchievement(int id, int status);
 
 int SetAchievement(int achievementID, void *achDone);
 int SetLeaderboard(int leaderboardID, void *res);
-inline void LoadAchievementsMenu() { ReadUserdata(); }
-inline void LoadLeaderboardsMenu() { ReadUserdata(); }
+inline void LoadAchievementsMenu()
+{
+#if !RETRO_USE_ORIGINAL_CODE
+    ReadUserdata();
+#endif
+}
+inline void LoadLeaderboardsMenu()
+{
+#if !RETRO_USE_ORIGINAL_CODE
+    ReadUserdata();
+#endif
+}
 
 int Connect2PVS(int a1, void *a2);
 int Disconnect2PVS(int a1, void *a2);
@@ -171,7 +191,9 @@ void receive2PVSMatchCode(int code);
 
 int ShowPromoPopup(int a1, void *a2);
 
+#if !RETRO_USE_ORIGINAL_CODE
 void initMods();
 void saveMods();
+#endif
 
 #endif //! USERDATA_H

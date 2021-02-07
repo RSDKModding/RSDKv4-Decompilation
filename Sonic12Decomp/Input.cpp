@@ -3,14 +3,13 @@
 InputData keyPress = InputData();
 InputData keyDown  = InputData();
 
-bool anyPress = false;
-
 int touchDown[8];
 int touchX[8];
 int touchY[8];
 int touchID[8];
 int touches = 0;
 
+#if !RETRO_USE_ORIGINAL_CODE
 InputButton inputDevice[INPUT_MAX];
 int inputType = 0;
 
@@ -184,9 +183,12 @@ void ProcessInput()
     }
 #endif
 }
+#endif
 
+//Pretty much is this code in the original, just formatted differently
 void CheckKeyPress(InputData *input)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     input->up     = inputDevice[INPUT_UP].press;
     input->down   = inputDevice[INPUT_DOWN].press;
     input->left   = inputDevice[INPUT_LEFT].press;
@@ -201,11 +203,12 @@ void CheckKeyPress(InputData *input)
     input->R      = inputDevice[INPUT_BUTTONR].press;
     input->start  = inputDevice[INPUT_START].press;
     input->select = inputDevice[INPUT_SELECT].press;
-    anyPress      = inputDevice[INPUT_ANY].press;
+#endif
 }
 
 void CheckKeyDown(InputData *input)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     input->up     = inputDevice[INPUT_UP].hold;
     input->down   = inputDevice[INPUT_DOWN].hold;
     input->left   = inputDevice[INPUT_LEFT].hold;
@@ -220,6 +223,5 @@ void CheckKeyDown(InputData *input)
     input->R      = inputDevice[INPUT_BUTTONR].hold;
     input->start  = inputDevice[INPUT_START].hold;
     input->select = inputDevice[INPUT_SELECT].hold;
-    // if (flags & 0x80)
-    //   anyHold = inputDevice[8].hold;
+#endif
 }

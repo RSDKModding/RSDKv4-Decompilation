@@ -1,9 +1,11 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_ORIGINAL_CODE
 bool endLine   = true;
-int touchTimer = 0;
 
 int taListStore = 0;
+#endif
+int touchTimer = 0;
 
 void initDevMenu()
 {
@@ -23,12 +25,16 @@ void initDevMenu()
     LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+#if RETRO_USE_ORIGINAL_CODE
     setTextMenu(DEVMENU_MAIN);
-    drawStageGFXHQ           = false;
+#endif
+    drawStageGFXHQ = false;
     touchTimer               = 0;
 
+#if !RETRO_USE_ORIGINAL_CODE
     RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
+#endif
 #if RETRO_HARDWARE_RENDER
     render3DEnabled    = false;
     UpdateHardwareTextures();
@@ -144,12 +150,14 @@ void processStageSelect()
                     gameMenu[1].selection1     = 0;
                     stageMode                  = DEVMENU_PLAYERSEL;
                 }
+#if !RETRO_USE_ORIGINAL_CODE
                 else if (gameMenu[0].selection2 == 13) {
                     initStartMenu(0);
                 }
                 else {
                     Engine.running = false;
                 }
+#endif
             }
             else if (keyPress.B) {
                 ClearGraphicsData();
@@ -345,74 +353,6 @@ void processStageSelect()
 #endif
 }
 
-void initStartMenu(int mode)
-{
-    // DrawStageGFXHQ = 0;
-    xScrollOffset = 0;
-    yScrollOffset = 0;
-    StopMusic();
-    StopAllSfx();
-    ReleaseStageSfx();
-    fadeMode                 = 0;
-    playerListPos            = 0;
-    Engine.gameMode          = ENGINE_STARTMENU;
-    ClearGraphicsData();
-    ClearAnimationData();
-    SetActivePalette(0, 0, 256);
-    textMenuSurfaceNo = 0;
-    LoadGIFFile("Data/Game/SystemText.gif", 0);
-    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
-    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
-
-    ReadSaveRAMData();
-    if (saveRAM[0x100] != Engine.gameType) {
-        saveRAM[0x100] = Engine.gameType;
-        if (Engine.gameType == GAME_SONIC1) {
-            saveRAM[0x101] = 1;
-            saveRAM[0x102] = 0;
-            saveRAM[0x103] = 0;
-            saveRAM[0x104] = 0;
-            saveRAM[0x105] = 0;
-        }
-        else {
-            saveRAM[0x101] = 0;
-            saveRAM[0x102] = 1;
-            saveRAM[0x103] = 1;
-            saveRAM[0x104] = 0;
-            saveRAM[0x105] = 0;
-        }
-        WriteSaveRAMData();
-    }
-    else {
-        if (Engine.gameType == GAME_SONIC1) {
-            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
-        }
-        else {
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-    }
-
-    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
-    CreateNativeObject(StartMenu_Create, StartMenu_Main);
-    if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
-    }
-    else {
-    }
-#if RETRO_HARDWARE_RENDER
-    render3DEnabled = false;
-    UpdateHardwareTextures();
-#endif
-}
-
 void setTextMenu(int sm)
 {
     ushort strBuffer[0x100];
@@ -436,10 +376,12 @@ void setTextMenu(int sm)
             AddTextMenuEntry(&gameMenu[0], "START GAME");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
+#if !RETRO_USE_ORIGINAL_CODE
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "START MENU");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "EXIT GAME");
+#endif
             gameMenu[0].alignment        = 2;
             gameMenu[0].selectionCount   = 2;
             gameMenu[0].selection1       = 0;
@@ -463,6 +405,7 @@ void setTextMenu(int sm)
             gameMenu[0].selection2     = 3;
             gameMenu[0].selectionCount = 2;
             break;
+#if !RETRO_USE_ORIGINAL_CODE
         case STARTMENU_MAIN: {
             char title[0x80];
             StringUpperCase(title, Engine.gameWindowText);
@@ -657,7 +600,77 @@ void setTextMenu(int sm)
                 AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
             }
         }
+#endif
     }
+}
+
+#if !RETRO_USE_ORIGINAL_CODE
+void initStartMenu(int mode)
+{
+    // DrawStageGFXHQ = 0;
+    xScrollOffset = 0;
+    yScrollOffset = 0;
+    StopMusic();
+    StopAllSfx();
+    ReleaseStageSfx();
+    fadeMode                 = 0;
+    playerListPos            = 0;
+    Engine.gameMode          = ENGINE_STARTMENU;
+    ClearGraphicsData();
+    ClearAnimationData();
+    SetActivePalette(0, 0, 256);
+    textMenuSurfaceNo = 0;
+    LoadGIFFile("Data/Game/SystemText.gif", 0);
+    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
+    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+
+    ReadSaveRAMData();
+    if (saveRAM[0x100] != Engine.gameType) {
+        saveRAM[0x100] = Engine.gameType;
+        if (Engine.gameType == GAME_SONIC1) {
+            saveRAM[0x101] = 1;
+            saveRAM[0x102] = 0;
+            saveRAM[0x103] = 0;
+            saveRAM[0x104] = 0;
+            saveRAM[0x105] = 0;
+        }
+        else {
+            saveRAM[0x101] = 0;
+            saveRAM[0x102] = 1;
+            saveRAM[0x103] = 1;
+            saveRAM[0x104] = 0;
+            saveRAM[0x105] = 0;
+        }
+        WriteSaveRAMData();
+    }
+    else {
+        if (Engine.gameType == GAME_SONIC1) {
+            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
+            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
+        }
+        else {
+            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
+            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
+            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
+            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
+            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
+        }
+    }
+
+    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
+    CreateNativeObject(StartMenu_Create, StartMenu_Main);
+    if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
+    }
+    else {
+    }
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 
 void processStartMenu()
@@ -1365,3 +1378,4 @@ void processStartMenu()
 #endif
     }
 }
+#endif

@@ -25,6 +25,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
     FileInfo info;
     char fullPath[0x80];
 
+#if !RETRO_USE_ORIGINAL_CODE
     if (!dataMode) {
         StrCopy(fullPath, "Data/Palettes/");
         StrAdd(fullPath, filePath);
@@ -32,6 +33,10 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
     else {
         StrCopy(fullPath, filePath);
     }
+#else
+    StrCopy(fullPath, "Data/Palettes/");
+    StrAdd(fullPath, filePath);
+#endif
 
     if (LoadFile(fullPath, &info)) {
         SetFilePosition(3 * startIndex);

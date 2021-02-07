@@ -21,11 +21,14 @@ int matchValueWritePos = 0;
 int sendDataMethod = 0;
 int sendCounter    = 0;
 
+#if !RETRO_USE_ORIGINAL_CODE
 ModInfo modList[MOD_MAX];
 int modCount = 0;
 bool forceUseScripts = false;
 bool skipStartMenu = false;
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -360,7 +363,9 @@ void InitUserdata()
         WriteUserdata();
     }
 }
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 void writeSettings()
 {
     IniParser ini;
@@ -470,7 +475,9 @@ void writeSettings()
 
     ini.Write(BASE_PATH "settings.ini");
 }
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 void ReadUserdata()
 {
     char buffer[0x100];
@@ -502,7 +509,9 @@ void ReadUserdata()
         // Load from online
     }
 }
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 void WriteUserdata()
 {
     char buffer[0x100];
@@ -527,6 +536,7 @@ void WriteUserdata()
         // Load from online
     }
 }
+#endif
 
 void AwardAchievement(int id, int status)
 {
@@ -541,7 +551,9 @@ void AwardAchievement(int id, int status)
     if (Engine.onlineActive) {
         // Set Achievement online
     }
+#if !RETRO_USE_ORIGINAL_CODE
     WriteUserdata();
+#endif
 }
 
 int SetAchievement(int achievementID, void *achDone)
@@ -580,9 +592,10 @@ int SetLeaderboard(int leaderboardID, void *res)
             case 18:
             case 19:
             case 20:
-            case 21:
-                leaderboard[leaderboardID].status = result;
+            case 21: leaderboard[leaderboardID].status = result;
+#if !RETRO_USE_ORIGINAL_CODE
                 WriteUserdata();
+#endif
                 return 1;
         }
     }
@@ -598,7 +611,11 @@ int Connect2PVS(int gameLength, void *itemMode)
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
+#if !RETRO_USE_ORIGINAL_CODE
     Engine.gameMode        = ENGINE_CONNECT2PVS;
+#else
+    Engine.gameMode = ENGINE_WAIT;
+#endif
     PauseSound();
 
     // actual connection code
@@ -739,6 +756,7 @@ int ShowPromoPopup(int a1, void *a2)
     return 0;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
 #include <string>
 #include <include/ghc/filesystem.hpp>
 
@@ -983,3 +1001,4 @@ void saveMods()
         }
     }
 }
+#endif

@@ -2,8 +2,12 @@
 #define AUDIO_H
 
 #define TRACK_COUNT   (0x10)
-#define SFX_COUNT     (0x100)
+#define SFX_COUNT   (0x100)
+#if !RETRO_USE_ORIGINAL_CODE
 #define CHANNEL_COUNT (0x10) // 4 in the original, 16 for convenience
+#else
+#define CHANNEL_COUNT (0x4)
+#endif
 
 #define MAX_VOLUME (100)
 
@@ -13,6 +17,7 @@ struct TrackInfo {
     uint loopPoint;
 };
 
+#if !RETRO_USE_ORIGINAL_CODE
 struct MusicPlaybackInfo {
     OggVorbis_File vorbisFile;
     int vorbBitstream;
@@ -28,6 +33,7 @@ struct MusicPlaybackInfo {
     uint loopPoint;
     bool loaded;
 };
+#endif
 
 struct SFXInfo {
     char name[0x40];
@@ -73,7 +79,9 @@ extern char sfxNames[SFX_COUNT][0x40];
 
 extern ChannelInfo sfxChannels[CHANNEL_COUNT];
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern MusicPlaybackInfo musInfo;
+#endif
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
 extern SDL_AudioSpec audioDeviceFormat;
@@ -82,10 +90,14 @@ extern SDL_AudioSpec audioDeviceFormat;
 int InitAudioPlayback();
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if !RETRO_USE_ORIGINAL_CODE
+//These functions did exist, but with different signatures
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
 void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
@@ -109,11 +121,13 @@ inline void freeMusInfo()
         SDL_UnlockAudio();
     }
 }
+#endif
 #else
 void ProcessMusicStream() {}
 void ProcessAudioPlayback() {}
 void ProcessAudioMixing() {}
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
@@ -129,6 +143,7 @@ inline void freeMusInfo()
     }
 }
 #endif
+#endif
 
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint);
 void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio);
@@ -136,9 +151,11 @@ bool PlayMusic(int track, int musStartPos);
 inline void StopMusic()
 {
     musicStatus = MUSIC_STOPPED;
+#if !RETRO_USE_ORIGINAL_CODE
     SDL_LockAudio();
     freeMusInfo();
     SDL_UnlockAudio();
+#endif
 }
 
 void LoadSfx(char *filePath, byte sfxID);
@@ -208,12 +225,16 @@ inline void ResumeSound()
 
 inline void StopAllSfx()
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_LockAudio();
 #endif
+#endif
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_UnlockAudio();
+#endif
 #endif
 }
 inline void ReleaseGlobalSfx()

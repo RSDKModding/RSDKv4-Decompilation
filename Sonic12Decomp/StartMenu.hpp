@@ -1,6 +1,8 @@
 #ifndef NATIVE_STARTMENU_H
 #define NATIVE_STARTMENU_H
 
+#if !RETRO_USE_ORIGINAL_CODE
+
 enum StartMenuStates { STSTATES_INVALID, STSTATES_TITLE, STSTATES_MAIN, STSTATES_SAVE };
 struct NativeEntity_StartMenu : NativeEntityBase {
     void (*state)(NativeEntity_StartMenu *);
@@ -22,5 +24,7 @@ struct NativeEntity_StartMenu : NativeEntityBase {
 
 void StartMenu_Create(void *objPtr);
 void StartMenu_Main(void *objPtr);
+
+#endif
 
 #endif // !NATIVE_RETROGAMELOOP_H

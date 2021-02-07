@@ -58,14 +58,13 @@ struct InputButton {
 extern InputData keyPress;
 extern InputData keyDown;
 
-extern bool anyPress;
-
 extern int touchDown[8];
 extern int touchX[8];
 extern int touchY[8];
 extern int touchID[8];
 extern int touches;
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern InputButton inputDevice[INPUT_MAX];
 extern int inputType;
 
@@ -73,7 +72,9 @@ extern int LSTICK_DEADZONE;
 extern int RSTICK_DEADZONE;
 extern int LTRIGGER_DEADZONE;
 extern int RTRIGGER_DEADZONE;
+#endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
 extern SDL_GameController *controller;
 
@@ -113,6 +114,7 @@ extern SDL_Joystick *controller;
 #endif
 
 void ProcessInput();
+#endif
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);

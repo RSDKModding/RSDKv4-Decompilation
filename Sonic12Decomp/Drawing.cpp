@@ -1,7 +1,9 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_ORIGINAL_CODE
 int renderQueueSize;
 RenderState renderQueue[RENDERQUEUE_MAX];
+#endif
 
 short blendLookupTable[BLENDTABLE_SIZE];
 short subtractLookupTable[BLENDTABLE_SIZE];
@@ -67,12 +69,14 @@ float pureLight[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 #endif
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
 // enable integer scaling, which is a modification of enhanced scaling
 bool integerScaling = false;
 // allows me to disable it to prevent blur on resolutions that match only on 1 axis
 bool disableEnhancedScaling = false;
 // enable bilinear scaling, which just disables the fancy upscaling that enhanced scaling does.
 bool bilinearScaling = false;
+#endif
 
 int InitRenderDevice()
 {
@@ -80,6 +84,7 @@ int InitRenderDevice()
 
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
 
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER
     Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
     Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
@@ -271,6 +276,7 @@ int InitRenderDevice()
 
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, Engine.windowScale);
 #endif
+#endif
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
@@ -281,6 +287,7 @@ int InitRenderDevice()
 }
 void FlipScreen()
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER
 #if RETRO_USING_SDL2
     SDL_Rect destScreenPos_scaled;
@@ -712,9 +719,11 @@ void FlipScreen()
 #endif
 
 #endif
+#endif
 }
 void ReleaseRenderDevice()
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER
     if (Engine.frameBuffer)
         delete[] Engine.frameBuffer;
@@ -737,9 +746,10 @@ void ReleaseRenderDevice()
     SDL_DestroyRenderer(Engine.renderer);
     SDL_DestroyWindow(Engine.window);
 #endif
+#endif
 }
 
-void GenerateBlendLookupTable(void)
+void GenerateBlendLookupTable()
 {
     int tintValue;
     int blendTableID;
@@ -1366,7 +1376,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(0);
 #endif
@@ -1395,7 +1407,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(1);
 #endif
@@ -1422,7 +1436,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(2);
 #endif
@@ -1447,7 +1463,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(0);
 #endif
@@ -1476,7 +1494,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(1);
 #endif
@@ -1501,7 +1521,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(2);
 #endif
@@ -1528,7 +1550,9 @@ void DrawStageGFX()
                     break;
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
+#if !RETRO_USE_ORIGINAL_CODE
                     if (Engine.useHQModes)
+#endif
                         drawStageGFXHQ = true;
                     Draw3DSkyLayer(3);
 #endif
@@ -1565,6 +1589,7 @@ void DrawStageGFX()
     }
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
     if (Engine.showPaletteOverlay) {
         for (int p = 0; p < PALETTE_COUNT; ++p) {
             int x = (SCREEN_XSIZE - (0xF << 3));
@@ -1576,6 +1601,7 @@ void DrawStageGFX()
             }
         }
     }
+#endif
 }
 
 void DrawHLineScrollLayer(int layerID)
@@ -6805,6 +6831,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
     }
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
 void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
 {
     if (sheetID < 0 || sheetID >= TEXTURE_MAX)
@@ -6995,3 +7022,4 @@ void RenderRectangle(int XPos, int YPos, int width, int height, int R, int G, in
     state->colour.b = B;
     state->alpha    = A;
 }
+#endif

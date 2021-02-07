@@ -21,7 +21,9 @@ char sfxNames[SFX_COUNT][0x40];
 
 ChannelInfo sfxChannels[CHANNEL_COUNT];
 
+#if !RETRO_USE_ORIGINAL_CODE
 MusicPlaybackInfo musInfo;
+#endif
 
 int trackBuffer = -1;
 
@@ -52,6 +54,7 @@ SDL_AudioSpec audioDeviceFormat;
 int InitAudioPlayback()
 {
     StopAllSfx(); //"init"
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_AudioSpec want;
     want.freq     = AUDIO_FREQUENCY;
@@ -81,6 +84,7 @@ int InitAudioPlayback()
         return true; // no audio but game wont crash now
     }
 #endif // !RETRO_USING_SDL1
+#endif
 #endif
 
     FileInfo info;
@@ -158,14 +162,17 @@ int InitAudioPlayback()
 }
 
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
     return FileRead2(&info->fileInfo, mem, (int)(size * nmemb));
+#endif
+    return 0;
 }
 int seekVorbis(void *ptr, ogg_int64_t offset, int whence)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
     switch (whence) {
         case SEEK_SET: whence = 0; break;
@@ -175,21 +182,36 @@ int seekVorbis(void *ptr, ogg_int64_t offset, int whence)
     }
     SetFilePosition2(&info->fileInfo, (int)(whence + offset));
     return (int)GetFilePosition2(&info->fileInfo) <= info->fileInfo.vfileSize;
+#endif
+    return 0;
 }
 long tellVorbis(void *ptr)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     MusicPlaybackInfo *info = (MusicPlaybackInfo *)ptr;
     return GetFilePosition2(&info->fileInfo);
+#endif
+    return 0;
 }
-int closeVorbis(void *ptr) { return CloseFile2((FileInfo *)ptr); }
+int closeVorbis(void *ptr)
+{
+#if !RETRO_USE_ORIGINAL_CODE
+    return CloseFile2((FileInfo *)ptr);
+#endif
+    return 1;
+}
 
 size_t readVorbis_Sfx(void *mem, size_t size, size_t nmemb, void *ptr)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     FileInfo *info = (FileInfo *)ptr;
     return FileRead2(info, mem, (int)(size * nmemb));
+#endif
+    return 0;
 }
 int seekVorbis_Sfx(void *ptr, ogg_int64_t offset, int whence)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     FileInfo *info = (FileInfo *)ptr;
     switch (whence) {
         case SEEK_SET: whence = 0; break;
@@ -199,15 +221,26 @@ int seekVorbis_Sfx(void *ptr, ogg_int64_t offset, int whence)
     }
     SetFilePosition2(info, (int)(whence + offset));
     return (int)GetFilePosition2(info) <= info->vfileSize;
+#endif
+    return 0;
 }
 long tellVorbis_Sfx(void *ptr)
 {
+#if !RETRO_USE_ORIGINAL_CODE
     FileInfo *info = (FileInfo *)ptr;
     return GetFilePosition2(info);
-}
-int closeVorbis_Sfx(void *ptr) { return CloseFile2((FileInfo *)ptr); }
 #endif
+    return 0;
+}
+int closeVorbis_Sfx(void *ptr)
+{
+#if !RETRO_USE_ORIGINAL_CODE
+    return CloseFile2((FileInfo *)ptr);
+#endif
+    return 0;
+}
 
+#if !RETRO_USE_ORIGINAL_CODE
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
 {
     if (!musInfo.loaded)
@@ -509,6 +542,7 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
     }
 }
 #endif
+#endif
 
 
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint)
@@ -583,6 +617,7 @@ void LoadSfx(char *filePath, byte sfxID)
     StrAdd(fullPath, filePath);
 
     if (LoadFile(fullPath, &info)) {
+#if !RETRO_USE_ORIGINAL_CODE
         byte type = fullPath[StrLength(fullPath) - 3];
         if (type == 'w') {
             byte *sfx = new byte[info.vfileSize];
@@ -728,6 +763,7 @@ void LoadSfx(char *filePath, byte sfxID)
             CloseFile();
             printLog("Sfx format not supported!");
         }
+#endif
     }
 }
 void PlaySfx(int sfx, bool loop)

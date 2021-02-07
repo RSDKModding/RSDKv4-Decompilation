@@ -3,14 +3,20 @@
 int main(int argc, char *argv[])
 {
     for (int i = 0; i < argc; ++i) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (StrComp(argv[i], "UsingCWD"))
             usingCWD = true;
+#endif
     }
-    
+
+#if !RETRO_USE_ORIGINAL_CODE
     SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
+#endif
     Engine.Init();
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
     controllerInit(0);
+#endif
 #endif
     Engine.Run();
 

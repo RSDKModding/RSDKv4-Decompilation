@@ -48,7 +48,9 @@ struct FileInfo {
     bool useEncryption;
     byte encryptionStringA[0x10];
     byte encryptionStringB[0x10];
+#if !RETRO_USE_ORIGINAL_CODE
     FileIO *cFileHandle;
+#endif
 };
 
 struct RSDKFileInfo {
@@ -69,10 +71,12 @@ extern RSDKContainer *currentContainer;
 extern RSDKContainer rsdkContainer;
 extern char rsdkName[0x400];
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern RSDKContainer menuRSDK;
 extern char menuRSDKName[0x400];
 
 extern byte dataMode;
+#endif
 
 extern char fileName[0x100];
 extern byte fileBuffer[0x2000];
@@ -92,6 +96,7 @@ extern byte encryptionStringB[0x10];
 
 extern FileIO *cFileHandle;
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline void snapDataFile(byte m)
 {
     dataMode = m;
@@ -100,6 +105,7 @@ inline void snapDataFile(byte m)
         case 1: currentContainer = &menuRSDK; break;
     }
 }
+#endif
 
 inline void CopyFilePath(char *dest, const char *src)
 {
@@ -149,6 +155,7 @@ size_t GetFilePosition();
 void SetFilePosition(int newPos);
 bool ReachedEndOfFile();
 
+#if !RETRO_USE_ORIGINAL_CODE
 bool LoadFile2(const char *filePath, FileInfo *fileInfo);
 size_t FileRead2(FileInfo *info, void *dest, int size); // For Music Streaming
 inline bool CloseFile2(FileInfo *info)
@@ -162,5 +169,6 @@ inline bool CloseFile2(FileInfo *info)
 }
 size_t GetFilePosition2(FileInfo *info);
 void SetFilePosition2(FileInfo *info, int newPos);
+#endif
 
 #endif // !READER_H

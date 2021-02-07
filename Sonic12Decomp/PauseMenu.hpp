@@ -1,6 +1,7 @@
 #ifndef NATIVE_PAUSEMENU_H
 #define NATIVE_PAUSEMENU_H
 
+#if !RETRO_USE_ORIGINAL_CODE
 struct NativeEntity_PauseMenu : NativeEntityBase {
     byte state;
     bool direction;
@@ -23,5 +24,6 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
 
 void PauseMenu_Create(void *objPtr);
 void PauseMenu_Main(void *objPtr);
+#endif
 
 #endif // NATIVE_PAUSEMENU_H

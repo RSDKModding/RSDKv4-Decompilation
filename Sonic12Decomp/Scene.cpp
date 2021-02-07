@@ -144,7 +144,9 @@ void ProcessStage(void)
             pauseEnabled      = false;
             timeEnabled       = false;
             frameCounter      = 0;
+#if !RETRO_USE_ORIGINAL_CODE
             Engine.frameCount = 0;
+#endif
             stageMilliseconds = 0;
             stageSeconds      = 0;
             stageMinutes      = 0;
@@ -214,7 +216,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == Engine.refreshRate) {
+                if (++frameCounter == 60) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -222,21 +224,11 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
+                stageMilliseconds = 100 * frameCounter / 60;
             }
-
-            updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
 
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                ProcessObjects();
-            }
+            ProcessObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -273,18 +265,8 @@ void ProcessStage(void)
                 // ResumeSound();
             }
 
-            updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
-
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                ProcessPausedObjects();
-            }
+            ProcessPausedObjects();
 
 #if RETRO_HARDWARE_RENDER
             gfxIndexSize        = 0;
@@ -315,18 +297,8 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
-
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                ProcessFrozenObjects();
-            }
+            ProcessFrozenObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -361,7 +333,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == Engine.refreshRate) {
+                if (++frameCounter == 60) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -369,21 +341,13 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
+                stageMilliseconds = 100 * frameCounter / 60;
             }
 
             updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
 
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                Process2PObjects();
-            }
+            Process2PObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -418,7 +382,7 @@ void ProcessStage(void)
                 keyPress.C = false;
 
                 if (timeEnabled) {
-                    if (++frameCounter == Engine.refreshRate) {
+                    if (++frameCounter == 60) {
                         frameCounter = 0;
                         if (++stageSeconds > 59) {
                             stageSeconds = 0;
@@ -426,7 +390,7 @@ void ProcessStage(void)
                                 stageMinutes = 0;
                         }
                     }
-                    stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
+                    stageMilliseconds = 100 * frameCounter / 60;
                 }
 
                 ProcessObjects();
@@ -500,18 +464,8 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
-
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                ProcessFrozenObjects();
-            }
+            ProcessFrozenObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -546,7 +500,7 @@ void ProcessStage(void)
             }
 
             if (timeEnabled) {
-                if (++frameCounter == Engine.refreshRate) {
+                if (++frameCounter == 60) {
                     frameCounter = 0;
                     if (++stageSeconds > 59) {
                         stageSeconds = 0;
@@ -554,21 +508,11 @@ void ProcessStage(void)
                             stageMinutes = 0;
                     }
                 }
-                stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
+                stageMilliseconds = 100 * frameCounter / 60;
             }
-
-            updateMax = 1;
-            /*updateMax = Engine.renderFrameIndex;
-            if (Engine.refreshRate >= Engine.targetRefreshRate) {
-                updateMax = 0;
-                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
-                    updateMax = 1;
-            }*/
 
             // Update
-            for (int i = 0; i < updateMax; ++i) {
-                Process2PObjects();
-            }
+            Process2PObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -590,7 +534,9 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
     }
+#if !RETRO_USE_ORIGINAL_CODE
     Engine.frameCount++;
+#endif
 }
 
 void ProcessParallaxAutoScroll()
@@ -641,7 +587,11 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, i + scriptID);
             }
 
+#if !RETRO_USE_ORIGINAL_CODE
             if (Engine.usingBytecode && !forceUseScripts) {
+#else
+            if (Engine.usingBytecode) {
+#endif
                 GetFileInfo(&infoStore);
                 CloseFile();
                 LoadBytecode(4, scriptID);
@@ -701,7 +651,11 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
+#if !RETRO_USE_ORIGINAL_CODE
             if (Engine.usingBytecode && !forceUseScripts) {
+#else
+            if (Engine.usingBytecode) {
+#endif
                 for (byte i = 0; i < stageObjectCount; ++i) {
                     FileRead(&fileBuffer2, 1);
                     FileRead(strBuffer, fileBuffer2);

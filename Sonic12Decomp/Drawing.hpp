@@ -236,6 +236,7 @@ void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighli
 void DrawStageTextEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 void DrawBlendedTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);
 
+#if !RETRO_USE_ORIGINAL_CODE
 void RenderSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
 void RenderSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID);
 void RenderSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
@@ -249,5 +250,6 @@ void RenderAlphaBlendedSprite(int XPos, int YPos, int width, int height, int spr
 void RenderAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
 
 void RenderRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A);
+#endif
 
 #endif // !DRAWING_H

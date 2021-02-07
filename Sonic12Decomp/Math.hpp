@@ -54,6 +54,8 @@ inline int cos256(int angle)
 // Get Arc Tan value
 byte ArcTanLookup(int X, int Y);
 
+#if !RETRO_USE_ORIGINAL_CODE
 int64_t pow(int base, int exponent);
+#endif
 
 #endif // !MATH_H

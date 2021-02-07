@@ -109,6 +109,7 @@ void ClearAnimationData()
     animationFileCount = 0;
     hitboxCount        = 0;
 
+#if !RETRO_USE_ORIGINAL_CODE
     ClearTextures();
 
     // Used for pause menu
@@ -116,6 +117,7 @@ void ClearAnimationData()
     LoadGIFFile("Menu/Pause/PauseMenu.gif", SURFACE_MAX - 1);
     StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Menu/Pause/PauseMenu.gif");
     snapDataFile(0);
+#endif
 }
 
 AnimationFile *AddAnimationFile(char *filePath)

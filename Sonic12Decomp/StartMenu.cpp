@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_ORIGINAL_CODE
 int titleID, mainID, modID, saveID, bgID, fontID;
 bool isWide;
 
@@ -437,3 +438,4 @@ void StartMenu_LoadStage(NativeEntity_StartMenu *menu)
     }
     StartMenu_Destroy(menu);
 }
+#endif

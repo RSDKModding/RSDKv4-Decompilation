@@ -1,9 +1,12 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#if !RETRO_USE_ORIGINAL_CODE
 extern bool endLine;
+#endif
 inline void printLog(const char *msg, ...)
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
         char buffer[0x100];
@@ -37,10 +40,12 @@ inline void printLog(const char *msg, ...)
         }
     }
 #endif
+#endif
 }
 
 inline void printLog(const ushort *msg)
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
         int mPos = 0;
@@ -75,6 +80,7 @@ inline void printLog(const ushort *msg)
         }
     }
 #endif
+#endif
 }
 
 enum DevMenuMenus {
@@ -100,9 +106,12 @@ void initDevMenu();
 void initErrorMessage();
 void processStageSelect();
 
+//Not in original, but the code was, and its cleaner this way
+void setTextMenu(int mode);
+#if !RETRO_USE_ORIGINAL_CODE
 // added due to lack of normal main menu
 void initStartMenu(int mode);
 void processStartMenu();
-void setTextMenu(int mode);
+#endif
 
 #endif //! DEBUG_H
