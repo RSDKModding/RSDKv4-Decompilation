@@ -6969,7 +6969,9 @@ void RenderAlphaBlendedSprite(int XPos, int YPos, int width, int height, int spr
     state->width  = width;
     state->height = height;
     state->alpha     = alpha;
+#if RETRO_USING_SDL2
     state->inkEffect = SDL_BLENDMODE_BLEND;
+#endif
     state->scaleX    = 1.0f;
     state->scaleY    = 1.0f;
 }

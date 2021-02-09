@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USING_SDL2
     SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
 #endif
     Engine.Init();

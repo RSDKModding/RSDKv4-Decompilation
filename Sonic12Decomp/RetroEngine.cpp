@@ -94,7 +94,7 @@ bool processEvents()
                 break;
 #endif
 
-#if defined(RETRO_USING_TOUCH) && defined(RETRO_USING_SDL2)
+#if defined(RETRO_USING_TOUCH) && RETRO_USING_SDL2
             case SDL_FINGERMOTION:
                 touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
                 for (int i = 0; i < touches; i++) {
