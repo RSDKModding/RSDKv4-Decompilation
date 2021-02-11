@@ -133,9 +133,13 @@ void inp_ScanInput()
 	if (kDown & KEY_A)      kBuffer |= BTN_A;
 	if (kDown & KEY_B)      kBuffer |= BTN_B;
 	if (kDown & KEY_Y)      kBuffer |= BTN_C;
+	if (kDown & KEY_X)      kBuffer |= BTN_X;
+	if (kDown & KEY_ZL)     kBuffer |= BTN_Y;
+	if (kDown & KEY_ZR)     kBuffer |= BTN_Z;
+	if (kDown & KEY_L)      kBuffer |= BTN_L;
+	if (kDown & KEY_R)      kBuffer |= BTN_R;
 	if (kDown & KEY_START)  kBuffer |= BTN_START;
-	if (kDown & KEY_SELECT) kBuffer |= BTN_START;
-	if (kDown & KEY_X) 	    kBuffer |= BTN_START;
+	if (kDown & KEY_SELECT) kBuffer |= BTN_SELECT;
 }
 
 bool inp_GetButtonDown(int btn)

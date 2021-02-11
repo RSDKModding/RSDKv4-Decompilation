@@ -35,8 +35,14 @@ enum {
 	BTN_RIGHT 	= (1 << 3),
 	BTN_A 		= (1 << 4),
 	BTN_B 		= (1 << 5),
-	BTN_C 		= (1 << 6),
-	BTN_START 	= (1 << 7)
+	BTN_C		= (1 << 6),
+	BTN_X 		= (1 << 7),
+	BTN_Y		= (1 << 8),
+	BTN_Z		= (1 << 9),
+	BTN_L		= (1 << 10),
+	BTN_R		= (1 << 11),
+	BTN_START 	= (1 << 12),
+	BTN_SELECT  = (1 << 13)
 };
 
 void inp_ScanInput();

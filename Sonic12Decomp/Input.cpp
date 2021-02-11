@@ -193,13 +193,13 @@ void ProcessInput()
         BTN_A,
         BTN_B,
         BTN_C,
-        0,
-        0,
-        0,
-        0,
-        0,
+        BTN_X,
+        BTN_Y,
+        BTN_Z,
+        BTN_L,
+        BTN_R,
         BTN_START,
-        0
+        BTN_SELECT
     };
     
     for (int i = 0; i < 14; ++i)
