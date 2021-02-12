@@ -148,6 +148,10 @@ int InitRenderDevice()
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
     OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
     // OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
+	
+#if RETRO_PLATFORM == RETRO_3DS
+	gfx_SetResolution(SCREEN_XSIZE, SCREEN_YSIZE, engineDebugMode);
+#endif
 
     return 1;
 }

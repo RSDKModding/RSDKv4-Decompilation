@@ -25,29 +25,12 @@ void sys_LinearFree(void* data);
 void gfx_Init();
 void gfx_Exit();
 
+void gfx_SetResolution(int w, int h, bool debug);
+
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync);
 
 //Input
-enum {
-	BTN_UP 		= (1 << 0),
-	BTN_DOWN 	= (1 << 1),
-	BTN_LEFT 	= (1 << 2),
-	BTN_RIGHT 	= (1 << 3),
-	BTN_A 		= (1 << 4),
-	BTN_B 		= (1 << 5),
-	BTN_C		= (1 << 6),
-	BTN_X 		= (1 << 7),
-	BTN_Y		= (1 << 8),
-	BTN_Z		= (1 << 9),
-	BTN_L		= (1 << 10),
-	BTN_R		= (1 << 11),
-	BTN_START 	= (1 << 12),
-	BTN_SELECT  = (1 << 13)
-};
-
 void inp_ScanInput();
 bool inp_GetButtonDown(int btn);
-
-//Audio
 
 #endif

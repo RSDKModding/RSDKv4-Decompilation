@@ -67,6 +67,8 @@ void sys_LinearFree(void* data)
 }
 
 //Graphics
+static bool topScreen = true;
+
 void gfx_Init()
 {
 	gfxInitDefault();
@@ -86,7 +88,7 @@ void gfx_Init()
 	{
 		u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 		memcpy(fb, splash, 400*240*3);
-		
+
 		gfxFlushBuffers();
 		gfxSwapBuffers();
 		gspWaitForVBlank();
@@ -101,15 +103,34 @@ void gfx_Exit()
 	gfxExit();
 }
 
+void gfx_SetResolution(int w, int h, bool debug)
+{
+	//use bottom screen
+	if (w == 320) 
+	{
+		topScreen = false;
+		
+		gfxSetScreenFormat(GFX_BOTTOM, GSP_RGB565_OES);
+		gfxSetDoubleBuffering(GFX_BOTTOM, true);
+		
+		if (debug) {
+			consoleInit(GFX_TOP, NULL);
+		} else {
+			gfxSetScreenFormat(GFX_TOP, GSP_BGR8_OES);
+			gfxSetDoubleBuffering(GFX_TOP, false);
+		}		
+	}
+}
+
 void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 {
-	u16* out = (u16*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+	u16* out = (u16*)gfxGetFramebuffer(((topScreen)? GFX_TOP: GFX_BOTTOM), GFX_LEFT, NULL, NULL);
 
 	for (int y = 0; y < 240; ++y) {
-		for (int x = 0; x < 400; ++x) {
+		for (int x = 0; x < ((topScreen)? 400: 320); ++x) {
 			out[((x * 240) + (240-y-1))] = *pixels++;
 		}
-	}	
+	}
 	
 	//gfxFlushBuffers();
 	gfxSwapBuffers();
@@ -118,33 +139,39 @@ void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 }
 
 //Input
-static u32 kBuffer = 0;
+static u32 buttons[] = {
+	KEY_A, 		//0
+	KEY_B,		//1
+	KEY_Y,		//2
+	KEY_X,		//3
+	KEY_SELECT,	//4
+	KEY_TOUCH,	//5
+	KEY_START,	//6
+	0,			//7
+	0,			//8
+	KEY_L,		//9
+	KEY_R,		//10
+	KEY_UP,		//11
+	KEY_DOWN,	//12
+	KEY_LEFT,	//13
+	KEY_RIGHT,	//14
+	0,			//15
+	KEY_ZL,		//16
+	KEY_ZR		//17
+};
+
+static u32 kDown = 0;
 
 void inp_ScanInput()
 {
 	hidScanInput();
-	u32 kDown = hidKeysHeld();
-
-	kBuffer = 0;
-	if (kDown & KEY_UP)     kBuffer |= BTN_UP;
-	if (kDown & KEY_DOWN)   kBuffer |= BTN_DOWN;
-	if (kDown & KEY_LEFT)   kBuffer |= BTN_LEFT;
-	if (kDown & KEY_RIGHT)  kBuffer |= BTN_RIGHT;
-	if (kDown & KEY_A)      kBuffer |= BTN_A;
-	if (kDown & KEY_B)      kBuffer |= BTN_B;
-	if (kDown & KEY_Y)      kBuffer |= BTN_C;
-	if (kDown & KEY_X)      kBuffer |= BTN_X;
-	if (kDown & KEY_ZL)     kBuffer |= BTN_Y;
-	if (kDown & KEY_ZR)     kBuffer |= BTN_Z;
-	if (kDown & KEY_L)      kBuffer |= BTN_L;
-	if (kDown & KEY_R)      kBuffer |= BTN_R;
-	if (kDown & KEY_START)  kBuffer |= BTN_START;
-	if (kDown & KEY_SELECT) kBuffer |= BTN_SELECT;
+	kDown = hidKeysHeld();
 }
 
 bool inp_GetButtonDown(int btn)
-{
-	return (kBuffer & btn);
+{	
+	if (btn < 0 || btn > 17)
+		return false;
+		
+	return (kDown & buttons[btn]);
 }
-
-//Audio

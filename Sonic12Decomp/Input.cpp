@@ -182,29 +182,11 @@ void ProcessInput()
     if (!flag && inputType == 1) {
         inputDevice[INPUT_ANY].setReleased();
     }
-#endif
 
-#if RETRO_PLATFORM == RETRO_3DS
-    unsigned int map[] = {
-        BTN_UP,
-        BTN_DOWN,
-        BTN_LEFT,
-        BTN_RIGHT,
-        BTN_A,
-        BTN_B,
-        BTN_C,
-        BTN_X,
-        BTN_Y,
-        BTN_Z,
-        BTN_L,
-        BTN_R,
-        BTN_START,
-        BTN_SELECT
-    };
-    
+#elif RETRO_PLATFORM == RETRO_3DS
     for (int i = 0; i < 14; ++i)
     {
-        if (inp_GetButtonDown(map[i])) {
+        if (inp_GetButtonDown(inputDevice[i].contMappings)) {
             inputDevice[i].setHeld();
             inputDevice[INPUT_ANY].setHeld();
         } else if (inputDevice[i].hold) {

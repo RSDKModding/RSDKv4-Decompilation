@@ -128,12 +128,31 @@ void InitUserdata()
         ini->SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings = 14);
 #endif
 
+#if RETRO_PLATFORM == RETRO_3DS
+		ini->SetInteger("Controller 1", "Up", inputDevice[INPUT_UP].contMappings = 11);
+        ini->SetInteger("Controller 1", "Down", inputDevice[INPUT_DOWN].contMappings = 12);
+        ini->SetInteger("Controller 1", "Left", inputDevice[INPUT_LEFT].contMappings = 13);
+        ini->SetInteger("Controller 1", "Right", inputDevice[INPUT_RIGHT].contMappings = 14);
+        ini->SetInteger("Controller 1", "A", inputDevice[INPUT_BUTTONA].contMappings = 0);
+        ini->SetInteger("Controller 1", "B", inputDevice[INPUT_BUTTONB].contMappings = 1);
+        ini->SetInteger("Controller 1", "C", inputDevice[INPUT_BUTTONC].contMappings = 2);
+        ini->SetInteger("Controller 1", "X", inputDevice[INPUT_BUTTONX].contMappings = 3);
+        ini->SetInteger("Controller 1", "Y", inputDevice[INPUT_BUTTONY].contMappings = 16);
+        ini->SetInteger("Controller 1", "Z", inputDevice[INPUT_BUTTONZ].contMappings = 17);
+        ini->SetInteger("Controller 1", "L", inputDevice[INPUT_BUTTONL].contMappings = 9);
+        ini->SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings = 10);
+        ini->SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings = 6);
+        ini->SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings = 4);
+#endif
+
         StrCopy(Engine.dataFile, "Data.rsdk");
         ini->SetString("Dev", "DataFile", Engine.dataFile);
 
         ini->Write(BASE_PATH "settings.ini");
 		
 		delete[] ini;
+		
+		writeSettings();
     }
     else {
         fClose(file);
@@ -319,8 +338,45 @@ void InitUserdata()
         if (!ini->GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
             inputDevice[INPUT_SELECT].contMappings = 14;
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+		if (!ini->GetInteger("Controller 1", "Up", &inputDevice[INPUT_UP].contMappings))
+            inputDevice[INPUT_UP].contMappings = 11;
+        if (!ini->GetInteger("Controller 1", "Down", &inputDevice[INPUT_DOWN].contMappings))
+            inputDevice[INPUT_DOWN].contMappings = 12;
+        if (!ini->GetInteger("Controller 1", "Left", &inputDevice[INPUT_LEFT].contMappings))
+            inputDevice[INPUT_LEFT].contMappings = 13;
+        if (!ini->GetInteger("Controller 1", "Right", &inputDevice[INPUT_RIGHT].contMappings))
+            inputDevice[INPUT_RIGHT].contMappings = 14;
+        if (!ini->GetInteger("Controller 1", "A", &inputDevice[INPUT_BUTTONA].contMappings))
+            inputDevice[INPUT_BUTTONA].contMappings = 0;
+        if (!ini->GetInteger("Controller 1", "B", &inputDevice[INPUT_BUTTONB].contMappings))
+            inputDevice[INPUT_BUTTONB].contMappings = 1;
+        if (!ini->GetInteger("Controller 1", "C", &inputDevice[INPUT_BUTTONC].contMappings))
+            inputDevice[INPUT_BUTTONC].contMappings = 2;
+        if (!ini->GetInteger("Controller 1", "X", &inputDevice[INPUT_BUTTONX].contMappings))
+            inputDevice[INPUT_BUTTONX].contMappings = 3;
+        if (!ini->GetInteger("Controller 1", "Y", &inputDevice[INPUT_BUTTONY].contMappings))
+            inputDevice[INPUT_BUTTONY].contMappings = 16;
+        if (!ini->GetInteger("Controller 1", "Z", &inputDevice[INPUT_BUTTONZ].contMappings))
+            inputDevice[INPUT_BUTTONZ].contMappings = 17;
+        if (!ini->GetInteger("Controller 1", "L", &inputDevice[INPUT_BUTTONL].contMappings))
+            inputDevice[INPUT_BUTTONL].contMappings = 9;
+        if (!ini->GetInteger("Controller 1", "R", &inputDevice[INPUT_BUTTONR].contMappings))
+            inputDevice[INPUT_BUTTONR].contMappings = 10;
+        if (!ini->GetInteger("Controller 1", "Start", &inputDevice[INPUT_START].contMappings))
+            inputDevice[INPUT_START].contMappings = 6;
+        if (!ini->GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
+            inputDevice[INPUT_SELECT].contMappings = 4;
+#endif
+
 		delete[] ini;
     }
+	
+#if RETRO_PLATFORM == RETRO_3DS
+	if (SCREEN_XSIZE != 320)
+		SCREEN_XSIZE = 400;
+#endif
 
     SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
 
@@ -414,6 +470,7 @@ void writeSettings()
     ini->SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
     ini->SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
+#if RETRO_PLATFORM != RETRO_3DS
 #if RETRO_USING_SDL2
     ini->SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
 #endif
@@ -434,6 +491,7 @@ void writeSettings()
     ini->SetInteger("Keyboard 1", "R", inputDevice[INPUT_BUTTONR].keyMappings);
     ini->SetInteger("Keyboard 1", "Start", inputDevice[INPUT_START].keyMappings);
     ini->SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
+#endif
 
 #if RETRO_USING_SDL2
     ini->SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
@@ -449,6 +507,12 @@ void writeSettings()
     ini->SetComment("Controller 1", "IC1Comment11", "CONTROLLER_BUTTON_RSTICK_LEFT    = 24");
     ini->SetComment("Controller 1", "IC1Comment12", "CONTROLLER_BUTTON_RSTICK_RIGHT   = 25");
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    ini->SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
+    ini->SetComment("Controller 1", "IC1Comment2", "(0 = A, 1 = B, 2 = Y, 3 = X, 4 = Select, 5 = Touch, 6 = Start, 9 = L, 10 = R, 11 = Up, 12 = Down, 13 = Left, 14 = Right, 16 = ZL, 17 = ZR)");
+#endif
+
     ini->SetInteger("Controller 1", "Up", inputDevice[INPUT_UP].contMappings);
     ini->SetInteger("Controller 1", "Down", inputDevice[INPUT_DOWN].contMappings);
     ini->SetInteger("Controller 1", "Left", inputDevice[INPUT_LEFT].contMappings);
@@ -463,10 +527,13 @@ void writeSettings()
     ini->SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings);
     ini->SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings);
     ini->SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings);
+	
+#if RETRO_PLATFORM != RETRO_3DS
     ini->SetInteger("Controller 1", "LStickDeadzone", LSTICK_DEADZONE);
     ini->SetInteger("Controller 1", "RStickDeadzone", RSTICK_DEADZONE);
     ini->SetInteger("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE);
     ini->SetInteger("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE);
+#endif
 
     ini->Write(BASE_PATH "settings.ini");
 	
