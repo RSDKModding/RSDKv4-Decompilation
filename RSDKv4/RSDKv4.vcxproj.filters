@@ -19,6 +19,21 @@
     <Filter Include="Header Files\nativeEntities">
       <UniqueIdentifier>{65197e20-a952-4014-93ca-c21e07885ac7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\dependencies">
+      <UniqueIdentifier>{b34ad261-a437-4aef-b822-e0d4a7b20d57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{93c27dff-7a1a-4397-83ba-1e4b4a53e1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dependencies\filesystem">
+      <UniqueIdentifier>{578fcdd9-dd51-45e6-a8b1-ae687038f8be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dependencies\upng">
+      <UniqueIdentifier>{41f56698-1197-42d9-b326-4539fc07dffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\upng">
+      <UniqueIdentifier>{5be3880c-ad53-4d8e-a584-65df706bf1c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -89,6 +104,12 @@
     </ClInclude>
     <ClInclude Include="Network.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\all\upng\upng.h">
+      <Filter>Header Files\dependencies\upng</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -164,9 +185,12 @@
     <ClCompile Include="StartMenu.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
+    <ClCompile Include="..\dependencies\all\upng\upng.cpp">
+      <Filter>Source Files\dependencies\upng</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Sonic12Decomp.rc">
+    <ResourceCompile Include="RSDKv4.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

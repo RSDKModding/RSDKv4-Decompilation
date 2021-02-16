@@ -4563,7 +4563,6 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
             pitch          = SCREEN_XSIZE - width;
             gfxPitch       = width + surface->width;
             lineBuffer     = &gfxLineBuffer[YPos];
-            gfxData        = &gfxLineBuffer[YPos];
             gfxData        = &graphicData[sprX + surface->width * (sprY + heightFlip - 1) + surface->dataPosition];
             frameBufferPtr = &Engine.frameBuffer[XPos + SCREEN_XSIZE * YPos];
             while (height--) {
@@ -5813,7 +5812,7 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
     if (width <= 0 || height <= 0 || alpha <= 0)
         return;
 
-    short *subBlendTable   = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
+    short *subBlendTable   = &subtractLookupTable[BLENDTABLE_XSIZE * alpha];
     GFXSurface *surface    = &gfxSurface[sheetID];
     int pitch              = SCREEN_XSIZE - width;
     int gfxPitch           = surface->width - width;
@@ -5837,7 +5836,7 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
                 int v12 = (*frameBufferPtr & 0x7E0) - ((ushort)subBlendTable[(colour & 0x7E0) >> 6] << 6);
                 if (v12 > 0)
                     finalColour |= v12;
-                int v13 = (*frameBufferPtr & (BLENDTABLE_XSIZE - 1)) - (ushort)subBlendTable[colour & (BLENDTABLE_XSIZE - 1)];
+                int v13 = (*frameBufferPtr & 0x1F) - (ushort)subBlendTable[colour & 0x1F];
                 if (v13 > 0)
                     finalColour |= v13;
                 *frameBufferPtr = finalColour;
