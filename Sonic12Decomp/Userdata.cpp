@@ -374,8 +374,12 @@ void InitUserdata()
     }
 	
 #if RETRO_PLATFORM == RETRO_3DS
-	if (SCREEN_XSIZE != 320)
+	if (SCREEN_XSIZE >= 800)
+		SCREEN_XSIZE = 800;
+	else if (SCREEN_XSIZE >= 400)
 		SCREEN_XSIZE = 400;
+	else
+		SCREEN_XSIZE = 320;
 #endif
 
     SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
