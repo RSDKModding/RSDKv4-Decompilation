@@ -68,7 +68,6 @@ void sys_LinearFree(void* data)
 
 //Graphics
 static bool topScreen = true;
-static bool wideScreen = false;
 
 void gfx_Init()
 {
@@ -107,8 +106,6 @@ void gfx_SetResolution(int w, int h, bool debug)
 	//make screen wide for 800px
 	if (w == 800)
 	{
-		wideScreen = true;
-		
 		gfxSetWide(true);
 	}
 	//use bottom screen
@@ -133,7 +130,7 @@ void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 	u16* out = (u16*)gfxGetFramebuffer(((topScreen)? GFX_TOP: GFX_BOTTOM), GFX_LEFT, NULL, NULL);
 
 	for (int y = 0; y < 240; ++y) {
-		for (int x = 0; x < ((topScreen)? (wideScreen)? 800: 400: 320); ++x) {
+		for (int x = 0; x < ((topScreen)? (gfxIsWide())? 800: 400: 320); ++x) {
 			out[((x * 240) + (240-y-1))] = *pixels++;
 		}
 	}
