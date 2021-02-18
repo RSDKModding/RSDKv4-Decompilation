@@ -67,7 +67,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 
 ## 3DS:
 * Ensure you have devkitARM installed; refer to the [devkitPro wiki](https://devkitpro.org/wiki/Getting_Started) for more information on getting the package installer set up.
-* Make sure you have all dependencies installed (run `sudo (dkp-)pacman -S 3ds-sdl 3ds-dev 3ds-libvorbisidec`)
+* Make sure you have all dependencies installed (run `sudo (dkp-)pacman -S 3ds-dev 3ds-sdl 3ds-libvorbisidec`)
 * Go into ./Sonic1Decomp.3DS or ./Sonic2Decomp.3DS (depending on which game you want to compile) and run `make`. For a CIA build, run `make cia`.
 
 ## Other platforms:
