@@ -661,8 +661,19 @@ void initStartMenu(int mode)
         }
     }
 
-    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
-    CreateNativeObject(StartMenu_Create, StartMenu_Main);
+    if(mode!=2) //CLASSIC MODE
+	    {
+	    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);
+	    CreateNativeObject(StartMenu_Create, StartMenu_Main);
+	    }
+    else        //MODE = 2 -> AFTER PUSH EXIT BUTTON
+	    {
+	    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
+	    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);		
+    	CreateNativeObject(StartMenu_Create, StartMenu_Main);
+	    CreateNativeObject(StartMenu_Create, StartMenu_Main);
+	    }
+    
     if (mode == 0 || !GetGlobalVariableByName("timeAttack.result")) {
     }
     else {
