@@ -25,9 +25,9 @@ void initDevMenu()
     LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
-#if RETRO_USE_ORIGINAL_CODE
+//#if RETRO_USE_ORIGINAL_CODE
     setTextMenu(DEVMENU_MAIN);
-#endif
+//#endif
     drawStageGFXHQ = false;
     touchTimer               = 0;
 
