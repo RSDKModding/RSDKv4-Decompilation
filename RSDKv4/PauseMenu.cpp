@@ -126,7 +126,7 @@ void PauseMenu_Main(void *objPtr)
                         stageMode       = STAGEMODE_LOAD;
                         Engine.gameMode = ENGINE_MAINGAME;
                         break;
-                    case 4: initStartMenu(0); break;
+                    case 4: initStartMenu(2); break;
                     case 5:
                         Engine.gameMode = ENGINE_DEVMENU;
                         initDevMenu();
