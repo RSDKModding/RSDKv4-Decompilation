@@ -670,7 +670,7 @@ void initStartMenu(int mode)
 	    {
 	    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
 	    RemoveNativeObjectType(StartMenu_Create, StartMenu_Main);		
-    	CreateNativeObject(StartMenu_Create, StartMenu_Main);
+	    CreateNativeObject(StartMenu_Create, StartMenu_Main);
 	    CreateNativeObject(StartMenu_Create, StartMenu_Main);
 	    }
     
