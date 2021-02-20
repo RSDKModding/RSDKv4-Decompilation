@@ -73,8 +73,6 @@ void gfx_Init()
 {
 	gfxInitDefault();
 	consoleInit(GFX_BOTTOM, NULL);
-	gfxSetWide(false);
-	gfxSet3D(false);
 
 	//display splash screen
 	u8* splash = nullptr;
@@ -105,8 +103,13 @@ void gfx_Exit()
 
 void gfx_SetResolution(int w, int h, bool debug)
 {
+	//make screen wide for 800px
+	if (w == 800)
+	{
+		gfxSetWide(true);
+	}
 	//use bottom screen
-	if (w == 320) 
+	else if (w == 320) 
 	{
 		topScreen = false;
 		
@@ -127,7 +130,7 @@ void gfx_UpdateScreen(Uint16 *pixels, bool vsync)
 	u16* out = (u16*)gfxGetFramebuffer(((topScreen)? GFX_TOP: GFX_BOTTOM), GFX_LEFT, NULL, NULL);
 
 	for (int y = 0; y < 240; ++y) {
-		for (int x = 0; x < ((topScreen)? 400: 320); ++x) {
+		for (int x = 0; x < ((topScreen)? (gfxIsWide())? 800: 400: 320); ++x) {
 			out[((x * 240) + (240-y-1))] = *pixels++;
 		}
 	}

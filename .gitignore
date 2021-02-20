@@ -41,6 +41,11 @@ cmake/
 **/BundleArtifacts
 **/AppPackages
 
+# 3DS
+*.3dsx
+*.elf
+*.smdh
+
 # safety
 *.rsdk
 

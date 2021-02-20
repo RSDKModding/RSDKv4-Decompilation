@@ -65,6 +65,12 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 ## Switch:
 * head on over to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme
 
+## 3DS:
+* Ensure you have devkitARM installed. Refer to the [devkitPro wiki](https://devkitpro.org/wiki/Getting_Started) for more information on getting the package installer set up.
+* Make sure you have all dependencies installed: `sudo (dkp-)pacman -S 3ds-dev 3ds-libvorbisidec 3ds-sdl`
+* Go into ./Sonic1Decomp.3DS or ./Sonic2Decomp.3DS (depending on which game you want to compile) and run `make`.
+* Optionally, after running `make`, run `make cia` to build a CIA.
+
 ## Other platforms:
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
 if you've cloned this repo and ported it to a platform not on the list or made some changes you'd like to see added to this repo, submit a pull request and it'll most likely be added
