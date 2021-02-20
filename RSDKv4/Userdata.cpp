@@ -879,10 +879,10 @@ void initMods()
                                         char modBuf[0x100];
                                         StrCopy(modBuf, bytecode_de.path().c_str());
                                         char folderTest[4][0x10] = {
-                                            "Data/",
-                                            "Data\\",
-                                            "data/",
-                                            "data\\",
+                                            "Bytecode/",
+                                            "Bytecode\\",
+                                            "Bytecode/",
+                                            "Bytecode\\",
                                         };
                                         int tokenPos = -1;
                                         for (int i = 0; i < 4; ++i) {
@@ -925,10 +925,10 @@ void initMods()
                                         char modBuf[0x100];
                                         StrCopy(modBuf, scripts_de.path().c_str());
                                         char folderTest[4][0x10] = {
-                                            "Data/",
-                                            "Data\\",
-                                            "data/",
-                                            "data\\",
+                                            "Scripts/",
+                                            "Scripts\\",
+                                            "Scripts/",
+                                            "Scripts\\",
                                         };
                                         int tokenPos = -1;
                                         for (int i = 0; i < 4; ++i) {
