@@ -821,7 +821,9 @@ void initMods()
                         modSettings.GetBool("", "Active", &info->active);
 
                         // Check for Data replacements.
-                        ghc::filesystem::path dataPath(modDir + "\\Data");
+                        ghc::filesystem::path dataPath(modDir + "/Data");
+                        if(!(ghc::filesystem::exists(dataPath) && ghc::filesystem::is_directory(dataPath)))
+							ghc::filesystem::path dataPath(modDir + "\\Data");
 
                         if (ghc::filesystem::exists(dataPath) && ghc::filesystem::is_directory(dataPath)) {
                             try {
@@ -865,7 +867,10 @@ void initMods()
                         }
 
                         // Check for Data replacements.
-                        ghc::filesystem::path bytecodePath(modDir + "\\Bytecode");
+                        ghc::filesystem::path bytecodePath(modDir + "/Bytecode");
+                        if(!(ghc::filesystem::exists(bytecodePath) && ghc::filesystem::is_directory(bytecodePath)))
+							ghc::filesystem::path bytecodePath(modDir + "\\Bytecode");
+                        
                         if (ghc::filesystem::exists(bytecodePath) && ghc::filesystem::is_directory(bytecodePath)) {
                             try {
                                 auto bytecode_rdi = ghc::filesystem::recursive_directory_iterator(bytecodePath);
@@ -908,7 +913,10 @@ void initMods()
                         }
 
                         // Check for Data replacements.
-                        ghc::filesystem::path scriptsPath(modDir + "\\Scripts");
+                        ghc::filesystem::path scriptsPath(modDir + "/Scripts");
+                        if(!(ghc::filesystem::exists(scriptsPath) && ghc::filesystem::is_directory(scriptsPath)))
+							ghc::filesystem::path scriptsPath(modDir + "\\Scripts");
+                        
                         if (ghc::filesystem::exists(scriptsPath) && ghc::filesystem::is_directory(scriptsPath)) {
                             try {
                                 auto scripts_rdi = ghc::filesystem::recursive_directory_iterator(scriptsPath);
