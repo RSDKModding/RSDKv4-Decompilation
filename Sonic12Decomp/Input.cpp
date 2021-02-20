@@ -61,6 +61,19 @@ bool getControllerButton(byte buttonID)
 
     return false;
 }
+
+void controllerInit(byte controllerID)
+{
+    inputType  = 1;
+    controller = SDL_GameControllerOpen(controllerID);
+}
+
+void controllerClose(byte controllerID)
+{
+    if (controllerID >= 2)
+        return;
+    inputType = 0;
+}
 #endif
 
 void ProcessInput()
