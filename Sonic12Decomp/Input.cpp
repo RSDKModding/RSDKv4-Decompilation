@@ -1,5 +1,8 @@
 #include "RetroEngine.hpp"
 
+#include <algorithm>
+#include <vector>
+
 InputData keyPress = InputData();
 InputData keyDown  = InputData();
 
@@ -20,7 +23,7 @@ int LTRIGGER_DEADZONE = 20000;
 int RTRIGGER_DEADZONE = 20000;
 
 #if RETRO_USING_SDL2
-SDL_GameController *controller = nullptr;
+std::vector<SDL_GameController*> controllers;
 #endif
 
 #if RETRO_USING_SDL1
@@ -32,34 +35,95 @@ SDL_Joystick *controller = nullptr;
 #if RETRO_USING_SDL2
 bool getControllerButton(byte buttonID)
 {
-    if (SDL_GameControllerGetButton(controller, (SDL_GameControllerButton)buttonID)) {
-        return true;
-    }
-    else {
+    bool pressed = false;
+
+    for (int i = 0; i < controllers.size(); ++i)
+    {
+        SDL_GameController* controller = controllers[i];
+
+        if (SDL_GameControllerGetButton(controller, (SDL_GameControllerButton)buttonID)) {
+            pressed |= true;
+            continue;
+        }
+        else {
+            switch (buttonID) {
+                default: break;
+                case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                    pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
+                    continue;
+                case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                    pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
+                    continue;
+                case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                    pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
+                    continue;
+                case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                    pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
+                    continue;
+            }
+        }
+
         switch (buttonID) {
             default: break;
-            case SDL_CONTROLLER_BUTTON_DPAD_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
-            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
+            case SDL_CONTROLLER_BUTTON_ZL:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > LTRIGGER_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_ZR:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > RTRIGGER_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_LSTICK_UP:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_LSTICK_DOWN:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_LSTICK_LEFT:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_LSTICK_RIGHT:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_RSTICK_UP:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) < -RSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_RSTICK_DOWN:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) > RSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_RSTICK_LEFT:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) < -RSTICK_DEADZONE;
+                continue;
+            case SDL_CONTROLLER_BUTTON_RSTICK_RIGHT:
+                pressed |= SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) > RSTICK_DEADZONE;
+                continue;
         }
     }
 
-    switch (buttonID) {
-        default: break;
-        case SDL_CONTROLLER_BUTTON_ZL: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > LTRIGGER_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_ZR: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > RTRIGGER_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_LSTICK_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > LSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_UP: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) < -RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_DOWN: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) > RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_LEFT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) < -RSTICK_DEADZONE;
-        case SDL_CONTROLLER_BUTTON_RSTICK_RIGHT: return SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) > RSTICK_DEADZONE;
+    return pressed;
+}
+
+void controllerInit(byte controllerID)
+{
+    SDL_GameController* controller = SDL_GameControllerOpen(controllerID);
+    if (controller)
+    {
+        controllers.push_back(controller);
+        inputType  = 1;
+    }
+}
+
+void controllerClose(byte controllerID)
+{
+    SDL_GameController* controller = SDL_GameControllerFromInstanceID(controllerID);
+    if (controller)
+    {
+        SDL_GameControllerClose(controller);
+        controllers.erase(std::remove(controllers.begin(), controllers.end(), controller), controllers.end());
     }
 
-    return false;
+    if (controllers.empty())
+    {
+        inputType = 0;
+    }
 }
 #endif
 

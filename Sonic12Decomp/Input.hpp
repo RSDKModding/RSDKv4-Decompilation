@@ -75,8 +75,6 @@ extern int LTRIGGER_DEADZONE;
 extern int RTRIGGER_DEADZONE;
 
 #if RETRO_USING_SDL2
-extern SDL_GameController *controller;
-
 // Easier this way
 enum ExtraSDLButtons {
     SDL_CONTROLLER_BUTTON_ZL = SDL_CONTROLLER_BUTTON_MAX + 1,
@@ -92,18 +90,8 @@ enum ExtraSDLButtons {
     SDL_CONTROLLER_BUTTON_MAX_EXTRA,
 };
 
-inline void controllerInit(byte controllerID)
-{
-    inputType  = 1;
-    controller = SDL_GameControllerOpen(controllerID);
-};
-
-inline void controllerClose(byte controllerID)
-{
-    if (controllerID >= 2)
-        return;
-    inputType = 0;
-}
+void controllerInit(byte controllerID);
+void controllerClose(byte controllerID);
 #endif
 
 #if RETRO_USING_SDL1

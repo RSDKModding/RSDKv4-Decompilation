@@ -9,9 +9,6 @@ int main(int argc, char *argv[])
     
     SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
     Engine.Init();
-#if RETRO_USING_SDL2
-    controllerInit(0);
-#endif
     Engine.Run();
 
     return 0;
