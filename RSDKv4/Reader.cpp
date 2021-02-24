@@ -513,12 +513,29 @@ bool ReachedEndOfFile()
 #if !RETRO_USE_ORIGINAL_CODE
 bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 {
+    MEM_ZEROP(fileInfo);
 
-    if (fileInfo->cFileHandle)
-        fClose(fileInfo->cFileHandle);
+    if (cFileHandle)
+        fClose(cFileHandle);
+
+    char filePathBuf[0x100];
+    StrCopy(filePathBuf, filePath);
+    bool forceFolder = false;
+    for (int m = 0; m < modCount; ++m) {
+        if (modList[m].active) {
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
+            if (iter != modList[m].fileMap.cend()) {
+                StrCopy(filePathBuf, iter->second.c_str());
+                forceFolder = true;
+                break;
+            }
+        }
+    }
+
+    cFileHandle = NULL;
 
     MEM_ZEROP(fileInfo);
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
+    if ((dataMode ? Engine.usingMenuFile : Engine.usingDataFile) && !forceFolder) {
         StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
@@ -579,12 +596,12 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         return false;
     }
     else {
-        StrCopy(fileInfo->fileName, filePath);
+        StrCopy(fileInfo->fileName, filePathBuf);
         StrCopy(fileName, fileInfo->fileName);
 
         fileInfo->cFileHandle = fOpen(fileInfo->fileName, "rb");
         if (!fileInfo->cFileHandle) {
-            printLog("Couldn't load file '%s'", filePath);
+            printLog("Couldn't load file '%s'", filePathBuf);
             return false;
         }
         virtualFileOffset = 0;
