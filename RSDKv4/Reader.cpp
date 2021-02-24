@@ -614,7 +614,7 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         bufferPosition    = 0;
         readSize          = 0;
 
-        printLog("Loaded File '%s'", filePath);
+        printLog("Loaded File '%s'", filePathBuf);
         return true;
     }
 }
