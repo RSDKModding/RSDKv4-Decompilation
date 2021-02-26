@@ -219,8 +219,9 @@ void PauseMenu_Main(void *objPtr)
     }
     // OPTIONS
     int margins[4][3] = { { 0, 46, 65 }, { 0, 58, 55 }, { 66, 46, 30 }, { 56, 58, 64 } };
+    int optionCount = (Engine.devMenu ? 4 : 3);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < optionCount; i++) {
         if (i == pauseMenu->selectedOption) {
             DrawSprite(pauseMenu->barPos + 10, i * 32 + 52, 78, 4, 0, 94, SURFACE_MAX - 1);
             if (pauseMenu->revokeTimer % 6 > 2)
