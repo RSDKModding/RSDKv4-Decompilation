@@ -1,4 +1,7 @@
 # Sonic 1/2 2013 Decompilation
+
+[![Nintendo Switch](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/actions/workflows/switch.yml/badge.svg)](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/actions/workflows/switch.yml)
+
 A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
