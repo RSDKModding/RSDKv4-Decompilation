@@ -2,9 +2,9 @@ name: Nintendo Switch
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 1.2.0 ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 1.2.0 ]
 
 jobs:
   build:
