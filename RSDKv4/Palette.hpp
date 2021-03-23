@@ -110,8 +110,8 @@ inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinati
 {
     if (sourcePalette < PALETTE_COUNT && destinationPalette < PALETTE_COUNT) {
         for (int i = 0; i < count; ++i) {
-            fullPalette[destinationPalette][srcPaletteStart + i]   = fullPalette[sourcePalette][destPaletteStart + i];
-            fullPalette32[destinationPalette][srcPaletteStart + i] = fullPalette32[sourcePalette][destPaletteStart + i];
+            fullPalette[destinationPalette][destPaletteStart + i]   = fullPalette[sourcePalette][srcPaletteStart + i];
+            fullPalette32[destinationPalette][destPaletteStart + i] = fullPalette32[sourcePalette][srcPaletteStart + i];
         }
     }
 }

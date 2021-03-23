@@ -751,10 +751,7 @@ void ReleaseRenderDevice()
 
 void GenerateBlendLookupTable()
 {
-    int tintValue;
-    int blendTableID;
-
-    blendTableID = 0;
+    int blendTableID = 0;
     for (int y = 0; y < BLENDTABLE_YSIZE; y++) {
         for (int x = 0; x < BLENDTABLE_XSIZE; x++) {
             blendLookupTable[blendTableID]      = y * x >> 8;
@@ -763,7 +760,7 @@ void GenerateBlendLookupTable()
     }
 
     for (int i = 0; i < TINTTABLE_SIZE; i++) {
-        tintValue = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
+        int tintValue = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
         if (tintValue > 31)
             tintValue = 31;
         tintLookupTable[i] = 0x841 * tintValue;

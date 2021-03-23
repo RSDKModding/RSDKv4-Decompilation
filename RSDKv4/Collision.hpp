@@ -51,10 +51,12 @@ void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startYPos);
 void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startXPos);
 void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startYPos);
 void FindRWallPosition(Entity *player, CollisionSensor *sensor, int startXPos);
+
 void FloorCollision(Entity *player, CollisionSensor *sensor);
 void LWallCollision(Entity *player, CollisionSensor *sensor);
 void RoofCollision(Entity *player, CollisionSensor *sensor);
 void RWallCollision(Entity *player, CollisionSensor *sensor);
+
 void SetPathGripSensors(Entity *player);
 
 void ProcessPathGrip(Entity *player);

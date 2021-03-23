@@ -1575,7 +1575,7 @@ void ProcessPlayerTileCollisions(Entity *player)
 
     collisionTolerance = 15;
     if (player->speed <= 0x5FFFF)
-        collisionTolerance = (sbyte)player->angle < 1 ? 8 : 15;
+        collisionTolerance = (sbyte)player->angle == 0 ? 8 : 15;
 
     if (player->gravity == 1)
         ProcessAirCollision(player);
