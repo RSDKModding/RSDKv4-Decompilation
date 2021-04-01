@@ -23,6 +23,22 @@ struct TextMenu {
     sbyte timer;
 };
 
+#if RETRO_REV01
+#define FONTCHAR_COUNT (0x400)
+
+struct FontCharacter
+{
+    int id;
+    short srcX;
+    short srcY;
+    short width;
+    short height;
+    short pivotX;
+    short pivotY;
+    short xAdvance;
+};
+#endif
+
 enum TextMenuAlignments {
     MENU_ALIGN_LEFT,
     MENU_ALIGN_RIGHT,
@@ -33,6 +49,12 @@ extern TextMenu gameMenu[TEXTMENU_COUNT];
 extern int textMenuSurfaceNo;
 
 extern char playerListText[0x80][0x20];
+
+#if RETRO_REV01
+extern FontCharacter fontCharacterList[FONTCHAR_COUNT];
+
+void LoadFontFile(const char *filePath);
+#endif
 
 void LoadTextFile(TextMenu *menu, const char *filePath);
 void LoadConfigListText(TextMenu *menu, int listNo);

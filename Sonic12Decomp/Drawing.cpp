@@ -2293,6 +2293,70 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
     // TODO: this
 #endif
 }
+
+#if RETRO_REV01
+void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height,
+                                   int sprX, int sprY, int sheetID)
+{
+#if RETRO_SOFTWARE_RENDER
+    //Not avaliable in SW Render mode
+#endif
+
+#if RETRO_HARDWARE_RENDER
+    GFXSurface *surface = &gfxSurface[sheetID];
+    if (gfxVertexSize < VERTEX_LIMIT && XPos > -8192 && XPos < 13951 && YPos > -1024 && YPos < 4864) {
+        XPos -= pivotX * scaleX >> 5;
+        scaleX = width * scaleX >> 5;
+        YPos -= pivotY * scaleY >> 5;
+        scaleY = height * scaleY >> 5;
+        if (gfxSurface[sheetID].texStartX > -1 && gfxVertexSize < 4096) {
+            gfxPolyList[gfxVertexSize].x = XPos;
+            gfxPolyList[gfxVertexSize].y = YPos;
+            gfxPolyList[gfxVertexSize].colour.r    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.g    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.b    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.a    = 0xFF;
+            gfxPolyList[gfxVertexSize].u = gfxSurface[sheetID].texStartX + sprX;
+            gfxPolyList[gfxVertexSize].v = gfxSurface[sheetID].texStartY + sprY;
+            gfxVertexSize++;
+
+            gfxPolyList[gfxVertexSize].x = XPos + scaleX;
+            gfxPolyList[gfxVertexSize].y = YPos;
+            gfxPolyList[gfxVertexSize].colour.r    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.g    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.b    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.a    = 0xFF;
+            gfxPolyList[gfxVertexSize].u           = gfxSurface[sheetID].texStartX + sprX + width;
+            gfxPolyList[gfxVertexSize].v           = gfxPolyList[gfxVertexSize - 1].v;
+            gfxVertexSize++;
+
+            gfxPolyList[gfxVertexSize].x = XPos;
+            gfxPolyList[gfxVertexSize].y = YPos + scaleY;
+            gfxPolyList[gfxVertexSize].colour.r    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.g    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.b    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.a    = 0xFF;
+            gfxPolyList[gfxVertexSize].u = gfxPolyList[gfxVertexSize - 2].u;
+            gfxPolyList[gfxVertexSize].v           = gfxSurface[sheetID].texStartY + sprY + height;
+            gfxVertexSize++;
+
+            gfxPolyList[gfxVertexSize].x = gfxPolyList[gfxVertexSize - 2].x;
+            gfxPolyList[gfxVertexSize].y = gfxPolyList[gfxVertexSize - 1].y;
+            gfxPolyList[gfxVertexSize].colour.r    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.g    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.b    = 0xFF;
+            gfxPolyList[gfxVertexSize].colour.a    = 0xFF;
+            gfxPolyList[gfxVertexSize].u = gfxPolyList[gfxVertexSize - 2].u;
+            gfxPolyList[gfxVertexSize].v = gfxPolyList[gfxVertexSize - 1].v;
+            gfxVertexSize++;
+
+            gfxIndexSize += 6;
+        }
+    }
+#endif
+}
+#endif
+
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
                        int sheetID)
 {
@@ -3463,6 +3527,39 @@ void DrawTexturedFace2(void *v, byte sheetID)
     // TODO: this
 #endif
 }
+
+#if RETRO_REV01
+void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount)
+{
+    TextMenu *tMenu = (TextMenu *)menu;
+    int Y           = YPos << 9;
+    if (rowCount < 0)
+        rowCount = tMenu->rowCount;
+    if (rowStart + rowCount > tMenu->rowCount)
+        rowCount = tMenu->rowCount - rowStart;
+
+    while (rowCount > 0) {
+        int X = XPos << 9;
+        for (int i = 0; i < tMenu->entrySize[rowStart]; ++i) {
+            ushort c             = tMenu->textData[tMenu->entryStart[rowStart] + i];
+            FontCharacter *fChar = &fontCharacterList[c];
+#if RETRO_SOFTWARE_RENDER
+            DrawSpriteScaled(FLIP_NONE, X >> 9, Y >> 9, -fChar->pivotX, -fChar->pivotY, scale, scale, fChar->width, fChar->height, fChar->srcX,
+                             fChar->srcY, textMenuSurfaceNo);
+#endif
+#if RETRO_HARDWARE_RENDER
+            DrawScaledChar(FLIP_NONE, X >> 5, Y >> 5, -fChar->pivotX, -fChar->pivotY, scale, scale, fChar->width, fChar->height,
+                                          fChar->srcX,
+                             fChar->srcY, textMenuSurfaceNo);
+#endif
+            X += fChar->xAdvance * scale;
+        }
+        Y += spacing * scale;
+        rowStart++;
+        rowCount--;
+    }
+}
+#endif
 
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight)
 {

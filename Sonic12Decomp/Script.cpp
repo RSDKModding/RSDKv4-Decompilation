@@ -486,8 +486,14 @@ const FunctionInfo functions[] = {
     FunctionInfo("ReadSaveRAM", 0),
     FunctionInfo("WriteSaveRAM", 0),
 
+#if RETRO_REV01
+    FunctionInfo("LoadFontFile", 1),
+#endif
     FunctionInfo("LoadTextFile", 2),
     FunctionInfo("GetTextInfo", 5),
+#if RETRO_REV01
+    FunctionInfo("DrawText", 7),
+#endif
     FunctionInfo("GetVersionNumber", 2),
 
     FunctionInfo("GetTableValue", 3),
@@ -501,9 +507,11 @@ const FunctionInfo functions[] = {
     FunctionInfo("CallNativeFunction4", 5),
 
     FunctionInfo("SetObjectRange", 1),
+#if !RETRO_REV01
     FunctionInfo("GetObjectValue", 3),
     FunctionInfo("SetObjectValue", 3),
     FunctionInfo("CopyObject", 3),
+#endif
     FunctionInfo("Print", 3),
 };
 
@@ -998,7 +1006,13 @@ enum ScrFunc {
     FUNC_GETANIMATIONBYNAME,
     FUNC_READSAVERAM,
     FUNC_WRITESAVERAM,
+#if RETRO_REV01
+    FUNC_LOADTEXTFONT
+#endif
     FUNC_LOADTEXTFILE,
+#if RETRO_REV01
+    FUNC_DRAWTEXT
+#endif
     FUNC_GETTEXTINFO,
     FUNC_GETVERSIONNUMBER,
     FUNC_GETTABLEVALUE,
@@ -1009,9 +1023,11 @@ enum ScrFunc {
     FUNC_CALLNATIVEFUNCTION2,
     FUNC_CALLNATIVEFUNCTION4,
     FUNC_SETOBJECTRANGE,
+#if !RETRO_REV01
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
+#endif
     FUNC_PRINT,
     FUNC_MAX_CNT
 };
@@ -2176,8 +2192,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         else if (FindStringToken(scriptText, Engine.gamePlatform, 1) == -1
                                  && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
 #if RETRO_USE_HAPTICS
-                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1)
+                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
+                                 )
                         {
                             parseMode = PARSEMODE_PLATFORMSKIP;
                         }
@@ -4309,6 +4326,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize            = 0;
                 scriptEng.checkResult = WriteSaveRAMData();
                 break;
+#if RETRO_REV01
+            case FUNC_LOADTEXTFONT: {
+                opcodeSize = 0;
+                LoadFontFile(scriptText);
+                break;
+            }
+#endif
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
@@ -4326,6 +4350,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             }
+#if RETRO_REV01
+            case FUNC_DRAWTEXT: {
+                opcodeSize        = 0;
+                textMenuSurfaceNo = scriptInfo->spriteSheetID;
+                TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
+                DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                               scriptEng.operands[5], scriptEng.operands[6]);
+                break;
+            }
+#endif
             case FUNC_GETVERSIONNUMBER: {
                 opcodeSize                           = 0;
                 TextMenu *menu                       = &gameMenu[scriptEng.operands[0]];
@@ -4392,6 +4426,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 OBJECT_BORDER_X4 = scriptEng.operands[0] + 0x20 - offset;
                 break;
             }
+#if !RETRO_REV01
             case FUNC_GETOBJECTVALUE: {
                 int valID = scriptEng.operands[1];
                 if (valID <= 47)
@@ -4416,6 +4451,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             }
+#endif
             case FUNC_PRINT: {
                 if (scriptEng.operands[1])
                     printf("%d", scriptEng.operands[0]);

@@ -83,6 +83,10 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
                        int sheetID);
 void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY,
                       int width, int height, int sprX, int sprY, int sheetID);
+#if RETRO_REV01
+void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height,
+                                   int sprX, int sprY, int sheetID)
+#endif
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY,
                        int width, int height, int rotation, int sheetID);
 void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY,
@@ -103,7 +107,9 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
 void DrawTexturedFace2(void *v, byte sheetID);
 
+#if RETRO_REV01
 void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount);
+#endif
 
 void DrawTextMenu(void *menu, int XPos, int YPos);
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight);

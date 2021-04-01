@@ -110,6 +110,10 @@ typedef unsigned int uint;
 #define RETRO_TOUCH_DEVICE 1
 #endif
 
+//reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
+//generally advised to keep this set to 0
+#define RETRO_REV01 (0)
+
 enum RetroLanguages {
     RETRO_EN = 0,
     RETRO_FR = 1,

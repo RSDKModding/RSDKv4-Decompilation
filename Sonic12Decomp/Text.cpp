@@ -5,6 +5,88 @@ int textMenuSurfaceNo = 0;
 
 char playerListText[0x80][0x20];
 
+#if RETRO_REV01
+FontCharacter fontCharacterList[FONTCHAR_COUNT];
+
+void LoadFontFile(const char *filePath)
+{
+    byte fileBuffer = 0;
+    int cnt        = 0;
+    FileInfo info;
+    if (LoadFile(filePath, &info)) {
+        while (!ReachedEndOfFile()) {
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].id = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].id += fileBuffer << 8;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].id += fileBuffer << 16;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].id += fileBuffer << 24;
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].srcX = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].srcX += fileBuffer << 8;
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].srcY = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].srcY += fileBuffer << 8;
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].width = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].width += fileBuffer << 8;
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].height = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].height += fileBuffer << 8;
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].pivotX = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            if (fileBuffer > 0x80) {
+                fontCharacterList[cnt].pivotX += (fileBuffer - 0x80) << 8;
+                fontCharacterList[cnt].pivotX += -0x8000;
+            }
+            else {
+                fontCharacterList[cnt].pivotX += fileBuffer << 8;
+            }
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].pivotY = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            if (fileBuffer > 0x80) {
+                fontCharacterList[cnt].pivotY += (fileBuffer - 0x80) << 8;
+                fontCharacterList[cnt].pivotY += -0x8000;
+            }
+            else {
+                fontCharacterList[cnt].pivotY += fileBuffer << 8;
+            }
+
+            FileRead(&fileBuffer, 1);
+            fontCharacterList[cnt].xAdvance = fileBuffer;
+            FileRead(&fileBuffer, 1);
+            if (fileBuffer > 0x80) {
+                fontCharacterList[cnt].xAdvance += (fileBuffer - 0x80) << 8;
+                fontCharacterList[cnt].xAdvance += -0x8000;
+            }
+            else {
+                fontCharacterList[cnt].xAdvance += fileBuffer << 8;
+            }
+
+            //Unused
+            FileRead(&fileBuffer, 1);
+            FileRead(&fileBuffer, 1);
+            cnt++;
+        }
+        CloseFile();
+    }
+}
+#endif
+
 void LoadTextFile(TextMenu *menu, const char *filePath)
 {
     FileInfo info;
@@ -15,6 +97,125 @@ void LoadTextFile(TextMenu *menu, const char *filePath)
         menu->entryStart[menu->rowCount] = menu->textDataPos;
         menu->entrySize[menu->rowCount]  = 0;
 
+#if RETRO_REV01
+        FileRead(&fileBuffer, 1);
+        if (fileBuffer == 0xFF) {
+            FileRead(&fileBuffer, 1);
+            while (!flag) {
+                ushort val = 0;
+                FileRead(&fileBuffer, 1);
+                val = fileBuffer;
+                FileRead(&fileBuffer, 1);
+                val |= fileBuffer << 8;
+
+                if (val != '\n') {
+                    if (val == '\r') {
+                        menu->rowCount += 1;
+                        if (menu->rowCount > 511) {
+                            flag = true;
+                        }
+                        else {
+                            menu->entryStart[menu->rowCount] = menu->textDataPos;
+                            menu->entrySize[menu->rowCount]  = 0;
+                        }
+                    }
+                    else {
+                        if (mapCode) {
+                            int i = 0;
+                            while (i < 1024) {
+                                if (fontCharacterList[i].id == val) {
+                                    val = i;
+                                    i   = 1025;
+                                }
+                                else {
+                                    ++i;
+                                }
+                            }
+                            if (i == 1024) {
+                                val = 0;
+                            }
+                        }
+                        menu->textData[menu->textDataPos++] = val;
+                        menu->entrySize[menu->rowCount]++;
+                    }
+                }
+                if (!flag) {
+                    flag = ReachedEndOfFile();
+                    if (menu->textDataPos >= TEXTDATA_COUNT)
+                        flag = true;
+                }
+            }
+        }
+        else {
+            ushort val = fileBuffer;
+            if (val != '\n') {
+                if (val == '\r') {
+                    menu->rowCount++;
+                    menu->entryStart[menu->rowCount] = menu->textDataPos;
+                    menu->entrySize[menu->rowCount]  = 0;
+                }
+                else {
+                    if (mapCode) {
+                        int i = 0;
+                        while (i < 1024) {
+                            if (fontCharacterList[i].id == val) {
+                                val = i;
+                                i   = 1025;
+                            }
+                            else {
+                                ++i;
+                            }
+                        }
+                        if (i == 1024) {
+                            val = 0;
+                        }
+                    }
+                    menu->textData[menu->textDataPos++] = val;
+                    menu->entrySize[menu->rowCount]++;
+                }
+            }
+
+            while (!flag) {
+                FileRead(&fileBuffer, 1);
+                val = fileBuffer;
+                if (val != '\n') {
+                    if (val == '\r') {
+                        menu->rowCount++;
+                        if (menu->rowCount > 511) {
+                            flag = true;
+                        }
+                        else {
+                            menu->entryStart[menu->rowCount] = menu->textDataPos;
+                            menu->entrySize[menu->rowCount]  = 0;
+                        }
+                    }
+                    else {
+                        if (mapCode) {
+                            int i = 0;
+                            while (i < 1024) {
+                                if (fontCharacterList[i].id == val) {
+                                    val = i;
+                                    i   = 1025;
+                                }
+                                else {
+                                    ++i;
+                                }
+                            }
+                            if (i == 1024)
+                                val = 0;
+                        }
+                        menu->textData[menu->textDataPos++] = val;
+                        menu->entrySize[menu->rowCount]++;
+                    }
+                }
+                if (!flag) {
+                    flag = ReachedEndOfFile();
+                    if (menu->textDataPos >= TEXTDATA_COUNT)
+                        flag = true;
+                }
+            }
+        }
+#else
         while (menu->textDataPos < TEXTDATA_COUNT && !ReachedEndOfFile()) {
             FileRead(&fileBuffer, 1);
             if (fileBuffer != '\n') {
@@ -29,6 +230,7 @@ void LoadTextFile(TextMenu *menu, const char *filePath)
                 }
             }
         }
+#endif
 
         menu->rowCount++;
         CloseFile();
