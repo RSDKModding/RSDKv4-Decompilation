@@ -78,22 +78,29 @@ void PauseMenu_Main(void *objPtr)
                     case 0: {
                         Engine.gameMode  = ENGINE_EXITPAUSE;
                         pauseMenu->state = 2;
+                        PlaySFXByName("MenuSelect", 0);
                         break;
                     }
                     case 1: {
-                        pauseMenu->state = 3;
+                        if (GetGlobalVariableByName("player.lives") > 1) {
+                            pauseMenu->state = 3;
+                            PlaySFXByName("MenuSelect", 0);
+                        } else {
+                            PlaySFXByName("Hurt", 0);
+                        }
                         break;
                     }
                     case 2: {
                         pauseMenu->state = 4;
+                        PlaySFXByName("MenuSelect", 0);
                         break;
                     }
                     case 3: {
                         pauseMenu->state = 5;
+                        PlaySFXByName("MenuSelect", 0);
                         break;
                     }
                 }
-                PlaySFXByName("MenuSelect", 0);
             }
             else if (keyPress.B) {
                 Engine.gameMode = ENGINE_EXITPAUSE;
@@ -123,7 +130,7 @@ void PauseMenu_Main(void *objPtr)
                         stageMode       = STAGEMODE_LOAD;
                         Engine.gameMode = ENGINE_MAINGAME;
                         if (GetGlobalVariableByName("options.gameMode") <= 1) {
-                            SetGlobalVariableByName("options.lives", GetGlobalVariableByName("options.lives") - 1);
+                            SetGlobalVariableByName("player.lives", GetGlobalVariableByName("player.lives") - 1);
                         }
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
