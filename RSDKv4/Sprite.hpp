@@ -25,7 +25,7 @@ int LoadPVRFile(const char *filePath, byte sheetID);
 void ReadGifPictureData(int width, int height, bool interlaced, byte *gfxData, int offset);
 
 #if !RETRO_USE_ORIGINAL_CODE
-int LoadTexture(const char *filePath, byte dMode);
+int LoadTexture(const char *filePath);
 void ClearTextures();
 #endif
 

@@ -144,7 +144,7 @@ typedef unsigned int uint;
 #define RETRO_USE_HAPTICS (1)
 
 // this macro defines the touch device read by the game (UWP requires DIRECT)
-#if RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
 #define RETRO_TOUCH_DEVICE 0
 #else
 #define RETRO_TOUCH_DEVICE 1
@@ -264,11 +264,7 @@ struct RetroEngine
     bool usingDataFile = false;
     bool usingBytecode = false;
 
-#if !RETRO_USE_ORIGINAL_CODE
-    bool usingMenuFile = false;
-#endif
-
-    char dataFile[0x80];
+    char dataFile[RETRO_PACKFILE_COUNT][0x80];
 
     bool initialised = false;
     bool running     = false;

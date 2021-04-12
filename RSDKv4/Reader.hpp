@@ -34,6 +34,9 @@
 
 #endif
 
+#define RETRO_PACKFILE_COUNT (0x1000)
+#define RETRO_PACK_COUNT (0x4)
+
 struct FileInfo {
     char fileName[0x100];
     int fileSize;
@@ -46,10 +49,12 @@ struct FileInfo {
     byte eStringNo;
     byte eNybbleSwap;
     bool useEncryption;
+    byte packID;
     byte encryptionStringA[0x10];
     byte encryptionStringB[0x10];
 #if !RETRO_USE_ORIGINAL_CODE
     FileIO *cFileHandle;
+    bool usingDataPack;
 #endif
 };
 
@@ -58,25 +63,17 @@ struct RSDKFileInfo {
     int offset;
     int filesize;
     bool encrypted;
-    int fileID;
+    byte packID;
 };
 
 struct RSDKContainer {
-    RSDKFileInfo files[0x400];
+    RSDKFileInfo files[RETRO_PACKFILE_COUNT];
+    char packNames[RETRO_PACK_COUNT][0x400];
     int fileCount;
+    int packCount;
 };
 
-extern RSDKContainer *currentContainer;
-
 extern RSDKContainer rsdkContainer;
-extern char rsdkName[0x400];
-
-#if !RETRO_USE_ORIGINAL_CODE
-extern RSDKContainer menuRSDK;
-extern char menuRSDKName[0x400];
-
-extern byte dataMode;
-#endif
 
 extern char fileName[0x100];
 extern byte fileBuffer[0x2000];
@@ -87,6 +84,7 @@ extern int readSize;
 extern int bufferPosition;
 extern int virtualFileOffset;
 extern bool useEncryption;
+extern byte packID;
 extern byte eStringPosA;
 extern byte eStringPosB;
 extern byte eStringNo;
@@ -95,17 +93,6 @@ extern byte encryptionStringA[0x10];
 extern byte encryptionStringB[0x10];
 
 extern FileIO *cFileHandle;
-
-#if !RETRO_USE_ORIGINAL_CODE
-inline void snapDataFile(byte m)
-{
-    dataMode = m;
-    switch (dataMode) {
-        case 0: currentContainer = &rsdkContainer; break;
-        case 1: currentContainer = &menuRSDK; break;
-    }
-}
-#endif
 
 inline void CopyFilePath(char *dest, const char *src)
 {
@@ -120,6 +107,14 @@ inline void CopyFilePath(char *dest, const char *src)
     }
 }
 bool CheckRSDKFile(const char *filePath);
+inline void CloseRSDKContainers()
+{
+    for (int i = 0; i < 4; ++i) {
+        strcpy(rsdkContainer.packNames[i], "");
+    }
+    rsdkContainer.packCount = 0;
+    rsdkContainer.fileCount = 0;
+}
 
 bool LoadFile(const char *filePath, FileInfo *fileInfo);
 inline bool CloseFile()

@@ -392,42 +392,46 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
             callbacks.close_func = closeVorbis;
 
             int error = ov_open_callbacks(&musInfo, &musInfo.vorbisFile, NULL, 0, callbacks);
-            if (error != 0) {
-            }
+            if (error == 0) {
+                musInfo.vorbBitstream = -1;
+                musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
 
-            musInfo.vorbBitstream = -1;
-            musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
-
-            samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
+                samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
 
 #if RETRO_USING_SDL2
-            musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
-                                                audioDeviceFormat.channels, audioDeviceFormat.freq);
-            if (!musInfo.stream) {
-                printLog("Failed to create stream: %s", SDL_GetError());
-            }
+                musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
+                                                    audioDeviceFormat.channels, audioDeviceFormat.freq);
+                if (!musInfo.stream) {
+                    printLog("Failed to create stream: %s", SDL_GetError());
+                }
 #endif
 
 #if RETRO_USING_SDL1
-            musInfo.spec.format          = AUDIO_S16;
-            musInfo.spec.channels        = musInfo.vorbisFile.vi->channels;
-            musInfo.spec.freq            = (int)musInfo.vorbisFile.vi->rate;
+                musInfo.spec.format   = AUDIO_S16;
+                musInfo.spec.channels = musInfo.vorbisFile.vi->channels;
+                musInfo.spec.freq     = (int)musInfo.vorbisFile.vi->rate;
 #endif
 
-            musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
+                musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
 
-            if (musicStartPos) {
-                float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
-                musicStartPos = fmod(newPos, samples);
+                if (musicStartPos) {
+                    float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+                    musicStartPos = fmod(newPos, samples);
 
-                ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
+                    ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
+                }
+                musicStartPos = 0;
+
+                musicStatus  = MUSIC_PLAYING;
+                masterVolume = MAX_VOLUME;
+                trackID      = trackBuffer;
+                trackBuffer  = -1;
             }
-            musicStartPos = 0;
-
-            musicStatus  = MUSIC_PLAYING;
-            masterVolume = MAX_VOLUME;
-            trackID      = trackBuffer;
-            trackBuffer  = -1;
+            else {
+                musicStatus = MUSIC_STOPPED;
+                CloseFile2(&musInfo.fileInfo);
+                printLog("Failed to load vorbis! erorr: %d", error);
+            }
         }
     }
 

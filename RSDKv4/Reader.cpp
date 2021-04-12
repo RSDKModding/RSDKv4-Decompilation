@@ -2,28 +2,17 @@
 #include <string>
 
 RSDKContainer rsdkContainer;
-char rsdkName[0x400];
-
-#if !RETRO_USE_ORIGINAL_CODE
-RSDKContainer menuRSDK;
-char menuRSDKName[0x400];
-#endif
-
-RSDKContainer *currentContainer = &rsdkContainer;
-
-#if !RETRO_USE_ORIGINAL_CODE
-byte dataMode = 0;
-#endif
 
 char fileName[0x100];
 byte fileBuffer[0x2000];
-int fileSize;
-int vFileSize;
-int readPos;
-int readSize;
-int bufferPosition;
-int virtualFileOffset;
-bool useEncryption;
+int fileSize          = 0;
+int vFileSize         = 0;
+int readPos           = 0;
+int readSize          = 0;
+int bufferPosition    = 0;
+int virtualFileOffset = 0;
+bool useEncryption = false;
+byte packID = 0;
 byte eStringPosA;
 byte eStringPosB;
 byte eStringNo;
@@ -37,21 +26,6 @@ bool CheckRSDKFile(const char *filePath)
 {
     FileInfo info;
 
-#if !RETRO_USE_ORIGINAL_CODE
-    if (!dataMode) {
-        Engine.usingDataFile = false;
-        Engine.usingBytecode = false;
-    }
-    else {
-        Engine.usingMenuFile = false;
-    }
-#endif
-
-#if RETRO_USE_ORIGINAL_CODE
-    Engine.usingDataFile = false;
-    Engine.usingBytecode = false;
-#endif
-
     // CopyFilePath(filename, &rsdkName);
     cFileHandle = fOpen(filePath, "rb");
     if (cFileHandle) {
@@ -63,80 +37,82 @@ bool CheckRSDKFile(const char *filePath)
                 return false;
         }
 
-        
-#if !RETRO_USE_ORIGINAL_CODE
-        if (!dataMode)
-            Engine.usingDataFile = true;
-#endif
-#if !RETRO_USE_ORIGINAL_CODE
-        else
-            Engine.usingMenuFile = true;
-#endif
+        Engine.usingDataFile = true;
 
-        
-#if !RETRO_USE_ORIGINAL_CODE
-        StrCopy(dataMode ? menuRSDKName : rsdkName, filePath);
-#endif
-#if !RETRO_USE_ORIGINAL_CODE
-        StrCopy(rsdkName, filePath);
-#endif
+        StrCopy(rsdkContainer.packNames[rsdkContainer.packCount], filePath);
 
-        currentContainer->fileCount = 0;
-        fRead(&currentContainer->fileCount, 2, 1, cFileHandle);
-        for (int f = 0; f < currentContainer->fileCount; ++f) {
+        ushort fileCount = 0;
+        fRead(&fileCount, 2, 1, cFileHandle);
+        for (int f = 0; f < fileCount; ++f) {
             for (int y = 0; y < 16; y += 4) {
-                fRead(&currentContainer->files[f].hash[y + 3], 1, 1, cFileHandle);
-                fRead(&currentContainer->files[f].hash[y + 2], 1, 1, cFileHandle);
-                fRead(&currentContainer->files[f].hash[y + 1], 1, 1, cFileHandle);
-                fRead(&currentContainer->files[f].hash[y + 0], 1, 1, cFileHandle);
+                fRead(&rsdkContainer.files[f].hash[y + 3], 1, 1, cFileHandle);
+                fRead(&rsdkContainer.files[f].hash[y + 2], 1, 1, cFileHandle);
+                fRead(&rsdkContainer.files[f].hash[y + 1], 1, 1, cFileHandle);
+                fRead(&rsdkContainer.files[f].hash[y + 0], 1, 1, cFileHandle);
             }
 
-            fRead(&currentContainer->files[f].offset, 4, 1, cFileHandle);
-            fRead(&currentContainer->files[f].filesize, 4, 1, cFileHandle);
+            fRead(&rsdkContainer.files[f].offset, 4, 1, cFileHandle);
+            fRead(&rsdkContainer.files[f].filesize, 4, 1, cFileHandle);
 
-            currentContainer->files[f].encrypted = (currentContainer->files[f].filesize & 0x80000000);
-            currentContainer->files[f].filesize &= 0x7FFFFFFF;
+            rsdkContainer.files[f].encrypted = (rsdkContainer.files[f].filesize & 0x80000000);
+            rsdkContainer.files[f].filesize &= 0x7FFFFFFF;
 
-            currentContainer->files[f].fileID = f;
+            rsdkContainer.files[f].packID = rsdkContainer.packCount;
+
+            rsdkContainer.fileCount++;
         }
 
         fClose(cFileHandle);
         cFileHandle = NULL;
-#if !RETRO_USE_ORIGINAL_CODE
-        if (dataMode)
-            return true;
-#endif
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
         }
+        printLog("loaded datapack '%s'", filePath);
+
+        rsdkContainer.packCount++;
         return true;
     }
     else {
-#if !RETRO_USE_ORIGINAL_CODE
-        if (!dataMode)
-#endif
-            Engine.usingDataFile = false;
-#if !RETRO_USE_ORIGINAL_CODE
-        else
-            Engine.usingMenuFile = false;
-#endif
-
-        cFileHandle = NULL;
-#if !RETRO_USE_ORIGINAL_CODE
-        if (dataMode)
-            return false;
-#endif
+        Engine.usingDataFile = false;
+        cFileHandle          = NULL;
 
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;
             CloseFile();
         }
+        printLog("Couldn't load datapack '%s'", filePath);
         return false;
     }
-
-    return false;
 }
+
+#if !RETRO_USE_ORIGINAL_CODE
+int CheckFileInfo(const char *filepath)
+{
+    char pathBuf[0x100];
+    StringLowerCase(pathBuf, filepath);
+    byte buffer[0x10];
+    int len = StrLength(pathBuf);
+    GenerateMD5FromString(pathBuf, len, buffer);
+
+    for (int f = 0; f < rsdkContainer.fileCount; ++f) {
+        RSDKFileInfo *file = &rsdkContainer.files[f];
+
+        bool match = true;
+        for (int h = 0; h < 0x10; ++h) {
+            if (buffer[h] != file->hash[h]) {
+                match = false;
+                break;
+            }
+        }
+        if (!match)
+            continue;
+
+        return f;
+    }
+    return -1;
+}
+#endif
 
 bool LoadFile(const char *filePath, FileInfo *fileInfo)
 {
@@ -163,7 +139,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
     cFileHandle = NULL;
 #if !RETRO_USE_ORIGINAL_CODE
-    if ((dataMode ? Engine.usingMenuFile : Engine.usingDataFile) && !forceFolder) {
+    if (CheckFileInfo(filePath) != -1 && !forceFolder) {
 #else
     if (Engine.usingDataFile) {
 #endif
@@ -173,8 +149,8 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         int len = StrLength(fileInfo->fileName);
         GenerateMD5FromString(fileInfo->fileName, len, buffer);
 
-        for (int f = 0; f < currentContainer->fileCount; ++f) {
-            RSDKFileInfo *file = &currentContainer->files[f];
+        for (int f = 0; f < rsdkContainer.fileCount; ++f) {
+            RSDKFileInfo *file = &rsdkContainer.files[f];
 
             bool match = true;
             for (int h = 0; h < 0x10; ++h) {
@@ -186,11 +162,8 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             if (!match)
                 continue;
 
-#if !RETRO_USE_ORIGINAL_CODE
-            cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
-#else
-            cFileHandle = fOpen(rsdkName, "rb");
-#endif
+            packID      = file->packID;
+            cFileHandle = fOpen(rsdkContainer.packNames[file->packID], "rb");
             fSeek(cFileHandle, 0, SEEK_END);
             fileSize = (int)fTell(cFileHandle);
 
@@ -224,7 +197,13 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fileInfo->eNybbleSwap       = eNybbleSwap;
             fileInfo->bufferPosition    = bufferPosition;
             fileInfo->useEncryption     = useEncryption;
-            printLog("Loaded File '%s'", filePathBuf);
+            fileInfo->packID            = packID;
+            printLog("Loaded Data File '%s'", filePathBuf);
+            
+#if !RETRO_USE_ORIGINAL_CODE
+            Engine.usingDataFile = true;
+#endif
+
             return true;
         }
         printLog("Couldn't load file '%s'", filePathBuf);
@@ -246,9 +225,14 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         fSeek(cFileHandle, 0, SEEK_SET);
         readPos           = 0;
         fileInfo->readPos = readPos;
+        packID = fileInfo->packID = -1;
         bufferPosition    = 0;
         readSize          = 0;
-        useEncryption     = false;
+        useEncryption             = false;
+
+#if !RETRO_USE_ORIGINAL_CODE
+        Engine.usingDataFile = false;
+#endif
 
         printLog("Loaded File '%s'", filePathBuf);
         return true;
@@ -374,19 +358,15 @@ void GetFileInfo(FileInfo *fileInfo)
     fileInfo->eStringNo         = eStringNo;
     fileInfo->eNybbleSwap       = eNybbleSwap;
     fileInfo->useEncryption     = useEncryption;
+    fileInfo->packID            = packID;
     memcpy(encryptionStringA, fileInfo->encryptionStringA, 0x10 * sizeof(byte));
     memcpy(encryptionStringB, fileInfo->encryptionStringB, 0x10 * sizeof(byte));
 }
 
 void SetFileInfo(FileInfo *fileInfo)
 {
-#if !RETRO_USE_ORIGINAL_CODE
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile) {
-        cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
-#else
     if (Engine.usingDataFile) {
-        cFileHandle = fOpen(rsdkName, "rb");
-#endif
+        cFileHandle = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
         fSeek(cFileHandle, 0, SEEK_END);
@@ -400,6 +380,7 @@ void SetFileInfo(FileInfo *fileInfo)
         eStringNo      = fileInfo->eStringNo;
         eNybbleSwap    = fileInfo->eNybbleSwap;
         useEncryption  = fileInfo->useEncryption;
+        packID         = fileInfo->packID;
 
         if (useEncryption) {
             GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
@@ -423,11 +404,7 @@ void SetFileInfo(FileInfo *fileInfo)
 
 size_t GetFilePosition()
 {
-#if !RETRO_USE_ORIGINAL_CODE
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
-#else
     if (Engine.usingDataFile)
-#endif
         return bufferPosition + readPos - readSize - virtualFileOffset;
     else
         return bufferPosition + readPos - readSize;
@@ -485,11 +462,7 @@ void SetFilePosition(int newPos)
         }
     }
     else {
-#if !RETRO_USE_ORIGINAL_CODE
-        if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
-#else
         if (Engine.usingDataFile)
-#endif
             readPos = virtualFileOffset + newPos;
         else
             readPos = newPos;
@@ -500,11 +473,7 @@ void SetFilePosition(int newPos)
 
 bool ReachedEndOfFile()
 {
-#if !RETRO_USE_ORIGINAL_CODE
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
-#else
     if (Engine.usingDataFile)
-#endif
         return bufferPosition + readPos - readSize - virtualFileOffset >= vFileSize;
     else
         return bufferPosition + readPos - readSize >= fileSize;
@@ -535,15 +504,15 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
     cFileHandle = NULL;
 
     MEM_ZEROP(fileInfo);
-    if ((dataMode ? Engine.usingMenuFile : Engine.usingDataFile) && !forceFolder) {
+    if (CheckFileInfo(filePath) != -1 && !forceFolder) {
         StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
         int len = StrLength(fileInfo->fileName);
         GenerateMD5FromString(fileInfo->fileName, len, buffer);
 
-        for (int f = 0; f < currentContainer->fileCount; ++f) {
-            RSDKFileInfo *file = &currentContainer->files[f];
+        for (int f = 0; f < rsdkContainer.fileCount; ++f) {
+            RSDKFileInfo *file = &rsdkContainer.files[f];
 
             bool match = true;
             for (int h = 0; h < 0x10; ++h) {
@@ -555,7 +524,8 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
             if (!match)
                 continue;
 
-            fileInfo->cFileHandle = fOpen(dataMode ? menuRSDKName : rsdkName, "rb");
+            fileInfo->packID      = file->packID;
+            fileInfo->cFileHandle = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
             fSeek(fileInfo->cFileHandle, 0, SEEK_END);
             fileSize = (int)fTell(fileInfo->cFileHandle);
 
@@ -589,6 +559,10 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
             fileInfo->eNybbleSwap       = eNybbleSwap;
             fileInfo->bufferPosition    = bufferPosition;
             fileInfo->useEncryption     = useEncryption;
+
+#if !RETRO_USE_ORIGINAL_CODE
+            fileInfo->usingDataPack = true;
+#endif
             printLog("Loaded File '%s'", filePath);
             return true;
         }
@@ -613,6 +587,10 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         fileInfo->readPos = readPos;
         bufferPosition    = 0;
         readSize          = 0;
+
+#if !RETRO_USE_ORIGINAL_CODE
+        fileInfo->usingDataPack = false;
+#endif
 
         printLog("Loaded File '%s'", filePathBuf);
         return true;
@@ -705,7 +683,7 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
 
 size_t GetFilePosition2(FileInfo *info)
 {
-    if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
+    if (info->usingDataPack)
         return info->bufferPosition + info->readPos - info->virtualFileOffset;
     else
         return info->bufferPosition + info->readPos;
@@ -763,7 +741,7 @@ void SetFilePosition2(FileInfo *info, int newPos)
         }
     }
     else {
-        if (dataMode ? Engine.usingMenuFile : Engine.usingDataFile)
+        if (info->usingDataPack)
             info->readPos = info->virtualFileOffset + newPos;
         else
             info->readPos = newPos;

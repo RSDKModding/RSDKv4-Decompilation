@@ -46,7 +46,11 @@ extern int texPaletteNum;
 #define PACK_RGB888(r, g, b) RGB888_TO_RGB5551(r, g, b)
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex, bool fullFlag);
+#else
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex);
+#endif
 
 inline void SetActivePalette(byte newActivePal, int startLine, int endLine)
 {

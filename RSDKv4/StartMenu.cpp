@@ -74,13 +74,12 @@ void StartMenu_Create(void *objPtr)
     memset(startMenu->timers, 0, 10 * sizeof(int));
 
     // LET THE SHEET LOADING COMMENSE
-    titleID = LoadTexture("Menu/Main/TitleScreen.png", 1);
-    modID   = LoadTexture("Menu/Main/ModMenu.png", 1);
-    saveID  = LoadTexture("Menu/Main/SaveSelect.png", 1);
-    bgID    = LoadTexture("Menu/Main/Background.png", 1);
-    mainID  = LoadTexture("Menu/Main/MainMenu.png", 1);
-    fontID  = LoadTexture("Menu/Main/Font.png", 1);
-    snapDataFile(0);
+    titleID = LoadTexture("Menu/Main/TitleScreen.png");
+    modID   = LoadTexture("Menu/Main/ModMenu.png");
+    saveID  = LoadTexture("Menu/Main/SaveSelect.png");
+    bgID    = LoadTexture("Menu/Main/Background.png");
+    mainID  = LoadTexture("Menu/Main/MainMenu.png");
+    fontID  = LoadTexture("Menu/Main/Font.png");
 
     // REMOVE THIS LATER BECAUSE TITLE SCREEN i just like the music
     SetMusicTrack("MainMenu.ogg", 0, 1, 106596);
@@ -254,12 +253,12 @@ void StartMenu_SaveSelect(NativeEntity_StartMenu *menu)
     SpriteFrame playerBase;
 
     if (Engine.gameType == GAME_SONIC1) {
-        playerBase.sheetID = LoadTexture("Data/Sprites/Special/Objects.gif", 0);
+        playerBase.sheetID = LoadTexture("Data/Sprites/Special/Objects.gif");
         playerBase.sprX    = 399;
         playerBase.sprY    = 376;
     }
     else {
-        playerBase.sheetID = LoadTexture("Data/Sprites/Continue/Objects.gif", 0);
+        playerBase.sheetID = LoadTexture("Data/Sprites/Continue/Objects.gif");
         playerBase.sprX    = 1;
         playerBase.sprY    = 18;
     }

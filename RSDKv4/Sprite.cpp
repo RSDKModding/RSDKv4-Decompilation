@@ -454,8 +454,7 @@ int LoadPVRFile(const char *filePath, byte sheetID)
 }
 
 #if !RETRO_USE_ORIGINAL_CODE
-// 0 = data, 1 = menu, 0xFF = no datafile
-int LoadTexture(const char *filePath, byte dMode)
+int LoadTexture(const char *filePath)
 {
 
     texInfo *texture = nullptr;
@@ -477,15 +476,6 @@ int LoadTexture(const char *filePath, byte dMode)
         return 0;
     textureCount++;
 
-    int dataStore = 0;
-    if (dMode == 0xFF) {
-        dataStore            = Engine.usingDataFile;
-        Engine.usingDataFile = false;
-    }
-    else {
-        dataStore = dataMode;
-        snapDataFile(dMode);
-    }
 #if RETRO_USING_SDL1
     // Returns SDL_Surface*
 #endif
@@ -500,7 +490,6 @@ int LoadTexture(const char *filePath, byte dMode)
         switch (fileExtension) {
             default: {
                 CloseFile();
-                snapDataFile(0);
                 return NULL;
             }
             case 'f': {
@@ -599,7 +588,6 @@ int LoadTexture(const char *filePath, byte dMode)
 
                 SDL_FreeSurface(img);
                 free(fileData);
-                snapDataFile(0);
                 CloseFile();
                 return texID;
             }
@@ -609,9 +597,6 @@ int LoadTexture(const char *filePath, byte dMode)
 
                 upng_t *upng = upng_new_from_bytes(fileData, info.vfileSize);
                 upng_decode(upng);
-
-                if (dMode == 0xFF)
-                    Engine.usingDataFile = dataStore;
 
                 if (upng_get_error(upng) != UPNG_EOK) {
                     char errorText[9][0x30] = { "No error",
@@ -629,7 +614,6 @@ int LoadTexture(const char *filePath, byte dMode)
                     printLog(buf);
                     free(fileData);
                     upng_free(upng);
-                    snapDataFile(0);
                     return 0;
                 }
 
@@ -737,7 +721,6 @@ int LoadTexture(const char *filePath, byte dMode)
                 SDL_FreeSurface(img);
                 free(fileData);
                 upng_free(upng);
-                snapDataFile(0);
                 CloseFile();
                 return texID;
             }
@@ -745,10 +728,6 @@ int LoadTexture(const char *filePath, byte dMode)
     }
 
 #endif
-    if (dMode == 0xFF)
-        Engine.usingDataFile = dataStore;
-    else
-        snapDataFile(dataStore);
 
     return 0;
 }

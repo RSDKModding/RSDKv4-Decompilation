@@ -3686,7 +3686,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             } break;
             case FUNC_LOADPALETTE:
                 opcodeSize = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+                LoadPalette(scriptText, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4], false);
+#else
                 LoadPalette(scriptText, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4]);
+#endif
                 break;
             case FUNC_ROTATEPALETTE:
                 opcodeSize = 0;

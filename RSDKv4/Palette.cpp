@@ -20,13 +20,17 @@ byte fadeB   = 0;
 int texPaletteNum = 0;
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex, bool fullFlag)
+#else
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex)
+#endif
 {
     FileInfo info;
     char fullPath[0x80];
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (!dataMode) {
+    if (!fullFlag) {
         StrCopy(fullPath, "Data/Palettes/");
         StrAdd(fullPath, filePath);
     }

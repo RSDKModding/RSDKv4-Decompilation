@@ -113,10 +113,8 @@ void ClearAnimationData()
     ClearTextures();
 
     // Used for pause menu
-    snapDataFile(1);
     LoadGIFFile("Menu/Pause/PauseMenu.gif", SURFACE_MAX - 1);
     StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Menu/Pause/PauseMenu.gif");
-    snapDataFile(0);
 #endif
 }
 

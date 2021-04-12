@@ -253,6 +253,11 @@ void RetroEngine::Init()
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
+    CloseRSDKContainers(); //Clears files
+
+    Engine.usingDataFile = false;
+    Engine.usingBytecode = false;
+
 #if !RETRO_USE_ORIGINAL_CODE
     InitUserdata();
     initMods();
@@ -272,7 +277,7 @@ void RetroEngine::Init()
     strcat(dest, Engine.dataFile);
 #else
     StrCopy(dest, BASE_PATH);
-    StrAdd(dest, Engine.dataFile);
+    StrAdd(dest, Engine.dataFile[0]);
 #endif
     CheckRSDKFile(dest);
 #else
@@ -280,17 +285,22 @@ void RetroEngine::Init()
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-    snapDataFile(1);
 #if RETRO_PLATFORM == RETRO_UWP
     strcpy(dest, resourcePath);
     strcat(dest, "\\Menu.rsdk");
 #else
     StrCopy(dest, BASE_PATH);
-    StrAdd(dest, "Menu.rsdk");
+    StrAdd(dest, Engine.dataFile[1]);
 #endif
     CheckRSDKFile(dest);
-    snapDataFile(0);
-    InitNativeObjectSystem();
+
+    for (int i = 2; i < 4; ++i) {
+        if (!StrComp(Engine.dataFile[i], "")) {
+            StrCopy(dest, BASE_PATH);
+            StrAdd(dest, Engine.dataFile[i]);
+            CheckRSDKFile(dest);
+        }
+    }
 
 #if RETRO_USE_NETWORKING
     buildNetworkIndex();
@@ -321,6 +331,8 @@ void RetroEngine::Init()
 #endif // RSDK_DEBUG
 #endif // RETRO_USE_NETWORKING
 #endif
+
+    InitNativeObjectSystem();
 
     gameMode          = ENGINE_MAINGAME;
     running  = false;

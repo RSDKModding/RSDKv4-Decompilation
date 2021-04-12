@@ -394,7 +394,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
     FileInfo info;
     ushort strName[0x40];
     ushort langName[0x8];
-    ushort textBuffer[0x200];
+    ushort textBuffer[0x400];
 
     memset(strName, 0, 0x40 * sizeof(ushort));
     memset(langName, 0, 0x8 * sizeof(ushort));

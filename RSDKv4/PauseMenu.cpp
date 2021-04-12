@@ -23,9 +23,7 @@ void PauseMenu_Create(void *objPtr)
     fbcopy    = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
     displayed = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
 
-    snapDataFile(1);
-    LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56);
-    snapDataFile(0);
+    LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56, true);
 
     SetPaletteEntry(7, 8, 0xca, 0x51, 0);
     SetPaletteEntry(7, 9, 0xca, 0x51, 0);

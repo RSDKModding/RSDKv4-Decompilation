@@ -55,8 +55,18 @@ void InitUserdata()
         ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
-        ini.SetBool("Dev", "DataFile", "Data.rsdk");
-        StrCopy(Engine.dataFile, "Data.rsdk");
+        ini.SetString("Dev", "DataFile", (char*)"Data.rsdk");
+        StrCopy(Engine.dataFile[0], "Data.rsdk");
+        ini.SetString("Dev", "DataFile2", (char *)"Menu.rsdk");
+        StrCopy(Engine.dataFile[1], "Menu.rsdk");
+        if (!StrComp(Engine.dataFile[2], "")) {
+            ini.SetString("Dev", "DataFile3", (char *)"Data3.rsdk");
+            StrCopy(Engine.dataFile[2], "Data3.rsdk");
+        }
+        if (!StrComp(Engine.dataFile[3], "")) {
+            ini.SetString("Dev", "DataFile4", (char *)"Data4.rsdk");
+            StrCopy(Engine.dataFile[3], "Data4.rsdk");
+        }
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
@@ -159,8 +169,18 @@ void InitUserdata()
         if (!ini.GetBool("Dev", "UseHQModes", &Engine.useHQModes))
             Engine.useHQModes = true;
 
-        if (!ini.GetString("Dev", "DataFile", Engine.dataFile))
-            StrCopy(Engine.dataFile, "Data.rsdk");
+        if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
+            StrCopy(Engine.dataFile[0], "Data.rsdk");
+        if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
+            StrCopy(Engine.dataFile[1], "Menu.rsdk");
+        if (!StrComp(Engine.dataFile[2], "")) {
+            if (!ini.GetString("Dev", "DataFile3", Engine.dataFile[2]))
+                StrCopy(Engine.dataFile[2], "");
+        }
+        if (!StrComp(Engine.dataFile[3], "")) {
+            if (!ini.GetString("Dev", "DataFile4", Engine.dataFile[3]))
+                StrCopy(Engine.dataFile[3], "");
+        }
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
@@ -390,8 +410,18 @@ void writeSettings()
         "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
     ini.SetBool("Dev", "UseHQModes", Engine.useHQModes);
 
-    ini.SetComment("Dev", "DataFileComment", "Determines what RSDK file will be loaded");
-    ini.SetString("Dev", "DataFile", Engine.dataFile);
+    ini.SetComment("Dev", "DataFileComment", "Determines where the first RSDK file will be loaded from");
+    ini.SetString("Dev", "DataFile", Engine.dataFile[0]);
+    ini.SetComment("Dev", "DataFileComment2", "Determines where the second RSDK file will be loaded from");
+    ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
+    if (!StrComp(Engine.dataFile[2], "")) {
+        ini.SetComment("Dev", "DataFileComment3", "Determines where the third RSDK file will be loaded from (normally unused)");
+        ini.SetString("Dev", "DataFile3", Engine.dataFile[2]);
+    }
+    if (!StrComp(Engine.dataFile[3], "")) {
+        ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth RSDK file will be loaded from (normally unused)");
+        ini.SetString("Dev", "DataFile4", Engine.dataFile[3]);
+    }
 
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
