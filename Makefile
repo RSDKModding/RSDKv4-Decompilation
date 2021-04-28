@@ -13,7 +13,6 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/Input.cpp         \
           RSDKv4/main.cpp          \
           RSDKv4/Math.cpp          \
-          RSDKv4/Network.cpp       \
           RSDKv4/Object.cpp        \
           RSDKv4/Palette.cpp       \
           RSDKv4/PauseMenu.cpp     \
