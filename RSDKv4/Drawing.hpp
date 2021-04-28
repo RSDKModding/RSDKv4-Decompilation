@@ -62,9 +62,9 @@ struct RenderState {
 extern int renderQueueSize;
 extern RenderState renderQueue[RENDERQUEUE_MAX];
 
-extern short blendLookupTable[BLENDTABLE_SIZE];
-extern short subtractLookupTable[BLENDTABLE_SIZE];
-extern short tintLookupTable[TINTTABLE_SIZE];
+extern ushort blendLookupTable[BLENDTABLE_SIZE];
+extern ushort subtractLookupTable[BLENDTABLE_SIZE];
+extern ushort tintLookupTable[TINTTABLE_SIZE];
 
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;

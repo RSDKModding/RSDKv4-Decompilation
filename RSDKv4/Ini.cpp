@@ -56,7 +56,7 @@ IniParser::IniParser(const char *filename)
             if (hasSection)
                 sprintf(items[count].section, "%s", section);
             else
-                sprintf(items[count].section, "", section);
+                sprintf(items[count].section, "");
 
 
             sprintf(items[count].key, "%s", key);

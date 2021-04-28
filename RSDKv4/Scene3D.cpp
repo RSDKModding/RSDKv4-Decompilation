@@ -559,7 +559,7 @@ void processScanEdgeUV(Vertex *vertA, Vertex *vertB)
     }
     for (int i = top; i < bottom; ++i) {
         trueX = fullX >> 16;
-        if (fullX >> 16 < faceLineStart[i]) {
+        if (trueX < faceLineStart[i]) {
             faceLineStart[i]  = trueX;
             faceLineStartU[i] = fullU;
             faceLineStartV[i] = fullV;
