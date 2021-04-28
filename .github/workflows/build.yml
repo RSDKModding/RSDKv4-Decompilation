@@ -6,7 +6,6 @@ on:
       - main
       - win-actions
       - linux-actions
-      - 1.2.0
 
 jobs:
   v4-windows:
@@ -35,7 +34,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -72,7 +71,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild Sonic12Decomp.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -98,4 +97,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: v4-linux
-          path: bin/sonic2013
+          path: bin
