@@ -87,7 +87,7 @@ void LoadFontFile(const char *filePath)
 }
 #endif
 
-void LoadTextFile(TextMenu *menu, const char *filePath)
+void LoadTextFile(TextMenu *menu, const char *filePath, byte mapCode)
 {
     FileInfo info;
     byte fileBuffer = 0;
@@ -98,6 +98,7 @@ void LoadTextFile(TextMenu *menu, const char *filePath)
         menu->entrySize[menu->rowCount]  = 0;
 
 #if RETRO_REV01
+        bool flag = false;
         FileRead(&fileBuffer, 1);
         if (fileBuffer == 0xFF) {
             FileRead(&fileBuffer, 1);

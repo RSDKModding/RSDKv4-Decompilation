@@ -1007,11 +1007,11 @@ enum ScrFunc {
     FUNC_READSAVERAM,
     FUNC_WRITESAVERAM,
 #if RETRO_REV01
-    FUNC_LOADTEXTFONT
+    FUNC_LOADTEXTFONT,
 #endif
     FUNC_LOADTEXTFILE,
 #if RETRO_REV01
-    FUNC_DRAWTEXT
+    FUNC_DRAWTEXT,
 #endif
     FUNC_GETTEXTINFO,
     FUNC_GETVERSIONNUMBER,
@@ -4336,7 +4336,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-                LoadTextFile(menu, scriptText);
+#if RETRO_REV01
+                LoadTextFile(menu, scriptText, scriptEng.operands[2] != 0);
+#else
+                LoadTextFile(menu, scriptText, false);
+#endif
                 break;
             }
             case FUNC_GETTEXTINFO: {

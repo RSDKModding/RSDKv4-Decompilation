@@ -56,7 +56,7 @@ extern FontCharacter fontCharacterList[FONTCHAR_COUNT];
 void LoadFontFile(const char *filePath);
 #endif
 
-void LoadTextFile(TextMenu *menu, const char *filePath);
+void LoadTextFile(TextMenu *menu, const char *filePath, byte mapCode);
 void LoadConfigListText(TextMenu *menu, int listNo);
 
 void SetupTextMenu(TextMenu *menu, int rowCount);

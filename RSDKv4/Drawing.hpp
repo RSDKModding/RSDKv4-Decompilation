@@ -189,8 +189,8 @@ void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int 
 void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY,
                       int width, int height, int sprX, int sprY, int sheetID);
 #if RETRO_REV01
-void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height,
-                                   int sprX, int sprY, int sheetID)
+void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                    int sheetID);
 #endif
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY,
                        int width, int height, int rotation, int sheetID);
