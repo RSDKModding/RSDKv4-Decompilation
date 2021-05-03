@@ -875,7 +875,7 @@ void initMods()
                         info->active = false;
                         modSettings.GetBool("", "Active", &info->active);
 
-                        // Check for Data replacements
+                        // Check for Data/ replacements
                         std::filesystem::path dataPath(modDir + "/Data");
 
                         if (std::filesystem::exists(dataPath) && std::filesystem::is_directory(dataPath)) {
@@ -928,8 +928,8 @@ void initMods()
                                         char modBuf[0x100];
                                         StrCopy(modBuf, data_de.path().string().c_str());
                                         char folderTest[4][0x10] = {
-                                            "Script/",
-                                            "Script\\",
+                                            "Scripts/",
+                                            "Scripts\\",
                                             "scripts/",
                                             "scripts\\",
                                         };
@@ -958,6 +958,7 @@ void initMods()
                                 printLog(fe.what());
                             }
                         }
+
                         // Check for Bytecode/ replacements
                         std::filesystem::path bytecodePath(modDir + "/Bytecode");
 
