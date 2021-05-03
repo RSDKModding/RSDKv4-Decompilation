@@ -917,6 +917,89 @@ void initMods()
                             }
                         }
 
+                        // Check for Scripts/ replacements
+                        std::filesystem::path scriptPath(modDir + "/Scripts");
+
+                        if (std::filesystem::exists(scriptPath) && std::filesystem::is_directory(scriptPath)) {
+                            try {
+                                auto data_rdi = std::filesystem::recursive_directory_iterator(scriptPath);
+                                for (auto data_de : data_rdi) {
+                                    if (data_de.is_regular_file()) {
+                                        char modBuf[0x100];
+                                        StrCopy(modBuf, data_de.path().string().c_str());
+                                        char folderTest[4][0x10] = {
+                                            "Script/",
+                                            "Script\\",
+                                            "scripts/",
+                                            "scripts\\",
+                                        };
+                                        int tokenPos = -1;
+                                        for (int i = 0; i < 4; ++i) {
+                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                                            if (tokenPos >= 0)
+                                                break;
+                                        }
+
+                                        if (tokenPos >= 0) {
+                                            char buffer[0x80];
+                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                                            }
+
+                                            printLog(modBuf);
+                                            std::string path(buffer);
+                                            std::string modPath(modBuf);
+                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                        }
+                                    }
+                                }
+                            } catch (std::filesystem::filesystem_error fe) {
+                                printLog("Script Folder Scanning Error: ");
+                                printLog(fe.what());
+                            }
+                        }
+                        // Check for Bytecode/ replacements
+                        std::filesystem::path bytecodePath(modDir + "/Bytecode");
+
+                        if (std::filesystem::exists(bytecodePath) && std::filesystem::is_directory(bytecodePath)) {
+                            try {
+                                auto data_rdi = std::filesystem::recursive_directory_iterator(bytecodePath);
+                                for (auto data_de : data_rdi) {
+                                    if (data_de.is_regular_file()) {
+                                        char modBuf[0x100];
+                                        StrCopy(modBuf, data_de.path().string().c_str());
+                                        char folderTest[4][0x10] = {
+                                            "Bytecode/",
+                                            "Bytecode\\",
+                                            "bytecode/",
+                                            "bytecode\\",
+                                        };
+                                        int tokenPos = -1;
+                                        for (int i = 0; i < 4; ++i) {
+                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                                            if (tokenPos >= 0)
+                                                break;
+                                        }
+
+                                        if (tokenPos >= 0) {
+                                            char buffer[0x80];
+                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                                            }
+
+                                            printLog(modBuf);
+                                            std::string path(buffer);
+                                            std::string modPath(modBuf);
+                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                        }
+                                    }
+                                }
+                            } catch (std::filesystem::filesystem_error fe) {
+                                printLog("Bytecode Folder Scanning Error: ");
+                                printLog(fe.what());
+                            }
+                        }
+
                         info->useScripts = false;
                         modSettings.GetBool("", "TxtScripts", &info->useScripts);
                         if (info->useScripts && info->active)
