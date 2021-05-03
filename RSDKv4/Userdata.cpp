@@ -1005,8 +1005,9 @@ void initMods()
                         modSettings.GetBool("", "TxtScripts", &info->useScripts);
                         if (info->useScripts && info->active)
                             forceUseScripts = true;
+
+                        modCount++;
                     }
-                    modCount++;
                 }
             }
         } catch (std::filesystem::filesystem_error fe) {
