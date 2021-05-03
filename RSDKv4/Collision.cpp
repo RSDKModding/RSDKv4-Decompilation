@@ -176,11 +176,7 @@ void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startX)
                         sensor->angle    = angle;
                         i                = TILE_SIZE * 3;
                     }
-                    else if (sensor->XPos - startX > collisionTolerance) {
-                        sensor->XPos     = startX << 16;
-                        sensor->collided = false;
-                    }
-                    else if (sensor->XPos - startX < -collisionTolerance) {
+                    else if (sensor->XPos - startX > collisionTolerance || sensor->XPos - startX < -collisionTolerance) {
                         sensor->XPos     = startX << 16;
                         sensor->collided = false;
                     }
@@ -259,11 +255,7 @@ void FindRoofPosition(Entity *player, CollisionSensor *sensor, int startY)
                         sensor->angle -= 0x100;
 
                     if (abs(sensor->angle - angle) <= 0x20) {
-                        if (sensor->YPos - startY > collisionTolerance) {
-                            sensor->YPos     = startY << 16;
-                            sensor->collided = false;
-                        }
-                        if (sensor->YPos - startY < -collisionTolerance) {
+                        if (sensor->YPos - startY > collisionTolerance || sensor->YPos - startY < -collisionTolerance) {
                             sensor->YPos     = startY << 16;
                             sensor->collided = false;
                         }
@@ -679,9 +671,9 @@ void RWallCollision(Entity *player, CollisionSensor *sensor)
     }
 }
 
-void ProcessAirCollision(Entity *player)
+void ProcessAirCollision(Entity *entity)
 {
-    Hitbox *playerHitbox = getHitbox(player);
+    Hitbox *playerHitbox = getHitbox(entity);
     collisionLeft        = playerHitbox->left[0];
     collisionTop         = playerHitbox->top[0];
     collisionRight       = playerHitbox->right[0];
@@ -692,47 +684,47 @@ void ProcessAirCollision(Entity *player)
     byte movingLeft  = 0;
     byte movingRight = 0;
 
-    if (player->XVelocity < 0) {
+    if (entity->XVelocity < 0) {
         movingRight = 0;
     }
     else {
         movingRight         = 1;
-        sensors[0].YPos     = player->YPos + 0x40000;
+        sensors[0].YPos     = entity->YPos + 0x40000;
         sensors[0].collided = false;
-        sensors[0].XPos     = player->XPos + (collisionRight << 16);
+        sensors[0].XPos     = entity->XPos + (collisionRight << 16);
     }
-    if (player->XVelocity > 0) {
+    if (entity->XVelocity > 0) {
         movingLeft = 0;
     }
     else {
         movingLeft          = 1;
-        sensors[1].YPos     = player->YPos + 0x40000;
+        sensors[1].YPos     = entity->YPos + 0x40000;
         sensors[1].collided = false;
-        sensors[1].XPos     = player->XPos + ((collisionLeft - 1) << 16);
+        sensors[1].XPos     = entity->XPos + ((collisionLeft - 1) << 16);
     }
-    sensors[2].XPos     = player->XPos + (playerHitbox->left[1] << 16);
-    sensors[3].XPos     = player->XPos + (playerHitbox->right[1] << 16);
+    sensors[2].XPos     = entity->XPos + (playerHitbox->left[1] << 16);
+    sensors[3].XPos     = entity->XPos + (playerHitbox->right[1] << 16);
     sensors[2].collided = false;
     sensors[3].collided = false;
     sensors[4].XPos     = sensors[2].XPos;
     sensors[5].XPos     = sensors[3].XPos;
     sensors[4].collided = false;
     sensors[5].collided = false;
-    if (player->YVelocity < 0) {
+    if (entity->YVelocity < 0) {
         movingDown = 0;
     }
     else {
         movingDown      = 1;
-        sensors[2].YPos = player->YPos + (collisionBottom << 16);
-        sensors[3].YPos = player->YPos + (collisionBottom << 16);
+        sensors[2].YPos = entity->YPos + (collisionBottom << 16);
+        sensors[3].YPos = entity->YPos + (collisionBottom << 16);
     }
-    sensors[4].YPos = player->YPos + ((collisionTop - 1) << 16);
-    sensors[5].YPos = player->YPos + ((collisionTop - 1) << 16);
-    int cnt         = (abs(player->XVelocity) <= abs(player->YVelocity) ? (abs(player->YVelocity) >> 19) + 1 : (abs(player->XVelocity) >> 19) + 1);
-    int XVel        = player->XVelocity / cnt;
-    int YVel        = player->YVelocity / cnt;
-    int XVel2       = player->XVelocity - XVel * (cnt - 1);
-    int YVel2       = player->YVelocity - YVel * (cnt - 1);
+    sensors[4].YPos = entity->YPos + ((collisionTop - 1) << 16);
+    sensors[5].YPos = entity->YPos + ((collisionTop - 1) << 16);
+    int cnt         = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? (abs(entity->YVelocity) >> 19) + 1 : (abs(entity->XVelocity) >> 19) + 1);
+    int XVel        = entity->XVelocity / cnt;
+    int YVel        = entity->YVelocity / cnt;
+    int XVel2       = entity->XVelocity - XVel * (cnt - 1);
+    int YVel2       = entity->YVelocity - YVel * (cnt - 1);
     while (cnt > 0) {
         if (cnt < 2) {
             XVel = XVel2;
@@ -743,14 +735,13 @@ void ProcessAirCollision(Entity *player)
         if (movingRight == 1) {
             sensors[0].XPos += XVel;
             sensors[0].YPos += YVel;
-            LWallCollision(player, &sensors[0]);
+            LWallCollision(entity, &sensors[0]);
             if (sensors[0].collided) {
                 movingRight = 2;
             }
-            else if (player->XVelocity <= 0x1FFFF) {
+            else if (entity->XVelocity < 0x20000) {
                 sensors[0].YPos -= 0x80000;
-                LWallCollision(player, &sensors[0]);
-                movingRight = 1;
+                LWallCollision(entity, &sensors[0]);
                 if (sensors[0].collided)
                     movingRight = 2;
                 sensors[0].YPos += 0x80000;
@@ -760,14 +751,13 @@ void ProcessAirCollision(Entity *player)
         if (movingLeft == 1) {
             sensors[1].XPos += XVel;
             sensors[1].YPos += YVel;
-            RWallCollision(player, &sensors[1]);
+            RWallCollision(entity, &sensors[1]);
             if (sensors[1].collided) {
                 movingLeft = 2;
             }
-            else if (player->XVelocity >= -0x1FFFF) {
+            else if (entity->XVelocity > 0x20000) {
                 sensors[1].YPos -= 0x80000;
-                RWallCollision(player, &sensors[1]);
-                movingLeft = 1;
+                RWallCollision(entity, &sensors[1]);
                 if (sensors[1].collided)
                     movingLeft = 2;
                 sensors[1].YPos += 0x80000;
@@ -775,11 +765,11 @@ void ProcessAirCollision(Entity *player)
         }
 
         if (movingRight == 2) {
-            player->XVelocity = 0;
-            player->speed     = 0;
-            player->XPos      = (sensors[0].XPos - collisionRight) << 16;
-            sensors[2].XPos   = player->XPos + ((collisionLeft + 1) << 16);
-            sensors[3].XPos   = player->XPos + ((collisionRight - 2) << 16);
+            entity->XVelocity = 0;
+            entity->speed     = 0;
+            entity->XPos      = (sensors[0].XPos - collisionRight) << 16;
+            sensors[2].XPos   = entity->XPos + ((collisionLeft + 1) << 16);
+            sensors[3].XPos   = entity->XPos + ((collisionRight - 2) << 16);
             sensors[4].XPos   = sensors[2].XPos;
             sensors[5].XPos   = sensors[3].XPos;
             XVel              = 0;
@@ -788,11 +778,11 @@ void ProcessAirCollision(Entity *player)
         }
 
         if (movingLeft == 2) {
-            player->XVelocity = 0;
-            player->speed     = 0;
-            player->XPos      = (sensors[1].XPos - collisionLeft + 1) << 16;
-            sensors[2].XPos   = player->XPos + ((collisionLeft + 1) << 16);
-            sensors[3].XPos   = player->XPos + ((collisionRight - 2) << 16);
+            entity->XVelocity = 0;
+            entity->speed     = 0;
+            entity->XPos      = (sensors[1].XPos - collisionLeft + 1) << 16;
+            sensors[2].XPos   = entity->XPos + ((collisionLeft + 1) << 16);
+            sensors[3].XPos   = entity->XPos + ((collisionRight - 2) << 16);
             sensors[4].XPos   = sensors[2].XPos;
             sensors[5].XPos   = sensors[3].XPos;
             XVel              = 0;
@@ -805,7 +795,7 @@ void ProcessAirCollision(Entity *player)
                 if (!sensors[i].collided) {
                     sensors[i].XPos += XVel;
                     sensors[i].YPos += YVel;
-                    FloorCollision(player, &sensors[i]);
+                    FloorCollision(entity, &sensors[i]);
                 }
             }
             if (sensors[2].collided || sensors[3].collided) {
@@ -819,7 +809,7 @@ void ProcessAirCollision(Entity *player)
                 if (!sensors[i].collided) {
                     sensors[i].XPos += XVel;
                     sensors[i].YPos += YVel;
-                    RoofCollision(player, &sensors[i]);
+                    RoofCollision(entity, &sensors[i]);
                 }
             }
             if (sensors[4].collided || sensors[5].collided) {
@@ -830,98 +820,98 @@ void ProcessAirCollision(Entity *player)
     }
 
     if (movingRight < 2 && movingLeft < 2)
-        player->XPos = player->XPos + player->XVelocity;
+        entity->XPos = entity->XPos + entity->XVelocity;
 
     if (movingUp < 2 && movingDown < 2) {
-        player->YPos = player->YPos + player->YVelocity;
+        entity->YPos = entity->YPos + entity->YVelocity;
         return;
     }
 
     if (movingDown == 2) {
-        player->gravity = 0;
+        entity->gravity = 0;
         if (sensors[2].collided && sensors[3].collided) {
             if (sensors[2].YPos >= sensors[3].YPos) {
-                player->YPos  = (sensors[3].YPos - collisionBottom) << 16;
-                player->angle = sensors[3].angle;
+                entity->YPos  = (sensors[3].YPos - collisionBottom) << 16;
+                entity->angle = sensors[3].angle;
             }
             else {
-                player->YPos  = (sensors[2].YPos - collisionBottom) << 16;
-                player->angle = sensors[2].angle;
+                entity->YPos  = (sensors[2].YPos - collisionBottom) << 16;
+                entity->angle = sensors[2].angle;
             }
         }
         else if (sensors[2].collided == 1) {
-            player->YPos  = (sensors[2].YPos - collisionBottom) << 16;
-            player->angle = sensors[2].angle;
+            entity->YPos  = (sensors[2].YPos - collisionBottom) << 16;
+            entity->angle = sensors[2].angle;
         }
         else if (sensors[3].collided == 1) {
-            player->YPos  = (sensors[3].YPos - collisionBottom) << 16;
-            player->angle = sensors[3].angle;
+            entity->YPos  = (sensors[3].YPos - collisionBottom) << 16;
+            entity->angle = sensors[3].angle;
         }
-        if (player->angle > 0xA0 && player->angle < 0xE0 && player->collisionMode != CMODE_LWALL) {
-            player->collisionMode = CMODE_LWALL;
-            player->XPos -= 0x40000;
+        if (entity->angle > 0xA0 && entity->angle < 0xE0 && entity->collisionMode != CMODE_LWALL) {
+            entity->collisionMode = CMODE_LWALL;
+            entity->XPos -= 0x40000;
         }
-        if (player->angle > 0x20 && player->angle < 0x60 && player->collisionMode != CMODE_RWALL) {
-            player->collisionMode = CMODE_RWALL;
-            player->XPos += 0x40000;
+        if (entity->angle > 0x20 && entity->angle < 0x60 && entity->collisionMode != CMODE_RWALL) {
+            entity->collisionMode = CMODE_RWALL;
+            entity->XPos += 0x40000;
         }
-        if (player->angle < 0x20 || player->angle > 0xE0) {
-            player->controlLock = 0;
+        if (entity->angle < 0x20 || entity->angle > 0xE0) {
+            entity->controlLock = 0;
         }
-        player->rotation = player->angle << 1;
+        entity->rotation = entity->angle << 1;
 
         int speed = 0;
-        if (player->down) {
-            if (player->angle < 128) {
-                if (player->angle < 16) {
-                    speed = player->XVelocity;
+        if (entity->down) {
+            if (entity->angle < 128) {
+                if (entity->angle < 16) {
+                    speed = entity->XVelocity;
                 }
-                else if (player->angle >= 32) {
-                    speed = (abs(player->XVelocity) <= abs(player->YVelocity) ? player->YVelocity + player->YVelocity / 12 : player->XVelocity);
+                else if (entity->angle >= 32) {
+                    speed = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? entity->YVelocity + entity->YVelocity / 12 : entity->XVelocity);
                 }
                 else {
-                    speed = (abs(player->XVelocity) <= abs(player->YVelocity >> 1) ? (player->YVelocity + player->YVelocity / 12) >> 1
-                                                                                   : player->XVelocity);
+                    speed = (abs(entity->XVelocity) <= abs(entity->YVelocity >> 1) ? (entity->YVelocity + entity->YVelocity / 12) >> 1
+                                                                                   : entity->XVelocity);
                 }
             }
-            else if (player->angle > 240) {
-                speed = player->XVelocity;
+            else if (entity->angle > 240) {
+                speed = entity->XVelocity;
             }
-            else if (player->angle <= 224) {
-                speed = (abs(player->XVelocity) <= abs(player->YVelocity) ? -(player->YVelocity + player->YVelocity / 12) : player->XVelocity);
-            }
-            else {
-                speed = (abs(player->XVelocity) <= abs(player->YVelocity >> 1) ? -((player->YVelocity + player->YVelocity / 12) >> 1)
-                                                                               : player->XVelocity);
-            }
-        }
-        else if (player->angle < 0x80) {
-            if (player->angle < 0x10) {
-                speed = player->XVelocity;
-            }
-            else if (player->angle >= 0x20) {
-                speed = (abs(player->XVelocity) <= abs(player->YVelocity) ? player->YVelocity : player->XVelocity);
+            else if (entity->angle <= 224) {
+                speed = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? -(entity->YVelocity + entity->YVelocity / 12) : entity->XVelocity);
             }
             else {
-                speed = (abs(player->XVelocity) <= abs(player->YVelocity >> 1) ? player->YVelocity >> 1 : player->XVelocity);
+                speed = (abs(entity->XVelocity) <= abs(entity->YVelocity >> 1) ? -((entity->YVelocity + entity->YVelocity / 12) >> 1)
+                                                                               : entity->XVelocity);
             }
         }
-        else if (player->angle > 0xF0) {
-            speed = player->XVelocity;
+        else if (entity->angle < 0x80) {
+            if (entity->angle < 0x10) {
+                speed = entity->XVelocity;
+            }
+            else if (entity->angle >= 0x20) {
+                speed = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? entity->YVelocity : entity->XVelocity);
+            }
+            else {
+                speed = (abs(entity->XVelocity) <= abs(entity->YVelocity >> 1) ? entity->YVelocity >> 1 : entity->XVelocity);
+            }
         }
-        else if (player->angle <= 0xE0) {
-            speed = (abs(player->XVelocity) <= abs(player->YVelocity) ? -player->YVelocity : player->XVelocity);
+        else if (entity->angle > 0xF0) {
+            speed = entity->XVelocity;
+        }
+        else if (entity->angle <= 0xE0) {
+            speed = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? -entity->YVelocity : entity->XVelocity);
         }
         else {
-            speed = (abs(player->XVelocity) <= abs(player->YVelocity >> 1) ? -(player->YVelocity >> 1) : player->XVelocity);
+            speed = (abs(entity->XVelocity) <= abs(entity->YVelocity >> 1) ? -(entity->YVelocity >> 1) : entity->XVelocity);
         }
 
         if (speed < -0x180000)
             speed = -0x180000;
         if (speed > 0x180000)
             speed = 0x180000;
-        player->speed         = speed;
-        player->YVelocity     = 0;
+        entity->speed         = speed;
+        entity->YVelocity     = 0;
         scriptEng.checkResult = 1;
     }
 
@@ -929,81 +919,83 @@ void ProcessAirCollision(Entity *player)
         int sensorAngle = 0;
         if (sensors[4].collided && sensors[5].collided) {
             if (sensors[4].YPos <= sensors[5].YPos) {
-                player->YPos = (sensors[5].YPos - collisionTop + 1) << 16;
+                entity->YPos = (sensors[5].YPos - collisionTop + 1) << 16;
                 sensorAngle  = sensors[5].angle;
             }
             else {
-                player->YPos = (sensors[4].YPos - collisionTop + 1) << 16;
+                entity->YPos = (sensors[4].YPos - collisionTop + 1) << 16;
                 sensorAngle  = sensors[4].angle;
             }
         }
         else if (sensors[4].collided) {
-            player->YPos = (sensors[4].YPos - collisionTop + 1) << 16;
+            entity->YPos = (sensors[4].YPos - collisionTop + 1) << 16;
             sensorAngle  = sensors[4].angle;
         }
         else if (sensors[5].collided) {
-            player->YPos = (sensors[5].YPos - collisionTop + 1) << 16;
+            entity->YPos = (sensors[5].YPos - collisionTop + 1) << 16;
             sensorAngle  = sensors[5].angle;
         }
         sensorAngle &= 0xFF;
 
-        int angle = ArcTanLookup(player->XVelocity, player->YVelocity);
+        int angle = ArcTanLookup(entity->XVelocity, entity->YVelocity);
         if (sensorAngle > 0x40 && sensorAngle < 0x62 && angle > 0xA0 && angle < 0xC2) {
-            player->gravity       = 0;
-            player->angle         = sensorAngle;
-            player->rotation      = player->angle << 1;
-            player->collisionMode = CMODE_RWALL;
-            player->XPos += 0x40000;
-            player->YPos -= 0x20000;
-            if (player->angle <= 0x60)
-                player->speed = player->YVelocity;
+            entity->gravity       = 0;
+            entity->angle         = sensorAngle;
+            entity->rotation      = entity->angle << 1;
+            entity->collisionMode = CMODE_RWALL;
+            entity->XPos += 0x40000;
+            entity->YPos -= 0x20000;
+            if (entity->angle <= 0x60)
+                entity->speed = entity->YVelocity;
             else
-                player->speed = player->YVelocity >> 1;
+                entity->speed = entity->YVelocity >> 1;
         }
         if (sensorAngle > 0x9E && sensorAngle < 0xC0 && angle > 0xBE && angle < 0xE0) {
-            player->gravity       = 0;
-            player->angle         = sensorAngle;
-            player->rotation      = player->angle << 1;
-            player->collisionMode = CMODE_LWALL;
-            player->XPos -= 0x40000;
-            player->YPos -= 0x20000;
-            if (player->angle >= 0xA0)
-                player->speed = -player->YVelocity;
+            entity->gravity       = 0;
+            entity->angle         = sensorAngle;
+            entity->rotation      = entity->angle << 1;
+            entity->collisionMode = CMODE_LWALL;
+            entity->XPos -= 0x40000;
+            entity->YPos -= 0x20000;
+            if (entity->angle >= 0xA0)
+                entity->speed = -entity->YVelocity;
             else
-                player->speed = -player->YVelocity >> 1;
+                entity->speed = -entity->YVelocity >> 1;
         }
-        if (player->YVelocity < 0)
-            player->YVelocity = 0;
+        if (entity->YVelocity < 0)
+            entity->YVelocity = 0;
         scriptEng.checkResult = 2;
     }
 }
-void ProcessPathGrip(Entity *player)
+void ProcessPathGrip(Entity *entity)
 {
     int cosValue256;
     int sinValue256;
-    sensors[4].XPos = player->XPos;
-    sensors[4].YPos = player->YPos;
+    sensors[4].XPos = entity->XPos;
+    sensors[4].YPos = entity->YPos;
     for (int i = 0; i < 7; ++i) {
-        sensors[i].angle    = player->angle;
+        sensors[i].angle    = entity->angle;
         sensors[i].collided = false;
     }
-    SetPathGripSensors(player);
-    int absSpeed  = abs(player->speed);
+    SetPathGripSensors(entity);
+    int absSpeed  = abs(entity->speed);
     int checkDist = absSpeed >> 18;
     absSpeed &= 0x3FFFF;
+    byte cMode = entity->collisionMode;
+
     while (checkDist > -1) {
         if (checkDist >= 1) {
-            cosValue256 = cosVal256[player->angle] << 10;
-            sinValue256 = sinVal256[player->angle] << 10;
+            cosValue256 = cosVal256[entity->angle] << 10;
+            sinValue256 = sinVal256[entity->angle] << 10;
             checkDist--;
         }
         else {
-            cosValue256 = absSpeed * cosVal256[player->angle] >> 8;
-            sinValue256 = absSpeed * sinVal256[player->angle] >> 8;
+            cosValue256 = absSpeed * cosVal256[entity->angle] >> 8;
+            sinValue256 = absSpeed * sinVal256[entity->angle] >> 8;
             checkDist   = -1;
         }
 
-        if (player->speed < 0) {
+        if (entity->speed < 0) {
             cosValue256 = -cosValue256;
             sinValue256 = -sinValue256;
         }
@@ -1017,20 +1009,20 @@ void ProcessPathGrip(Entity *player)
         sensors[4].YPos += sinValue256;
         int tileDistance = -1;
 
-        switch (player->collisionMode) {
+        switch (entity->collisionMode) {
             case CMODE_FLOOR: {
                 sensors[3].XPos += cosValue256;
                 sensors[3].YPos += sinValue256;
 
-                if (player->speed > 0) {
-                    LWallCollision(player, &sensors[3]);
+                if (entity->speed > 0) {
+                    LWallCollision(entity, &sensors[3]);
                     if (sensors[3].collided) {
                         sensors[2].XPos = (sensors[3].XPos - 2) << 16;
                     }
                 }
 
-                if (player->speed < 0) {
-                    RWallCollision(player, &sensors[3]);
+                if (entity->speed < 0) {
+                    RWallCollision(entity, &sensors[3]);
                     if (sensors[3].collided) {
                         sensors[0].XPos = (sensors[3].XPos + 2) << 16;
                     }
@@ -1044,13 +1036,13 @@ void ProcessPathGrip(Entity *player)
                 for (int i = 0; i < 3; i++) {
                     sensors[i].XPos += cosValue256;
                     sensors[i].YPos += sinValue256;
-                    FindFloorPosition(player, &sensors[i], sensors[i].YPos >> 16);
+                    FindFloorPosition(entity, &sensors[i], sensors[i].YPos >> 16);
                 }
 
                 for (int i = 5; i < 7; i++) {
                     sensors[i].XPos += cosValue256;
                     sensors[i].YPos += sinValue256;
-                    FindFloorPosition(player, &sensors[i], sensors[i].YPos >> 16);
+                    FindFloorPosition(entity, &sensors[i], sensors[i].YPos >> 16);
                 }
 
                 tileDistance = -1;
@@ -1085,20 +1077,20 @@ void ProcessPathGrip(Entity *player)
                 }
 
                 if (sensors[0].angle < 0xDE && sensors[0].angle > 0x80)
-                    player->collisionMode = CMODE_LWALL;
+                    entity->collisionMode = CMODE_LWALL;
                 if (sensors[0].angle > 0x22 && sensors[0].angle < 0x80)
-                    player->collisionMode = CMODE_RWALL;
+                    entity->collisionMode = CMODE_RWALL;
                 break;
             }
             case CMODE_LWALL: {
                 sensors[3].XPos += cosValue256;
                 sensors[3].YPos += sinValue256;
 
-                if (player->speed > 0)
-                    RoofCollision(player, &sensors[3]);
+                if (entity->speed > 0)
+                    RoofCollision(entity, &sensors[3]);
 
-                if (player->speed < 0)
-                    FloorCollision(player, &sensors[3]);
+                if (entity->speed < 0)
+                    FloorCollision(entity, &sensors[3]);
 
                 if (sensors[3].collided) {
                     sinValue256 = 0;
@@ -1107,7 +1099,7 @@ void ProcessPathGrip(Entity *player)
                 for (int i = 0; i < 3; i++) {
                     sensors[i].XPos += cosValue256;
                     sensors[i].YPos += sinValue256;
-                    FindLWallPosition(player, &sensors[i], sensors[i].XPos >> 16);
+                    FindLWallPosition(entity, &sensors[i], sensors[i].XPos >> 16);
                 }
 
                 tileDistance = -1;
@@ -1137,9 +1129,9 @@ void ProcessPathGrip(Entity *player)
                 }
 
                 if (sensors[0].angle > 0xE2)
-                    player->collisionMode = CMODE_FLOOR;
+                    entity->collisionMode = CMODE_FLOOR;
                 if (sensors[0].angle < 0x9E)
-                    player->collisionMode = CMODE_ROOF;
+                    entity->collisionMode = CMODE_ROOF;
                 break;
                 break;
             }
@@ -1147,11 +1139,11 @@ void ProcessPathGrip(Entity *player)
                 sensors[3].XPos += cosValue256;
                 sensors[3].YPos += sinValue256;
 
-                if (player->speed > 0)
-                    RWallCollision(player, &sensors[3]);
+                if (entity->speed > 0)
+                    RWallCollision(entity, &sensors[3]);
 
-                if (player->speed < 0)
-                    LWallCollision(player, &sensors[3]);
+                if (entity->speed < 0)
+                    LWallCollision(entity, &sensors[3]);
 
                 if (sensors[3].collided) {
                     cosValue256 = 0;
@@ -1160,7 +1152,7 @@ void ProcessPathGrip(Entity *player)
                 for (int i = 0; i < 3; i++) {
                     sensors[i].XPos += cosValue256;
                     sensors[i].YPos += sinValue256;
-                    FindRoofPosition(player, &sensors[i], sensors[i].YPos >> 16);
+                    FindRoofPosition(entity, &sensors[i], sensors[i].YPos >> 16);
                 }
 
                 tileDistance = -1;
@@ -1192,20 +1184,20 @@ void ProcessPathGrip(Entity *player)
                 }
 
                 if (sensors[0].angle > 0xA2)
-                    player->collisionMode = CMODE_LWALL;
+                    entity->collisionMode = CMODE_LWALL;
                 if (sensors[0].angle < 0x5E)
-                    player->collisionMode = CMODE_RWALL;
+                    entity->collisionMode = CMODE_RWALL;
                 break;
             }
             case CMODE_RWALL: {
                 sensors[3].XPos += cosValue256;
                 sensors[3].YPos += sinValue256;
 
-                if (player->speed > 0)
-                    FloorCollision(player, &sensors[3]);
+                if (entity->speed > 0)
+                    FloorCollision(entity, &sensors[3]);
 
-                if (player->speed < 0)
-                    RoofCollision(player, &sensors[3]);
+                if (entity->speed < 0)
+                    RoofCollision(entity, &sensors[3]);
 
                 if (sensors[3].collided) {
                     sinValue256 = 0;
@@ -1214,7 +1206,7 @@ void ProcessPathGrip(Entity *player)
                 for (int i = 0; i < 3; i++) {
                     sensors[i].XPos += cosValue256;
                     sensors[i].YPos += sinValue256;
-                    FindRWallPosition(player, &sensors[i], sensors[i].XPos >> 16);
+                    FindRWallPosition(entity, &sensors[i], sensors[i].XPos >> 16);
                 }
 
                 tileDistance = -1;
@@ -1244,226 +1236,226 @@ void ProcessPathGrip(Entity *player)
                 }
 
                 if (sensors[0].angle < 0x1E)
-                    player->collisionMode = CMODE_FLOOR;
+                    entity->collisionMode = CMODE_FLOOR;
                 if (sensors[0].angle > 0x62)
-                    player->collisionMode = CMODE_ROOF;
+                    entity->collisionMode = CMODE_ROOF;
                 break;
             }
         }
         if (tileDistance != -1)
-            player->angle = sensors[0].angle;
+            entity->angle = sensors[0].angle;
 
         if (!sensors[3].collided)
-            SetPathGripSensors(player);
+            SetPathGripSensors(entity);
         else
             checkDist = -2;
     }
 
-    switch (player->collisionMode) {
+    switch (cMode) {
         case CMODE_FLOOR: {
             if (sensors[0].collided || sensors[1].collided || sensors[2].collided) {
-                player->angle       = sensors[0].angle;
-                player->rotation    = player->angle << 1;
-                player->flailing[0] = sensors[0].collided;
-                player->flailing[1] = sensors[1].collided;
-                player->flailing[2] = sensors[2].collided;
-                player->flailing[3] = sensors[5].collided;
-                player->flailing[4] = sensors[6].collided;
+                entity->angle       = sensors[0].angle;
+                entity->rotation    = entity->angle << 1;
+                entity->flailing[0] = sensors[0].collided;
+                entity->flailing[1] = sensors[1].collided;
+                entity->flailing[2] = sensors[2].collided;
+                entity->flailing[3] = sensors[5].collided;
+                entity->flailing[4] = sensors[6].collided;
                 if (!sensors[3].collided) {
-                    player->pushing = 0;
-                    player->XPos    = sensors[4].XPos;
+                    entity->pushing = 0;
+                    entity->XPos    = sensors[4].XPos;
                 }
                 else {
-                    if (player->speed > 0)
-                        player->XPos = (sensors[3].XPos - collisionRight) << 16;
+                    if (entity->speed > 0)
+                        entity->XPos = (sensors[3].XPos - collisionRight) << 16;
 
-                    if (player->speed < 0)
-                        player->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
+                    if (entity->speed < 0)
+                        entity->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
 
-                    player->speed = 0;
-                    if ((player->left || player->right) && player->pushing < 2)
-                        player->pushing++;
+                    entity->speed = 0;
+                    if ((entity->left || entity->right) && entity->pushing < 2)
+                        entity->pushing++;
                 }
-                player->YPos = sensors[4].YPos;
+                entity->YPos = sensors[4].YPos;
                 return;
             }
-            player->gravity       = 1;
-            player->collisionMode = CMODE_FLOOR;
-            player->XVelocity     = cosVal256[player->angle] * player->speed >> 8;
-            player->YVelocity     = sinVal256[player->angle] * player->speed >> 8;
-            if (player->YVelocity < -0x100000)
-                player->YVelocity = -0x100000;
+            entity->gravity       = 1;
+            entity->collisionMode = CMODE_FLOOR;
+            entity->XVelocity     = cosVal256[entity->angle] * entity->speed >> 8;
+            entity->YVelocity     = sinVal256[entity->angle] * entity->speed >> 8;
+            if (entity->YVelocity < -0x100000)
+                entity->YVelocity = -0x100000;
 
-            if (player->YVelocity > 0x100000)
-                player->YVelocity = 0x100000;
+            if (entity->YVelocity > 0x100000)
+                entity->YVelocity = 0x100000;
 
-            player->speed = player->XVelocity;
-            player->angle = 0;
+            entity->speed = entity->XVelocity;
+            entity->angle = 0;
             if (!sensors[3].collided) {
-                player->pushing = 0;
-                player->XPos += player->XVelocity;
+                entity->pushing = 0;
+                entity->XPos += entity->XVelocity;
             }
             else {
-                if (player->speed > 0)
-                    player->XPos = (sensors[3].XPos - collisionRight) << 16;
-                if (player->speed < 0)
-                    player->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
+                if (entity->speed > 0)
+                    entity->XPos = (sensors[3].XPos - collisionRight) << 16;
+                if (entity->speed < 0)
+                    entity->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
 
-                player->speed = 0;
-                if ((player->left || player->right) && player->pushing < 2)
-                    player->pushing++;
+                entity->speed = 0;
+                if ((entity->left || entity->right) && entity->pushing < 2)
+                    entity->pushing++;
             }
-            player->YPos += player->YVelocity;
+            entity->YPos += entity->YVelocity;
             return;
         }
         case CMODE_LWALL: {
             if (!sensors[0].collided && !sensors[1].collided && !sensors[2].collided) {
-                player->gravity       = 1;
-                player->collisionMode = CMODE_FLOOR;
-                player->XVelocity     = cosVal256[player->angle] * player->speed >> 8;
-                player->YVelocity     = sinVal256[player->angle] * player->speed >> 8;
-                if (player->YVelocity < -1048576) {
-                    player->YVelocity = -1048576;
+                entity->gravity       = 1;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->XVelocity     = cosVal256[entity->angle] * entity->speed >> 8;
+                entity->YVelocity     = sinVal256[entity->angle] * entity->speed >> 8;
+                if (entity->YVelocity < -1048576) {
+                    entity->YVelocity = -1048576;
                 }
-                if (player->YVelocity > 0x100000) {
-                    player->YVelocity = 0x100000;
+                if (entity->YVelocity > 0x100000) {
+                    entity->YVelocity = 0x100000;
                 }
-                player->speed = player->XVelocity;
-                player->angle = 0;
+                entity->speed = entity->XVelocity;
+                entity->angle = 0;
             }
-            else if (player->speed >= 0x28000 || player->speed <= -0x28000 || player->controlLock != 0) {
-                player->angle    = sensors[0].angle;
-                player->rotation = player->angle << 1;
+            else if (entity->speed >= 0x28000 || entity->speed <= -0x28000 || entity->controlLock != 0) {
+                entity->angle    = sensors[0].angle;
+                entity->rotation = entity->angle << 1;
             }
             else {
-                player->gravity       = 1;
-                player->angle         = 0;
-                player->collisionMode = CMODE_FLOOR;
-                player->speed         = player->XVelocity;
-                player->controlLock   = 30;
+                entity->gravity       = 1;
+                entity->angle         = 0;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->speed         = entity->XVelocity;
+                entity->controlLock   = 30;
             }
             if (!sensors[3].collided) {
-                player->YPos = sensors[4].YPos;
+                entity->YPos = sensors[4].YPos;
             }
             else {
-                if (player->speed > 0)
-                    player->YPos = (sensors[3].YPos - collisionTop) << 16;
+                if (entity->speed > 0)
+                    entity->YPos = (sensors[3].YPos - collisionTop) << 16;
 
-                if (player->speed < 0)
-                    player->YPos = (sensors[3].YPos - collisionBottom) << 16;
+                if (entity->speed < 0)
+                    entity->YPos = (sensors[3].YPos - collisionBottom) << 16;
 
-                player->speed = 0;
+                entity->speed = 0;
             }
-            player->XPos = sensors[4].XPos;
+            entity->XPos = sensors[4].XPos;
             return;
         }
         case CMODE_ROOF: {
             if (!sensors[0].collided && !sensors[1].collided && !sensors[2].collided) {
-                player->gravity       = 1;
-                player->collisionMode = CMODE_FLOOR;
-                player->XVelocity     = cosVal256[player->angle] * player->speed >> 8;
-                player->YVelocity     = sinVal256[player->angle] * player->speed >> 8;
-                player->flailing[0]   = 0;
-                player->flailing[1]   = 0;
-                player->flailing[2]   = 0;
-                if (player->YVelocity < -0x100000)
-                    player->YVelocity = -0x100000;
+                entity->gravity       = 1;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->XVelocity     = cosVal256[entity->angle] * entity->speed >> 8;
+                entity->YVelocity     = sinVal256[entity->angle] * entity->speed >> 8;
+                entity->flailing[0]   = 0;
+                entity->flailing[1]   = 0;
+                entity->flailing[2]   = 0;
+                if (entity->YVelocity < -0x100000)
+                    entity->YVelocity = -0x100000;
 
-                if (player->YVelocity > 0x100000)
-                    player->YVelocity = 0x100000;
+                if (entity->YVelocity > 0x100000)
+                    entity->YVelocity = 0x100000;
 
-                player->angle = 0;
-                player->speed = player->XVelocity;
+                entity->angle = 0;
+                entity->speed = entity->XVelocity;
                 if (!sensors[3].collided) {
-                    player->XPos = player->XPos + player->XVelocity;
+                    entity->XPos = entity->XPos + entity->XVelocity;
                 }
                 else {
-                    if (player->speed > 0)
-                        player->XPos = (sensors[3].XPos - collisionRight) << 16;
+                    if (entity->speed > 0)
+                        entity->XPos = (sensors[3].XPos - collisionRight) << 16;
 
-                    if (player->speed < 0)
-                        player->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
+                    if (entity->speed < 0)
+                        entity->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
 
-                    player->speed = 0;
+                    entity->speed = 0;
                 }
             }
-            else if (player->speed <= -0x28000 || player->speed >= 0x28000) {
-                player->angle    = sensors[0].angle;
-                player->rotation = player->angle << 1;
+            else if (entity->speed <= -0x28000 || entity->speed >= 0x28000) {
+                entity->angle    = sensors[0].angle;
+                entity->rotation = entity->angle << 1;
                 if (!sensors[3].collided) {
-                    player->XPos = sensors[4].XPos;
+                    entity->XPos = sensors[4].XPos;
                 }
                 else {
-                    if (player->speed < 0)
-                        player->XPos = (sensors[3].XPos - collisionRight) << 16;
+                    if (entity->speed < 0)
+                        entity->XPos = (sensors[3].XPos - collisionRight) << 16;
 
-                    if (player->speed > 0)
-                        player->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
-                    player->speed = 0;
+                    if (entity->speed > 0)
+                        entity->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
+                    entity->speed = 0;
                 }
             }
             else {
-                player->gravity       = 1;
-                player->angle         = 0;
-                player->collisionMode = CMODE_FLOOR;
-                player->speed         = player->XVelocity;
-                player->flailing[0]   = 0;
-                player->flailing[1]   = 0;
-                player->flailing[2]   = 0;
+                entity->gravity       = 1;
+                entity->angle         = 0;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->speed         = entity->XVelocity;
+                entity->flailing[0]   = 0;
+                entity->flailing[1]   = 0;
+                entity->flailing[2]   = 0;
                 if (!sensors[3].collided) {
-                    player->XPos = player->XPos + player->XVelocity;
+                    entity->XPos = entity->XPos + entity->XVelocity;
                 }
                 else {
-                    if (player->speed > 0)
-                        player->XPos = (sensors[3].XPos - collisionRight) << 16;
+                    if (entity->speed > 0)
+                        entity->XPos = (sensors[3].XPos - collisionRight) << 16;
 
-                    if (player->speed < 0)
-                        player->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
-                    player->speed = 0;
+                    if (entity->speed < 0)
+                        entity->XPos = (sensors[3].XPos - collisionLeft + 1) << 16;
+                    entity->speed = 0;
                 }
             }
-            player->YPos = sensors[4].YPos;
+            entity->YPos = sensors[4].YPos;
             return;
         }
         case CMODE_RWALL: {
             if (!sensors[0].collided && !sensors[1].collided && !sensors[2].collided) {
-                player->gravity       = 1;
-                player->collisionMode = CMODE_FLOOR;
-                player->XVelocity     = cosVal256[player->angle] * player->speed >> 8;
-                player->YVelocity     = sinVal256[player->angle] * player->speed >> 8;
-                if (player->YVelocity < -0x100000)
-                    player->YVelocity = -0x100000;
+                entity->gravity       = 1;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->XVelocity     = cosVal256[entity->angle] * entity->speed >> 8;
+                entity->YVelocity     = sinVal256[entity->angle] * entity->speed >> 8;
+                if (entity->YVelocity < -0x100000)
+                    entity->YVelocity = -0x100000;
 
-                if (player->YVelocity > 0x100000)
-                    player->YVelocity = 0x100000;
+                if (entity->YVelocity > 0x100000)
+                    entity->YVelocity = 0x100000;
 
-                player->speed = player->XVelocity;
-                player->angle = 0;
+                entity->speed = entity->XVelocity;
+                entity->angle = 0;
             }
-            else if (player->speed <= -0x28000 || player->speed >= 0x28000 || player->controlLock != 0) {
-                player->angle    = sensors[0].angle;
-                player->rotation = player->angle << 1;
+            else if (entity->speed <= -0x28000 || entity->speed >= 0x28000 || entity->controlLock != 0) {
+                entity->angle    = sensors[0].angle;
+                entity->rotation = entity->angle << 1;
             }
             else {
-                player->gravity       = 1;
-                player->angle         = 0;
-                player->collisionMode = CMODE_FLOOR;
-                player->speed         = player->XVelocity;
-                player->controlLock   = 30;
+                entity->gravity       = 1;
+                entity->angle         = 0;
+                entity->collisionMode = CMODE_FLOOR;
+                entity->speed         = entity->XVelocity;
+                entity->controlLock   = 30;
             }
             if (!sensors[3].collided) {
-                player->YPos = sensors[4].YPos;
+                entity->YPos = sensors[4].YPos;
             }
             else {
-                if (player->speed > 0)
-                    player->YPos = (sensors[3].YPos - collisionBottom) << 16;
+                if (entity->speed > 0)
+                    entity->YPos = (sensors[3].YPos - collisionBottom) << 16;
 
-                if (player->speed < 0)
-                    player->YPos = (sensors[3].YPos - collisionTop + 1) << 16;
+                if (entity->speed < 0)
+                    entity->YPos = (sensors[3].YPos - collisionTop + 1) << 16;
 
-                player->speed = 0;
+                entity->speed = 0;
             }
-            player->XPos = sensors[4].XPos;
+            entity->XPos = sensors[4].XPos;
             return;
         }
         default: return;
