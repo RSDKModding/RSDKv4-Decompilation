@@ -72,12 +72,14 @@ extern float LSTICK_DEADZONE;
 extern float RSTICK_DEADZONE;
 extern float LTRIGGER_DEADZONE;
 extern float RTRIGGER_DEADZONE;
+
+extern int mouseHideTimer;
+extern int lastMouseX;
+extern int lastMouseY;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
-extern SDL_GameController *controller;
-
 // Easier this way
 enum ExtraSDLButtons {
     SDL_CONTROLLER_BUTTON_ZL = SDL_CONTROLLER_BUTTON_MAX + 1,

@@ -22,6 +22,10 @@ float RSTICK_DEADZONE   = 0.3;
 float LTRIGGER_DEADZONE = 0.3;
 float RTRIGGER_DEADZONE = 0.3;
 
+int mouseHideTimer = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
+
 #if RETRO_USING_SDL2
 std::vector <SDL_GameController *> controllers;
 #endif
@@ -265,6 +269,31 @@ void ProcessInput()
         inputType = 1;
     else if (inputType == 1)
         inputDevice[INPUT_ANY].setReleased();
+
+#ifdef RETRO_USING_MOUSE
+    if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
+#endif                                                                         //! RETRO_USING_SDL2
+        int mx = 0, my = 0;
+        SDL_GetMouseState(&mx, &my);
+
+        if ((mx == lastMouseX && my == lastMouseY)) {
+            ++mouseHideTimer;
+            if (mouseHideTimer == 120) {
+                SDL_ShowCursor(false);
+            }
+        }
+        else {
+            if (mouseHideTimer >= 120)
+                SDL_ShowCursor(true);
+            mouseHideTimer = 0;
+        }
+
+        lastMouseX = mx;
+        lastMouseY = my;
+#if RETRO_USING_SDL2
+    }
+#endif //! RETRO_USING_MOUSE
+
 #elif RETRO_USING_SDL1
     if (SDL_NumJoysticks() > 0) {
         controller = SDL_JoystickOpen(0);
