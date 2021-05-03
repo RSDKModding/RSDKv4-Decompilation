@@ -224,22 +224,22 @@ void ProcessInput()
     const byte *keyState = SDL_GetKeyboardState(&length);
 
     if (inputType == 0) {
-        for (int i = 0; i < INPUT_MAX; i++) {
+        for (int i = 0; i < INPUT_ANY; i++) {
             if (keyState[inputDevice[i].keyMappings]) {
                 inputDevice[i].setHeld();
-                inputDevice[INPUT_ANY].setHeld();
-                continue;
+                if (!inputDevice[INPUT_ANY].hold)
+                    inputDevice[INPUT_ANY].setHeld();
             }
             else if (inputDevice[i].hold)
                 inputDevice[i].setReleased();
         }
     }
     else if (inputType == 1) {
-        for (int i = 0; i < INPUT_MAX; i++) {
+        for (int i = 0; i < INPUT_ANY; i++) {
             if (getControllerButton(inputDevice[i].contMappings)) {
                 inputDevice[i].setHeld();
-                inputDevice[INPUT_ANY].setHeld();
-                continue;
+                if (!inputDevice[INPUT_ANY].hold)
+                    inputDevice[INPUT_ANY].setHeld();
             }
             else if (inputDevice[i].hold)
                 inputDevice[i].setReleased();

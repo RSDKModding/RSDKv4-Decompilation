@@ -87,6 +87,13 @@ int InitAudioPlayback()
 #endif
 #endif
 
+    LoadGlobalSfx();
+
+    return true;
+}
+
+void LoadGlobalSfx()
+{
     FileInfo info;
     FileInfo infoStore;
     char strBuffer[0x100];
@@ -157,8 +164,6 @@ int InitAudioPlayback()
     }
 
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
-
-    return true;
 }
 
 size_t readVorbis(void *mem, size_t size, size_t nmemb, void *ptr)

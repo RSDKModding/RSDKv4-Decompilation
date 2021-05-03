@@ -88,6 +88,7 @@ extern SDL_AudioSpec audioDeviceFormat;
 #endif
 
 int InitAudioPlayback();
+void LoadGlobalSfx();
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
 #if !RETRO_USE_ORIGINAL_CODE

@@ -147,6 +147,7 @@ void ProcessStage(void)
 #if !RETRO_USE_ORIGINAL_CODE
             Engine.frameCount = 0;
 #endif
+            frameCounter      = 0;
             stageMilliseconds = 0;
             stageSeconds      = 0;
             stageMinutes      = 0;
