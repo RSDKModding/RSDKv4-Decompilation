@@ -10,7 +10,6 @@
     <ClCompile Include="..\RSDKv4\Input.cpp" />
     <ClCompile Include="..\RSDKv4\main.cpp" />
     <ClCompile Include="..\RSDKv4\Math.cpp" />
-    <ClCompile Include="..\RSDKv4\Network.cpp" />
     <ClCompile Include="..\RSDKv4\Object.cpp" />
     <ClCompile Include="..\RSDKv4\Palette.cpp" />
     <ClCompile Include="..\RSDKv4\PauseMenu.cpp" />
@@ -34,7 +33,6 @@
     <ClInclude Include="..\RSDKv4\Ini.hpp" />
     <ClInclude Include="..\RSDKv4\Input.hpp" />
     <ClInclude Include="..\RSDKv4\Math.hpp" />
-    <ClInclude Include="..\RSDKv4\Network.hpp" />
     <ClInclude Include="..\RSDKv4\Object.hpp" />
     <ClInclude Include="..\RSDKv4\Palette.hpp" />
     <ClInclude Include="..\RSDKv4\PauseMenu.hpp" />
@@ -55,7 +53,6 @@
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data.rsdk" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
   </ItemGroup>

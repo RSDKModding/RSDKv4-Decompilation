@@ -29,12 +29,12 @@ SOURCES = RSDKv4/Animation.cpp     \
 	  
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
-	SOURCES += Sonic12Decomp/fcaseopen.c
+	SOURCES += RSDKv4/fcaseopen.c
 endif
 
 objects/%.o: %
 	mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS_ALL) $^ -o $@ -c
+	$(CXX) $(CXXFLAGS_ALL) -std=c++17 $^ -o $@ -c
 
 bin/RSDKv4: $(SOURCES:%=objects/%.o)
 	mkdir -p $(@D)

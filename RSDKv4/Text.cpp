@@ -404,7 +404,7 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
         // Categories
         for (byte c = 1; c <= 4; ++c) {
-            int stageCnt = 0;
+            byte stageCnt = 0;
             FileRead(&stageCnt, 1);
             for (byte s = 0; s < stageCnt; ++s) {
                 //Stage Folder
