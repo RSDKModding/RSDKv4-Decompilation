@@ -821,6 +821,16 @@ int ShowPromoPopup(int a1, void *a2)
 
 void initMods()
 {
+    for (int i = 0; i < modCount; ++i) {
+        modList[i].fileMap.clear();
+        modList[i].name    = "";
+        modList[i].desc    = "";
+        modList[i].author  = "";
+        modList[i].version = "";
+        modList[i].folder  = "";
+        modList[i].active  = false;
+    }
+
     modCount        = 0;
     forceUseScripts = false;
 
@@ -838,6 +848,12 @@ void initMods()
                     ModInfo *info = &modList[modCount];
 
                     char modName[0x100];
+                    info->fileMap.clear();
+                    info->name    = "";
+                    info->desc    = "";
+                    info->author  = "";
+                    info->version = "";
+                    info->folder  = "";
                     info->active = false;
 
                     std::string modDir            = modDirPath.string().c_str();
