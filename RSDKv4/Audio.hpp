@@ -247,6 +247,7 @@ inline void ReleaseGlobalSfx()
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
             free(sfxList[i].buffer);
+            sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
         }
@@ -260,6 +261,7 @@ inline void ReleaseStageSfx()
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
             free(sfxList[i].buffer);
+            sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
         }

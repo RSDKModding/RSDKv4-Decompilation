@@ -421,6 +421,7 @@ void processStageSelect()
                 // Reload entire engine
                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 
+                ReleaseStageSfx();
                 ReleaseGlobalSfx();
                 LoadGlobalSfx();
 
@@ -1640,6 +1641,7 @@ void processStartMenu()
                 // Reload entire engine
                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 
+                ReleaseStageSfx();
                 ReleaseGlobalSfx();
                 LoadGlobalSfx();
 
