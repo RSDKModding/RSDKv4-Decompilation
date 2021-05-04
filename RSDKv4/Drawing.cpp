@@ -6647,7 +6647,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
     if (tMenu->selectionCount == 3) {
         tMenu->selection2 = -1;
         for (int i = 0; i < tMenu->selection1 + 1; ++i) {
-            if (tMenu->entryHighlight[i] == 1) {
+            if (tMenu->entryHighlight[i]) {
                 tMenu->selection2 = i;
             }
         }
