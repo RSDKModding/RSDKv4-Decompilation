@@ -62,8 +62,10 @@ void InitUserdata()
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
         ini.SetString("Dev", "DataFile", (char *)"Data.rsdk");
         StrCopy(Engine.dataFile[0], "Data.rsdk");
-        ini.SetString("Dev", "DataFile2", (char *)"Menu.rsdk");
-        StrCopy(Engine.dataFile[1], "Menu.rsdk");
+        if (!StrComp(Engine.dataFile[1], "")) {
+            ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
+            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+        }
         if (!StrComp(Engine.dataFile[2], "")) {
             ini.SetString("Dev", "DataFile3", (char *)"Data3.rsdk");
             StrCopy(Engine.dataFile[2], "Data3.rsdk");
@@ -186,8 +188,10 @@ void InitUserdata()
 
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
             StrCopy(Engine.dataFile[0], "Data.rsdk");
-        if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
-            StrCopy(Engine.dataFile[1], "Menu.rsdk");
+        if (!StrComp(Engine.dataFile[1], "")) {
+            ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
+            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+        }
         if (!StrComp(Engine.dataFile[2], "")) {
             if (!ini.GetString("Dev", "DataFile3", Engine.dataFile[2]))
                 StrCopy(Engine.dataFile[2], "");

@@ -361,13 +361,18 @@ void GetFileInfo(FileInfo *fileInfo)
     fileInfo->eNybbleSwap       = eNybbleSwap;
     fileInfo->useEncryption     = useEncryption;
     fileInfo->packID            = packID;
+    fileInfo->usingDataPack     = Engine.usingDataFile;
     memcpy(encryptionStringA, fileInfo->encryptionStringA, 0x10 * sizeof(byte));
     memcpy(encryptionStringB, fileInfo->encryptionStringB, 0x10 * sizeof(byte));
 }
 
 void SetFileInfo(FileInfo *fileInfo)
 {
+#if !RETRO_USE_ORIGINAL_CODE
+    if (fileInfo->usingDataPack) {
+#else
     if (Engine.usingDataFile) {
+#endif
         cFileHandle       = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
         virtualFileOffset = fileInfo->virtualFileOffset;
         vFileSize         = fileInfo->vfileSize;
@@ -382,7 +387,8 @@ void SetFileInfo(FileInfo *fileInfo)
         eStringNo      = fileInfo->eStringNo;
         eNybbleSwap    = fileInfo->eNybbleSwap;
         useEncryption  = fileInfo->useEncryption;
-        packID         = fileInfo->packID;
+        packID                  = fileInfo->packID;
+        Engine.usingDataFile = fileInfo->usingDataPack;
 
         if (useEncryption) {
             GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
@@ -396,11 +402,14 @@ void SetFileInfo(FileInfo *fileInfo)
         readPos           = fileInfo->readPos;
         fSeek(cFileHandle, readPos, SEEK_SET);
         FillFileBuffer();
-        bufferPosition = fileInfo->bufferPosition;
-        eStringPosA    = 0;
-        eStringPosB    = 0;
-        eStringNo      = 0;
-        eNybbleSwap    = 0;
+        bufferPosition       = fileInfo->bufferPosition;
+        eStringPosA          = 0;
+        eStringPosB          = 0;
+        eStringNo            = 0;
+        eNybbleSwap          = 0;
+        useEncryption        = fileInfo->useEncryption;
+        packID               = fileInfo->packID;
+        Engine.usingDataFile = fileInfo->usingDataPack;
     }
 }
 

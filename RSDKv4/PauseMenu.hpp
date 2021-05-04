@@ -7,6 +7,7 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
     int barPos;
     byte selectedOption;
     TextMenu *menu;
+    byte touchControls;
 
     int lastSurfaceNo;
 };

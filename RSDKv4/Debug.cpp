@@ -155,6 +155,7 @@ void processStageSelect()
                     SetupTextMenu(&gameMenu[0], 0);
                     AddTextMenuEntry(&gameMenu[0], "MOD LIST");
                     SetupTextMenu(&gameMenu[1], 0);
+                    initMods(); // reload mods
 
                     char buffer[0x100];
                     for (int m = 0; m < modCount; ++m) {
@@ -403,6 +404,7 @@ void processStageSelect()
                 gameMenu[1].selection1       = gameMenu[1].rowCount - 1;
                 gameMenu[1].visibleRowOffset = gameMenu[1].rowCount - gameMenu[1].visibleRowCount;
             }
+            gameMenu[1].selection2 = gameMenu[1].selection1; //its a bug fix LOL
 
             char buffer[0x100];
             if (keyPress.A || keyPress.start || keyPress.left || keyPress.right) {
@@ -939,6 +941,7 @@ void processStartMenu()
                     SetupTextMenu(&gameMenu[0], 0);
                     AddTextMenuEntry(&gameMenu[0], "MOD LIST");
                     SetupTextMenu(&gameMenu[1], 0);
+                    initMods(); // reload mods
 
                     char buffer[0x100];
                     for (int m = 0; m < modCount; ++m) {
@@ -1620,6 +1623,7 @@ void processStartMenu()
                 gameMenu[1].selection1       = gameMenu[1].rowCount - 1;
                 gameMenu[1].visibleRowOffset = gameMenu[1].rowCount - gameMenu[1].visibleRowCount;
             }
+            gameMenu[1].selection2 = gameMenu[1].selection1; // its a bug fix LOL
 
             char buffer[0x100];
             if (keyPress.A || keyPress.start || keyPress.left || keyPress.right) {
