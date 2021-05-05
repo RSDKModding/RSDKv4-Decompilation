@@ -125,6 +125,13 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     StrCopy(filePathBuf, filePath);
     bool forceFolder = false;
 #if RETRO_USE_MOD_LOADER
+    // Fixes ".ani" ".Ani" bug and any other case differences
+    char pathLower[0x100];
+    memset(pathLower, 0, sizeof(char) * 0x100);
+    for (int c = 0; c < strlen(filePathBuf); ++c) {
+        pathLower[c] = tolower(filePathBuf[c]);
+    }
+
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
@@ -502,6 +509,13 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
     StrCopy(filePathBuf, filePath);
     bool forceFolder = false;
 #if RETRO_USE_MOD_LOADER
+    // Fixes ".ani" ".Ani" bug and any other case differences
+    char pathLower[0x100];
+    memset(pathLower, 0, sizeof(char) * 0x100);
+    for (int c = 0; c < strlen(filePathBuf); ++c) {
+        pathLower[c] = tolower(filePathBuf[c]);
+    }
+
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
