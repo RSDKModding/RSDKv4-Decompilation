@@ -284,6 +284,10 @@ public:
     int fastForwardSpeed = 8;
     bool masterPaused    = false;
     bool frameStep       = false;
+    int dimTimer         = 0;
+    int dimLimit         = 0;
+    float dimPercent     = 1.0;
+    float dimMax         = 1.0;
 
     bool showPaletteOverlay = false;
     bool useHQModes         = true;

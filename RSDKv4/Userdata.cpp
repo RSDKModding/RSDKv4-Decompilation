@@ -85,6 +85,8 @@ void InitUserdata()
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
+        ini.SetInteger("Window", "DimLimit", Engine.dimLimit = 300);
+        Engine.dimLimit *= Engine.refreshRate;
 
         ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
         ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
@@ -220,6 +222,10 @@ void InitUserdata()
             SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE;
         if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
             Engine.refreshRate = 60;
+        if (!ini.GetInteger("Window", "DimLimit", &Engine.dimLimit))
+            Engine.dimLimit = 300; // 5 mins
+        if (Engine.dimLimit >= 0)
+            Engine.dimLimit *= Engine.refreshRate;
 
         float bv = 0, sv = 0;
         if (!ini.GetFloat("Audio", "BGMVolume", &bv))
@@ -480,6 +486,8 @@ void writeSettings()
     ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE);
     ini.SetComment("Window", "RRComment", "Determines the target FPS");
     ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
+    ini.SetComment("Window", "DLComment", "Determines the dim timer in seconds, set to -1 to disable dimming");
+    ini.SetInteger("Window", "DimLimit", Engine.dimLimit >= 0 ? Engine.dimLimit / Engine.refreshRate : -1);
 
     ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
