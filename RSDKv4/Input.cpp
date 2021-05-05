@@ -270,7 +270,7 @@ void ProcessInput()
     else if (inputType == 1)
         inputDevice[INPUT_ANY].setReleased();
 
-    if (inputDevice[INPUT_ANY].press || inputDevice[INPUT_ANY].hold || touches > 0) {
+    if (inputDevice[INPUT_ANY].press || inputDevice[INPUT_ANY].hold || touches > 1) {
         Engine.dimTimer = 0;
     }
     else if (Engine.dimTimer < Engine.dimLimit) {
