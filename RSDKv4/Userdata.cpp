@@ -1052,6 +1052,11 @@ void initMods()
                         if (info->useScripts && info->active)
                             forceUseScripts = true;
 
+                        info->skipStartMenu = false;
+                        modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
+                        if (info->skipStartMenu && info->active)
+                            skipStartMenu = true;
+
                         modCount++;
                     }
                 }
@@ -1085,6 +1090,8 @@ void saveMods()
                 modSettings->SetString("", "Version", (char *)info->version.c_str());
                 if (info->useScripts)
                     modSettings->SetBool("", "TxtScripts", info->useScripts);
+                if (info->skipStartMenu)
+                    modSettings->SetBool("", "SkipStartMenu", info->skipStartMenu);
                 modSettings->SetBool("", "Active", info->active);
 
                 modSettings->Write(mod_inifile.c_str());

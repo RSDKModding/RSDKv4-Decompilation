@@ -416,8 +416,6 @@ void processStageSelect()
             }
 
             if (keyPress.B) {
-                setTextMenu(DEVMENU_MAIN);
-
                 // Reload entire engine
                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 
@@ -431,6 +429,7 @@ void processStageSelect()
                         forceUseScripts = true;
                 }
                 saveMods();
+                setTextMenu(DEVMENU_MAIN);
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
@@ -1636,7 +1635,6 @@ void processStartMenu()
             }
 
             if (keyPress.B) {
-                setTextMenu(STARTMENU_MAIN);
 
                 // Reload entire engine
                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
@@ -1651,6 +1649,7 @@ void processStartMenu()
                         forceUseScripts = true;
                 }
                 saveMods();
+                setTextMenu(STARTMENU_MAIN);
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
