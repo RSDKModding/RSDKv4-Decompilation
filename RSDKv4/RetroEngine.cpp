@@ -124,8 +124,16 @@ bool processEvents()
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
                     case SDLK_ESCAPE:
-                        if (Engine.devMenu)
+                        if (Engine.devMenu) {
+                            if (Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU) {
+                                saveMods();
+                            }
+                            else if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
+                                saveMods();
+                            }
+
                             Engine.gameMode = ENGINE_INITDEVMENU;
+                        }
                         break;
                     case SDLK_F4:
                         Engine.isFullScreen ^= 1;

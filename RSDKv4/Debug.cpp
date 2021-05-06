@@ -937,7 +937,7 @@ void processStartMenu()
                     PlaySFXByName("Hurt", 0);
                 }
 #if RETRO_USE_MOD_LOADER
-                else if ((gameMenu[0].selection2 == 17 && Engine.gameType == GAME_SONIC1)
+                else if ((gameMenu[0].selection2 == 17 && Engine.gameType != GAME_SONIC2)
                          || (gameMenu[0].selection2 == 19 && Engine.gameType == GAME_SONIC2)) {
                     SetupTextMenu(&gameMenu[0], 0);
                     AddTextMenuEntry(&gameMenu[0], "MOD LIST");

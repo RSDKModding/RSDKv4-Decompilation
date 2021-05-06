@@ -242,11 +242,12 @@ inline void StopAllSfx()
 }
 inline void ReleaseGlobalSfx()
 {
-    for (int i = globalSFXCount; i >= 0; --i) {
+    for (int i = globalSFXCount - 1; i >= 0; --i) {
         if (sfxList[i].loaded) {
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
-            free(sfxList[i].buffer);
+            if (sfxList[i].buffer)
+                free(sfxList[i].buffer);
             sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
@@ -256,11 +257,12 @@ inline void ReleaseGlobalSfx()
 }
 inline void ReleaseStageSfx()
 {
-    for (int i = stageSFXCount + globalSFXCount; i >= globalSFXCount; --i) {
+    for (int i = (stageSFXCount + globalSFXCount) - 1; i >= globalSFXCount; --i) {
         if (sfxList[i].loaded) {
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
-            free(sfxList[i].buffer);
+            if (sfxList[i].buffer)
+                free(sfxList[i].buffer);
             sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;

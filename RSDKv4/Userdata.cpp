@@ -932,7 +932,7 @@ void initMods()
                                                 buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
                                             }
 
-                                            printLog(modBuf);
+                                            //printLog(modBuf);
                                             std::string path(buffer);
                                             std::string modPath(modBuf);
                                             char pathLower[0x100];
@@ -980,10 +980,16 @@ void initMods()
                                                 buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
                                             }
 
-                                            printLog(modBuf);
+                                            //printLog(modBuf);
                                             std::string path(buffer);
                                             std::string modPath(modBuf);
-                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                            char pathLower[0x100];
+                                            memset(pathLower, 0, sizeof(char) * 0x100);
+                                            for (int c = 0; c < path.size(); ++c) {
+                                                pathLower[c] = tolower(path.c_str()[c]);
+                                            }
+
+                                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
                                         }
                                     }
                                 }
@@ -1022,10 +1028,16 @@ void initMods()
                                                 buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
                                             }
 
-                                            printLog(modBuf);
+                                            //printLog(modBuf);
                                             std::string path(buffer);
                                             std::string modPath(modBuf);
-                                            info->fileMap.insert(std::pair<std::string, std::string>(path, modBuf));
+                                            char pathLower[0x100];
+                                            memset(pathLower, 0, sizeof(char) * 0x100);
+                                            for (int c = 0; c < path.size(); ++c) {
+                                                pathLower[c] = tolower(path.c_str()[c]);
+                                            }
+
+                                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
                                         }
                                     }
                                 }

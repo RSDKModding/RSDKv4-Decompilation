@@ -134,7 +134,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
-            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
@@ -518,7 +518,7 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
-            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(filePathBuf);
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
