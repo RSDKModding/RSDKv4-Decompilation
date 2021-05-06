@@ -125,10 +125,21 @@ bool processEvents()
                     default: break;
                     case SDLK_ESCAPE:
                         if (Engine.devMenu) {
-                            if (Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU) {
-                                saveMods();
-                            }
-                            else if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
+                            //hacky patch because people can escape
+                            if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
+                                || Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
+                                // Reload entire engine
+                                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+
+                                ReleaseStageSfx();
+                                ReleaseGlobalSfx();
+                                LoadGlobalSfx();
+
+                                forceUseScripts = false;
+                                for (int m = 0; m < modCount; ++m) {
+                                    if (modList[m].useScripts && modList[m].active)
+                                        forceUseScripts = true;
+                                }
                                 saveMods();
                             }
 
