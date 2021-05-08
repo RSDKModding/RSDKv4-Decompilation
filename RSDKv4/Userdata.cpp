@@ -1,5 +1,12 @@
 #include "RetroEngine.hpp"
 
+#if defined(__SWITCH__)
+    #include "filesystem.hpp"
+    #define STD_FILESYSTEM ghc::filesystem
+#else
+    #define STD_FILESYSTEM std::filesystem
+#endif
+
 int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
@@ -876,14 +883,14 @@ void initMods()
 
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
-    std::filesystem::path modPath(modBuf);
+    STD_FILESYSTEM::path modPath(modBuf);
 
-    if (std::filesystem::exists(modPath) && std::filesystem::is_directory(modPath)) {
+    if (STD_FILESYSTEM::exists(modPath) && STD_FILESYSTEM::is_directory(modPath)) {
         try {
-            auto rdi = std::filesystem::directory_iterator(modPath);
+            auto rdi = STD_FILESYSTEM::directory_iterator(modPath);
             for (auto de : rdi) {
                 if (de.is_directory()) {
-                    std::filesystem::path modDirPath = de.path();
+                    STD_FILESYSTEM::path modDirPath = de.path();
 
                     ModInfo *info = &modList[modCount];
 
@@ -935,11 +942,11 @@ void initMods()
                         modSettings.GetBool("", "Active", &info->active);
 
                         // Check for Data/ replacements
-                        std::filesystem::path dataPath(modDir + "/Data");
+                        STD_FILESYSTEM::path dataPath(modDir + "/Data");
 
-                        if (std::filesystem::exists(dataPath) && std::filesystem::is_directory(dataPath)) {
+                        if (STD_FILESYSTEM::exists(dataPath) && STD_FILESYSTEM::is_directory(dataPath)) {
                             try {
-                                auto data_rdi = std::filesystem::recursive_directory_iterator(dataPath);
+                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(dataPath);
                                 for (auto data_de : data_rdi) {
                                     if (data_de.is_regular_file()) {
                                         char modBuf[0x100];
@@ -976,18 +983,18 @@ void initMods()
                                         }
                                     }
                                 }
-                            } catch (std::filesystem::filesystem_error fe) {
+                            } catch (STD_FILESYSTEM::filesystem_error fe) {
                                 printLog("Data Folder Scanning Error: ");
                                 printLog(fe.what());
                             }
                         }
 
                         // Check for Scripts/ replacements
-                        std::filesystem::path scriptPath(modDir + "/Scripts");
+                        STD_FILESYSTEM::path scriptPath(modDir + "/Scripts");
 
-                        if (std::filesystem::exists(scriptPath) && std::filesystem::is_directory(scriptPath)) {
+                        if (STD_FILESYSTEM::exists(scriptPath) && STD_FILESYSTEM::is_directory(scriptPath)) {
                             try {
-                                auto data_rdi = std::filesystem::recursive_directory_iterator(scriptPath);
+                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(scriptPath);
                                 for (auto data_de : data_rdi) {
                                     if (data_de.is_regular_file()) {
                                         char modBuf[0x100];
@@ -1024,18 +1031,18 @@ void initMods()
                                         }
                                     }
                                 }
-                            } catch (std::filesystem::filesystem_error fe) {
+                            } catch (STD_FILESYSTEM::filesystem_error fe) {
                                 printLog("Script Folder Scanning Error: ");
                                 printLog(fe.what());
                             }
                         }
 
                         // Check for Bytecode/ replacements
-                        std::filesystem::path bytecodePath(modDir + "/Bytecode");
+                        STD_FILESYSTEM::path bytecodePath(modDir + "/Bytecode");
 
-                        if (std::filesystem::exists(bytecodePath) && std::filesystem::is_directory(bytecodePath)) {
+                        if (STD_FILESYSTEM::exists(bytecodePath) && STD_FILESYSTEM::is_directory(bytecodePath)) {
                             try {
-                                auto data_rdi = std::filesystem::recursive_directory_iterator(bytecodePath);
+                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(bytecodePath);
                                 for (auto data_de : data_rdi) {
                                     if (data_de.is_regular_file()) {
                                         char modBuf[0x100];
@@ -1072,7 +1079,7 @@ void initMods()
                                         }
                                     }
                                 }
-                            } catch (std::filesystem::filesystem_error fe) {
+                            } catch (STD_FILESYSTEM::filesystem_error fe) {
                                 printLog("Bytecode Folder Scanning Error: ");
                                 printLog(fe.what());
                             }
@@ -1092,7 +1099,7 @@ void initMods()
                     }
                 }
             }
-        } catch (std::filesystem::filesystem_error fe) {
+        } catch (STD_FILESYSTEM::filesystem_error fe) {
             printLog("Mods Folder Scanning Error: ");
             printLog(fe.what());
         }
@@ -1102,9 +1109,9 @@ void saveMods()
 {
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
-    std::filesystem::path modPath(modBuf);
+    STD_FILESYSTEM::path modPath(modBuf);
 
-    if (std::filesystem::exists(modPath) && std::filesystem::is_directory(modPath)) {
+    if (STD_FILESYSTEM::exists(modPath) && STD_FILESYSTEM::is_directory(modPath)) {
         for (int m = 0; m < modCount; ++m) {
             ModInfo *info                 = &modList[m];
             std::string modDir            = modPath.string().c_str();
