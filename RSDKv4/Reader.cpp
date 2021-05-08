@@ -25,9 +25,17 @@ FileIO *cFileHandle = nullptr;
 bool CheckRSDKFile(const char *filePath)
 {
     FileInfo info;
-
-    // CopyFilePath(filename, &rsdkName);
-    cFileHandle = fOpen(filePath, "rb");
+    
+    char filePathBuffer[0x100];
+    sprintf(filePathBuffer, "%s", filePath);
+#if RETRO_PLATFORM == RETRO_OSX
+    char pathBuf[0x100];
+    sprintf(pathBuf, "%s/%s", gamePath, filePathBuffer);
+    sprintf(filePathBuffer, "%s", pathBuf);
+#endif
+    
+    
+    cFileHandle = fOpen(filePathBuffer, "rb");
     if (cFileHandle) {
         byte signature[6] = { 'R', 'S', 'D', 'K', 'v', 'B' };
         byte buf          = 0;
@@ -132,15 +140,25 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         pathLower[c] = tolower(filePathBuf[c]);
     }
 
+    bool addPath = true;
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
+                addPath = false;
                 break;
             }
         }
+    }
+#endif
+    
+#if RETRO_PLATFORM == RETRO_OSX
+    if (addPath) {
+        char pathBuf[0x100];
+        sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
+        sprintf(filePathBuf, "%s", pathBuf);
     }
 #endif
 
@@ -516,12 +534,14 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         pathLower[c] = tolower(filePathBuf[c]);
     }
 
+    bool addPath = true;
     for (int m = 0; m < modCount; ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
+                addPath = false;
                 break;
             }
         }
@@ -529,6 +549,14 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 #endif
 
     cFileHandle = NULL;
+    
+#if RETRO_PLATFORM == RETRO_OSX
+    if (addPath) {
+        char pathBuf[0x100];
+        sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
+        sprintf(filePathBuf, "%s", pathBuf);
+    }
+#endif
 
     MEM_ZEROP(fileInfo);
     if (CheckFileInfo(filePath) != -1 && !forceFolder) {

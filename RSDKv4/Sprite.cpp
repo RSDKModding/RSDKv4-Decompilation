@@ -332,8 +332,8 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         surface->height += (fileBuffer << 8);
 
         FileRead(&fileBuffer, 1); // Palette Size 
-        int has_pallete  = (fileBuffer & 0x80) >> 7;
-        int colors       = ((fileBuffer & 0x70) >> 4) + 1;
+        //int has_pallete  = (fileBuffer & 0x80) >> 7;
+        //int colors       = ((fileBuffer & 0x70) >> 4) + 1;
         int palette_size = (fileBuffer & 0x7) + 1;
         if (palette_size > 0)
             palette_size = 1 << palette_size;

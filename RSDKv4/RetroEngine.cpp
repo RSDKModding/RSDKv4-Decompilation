@@ -127,7 +127,7 @@ bool processEvents()
                         if (Engine.devMenu) {
                             //hacky patch because people can escape
                             if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
-                                || Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
+                                || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
                                 // Reload entire engine
                                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 
@@ -283,6 +283,7 @@ void RetroEngine::Init()
 #if RETRO_USE_MOD_LOADER
     initMods();
 #endif
+    
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
     static char resourcePath[256] = { 0 };

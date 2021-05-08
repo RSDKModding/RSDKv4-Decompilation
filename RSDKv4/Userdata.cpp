@@ -29,9 +29,14 @@ int modCount         = 0;
 #include <filesystem>
 #endif
 
+#if RETRO_PLATFORM == RETRO_OSX
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #if !RETRO_USE_ORIGINAL_CODE
 bool forceUseScripts = false;
 bool skipStartMenu   = false;
+#endif
 
 void InitUserdata()
 {
@@ -39,12 +44,21 @@ void InitUserdata()
     sprintf(gamePath, "%s", BASE_PATH);
     sprintf(modsPath, "%s", BASE_PATH);
 
+#if RETRO_PLATFORM == RETRO_OSX
+    sprintf(gamePath, "%s/RSDKv4", getResourcesPath());
+    sprintf(modsPath, "%s/RSDKv4/", getResourcesPath());
+    
+    mkdir(gamePath, 0777);
+#endif
+    
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/settings.ini", getResourcesPath());
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/settings.ini", gamePath);
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
 #endif
@@ -390,11 +404,13 @@ void InitUserdata()
 
 #if RETRO_USING_SDL2
     // Support for extra controller types SDL doesn't recognise
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/controllerdb.txt", getResourcesPath());
     else
         sprintf(buffer, "%scontrollerdb.txt", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/controllerdb.txt", gamePath);
 #else
     sprintf(buffer, BASE_PATH "controllerdb.txt");
 #endif
@@ -408,11 +424,13 @@ void InitUserdata()
     }
 #endif
 
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
         sprintf(buffer, "%sUData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/UData.bin", gamePath);
 #else
     sprintf(buffer, "%sUData.bin", gamePath);
 #endif
@@ -554,11 +572,13 @@ void writeSettings()
 void ReadUserdata()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
         sprintf(buffer, "%sUData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/UData.bin", gamePath);
 #else
     sprintf(buffer, "%sUData.bin", gamePath);
 #endif
@@ -586,11 +606,13 @@ void ReadUserdata()
 void WriteUserdata()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/UData.bin", getResourcesPath());
     else
         sprintf(buffer, "%sUData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/UData.bin", gamePath);
 #else
     sprintf(buffer, "%sUData.bin", gamePath);
 #endif
@@ -855,7 +877,6 @@ void initMods()
 
                     ModInfo *info = &modList[modCount];
 
-                    char modName[0x100];
                     info->fileMap.clear();
                     info->name    = "";
                     info->desc    = "";
@@ -870,7 +891,7 @@ void initMods()
                     FileIO *f = fOpen(mod_inifile.c_str(), "r");
                     if (f) {
                         fClose(f);
-                        IniParser modSettings(mod_inifile.c_str());
+                        IniParser modSettings(mod_inifile.c_str(), false);
 
                         info->name    = "Unnamed Mod";
                         info->desc    = "";
@@ -1094,7 +1115,7 @@ void saveMods()
                     modSettings->SetBool("", "SkipStartMenu", info->skipStartMenu);
                 modSettings->SetBool("", "Active", info->active);
 
-                modSettings->Write(mod_inifile.c_str());
+                modSettings->Write(mod_inifile.c_str(), false);
 
                 delete modSettings;
             }

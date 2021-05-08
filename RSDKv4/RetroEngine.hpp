@@ -20,7 +20,7 @@
 // ================
 #include <stdio.h>
 #include <string.h>
-#include <cmath>
+//#include <cmath>
 
 // ================
 // STANDARD TYPES
@@ -206,7 +206,6 @@ enum RetroGameType {
 #elif RETRO_USING_SDL2
 #include <SDL2/SDL.h>
 #include <vorbis/vorbisfile.h>
-
 #else
 
 #endif

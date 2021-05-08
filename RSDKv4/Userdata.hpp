@@ -120,11 +120,13 @@ inline void AddNativeFunction(const char *name, int (*funcPtr)(int, void *))
 inline bool ReadSaveRAMData()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
         sprintf(buffer, "%sSData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/SData.bin", gamePath);
 #else
     sprintf(buffer, "%sSData.bin", gamePath);
 #endif
@@ -139,11 +141,13 @@ inline bool ReadSaveRAMData()
 inline bool WriteSaveRAMData()
 {
     char buffer[0x100];
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/SData.bin", getResourcesPath());
     else
         sprintf(buffer, "%sSData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/SData.bin", gamePath);
 #else
     sprintf(buffer, "%sSData.bin", gamePath);
 #endif
