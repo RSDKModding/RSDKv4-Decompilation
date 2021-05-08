@@ -77,34 +77,38 @@ ifeq ($(STATIC),1)
 	CFLAGS += -static
 endif
 
-INCLUDES  += 	-I./Sonic12Decomp
+INCLUDES  += 	-I./RSDKv4 \
+				-I./dependencies/all/upng \
+				-I./dependencies/all/filesystem
 
 INCLUDES += $(LIBS)
 
 # Main Sources
-SOURCES	+=	Sonic12Decomp/Animation \
-			Sonic12Decomp/Audio \
-			Sonic12Decomp/Collision \
-			Sonic12Decomp/Debug \
-			Sonic12Decomp/Drawing \
-			Sonic12Decomp/Ini \
-			Sonic12Decomp/Input \
-			Sonic12Decomp/main \
-			Sonic12Decomp/Math \
-			Sonic12Decomp/Network \
-			Sonic12Decomp/Object \
-			Sonic12Decomp/Palette \
-			Sonic12Decomp/PauseMenu \
-			Sonic12Decomp/Reader \
-			Sonic12Decomp/RetroEngine \
-			Sonic12Decomp/RetroGameLoop \
-			Sonic12Decomp/Scene \
-			Sonic12Decomp/Scene3D \
-			Sonic12Decomp/Script \
-			Sonic12Decomp/Sprite \
-			Sonic12Decomp/String \
-			Sonic12Decomp/Text \
-			Sonic12Decomp/Userdata
+SOURCES = dependencies/all/upng/upng  \
+          RSDKv4/Animation     \
+          RSDKv4/Audio         \
+          RSDKv4/Collision     \
+          RSDKv4/Debug         \
+          RSDKv4/Drawing       \
+          RSDKv4/Ini           \
+          RSDKv4/Input         \
+          RSDKv4/main          \
+          RSDKv4/Math          \
+          RSDKv4/Network       \
+          RSDKv4/Object        \
+          RSDKv4/Palette       \
+          RSDKv4/PauseMenu     \
+          RSDKv4/Reader        \
+          RSDKv4/RetroEngine   \
+          RSDKv4/RetroGameLoop \
+          RSDKv4/Scene         \
+          RSDKv4/Scene3D       \
+          RSDKv4/Script        \
+          RSDKv4/Sprite        \
+          RSDKv4/StartMenu     \
+          RSDKv4/String        \
+          RSDKv4/Text          \
+          RSDKv4/Userdata
 
 PKGSUFFIX ?= $(SUFFIX)
 
