@@ -47,7 +47,7 @@ bool CheckRSDKFile(const char *filePath)
 
         Engine.usingDataFile = true;
 
-        StrCopy(rsdkContainer.packNames[rsdkContainer.packCount], filePath);
+        StrCopy(rsdkContainer.packNames[rsdkContainer.packCount], filePathBuffer);
 
         ushort fileCount = 0;
         fRead(&fileCount, 2, 1, cFileHandle);
@@ -76,7 +76,7 @@ bool CheckRSDKFile(const char *filePath)
             Engine.usingBytecode = true;
             CloseFile();
         }
-        printLog("loaded datapack '%s'", filePath);
+        printLog("loaded datapack '%s'", filePathBuffer);
 
         rsdkContainer.packCount++;
         return true;
@@ -89,7 +89,7 @@ bool CheckRSDKFile(const char *filePath)
             Engine.usingBytecode = true;
             CloseFile();
         }
-        printLog("Couldn't load datapack '%s'", filePath);
+        printLog("Couldn't load datapack '%s'", filePathBuffer);
         return false;
     }
 }
