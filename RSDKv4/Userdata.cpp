@@ -32,11 +32,11 @@ int modCount         = 0;
 #if RETRO_PLATFORM == RETRO_OSX
 #include <sys/stat.h>
 #include <sys/types.h>
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
 bool forceUseScripts = false;
 bool skipStartMenu   = false;
-#endif
 
 void InitUserdata()
 {
