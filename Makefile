@@ -87,11 +87,11 @@ SOURCES = RSDKv4/Animation     \
           RSDKv4/Collision     \
           RSDKv4/Debug         \
           RSDKv4/Drawing       \
+          RSDKv4/fcaseopen     \
           RSDKv4/Ini           \
           RSDKv4/Input         \
           RSDKv4/main          \
           RSDKv4/Math          \
-          RSDKv4/Network       \
           RSDKv4/Object        \
           RSDKv4/Palette       \
           RSDKv4/PauseMenu     \
@@ -102,7 +102,6 @@ SOURCES = RSDKv4/Animation     \
           RSDKv4/Scene3D       \
           RSDKv4/Script        \
           RSDKv4/Sprite        \
-          RSDKv4/StartMenu     \
           RSDKv4/String        \
           RSDKv4/Text          \
           RSDKv4/Userdata
