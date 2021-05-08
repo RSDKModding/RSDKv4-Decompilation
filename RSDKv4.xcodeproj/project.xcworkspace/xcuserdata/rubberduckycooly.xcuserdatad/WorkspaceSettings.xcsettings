@@ -10,8 +10,10 @@
 	<string>RelativeToWorkspace</string>
 	<key>CustomBuildProductsPath</key>
 	<string>build/mac/</string>
+	<key>DerivedDataCustomLocation</key>
+	<string>build/mac</string>
 	<key>DerivedDataLocationStyle</key>
-	<string>Default</string>
+	<string>WorkspaceRelativePath</string>
 	<key>IssueFilterStyle</key>
 	<string>ShowActiveSchemeOnly</string>
 	<key>LiveSourceIssuesEnabled</key>
