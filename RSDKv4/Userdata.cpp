@@ -470,8 +470,10 @@ void writeSettings()
 
     ini.SetComment("Dev", "DataFileComment", "Determines where the first RSDK file will be loaded from");
     ini.SetString("Dev", "DataFile", Engine.dataFile[0]);
-    ini.SetComment("Dev", "DataFileComment2", "Determines where the second RSDK file will be loaded from");
-    ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
+    if (!StrComp(Engine.dataFile[1], "")) {
+        ini.SetComment("Dev", "DataFileComment2", "Determines where the second RSDK file will be loaded from");
+        ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
+    }
     if (!StrComp(Engine.dataFile[2], "")) {
         ini.SetComment("Dev", "DataFileComment3", "Determines where the third RSDK file will be loaded from (normally unused)");
         ini.SetString("Dev", "DataFile3", Engine.dataFile[2]);
