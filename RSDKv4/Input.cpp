@@ -14,7 +14,11 @@ int touches = 0;
 #include <vector>
 
 InputButton inputDevice[INPUT_MAX];
+#if RETRO_PLATFORM == RETRO_SWITCH
 int inputType = 0;
+#else
+int inputType = 0;
+#endif
 
 //mania deadzone vals lol
 float LSTICK_DEADZONE   = 0.3;
