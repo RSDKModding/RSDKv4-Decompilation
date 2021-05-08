@@ -1,51 +1,61 @@
 {
   "images" : [
     {
+      "filename" : "RSDKv4 Decomp Icon-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-33.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-257.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-513.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
+      "filename" : "RSDKv4 Decomp Icon-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
