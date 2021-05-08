@@ -168,7 +168,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 #else
     if (Engine.usingDataFile) {
 #endif
-        StringLowerCase(fileInfo->fileName, filePathBuf);
+        StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
         int len = StrLength(fileInfo->fileName);
