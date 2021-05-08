@@ -77,15 +77,12 @@ ifeq ($(STATIC),1)
 	CFLAGS += -static
 endif
 
-INCLUDES  += 	-I./RSDKv4 \
-				-I./dependencies/all/upng \
-				-I./dependencies/all/filesystem
+INCLUDES  += 	-I./RSDKv4
 
 INCLUDES += $(LIBS)
 
 # Main Sources
-SOURCES = dependencies/all/upng/upng  \
-          RSDKv4/Animation     \
+SOURCES = RSDKv4/Animation     \
           RSDKv4/Audio         \
           RSDKv4/Collision     \
           RSDKv4/Debug         \
