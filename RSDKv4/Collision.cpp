@@ -584,11 +584,11 @@ void RoofCollision(Entity *player, CollisionSensor *sensor)
                     if (sensor->angle >= 0x100)
                         sensor->angle -= 0x100;
 
-                    if (sensor->YPos - startY > (TILE_SIZE - 2)) {
+                    if (sensor->YPos - startY > (tsm1 - 1)) {
                         sensor->YPos     = startY << 16;
                         sensor->collided = false;
                     }
-                    else if (sensor->YPos - startY < -(TILE_SIZE - 2)) {
+                    else if (sensor->YPos - startY < -(tsm1 - 1)) {
                         sensor->YPos     = startY << 16;
                         sensor->collided = false;
                     }
@@ -680,7 +680,7 @@ void ProcessAirCollision(Entity *entity)
     collisionBottom      = playerHitbox->bottom[0];
 
     byte movingDown  = 0;
-    byte movingUp    = 1;
+    byte movingUp    = 0;
     byte movingLeft  = 0;
     byte movingRight = 0;
 
@@ -718,8 +718,13 @@ void ProcessAirCollision(Entity *entity)
         sensors[2].YPos = entity->YPos + (collisionBottom << 16);
         sensors[3].YPos = entity->YPos + (collisionBottom << 16);
     }
-    sensors[4].YPos = entity->YPos + ((collisionTop - 1) << 16);
-    sensors[5].YPos = entity->YPos + ((collisionTop - 1) << 16);
+
+    if (abs(entity->XVelocity) > 0x10000 || entity->YVelocity < 0) {
+        movingUp        = 1;
+        sensors[4].YPos = entity->YPos + ((collisionTop - 1) << 16);
+        sensors[5].YPos = entity->YPos + ((collisionTop - 1) << 16);
+    }
+
     int cnt         = (abs(entity->XVelocity) <= abs(entity->YVelocity) ? (abs(entity->YVelocity) >> 19) + 1 : (abs(entity->XVelocity) >> 19) + 1);
     int XVel        = entity->XVelocity / cnt;
     int YVel        = entity->YVelocity / cnt;
@@ -755,7 +760,7 @@ void ProcessAirCollision(Entity *entity)
             if (sensors[1].collided) {
                 movingLeft = 2;
             }
-            else if (entity->XVelocity > 0x20000) {
+            else if (entity->XVelocity > -0x20000) {
                 sensors[1].YPos -= 0x80000;
                 RWallCollision(entity, &sensors[1]);
                 if (sensors[1].collided)
