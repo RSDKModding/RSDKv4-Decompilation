@@ -125,6 +125,7 @@ bool processEvents()
                     default: break;
                     case SDLK_ESCAPE:
                         if (Engine.devMenu) {
+#if RETRO_USE_MOD_LOADER
                             //hacky patch because people can escape
                             if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
                                 || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
@@ -142,6 +143,7 @@ bool processEvents()
                                 }
                                 saveMods();
                             }
+#endif
 
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
@@ -654,6 +656,8 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
+
+    AddNativeFunction("ExitGame", ExitGame);
 
     return loaded;
 }

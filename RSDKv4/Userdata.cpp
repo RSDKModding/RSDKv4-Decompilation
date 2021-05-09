@@ -838,14 +838,18 @@ void receive2PVSMatchCode(int code)
 
 int ShowPromoPopup(int a1, void *a2)
 {
-#if RSDK_DEBUG
     printLog("Attempting to show promo popup (%d) (%p)", a1, a2);
-#endif
     if (Engine.onlineActive) {
         // Do online code
         return 1;
     }
     return 0;
+}
+
+int ExitGame(int val, void *name)
+{
+    Engine.running = false;
+    return true;
 }
 
 #if RETRO_USE_MOD_LOADER
