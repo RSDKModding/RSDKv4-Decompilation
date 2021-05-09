@@ -122,10 +122,15 @@ void processStageSelect()
             if (keyPress.up)
                 gameMenu[0].selection2 -= 2;
 
-            if (gameMenu[0].selection2 > 17)
+            int count = 15;
+#if RETRO_USE_MOD_LOADER
+            count += 2;
+#endif
+
+            if (gameMenu[0].selection2 > count)
                 gameMenu[0].selection2 = 9;
             if (gameMenu[0].selection2 < 9)
-                gameMenu[0].selection2 = 17;
+                gameMenu[0].selection2 = count;
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
@@ -363,6 +368,7 @@ void processStageSelect()
             }
             break;
         }
+#if RETRO_USE_MOD_LOADER
         case DEVMENU_MODMENU: // Mod Menu
         {
             if (keyDown.down) {
@@ -434,7 +440,9 @@ void processStageSelect()
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX + 100, 64);
+            break;
         }
+#endif
         default: break;
     }
 }
@@ -909,16 +917,25 @@ void processStartMenu()
                 gameMenu[0].selection2 -= 2;
 
             if (Engine.gameType == GAME_SONIC2) {
-                if (gameMenu[0].selection2 > 19)
+                int count = 17;
+#if RETRO_USE_MOD_LOADER
+                count += 2;
+#endif
+
+                if (gameMenu[0].selection2 > count)
                     gameMenu[0].selection2 = 9;
                 if (gameMenu[0].selection2 < 9)
-                    gameMenu[0].selection2 = 19;
+                    gameMenu[0].selection2 = count;
             }
             else {
-                if (gameMenu[0].selection2 > 17)
+                int count = 15;
+#if RETRO_USE_MOD_LOADER
+                count += 2;
+#endif
+                if (gameMenu[0].selection2 > count)
                     gameMenu[0].selection2 = 9;
                 if (gameMenu[0].selection2 < 9)
-                    gameMenu[0].selection2 = 17;
+                    gameMenu[0].selection2 = count;
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);

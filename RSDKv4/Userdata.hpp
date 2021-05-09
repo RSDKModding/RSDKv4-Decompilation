@@ -197,6 +197,9 @@ void receive2PVSMatchCode(int code);
 
 int ShowPromoPopup(int a1, void *a2);
 
+int ExitGame(int val, void *name);
+int OpenModMenu(int val, void *name);
+
 #if RETRO_USE_MOD_LOADER
 void initMods();
 void saveMods();
