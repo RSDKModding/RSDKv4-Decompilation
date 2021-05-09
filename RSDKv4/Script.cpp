@@ -4402,11 +4402,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
-                if (scriptEng.operands[0] <= 0xFu)
+                if (scriptEng.operands[0] <= 0xF)
                     nativeFunction[scriptEng.operands[0]](0x00, NULL);
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
-                if (scriptEng.operands[0] <= 0xFu) {
+                if (scriptEng.operands[0] <= 0xF) {
                     if (StrLength(scriptText)) {
                         nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
                     }
@@ -4417,7 +4417,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
-                if (scriptEng.operands[0] <= 0xFu)
+                if (scriptEng.operands[0] <= 0xF)
                     nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
                                                           reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
