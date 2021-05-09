@@ -103,3 +103,4 @@ A: No. Sonic Mania is a ton bigger and requires that I'd decompile not only how 
 
 # Contact:
 Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any extra questions you may need to know about the decompilation or modding it.
+ 
