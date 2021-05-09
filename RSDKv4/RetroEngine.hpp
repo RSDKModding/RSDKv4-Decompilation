@@ -177,6 +177,7 @@ enum RetroStates {
     // Custom GameModes (required to make some features work)
     ENGINE_STARTMENU   = 0x80,
     ENGINE_CONNECT2PVS = 0x81,
+    ENGINE_INITMODMENU = 0x82,
 #endif
 };
 

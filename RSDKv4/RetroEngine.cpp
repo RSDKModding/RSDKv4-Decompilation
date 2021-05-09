@@ -657,7 +657,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
+#if !RETRO_USE_ORIGINAL_CODE
     AddNativeFunction("ExitGame", ExitGame);
+    AddNativeFunction("OpenModMenu", OpenModMenu);
+#endif
 
     return loaded;
 }

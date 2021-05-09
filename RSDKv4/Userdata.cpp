@@ -849,7 +849,15 @@ int ShowPromoPopup(int a1, void *a2)
 int ExitGame(int val, void *name)
 {
     Engine.running = false;
-    return true;
+    return 1;
+}
+
+int OpenModMenu(int val, void *name)
+{
+#if RETRO_USE_MOD_LOADER
+    Engine.gameMode = ENGINE_INITMODMENU;
+#endif
+    return 1;
 }
 
 #if RETRO_USE_MOD_LOADER

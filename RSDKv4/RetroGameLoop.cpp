@@ -93,6 +93,41 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_CONNECT2PVS:
             // connect screen goes here
             break;
+        case ENGINE_INITMODMENU:
+            Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+            initStartMenu(0);
+            ResetCurrentStageFolder();
+
+#if RETRO_USE_MOD_LOADER
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "MOD LIST");
+            SetupTextMenu(&gameMenu[1], 0);
+            initMods(); // reload mods
+
+            char buffer[0x100];
+            for (int m = 0; m < modCount; ++m) {
+                StrCopy(buffer, modList[m].name.c_str());
+                StrAdd(buffer, ": ");
+                StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");
+                AddTextMenuEntry(&gameMenu[1], buffer);
+            }
+
+            gameMenu[1].alignment      = 1;
+            gameMenu[1].selectionCount = 3;
+            gameMenu[1].selection1     = 0;
+            if (gameMenu[1].rowCount > 18)
+                gameMenu[1].visibleRowCount = 18;
+            else
+                gameMenu[1].visibleRowCount = 0;
+
+            gameMenu[0].alignment        = 2;
+            gameMenu[0].selectionCount   = 1;
+            gameMenu[1].timer            = 0;
+            gameMenu[1].visibleRowOffset = 0;
+            stageMode                    = STARTMENU_MODMENU;
+#endif
+
+            break;
 #endif
         default:
             printLog("GameMode '%d' Called", Engine.gameMode);
