@@ -169,6 +169,9 @@ void ProcessObjects()
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
+            // All Entities list
+            TypeGroupList *list                = &objectTypeGroupList[0];
+            list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
 }
@@ -249,6 +252,9 @@ void ProcessFrozenObjects()
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
+            // All Entities list
+            TypeGroupList *list                = &objectTypeGroupList[0];
+            list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
 }
@@ -333,6 +339,9 @@ void Process2PObjects()
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
+            // All Entities list
+            TypeGroupList *list                = &objectTypeGroupList[0];
+            list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
 }
