@@ -29,7 +29,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * (maybe) S2 networking code, we attempted to write code to handle the 2PVS mode in S2 but we couldn't finish for many reasons, we did leave our WIP code in the game, so if you think you could do it by all means give it a shot!
 
 # How to build:
-unless you wanna mod smth thats hardcoded in the game, just use the release
+if you wanted to build it, why come here? use the release.
 
 # Special Thanks
 * [RubberDuckyCooly](https://github.com/Rubberduckycooly): For making the original decompilations of Sonic 1 & 2
