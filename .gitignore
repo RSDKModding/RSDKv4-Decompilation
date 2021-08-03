@@ -35,6 +35,11 @@ cmake/
 [Dd]ependencies/mac/libogg/
 [Dd]ependencies/mac/libvorbis/
 [Dd]ependencies/mac/SDL2.framework/
+[Dd]ependencies/ios/Ogg.framework/
+[Dd]ependencies/ios/Vorbis.framework/
+[Dd]ependencies/ios/SDL2.framework/
+[Dd]ependencies/ios/libSDLMain.a
+![Dd]ependencies/ios/[Ii]nfo.plist
 [Dd]ependencies/all/*
 ![Dd]ependencies/all/dependencies.txt
 
