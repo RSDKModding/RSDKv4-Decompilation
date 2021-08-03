@@ -45,7 +45,7 @@ inline void printLog(const ushort *msg)
     if (engineDebugMode) {
         int mPos = 0;
         while (msg[mPos]) {
-            printf("%lc", (wint_t)msg[mPos]);
+            printf("%lc", (ushort)msg[mPos]);
             mPos++;
         }
         if (endLine)

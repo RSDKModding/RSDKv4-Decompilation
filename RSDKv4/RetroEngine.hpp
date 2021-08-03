@@ -14,7 +14,6 @@
 #define RETRO_USE_MOD_LOADER (1)
 #endif //  !RETRO_USE_ORIGINAL_CODE
 
-
 // ================
 // STANDARD LIBS
 // ================
@@ -71,6 +70,10 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_OSX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
+#elif defined __ANDROID__
+#define RETRO_PLATFORM   (RETRO_ANDROID)
+#define RETRO_DEVICETYPE (RETRO_MOBILE)
+#undef RETRO_USE_MOD_LOADER
 #else
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
@@ -87,7 +90,7 @@ typedef unsigned int uint;
 #define BASE_PATH ""
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
@@ -144,8 +147,8 @@ typedef unsigned int uint;
 #define RETRO_TOUCH_DEVICE 1
 #endif
 
-//reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
-//generally advised to keep this set to 0
+// reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
+// generally advised to keep this set to 0
 #define RETRO_REV01 (0)
 
 enum RetroLanguages {
@@ -191,7 +194,7 @@ enum RetroGameType {
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1
@@ -310,7 +313,7 @@ public:
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     const char *gameRenderType = "SW_RENDERING";
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType    = "HW_RENDERING";
+    const char *gameRenderType = "HW_RENDERING";
 #endif
 
 #if RETRO_USE_HAPTICS
