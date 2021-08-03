@@ -1,0 +1,9 @@
+SDL2: https://www.libsdl.org/download-2.0.php
+Download the source for the latest SDL2 version and open the Xcode project in Xcode/, from there you need to build the "Framework-iOS" target to a generic iOS device, then place the built frameworks (hidapi.framework & SDL2.framework) in "./SDL2/"
+NOTE: you will need to create a project to build libSDL2Main.a manually, otherwise there will be "undefined references to _main" errors in the main Xcode project
+
+libogg: https://xiph.org/downloads/ (libogg)
+Download the source and create an Xcode project to build the library as a framework, once the framework is built (Ogg.framework), place it in ./
+
+libvorbis: https://xiph.org/downloads/ (libvorbis)
+Download the source and create an Xcode project to build the library as a framework, once the framework is built (vorbis.framework), place it in ./
