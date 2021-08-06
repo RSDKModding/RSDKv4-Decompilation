@@ -1,0 +1,8 @@
+SDL2: https://www.libsdl.org/download-2.0.php
+Download the source code and unzip it in "./SDL2/".
+
+libogg: https://xiph.org/downloads/ (libogg)
+Download libogg and unzip it in "./libogg/".
+
+libvorbis: https://xiph.org/downloads/ (libvorbis)
+Download libvorbis and unzip it in "./libvorbis/".
