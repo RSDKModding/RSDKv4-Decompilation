@@ -24,7 +24,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 
 # How to build:
 ## Windows:
-* Clone the repo, then follow the instructions in the [depencencies readme for windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
+* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
 * or grab a prebuilt executable from the releases section
 
 ## Windows via MSYS2 (64-bit Only):
@@ -46,12 +46,15 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Then run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+* Run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
 
 ## Mac:
-* Clone the repo, then follow the instructions in the [depencencies readme for mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project
-* a mac build of v1.0.0 by sappharad can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.0.0mac)
+* Clone the repo, then follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project.
+* A Mac build of v1.0.0 by sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.0.0mac)
 
+## Android:
+* Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
+* Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 ## Vita
 * For Vita installation, [Xeeynamo's vita branch](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation) has you covered.
 ## Switch:

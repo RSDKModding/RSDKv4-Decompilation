@@ -59,7 +59,7 @@ bool processEvents()
             case SDL_MOUSEMOTION:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
 
                     touchX[0] /= Engine.windowScale;
@@ -72,7 +72,7 @@ bool processEvents()
             case SDL_MOUSEBUTTONDOWN:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
 
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 1; break;
@@ -85,7 +85,7 @@ bool processEvents()
             case SDL_MOUSEBUTTONUP:
 #if RETRO_USING_SDL2
                 if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 0; break;
                     }
@@ -126,7 +126,7 @@ bool processEvents()
                     case SDLK_ESCAPE:
                         if (Engine.devMenu) {
 #if RETRO_USE_MOD_LOADER
-                            //hacky patch because people can escape
+                            // hacky patch because people can escape
                             if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
                                 || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
                                 // Reload entire engine
@@ -285,7 +285,7 @@ void RetroEngine::Init()
 #if RETRO_USE_MOD_LOADER
     initMods();
 #endif
-    
+
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
     static char resourcePath[256] = { 0 };
@@ -300,7 +300,11 @@ void RetroEngine::Init()
     strcpy(dest, resourcePath);
     strcat(dest, "\\");
     strcat(dest, Engine.dataFile);
+#elif RETRO_PLATFORM == RETRO_ANDROID
+    StrCopy(dest, gamePath);
+    StrAdd(dest, Engine.dataFile[0]);
 #else
+
     StrCopy(dest, BASE_PATH);
     StrAdd(dest, Engine.dataFile[0]);
 #endif
@@ -532,7 +536,7 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    byte fileBuffer = 0;
+    byte fileBuffer  = 0;
     byte fileBuffer2 = 0;
     char strBuffer[0x40];
 

@@ -25,7 +25,7 @@ FileIO *cFileHandle = nullptr;
 bool CheckRSDKFile(const char *filePath)
 {
     FileInfo info;
-    
+
     char filePathBuffer[0x100];
     sprintf(filePathBuffer, "%s", filePath);
 #if RETRO_PLATFORM == RETRO_OSX
@@ -33,8 +33,7 @@ bool CheckRSDKFile(const char *filePath)
     sprintf(pathBuf, "%s/%s", gamePath, filePathBuffer);
     sprintf(filePathBuffer, "%s", pathBuf);
 #endif
-    
-    
+
     cFileHandle = fOpen(filePathBuffer, "rb");
     if (cFileHandle) {
         byte signature[6] = { 'R', 'S', 'D', 'K', 'v', 'B' };
@@ -147,13 +146,13 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
-                addPath = false;
+                addPath     = false;
                 break;
             }
         }
     }
 #endif
-    
+
 #if RETRO_PLATFORM == RETRO_OSX
     if (addPath) {
         char pathBuf[0x100];
@@ -252,7 +251,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         readPos           = 0;
         fileInfo->readPos = readPos;
         packID = fileInfo->packID = -1;
-        fileInfo->usingDataPack     = false;
+        fileInfo->usingDataPack   = false;
         bufferPosition            = 0;
         readSize                  = 0;
         useEncryption             = false;
@@ -406,13 +405,13 @@ void SetFileInfo(FileInfo *fileInfo)
         readPos  = fileInfo->readPos;
         fSeek(cFileHandle, readPos, SEEK_SET);
         FillFileBuffer();
-        bufferPosition = fileInfo->bufferPosition;
-        eStringPosA    = fileInfo->eStringPosA;
-        eStringPosB    = fileInfo->eStringPosB;
-        eStringNo      = fileInfo->eStringNo;
-        eNybbleSwap    = fileInfo->eNybbleSwap;
-        useEncryption  = fileInfo->useEncryption;
-        packID                  = fileInfo->packID;
+        bufferPosition       = fileInfo->bufferPosition;
+        eStringPosA          = fileInfo->eStringPosA;
+        eStringPosB          = fileInfo->eStringPosB;
+        eStringNo            = fileInfo->eStringNo;
+        eNybbleSwap          = fileInfo->eNybbleSwap;
+        useEncryption        = fileInfo->useEncryption;
+        packID               = fileInfo->packID;
         Engine.usingDataFile = fileInfo->usingDataPack;
 
         if (useEncryption) {
@@ -541,7 +540,7 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(filePathBuf, iter->second.c_str());
                 forceFolder = true;
-                addPath = false;
+                addPath     = false;
                 break;
             }
         }
@@ -549,8 +548,8 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 #endif
 
     cFileHandle = NULL;
-    
-#if RETRO_PLATFORM == RETRO_OSX
+
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     if (addPath) {
         char pathBuf[0x100];
         sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
@@ -645,7 +644,7 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         bufferPosition    = 0;
         readSize          = 0;
         packID = fileInfo->packID = -1;
-        fileInfo->usingDataPack = false;
+        fileInfo->usingDataPack   = false;
 
 #if !RETRO_USE_ORIGINAL_CODE
         fileInfo->usingDataPack = false;

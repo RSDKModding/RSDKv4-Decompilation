@@ -260,3 +260,9 @@ Ignored/
 
 # Compiled object files
 objects/
+
+# Android specific
+.gradle/
+.idea/
+android/key/
+android/local.properties

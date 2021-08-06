@@ -135,7 +135,7 @@ inline size_t FillFileBuffer()
 {
     if (readPos + 0x2000 <= fileSize)
         readSize = 0x2000;
-    else 
+    else
         readSize = fileSize - readPos;
 
     size_t result = fRead(fileBuffer, 1u, readSize, cFileHandle);

@@ -55,6 +55,8 @@ LOCAL_MODULE := main
 
 SDL_PATH := ../SDL
 
+LOCAL_CFLAGS   := -fexceptions
+
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/$(SDL_PATH)/include \
     $(LOCAL_PATH)/dependencies/all \

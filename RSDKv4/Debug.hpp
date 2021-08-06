@@ -27,6 +27,8 @@ inline void printLog(const char *msg, ...)
             sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
         else
             sprintf(pathBuffer, "log.txt");
+#elif RETRO_PLATFORM == RETRO_ANDROID
+        sprintf(pathBuffer, "%s/log.txt", gamePath);
 #else
         sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif
@@ -57,6 +59,8 @@ inline void printLog(const ushort *msg)
             sprintf(pathBuffer, "%s/log.txt", getResourcesPath());
         else
             sprintf(pathBuffer, "log.txt");
+#elif RETRO_PLATFORM == RETRO_ANDROID
+        sprintf(pathBuffer, "%s/log.txt", gamePath);
 #else
         sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif
