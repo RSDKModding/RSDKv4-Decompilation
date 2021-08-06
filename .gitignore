@@ -32,7 +32,7 @@ cmake/
 #dependencies
 [Dd]ependencies/windows-uwp/**
 [Dd]ependencies/windows/*
-#[Dd]ependencies/android/*
+[Dd]ependencies/android/*
 [Dd]ependencies/mac/libogg/
 [Dd]ependencies/mac/libvorbis/
 [Dd]ependencies/mac/SDL2.framework/

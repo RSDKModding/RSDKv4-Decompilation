@@ -40,10 +40,10 @@ LOCAL_C_INCLUDES := $(OGG_INCLUDES) $(VORBIS_INCLUDES)
 
 WILDCARD_SETUP := \
   $(wildcard $(LOCAL_PATH)/$(VORBIS_DIR)/lib/*.c)
-#FILTERED := $(filter-out $(LOCAL_PATH)/$(VORBIS_DIR)/lib/psytune.c, $(WILDCARD_SETUP)
+FILTERED := $(filter-out $(LOCAL_PATH)/$(VORBIS_DIR)/lib/psytune.c, $(WILDCARD_SETUP))
 
 LOCAL_SRC_FILES := \
-	$(subst jni/src/, , $(WILDCARD_SETUP))
+	$(subst jni/src/, , $(FILTERED))
 
 include $(BUILD_STATIC_LIBRARY)
 
