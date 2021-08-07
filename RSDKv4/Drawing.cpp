@@ -103,7 +103,7 @@ int InitRenderDevice()
     int h = landscape ? dm.w : dm.h;
     int w = landscape ? dm.h : dm.w;
 
-    SCREEN_XSIZE = ((float)SCREEN_YSIZE * dm.h / dm.w);
+    SCREEN_XSIZE = ((float)SCREEN_YSIZE * h / w);
     if (SCREEN_XSIZE % 1) ++SCREEN_XSIZE;
 #endif
 
