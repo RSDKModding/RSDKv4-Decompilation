@@ -55,8 +55,8 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 ## Android:
 * Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
 * Ensure the symbolic links in `android/app/jni` are correct. If not, fix them with the following on Windows:
-  * `mklink /D ..\..\..`
-  * `mklink /D ..\..\..\dependencies\android\SDL`
+  * `mklink /D src ..\..\..`
+  * `mklink /D SDL ..\..\..\dependencies\android\SDL`
 * Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 ## Vita
 * For Vita installation, [Xeeynamo's vita branch](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation) has you covered.
