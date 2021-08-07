@@ -153,7 +153,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     }
 #endif
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     if (addPath) {
         char pathBuf[0x100];
         sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
@@ -223,7 +223,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fileInfo->useEncryption     = useEncryption;
             fileInfo->packID            = packID;
             fileInfo->usingDataPack     = true;
-            printLog("Loaded Data File '%s'", filePathBuf);
+            printLog("Loaded Data File '%s'", filePath);
 
 #if !RETRO_USE_ORIGINAL_CODE
             Engine.usingDataFile = true;
@@ -231,7 +231,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
             return true;
         }
-        printLog("Couldn't load file '%s'", filePathBuf);
+        printLog("Couldn't load file '%s'", filePath);
         return false;
     }
     else {
@@ -240,7 +240,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
         cFileHandle = fOpen(fileInfo->fileName, "rb");
         if (!cFileHandle) {
-            printLog("Couldn't load file '%s'", filePathBuf);
+            printLog("Couldn't load file '%s'", filePath);
             return false;
         }
         virtualFileOffset = 0;
@@ -260,7 +260,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         Engine.usingDataFile = false;
 #endif
 
-        printLog("Loaded File '%s'", filePathBuf);
+        printLog("Loaded File '%s'", filePath);
         return true;
     }
 }

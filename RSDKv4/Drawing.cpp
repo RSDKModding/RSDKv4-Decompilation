@@ -98,7 +98,13 @@ int InitRenderDevice()
 
     SDL_DisplayMode dm;
     SDL_GetDesktopDisplayMode(0, &dm);
-    SCREEN_XSIZE = SCREEN_YSIZE * dm.h / dm.w;
+    
+    bool landscape = dm.h < dm.w;
+    int h = landscape ? dm.w : dm.h;
+    int w = landscape ? dm.h : dm.w;
+
+    SCREEN_XSIZE = ((float)SCREEN_YSIZE * dm.h / dm.w);
+    if (SCREEN_XSIZE % 1) ++SCREEN_XSIZE;
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
