@@ -109,13 +109,6 @@ int InitRenderDevice()
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
 
-#if RETRO_SOFTWARE_RENDER
-    Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
-    Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
-    memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
-    memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
-#endif
-
     Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
                                      SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
 
@@ -281,6 +274,14 @@ int InitRenderDevice()
 
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, Engine.windowScale);
 #endif
+
+#if RETRO_SOFTWARE_RENDER
+    Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
+    memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+    memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
+#endif
+
 #endif
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;

@@ -586,7 +586,20 @@ void writeSettings()
     ini.SetFloat("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE);
     ini.SetFloat("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE);
 
-    ini.Write(BASE_PATH "settings.ini");
+    char buffer[0x100];
+
+#if RETRO_PLATFORM == RETRO_UWP
+    if (!usingCWD)
+        sprintf(buffer, "%s/settings.ini", getResourcesPath());
+    else
+        sprintf(buffer, "%ssettings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/settings.ini", gamePath);
+#else
+    sprintf(buffer, "%ssettings.ini", gamePath);
+#endif
+
+    ini.Write(buffer);
 }
 
 void ReadUserdata()
