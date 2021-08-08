@@ -140,13 +140,6 @@ typedef unsigned int uint;
 
 #define RETRO_USE_HAPTICS (1)
 
-// this macro defines the touch device read by the game (UWP requires DIRECT)
-#if RETRO_PLATFORM == RETRO_UWP
-#define RETRO_TOUCH_DEVICE 0
-#else
-#define RETRO_TOUCH_DEVICE 1
-#endif
-
 // reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
 // generally advised to keep this set to 0
 #define RETRO_REV01 (0)
