@@ -42,29 +42,38 @@ bool processEvents()
                         Engine.isFullScreen = true;
                         break;
                     }
-                    case SDL_WINDOWEVENT_CLOSE: return false;
+                    case SDL_WINDOWEVENT_CLOSE: {
+                        if (Engine.window) {
+                            SDL_DestroyWindow(Engine.window);
+                            Engine.window = NULL;
+                        }
+                        return false;
+                    }
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        if (Engine.gameMode == ENGINE_MAINGAME)
+                            Engine.gameMode = ENGINE_INITPAUSE;
+                        break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
-            case SDL_WINDOWEVENT_CLOSE:
-                if (Engine.window) {
-                    SDL_DestroyWindow(Engine.window);
-                    Engine.window = NULL;
-                }
-                return false;
+            case SDL_APP_WILLENTERBACKGROUND:
+                if (Engine.gameMode == ENGINE_MAINGAME)
+                    Engine.gameMode = ENGINE_INITPAUSE;
+                break;
+            case SDL_APP_TERMINATING: return false;
 #endif
 
 #ifdef RETRO_USING_MOUSE
             case SDL_MOUSEMOTION:
 #if RETRO_USING_SDL2
-                if (touches <= 0) { // Touch always takes priority over mouse
-#endif
+                if (touches <= 1) { // Touch always takes priority over mouse
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
 
-                    touchX[0] /= Engine.windowScale;
-                    touchY[0] /= Engine.windowScale;
-#if RETRO_USING_SDL2
+                    int width = 0, height = 0;
+                    SDL_GetWindowSize(Engine.window, &width, &height);
+                    touchX[0] = (touchX[0] / (float)width) * SCREEN_XSIZE;
+                    touchY[0] = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
 #endif
                 break;
@@ -101,9 +110,8 @@ bool processEvents()
                     SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
                     if (finger) {
                         touchDown[i] = true;
-                        touchX[i]    = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
-
-                        touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
+                        touchX[i]    = finger->x * SCREEN_XSIZE;
+                        touchY[i]    = finger->y * SCREEN_YSIZE;
                     }
                 }
                 break;
@@ -113,9 +121,8 @@ bool processEvents()
                     SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
                     if (finger) {
                         touchDown[i] = true;
-                        touchX[i]    = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
-
-                        touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
+                        touchX[i]    = finger->x * SCREEN_XSIZE;
+                        touchY[i]    = finger->y * SCREEN_YSIZE;
                     }
                 }
                 break;
@@ -508,15 +515,21 @@ void RetroEngine::Run()
             if (!masterPaused || frameStep) {
 #endif
                 ProcessNativeObjects();
-                FlipScreen();
+#if !RETRO_USE_ORIGINAL_CODE
+            }
+#endif
+        }
+
+#if !RETRO_USE_ORIGINAL_CODE
+        if (!masterPaused || frameStep) {
+#endif
+            FlipScreen();
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
-                if (s == gameSpeed - 1)
-                    SDL_GL_SwapWindow(Engine.window);
+            SDL_GL_SwapWindow(Engine.window);
 #endif
-                frameStep = false;
-            }
+            frameStep = false;
         }
 #endif
     }
