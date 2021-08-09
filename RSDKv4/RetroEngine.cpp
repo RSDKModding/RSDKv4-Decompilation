@@ -490,8 +490,6 @@ void RetroEngine::Run()
     float frameDelta = 0.0f;
 
     while (running) {
-        running = processEvents();
-
 #if !RETRO_USE_ORIGINAL_CODE
         frameStart = SDL_GetPerformanceCounter();
         frameDelta = frameStart - frameEnd;
@@ -499,16 +497,9 @@ void RetroEngine::Run()
             continue;
         }
         frameEnd = SDL_GetPerformanceCounter();
-
-        refreshRatio = (float)targetRefreshRate / (frequency / frameDelta);
-
-        frameInter += refreshRatio;
-        if (frameInter >= 1.0f) {
-            logicUpCnt = (int)floorf(frameInter); // get logic update count
-            frameInter -= logicUpCnt;             // shave off the whole
-        }
 #endif
 
+        running = processEvents();
 #if !RETRO_USE_ORIGINAL_CODE
         for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
@@ -535,7 +526,6 @@ void RetroEngine::Run()
             frameStep  = false;
         }
 #endif
-        logicUpCnt = 0;
     }
 
     ReleaseAudioDevice();

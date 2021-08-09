@@ -120,7 +120,6 @@ void InitStartingStage(int list, int stage, int player)
 
 void ProcessStage(void)
 {
-    int updateMax = 0;
     switch (stageMode) {
         case STAGEMODE_LOAD: // Startup
             fadeMode = 0;
@@ -201,9 +200,6 @@ void ProcessStage(void)
             gfxIndexSizeOpaque  = 0;
             gfxVertexSizeOpaque = 0;
 #endif
-
-            memcpy(objectEntityList_LAST, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_NORMAL:
             drawStageGFXHQ = false;
@@ -232,39 +228,7 @@ void ProcessStage(void)
             }
 
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                // store the last update's entity list
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                // copy over so the logic has the values it expects
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-
-                // do entity update events
-                ProcessObjects();
-
-                // do entity draw events WITHOUT drawing anything
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-
-                // store the current update's entity list
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            ProcessObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -284,7 +248,6 @@ void ProcessStage(void)
 
             ProcessParallaxAutoScroll();
             DrawStageGFX();
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_PAUSED:
             drawStageGFXHQ = false;
@@ -303,32 +266,7 @@ void ProcessStage(void)
             }
 
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                ProcessPausedObjects();
-
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            ProcessPausedObjects();
 
 #if RETRO_HARDWARE_RENDER
             gfxIndexSize        = 0;
@@ -344,7 +282,6 @@ void ProcessStage(void)
             DrawObjectList(4);
             DrawObjectList(5);
             DrawObjectList(6);
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_FROZEN:
             drawStageGFXHQ = false;
@@ -361,39 +298,7 @@ void ProcessStage(void)
             }
 
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                // store the last update's entity list
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                // copy over so the logic has the values it expects
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-
-                // do entity update events
-                ProcessFrozenObjects();
-
-                // do entity draw events WITHOUT drawing anything
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-
-                // store the current update's entity list
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            ProcessFrozenObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -412,7 +317,6 @@ void ProcessStage(void)
             }
 
             DrawStageGFX();
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_2P:
             drawStageGFXHQ = false;
@@ -441,39 +345,7 @@ void ProcessStage(void)
             }
 
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                // store the last update's entity list
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                // copy over so the logic has the values it expects
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-
-                // do entity update events
-                Process2PObjects();
-
-                // do entity draw events WITHOUT drawing anything
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-
-                // store the current update's entity list
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            Process2PObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -493,7 +365,6 @@ void ProcessStage(void)
 
             ProcessParallaxAutoScroll();
             DrawStageGFX();
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_STEPOVER:
             drawStageGFXHQ = false;
@@ -592,39 +463,7 @@ void ProcessStage(void)
             }
 
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                // store the last update's entity list
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                // copy over so the logic has the values it expects
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-
-                // do entity update events
-                ProcessFrozenObjects();
-
-                // do entity draw events WITHOUT drawing anything
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-
-                // store the current update's entity list
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            ProcessFrozenObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -643,7 +482,6 @@ void ProcessStage(void)
             }
 
             DrawStageGFX();
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
         case STAGEMODE_2P_PAUSED:
             drawStageGFXHQ = false;
@@ -670,40 +508,9 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
+
             // Update
-            for (int i = 0; i < Engine.logicUpCnt; ++i) {
-                // store the last update's entity list
-                memcpy(objectEntityList_LAST, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-                // copy over so the logic has the values it expects
-                memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
-
-                // do entity update events
-                Process2PObjects();
-
-                // do entity draw events WITHOUT drawing anything
-                Engine.drawLock = true;
-                DrawObjectList(0);
-                DrawObjectList(1);
-                DrawObjectList(2);
-                DrawObjectList(3);
-                DrawObjectList(4);
-                DrawObjectList(5);
-                DrawObjectList(6);
-                Engine.drawLock = false;
-
-                // store the current update's entity list
-                memcpy(objectEntityList_NEXT, objectEntityList, sizeof(Entity) * ENTITY_COUNT);
-            }
-
-            for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
-                Entity *entity      = &objectEntityList[objectEntityPos];
-                Entity *entity_LAST = &objectEntityList_LAST[objectEntityPos];
-                Entity *entity_NEXT = &objectEntityList_NEXT[objectEntityPos];
-                if (entity_LAST->type == entity_NEXT->type) {
-                    entity->XPos = entity_LAST->XPos + ((entity_NEXT->XPos - entity_LAST->XPos) * Engine.frameInter);
-                    entity->YPos = entity_LAST->YPos + ((entity_NEXT->YPos - entity_LAST->YPos) * Engine.frameInter);
-                }
-            }
+            Process2PObjects();
 
             if (cameraTarget > -1) {
                 if (cameraEnabled == 1) {
@@ -723,7 +530,6 @@ void ProcessStage(void)
 
             ProcessParallaxAutoScroll();
             DrawStageGFX();
-            memcpy(objectEntityList, objectEntityList_NEXT, sizeof(Entity) * ENTITY_COUNT);
             break;
     }
 #if !RETRO_USE_ORIGINAL_CODE

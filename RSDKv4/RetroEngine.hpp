@@ -336,13 +336,6 @@ public:
     int screenRefreshRate = 60; // hardware screen update rate
     int targetRefreshRate = 60; // game logic update rate
 
-#if !RETRO_USE_ORIGINAL_CODE
-    float refreshRatio      = 0.0f;  // ratio between current refresh rate and the target refresh rate
-    float frameInter        = 0.0f;  // alpha between the last and next logic update
-    unsigned int logicUpCnt = 0;     // how many times to update game logic based on the two preceding variables
-    bool drawLock           = false; // if set, prevents entity draw calls from going through
-#endif
-
     uint frameCount      = 0; // frames since scene load
     int renderFrameIndex = 0;
     int skipFrameIndex   = 0;

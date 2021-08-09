@@ -108,8 +108,6 @@ extern NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 extern int objectEntityPos;
 extern int curObjectType;
 extern Entity objectEntityList[ENTITY_COUNT];
-extern Entity objectEntityList_LAST[ENTITY_COUNT];
-extern Entity objectEntityList_NEXT[ENTITY_COUNT];
 extern int processObjectFlag[ENTITY_COUNT];
 extern TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 
