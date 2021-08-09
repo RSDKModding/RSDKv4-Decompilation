@@ -1297,6 +1297,7 @@ void DrawStageGFX()
 #if RETRO_HARDWARE_RENDER
                     Draw3DFloorLayer(2);
 #endif
+                    break;
                 default: break;
             }
         }
@@ -1382,6 +1383,7 @@ void DrawStageGFX()
 #if RETRO_HARDWARE_RENDER
                     Draw3DFloorLayer(2);
 #endif
+                    break;
                 default: break;
             }
         }

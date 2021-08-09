@@ -3476,74 +3476,114 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_DRAWSPRITE:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                DrawSprite((entity->XPos >> 16) - xScrollOffset + spriteFrame->pivotX, (entity->YPos >> 16) - yScrollOffset + spriteFrame->pivotY,
-                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                if (!Engine.drawLock) {
+                    DrawSprite((entity->XPos >> 16) - xScrollOffset + spriteFrame->pivotX, (entity->YPos >> 16) - yScrollOffset + spriteFrame->pivotY,
+                               spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                }
                 break;
             case FUNC_DRAWSPRITEXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                DrawSprite((scriptEng.operands[1] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                           (scriptEng.operands[2] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                           spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                if (!Engine.drawLock) {
+                    DrawSprite((scriptEng.operands[1] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                               (scriptEng.operands[2] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                               spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                }
                 break;
             case FUNC_DRAWSPRITESCREENXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY, spriteFrame->width,
-                           spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                if (!Engine.drawLock) {
+                    DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY, spriteFrame->width,
+                               spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                }
                 break;
             case FUNC_DRAWTINTRECT:
                 opcodeSize = 0;
-                DrawTintRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                if (!Engine.drawLock) {
+                    DrawTintRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
+                }
                 break;
             case FUNC_DRAWNUMBERS: {
                 opcodeSize = 0;
                 int i      = 10;
-                if (scriptEng.operands[6]) {
-                    while (scriptEng.operands[4] > 0) {
-                        int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
-                        spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
-                        DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
-                                   spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                        scriptEng.operands[1] -= scriptEng.operands[5];
-                        i *= 10;
-                        --scriptEng.operands[4];
-                    }
-                }
-                else {
-                    int extra = 10;
-                    if (scriptEng.operands[3])
-                        extra = 10 * scriptEng.operands[3];
-                    while (scriptEng.operands[4] > 0) {
-                        if (extra >= i) {
+                if (!Engine.drawLock) {
+                    if (scriptEng.operands[6]) {
+                        while (scriptEng.operands[4] > 0) {
                             int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
                             spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
                             DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
                                        spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            scriptEng.operands[1] -= scriptEng.operands[5];
+                            i *= 10;
+                            --scriptEng.operands[4];
                         }
-                        scriptEng.operands[1] -= scriptEng.operands[5];
-                        i *= 10;
-                        --scriptEng.operands[4];
+                    }
+                    else {
+                        int extra = 10;
+                        if (scriptEng.operands[3])
+                            extra = 10 * scriptEng.operands[3];
+                        while (scriptEng.operands[4] > 0) {
+                            if (extra >= i) {
+                                int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
+                                DrawSprite(spriteFrame->pivotX + scriptEng.operands[1], spriteFrame->pivotY + scriptEng.operands[2],
+                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            }
+                            scriptEng.operands[1] -= scriptEng.operands[5];
+                            i *= 10;
+                            --scriptEng.operands[4];
+                        }
                     }
                 }
                 break;
             }
             case FUNC_DRAWACTNAME: {
                 opcodeSize = 0;
-                switch (scriptEng.operands[3]) { // Alignment
-                    case 0: {
-                        int charID = 0;
-                        for (charID = 0;; ++charID) {
-                            int nextChar = titleCardText[charID + 1];
-                            if (nextChar == '-' || !nextChar)
-                                break;
-                        }
+                if (!Engine.drawLock) {
+                    switch (scriptEng.operands[3]) { // Alignment
+                        case 0: {
+                            int charID = 0;
+                            for (charID = 0;; ++charID) {
+                                int nextChar = titleCardText[charID + 1];
+                                if (nextChar == '-' || !nextChar)
+                                    break;
+                            }
 
-                        while (charID >= 0) {
-                            if (titleCardText[charID] != '-') {
+                            while (charID >= 0) {
+                                if (titleCardText[charID] != '-') {
+                                    int character = titleCardText[charID];
+                                    if (character == ' ')
+                                        character = -1;
+                                    if (character == '-')
+                                        character = 0;
+                                    if (character > '/' && character < ':')
+                                        character -= 22;
+                                    if (character > '9' && character < 'f')
+                                        character -= 'A';
+                                    if (character <= -1) {
+                                        scriptEng.operands[1] -= scriptEng.operands[5] + scriptEng.operands[6];
+                                    }
+                                    else {
+                                        character += scriptEng.operands[0];
+                                        spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                        scriptEng.operands[1] -= (scriptEng.operands[6] + spriteFrame->width);
+
+                                        DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                                   spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                   scriptInfo->spriteSheetID);
+                                    }
+                                    charID--;
+                                }
+                            }
+                            break;
+                        }
+                        case 1: {
+                            int charID = 0;
+                            if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
                                 int character = titleCardText[charID];
                                 if (character == ' ')
-                                    character = -1;
+                                    character = 0;
                                 if (character == '-')
                                     character = 0;
                                 if (character > '/' && character < ':')
@@ -3551,49 +3591,73 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                 if (character > '9' && character < 'f')
                                     character -= 'A';
                                 if (character <= -1) {
-                                    scriptEng.operands[1] -= scriptEng.operands[5] + scriptEng.operands[6];
+                                    scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                                 }
                                 else {
                                     character += scriptEng.operands[0];
                                     spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
-                                    scriptEng.operands[1] -= (scriptEng.operands[6] + spriteFrame->width);
-
                                     DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                                spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                                scriptInfo->spriteSheetID);
+                                    scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
                                 }
-                                charID--;
+                                scriptEng.operands[0] = scriptEng.operands[0] + 26;
+                                charID++;
                             }
+                            while (titleCardText[charID] != 0) {
+                                if (titleCardText[charID] != '-') {
+                                    int character = titleCardText[charID];
+                                    if (character == ' ')
+                                        character = 0;
+                                    if (character == '-')
+                                        character = 0;
+                                    if (character > '/' && character < ':')
+                                        character -= 22;
+                                    if (character > '9' && character < 'f')
+                                        character -= 'A';
+                                    if (character <= -1) {
+                                        scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                                    }
+                                    else {
+                                        character += scriptEng.operands[0];
+                                        spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                        DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                                   spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                   scriptInfo->spriteSheetID);
+                                        scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                                    }
+                                    charID++;
+                                }
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case 1: {
-                        int charID = 0;
-                        if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
-                            int character = titleCardText[charID];
-                            if (character == ' ')
-                                character = 0;
-                            if (character == '-')
-                                character = 0;
-                            if (character > '/' && character < ':')
-                                character -= 22;
-                            if (character > '9' && character < 'f')
-                                character -= 'A';
-                            if (character <= -1) {
-                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                        case 2: {
+                            int charID = titleCardWord2;
+                            if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
+                                int character = titleCardText[charID];
+                                if (character == ' ')
+                                    character = 0;
+                                if (character == '-')
+                                    character = 0;
+                                if (character > '/' && character < ':')
+                                    character -= 22;
+                                if (character > '9' && character < 'f')
+                                    character -= 'A';
+                                if (character <= -1) {
+                                    scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                                }
+                                else {
+                                    character += scriptEng.operands[0];
+                                    spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
+                                    DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
+                                               spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                               scriptInfo->spriteSheetID);
+                                    scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
+                                }
+                                scriptEng.operands[0] += 26;
+                                charID++;
                             }
-                            else {
-                                character += scriptEng.operands[0];
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
-                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
-                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
-                            }
-                            scriptEng.operands[0] = scriptEng.operands[0] + 26;
-                            charID++;
-                        }
-                        while (titleCardText[charID] != 0) {
-                            if (titleCardText[charID] != '-') {
+                            while (titleCardText[charID] != 0) {
                                 int character = titleCardText[charID];
                                 if (character == ' ')
                                     character = 0;
@@ -3616,57 +3680,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                 }
                                 charID++;
                             }
+                            break;
                         }
-                        break;
-                    }
-                    case 2: {
-                        int charID = titleCardWord2;
-                        if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
-                            int character = titleCardText[charID];
-                            if (character == ' ')
-                                character = 0;
-                            if (character == '-')
-                                character = 0;
-                            if (character > '/' && character < ':')
-                                character -= 22;
-                            if (character > '9' && character < 'f')
-                                character -= 'A';
-                            if (character <= -1) {
-                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
-                            }
-                            else {
-                                character += scriptEng.operands[0];
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
-                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
-                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
-                            }
-                            scriptEng.operands[0] += 26;
-                            charID++;
-                        }
-                        while (titleCardText[charID] != 0) {
-                            int character = titleCardText[charID];
-                            if (character == ' ')
-                                character = 0;
-                            if (character == '-')
-                                character = 0;
-                            if (character > '/' && character < ':')
-                                character -= 22;
-                            if (character > '9' && character < 'f')
-                                character -= 'A';
-                            if (character <= -1) {
-                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
-                            }
-                            else {
-                                character += scriptEng.operands[0];
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
-                                DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
-                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
-                            }
-                            charID++;
-                        }
-                        break;
                     }
                 }
                 break;
@@ -3674,7 +3689,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_DRAWMENU:
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
-                DrawTextMenu(&gameMenu[scriptEng.operands[0]], scriptEng.operands[1], scriptEng.operands[2]);
+                if (!Engine.drawLock) {
+                    DrawTextMenu(&gameMenu[scriptEng.operands[0]], scriptEng.operands[1], scriptEng.operands[2]);
+                }
                 break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
@@ -3732,186 +3749,192 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_DRAWSPRITEFX:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                switch (scriptEng.operands[1]) {
-                    default: break;
-                    case FX_SCALE:
-                        DrawSpriteScaled(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
-                                         (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY, entity->scale,
-                                         entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                         scriptInfo->spriteSheetID);
-                        break;
-                    case FX_ROTATE:
-                        DrawSpriteRotated(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
-                                          (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                          spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
-                                          scriptInfo->spriteSheetID);
-                        break;
-                    case FX_ROTOZOOM:
-                        DrawSpriteRotozoom(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
-                                           (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                           spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
-                                           entity->scale, scriptInfo->spriteSheetID);
-                        break;
-                    case FX_INK:
-                        switch (entity->inkEffect) {
-                            case INK_NONE:
-                                DrawSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                           (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                           spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_BLEND:
-                                DrawBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ALPHA:
-                                DrawAlphaBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                       (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                       spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
-                                                       scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ADD:
-                                DrawAdditiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                          (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                          spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
-                                                          scriptInfo->spriteSheetID);
-                                break;
-                            case INK_SUB:
-                                DrawSubtractiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                             (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
-                                                             scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
-                    case FX_TINT:
-                        if (entity->inkEffect == INK_ALPHA) {
-                            DrawScaledTintMask(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
-                                               (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                               entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                               spriteFrame->sprY, scriptInfo->spriteSheetID);
-                        }
-                        else {
+                if (!Engine.drawLock) {
+                    switch (scriptEng.operands[1]) {
+                        default: break;
+                        case FX_SCALE:
                             DrawSpriteScaled(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
                                              (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY, entity->scale,
                                              entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                              scriptInfo->spriteSheetID);
-                        }
-                        break;
-                    case FX_FLIP:
-                        switch (entity->direction) {
-                            default:
-                            case FLIP_NONE:
-                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_X:
-                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
-                                                  (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
-                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_Y:
-                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
-                                                  (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y,
-                                                  scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_XY:
-                                DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
-                                                  (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY,
-                                                  scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
+                            break;
+                        case FX_ROTATE:
+                            DrawSpriteRotated(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                              (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                              spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
+                                              scriptInfo->spriteSheetID);
+                            break;
+                        case FX_ROTOZOOM:
+                            DrawSpriteRotozoom(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                               (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                               spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
+                                               entity->scale, scriptInfo->spriteSheetID);
+                            break;
+                        case FX_INK:
+                            switch (entity->inkEffect) {
+                                case INK_NONE:
+                                    DrawSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                               (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                               spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_BLEND:
+                                    DrawBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                      (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                      spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_ALPHA:
+                                    DrawAlphaBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                           (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                           spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                           scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_ADD:
+                                    DrawAdditiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                              (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                              spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
+                                                              scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_SUB:
+                                    DrawSubtractiveBlendedSprite((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                                 (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY,
+                                                                 spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                                 entity->alpha, scriptInfo->spriteSheetID);
+                                    break;
+                            }
+                            break;
+                        case FX_TINT:
+                            if (entity->inkEffect == INK_ALPHA) {
+                                DrawScaledTintMask(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                                   (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                                   entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                                   spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            }
+                            else {
+                                DrawSpriteScaled(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
+                                                 (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                                 entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                                 spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            }
+                            break;
+                        case FX_FLIP:
+                            switch (entity->direction) {
+                                default:
+                                case FLIP_NONE:
+                                    DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                      (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                      spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
+                                                      scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_X:
+                                    DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
+                                                      (scriptEng.operands[3] >> 16) - yScrollOffset + spriteFrame->pivotY, spriteFrame->width,
+                                                      spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_Y:
+                                    DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset + spriteFrame->pivotX,
+                                                      (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
+                                                      spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y,
+                                                      scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_XY:
+                                    DrawSpriteFlipped((scriptEng.operands[2] >> 16) - xScrollOffset - spriteFrame->width - spriteFrame->pivotX,
+                                                      (scriptEng.operands[3] >> 16) - yScrollOffset - spriteFrame->height - spriteFrame->pivotY,
+                                                      spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY,
+                                                      scriptInfo->spriteSheetID);
+                                    break;
+                            }
+                            break;
+                    }
                 }
                 break;
             case FUNC_DRAWSPRITESCREENFX:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                switch (scriptEng.operands[1]) {
-                    default: break;
-                    case FX_SCALE:
-                        DrawSpriteScaled(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                         entity->scale, entity->scale, spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                         scriptInfo->spriteSheetID);
-                        break;
-                    case FX_ROTATE:
-                        DrawSpriteRotated(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                          spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
-                                          scriptInfo->spriteSheetID);
-                        break;
-                    case FX_ROTOZOOM:
-                        DrawSpriteRotozoom(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
-                                           -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
-                                           entity->rotation, entity->scale, scriptInfo->spriteSheetID);
-                        break;
-                    case FX_INK:
-                        switch (entity->inkEffect) {
-                            case INK_NONE:
-                                DrawSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_BLEND:
-                                DrawBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                                  scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ALPHA:
-                                DrawAlphaBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                                       spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->alpha,
-                                                       scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ADD:
-                                DrawAdditiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                                          spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                                          entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_SUB:
-                                DrawSubtractiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                                             spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                                             entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
-                    case FX_TINT:
-                        if (entity->inkEffect == INK_ALPHA) {
-                            DrawScaledTintMask(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
-                                               -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
-                                               spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                        }
-                        else {
+                if (!Engine.drawLock) {
+                    switch (scriptEng.operands[1]) {
+                        default: break;
+                        case FX_SCALE:
                             DrawSpriteScaled(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                                              -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
                                              spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
-                        }
-                        break;
-                    case FX_FLIP:
-                        switch (entity->direction) {
-                            default:
-                            case FLIP_NONE:
-                                DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                                                  scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_X:
-                                DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
-                                                  scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_Y:
-                                DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
-                                                  scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
-                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_XY:
-                                DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
-                                                  scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
-                                                  spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY, scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
+                            break;
+                        case FX_ROTATE:
+                            DrawSpriteRotated(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                              -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
+                                              entity->rotation, scriptInfo->spriteSheetID);
+                            break;
+                        case FX_ROTOZOOM:
+                            DrawSpriteRotozoom(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                               -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
+                                               entity->rotation, entity->scale, scriptInfo->spriteSheetID);
+                            break;
+                        case FX_INK:
+                            switch (entity->inkEffect) {
+                                case INK_NONE:
+                                    DrawSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                               spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                               scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_BLEND:
+                                    DrawBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                      spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                      scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_ALPHA:
+                                    DrawAlphaBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
+                                                           entity->alpha, scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_ADD:
+                                    DrawAdditiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX,
+                                                              scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                                                              spriteFrame->sprX, spriteFrame->sprY, entity->alpha, scriptInfo->spriteSheetID);
+                                    break;
+                                case INK_SUB:
+                                    DrawSubtractiveBlendedSprite(scriptEng.operands[2] + spriteFrame->pivotX,
+                                                                 scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                                                                 spriteFrame->sprX, spriteFrame->sprY, entity->alpha, scriptInfo->spriteSheetID);
+                                    break;
+                            }
+                            break;
+                        case FX_TINT:
+                            if (entity->inkEffect == INK_ALPHA) {
+                                DrawScaledTintMask(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                                   -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
+                                                   spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            }
+                            else {
+                                DrawSpriteScaled(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
+                                                 -spriteFrame->pivotY, entity->scale, entity->scale, spriteFrame->width, spriteFrame->height,
+                                                 spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
+                            }
+                            break;
+                        case FX_FLIP:
+                            switch (entity->direction) {
+                                default:
+                                case FLIP_NONE:
+                                    DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX, scriptEng.operands[3] + spriteFrame->pivotY,
+                                                      spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
+                                                      scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_X:
+                                    DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
+                                                      scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
+                                                      spriteFrame->sprX, spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_Y:
+                                    DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
+                                                      scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
+                                                      spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y, scriptInfo->spriteSheetID);
+                                    break;
+                                case FLIP_XY:
+                                    DrawSpriteFlipped(scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
+                                                      scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY, spriteFrame->width,
+                                                      spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY, scriptInfo->spriteSheetID);
+                                    break;
+                            }
+                            break;
+                    }
                 }
                 break;
             case FUNC_LOADANIMATION:
@@ -3946,8 +3969,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_DRAWRECT:
                 opcodeSize = 0;
-                DrawRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
-                              scriptEng.operands[5], scriptEng.operands[6], scriptEng.operands[7]);
+                if (!Engine.drawLock) {
+                    DrawRectangle(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                  scriptEng.operands[5], scriptEng.operands[6], scriptEng.operands[7]);
+                }
                 break;
             case FUNC_RESETOBJECTENTITY: {
                 opcodeSize     = 0;
@@ -4033,7 +4058,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_DRAWOBJECTANIMATION:
                 opcodeSize = 0;
-                if (entity->visible)
+                if (entity->visible && !Engine.drawLock)
                     DrawObjectAnimation(scriptInfo, entity, (entity->XPos >> 16) - xScrollOffset, (entity->YPos >> 16) - yScrollOffset);
                 break;
             case FUNC_SETMUSICTRACK:
@@ -4101,9 +4126,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;
             case FUNC_DRAW3DSCENE:
                 opcodeSize = 0;
-                transformVertexBuffer();
-                sort3DDrawList();
-                draw3DScene(scriptInfo->spriteSheetID);
+                if (!Engine.drawLock) {
+                    transformVertexBuffer();
+                    sort3DDrawList();
+                    draw3DScene(scriptInfo->spriteSheetID);
+                }
                 break;
             case FUNC_SETIDENTITYMATRIX:
                 opcodeSize = 0;
@@ -4359,8 +4386,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
                 TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
-                DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
-                               scriptEng.operands[5], scriptEng.operands[6]);
+                if (!Engine.drawLock) {
+                    DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                   scriptEng.operands[5], scriptEng.operands[6]);
+                }
                 break;
             }
 #endif

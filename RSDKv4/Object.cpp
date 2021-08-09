@@ -21,6 +21,8 @@ NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 int objectEntityPos = 0;
 int curObjectType   = 0;
 Entity objectEntityList[ENTITY_COUNT];
+Entity objectEntityList_LAST[ENTITY_COUNT];
+Entity objectEntityList_NEXT[ENTITY_COUNT];
 int processObjectFlag[ENTITY_COUNT];
 TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 
