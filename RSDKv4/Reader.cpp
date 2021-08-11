@@ -684,12 +684,12 @@ size_t FileRead2(FileInfo *info, void *dest, int size)
                 if (info->eStringPosA <= 0x0F) {
                     if (info->eStringPosB > 0x0C) {
                         info->eStringPosB = 0;
-                        info->eNybbleSwap ^= 0x01;
+                        info->eNybbleSwap ^= 1;
                     }
                 }
                 else if (info->eStringPosB <= 0x08) {
                     info->eStringPosA = 0;
-                    info->eNybbleSwap ^= 0x01;
+                    info->eNybbleSwap ^= 1;
                 }
                 else {
                     info->eStringNo += 2;
@@ -751,7 +751,7 @@ void SetFilePosition2(FileInfo *info, int newPos)
 {
     if (info->useEncryption) {
         info->readPos     = info->virtualFileOffset + newPos;
-        info->eStringNo   = (info->vfileSize & 0x1FCu) >> 2;
+        info->eStringNo   = (info->vfileSize & 0x1FC) >> 2;
         info->eStringPosB = (info->eStringNo % 9) + 1;
         info->eStringPosA = (info->eStringNo % info->eStringPosB) + 1;
         info->eNybbleSwap = false;

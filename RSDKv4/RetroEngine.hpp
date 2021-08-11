@@ -317,6 +317,9 @@ public:
 
 #if !RETRO_USE_ORIGINAL_CODE
     byte gameType = GAME_UNKNOWN;
+#if RETRO_USE_MOD_LOADER
+    bool modMenuCalled = false;
+#endif
 #endif
 
 #if RETRO_SOFTWARE_RENDER

@@ -34,9 +34,11 @@ std::vector<ModInfo> modList;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-bool forceUseScripts = false;
-bool skipStartMenu   = false;
-bool skipStartMenu_Config   = false;
+bool forceUseScripts          = false;
+bool skipStartMenu            = false;
+bool skipStartMenu_Config     = false;
+bool disableFocusPause        = false;
+bool disableFocusPause_Config = false;
 
 
 void InitUserdata()
@@ -111,6 +113,8 @@ void InitUserdata()
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
         skipStartMenu_Config = skipStartMenu;
+        ini.SetBool("Game", "DisableFocusPause", disableFocusPause = false);
+        disableFocusPause_Config = disableFocusPause;
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -242,6 +246,9 @@ void InitUserdata()
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
             skipStartMenu = false;
         skipStartMenu_Config = skipStartMenu;
+        if (!ini.GetBool("Game", "DisableFocusPause", &disableFocusPause))
+            disableFocusPause = false;
+        disableFocusPause_Config = disableFocusPause;
 
         if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
             Engine.startFullScreen = DEFAULT_FULLSCREEN;
@@ -508,6 +515,8 @@ void writeSettings()
     ini.SetInteger("Game", "Language", Engine.language);
     ini.SetComment("Game", "SSMenuComment", "if set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
+    ini.SetComment("Game", "DFPMenuComment", "if set to true, disables the game pausing when focus is lost");
+    ini.SetBool("Game", "DisableFocusPause", disableFocusPause);
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
@@ -888,6 +897,7 @@ int OpenModMenu(int val, void *name)
 {
 #if RETRO_USE_MOD_LOADER
     Engine.gameMode = ENGINE_INITMODMENU;
+    Engine.modMenuCalled = true;
 #endif
     return 1;
 }
@@ -1162,6 +1172,10 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
         if (info->skipStartMenu && info->active)
             skipStartMenu = true;
+        info->disableFocusPause = false;
+        modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
+        if (info->disableFocusPause && info->active)
+            disableFocusPause = true;
         return true;
     }
     return false;

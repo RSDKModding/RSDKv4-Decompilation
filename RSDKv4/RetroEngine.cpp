@@ -44,7 +44,7 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
-                        if (Engine.gameMode == ENGINE_MAINGAME)
+                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                             Engine.gameMode = ENGINE_INITPAUSE;
                         break;
                 }
@@ -52,7 +52,7 @@ bool processEvents()
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
-                if (Engine.gameMode == ENGINE_MAINGAME)
+                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                     Engine.gameMode = ENGINE_INITPAUSE;
                 break;
             case SDL_APP_TERMINATING: return false;

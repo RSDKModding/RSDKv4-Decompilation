@@ -45,6 +45,7 @@ struct ModInfo {
     int iconTexture;
     bool useScripts;
     bool skipStartMenu;
+    bool disableFocusPause;
     bool active;
 };
 #endif
@@ -78,6 +79,8 @@ extern std::vector<ModInfo> modList;
 extern bool forceUseScripts;
 extern bool skipStartMenu;
 extern bool skipStartMenu_Config;
+extern bool disableFocusPause;
+extern bool disableFocusPause_Config;
 #endif
 
 inline int GetGlobalVariableByName(const char *name)

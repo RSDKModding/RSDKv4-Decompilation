@@ -146,6 +146,7 @@ inline void freeMusInfo()
 #endif
 #endif
 
+void LoadMusic(void *userdata);
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint);
 void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio);
 bool PlayMusic(int track, int musStartPos);

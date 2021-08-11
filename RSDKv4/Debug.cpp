@@ -437,12 +437,14 @@ void processStageSelect()
                 LoadGlobalSfx();
 
                 forceUseScripts = false;
-                skipStartMenu   = skipStartMenu_Config;
+                disableFocusPause = disableFocusPause_Config;
                 for (int m = 0; m < modList.size(); ++m) {
                     if (modList[m].useScripts && modList[m].active)
                         forceUseScripts = true;
                     if (modList[m].skipStartMenu && modList[m].active)
                         skipStartMenu = true;
+                    if (modList[m].disableFocusPause && modList[m].active)
+                        disableFocusPause = true;
                 }
                 saveMods();
                 setTextMenu(DEVMENU_MAIN);
@@ -1682,14 +1684,25 @@ void processStartMenu()
 
                 forceUseScripts = false;
                 skipStartMenu   = skipStartMenu_Config;
+                disableFocusPause = disableFocusPause_Config;
                 for (int m = 0; m < modList.size(); ++m) {
                     if (modList[m].useScripts && modList[m].active)
                         forceUseScripts = true;
                     if (modList[m].skipStartMenu && modList[m].active)
                         skipStartMenu = true;
+                    if (modList[m].disableFocusPause && modList[m].active)
+                        disableFocusPause = true;
                 }
                 saveMods();
-                setTextMenu(STARTMENU_MAIN);
+
+                if (Engine.modMenuCalled) {
+                    stageMode            = STAGEMODE_LOAD;
+                    Engine.gameMode      = ENGINE_MAINGAME;
+                    Engine.modMenuCalled = false;
+                }
+                else {
+                    setTextMenu(STARTMENU_MAIN);
+                }
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
