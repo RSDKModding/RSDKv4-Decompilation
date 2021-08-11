@@ -140,9 +140,12 @@ bool processEvents()
                                 LoadGlobalSfx();
 
                                 forceUseScripts = false;
-                                for (int m = 0; m < modCount; ++m) {
+                                skipStartMenu   = skipStartMenu_Config;
+                                for (int m = 0; m < modList.size(); ++m) {
                                     if (modList[m].useScripts && modList[m].active)
                                         forceUseScripts = true;
+                                    if (modList[m].skipStartMenu && modList[m].active)
+                                        skipStartMenu = true;
                                 }
                                 saveMods();
                             }

@@ -586,7 +586,16 @@ void LoadStageFiles(void)
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
-            if (Engine.usingBytecode && !forceUseScripts) {
+            bool bytecodeExists = false;
+            FileInfo bytecodeInfo;
+            GetFileInfo(&infoStore);
+            if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
+                bytecodeExists = true;
+                CloseFile();
+            }
+            SetFileInfo(&infoStore);
+
+            if (bytecodeExists && !forceUseScripts) {
 #else
             if (Engine.usingBytecode) {
 #endif
@@ -650,7 +659,28 @@ void LoadStageFiles(void)
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
-            if (Engine.usingBytecode && !forceUseScripts) {
+            char scriptPath[0x40];
+            switch (activeStageList) {
+                case STAGELIST_PRESENTATION:
+                case STAGELIST_REGULAR:
+                case STAGELIST_BONUS:
+                case STAGELIST_SPECIAL:
+                    StrCopy(scriptPath, "Bytecode/");
+                    StrAdd(scriptPath, stageList[activeStageList][stageListPosition].folder);
+                    StrAdd(scriptPath, ".bin");
+                    break;
+                default: break;
+            }
+            bool bytecodeExists = false;
+            FileInfo bytecodeInfo;
+            GetFileInfo(&infoStore);
+            if (LoadFile(scriptPath, &info)) {
+                bytecodeExists = true;
+                CloseFile();
+            }
+            SetFileInfo(&infoStore);
+
+            if (bytecodeExists && !forceUseScripts) {
 #else
             if (Engine.usingBytecode) {
 #endif

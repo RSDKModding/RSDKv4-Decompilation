@@ -12,8 +12,6 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-
-#define MOD_MAX (0x100)
 #endif
 
 
@@ -73,13 +71,13 @@ extern int sendDataMethod;
 extern int sendCounter;
 
 #if RETRO_USE_MOD_LOADER
-extern ModInfo modList[MOD_MAX];
-extern int modCount;
+extern std::vector<ModInfo> modList;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
 extern bool forceUseScripts;
 extern bool skipStartMenu;
+extern bool skipStartMenu_Config;
 #endif
 
 inline int GetGlobalVariableByName(const char *name)
@@ -202,6 +200,7 @@ int OpenModMenu(int val, void *name);
 
 #if RETRO_USE_MOD_LOADER
 void initMods();
+bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool active);
 void saveMods();
 #endif
 

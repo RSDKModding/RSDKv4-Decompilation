@@ -116,6 +116,10 @@ inline void CloseRSDKContainers()
     rsdkContainer.fileCount = 0;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
+int CheckFileInfo(const char *filepath);
+#endif
+
 bool LoadFile(const char *filePath, FileInfo *fileInfo);
 inline bool CloseFile()
 {

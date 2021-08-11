@@ -1,6 +1,8 @@
 #ifndef INI_H
 #define INI_H
 
+#include <vector>
+
 class IniParser
 {
 public:
@@ -28,7 +30,7 @@ public:
         byte type = INI_ITEM_STRING;
     };
 
-    IniParser() { memset(items, 0, 0x80 * sizeof(ConfigItem)); }
+    IniParser() { items.clear(); }
     IniParser(const char *filename, bool addPath = true);
 
     int GetString(const char *section, const char *key, char *dest);
@@ -42,8 +44,6 @@ public:
     int SetComment(const char *section, const char *key, const char *comment);
     void Write(const char *filename, bool addPath = true);
 
-    ConfigItem items[0x80];
-
-    int count = 0;
+    std::vector<ConfigItem> items;
 };
 #endif // !INI_H
