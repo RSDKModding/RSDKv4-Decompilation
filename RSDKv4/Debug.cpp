@@ -1558,6 +1558,9 @@ void processStartMenu()
                     setTextMenu(STARTMENU_TASTAGESEL);
                 }
             }
+            else if (keyPress.B) {
+                setTextMenu(STARTMENU_TASTAGESEL);
+            }
             break;
         }
         case STARTMENU_ACHIEVEMENTS: {
