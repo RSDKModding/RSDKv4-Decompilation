@@ -1699,6 +1699,11 @@ void processStartMenu()
                     stageMode            = STAGEMODE_LOAD;
                     Engine.gameMode      = ENGINE_MAINGAME;
                     Engine.modMenuCalled = false;
+
+                    if (stageListPosition >= stageListCount[activeStageList]) {
+                        activeStageList   = 0;
+                        stageListPosition = 0;
+                    }
                 }
                 else {
                     setTextMenu(STARTMENU_MAIN);

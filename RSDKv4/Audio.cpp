@@ -524,9 +524,8 @@ void LoadMusic(void *userdata)
 #if RETRO_USING_SDL2
             musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, (int)musInfo.vorbisFile.vi->rate,
                                                 audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
-            if (!musInfo.stream) {
+            if (!musInfo.stream)
                 printLog("Failed to create stream: %s", SDL_GetError());
-            }
 #endif
 
 #if RETRO_USING_SDL1
