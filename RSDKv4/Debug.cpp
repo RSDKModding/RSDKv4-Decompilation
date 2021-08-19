@@ -366,6 +366,12 @@ void processStageSelect()
                 Engine.gameMode   = ENGINE_MAINGAME;
                 stageListPosition = 0;
             }
+            else if (keyPress.C) {
+                ClearGraphicsData();
+                ClearAnimationData();
+                stageMode       = STAGEMODE_LOAD;
+                Engine.gameMode = ENGINE_MAINGAME;
+            }
             break;
         }
 #if RETRO_USE_MOD_LOADER
