@@ -534,6 +534,7 @@ void RetroEngine::Run()
     ReleaseAudioDevice();
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
+    ReleaseInputDevices();
     writeSettings();
 #if RETRO_USE_MOD_LOADER
     saveMods();

@@ -105,6 +105,9 @@ extern byte keyState[SDLK_LAST];
 extern SDL_Joystick *controller;
 #endif
 
+void InitInputDevices();
+void ReleaseInputDevices();
+
 void ProcessInput();
 #endif
 

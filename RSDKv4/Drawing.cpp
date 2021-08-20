@@ -289,6 +289,8 @@ int InitRenderDevice()
     OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
     // OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
 
+    InitInputDevices();
+
     return 1;
 }
 void FlipScreen()

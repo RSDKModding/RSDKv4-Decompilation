@@ -802,7 +802,7 @@ void LoadActLayout()
                 FileRead(&fileBuffer[0], 1);
                 tiles[x] = fileBuffer[0];
                 FileRead(&fileBuffer[0], 1);
-                tiles[x] += fileBuffer[0] << 8;
+                tiles[x] |= fileBuffer[0] << 8;
             }
         }
 

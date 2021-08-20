@@ -42,7 +42,6 @@ struct ModInfo {
     std::string version;
     std::map<std::string, std::string> fileMap;
     std::string folder;
-    int iconTexture;
     bool useScripts;
     bool skipStartMenu;
     bool disableFocusPause;

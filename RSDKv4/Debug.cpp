@@ -894,30 +894,34 @@ void processStartMenu()
     CheckKeyPress(&keyPress);
 
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
-        if (touches > 0) {
-            if (touchDown[0] && !(touchTimer % 8)) {
-                if (touchX[0] < SCREEN_CENTERX) {
-                    if (touchY[0] >= SCREEN_CENTERY) {
+        for (int t = 0; t < touches; ++t) {
+            if (touchDown[t] && !(touchTimer % 8)) {
+                if (touchX[t] < SCREEN_CENTERX) {
+                    if (touchY[t] >= SCREEN_CENTERY) {
                         if (!keyDown.down)
                             keyPress.down = true;
                         keyDown.down = true;
+                        break;
                     }
                     else {
                         if (!keyDown.up)
                             keyPress.up = true;
                         keyDown.up = true;
+                        break;
                     }
                 }
-                else if (touchX[0] > SCREEN_CENTERX) {
-                    if (touchY[0] > SCREEN_CENTERY) {
+                else if (touchX[t] > SCREEN_CENTERX) {
+                    if (touchY[t] > SCREEN_CENTERY) {
                         if (!keyDown.start)
                             keyPress.start = true;
                         keyDown.start = true;
+                        break;
                     }
                     else {
                         if (!keyDown.B)
                             keyPress.B = true;
                         keyDown.B = true;
+                        break;
                     }
                 }
             }
