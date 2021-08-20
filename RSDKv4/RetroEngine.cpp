@@ -134,6 +134,13 @@ bool processEvents()
                                 || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
                                 // Reload entire engine
                                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+                                if (Engine.window) {
+                                    char gameTitle[0x40];
+                                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+                                    SDL_SetWindowTitle(Engine.window, gameTitle);
+                                }
+#endif
 
                                 ReleaseStageSfx();
                                 ReleaseGlobalSfx();
