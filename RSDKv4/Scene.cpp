@@ -226,7 +226,10 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
+			
             // Update
             ProcessObjects();
 
@@ -343,6 +346,9 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
 
             // Update
             Process2PObjects();
@@ -390,6 +396,10 @@ void ProcessStage(void)
                     }
                     stageMilliseconds = 100 * frameCounter / 60;
                 }
+				else {
+					frameCounter = 60 * stageMilliseconds / 100;
+				}
+
 
                 ProcessObjects();
                 if (cameraTarget > -1) {
@@ -508,7 +518,10 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
+			
             // Update
             Process2PObjects();
 
