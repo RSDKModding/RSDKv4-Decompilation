@@ -517,11 +517,10 @@ bool ReachedEndOfFile()
 #if !RETRO_USE_ORIGINAL_CODE
 bool LoadFile2(const char *filePath, FileInfo *fileInfo)
 {
+    if (fileInfo->cFileHandle)
+        fClose(fileInfo->cFileHandle);
+
     MEM_ZEROP(fileInfo);
-
-    if (cFileHandle)
-        fClose(cFileHandle);
-
     char filePathBuf[0x100];
     StrCopy(filePathBuf, filePath);
     bool forceFolder = false;
@@ -546,8 +545,6 @@ bool LoadFile2(const char *filePath, FileInfo *fileInfo)
         }
     }
 #endif
-
-    cFileHandle = NULL;
 
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     if (addPath) {
@@ -804,6 +801,7 @@ void SetFilePosition2(FileInfo *info, int newPos)
         else
             info->readPos = newPos;
     }
+
     fSeek(info->cFileHandle, info->readPos, SEEK_SET);
 }
 #endif

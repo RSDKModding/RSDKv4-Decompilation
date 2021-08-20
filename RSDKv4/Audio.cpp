@@ -478,7 +478,7 @@ void LoadMusic(void *userdata)
 {
     if (trackBuffer < 0 || trackBuffer >= TRACK_COUNT) {
         LockAudioDevice();
-        StopMusic();
+        StopMusic(true);
         UnlockAudioDevice();
         return;
     }
@@ -487,7 +487,7 @@ void LoadMusic(void *userdata)
 
     if (!trackPtr->fileName[0]) {
         LockAudioDevice();
-        StopMusic();
+        StopMusic(true);
         UnlockAudioDevice();
         return;
     }
@@ -498,7 +498,7 @@ void LoadMusic(void *userdata)
     if (musInfo.loaded) {
         oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
         oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
-        StopMusic();
+        StopMusic(false);
     }
 
     if (LoadFile2(trackPtr->fileName, &musInfo.fileInfo)) {
@@ -552,7 +552,15 @@ void LoadMusic(void *userdata)
         else {
             musicStatus = MUSIC_STOPPED;
             CloseFile2(&musInfo.fileInfo);
-            printLog("Failed to load vorbis! erorr: %d", error);
+            printLog("Failed to load vorbis! error: %d", error);
+            switch (error) {
+                default: printLog("Vorbis open error: Unknown (%d)", error); break;
+                case OV_EREAD: printLog("Vorbis open error: A read from media returned an error"); break;
+                case OV_ENOTVORBIS: printLog("Vorbis open error: Bitstream does not contain any Vorbis data"); break;
+                case OV_EVERSION: printLog("Vorbis open error: Vorbis version mismatch"); break;
+                case OV_EBADHEADER: printLog("Vorbis open error: Invalid Vorbis bitstream header"); break;
+                case OV_EFAULT: printLog("Vorbis open error: Internal logic fault; indicates a bug or heap / stack corruption"); break;
+            }
         }
     }
     UnlockAudioDevice();
@@ -572,7 +580,7 @@ void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint
 void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio)
 {
     if (StrLength(filePath) <= 0) {
-        StopMusic();
+        StopMusic(true);
     }
     else {
         LockAudioDevice();
@@ -592,18 +600,24 @@ bool PlayMusic(int track, int musStartPos)
     if (!audioEnabled)
         return false;
 
-    LockAudioDevice();
-    musicStartPos = musStartPos;
-    if (track < 0 || track >= TRACK_COUNT) {
-        StopMusic();
-        trackBuffer = -1;
-        return false;
+    if (musicStatus != MUSIC_LOADING) {
+        LockAudioDevice();
+        musicStartPos = musStartPos;
+        if (track < 0 || track >= TRACK_COUNT) {
+            StopMusic(true);
+            trackBuffer = -1;
+            return false;
+        }
+        trackBuffer = track;
+        musicStatus = MUSIC_LOADING;
+        SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+        UnlockAudioDevice();
+        return true;
     }
-    trackBuffer = track;
-    musicStatus = MUSIC_LOADING;
-    SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
-    UnlockAudioDevice();
-    return true;
+    else {
+        printLog("WARNING music tried to play while music was loading!");
+    }
+    return false;
 }
 
 void SetSfxName(const char *sfxName, int sfxID)

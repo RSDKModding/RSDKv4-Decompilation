@@ -10,7 +10,7 @@ void initDevMenu()
     // DrawStageGFXHQ = 0;
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
@@ -38,7 +38,7 @@ void initErrorMessage()
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
@@ -470,7 +470,7 @@ void initStartMenu(int mode)
     // DrawStageGFXHQ = 0;
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;

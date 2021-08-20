@@ -4048,7 +4048,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_STOPMUSIC:
                 opcodeSize = 0;
-                StopMusic();
+                StopMusic(true);
                 break;
             case FUNC_PAUSEMUSIC:
                 opcodeSize = 0;

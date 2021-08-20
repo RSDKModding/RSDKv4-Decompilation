@@ -84,7 +84,7 @@ void InitFirstStage(void)
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode = 0;
@@ -102,7 +102,7 @@ void InitStartingStage(int list, int stage, int player)
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode      = 0;

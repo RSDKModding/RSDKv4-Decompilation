@@ -150,9 +150,10 @@ void LoadMusic(void *userdata);
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint);
 void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio);
 bool PlayMusic(int track, int musStartPos);
-inline void StopMusic()
+inline void StopMusic(bool setStatus)
 {
-    musicStatus = MUSIC_STOPPED;
+    if (setStatus)
+        musicStatus = MUSIC_STOPPED;
 #if !RETRO_USE_ORIGINAL_CODE
     SDL_LockAudio();
     freeMusInfo();
@@ -274,7 +275,7 @@ inline void ReleaseStageSfx()
 
 inline void ReleaseAudioDevice()
 {
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     ReleaseGlobalSfx();
