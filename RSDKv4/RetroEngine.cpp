@@ -280,11 +280,24 @@ bool processEvents()
     }
 #endif
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    inp_ScanInput();
+    return sys_MainLoop();
+#endif
+
     return true;
 }
 
 void RetroEngine::Init()
 {
+#if RETRO_PLATFORM == RETRO_3DS
+    sys_Init(BASE_PATH);
+    gfx_Init();
+#endif
+
+    printf("starting up\n");
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
@@ -294,8 +307,10 @@ void RetroEngine::Init()
     Engine.usingBytecode = false;
 
 #if !RETRO_USE_ORIGINAL_CODE
+    printf("InitUserData();\n");
     InitUserdata();
 #if RETRO_USE_MOD_LOADER
+    printf("initMods();\n");
     initMods();
 #endif
 
@@ -488,6 +503,9 @@ void RetroEngine::Init()
     // note to future rdc (or anyone else): what does this do? no vars are named this
     SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM);
 
+    //if (engineDebugMode == false)
+    //    printf("\x1b[2J");
+
     if (!skipStart)
         initStartMenu(0);
 #endif
@@ -495,6 +513,49 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
+#if RETRO_PLATFORM == RETRO_3DS
+    Uint32 frameStart, frameEnd = sys_GetTicks();
+    float frameDelta = 0.0f;
+    float msPerFrame = 1000.f / 59.94f;
+    unsigned int frameTime = 0;
+    bool fullspeed = false;
+
+    while (running) {
+        frameStart = sys_GetTicks();
+
+        frameTime = frameStart - frameEnd;
+        frameEnd = frameStart;
+
+        if (frameTime <= ceil(msPerFrame)) {
+            fullspeed = true;
+        }
+        else {
+            frameDelta += frameTime;
+            if (frameDelta > msPerFrame * 4)
+                frameDelta = msPerFrame * 4;
+        }
+
+        running = processEvents();
+        for (; fullspeed == true || frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
+            ProcessInput();
+
+            if (!masterPaused) {
+                ProcessNativeObjects();
+            }
+
+            if (fullspeed) break;
+        }
+
+        if (fullspeed) {
+            frameDelta = 0;
+            fullspeed = false;
+        }
+
+        if (!masterPaused) {
+            FlipScreen();
+        }
+    }
+#else
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
     float frameDelta = 0.0f;
@@ -537,6 +598,7 @@ void RetroEngine::Run()
         }
 #endif
     }
+#endif
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
@@ -550,6 +612,12 @@ void RetroEngine::Run()
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
+#endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    aud_Exit();
+    gfx_Exit();
+    sys_Exit();
 #endif
 }
 

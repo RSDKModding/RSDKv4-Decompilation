@@ -27,6 +27,8 @@ MusicPlaybackInfo musInfo;
 
 int trackBuffer = -1;
 
+#define ADJUST_VOLUME(s, v) (s = (s * v) / MAX_VOLUME)
+
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
 
 #if RETRO_USING_SDL2
@@ -41,8 +43,6 @@ SDL_AudioSpec audioDeviceFormat;
 #define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */
 #define AUDIO_SAMPLES   (0x800)
 #define AUDIO_CHANNELS  (2)
-
-#define ADJUST_VOLUME(s, v) (s = (s * v) / MAX_VOLUME)
 
 #else
 #define LockAudioDevice()   ;
@@ -84,6 +84,15 @@ int InitAudioPlayback()
         return true; // no audio but game wont crash now
     }
 #endif // !RETRO_USING_SDL1
+#endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    if (aud_Init(ProcessAudioPlayback) == 0) {
+        audioEnabled = true;
+    }
+    else {
+        audioEnabled = false;
+    }
 #endif
 #endif
 
@@ -343,6 +352,72 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
             }
             if (bytes_wanted > 0)
                 free(buffer);
+
+#elif RETRO_PLATFORM == RETRO_3DS
+            size_t bytes_gotten = 0;
+            byte *buffer        = (byte *)malloc(bytes_wanted);
+            if (!buffer) {
+                printf("ProcessMusicStream: malloc failed\n");
+                return;
+            }
+            memset(buffer, 0, bytes_wanted);
+            while (bytes_gotten < bytes_wanted) {
+                // We need more samples: get some
+                long bytes_read =
+                    ov_read(&musInfo.vorbisFile, (char *)musInfo.buffer,
+                            sizeof(musInfo.buffer) > (bytes_wanted - bytes_gotten) ? (bytes_wanted - bytes_gotten) : sizeof(musInfo.buffer),// 0, 2, 1,
+                            &musInfo.vorbBitstream);
+
+                if (bytes_read == 0) {
+                    // We've reached the end of the file
+                    if (musInfo.trackLoop) {
+                        ov_pcm_seek(&musInfo.vorbisFile, musInfo.loopPoint);
+                        continue;
+                    }
+                    else {
+                        musicStatus = MUSIC_STOPPED;
+                        break;
+                    }
+                }
+
+                if (bytes_read > 0) {
+                    memcpy(buffer + bytes_gotten, musInfo.buffer, bytes_read);
+                    bytes_gotten += bytes_read;
+                }
+                else {
+                    printLog("Music read error: vorbis error: %d", bytes_read);
+                }
+            }
+
+            if (bytes_gotten > 0) {
+                /*SDL_AudioCVT convert;
+                MEM_ZERO(convert);
+                int cvtResult = SDL_BuildAudioCVT(&convert, musInfo.spec.format, musInfo.spec.channels, musInfo.spec.freq, audioDeviceFormat.format,
+                                                  audioDeviceFormat.channels, audioDeviceFormat.freq);
+                if (cvtResult == 0) {
+                    if (convert.len_mult > 0) {
+                        convert.buf = (byte *)malloc(bytes_gotten * convert.len_mult);
+                        convert.len = bytes_gotten;
+                        memcpy(convert.buf, buffer, bytes_gotten);
+                        SDL_ConvertAudio(&convert);
+                    }
+                }
+
+                // Now that we know there are enough samples, read them and mix them
+                // int bytes_done = SDL_AudioStreamGet(musInfo.stream, musInfo.buffer, bytes_wanted);
+                // if (bytes_done == -1) {
+                //    return;
+                //}
+
+                if (cvtResult == 0)*/
+                    ProcessAudioMixing(stream, (const Sint16 *)buffer, bytes_gotten / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME,
+                                       0);
+
+                //if (convert.len > 0 && convert.buf)
+                //    free(convert.buf);
+            }
+            if (bytes_wanted > 0)
+                free(buffer);
 #endif
             break;
         }
@@ -387,12 +462,17 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 
                 size_t samples_done = 0;
                 while (samples_done != samples_to_do) {
-                    size_t sampleLen = (sfx->sampleLength < samples_to_do - samples_done) ? sfx->sampleLength : samples_to_do - samples_done;
-                    memcpy(&buffer[samples_done], sfx->samplePtr, sampleLen * sizeof(Sint16));
+                    size_t sampleLen = (sfx->sampleLength * 2 < samples_to_do - samples_done) ? sfx->sampleLength * 2 : samples_to_do - samples_done;
+                    //memcpy(&buffer[samples_done], sfx->samplePtr, sampleLen * sizeof(Sint16));
+                    Uint16* in  = (Uint16*)sfx->samplePtr;
+                    Uint32* out = (Uint32*)&buffer[samples_done];
+                    for (size_t i = 0; i < sampleLen / 2; i++) {
+                        *out++ = (*in << 16) | *in++;
+                    }
 
                     samples_done += sampleLen;
-                    sfx->samplePtr += sampleLen;
-                    sfx->sampleLength -= sampleLen;
+                    sfx->samplePtr += sampleLen / 2;
+                    sfx->sampleLength -= sampleLen / 2;
 
                     if (sfx->sampleLength == 0) {
                         if (sfx->loopSFX) {
@@ -406,9 +486,9 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                     }
                 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+//#if RETRO_USING_SDL1 || RETRO_USING_SDL2
                 ProcessAudioMixing(mix_buffer, buffer, (int)samples_done, sfxVolume, sfx->pan);
-#endif
+//#endif
             }
         }
 
@@ -431,7 +511,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
     }
 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+//#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
@@ -472,7 +552,7 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
     }
 }
 #endif
-#endif
+//#endif
 
 void LoadMusic(void *userdata)
 {
@@ -494,10 +574,10 @@ void LoadMusic(void *userdata)
 
     LockAudioDevice();
     uint oldPos   = 0;
-    uint oldTotal = 0;
+    //uint oldTotal = 0;
     if (musInfo.loaded) {
         oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
-        oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
+        //oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
         StopMusic(false);
     }
 
@@ -610,7 +690,8 @@ bool PlayMusic(int track, int musStartPos)
         }
         trackBuffer = track;
         musicStatus = MUSIC_LOADING;
-        SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+        //SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+        sys_CreateThread(LoadMusic, NULL);
         UnlockAudioDevice();
         return true;
     }
@@ -643,7 +724,7 @@ void LoadSfx(char *filePath, byte sfxID)
 
     StrCopy(fullPath, "Data/SoundFX/");
     StrAdd(fullPath, filePath);
-
+    printf("%s\n", fullPath);
     if (LoadFile(fullPath, &info)) {
 #if !RETRO_USE_ORIGINAL_CODE
         byte type = fullPath[StrLength(fullPath) - 3];
@@ -652,6 +733,7 @@ void LoadSfx(char *filePath, byte sfxID)
             FileRead(sfx, info.vfileSize);
             CloseFile();
 
+    #if RETRO_USING_SDL
             SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
             if (src == NULL) {
                 printLog("Unable to open sfx: %s", info.fileName);
@@ -698,16 +780,41 @@ void LoadSfx(char *filePath, byte sfxID)
                     }
                 }
             }
+    #elif RETRO_PLATFORM == RETRO_3DS
+            FILE *src = fmemopen(sfx, info.vfileSize, "rb");
+            if (src == NULL) {
+                printLog("Unable to open sfx: %s", info.fileName);
+            }
+            else {
+                AUD_WavData* wav = aud_LoadWAV(src);
+                fclose(src);
+    
+                if (wav == NULL) {
+                    printLog("Unable to read sfx: %s", info.fileName);
+                }
+                else {
+                    if (sfxList[sfxID].buffer)
+                        sys_LinearFree(sfxList[sfxID].buffer);
+                    sfxList[sfxID].buffer = (Sint16 *)wav->data;
+                    //memcpy(sfxList[sfxID].buffer, wav->data, wav->size);
+                    sfxList[sfxID].length = wav->size / sizeof(Sint16);
+                    sfxList[sfxID].loaded = true;
+                    aud_FreeWAV(wav);
+                }
+            }
+            delete[] sfx;
+    #endif
         }
         else if (type == 'o') {
             // ogg sfx :(
             OggVorbis_File vf;
-            ov_callbacks callbacks = OV_CALLBACKS_NOCLOSE;
+            ov_callbacks callbacks;
+    #if RETRO_PLATFORM != RETRO_3DS
+            callbacks = OV_CALLBACKS_NOCLOSE;
+    #endif
             vorbis_info *vinfo;
-            byte *buf;
-            SDL_AudioSpec spec;
+            byte *buf;            
             int bitstream = -1;
-            long samplesize;
             long samples;
             int read, toRead;
 
@@ -731,6 +838,9 @@ void LoadSfx(char *filePath, byte sfxID)
 
             byte *audioBuf = NULL;
             uint audioLen  = 0;
+    #if RETRO_USING_SDL
+            long samplesize;
+            SDL_AudioSpec spec;
             memset(&spec, 0, sizeof(SDL_AudioSpec));
 
             spec.format   = AUDIO_S16;
@@ -788,6 +898,40 @@ void LoadSfx(char *filePath, byte sfxID)
                 sfxList[sfxID].loaded = true;
                 UnlockAudioDevice();
             }
+    #elif RETRO_PLATFORM == RETRO_3DS
+            //int format = sizeof(Sint16);
+            int size;
+            int channels = vinfo->channels;
+            samples = (long)ov_pcm_total(&vf, -1);
+
+            audioLen = size = (Uint32)(samples * channels * 2);
+            audioBuf        = (byte *)sys_LinearAlloc(audioLen);
+            buf             = audioBuf;
+            toRead          = audioLen;
+
+            for (read = (int)ov_read(&vf, (char *)buf, toRead, &bitstream); read > 0;
+                 read = (int)ov_read(&vf, (char *)buf, toRead, &bitstream)) {
+                if (read < 0) {
+                    sys_LinearFree(audioBuf);
+                    ov_clear(&vf);
+                    printLog("failed to read ogg sfx!");
+                    return;
+                }
+                toRead -= read;
+                buf += read;
+            }
+
+            ov_clear(&vf);
+
+            // Don't return a buffer that isn't a multiple of samplesize
+            //samplesize = ((spec.format & 0xFF) / 8) * spec.channels;
+            //audioLen &= ~(samplesize - 1);
+
+            StrCopy(sfxList[sfxID].name, filePath);
+            sfxList[sfxID].buffer = (Sint16 *)audioBuf;
+            sfxList[sfxID].length = audioLen / sizeof(Sint16);
+            sfxList[sfxID].loaded = true;
+    #endif
         }
         else {
             // wtf lol

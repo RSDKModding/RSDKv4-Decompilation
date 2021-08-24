@@ -40,6 +40,7 @@ typedef unsigned int uint;
 #define RETRO_WP7      (6)
 // Custom Platforms start here
 #define RETRO_UWP (7)
+#define RETRO_3DS (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -70,21 +71,54 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_OSX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
+
 #elif defined __ANDROID__
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
+
+#elif defined __3DS__
+#include "3ds/3ds.h"
+#include <tremor/ivorbisfile.h>
+#define RETRO_PLATFORM (RETRO_3DS)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#define DEFAULT_SCREEN_XSIZE (400)
+#define DEFAULT_USE_HQ_MODES (0)
+#define RETRO_DEFAULTSCALINGMODE (1)
+#define RETRO_DEFAULTWINDOWSCALE (1)
+#define DEFAULT_VSYNC (1)
+#ifdef BUILD_SONIC_1
+  #define BASE_PATH "sdmc:/3ds/Sonic1/"
+#else
+  #define BASE_PATH "sdmc:/3ds/Sonic2/"
+#endif
+
 #else
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
+#ifndef DEFAULT_SCREEN_XSIZE
 #define DEFAULT_SCREEN_XSIZE 424
+#endif
+#ifndef DEFAULT_FULLSCREEN
 #define DEFAULT_FULLSCREEN   false
+#endif
+
+#if RETRO_PLATFORM != RETRO_3DS
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
+#endif
 // set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size
+#ifndef RETRO_DEFAULTSCALINGMODE
 #define RETRO_DEFAULTSCALINGMODE 2
+#endif
+#ifndef RETRO_DEFAULTWINDOWSCALE
+#define RETRO_DEFAULTWINDOWSCALE 2
+#endif
+#ifndef RETRO_DEFAULT_USE_HQ_MODES
+#define RETRO_DEFAULT_USE_HQ_MODES true
+#endif
 
 #ifndef BASE_PATH
 #define BASE_PATH ""

@@ -94,7 +94,7 @@ void InitUserdata()
         ini.SetInteger("Dev", "StartingPlayer", Engine.startPlayer = 255);
         ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
-        ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
+        ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = DEFAULT_USE_HQ_MODES);
         ini.SetString("Dev", "DataFile", (char *)"Data.rsdk");
         StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
@@ -118,9 +118,9 @@ void InitUserdata()
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
-        ini.SetBool("Window", "VSync", Engine.vsync = false);
+        ini.SetBool("Window", "VSync", Engine.vsync = DEFAULT_VSYNC);
         ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = RETRO_DEFAULTSCALINGMODE);
-        ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
+        ini.SetInteger("Window", "WindowScale", Engine.windowScale = RETRO_DEFAULTWINDOWSCALE);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
         ini.SetInteger("Window", "DimLimit", Engine.dimLimit = 300);
@@ -201,6 +201,23 @@ void InitUserdata()
         ini.SetFloat("Controller 1", "RStickDeadzone", RSTICK_DEADZONE = 0.3);
         ini.SetFloat("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE = 0.3);
         ini.SetFloat("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE = 0.3);
+#endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+        ini.SetInteger("Controller 1", "Up", inputDevice[INPUT_UP].contMappings = 11);
+        ini.SetInteger("Controller 1", "Down", inputDevice[INPUT_DOWN].contMappings = 12);
+        ini.SetInteger("Controller 1", "Left", inputDevice[INPUT_LEFT].contMappings = 13);
+        ini.SetInteger("Controller 1", "Right", inputDevice[INPUT_RIGHT].contMappings = 14);
+        ini.SetInteger("Controller 1", "A", inputDevice[INPUT_BUTTONA].contMappings = 0);
+        ini.SetInteger("Controller 1", "B", inputDevice[INPUT_BUTTONB].contMappings = 1);
+        ini.SetInteger("Controller 1", "C", inputDevice[INPUT_BUTTONC].contMappings = 2);
+        ini.SetInteger("Controller 1", "X", inputDevice[INPUT_BUTTONX].contMappings = 3);
+        ini.SetInteger("Controller 1", "Y", inputDevice[INPUT_BUTTONY].contMappings = 16);
+        ini.SetInteger("Controller 1", "Z", inputDevice[INPUT_BUTTONZ].contMappings = 17);
+        ini.SetInteger("Controller 1", "L", inputDevice[INPUT_BUTTONL].contMappings = 9);
+        ini.SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings = 10);
+        ini.SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings = 6);
+        ini.SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings = 4);
 #endif
 
         ini.Write(buffer);
@@ -425,7 +442,47 @@ void InitUserdata()
         if (!ini.GetFloat("Controller 1", "RTriggerDeadzone", &RTRIGGER_DEADZONE))
             RTRIGGER_DEADZONE = 0.3;
 #endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+        if (!ini.GetInteger("Controller 1", "Up", &inputDevice[INPUT_UP].contMappings))
+            inputDevice[INPUT_UP].contMappings = 11;
+        if (!ini.GetInteger("Controller 1", "Down", &inputDevice[INPUT_DOWN].contMappings))
+            inputDevice[INPUT_DOWN].contMappings = 12;
+        if (!ini.GetInteger("Controller 1", "Left", &inputDevice[INPUT_LEFT].contMappings))
+            inputDevice[INPUT_LEFT].contMappings = 13;
+        if (!ini.GetInteger("Controller 1", "Right", &inputDevice[INPUT_RIGHT].contMappings))
+            inputDevice[INPUT_RIGHT].contMappings = 14;
+        if (!ini.GetInteger("Controller 1", "A", &inputDevice[INPUT_BUTTONA].contMappings))
+            inputDevice[INPUT_BUTTONA].contMappings = 0;
+        if (!ini.GetInteger("Controller 1", "B", &inputDevice[INPUT_BUTTONB].contMappings))
+            inputDevice[INPUT_BUTTONB].contMappings = 1;
+        if (!ini.GetInteger("Controller 1", "C", &inputDevice[INPUT_BUTTONC].contMappings))
+            inputDevice[INPUT_BUTTONC].contMappings = 2;
+        if (!ini.GetInteger("Controller 1", "X", &inputDevice[INPUT_BUTTONX].contMappings))
+            inputDevice[INPUT_BUTTONX].contMappings = 3;
+        if (!ini.GetInteger("Controller 1", "Y", &inputDevice[INPUT_BUTTONY].contMappings))
+            inputDevice[INPUT_BUTTONY].contMappings = 16;
+        if (!ini.GetInteger("Controller 1", "Z", &inputDevice[INPUT_BUTTONZ].contMappings))
+            inputDevice[INPUT_BUTTONZ].contMappings = 17;
+        if (!ini.GetInteger("Controller 1", "L", &inputDevice[INPUT_BUTTONL].contMappings))
+            inputDevice[INPUT_BUTTONL].contMappings = 9;
+        if (!ini.GetInteger("Controller 1", "R", &inputDevice[INPUT_BUTTONR].contMappings))
+            inputDevice[INPUT_BUTTONR].contMappings = 10;
+        if (!ini.GetInteger("Controller 1", "Start", &inputDevice[INPUT_START].contMappings))
+            inputDevice[INPUT_START].contMappings = 6;
+        if (!ini.GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
+            inputDevice[INPUT_SELECT].contMappings = 4;
+#endif
     }
+
+#if RETRO_PLATFORM == RETRO_3DS
+    if (SCREEN_XSIZE >= 800)
+        SCREEN_XSIZE = 800;
+    else if (SCREEN_XSIZE >= 400)
+        SCREEN_XSIZE = 400;
+    else if (SCREEN_XSIZE <= 320)
+        SCREEN_XSIZE = 320;
+#endif
 
     SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
 
@@ -541,12 +598,13 @@ void writeSettings()
     ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
-#if RETRO_USING_SDL2
+#if RETRO_PLATFORM != RETRO_3DS
+  #if RETRO_USING_SDL2
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
-#endif
-#if RETRO_USING_SDL1
+  #endif
+  #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
-#endif
+  #endif
     ini.SetInteger("Keyboard 1", "Up", inputDevice[INPUT_UP].keyMappings);
     ini.SetInteger("Keyboard 1", "Down", inputDevice[INPUT_DOWN].keyMappings);
     ini.SetInteger("Keyboard 1", "Left", inputDevice[INPUT_LEFT].keyMappings);
@@ -561,6 +619,7 @@ void writeSettings()
     ini.SetInteger("Keyboard 1", "R", inputDevice[INPUT_BUTTONR].keyMappings);
     ini.SetInteger("Keyboard 1", "Start", inputDevice[INPUT_START].keyMappings);
     ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
+#endif
 
 #if RETRO_USING_SDL2
     ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
@@ -575,6 +634,11 @@ void writeSettings()
     ini.SetComment("Controller 1", "IC1Comment10", "CONTROLLER_BUTTON_RSTICK_DOWN    = 23");
     ini.SetComment("Controller 1", "IC1Comment11", "CONTROLLER_BUTTON_RSTICK_LEFT    = 24");
     ini.SetComment("Controller 1", "IC1Comment12", "CONTROLLER_BUTTON_RSTICK_RIGHT   = 25");
+#endif
+
+#if RETRO_PLATFORM == RETRO_3DS
+    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
+    ini.SetComment("Controller 1", "IC1Comment2", "(0 = A, 1 = B, 2 = Y, 3 = X, 4 = Select, 5 = Touch, 6 = Start, 9 = L, 10 = R, 11 = Up, 12 = Down, 13 = Left, 14 = Right, 16 = ZL, 17 = ZR)");
 #endif
     ini.SetInteger("Controller 1", "Up", inputDevice[INPUT_UP].contMappings);
     ini.SetInteger("Controller 1", "Down", inputDevice[INPUT_DOWN].contMappings);
@@ -591,11 +655,13 @@ void writeSettings()
     ini.SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings);
     ini.SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings);
 
+#if RETRO_PLATFORM != RETRO_3DS
     ini.SetComment("Controller 1", "DeadZoneComment", "Deadzones, 0.0-1.0");
     ini.SetFloat("Controller 1", "LStickDeadzone", LSTICK_DEADZONE);
     ini.SetFloat("Controller 1", "RStickDeadzone", RSTICK_DEADZONE);
     ini.SetFloat("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE);
     ini.SetFloat("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE);
+#endif
 
     char buffer[0x100];
 
@@ -940,6 +1006,7 @@ void initMods()
         try {
             auto rdi = fs::directory_iterator(modPath);
             for (auto de : rdi) {
+                //printf("%s\n", de.path().string().c_str());
                 if (de.is_directory()) {
                     fs::path modDirPath = de.path();
 
@@ -982,8 +1049,8 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
     info->folder              = "";
     info->active              = false;
 
-    const std::string modDir = modsPath + "/" + folder;
-
+    const std::string modDir = modsPath + folder;
+    //printf("%s\n", modDir.c_str());
     FileIO *f = fOpen((modDir + "/mod.ini").c_str(), "r");
     if (f) {
         fClose(f);
@@ -1026,6 +1093,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
             try {
                 auto data_rdi = fs::recursive_directory_iterator(dataPath);
                 for (auto data_de : data_rdi) {
+                    //printf("%s\n", data_de.path().string().c_str());
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -1188,9 +1256,9 @@ void saveMods()
     fs::path modPath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
-        std::string mod_config = modPath.string() + "/modconfig.ini";
+        std::string mod_config = modPath.string() + "modconfig.ini";
         IniParser modConfig;
-
+        printf("%s\n", mod_config.c_str());
         for (int m = 0; m < modList.size(); ++m) {
             ModInfo *info                 = &modList[m];
 

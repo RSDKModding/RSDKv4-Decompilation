@@ -123,6 +123,25 @@ inline void freeMusInfo()
     }
 }
 #endif
+
+#elif RETRO_PLATFORM == RETRO_3DS
+void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
+void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
+void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
+
+inline void freeMusInfo()
+{
+    if (musInfo.loaded) {
+        if (musInfo.buffer)
+            delete[] musInfo.buffer;
+        ov_clear(&musInfo.vorbisFile);
+        musInfo.buffer = nullptr;
+        musInfo.trackLoop = false;
+        musInfo.loopPoint = 0;
+        musInfo.loaded    = false;
+    }
+}
+
 #else
 void ProcessMusicStream() {}
 void ProcessAudioPlayback() {}
@@ -155,9 +174,13 @@ inline void StopMusic(bool setStatus)
     if (setStatus)
         musicStatus = MUSIC_STOPPED;
 #if !RETRO_USE_ORIGINAL_CODE
+  #if RETRO_USING_SDL
     SDL_LockAudio();
+  #endif
     freeMusInfo();
+  #if RETRO_USING_SDL
     SDL_UnlockAudio();
+  #endif
 #endif
 }
 
@@ -249,7 +272,7 @@ inline void ReleaseGlobalSfx()
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
             if (sfxList[i].buffer)
-                free(sfxList[i].buffer);
+                sys_LinearFree(sfxList[i].buffer);
             sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;
@@ -264,7 +287,7 @@ inline void ReleaseStageSfx()
             StrCopy(sfxList[i].name, "");
             StrCopy(sfxNames[i], "");
             if (sfxList[i].buffer)
-                free(sfxList[i].buffer);
+                sys_LinearFree(sfxList[i].buffer);
             sfxList[i].buffer = NULL;
             sfxList[i].length = 0;
             sfxList[i].loaded = false;

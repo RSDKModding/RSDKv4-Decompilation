@@ -200,7 +200,6 @@ bool getControllerButton(byte buttonID)
 
     return pressed;
 }
-#endif
 
 void controllerInit(byte controllerID)
 {
@@ -240,6 +239,7 @@ void controllerClose(byte controllerID)
     if (controllers.empty())
         inputType = 0;
 }
+#endif
 
 void InitInputDevices()
 {
@@ -434,6 +434,17 @@ void ProcessInput()
     }
     if (!flag && inputType == 1) {
         inputDevice[INPUT_ANY].setReleased();
+    }
+
+#elif RETRO_PLATFORM == RETRO_3DS
+    for (int i = 0; i < 14; ++i)
+    {
+        if (inp_GetButtonDown(inputDevice[i].contMappings)) {
+            inputDevice[i].setHeld();
+            inputDevice[INPUT_ANY].setHeld();
+        } else if (inputDevice[i].hold) {
+            inputDevice[i].setReleased();
+        }
     }
 #endif
 }
