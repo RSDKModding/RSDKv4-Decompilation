@@ -486,8 +486,14 @@ const FunctionInfo functions[] = {
     FunctionInfo("ReadSaveRAM", 0),
     FunctionInfo("WriteSaveRAM", 0),
 
+#if RETRO_REV01
+    FunctionInfo("LoadFontFile", 1),
+#endif
     FunctionInfo("LoadTextFile", 2),
     FunctionInfo("GetTextInfo", 5),
+#if RETRO_REV01
+    FunctionInfo("DrawText", 7),
+#endif
     FunctionInfo("GetVersionNumber", 2),
 
     FunctionInfo("GetTableValue", 3),
@@ -501,9 +507,11 @@ const FunctionInfo functions[] = {
     FunctionInfo("CallNativeFunction4", 5),
 
     FunctionInfo("SetObjectRange", 1),
+#if !RETRO_REV01
     FunctionInfo("GetObjectValue", 3),
     FunctionInfo("SetObjectValue", 3),
     FunctionInfo("CopyObject", 3),
+#endif
     FunctionInfo("Print", 3),
 };
 
@@ -998,7 +1006,13 @@ enum ScrFunc {
     FUNC_GETANIMATIONBYNAME,
     FUNC_READSAVERAM,
     FUNC_WRITESAVERAM,
+#if RETRO_REV01
+    FUNC_LOADTEXTFONT,
+#endif
     FUNC_LOADTEXTFILE,
+#if RETRO_REV01
+    FUNC_DRAWTEXT,
+#endif
     FUNC_GETTEXTINFO,
     FUNC_GETVERSIONNUMBER,
     FUNC_GETTABLEVALUE,
@@ -1009,9 +1023,11 @@ enum ScrFunc {
     FUNC_CALLNATIVEFUNCTION2,
     FUNC_CALLNATIVEFUNCTION4,
     FUNC_SETOBJECTRANGE,
+#if !RETRO_REV01
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
+#endif
     FUNC_PRINT,
     FUNC_MAX_CNT
 };
@@ -1096,10 +1112,10 @@ void CheckStaticText(char *text)
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
             return;
-        var       = &privateStaticVariables[privateStaticVarCount];
-        cnt       = &privateStaticVarCount;
-        textPos   = 12;
-        priv = true;
+        var     = &privateStaticVariables[privateStaticVarCount];
+        cnt     = &privateStaticVarCount;
+        textPos = 12;
+        priv    = true;
     }
     MEM_ZEROP(var);
 
@@ -2176,9 +2192,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         else if (FindStringToken(scriptText, Engine.gamePlatform, 1) == -1
                                  && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
 #if RETRO_USE_HAPTICS
-                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1)
+                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
-                        {
+                        ) {
                             parseMode = PARSEMODE_PLATFORMSKIP;
                         }
                     }
@@ -3537,10 +3553,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                     scriptEng.operands[1] -= scriptEng.operands[5] + scriptEng.operands[6];
                                 }
                                 else {
+                                    character += scriptEng.operands[0];
                                     spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                     scriptEng.operands[1] -= (scriptEng.operands[6] + spriteFrame->width);
 
-                                    character += scriptEng.operands[0];
                                     DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                                spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                                scriptInfo->spriteSheetID);
@@ -3566,8 +3582,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                 scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                             }
                             else {
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 character += scriptEng.operands[0];
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                            spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                                 scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
@@ -3590,8 +3606,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                     scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                                 }
                                 else {
-                                    spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                     character += scriptEng.operands[0];
+                                    spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                     DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                                spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                                scriptInfo->spriteSheetID);
@@ -3618,8 +3634,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                 scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                             }
                             else {
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 character += scriptEng.operands[0];
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                            spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                                 scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
@@ -3638,11 +3654,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                             if (character > '9' && character < 'f')
                                 character -= 'A';
                             if (character <= -1) {
-                                scriptEng.operands[1] = scriptEng.operands[1] + scriptEng.operands[5] + scriptEng.operands[6];
+                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                             }
                             else {
-                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 character += scriptEng.operands[0];
+                                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + character];
                                 DrawSprite(scriptEng.operands[1] + spriteFrame->pivotX, scriptEng.operands[2] + spriteFrame->pivotY,
                                            spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                                 scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
@@ -4032,7 +4048,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_STOPMUSIC:
                 opcodeSize = 0;
-                StopMusic();
+                StopMusic(true);
                 break;
             case FUNC_PAUSEMUSIC:
                 opcodeSize = 0;
@@ -4309,10 +4325,21 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize            = 0;
                 scriptEng.checkResult = WriteSaveRAMData();
                 break;
+#if RETRO_REV01
+            case FUNC_LOADTEXTFONT: {
+                opcodeSize = 0;
+                LoadFontFile(scriptText);
+                break;
+            }
+#endif
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-                LoadTextFile(menu, scriptText);
+#if RETRO_REV01
+                LoadTextFile(menu, scriptText, scriptEng.operands[2] != 0);
+#else
+                LoadTextFile(menu, scriptText, false);
+#endif
                 break;
             }
             case FUNC_GETTEXTINFO: {
@@ -4326,6 +4353,18 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             }
+#if RETRO_REV01
+            case FUNC_DRAWTEXT: {
+                opcodeSize        = 0;
+                textMenuSurfaceNo = scriptInfo->spriteSheetID;
+                TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
+                if (!Engine.drawLock) {
+                    DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                   scriptEng.operands[5], scriptEng.operands[6]);
+                }
+                break;
+            }
+#endif
             case FUNC_GETVERSIONNUMBER: {
                 opcodeSize                           = 0;
                 TextMenu *menu                       = &gameMenu[scriptEng.operands[0]];
@@ -4364,11 +4403,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
-                if (scriptEng.operands[0] <= 0xFu)
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
                     nativeFunction[scriptEng.operands[0]](0x00, NULL);
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
-                if (scriptEng.operands[0] <= 0xFu) {
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF) {
                     if (StrLength(scriptText)) {
                         nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
                     }
@@ -4379,7 +4418,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
-                if (scriptEng.operands[0] <= 0xFu)
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
                     nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
                                                           reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
                 break;
@@ -4392,38 +4431,46 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 OBJECT_BORDER_X4 = scriptEng.operands[0] + 0x20 - offset;
                 break;
             }
+#if !RETRO_REV01
             case FUNC_GETOBJECTVALUE: {
-                int valID = scriptEng.operands[1];
-                if (valID <= 47)
-                    scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[valID];
+                if (scriptEng.operands[1] < 48)
+                    scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]];
                 break;
             }
             case FUNC_SETOBJECTVALUE: {
                 opcodeSize = 0;
-                int valID  = scriptEng.operands[1];
-                if (valID <= 47)
-                    objectEntityList[scriptEng.operands[2]].values[valID] = scriptEng.operands[0];
+                if (scriptEng.operands[1] < 48)
+                    objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]] = scriptEng.operands[0];
                 break;
             }
             case FUNC_COPYOBJECT: {
-                opcodeSize = 0;
-                // start index, copy offset, count
-                Entity *src = &objectEntityList[scriptEng.operands[0]];
-                for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                    Entity *dst = &src[scriptEng.operands[1]];
-                    ++src;
-                    memcpy(dst, src, sizeof(Entity));
-                }
-                break;
-            }
-            case FUNC_PRINT: {
-                if (scriptEng.operands[1])
-                    printf("%d", scriptEng.operands[0]);
-                else
-                    printf("%s", scriptText);
+                // dstID, srcID, count
+                Entity *storageList = &objectEntityList[ENTITY_COUNT + scriptEng.operands[0]];
+                Entity *objList     = &objectEntityList[scriptEng.operands[1]];
 
                 if (scriptEng.operands[2])
-                    printf("\n");
+                    memcpy(objList, storageList, sizeof(Entity));
+                else
+                    memcpy(storageList, objList, sizeof(Entity));
+
+                //for (int e = 0; e < scriptEng.operands[2]; ++e) {
+                //    memcpy(storageList, objList, sizeof(Entity));
+                //    storageList++;
+                //    objList++;
+                //}
+                break;
+            }
+#endif
+            case FUNC_PRINT: {
+                endLine = false;
+                if (scriptEng.operands[1])
+                    printLog("%d", scriptEng.operands[0]);
+                else
+                    printLog("%s", scriptText);
+
+                if (scriptEng.operands[2])
+                    printLog("\n");
+                endLine = true;
                 break;
             }
         }

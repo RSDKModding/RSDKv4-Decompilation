@@ -1,10 +1,13 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_ORIGINAL_CODE
 bool usingCWD        = false;
 bool engineDebugMode = false;
+#endif
 
 RetroEngine Engine = RetroEngine();
 
+#if !RETRO_USE_ORIGINAL_CODE
 inline int getLowerRate(int intendRate, int targetRate)
 {
     int result   = 0;
@@ -20,9 +23,11 @@ inline int getLowerRate(int intendRate, int targetRate)
     }
     return result;
 }
+#endif
 
 bool processEvents()
 {
+#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     while (SDL_PollEvent(&Engine.sdlEvents)) {
         // Main Events
@@ -38,89 +43,123 @@ bool processEvents()
                         break;
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                            Engine.gameMode = ENGINE_INITPAUSE;
+                        break;
                 }
                 break;
-            case SDL_CONTROLLERDEVICEADDED: controllerInit(SDL_NumJoysticks() - 1); break;
-            case SDL_CONTROLLERDEVICEREMOVED: controllerClose(SDL_NumJoysticks() - 1); break;
-            case SDL_WINDOWEVENT_CLOSE:
-                if (Engine.window) {
-                    SDL_DestroyWindow(Engine.window);
-                    Engine.window = NULL;
-                }
-                return false;
+            case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
+            case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
+            case SDL_APP_WILLENTERBACKGROUND:
+                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                    Engine.gameMode = ENGINE_INITPAUSE;
+                break;
+            case SDL_APP_TERMINATING: return false;
 #endif
 
 #ifdef RETRO_USING_MOUSE
             case SDL_MOUSEMOTION:
 #if RETRO_USING_SDL2
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+                if (touches <= 1) { // Touch always takes priority over mouse
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
-                    touchX[0] /= Engine.windowScale;
-                    touchY[0] /= Engine.windowScale;
-                    touches = 1;
-#if RETRO_USING_SDL2
+
+                    int width = 0, height = 0;
+                    SDL_GetWindowSize(Engine.window, &width, &height);
+                    touchX[0] = (touchX[0] / (float)width) * SCREEN_XSIZE;
+                    touchY[0] = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
-#endif //! RETRO_USING_SDL2
+#endif
                 break;
             case SDL_MOUSEBUTTONDOWN:
 #if RETRO_USING_SDL2
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+                if (touches <= 0) { // Touch always takes priority over mouse
+#endif
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 1; break;
                     }
                     touches = 1;
 #if RETRO_USING_SDL2
                 }
-#endif //! RETRO_USING_SDL2
+#endif
                 break;
             case SDL_MOUSEBUTTONUP:
 #if RETRO_USING_SDL2
-                if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
-#endif                                                                                     //! RETRO_USING_SDL2
+                if (touches <= 1) { // Touch always takes priority over mouse
+#endif
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = 0; break;
                     }
-                    touches = 1;
+                    touches = 0;
 #if RETRO_USING_SDL2
                 }
-#endif //! RETRO_USING_SDL2
+#endif
                 break;
 #endif
 
-#ifdef RETRO_USING_TOUCH
-#if RETRO_USING_SDL2
+#if defined(RETRO_USING_TOUCH) && RETRO_USING_SDL2
             case SDL_FINGERMOTION:
-                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
+                touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId);
                 for (int i = 0; i < touches; i++) {
-                    touchDown[i]       = true;
-                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE), i);
-                    touchX[i]          = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
-
-                    touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
+                    SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
+                    if (finger) {
+                        touchDown[i] = true;
+                        touchX[i]    = finger->x * SCREEN_XSIZE;
+                        touchY[i]    = finger->y * SCREEN_YSIZE;
+                    }
                 }
                 break;
             case SDL_FINGERDOWN:
-                touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE));
+                touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId);
                 for (int i = 0; i < touches; i++) {
-                    touchDown[i]       = true;
-                    SDL_Finger *finger = SDL_GetTouchFinger(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE), i);
-                    touchX[i]          = (finger->x * SCREEN_XSIZE * Engine.windowScale) / Engine.windowScale;
-
-                    touchY[i] = (finger->y * SCREEN_YSIZE * Engine.windowScale) / Engine.windowScale;
+                    SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
+                    if (finger) {
+                        touchDown[i] = true;
+                        touchX[i]    = finger->x * SCREEN_XSIZE;
+                        touchY[i]    = finger->y * SCREEN_YSIZE;
+                    }
                 }
                 break;
-            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)); break;
+            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId); break;
 #endif //! RETRO_USING_SDL2
-#endif
 
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
                     case SDLK_ESCAPE:
-                        if (Engine.devMenu)
+                        if (Engine.devMenu) {
+#if RETRO_USE_MOD_LOADER
+                            // hacky patch because people can escape
+                            if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
+                                || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
+                                // Reload entire engine
+                                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+                                if (Engine.window) {
+                                    char gameTitle[0x40];
+                                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+                                    SDL_SetWindowTitle(Engine.window, gameTitle);
+                                }
+#endif
+
+                                ReleaseStageSfx();
+                                ReleaseGlobalSfx();
+                                LoadGlobalSfx();
+
+                                forceUseScripts = false;
+                                skipStartMenu   = skipStartMenu_Config;
+                                for (int m = 0; m < modList.size(); ++m) {
+                                    if (modList[m].useScripts && modList[m].active)
+                                        forceUseScripts = true;
+                                    if (modList[m].skipStartMenu && modList[m].active)
+                                        skipStartMenu = true;
+                                }
+                                saveMods();
+                            }
+#endif
+
                             Engine.gameMode = ENGINE_INITDEVMENU;
+                        }
                         break;
                     case SDLK_F4:
                         Engine.isFullScreen ^= 1;
@@ -129,9 +168,7 @@ bool processEvents()
                             Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16,
                                                                     SDL_SWSURFACE | SDL_FULLSCREEN);
                             SDL_ShowCursor(SDL_FALSE);
-#endif
-
-#if RETRO_USING_SDL2
+#elif RETRO_USING_SDL2
                             SDL_RestoreWindow(Engine.window);
                             SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                             SDL_ShowCursor(SDL_FALSE);
@@ -142,9 +179,7 @@ bool processEvents()
                             Engine.windowSurface =
                                 SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
                             SDL_ShowCursor(SDL_TRUE);
-#endif
-                        
-#if RETRO_USING_SDL2
+#elif RETRO_USING_SDL2
                             SDL_SetWindowFullscreen(Engine.window, false);
                             SDL_ShowCursor(SDL_TRUE);
                             SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
@@ -215,10 +250,12 @@ bool processEvents()
                         break;
 #else
                     case SDLK_F11:
+                    case SDLK_INSERT:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
                         break;
                     case SDLK_F12:
+                    case SDLK_PAUSE:
                         if (Engine.devMenu)
                             Engine.masterPaused ^= 1;
                         break;
@@ -242,31 +279,26 @@ bool processEvents()
         }
     }
 #endif
-
-#if RETRO_USING_SDL == 0
-    inp_ScanInput();
-    return sys_MainLoop();
 #endif
     return true;
 }
 
-#if RETRO_USE_NETWORKING
-#include <string>
-#endif
 void RetroEngine::Init()
 {
-#if RETRO_PLATFORM == RETRO_3DS
-    sys_Init(BASE_PATH);
-    gfx_Init();
-#endif
-
-	printf("starting up\n");
-
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
-	printf("init user data\n");
+    CloseRSDKContainers(); // Clears files
+
+    Engine.usingDataFile = false;
+    Engine.usingBytecode = false;
+
+#if !RETRO_USE_ORIGINAL_CODE
     InitUserdata();
+#if RETRO_USE_MOD_LOADER
+    initMods();
+#endif
+
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
     static char resourcePath[256] = { 0 };
@@ -279,57 +311,47 @@ void RetroEngine::Init()
     }
 
     strcpy(dest, resourcePath);
-    strcat(dest, "\\Data.rsdk");
+    strcat(dest, "\\");
+    strcat(dest, Engine.dataFile);
+#elif RETRO_PLATFORM == RETRO_ANDROID
+    StrCopy(dest, gamePath);
+    StrAdd(dest, Engine.dataFile[0]);
 #else
+
     StrCopy(dest, BASE_PATH);
-    StrAdd(dest, Engine.dataFile);
+    StrAdd(dest, Engine.dataFile[0]);
 #endif
     CheckRSDKFile(dest);
+#else
+    CheckRSDKFile("Data.rsdk");
+#endif
+
+#if !RETRO_USE_ORIGINAL_CODE
+    for (int i = 1; i < RETRO_PACK_COUNT; ++i) {
+        if (!StrComp(Engine.dataFile[i], "")) {
+            StrCopy(dest, BASE_PATH);
+            StrAdd(dest, Engine.dataFile[i]);
+            CheckRSDKFile(dest);
+        }
+    }
+#endif
+
     InitNativeObjectSystem();
 
-#if RETRO_USE_NETWORKING
-    buildNetworkIndex();
-#if RSDK_DEBUG
-// here lies the networking test.
-// check Network.cpp for the network code i've written so far
-// it should be commented enough
-
-// TO TEST: build client in x86, server in x64
-// please PLEASE, if you solve networking, make a PR and i (RMG) will gladly review it and
-// put the server code in it's correct spot (2P versus menu)
-#if WIN32
-    {
-        ushort port      = 300;
-        playerListPos    = 2;
-        std::string code = generateCode(port, 6, 2);
-        CodeData c       = parseCode("put the code generated by the server here");
-        initClient(c);
-    }
-#else
-    {
-        ushort port      = 25535;
-        playerListPos    = 0;
-        std::string code = generateCode(port, 8, 1);
-        initServer(port);
-    }
-#endif // WIN32
-#endif // RSDK_DEBUG
-#endif // RETRO_USE_NETWORKING
-
-    gameMode          = ENGINE_MAINGAME;
-    running           = false;
-    bool skipStart    = skipStartMenu;
-	printf("load game config\n");
+    gameMode = ENGINE_MAINGAME;
+    running  = false;
+#if !RETRO_USE_ORIGINAL_CODE
+    bool skipStart = skipStartMenu;
+#endif
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
-		printf("init render device\n");
         if (InitRenderDevice()) {
-			printf("init audio playback\n");
             if (InitAudioPlayback()) {
                 InitFirstStage();
                 ClearScriptData();
                 initialised = true;
                 running     = true;
 
+#if !RETRO_USE_ORIGINAL_CODE
                 if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
                     skipStart = true;
                     InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
@@ -394,10 +416,12 @@ void RetroEngine::Init()
                     }
                     skipStart = true;
                 }
+#endif
             }
         }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
@@ -433,16 +457,16 @@ void RetroEngine::Init()
     }
 
     if (Engine.gameType == GAME_SONIC1) {
-        StrCopy(achievements[5].name, "Ring King");
-        StrCopy(achievements[1].name, "Ramp Ring Acrobatics");
-        StrCopy(achievements[0].name, "Blast Processing");
+        StrCopy(achievements[5].name, "Secret of Labyrinth Zone");
+        StrCopy(achievements[1].name, "Blast Processing");
+        StrCopy(achievements[0].name, "Ramp Ring Acrobatics");
         StrCopy(achievements[2].name, "Secret of Marble Zone");
         StrCopy(achievements[3].name, "Block Buster");
-        StrCopy(achievements[4].name, "Secret of Labyrinth Zone");
+        StrCopy(achievements[4].name, "Ring King");
         StrCopy(achievements[6].name, "Flawless Pursuit");
         StrCopy(achievements[7].name, "Bombs Away");
-        StrCopy(achievements[9].name, "Hidden Transporter");
-        StrCopy(achievements[8].name, "Chaos Connoisseur");
+        StrCopy(achievements[9].name, "Chaos Connoisseur");
+        StrCopy(achievements[8].name, "Hidden Transporter");
         StrCopy(achievements[10].name, "One For the Road");
         StrCopy(achievements[11].name, "Beat The Clock");
     }
@@ -461,79 +485,70 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    if (engineDebugMode == false)
-        printf("\x1b[2J");
+    // note to future rdc (or anyone else): what does this do? no vars are named this
+    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM);
 
-    if (!skipStart) {
+    if (!skipStart)
         initStartMenu(0);
-	}
+#endif
 }
 
 void RetroEngine::Run()
 {
-#if RETRO_USING_SDL
-    uint frameStart, frameEnd = SDL_GetTicks();
-#else
-    uint frameStart, frameEnd = sys_GetTicks();
-#endif
-    float frameDelta = 0.f;
-    float msPerFrame = 1000.f / 59.94f;
-    unsigned int frameTime = 0;
-    bool fullspeed = false;
+    const Uint64 frequency = SDL_GetPerformanceFrequency();
+    Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
+    float frameDelta = 0.0f;
 
     while (running) {
-#if RETRO_USING_SDL
-        frameStart = SDL_GetTicks();
-#else
-        frameStart = sys_GetTicks();
+#if !RETRO_USE_ORIGINAL_CODE
+        frameStart = SDL_GetPerformanceCounter();
+        frameDelta = frameStart - frameEnd;
+        if (frameDelta < frequency / (float)refreshRate) {
+            continue;
+        }
+        frameEnd = SDL_GetPerformanceCounter();
 #endif
-        frameTime = frameStart - frameEnd;
-        frameEnd = frameStart;
 
-        if (frameTime <= ceil(msPerFrame)) {
-            fullspeed = true;
-        } else {
-            //printf("Lag: %d\n", frameTime);
-            frameDelta += frameTime;
-
-            if (frameDelta > msPerFrame * 4)
-                frameDelta = msPerFrame * 4;
-        }        
-
-#if RETRO_USING_SDL
-        if (frameDelta < 1000.0f / (float)refreshRate)
-            SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
-
-        frameEnd = SDL_GetTicks();
-#endif
         running = processEvents();
-
-        for (; fullspeed == true || frameDelta >= msPerFrame; frameDelta -= msPerFrame) {
+#if !RETRO_USE_ORIGINAL_CODE
+        for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
+#endif
 
-            if (!masterPaused/* || frameStep*/) {
+#if !RETRO_USE_ORIGINAL_CODE
+            if (!masterPaused || frameStep) {
+#endif
                 ProcessNativeObjects();
-                //RenderRenderDevice();
-                //frameStep = false;
+#if !RETRO_USE_ORIGINAL_CODE
             }
-
-            if (fullspeed) break;
+#endif
         }
 
-        if (fullspeed) {
-            frameDelta = 0;
-            fullspeed = false;
-        }
+#if !RETRO_USE_ORIGINAL_CODE
+        if (!masterPaused || frameStep) {
+#endif
+            FlipScreen();
 
-        RenderRenderDevice();
-        //frameStep = false;
+#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
+            SDL_GL_SwapWindow(Engine.window);
+#endif
+            frameStep  = false;
+        }
+#endif
     }
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
+#if !RETRO_USE_ORIGINAL_CODE
+    ReleaseInputDevices();
     writeSettings();
+#if RETRO_USE_MOD_LOADER
+    saveMods();
+#endif
+#endif
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL1_AUDIO
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_Quit();
 #endif
 }
@@ -541,7 +556,7 @@ void RetroEngine::Run()
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
-    byte fileBuffer = 0;
+    byte fileBuffer  = 0;
     byte fileBuffer2 = 0;
     char strBuffer[0x40];
 
@@ -666,12 +681,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
-    return loaded;
-}
+#if !RETRO_USE_ORIGINAL_CODE
+    AddNativeFunction("ExitGame", ExitGame);
+    AddNativeFunction("OpenModMenu", OpenModMenu);
+#endif
 
-void RetroEngine::Callback(int callbackID)
-{
-    switch (callbackID) {
-        default: printLog("Callback: Unknown (%d)", callbackID); break;
-    }
+    return loaded;
 }

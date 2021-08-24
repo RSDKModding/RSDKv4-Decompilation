@@ -6,13 +6,9 @@ int main(int argc, char *argv[])
         if (StrComp(argv[i], "UsingCWD"))
             usingCWD = true;
     }
-#if RETRO_USING_SDL
+    
     SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
-#endif
     Engine.Init();
-#if RETRO_USING_SDL2
-    controllerInit(0);
-#endif
     Engine.Run();
 
     return 0;

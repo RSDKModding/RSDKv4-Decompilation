@@ -10,7 +10,7 @@ void initDevMenu()
     // DrawStageGFXHQ = 0;
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
@@ -25,13 +25,20 @@ void initDevMenu()
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     setTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ           = false;
-    touchTimer               = 0;
+    touchTimer     = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
+#endif
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 void initErrorMessage()
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
@@ -52,13 +59,17 @@ void initErrorMessage()
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
     touchTimer                   = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
+#endif
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 void processStageSelect()
 {
     ClearScreen(0xF0);
-    keyDown.start = false;
-    keyDown.up    = false;
-    keyDown.down  = false;
 
     CheckKeyDown(&keyDown);
     CheckKeyPress(&keyPress);
@@ -72,7 +83,7 @@ void processStageSelect()
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
         if (touches > 0) {
             if (touchDown[0] && !(touchTimer % 8)) {
-                if (touchX[0] < SCREEN_CENTERY) {
+                if (touchX[0] < SCREEN_CENTERX) {
                     if (touchY[0] >= SCREEN_CENTERY) {
                         if (!keyDown.down)
                             keyPress.down = true;
@@ -84,10 +95,17 @@ void processStageSelect()
                         keyDown.up = true;
                     }
                 }
-                else if (touchX[0] != SCREEN_CENTERY && touchY[0] > SCREEN_CENTERY) {
-                    if (!keyDown.start)
-                        keyPress.start = true;
-                    keyDown.start = true;
+                else if (touchX[0] > SCREEN_CENTERX) {
+                    if (touchY[0] > SCREEN_CENTERY) {
+                        if (!keyDown.start)
+                            keyPress.start = true;
+                        keyDown.start = true;
+                    }
+                    else {
+                        if (!keyDown.B)
+                            keyPress.B = true;
+                        keyDown.B = true;
+                    }
                 }
             }
         }
@@ -104,10 +122,15 @@ void processStageSelect()
             if (keyPress.up)
                 gameMenu[0].selection2 -= 2;
 
-            if (gameMenu[0].selection2 > 15)
+            int count = 15;
+#if RETRO_USE_MOD_LOADER
+            count += 2;
+#endif
+
+            if (gameMenu[0].selection2 > count)
                 gameMenu[0].selection2 = 9;
             if (gameMenu[0].selection2 < 9)
-                gameMenu[0].selection2 = 15;
+                gameMenu[0].selection2 = count;
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
@@ -132,6 +155,36 @@ void processStageSelect()
                 else if (gameMenu[0].selection2 == 13) {
                     initStartMenu(0);
                 }
+#if RETRO_USE_MOD_LOADER
+                else if (gameMenu[0].selection2 == 15) {
+                    SetupTextMenu(&gameMenu[0], 0);
+                    AddTextMenuEntry(&gameMenu[0], "MOD LIST");
+                    SetupTextMenu(&gameMenu[1], 0);
+                    initMods(); // reload mods
+
+                    char buffer[0x100];
+                    for (int m = 0; m < modList.size(); ++m) {
+                        StrCopy(buffer, modList[m].name.c_str());
+                        StrAdd(buffer, ": ");
+                        StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");
+                        AddTextMenuEntry(&gameMenu[1], buffer);
+                    }
+
+                    gameMenu[1].alignment      = 1;
+                    gameMenu[1].selectionCount = 3;
+                    gameMenu[1].selection1     = 0;
+                    if (gameMenu[1].rowCount > 18)
+                        gameMenu[1].visibleRowCount = 18;
+                    else
+                        gameMenu[1].visibleRowCount = 0;
+
+                    gameMenu[0].alignment        = 2;
+                    gameMenu[0].selectionCount   = 1;
+                    gameMenu[1].timer            = 0;
+                    gameMenu[1].visibleRowOffset = 0;
+                    stageMode                    = DEVMENU_MODMENU;
+                }
+#endif
                 else {
                     Engine.running = false;
                 }
@@ -313,8 +366,101 @@ void processStageSelect()
                 Engine.gameMode   = ENGINE_MAINGAME;
                 stageListPosition = 0;
             }
+            else if (keyPress.C) {
+                ClearGraphicsData();
+                ClearAnimationData();
+                stageMode       = STAGEMODE_LOAD;
+                Engine.gameMode = ENGINE_MAINGAME;
+            }
             break;
         }
+#if RETRO_USE_MOD_LOADER
+        case DEVMENU_MODMENU: // Mod Menu
+        {
+            if (keyDown.down) {
+                gameMenu[1].timer += 1;
+                if (gameMenu[1].timer > 8) {
+                    gameMenu[1].timer = 0;
+                    keyPress.down     = true;
+                }
+            }
+            else {
+                if (keyDown.up) {
+                    gameMenu[1].timer -= 1;
+                    if (gameMenu[1].timer < -8) {
+                        gameMenu[1].timer = 0;
+                        keyPress.up       = true;
+                    }
+                }
+                else {
+                    gameMenu[1].timer = 0;
+                }
+            }
+            if (keyPress.down) {
+                gameMenu[1].selection1++;
+                if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
+                    gameMenu[1].visibleRowOffset += 1;
+                }
+            }
+            if (keyPress.up) {
+                gameMenu[1].selection1--;
+                if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
+                    gameMenu[1].visibleRowOffset -= 1;
+                }
+            }
+            if (gameMenu[1].selection1 >= gameMenu[1].rowCount) {
+                gameMenu[1].selection1       = 0;
+                gameMenu[1].visibleRowOffset = 0;
+            }
+            if (gameMenu[1].selection1 < 0) {
+                gameMenu[1].selection1       = gameMenu[1].rowCount - 1;
+                gameMenu[1].visibleRowOffset = gameMenu[1].rowCount - gameMenu[1].visibleRowCount;
+            }
+            gameMenu[1].selection2 = gameMenu[1].selection1; //its a bug fix LOL
+
+            char buffer[0x100];
+            if (keyPress.A || keyPress.start || keyPress.left || keyPress.right) {
+                modList[gameMenu[1].selection1].active ^= 1;
+                StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
+                StrAdd(buffer, ": ");
+                StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
+                EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
+            }
+
+            if (keyPress.B) {
+                // Reload entire engine
+                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+                if (Engine.window) {
+                    char gameTitle[0x40];
+                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+                    SDL_SetWindowTitle(Engine.window, gameTitle);
+                }
+#endif
+
+                ReleaseStageSfx();
+                ReleaseGlobalSfx();
+                LoadGlobalSfx();
+
+                forceUseScripts = false;
+                disableFocusPause = disableFocusPause_Config;
+                for (int m = 0; m < modList.size(); ++m) {
+                    if (modList[m].useScripts && modList[m].active)
+                        forceUseScripts = true;
+                    if (modList[m].skipStartMenu && modList[m].active)
+                        skipStartMenu = true;
+                    if (modList[m].disableFocusPause && modList[m].active)
+                        disableFocusPause = true;
+                }
+                saveMods();
+                setTextMenu(DEVMENU_MAIN);
+            }
+
+            DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
+            DrawTextMenu(&gameMenu[1], SCREEN_CENTERX + 100, 64);
+            break;
+        }
+#endif
         default: break;
     }
 }
@@ -324,12 +470,12 @@ void initStartMenu(int mode)
     // DrawStageGFXHQ = 0;
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
-    fadeMode                 = 0;
-    playerListPos            = 0;
-    Engine.gameMode          = ENGINE_STARTMENU;
+    fadeMode        = 0;
+    playerListPos   = 0;
+    Engine.gameMode = ENGINE_STARTMENU;
     ClearGraphicsData();
     ClearAnimationData();
     SetActivePalette(0, 0, 256);
@@ -471,9 +617,10 @@ void initStartMenu(int mode)
 
         stageMode = STARTMENU_TACONFIRMSEL;
     }
-
-    SetMusicTrack("MainMenu.ogg", 0, true, 0);
-    PlayMusic(0, 1);
+#if RETRO_HARDWARE_RENDER
+    render3DEnabled = false;
+    UpdateHardwareTextures();
+#endif
 }
 
 void setTextMenu(int sm)
@@ -499,10 +646,16 @@ void setTextMenu(int sm)
             AddTextMenuEntry(&gameMenu[0], "START GAME");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "STAGE SELECT");
+#if !RETRO_USE_ORIGINAL_CODE
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "START MENU");
+#if RETRO_USE_MOD_LOADER
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "MODS");
+#endif
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "EXIT GAME");
+#endif
             gameMenu[0].alignment        = 2;
             gameMenu[0].selectionCount   = 2;
             gameMenu[0].selection1       = 0;
@@ -526,6 +679,7 @@ void setTextMenu(int sm)
             gameMenu[0].selection2     = 3;
             gameMenu[0].selectionCount = 2;
             break;
+#if !RETRO_USE_ORIGINAL_CODE
         case STARTMENU_MAIN: {
             char title[0x80];
             StringUpperCase(title, Engine.gameWindowText);
@@ -550,6 +704,10 @@ void setTextMenu(int sm)
                 AddTextMenuEntry(&gameMenu[0], " ");
                 AddTextMenuEntry(&gameMenu[0], "2P VERSUS");
             }
+#if RETRO_USE_MOD_LOADER
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "MODS");
+#endif
             LoadConfigListText(&gameMenu[1], 0); // to get the data stored
             gameMenu[0].alignment        = 2;
             gameMenu[0].selectionCount   = 2;
@@ -720,6 +878,7 @@ void setTextMenu(int sm)
                 AddTextMenuEntry(&gameMenu[1], itemBoxTypes[GetGlobalVariableByName("options.shieldType")]);
             }
         }
+#endif
     }
 }
 
@@ -727,6 +886,7 @@ void processStartMenu()
 {
     ClearScreen(0xF0);
     keyDown.start = false;
+    keyDown.B     = false;
     keyDown.up    = false;
     keyDown.down  = false;
 
@@ -734,30 +894,34 @@ void processStartMenu()
     CheckKeyPress(&keyPress);
 
     if (!keyDown.start && !keyDown.up && !keyDown.down) {
-        if (touches > 0) {
-            if (touchDown[0] && !(touchTimer % 8)) {
-                if (touchX[0] < SCREEN_CENTERX) {
-                    if (touchY[0] >= SCREEN_CENTERY) {
+        for (int t = 0; t < touches; ++t) {
+            if (touchDown[t] && !(touchTimer % 8)) {
+                if (touchX[t] < SCREEN_CENTERX) {
+                    if (touchY[t] >= SCREEN_CENTERY) {
                         if (!keyDown.down)
                             keyPress.down = true;
                         keyDown.down = true;
+                        break;
                     }
                     else {
                         if (!keyDown.up)
                             keyPress.up = true;
                         keyDown.up = true;
+                        break;
                     }
                 }
-                else if (touchX[0] > SCREEN_CENTERX) {
-                    if (touchY[0] > SCREEN_CENTERY) {
+                else if (touchX[t] > SCREEN_CENTERX) {
+                    if (touchY[t] > SCREEN_CENTERY) {
                         if (!keyDown.start)
                             keyPress.start = true;
                         keyDown.start = true;
+                        break;
                     }
                     else {
                         if (!keyDown.B)
                             keyPress.B = true;
                         keyDown.B = true;
+                        break;
                     }
                 }
             }
@@ -768,46 +932,79 @@ void processStartMenu()
 
     switch (stageMode) {
         case STARTMENU_MAIN: {
-            if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.down)
                 gameMenu[0].selection2 += 2;
-            }
 
-            if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up)
                 gameMenu[0].selection2 -= 2;
-            }
 
             if (Engine.gameType == GAME_SONIC2) {
-                if (gameMenu[0].selection2 > 17)
+                int count = 17;
+#if RETRO_USE_MOD_LOADER
+                count += 2;
+#endif
+
+                if (gameMenu[0].selection2 > count)
                     gameMenu[0].selection2 = 9;
                 if (gameMenu[0].selection2 < 9)
-                    gameMenu[0].selection2 = 17;
+                    gameMenu[0].selection2 = count;
             }
             else {
-                if (gameMenu[0].selection2 > 15)
+                int count = 15;
+#if RETRO_USE_MOD_LOADER
+                count += 2;
+#endif
+                if (gameMenu[0].selection2 > count)
                     gameMenu[0].selection2 = 9;
                 if (gameMenu[0].selection2 < 9)
-                    gameMenu[0].selection2 = 15;
+                    gameMenu[0].selection2 = count;
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (keyPress.start || keyPress.A) {
                 if (gameMenu[0].selection2 == 9) {
-                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_SAVESEL);
                 }
                 else if (gameMenu[0].selection2 == 11) {
-                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_TASTAGESEL);
                 }
                 else if (gameMenu[0].selection2 == 13) {
-                    PlaySFXByName("MenuSelect", 0);
                     setTextMenu(STARTMENU_ACHIEVEMENTS);
                 }
                 else if (gameMenu[0].selection2 == 15) {
                     PlaySFXByName("Hurt", 0);
                 }
+#if RETRO_USE_MOD_LOADER
+                else if ((gameMenu[0].selection2 == 17 && Engine.gameType != GAME_SONIC2)
+                         || (gameMenu[0].selection2 == 19 && Engine.gameType == GAME_SONIC2)) {
+                    SetupTextMenu(&gameMenu[0], 0);
+                    AddTextMenuEntry(&gameMenu[0], "MOD LIST");
+                    SetupTextMenu(&gameMenu[1], 0);
+                    initMods(); // reload mods
+
+                    char buffer[0x100];
+                    for (int m = 0; m < modList.size(); ++m) {
+                        StrCopy(buffer, modList[m].name.c_str());
+                        StrAdd(buffer, ": ");
+                        StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");
+                        AddTextMenuEntry(&gameMenu[1], buffer);
+                    }
+
+                    gameMenu[1].alignment      = 1;
+                    gameMenu[1].selectionCount = 3;
+                    gameMenu[1].selection1     = 0;
+                    if (gameMenu[1].rowCount > 18)
+                        gameMenu[1].visibleRowCount = 18;
+                    else
+                        gameMenu[1].visibleRowCount = 0;
+
+                    gameMenu[0].alignment        = 2;
+                    gameMenu[0].selectionCount   = 1;
+                    gameMenu[1].timer            = 0;
+                    gameMenu[1].visibleRowOffset = 0;
+                    stageMode                    = STARTMENU_MODMENU;
+                }
+#endif
                 else {
                     PlaySFXByName("Hurt", 0);
 
@@ -839,15 +1036,11 @@ void processStartMenu()
             break;
         }
         case STARTMENU_SAVESEL: {
-            if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.down)
                 gameMenu[1].selection1 += 2;
-            }
 
-            if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up)
                 gameMenu[1].selection1 -= 2;
-            }
 
             if (gameMenu[1].selection1 > 12)
                 gameMenu[1].selection1 = 0;
@@ -857,8 +1050,6 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.start || keyPress.A) {
-                PlaySFXByName("MenuSelect", 0);
-
                 if (gameMenu[1].selection1 == 0) {
                     setTextMenu(STARTMENU_GAMEOPTS);
                 }
@@ -951,21 +1142,15 @@ void processStartMenu()
                 }
             }
             else if (keyPress.B) {
-                //initStartMenu(0);
-                setTextMenu(STARTMENU_MAIN);
-                PlaySFXByName("MenuBack", 0);
+                initStartMenu(0);
             }
             break;
         }
         case STARTMENU_PLAYERSEL: {
-            if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.down)
                 ++gameMenu[1].selection1;
-            }
-            if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up)
                 --gameMenu[1].selection1;
-            }
             if (gameMenu[1].selection1 == gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
 
@@ -975,8 +1160,6 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.start || keyPress.A) {
-                PlaySFXByName("MenuSelect", 0);
-
                 int saveSlot = gameMenu[1].selection2;
                 int savePos  = saveSlot << 3;
 
@@ -1013,19 +1196,14 @@ void processStartMenu()
             }
             else if (keyPress.B) {
                 setTextMenu(STARTMENU_SAVESEL);
-                PlaySFXByName("MenuBack", 0);
             }
             break;
         }
         case STARTMENU_GAMEOPTS: {
-            if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.down)
                 gameMenu[1].selection1 += 2;
-            }
-            if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up)
                 gameMenu[1].selection1 -= 2;
-            }
             if (gameMenu[1].selection1 >= gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
 
@@ -1035,8 +1213,6 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (keyPress.left || keyPress.right || keyPress.start) {
-                PlaySFXByName("MenuMove", 0);
-
                 if (Engine.gameType == GAME_SONIC1) {
                     switch (gameMenu[1].selection1) {
                         case 0: // Spindash
@@ -1141,7 +1317,6 @@ void processStartMenu()
             }
             else if (keyPress.B) {
                 setTextMenu(STARTMENU_SAVESEL);
-                PlaySFXByName("MenuBack", 0);
 
                 saveRAM[0x100] = Engine.gameType;
                 if (Engine.gameType == GAME_SONIC1) {
@@ -1184,14 +1359,12 @@ void processStartMenu()
                 }
             }
             if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
                     gameMenu[1].visibleRowOffset += 2;
                 }
             }
             if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
                     gameMenu[1].visibleRowOffset -= 2;
@@ -1210,8 +1383,6 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX, 64);
 
             if (keyPress.start || keyPress.A) {
-                PlaySFXByName("MenuSelect", 0);
-
                 int listPos = (gameMenu[1].selection1 - 1) / 2;
                 int max     = stageListCount[STAGELIST_REGULAR];
                 for (int s = 0; s < stageListCount[STAGELIST_REGULAR]; ++s) {
@@ -1340,21 +1511,15 @@ void processStartMenu()
                 stageMode = STARTMENU_TACONFIRMSEL;
             }
             else if (keyPress.B) {
-                //initStartMenu(0);
-                setTextMenu(STARTMENU_MAIN);
-                PlaySFXByName("MenuBack", 0);
+                initStartMenu(0);
             }
             break;
         }
         case STARTMENU_TACONFIRMSEL: {
-            if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.down)
                 gameMenu[1].selection1 += 2;
-            }
-            if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
+            if (keyPress.up)
                 gameMenu[1].selection1 -= 2;
-            }
 
             if (gameMenu[1].selection1 > 3)
                 gameMenu[1].selection1 = 0;
@@ -1366,10 +1531,7 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX, SCREEN_CENTERY);
 
             if (keyPress.start || keyPress.A) {
-
                 if (gameMenu[1].selection1 == 0) {
-                    PlaySFXByName("MenuSelect", 0);
-                    
                     SetGlobalVariableByName("options.saveSlot", 0);
                     SetGlobalVariableByName("options.gameMode", 2);
                     SetGlobalVariableByName("stage.player2Enabled", false);
@@ -1406,8 +1568,10 @@ void processStartMenu()
                 else {
                     // TA
                     setTextMenu(STARTMENU_TASTAGESEL);
-                    PlaySFXByName("MenuBack", 0);
                 }
+            }
+            else if (keyPress.B) {
+                setTextMenu(STARTMENU_TASTAGESEL);
             }
             break;
         }
@@ -1432,14 +1596,12 @@ void processStartMenu()
                 }
             }
             if (keyPress.down) {
-                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 += 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
                     gameMenu[1].visibleRowOffset += 2;
                 }
             }
             if (keyPress.up) {
-                PlaySFXByName("MenuMove", 0);
                 gameMenu[1].selection1 -= 2;
                 if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
                     gameMenu[1].visibleRowOffset -= 2;
@@ -1457,12 +1619,112 @@ void processStartMenu()
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 72);
             DrawTextMenu(&gameMenu[1], 16, 96);
             if (keyPress.B) {
-                //initStartMenu(0);
-                setTextMenu(STARTMENU_MAIN);
-                PlaySFXByName("MenuBack", 0);
+                initStartMenu(0);
             }
             break;
         }
+#if RETRO_USE_MOD_LOADER
+        case STARTMENU_MODMENU: // Mod Menu
+        {
+            if (keyDown.down) {
+                gameMenu[1].timer += 1;
+                if (gameMenu[1].timer > 8) {
+                    gameMenu[1].timer = 0;
+                    keyPress.down     = true;
+                }
+            }
+            else {
+                if (keyDown.up) {
+                    gameMenu[1].timer -= 1;
+                    if (gameMenu[1].timer < -8) {
+                        gameMenu[1].timer = 0;
+                        keyPress.up       = true;
+                    }
+                }
+                else {
+                    gameMenu[1].timer = 0;
+                }
+            }
+            if (keyPress.down) {
+                gameMenu[1].selection1++;
+                if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset >= gameMenu[1].visibleRowCount) {
+                    gameMenu[1].visibleRowOffset += 1;
+                }
+            }
+            if (keyPress.up) {
+                gameMenu[1].selection1--;
+                if (gameMenu[1].selection1 - gameMenu[1].visibleRowOffset < 0) {
+                    gameMenu[1].visibleRowOffset -= 1;
+                }
+            }
+            if (gameMenu[1].selection1 >= gameMenu[1].rowCount) {
+                gameMenu[1].selection1       = 0;
+                gameMenu[1].visibleRowOffset = 0;
+            }
+            if (gameMenu[1].selection1 < 0) {
+                gameMenu[1].selection1       = gameMenu[1].rowCount - 1;
+                gameMenu[1].visibleRowOffset = gameMenu[1].rowCount - gameMenu[1].visibleRowCount;
+            }
+            gameMenu[1].selection2 = gameMenu[1].selection1; // its a bug fix LOL
+
+            char buffer[0x100];
+            if (keyPress.A || keyPress.start || keyPress.left || keyPress.right) {
+                modList[gameMenu[1].selection1].active ^= 1;
+                StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
+                StrAdd(buffer, ": ");
+                StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
+                EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
+            }
+
+            if (keyPress.B) {
+
+                // Reload entire engine
+                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+                if (Engine.window) {
+                    char gameTitle[0x40];
+                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+                    SDL_SetWindowTitle(Engine.window, gameTitle);
+                }
+#endif
+
+                ReleaseStageSfx();
+                ReleaseGlobalSfx();
+                LoadGlobalSfx();
+
+                forceUseScripts = false;
+                skipStartMenu   = skipStartMenu_Config;
+                disableFocusPause = disableFocusPause_Config;
+                for (int m = 0; m < modList.size(); ++m) {
+                    if (modList[m].useScripts && modList[m].active)
+                        forceUseScripts = true;
+                    if (modList[m].skipStartMenu && modList[m].active)
+                        skipStartMenu = true;
+                    if (modList[m].disableFocusPause && modList[m].active)
+                        disableFocusPause = true;
+                }
+                saveMods();
+
+                if (Engine.modMenuCalled) {
+                    stageMode            = STAGEMODE_LOAD;
+                    Engine.gameMode      = ENGINE_MAINGAME;
+                    Engine.modMenuCalled = false;
+
+                    if (stageListPosition >= stageListCount[activeStageList]) {
+                        activeStageList   = 0;
+                        stageListPosition = 0;
+                    }
+                }
+                else {
+                    setTextMenu(STARTMENU_MAIN);
+                }
+            }
+
+            DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
+            DrawTextMenu(&gameMenu[1], SCREEN_CENTERX + 100, 64);
+            break;
+        }
+#endif
         default: break;
     }
 
