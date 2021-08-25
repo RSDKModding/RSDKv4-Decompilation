@@ -138,24 +138,25 @@ void matrixRotateYF(MatrixF *matrix, float angle)
 }
 void matrixRotateZF(MatrixF *matrix, float angle)
 {
-    float sine           = sinf(angle);
-    float cosine         = cosf(angle);
+    float sine   = sinf(angle);
+    float cosine = cosf(angle);
+
     matrix->values[0][0] = cosine;
-    matrix->values[0][1] = 0.0f;
-    matrix->values[0][2] = sine;
-    matrix->values[0][3] = 0.0f;
-    matrix->values[1][0] = 0.0f;
-    matrix->values[1][1] = 1.0f;
-    matrix->values[1][2] = 0.0f;
-    matrix->values[1][3] = 0.0f;
-    matrix->values[2][0] = -sine;
-    matrix->values[2][1] = 0.0f;
-    matrix->values[2][2] = cosine;
-    matrix->values[2][3] = 0.0f;
-    matrix->values[3][0] = 0.0f;
-    matrix->values[3][1] = 0.0f;
-    matrix->values[3][2] = 0.0f;
-    matrix->values[3][3] = 1.0f;
+    matrix->values[0][1] = -sine;
+    matrix->values[0][2] = 0.0;
+    matrix->values[0][3] = 0.0;
+    matrix->values[1][0] = sine;
+    matrix->values[1][1] = cosine;
+    matrix->values[1][2] = 0;
+    matrix->values[1][3] = 0;
+    matrix->values[2][0] = 0.0;
+    matrix->values[2][1] = 0.0;
+    matrix->values[2][2] = 1.0;
+    matrix->values[2][3] = 0.0;
+    matrix->values[3][0] = 0.0;
+    matrix->values[3][1] = 0.0;
+    matrix->values[3][3] = 1.0;
+    matrix->values[3][2] = 0.0;
 }
 void matrixRotateXYZF(MatrixF *matrix, float angleX, float angleY, float angleZ)
 {
@@ -189,7 +190,7 @@ void ResetRenderStates()
 {
     currentRenderState.renderMatrix = NULL;
     currentRenderState.vertPtr      = drawVertexList;
-    currentRenderState.indexCount  = 0;
+    currentRenderState.indexCount   = 0;
     currentRenderState.id           = 0;
     currentRenderState.blendMode    = 0;
     currentRenderState.useColours   = false;
@@ -211,8 +212,8 @@ void SetRenderBlendMode(byte mode)
         memcpy(state, &currentRenderState, sizeof(RenderState));
 
         currentRenderState.indexCount = NULL;
-        currentRenderState.id          = 0;
-        currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
+        currentRenderState.id         = 0;
+        currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
     }
     currentRenderState.blendMode = mode;
 }
@@ -269,10 +270,10 @@ void NewRenderState()
             RenderState *state = &renderStateList[renderStateCount];
             memcpy(state, &currentRenderState, sizeof(RenderState));
 
-            currentRenderState.id          = 0;
+            currentRenderState.id         = 0;
             currentRenderState.indexCount = 0;
-            currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-            currentRenderState.indexPtr    = drawIndexList;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
         }
     }
@@ -294,8 +295,8 @@ void RenderScene()
         memcpy(state, &currentRenderState, sizeof(RenderState));
 
         currentRenderState.indexCount = 0;
-        currentRenderState.id          = 0;
-        currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
+        currentRenderState.id         = 0;
+        currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
         renderStateCount++;
     }
 
@@ -534,10 +535,10 @@ int LoadTexture(const char *filePath, int format)
 
                     for (int y = 0; y < height; ++y) {
                         for (int x = 0; x < width; ++x) {
-                            int r                    = data[id++];
-                            int g                    = data[id++];
-                            int b                    = data[id++];
-                            int a                    = data[id++];
+                            int r                   = data[id++];
+                            int g                   = data[id++];
+                            int b                   = data[id++];
+                            int a                   = data[id++];
                             pixels[x + (y * width)] = RGB888_TO_RGB5551(r, g, b) | (a ? 1 : 0);
                         }
                     }
@@ -551,15 +552,15 @@ int LoadTexture(const char *filePath, int format)
                 }
                 case 3: // rgba
                 {
-                    uint *pixels = (uint*)malloc(width * height * sizeof(uint));
+                    uint *pixels = (uint *)malloc(width * height * sizeof(uint));
 
                     for (int y = 0; y < height; ++y) {
                         for (int x = 0; x < width; ++x) {
-                            int r                    = data[id++];
-                            int g                    = data[id++];
-                            int b                    = data[id++];
-                            int a                    = data[id++];
-                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0); 
+                            int r                   = data[id++];
+                            int g                   = data[id++];
+                            int b                   = data[id++];
+                            int a                   = data[id++];
+                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
                         }
                     }
 
@@ -745,8 +746,8 @@ void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, us
         animator->frameID   = frameID;
     }
     else {
-        animator->loopIndex   = 0;
-        animator->frameID = 0;
+        animator->loopIndex = 0;
+        animator->frameID   = 0;
     }
     animator->animationSpeed = speed;
 }
@@ -760,7 +761,7 @@ void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
 
             animator->animationTimer += animator->animationSpeed;
 
-            if (animator->animationTimer > 1.0f) { //new frame (forwards)
+            if (animator->animationTimer > 1.0f) { // new frame (forwards)
                 animator->animationTimer -= 1.0f;
                 animator->frameID++;
 
@@ -785,7 +786,7 @@ void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
                 if (animator->flag1) {
                     if (animator->frameID < animator->loopIndex || animator->frameID >= mesh->frameCount) {
                         animator->frameID = animator->frameCount;
-                        nextFrame           = animator->loopIndex;
+                        nextFrame         = animator->loopIndex;
                     }
                     else {
                         nextFrame = animator->frameID - 1;
@@ -844,7 +845,7 @@ void TransferRetroBuffer()
     glBindTexture(GL_TEXTURE_2D, textureList[0].id);
     if (convertTo32Bit) {
         ushort *frameBufferPtr = Engine.frameBuffer;
-        uint *texBufferPtr   = Engine.texBuffer;
+        uint *texBufferPtr     = Engine.texBuffer;
         bool flag              = false;
         for (int y = 0; y < SCREEN_YSIZE; ++y) {
             for (int x = 0; x < GFX_LINESIZE; ++x) {
@@ -871,12 +872,12 @@ void RenderRetroBuffer(int alpha, float z)
                 memcpy(state, &currentRenderState, sizeof(RenderState));
             }
             currentRenderState.indexCount = 0;
-            currentRenderState.id          = textureList[0].id;
-            currentRenderState.useColours  = true;
-            currentRenderState.useTexture  = true;
-            currentRenderState.useFilter   = true;
-            currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-            currentRenderState.indexPtr    = drawIndexList;
+            currentRenderState.id         = textureList[0].id;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = true;
+            currentRenderState.useFilter  = true;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
         }
 
@@ -943,12 +944,12 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
     if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
         if (renderStateCount < 0) {
             currentRenderState.indexCount = 0;
-            currentRenderState.id          = textureList[texture].id;
-            currentRenderState.useColours  = true;
-            currentRenderState.useTexture  = true;
-            currentRenderState.useFilter   = 0;
-            currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-            currentRenderState.indexPtr    = drawIndexList;
+            currentRenderState.id         = textureList[texture].id;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = true;
+            currentRenderState.useFilter  = 0;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
         }
         else {
@@ -961,12 +962,12 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
                 memcpy(state, &currentRenderState, sizeof(RenderState));
 
                 currentRenderState.indexCount = 0;
-                currentRenderState.id          = textureList[texture].id;
-                currentRenderState.useColours  = true;
-                currentRenderState.useTexture  = true;
-                currentRenderState.useFilter   = 0;
-                currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-                currentRenderState.indexPtr    = drawIndexList;
+                currentRenderState.id         = textureList[texture].id;
+                currentRenderState.useColours = true;
+                currentRenderState.useTexture = true;
+                currentRenderState.useFilter  = 0;
+                currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+                currentRenderState.indexPtr   = drawIndexList;
                 renderStateCount++;
             }
         }
@@ -1137,12 +1138,12 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
             }
 
             currentRenderState.indexCount = 0;
-            currentRenderState.id          = 0;
-            currentRenderState.useColours  = true;
-            currentRenderState.useTexture  = false;
-            currentRenderState.useFilter   = false;
-            currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-            currentRenderState.indexPtr    = drawIndexList;
+            currentRenderState.id         = 0;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = false;
+            currentRenderState.useFilter  = false;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
         }
 
@@ -1203,12 +1204,12 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
             memcpy(state, &currentRenderState, sizeof(RenderState));
         }
 
-        currentRenderState.vertPtr     = mesh->vertices;
-        currentRenderState.indexPtr    = mesh->indices;
+        currentRenderState.vertPtr    = mesh->vertices;
+        currentRenderState.indexPtr   = mesh->indices;
         currentRenderState.indexCount = mesh->indexCount * 3;
         if (mesh->textureID == 0xFF) {
             currentRenderState.useTexture = false;
-            currentRenderState.id = 0;
+            currentRenderState.id         = 0;
         }
         else {
             currentRenderState.useTexture = true;
@@ -1235,14 +1236,14 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         memcpy(state, &currentRenderState, sizeof(RenderState));
 
         currentRenderState.indexCount = 0;
-        currentRenderState.id          = 0;
-        currentRenderState.useColours  = true;
-        currentRenderState.useTexture  = false;
-        currentRenderState.useNormals  = false;
-        currentRenderState.depthTest   = false;
-        currentRenderState.useFilter   = false;
-        currentRenderState.vertPtr     = &drawVertexList[vertexListSize];
-        currentRenderState.indexPtr    = drawIndexList;
+        currentRenderState.id         = 0;
+        currentRenderState.useColours = true;
+        currentRenderState.useTexture = false;
+        currentRenderState.useNormals = false;
+        currentRenderState.depthTest  = false;
+        currentRenderState.useFilter  = false;
+        currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+        currentRenderState.indexPtr   = drawIndexList;
 
         renderStateCount++;
     }
