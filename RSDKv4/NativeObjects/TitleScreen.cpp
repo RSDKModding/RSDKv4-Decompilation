@@ -26,15 +26,15 @@ void TitleScreen_Create(void *objPtr)
     textTex = LoadTexture("Data/Game/Menu/Text_EN.png", 1);
     LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", 2, textTex);
 
-    entity->labelPtr              = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
-    entity->labelPtr->fontID                 = 0;
-    entity->labelPtr->textScale              = 0.15;
+    entity->labelPtr            = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
+    entity->labelPtr->fontID    = 0;
+    entity->labelPtr->textScale = 0.15;
 
     switch (Engine.language) {
         case RETRO_ES: entity->labelPtr->textScale = 0.125; break;
         case RETRO_JP:
             entity->labelPtr->textScale = 0.1;
-            heading          = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", 1);
+            heading                     = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", 1);
             LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", 0, heading);
 
             labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", 1);
@@ -98,10 +98,10 @@ void TitleScreen_Create(void *objPtr)
 
     entity->labelPtr->alignPtr(entity->labelPtr, 1);
 
-    entity->labelPtr                  = entity->labelPtr;
-    entity->labelPtr->textX           = 64.0;
-    entity->labelPtr->textY           = -96.0;
-    entity->introTextureID = LoadTexture("Data/Game/Menu/Intro.png", 2);
+    entity->labelPtr        = entity->labelPtr;
+    entity->labelPtr->textX = 64.0;
+    entity->labelPtr->textY = -96.0;
+    entity->introTextureID  = LoadTexture("Data/Game/Menu/Intro.png", 2);
 
     int package = 0;
     switch (Engine.globalBoxRegion) {
@@ -427,7 +427,7 @@ void TitleScreen_Main(void *objPtr)
             SetRenderMatrix(NULL);
             if (entity->field_4C < -360.0) {
                 ShowPromoPopup(0, (void *)"BootupPromo");
-                // ResetNativeObject(entity, MenuControl_Create, MenuControl_Main);
+                ResetNativeObject(entity, MenuControl_Create, MenuControl_Main);
             }
             break;
         }
