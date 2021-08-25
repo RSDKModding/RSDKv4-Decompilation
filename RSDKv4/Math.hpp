@@ -54,4 +54,6 @@ inline int cos256(int angle)
 // Get Arc Tan value
 byte ArcTanLookup(int X, int Y);
 
+inline double DegreesToRad(float degrees) { return 0.017453292 * degrees; }
+
 #endif // !MATH_H

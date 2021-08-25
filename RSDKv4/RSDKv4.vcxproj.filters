@@ -81,10 +81,40 @@
     <ClInclude Include="Drawing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RetroGameLoop.hpp">
+    <ClInclude Include="Renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\VirtualDPad.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
-    <ClInclude Include="PauseMenu.hpp">
+    <ClInclude Include="NativeObjects\SegaSplash.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\NativeObjects.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\CWSplash.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\RetroGameLoop.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PauseMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\VirtualDPadM.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\FadeScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TitleScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TextLabel.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SubMenuButton.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
   </ItemGroup>
@@ -149,10 +179,37 @@
     <ClCompile Include="Scene3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RetroGameLoop.cpp">
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\VirtualDPad.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
-    <ClCompile Include="PauseMenu.cpp">
+    <ClCompile Include="NativeObjects\SegaSplash.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\RetroGameLoop.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PauseMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\CWSplash.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\VirtualDPadM.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\FadeScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TitleScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TextLabel.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SubMenuButton.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>

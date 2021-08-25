@@ -44,16 +44,16 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
-                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                            Engine.gameMode = ENGINE_INITPAUSE;
+                        //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                        //    Engine.gameMode = ENGINE_INITPAUSE;
                         break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
-                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                    Engine.gameMode = ENGINE_INITPAUSE;
+                //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                //    Engine.gameMode = ENGINE_INITPAUSE;
                 break;
             case SDL_APP_TERMINATING: return false;
 #endif
@@ -336,8 +336,6 @@ void RetroEngine::Init()
     }
 #endif
 
-    InitNativeObjectSystem();
-
     gameMode = ENGINE_MAINGAME;
     running  = false;
 #if !RETRO_USE_ORIGINAL_CODE
@@ -421,6 +419,8 @@ void RetroEngine::Init()
         }
     }
 
+    InitNativeObjectSystem();
+
 #if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
@@ -498,6 +498,7 @@ void RetroEngine::Run()
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
     float frameDelta = 0.0f;
+    Engine.deltaTime = 0.0f;
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
@@ -507,6 +508,7 @@ void RetroEngine::Run()
             continue;
         }
         frameEnd = SDL_GetPerformanceCounter();
+        Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
 #endif
 
         running = processEvents();
@@ -530,7 +532,7 @@ void RetroEngine::Run()
             FlipScreen();
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2
             SDL_GL_SwapWindow(Engine.window);
 #endif
             frameStep  = false;

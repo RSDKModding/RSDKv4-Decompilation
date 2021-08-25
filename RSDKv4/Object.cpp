@@ -372,8 +372,8 @@ void ProcessPlayerControl(Entity *player)
             player->left  = false;
             player->right = false;
         }
-        player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
-        player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
+        player->jumpHold  = keyDown.C || keyDown.B || keyDown.A;
+        player->jumpPress = keyPress.C || keyPress.B || keyPress.A;
     }
 }
 
@@ -396,44 +396,46 @@ void InitNativeObjectSystem()
     memset(objectEntityBackupS, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
 
     ReadSaveRAMData();
-    if (!saveRAM[32]) // if new save
+
+    SaveGame *saveGame = (SaveGame *)saveRAM;
+    if (!saveGame->saveInitialized) // if new save
     {
-        saveRAM[32] = 1; // Not new save
-        saveRAM[33] = MAX_VOLUME;
-        saveRAM[34] = MAX_VOLUME;
-        saveRAM[35] = 1;
-        saveRAM[36] = 0; // Box-Region
-        saveRAM[37] = 64;
-        saveRAM[38] = 160;
-        saveRAM[39] = 56;
-        saveRAM[40] = 184;
-        saveRAM[41] = -56;
-        saveRAM[42] = 188;
-        saveRAM[43] = 0;
-        saveRAM[44] = 0;
-        saveRAM[45] = 0;
+        saveGame->saveInitialized = true; // Not new save
+        saveGame->musVolume       = MAX_VOLUME;
+        saveGame->sfxVolume       = MAX_VOLUME;
+        saveGame->spindashEnabled = true;
+        saveGame->boxRegion       = 0;
+        saveGame->vDPadSize       = 64;
+        saveGame->vDPadOpacity    = 160;
+        saveGame->vDPadX_Move     = 56;
+        saveGame->vDPadY_Move     = 184;
+        saveGame->vDPadX_Jump     = -56;
+        saveGame->vDPadY_Jump     = 188;
+        saveGame->tailsUnlocked   = false;
+        saveGame->knuxUnlocked    = false;
+        saveGame->unknown         = false;
         WriteSaveRAMData();
     }
-    saveRAM[33] = bgmVolume;
-    saveRAM[34] = sfxVolume;
+    saveGame->musVolume    = bgmVolume;
+    saveGame->sfxVolume            = sfxVolume;
 
-    if (!saveRAM[33])
-        musicEnabled = 0;
+    if (!saveGame->musVolume)
+        musicEnabled = false;
 
-    // if (!saveRAM[39])
+    // if (!saveGame->vDPadX_Move)
     //    _mm_storeu_si128((__m128i *)&saveRAM[39], _mm_load_si128((const __m128i *)&xmmword_8C670));
-    // globalBoxRegion[0] = saveRAM[36];
-    SetGameVolumes(saveRAM[33], saveRAM[34]);
-    // CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
-    CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
+    Engine.globalBoxRegion = saveGame->boxRegion;
+    SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
+    CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
+    //CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
 }
-NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
+NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {
     if (!nativeEntityCount) {
         NativeEntity *entity = objectEntityBank;
         memset(objectEntityBank, 0, sizeof(NativeEntityBase));
-        entity->createPtr   = objCreate;
-        entity->mainPtr     = objMain;
+        entity->createPtr   = create;
+        entity->mainPtr     = main;
         activeEntityList[0] = 0;
         nativeEntityCount++;
         if (entity->createPtr)
@@ -456,8 +458,8 @@ NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain
         memset(entity, 0, sizeof(NativeEntity));
         entity->slotID                        = slot;
         entity->objectID                      = nativeEntityCount;
-        entity->createPtr                     = objCreate;
-        entity->mainPtr                       = objMain;
+        entity->createPtr                     = create;
+        entity->mainPtr                       = main;
         activeEntityList[nativeEntityCount++] = slot;
         if (entity->createPtr)
             entity->createPtr(entity);
@@ -506,12 +508,24 @@ void RemoveNativeObject(NativeEntityBase *entity)
         nativeEntityCount = curSlot - 1;
     }*/
 }
+void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void (*main)(void *objPtr))
+{
+    int slotID = obj->slotID;
+    int objID  = obj->objectID;
+    memset(&objectEntityBank[slotID], 0, sizeof(NativeEntity));
+    obj->slotID    = slotID;
+    obj->mainPtr   = main;
+    obj->createPtr = create;
+    obj->objectID  = objID;
+    if (create)
+        create(obj);
+}
 void ProcessNativeObjects()
 {
-    // ResetRenderStates();
+    ResetRenderStates();
     for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
         NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
         entity->mainPtr(entity);
     }
-    // RenderScene();
+    RenderScene();
 }

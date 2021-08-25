@@ -114,4 +114,7 @@ void ProcessInput();
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
 
+int CheckTouchRect(float x1, float y1, float x2, float y2);
+int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2);
+
 #endif // !INPUT_H

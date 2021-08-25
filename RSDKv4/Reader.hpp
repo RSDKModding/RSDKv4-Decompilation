@@ -134,6 +134,7 @@ inline bool CloseFile()
 void GenerateELoadKeys(uint key1, uint key2);
 
 void FileRead(void *dest, int size);
+void FileSkip(int count);
 
 inline size_t FillFileBuffer()
 {

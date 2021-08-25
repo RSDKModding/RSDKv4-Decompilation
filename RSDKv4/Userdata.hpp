@@ -14,6 +14,36 @@
 #include <unordered_map>
 #endif
 
+struct SaveFile {
+    int characterID;
+    int lives;
+    int score;
+    int scoreBonus;
+    int continues;
+    int zoneID;
+    int emeralds;
+    int specialZoneID;
+};
+
+struct SaveGame {
+    SaveFile files[4];
+    int saveInitialized;
+    int musVolume;
+    int sfxVolume;
+    int spindashEnabled;
+    int boxRegion;
+    int vDPadSize;
+    int vDPadOpacity;
+    int vDPadX_Move;
+    int vDPadY_Move;
+    int vDPadX_Jump;
+    int vDPadY_Jump;
+    int tailsUnlocked;
+    int knuxUnlocked;
+    int unknown;
+    int unused[18];
+    int records[64];
+};
 
 enum OnlineMenuTypes {
     ONLINEMENU_ACHIEVEMENTS = 0,

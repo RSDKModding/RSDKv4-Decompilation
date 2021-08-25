@@ -1,0 +1,149 @@
+#include "RetroEngine.hpp"
+
+void SubMenuButton_Create(void *objPtr)
+{
+    NativeEntity_SubMenuButton *entity = (NativeEntity_SubMenuButton *)objPtr;
+    entity->float18                    = 160.0;
+    entity->dword34                    = 255;
+    entity->state                      = 0;
+    entity->float20                    = 0.0;
+    entity->r                          = 0xFF;
+    entity->g                          = 0xFF;
+    entity->b                          = 0xFF;
+    entity->textureSymbols             = LoadTexture("Data/Game/Menu/Symbols.png", 1);
+    entity->meshButton                 = LoadMesh("Data/Game/Models/Button.bin", 255);
+    entity->meshButtonH                = LoadMesh("Data/Game/Models/ButtonH.bin", 255);
+    SetMeshVertexColors(entity->meshButton, 0, 0, 0, 0xC0);
+    SetMeshVertexColors(entity->meshButtonH, 0xA0, 0, 0, 0xC0);
+}
+void SubMenuButton_Main(void *objPtr)
+{
+    NativeEntity_SubMenuButton *entity = (NativeEntity_SubMenuButton *)objPtr;
+    if (entity->setNewState) {
+        NewRenderState();
+        matrixTranslateXYZF(&entity->renderMatrix, entity->float10 - entity->float20, entity->float14, entity->float18);
+        matrixMultiplyF(&entity->renderMatrix, &entity->matrix);
+        SetRenderMatrix(&entity->renderMatrix);
+    }
+    SetRenderVertexColor(entity->r, entity->g, entity->b);
+
+    switch (entity->state) {
+        case 0:
+            SetRenderBlendMode(1);
+            RenderMesh(entity->meshButton, 0, 0);
+            //RenderText(entity->text, 1, -80.0, entity->float24, 0, entity->float30, entity->dword34);
+            break;
+        case 1:
+            entity->float2C += Engine.deltaTime;
+            if (entity->float2C > 1.0)
+                entity->float2C -= 1.0;
+
+            SetRenderBlendMode(1);
+            RenderMesh(entity->meshButton, 0, 0);
+            //if (entity->float2C > 0.5)
+            //    RenderText(entity->text, 1, -80.0, entity->float24, 0, entity->float30, entity->dword34);
+            break;
+        case 2:
+            entity->float2C += Engine.deltaTime;
+            if (entity->float2C > 0.1)
+                entity->float2C -= 0.1;
+            SetRenderBlendMode(1);
+            RenderMesh(entity->meshButton, 0, 0);
+            //if (entity->float2C > 0.05)
+            //    RenderText(entity->text, 1, -80.0, entity->float24, 0, entity->float30, entity->dword34);
+            
+            entity->float28 += Engine.deltaTime;
+            if (entity->float28 > 0.5) {
+                entity->float28 = 0.0;
+                entity->state   = 0;
+            }
+            break;
+        case 3:
+            entity->float2C += Engine.deltaTime;
+            if (entity->float2C > 0.1)
+                entity->float2C -= 0.1;
+
+            entity->float28 += Engine.deltaTime;
+            if (entity->float28 > 0.5) {
+                entity->float2C = 0.0;
+                entity->float28 = 0.0;
+                entity->state   = 4;
+            }
+            //FallThrough
+        case 4:
+            SetRenderBlendMode(1);
+            if (entity->useMeshH)
+                RenderMesh(entity->meshButtonH, 0, 0);
+            else
+                RenderMesh(entity->meshButton, 0, 0);
+            //if (entity->float2C < 0.05)
+            //    RenderText(entity->text, 1, -64.0, entity->float24, 0, entity->float30, entity->dword34);
+
+            switch (entity->byte148) {
+                case 0: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, entity->textureSymbols); break;
+                case 1: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, entity->textureSymbols); break;
+                case 2: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 29.0, 43.0, 58.0, 86.0, 130.0, 170.0, 255, entity->textureSymbols); break;
+                case 3:
+                    RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, entity->textureSymbols);
+                    RenderImage(-84.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, entity->textureSymbols);
+                    break;
+            }
+
+            if ((entity->flags & 1) != 0) {
+                SetRenderVertexColor(128, 128, 255);
+                RenderImage(-60.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(-60.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            if ((entity->flags & 2) != 0) {
+                SetRenderVertexColor(255, 255, 0);
+                RenderImage(-44.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(-44.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            if ((entity->flags & 4) != 0) {
+                SetRenderVertexColor(255, 96, 192);
+                RenderImage(-28.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(-28.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            if ((entity->flags & 8) != 0) {
+                SetRenderVertexColor(160, 255, 0);
+                RenderImage(-12.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(-12.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            if ((entity->flags & 0x10) != 0) {
+                SetRenderVertexColor(255, 64, 96);
+                RenderImage(4.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(4.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            if ((entity->flags & 0x20) != 0) {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(20.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+            }
+            else {
+                SetRenderVertexColor(255, 255, 255);
+                RenderImage(20.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            }
+            break;
+        default: break;
+    }
+    
+    SetRenderVertexColor(255, 255, 255);
+    if (entity->setNewState == 1) {
+        NewRenderState();
+        SetRenderMatrix(NULL);
+    }
+}

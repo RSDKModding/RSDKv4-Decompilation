@@ -479,3 +479,28 @@ void CheckKeyDown(InputData *input)
     input->select = inputDevice[INPUT_SELECT].hold;
 #endif
 }
+
+int CheckTouchRect(float x1, float y1, float x2, float y2)
+{
+    for (int f = 0; f < touches; ++f) {
+        if (touchDown[f] && touchX[f] > x1 && touchX[f] < y1 && touchY[f] > x2 && touchY[f] < y2) {
+            return f;
+        }
+    }
+    return -1;
+}
+
+int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2)
+{
+    MatrixF *mat = (MatrixF *)m;
+    for (int f = 0; f < touches; ++f) {
+        float valX = (((touchX[f] * mat->values[0][0]) + (touchY[f] * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
+        if (valX > (x1 - x2) && (x1 + x2) > valX) {
+            float valY =
+                (((touchX[f] * mat->values[0][1]) + (touchY[f] * mat->values[1][1])) + (SCREEN_YSIZE * mat->values[2][1])) + mat->values[3][1];
+            if (valY > (y1 - y2) && (y1 + y2) > valY)
+                return f;
+        }
+    }
+    return -1;
+}

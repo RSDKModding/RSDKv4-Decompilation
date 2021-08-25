@@ -427,8 +427,6 @@ void InitUserdata()
 #endif
     }
 
-    SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
-
 #if RETRO_USING_SDL2
     // Support for extra controller types SDL doesn't recognise
 #if RETRO_PLATFORM == RETRO_UWP
@@ -879,7 +877,7 @@ void receive2PVSMatchCode(int code)
 
 int ShowPromoPopup(int a1, void *a2)
 {
-    printLog("Attempting to show promo popup (%d) (%p)", a1, a2);
+    printLog("Attempting to show promo popup (%d) (%c)", a1, (char *)a2);
     if (Engine.onlineActive) {
         // Do online code
         return 1;
