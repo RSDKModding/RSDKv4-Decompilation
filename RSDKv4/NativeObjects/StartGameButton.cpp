@@ -27,7 +27,7 @@ void StartGameButton_Create(void *objPtr)
     entity->r                   = 0xFF;
     entity->g                   = 0xFF;
     entity->b                   = 0x00;
-    entity->labelPtr            = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
+    entity->labelPtr            = CREATE_ENTITY(TextLabel);
     entity->labelPtr->fontID    = 0;
     entity->labelPtr->textScale = 0.15;
     entity->labelPtr->textAlpha = 0;

@@ -22,6 +22,4 @@ struct NativeEntity_DialogPanel : NativeEntityBase {
 void DialogPanel_Create(void *objPtr);
 void DialogPanel_Main(void *objPtr);
 
-void DialogPanel_CheckTouch(void *objPtr);
-
 #endif // !NATIVE_DIALOGPANEL_H

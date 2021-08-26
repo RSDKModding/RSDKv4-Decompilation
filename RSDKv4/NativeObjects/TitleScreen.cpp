@@ -26,7 +26,7 @@ void TitleScreen_Create(void *objPtr)
     textTex = LoadTexture("Data/Game/Menu/Text_EN.png", 1);
     LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", 2, textTex);
 
-    entity->labelPtr            = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
+    entity->labelPtr            = CREATE_ENTITY(TextLabel);
     entity->labelPtr->fontID    = 0;
     entity->labelPtr->textScale = 0.15;
 

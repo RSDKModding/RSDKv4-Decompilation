@@ -3,7 +3,7 @@
 void DialogPanel_Create(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
-    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 255);
+    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 0xFF);
     SetMeshVertexColors(entity->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
     entity->buttonCount = 2;
 }

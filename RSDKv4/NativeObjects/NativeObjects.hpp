@@ -1,7 +1,8 @@
 #ifndef NATIVE_OBJECTS_H
 #define NATIVE_OBJECTS_H
 
-#define RSDK_THIS(type) NativeEntity_##type *entity = (NativeEntity_##type *)objPtr
+#define RSDK_THIS(type)     NativeEntity_##type *entity = (NativeEntity_##type *)objPtr
+#define CREATE_ENTITY(type) ((NativeEntity_##type *)CreateNativeObject(type##_Create, type##_Main))
 
 extern bool usePhysicalControls;
 

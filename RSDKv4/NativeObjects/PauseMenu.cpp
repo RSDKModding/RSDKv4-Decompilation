@@ -16,7 +16,7 @@ void PauseMenu_Create(void *objPtr)
 {
     RSDK_THIS(PauseMenu);
     entity->retroGameLoop    = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
-    entity->label            = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
+    entity->label            = CREATE_ENTITY(TextLabel);
     entity->label->alignment = 0;
     entity->label->textZ     = 0.0;
     entity->label->textScale = 0.2;
@@ -29,9 +29,9 @@ void PauseMenu_Create(void *objPtr)
     matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
     entity->label->useMatrix = 1;
-    entity->dword100      = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
+    entity->dword100         = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
     for (int i = 0; i < 4; ++i) {
-        NativeEntity_SubMenuButton *button = (NativeEntity_SubMenuButton *)CreateNativeObject(SubMenuButton_Create, SubMenuButton_Main);
+        NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
         entity->buttons[i]                 = button;
         button->textScale                  = 0.1;
         button->matZ                       = 0.0;
@@ -41,7 +41,7 @@ void PauseMenu_Create(void *objPtr)
         matrixRotateYF(&button->matrix, DegreesToRad(16.0));
         matrixTranslateXYZF(&entity->matrix, entity->dword100, 48.0 - i * 30, 160.0);
         matrixMultiplyF(&entity->buttons[0]->matrix, &entity->matrix);
-        button->symbol      = 1;
+        button->symbol    = 1;
         button->useMatrix = 1;
     }
     if (GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1 || !activeStageList
