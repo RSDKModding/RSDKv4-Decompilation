@@ -2,10 +2,10 @@
 
 void TitleScreen_Create(void *objPtr)
 {
-    NativeEntity_TitleScreen *entity = (NativeEntity_TitleScreen *)objPtr;
-    int heading                      = 0;
-    int labelTex                     = 0;
-    int textTex                      = 0;
+    RSDK_THIS(TitleScreen);
+    int heading  = 0;
+    int labelTex = 0;
+    int textTex  = 0;
 
     entity->state          = 0;
     entity->introRectAlpha = 320.0;
@@ -145,7 +145,7 @@ void TitleScreen_Create(void *objPtr)
 }
 void TitleScreen_Main(void *objPtr)
 {
-    NativeEntity_TitleScreen *entity = (NativeEntity_TitleScreen *)objPtr;
+    RSDK_THIS(TitleScreen);
 
     switch (entity->state) {
         case 0: {

@@ -2,8 +2,8 @@
 
 void VirtualDPadM_Create(void *objPtr)
 {
-    NativeEntity_VirtualDPadM *entity = (NativeEntity_VirtualDPadM *)objPtr;
-    SaveGame *saveGame                = (SaveGame *)saveRAM;
+    RSDK_THIS(VirtualDPadM);
+    SaveGame *saveGame = (SaveGame *)saveRAM;
 
     entity->moveX    = 60.0f - SCREEN_CENTERX;
     entity->moveY    = -64.0;
@@ -20,8 +20,8 @@ void VirtualDPadM_Create(void *objPtr)
 }
 void VirtualDPadM_Main(void *objPtr)
 {
-    NativeEntity_VirtualDPadM *entity = (NativeEntity_VirtualDPadM *)objPtr;
-    SaveGame *saveGame                = (SaveGame *)saveRAM;
+    RSDK_THIS(VirtualDPadM);
+    SaveGame *saveGame = (SaveGame *)saveRAM;
 
     if (globalVariables[9]) {
         if (entity->alpha < saveGame->vDPadOpacity) {

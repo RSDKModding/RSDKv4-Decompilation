@@ -2,15 +2,15 @@
 
 void TextLabel_Create(void *objPtr)
 {
-    NativeEntity_TextLabel *entity = (NativeEntity_TextLabel *)objPtr;
-    entity->textZ                  = 160.0;
-    entity->textAlpha              = 255;
-    entity->alignment              = 0;
-    entity->alignPtr               = TextLabel_Align;
+    RSDK_THIS(TextLabel);
+    entity->textZ     = 160.0;
+    entity->textAlpha = 255;
+    entity->alignment = 0;
+    entity->alignPtr  = TextLabel_Align;
 }
 void TextLabel_Main(void *objPtr)
 {
-    NativeEntity_TextLabel *entity = (NativeEntity_TextLabel *)objPtr;
+    RSDK_THIS(TextLabel);
 
     if (entity->byteB4 == 1) {
         NewRenderState();

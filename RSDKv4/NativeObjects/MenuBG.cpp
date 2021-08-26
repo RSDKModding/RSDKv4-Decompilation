@@ -2,11 +2,11 @@
 
 void MenuBG_Create(void *objPtr)
 {
-    NativeEntity_MenuBG *entity = (NativeEntity_MenuBG *)objPtr;
-    entity->textureID           = LoadTexture("Data/Game/Menu/BG1.png", 1);
-    entity->bgCircle1           = LoadMesh("Data/Game/Models/BGCircle1.bin", 255);
-    entity->bgCircle2           = LoadMesh("Data/Game/Models/BGCircle2.bin", 255);
-    entity->bgLines             = LoadMesh("Data/Game/Models/BGLines.bin", 255);
+    RSDK_THIS(MenuBG);
+    entity->textureID = LoadTexture("Data/Game/Menu/BG1.png", 1);
+    entity->bgCircle1 = LoadMesh("Data/Game/Models/BGCircle1.bin", 255);
+    entity->bgCircle2 = LoadMesh("Data/Game/Models/BGCircle2.bin", 255);
+    entity->bgLines   = LoadMesh("Data/Game/Models/BGLines.bin", 255);
     SetMeshAnimation(entity->bgLines, &entity->animator, 0, 40u, 0.0);
     entity->animator.flag1 = 1;
     entity->fadeR          = -96;
@@ -22,7 +22,7 @@ void MenuBG_Create(void *objPtr)
 }
 void MenuBG_Main(void *objPtr)
 {
-    NativeEntity_MenuBG *entity = (NativeEntity_MenuBG *)objPtr;
+    RSDK_THIS(MenuBG);
     if (entity->isFading) {
         if (entity->isFading != 1)
             return;

@@ -2,10 +2,10 @@
 
 void SegaSplash_Create(void *objPtr)
 {
-    NativeEntity_SegaSplash *entity = (NativeEntity_SegaSplash *)objPtr;
-    entity->state                   = 0;
-    entity->rectAlpha               = 320.0;
-    entity->textureID               = LoadTexture("Data/Game/Menu/CWLogo.png", 3);
+    RSDK_THIS(SegaSplash);
+    entity->state     = 0;
+    entity->rectAlpha = 320.0;
+    entity->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", 3);
     if (Engine.useHighResAssets) {
         if (Engine.language == RETRO_JP)
             entity->textureID = LoadTexture("Data/Game/Menu/SegaJP@2x.png", 1);
@@ -21,7 +21,7 @@ void SegaSplash_Create(void *objPtr)
 }
 void SegaSplash_Main(void *objPtr)
 {
-    NativeEntity_SegaSplash *entity = (NativeEntity_SegaSplash *)objPtr;
+    RSDK_THIS(SegaSplash);
 
     switch (entity->state) {
         case 0:

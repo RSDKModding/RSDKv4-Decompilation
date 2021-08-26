@@ -2,8 +2,8 @@
 
 void VirtualDPad_Create(void *objPtr)
 {
-    NativeEntity_VirtualDPad *entity = (NativeEntity_VirtualDPad *)objPtr;
-    SaveGame *saveGame               = (SaveGame *)saveRAM;
+    RSDK_THIS(VirtualDPad);
+    SaveGame *saveGame = (SaveGame *)saveRAM;
 
     float screenXCenter = SCREEN_CENTERX;
     float screenYCenter = SCREEN_CENTERY;
@@ -24,12 +24,12 @@ void VirtualDPad_Create(void *objPtr)
     entity->useTouchControls    = GetGlobalVariableID("options.touchControls");
     entity->usePhysicalControls = GetGlobalVariableID("options.physicalControls");
     entity->isVSMode            = GetGlobalVariableID("options.vsMode");
-    entity->textureID                 = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
+    entity->textureID           = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
 }
 void VirtualDPad_Main(void *objPtr)
 {
-    NativeEntity_VirtualDPad *entity = (NativeEntity_VirtualDPad *)objPtr;
-    SaveGame *saveGame               = (SaveGame *)saveRAM;
+    RSDK_THIS(VirtualDPad);
+    SaveGame *saveGame = (SaveGame *)saveRAM;
 
     if (globalVariables[entity->useTouchControls] && (globalVariables[entity->usePhysicalControls] || entity->field_70 == 1)) {
         if (entity->alpha < saveGame->vDPadOpacity) {

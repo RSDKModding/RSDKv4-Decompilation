@@ -4,9 +4,8 @@ TextMenu pauseTextMenu;
 
 int CheckTouchRect(int x1, int y1, int x2, int y2)
 {
-    for (int f = 0; f < touches; ++f) {                                                                        
-        if (touchDown[f] && touchX[f] > x1 && touchX[f] < x2 && touchY[f] > y1 && touchY[f] < y2)
-        {                                      
+    for (int f = 0; f < touches; ++f) {
+        if (touchDown[f] && touchX[f] > x1 && touchX[f] < x2 && touchY[f] > y1 && touchY[f] < y2) {
             return f;
         }
     }
@@ -15,243 +14,59 @@ int CheckTouchRect(int x1, int y1, int x2, int y2)
 
 void PauseMenu_Create(void *objPtr)
 {
-    NativeEntity_PauseMenu *entity = (NativeEntity_PauseMenu *)objPtr;
-    entity->state                  = 0;
-    entity->timer                  = 0;
-    entity->selectedOption         = 0;
-    entity->barPos                 = SCREEN_XSIZE + 64;
-    entity->menu                   = &pauseTextMenu;
-    MEM_ZEROP(entity->menu);
-
-    AddTextMenuEntry(entity->menu, "RESUME");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "RESTART");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "");
-    AddTextMenuEntry(entity->menu, "EXIT");
-    if (Engine.devMenu) {
-        AddTextMenuEntry(entity->menu, "");
-        AddTextMenuEntry(entity->menu, "");
-        AddTextMenuEntry(entity->menu, "");
-        AddTextMenuEntry(entity->menu, "DEV MENU");
+    RSDK_THIS(PauseMenu);
+    entity->retroGameLoop    = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
+    entity->label            = (NativeEntity_TextLabel *)CreateNativeObject(TextLabel_Create, TextLabel_Main);
+    entity->label->alignment = 0;
+    entity->label->textZ     = 0.0;
+    entity->label->textScale = 0.2;
+    entity->label->textAlpha = 0;
+    entity->label->fontID    = 0;
+    SetStringToFont(entity->label->text, strPause, 0);
+    entity->label->textWidth = 512.0;
+    entity->renderRot        = DegreesToRad(22.5);
+    matrixRotateYF(&entity->label->renderMatrix, DegreesToRad(22.5));
+    matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
+    matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
+    entity->label->byteB4 = 1;
+    entity->dword100      = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
+    for (int i = 0; i < 4; ++i) {
+        NativeEntity_SubMenuButton *button = (NativeEntity_SubMenuButton *)CreateNativeObject(SubMenuButton_Create, SubMenuButton_Main);
+        entity->buttons[i]                 = button;
+        button->textScale                  = 0.1;
+        button->matZ                       = 0.0;
+        button->matXD                      = 512.0;
+        button->textY                      = -4.0;
+        entity->buttonRot[i]               = DegreesToRad(16.0);
+        matrixRotateYF(&button->matrix, DegreesToRad(16.0));
+        matrixTranslateXYZF(&entity->matrix, entity->dword100, 48.0 - i * 30, 160.0);
+        matrixMultiplyF(&entity->buttons[0]->matrix, &entity->matrix);
+        button->symbol      = 1;
+        button->setNewState = 1;
     }
-    entity->menu->alignment      = MENU_ALIGN_CENTER;
-    entity->menu->selectionCount = Engine.devMenu ? 3 : 2;
-    entity->menu->selection1     = 0;
-    entity->menu->selection2     = 0;
-    entity->lastSurfaceNo        = textMenuSurfaceNo;
-    textMenuSurfaceNo               = SURFACE_MAX - 1;
-
-    SetPaletteEntryPacked(7, 0x08, GetPaletteEntryPacked(0, 8));
-    SetPaletteEntryPacked(7, 0xFF, 0xFFFFFF);
+    if (GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1 || !activeStageList
+        || GetGlobalVariableByName("options.attractMode") == 1) {
+        entity->buttons[1]->r = 0x80;
+        entity->buttons[1]->g = 0x80;
+        entity->buttons[1]->b = 0x80;
+    }
+    SetStringToFont(entity->buttons[0]->text, strContinue, 1);
+    SetStringToFont(entity->buttons[1]->text, strRestart, 1);
+    SetStringToFont(entity->buttons[2]->text, strSettings, 1);
+    SetStringToFont(entity->buttons[3]->text, strExit, 1);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
+    entity->rotationY     = 0.0;
+    entity->float118      = DegreesToRad(-16.0);
+    entity->matrixX       = 0.0;
+    entity->matrixY       = 0.0;
+    entity->matrixZ       = 160.0;
+    entity->float108      = (1.75 * SCREEN_CENTERX_F) - ((SCREEN_CENTERX_F - 160) * 2);
+    if (Engine.gameDeviceType == RETRO_MOBILE)
+        entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
+    entity->pfunc128 = 104.0;
+    entity->state    = 1;
+    entity->byte131  = 1;
+    entity->float120 = SCREEN_CENTERX_F - 76.0;
+    entity->float124 = SCREEN_CENTERX_F - 52.0;
 }
-void PauseMenu_Main(void *objPtr)
-{
-    CheckKeyDown(&keyDown);
-    CheckKeyPress(&keyPress);
-    NativeEntity_PauseMenu *entity = (NativeEntity_PauseMenu *)objPtr;
-
-    int lives = GetGlobalVariableByName("player.lives");
-
-    switch (entity->state) {
-        case 0:
-            // wait
-            entity->barPos -= 16;
-            if (entity->barPos + 64 < SCREEN_XSIZE) {
-                entity->state++;
-            }
-            break;
-        case 1:
-            if (!entity->touchControls) {
-                if (keyPress.up) {
-                    if (entity->selectedOption - 1 < 0) {
-                        if (!Engine.devMenu)
-                            entity->selectedOption = 3;
-                        else
-                            entity->selectedOption = 4;
-                    }
-                    --entity->selectedOption;
-
-                    if (entity->selectedOption == 1 && lives <= 1)
-                        entity->selectedOption--;
-
-                    PlaySFXByName("MenuMove", 0);
-                }
-                else if (keyPress.down) {
-                    if (!Engine.devMenu)
-                        entity->selectedOption = ++entity->selectedOption % 3;
-                    else
-                        entity->selectedOption = ++entity->selectedOption % 4;
-
-                    if (entity->selectedOption == 1 && lives <= 1)
-                        entity->selectedOption++;
-
-                    PlaySFXByName("MenuMove", 0);
-                }
-
-                entity->menu->selection1 = entity->selectedOption * 4;
-
-                if (keyPress.A || keyPress.start) {
-                    switch (entity->selectedOption) {
-                        case 0: {
-                            Engine.gameMode  = ENGINE_EXITPAUSE;
-                            entity->state = 2;
-                            break;
-                        }
-                        case 1: {
-                            entity->state = 3;
-                            break;
-                        }
-                        case 2: {
-                            entity->state = 4;
-                            break;
-                        }
-                        case 3: {
-                            entity->state = 5;
-                            break;
-                        }
-                    }
-                    PlaySFXByName("MenuSelect", 0);
-                }
-                else if (keyPress.B) {
-                    Engine.gameMode = ENGINE_EXITPAUSE;
-                    PlaySFXByName("MenuBack", 0);
-                    entity->state = 6;
-                }
-
-                if (CheckTouchRect(0, 0, SCREEN_XSIZE, SCREEN_YSIZE) >= 0)
-                    entity->touchControls = true;
-            }
-            else {
-                int posY = SCREEN_CENTERY - 0x30;
-
-                int touch = CheckTouchRect(0, 0, SCREEN_XSIZE, SCREEN_YSIZE);
-
-                
-                if (CheckTouchRect(0, 0, entity->barPos, SCREEN_YSIZE) >= 0)
-                {
-                    Engine.gameMode = ENGINE_EXITPAUSE;
-                    PlaySFXByName("MenuBack", 0);
-                    entity->state = 6;
-                }
-                else {
-                    if (CheckTouchRect(entity->barPos, posY - 12, SCREEN_XSIZE, posY + 12) > -1) {
-                        entity->selectedOption = 0;
-                    }
-                    else if (entity->selectedOption == 0) {
-                        if (touch < 0) {
-                            PlaySFXByName("MenuSelect", 0);
-                            Engine.gameMode  = ENGINE_EXITPAUSE;
-                            entity->state = 2;
-                        }
-                        else {
-                            entity->selectedOption = -1;
-                        }
-                    }
-
-                    posY += 0x20;
-                    if (lives > 1) {
-                        if (CheckTouchRect(entity->barPos, posY - 12, SCREEN_XSIZE, posY + 12) > -1) {
-                            entity->selectedOption = 1;
-                        }
-                        else if (entity->selectedOption == 1) {
-                            if (touch < 0) {
-                                PlaySFXByName("MenuSelect", 0);
-                                entity->state = 3;
-                            }
-                            else {
-                                entity->selectedOption = -1;
-                            }
-                        }
-                    }
-
-                    posY += 0x20;
-                    if (CheckTouchRect(entity->barPos, posY - 12, SCREEN_XSIZE, posY + 12) > -1) {
-                        entity->selectedOption = 2;
-                    }
-                    else if (entity->selectedOption == 2) {
-                        if (touch < 0) {
-                            PlaySFXByName("MenuSelect", 0);
-                            entity->state = 4;
-                        }
-                        else {
-                            entity->selectedOption = -1;
-                        }
-                    }
-
-                    posY += 0x20;
-                    if (Engine.devMenu) {
-                        if (CheckTouchRect(entity->barPos, posY - 12, SCREEN_XSIZE, posY + 12) > -1) {
-                            entity->selectedOption = 3;
-                        }
-                        else if (entity->selectedOption == 3) {
-                            if (touch < 0) {
-                                PlaySFXByName("MenuSelect", 0);
-                                entity->state = 5;
-                            }
-                            else {
-                                entity->selectedOption = -1;
-                            }
-                        }
-                    }
-
-                    entity->menu->selection1 = entity->selectedOption * 4;
-                }
-
-                if (keyPress.up || keyPress.down)
-                    entity->touchControls = false;
-            }
-            break;
-        case 2:
-        case 6:
-            entity->barPos += 16;
-            if (entity->barPos > SCREEN_XSIZE + 64) {
-                textMenuSurfaceNo = entity->lastSurfaceNo;
-                RemoveNativeObject(entity);
-                return;
-            }
-            break;
-        case 3:
-        case 4:
-        case 5:
-            // wait (again)
-            entity->barPos -= 16;
-            if (entity->barPos + 64 < 0) {
-                textMenuSurfaceNo = entity->lastSurfaceNo;
-                switch (entity->state) {
-                    default: break;
-                    case 3:
-                        stageMode       = STAGEMODE_LOAD;
-                        Engine.gameMode = ENGINE_MAINGAME;
-                        if (GetGlobalVariableByName("options.gameMode") <= 1) {
-                            SetGlobalVariableByName("player.lives", GetGlobalVariableByName("player.lives") - 1);
-                        }
-                        SetGlobalVariableByName("lampPostID", 0);
-                        SetGlobalVariableByName("starPostID", 0);
-                        break;
-                    case 4: initStartMenu(0); break;
-                    case 5:
-                        Engine.gameMode = ENGINE_DEVMENU;
-                        initDevMenu();
-                        break;
-                }
-                RemoveNativeObject(entity);
-                return;
-            }
-            break;
-    }
-
-    if (entity->menu) {
-        entity->menu->selection2 = entity->menu->selection1;
-
-        SetActivePalette(7, 0, SCREEN_YSIZE);
-
-        DrawRectangle(entity->barPos, 0, SCREEN_XSIZE - entity->barPos, SCREEN_YSIZE, 0, 0, 0, 0xFF);
-        DrawTextMenu(entity->menu, entity->barPos + 0x28, SCREEN_CENTERY - 0x30);
-
-        SetActivePalette(0, 0, SCREEN_YSIZE);
-    }
-}
+void PauseMenu_Main(void *objPtr) { RSDK_THIS(PauseMenu); }

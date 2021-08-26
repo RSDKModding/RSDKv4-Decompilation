@@ -2,21 +2,21 @@
 
 void InitPauseMenu()
 {
-    //PauseSound();
-    //ClearNativeObjects();
-    //CreateNativeObject(MenuBG_Create, MenuBG_Main);
-    //CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+    PauseSound();
+    ClearNativeObjects();
+    CreateNativeObject(MenuBG_Create, MenuBG_Main);
+    CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
 }
 
 void RetroGameLoop_Create(void *objPtr)
 {
-    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
-    entity->pauseMenu                  = nullptr;
-    mixFiltersOnJekyll              = Engine.useHighResAssets;
+    RSDK_THIS(RetroGameLoop);
+    // entity->pauseMenu                  = nullptr;
+    mixFiltersOnJekyll = Engine.useHighResAssets;
 }
 void RetroGameLoop_Main(void *objPtr)
 {
-    NativeEntity_RetroGameLoop *entity = (NativeEntity_RetroGameLoop *)objPtr;
+    RSDK_THIS(RetroGameLoop);
 
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:

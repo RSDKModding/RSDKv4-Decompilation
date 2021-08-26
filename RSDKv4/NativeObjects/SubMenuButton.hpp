@@ -2,16 +2,16 @@
 #define NATIVE_SUBMENUBUTTON_H
 
 struct NativeEntity_SubMenuButton : NativeEntityBase {
-    float float10;
-    float float14;
-    float float18;
+    float matX;
+    float matY;
+    float matZ;
     int state;
-    float float20;
-    float float24;
-    float float28;
-    float float2C;
-    float float30;
-    int dword34;
+    float matXOff;
+    float textY;
+    float afterFlashTimer;
+    float flashTimer;
+    float textScale;
+    int textAlpha;
     byte r;
     byte g;
     byte b;
@@ -21,7 +21,7 @@ struct NativeEntity_SubMenuButton : NativeEntityBase {
     byte setNewState;
     MatrixF matrix;
     MatrixF renderMatrix;
-    byte byte148;
+    byte symbol;
     byte flags;
     byte textureSymbols;
     byte useMeshH;

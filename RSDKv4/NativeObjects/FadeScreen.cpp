@@ -2,16 +2,16 @@
 
 void FadeScreen_Create(void *objPtr)
 {
-    NativeEntity_FadeScreen *entity = (NativeEntity_FadeScreen *)objPtr;
-    entity->timer                   = 0.0;
-    entity->timeLimit               = 1.5;
-    entity->fadeSpeed               = 2.0;
-    entity->state                   = 2;
-    //nativeMenuFadeIn                = 1;
+    RSDK_THIS(FadeScreen);
+    entity->timer     = 0.0;
+    entity->timeLimit = 1.5;
+    entity->fadeSpeed = 2.0;
+    entity->state     = 2;
+    // nativeMenuFadeIn                = 1;
 }
 void FadeScreen_Main(void *objPtr)
 {
-    NativeEntity_FadeScreen *entity = (NativeEntity_FadeScreen *)objPtr;
+    RSDK_THIS(FadeScreen);
 
     SetRenderBlendMode(1);
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
