@@ -28,9 +28,9 @@ void SegaSplash_Main(void *objPtr)
             entity->rectAlpha -= 300.0 * Engine.deltaTime;
             if (entity->rectAlpha < -320.0)
                 entity->state = 1;
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0xFF, 0xFF, 0xFF, 0xFF);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderImage(0.0, 0.0, 160.0, 0.4, 0.4, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, 255, entity->textureID);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->rectAlpha);
             break;
@@ -38,9 +38,9 @@ void SegaSplash_Main(void *objPtr)
             entity->rectAlpha += 300.0 * Engine.deltaTime;
             if (entity->rectAlpha > 512.0)
                 entity->state = 2;
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0xFF, 0xFF, 0xFF, 0xFF);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderImage(0.0, 0.0, 160.0, 0.4, 0.4, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, 255, entity->textureID);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->rectAlpha);
             break;

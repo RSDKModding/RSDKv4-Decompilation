@@ -486,19 +486,16 @@ int LoadTexture(const char *filePath, int format)
             texture->format      = format;
             StrCopy(texture->fileName, filePath);
 
-            if (FindStringToken(fileName, "@2", 1) <= 0) {
-                float normalize = 0;
-                if (FindStringToken(fileName, "@1", 1) <= 0)
-                    normalize = 1.0;
-                else
-                    normalize = 0.5;
-                texture->widthN  = normalize / width;
-                texture->heightN = normalize / height;
-            }
-            else {
-                texture->widthN  = 2.0 / width;
-                texture->heightN = 2.0 / height;
-            }
+            
+            float normalize = 0;
+            if (FindStringToken(fileName, "@2", 1) > 0)
+                normalize = 2.0;
+            else if (FindStringToken(fileName, "@1", 1) > 0)
+                normalize = 0.5;
+            else
+                normalize = 1.0;
+            texture->widthN  = normalize / width;
+            texture->heightN = normalize / height;
 
 #if RETRO_USING_OPENGL
             glGenTextures(1, &texture->id);
@@ -1019,8 +1016,8 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
 void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, int alpha)
 {
     BitmapFont *font = &fontList[fontID];
-    float posY       = (font->base * scale) + y;
     float posX       = x;
+    float posY       = (font->base * scale) + y;
 
     if (vertexListSize < DRAWVERTEX_LIMIT) {
         if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColours)) {

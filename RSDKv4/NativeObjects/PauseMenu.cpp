@@ -28,7 +28,7 @@ void PauseMenu_Create(void *objPtr)
     matrixRotateYF(&entity->label->renderMatrix, DegreesToRad(22.5));
     matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
-    entity->label->byteB4 = 1;
+    entity->label->useMatrix = 1;
     entity->dword100      = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
     for (int i = 0; i < 4; ++i) {
         NativeEntity_SubMenuButton *button = (NativeEntity_SubMenuButton *)CreateNativeObject(SubMenuButton_Create, SubMenuButton_Main);
@@ -42,7 +42,7 @@ void PauseMenu_Create(void *objPtr)
         matrixTranslateXYZF(&entity->matrix, entity->dword100, 48.0 - i * 30, 160.0);
         matrixMultiplyF(&entity->buttons[0]->matrix, &entity->matrix);
         button->symbol      = 1;
-        button->setNewState = 1;
+        button->useMatrix = 1;
     }
     if (GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1 || !activeStageList
         || GetGlobalVariableByName("options.attractMode") == 1) {

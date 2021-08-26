@@ -12,14 +12,14 @@ void TextLabel_Main(void *objPtr)
 {
     RSDK_THIS(TextLabel);
 
-    if (entity->byteB4 == 1) {
+    if (entity->useMatrix) {
         NewRenderState();
         SetRenderMatrix(&entity->renderMatrix);
     }
 
     switch (entity->alignment) {
         case 0:
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderText(entity->text, entity->fontID, entity->textX - entity->textWidth, entity->textY, entity->textZ, entity->textScale,
                        entity->textAlpha);
             break;
@@ -29,7 +29,7 @@ void TextLabel_Main(void *objPtr)
                 entity->timer -= 1.0f;
 
             if (entity->timer > 0.5) {
-                SetRenderBlendMode(1);
+                SetRenderBlendMode(RENDER_BLEND_ALPHA);
                 RenderText(entity->text, entity->fontID, entity->textX - entity->textWidth, entity->textY, entity->textZ, entity->textScale,
                            entity->textAlpha);
             }
@@ -40,24 +40,25 @@ void TextLabel_Main(void *objPtr)
                 entity->timer -= 0.1f;
 
             if (entity->timer > 0.05) {
-                SetRenderBlendMode(1);
+                SetRenderBlendMode(RENDER_BLEND_ALPHA);
                 RenderText(entity->text, entity->fontID, entity->textX - entity->textWidth, entity->textY, entity->textZ, entity->textScale,
                            entity->textAlpha);
             }
             break;
     }
 
-    if (entity->byteB4 == 1) {
+    if (entity->useMatrix) {
         NewRenderState();
-        SetRenderMatrix(0);
+        SetRenderMatrix(NULL);
     }
 }
 
 void TextLabel_Align(NativeEntity_TextLabel *label, int align)
 {
     switch (align) {
+        default:
+        case 0: label->textWidth = 0.0; break;
         case 1: label->textWidth = GetTextWidth(label->text, label->fontID, label->textScale) * 0.5; break;
         case 2: label->textWidth = GetTextWidth(label->text, label->fontID, label->textScale); break;
-        case 0: label->textWidth = 0.0; break;
     }
 }

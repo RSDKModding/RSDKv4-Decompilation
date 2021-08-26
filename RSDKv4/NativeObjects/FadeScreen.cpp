@@ -13,7 +13,7 @@ void FadeScreen_Main(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
 
-    SetRenderBlendMode(1);
+    SetRenderBlendMode(RENDER_BLEND_ALPHA);
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
     switch (entity->state) {
         case 0:

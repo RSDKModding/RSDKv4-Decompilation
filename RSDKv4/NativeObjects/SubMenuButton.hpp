@@ -18,7 +18,7 @@ struct NativeEntity_SubMenuButton : NativeEntityBase {
     ushort text[64];
     MeshInfo *meshButton;
     MeshInfo *meshButtonH;
-    byte setNewState;
+    byte useMatrix;
     MatrixF matrix;
     MatrixF renderMatrix;
     byte symbol;

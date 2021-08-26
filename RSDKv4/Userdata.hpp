@@ -14,6 +14,11 @@
 #include <unordered_map>
 #endif
 
+#define intToVoid(x)   (void *)(size_t)(x)
+#define voidToInt(x)   (int)(size_t)(x)
+
+#define unused(x) (void)x
+
 struct SaveFile {
     int characterID;
     int lives;

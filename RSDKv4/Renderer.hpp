@@ -8,6 +8,13 @@
 #define MESH_LIMIT (0x40)
 #define RENDERSTATE_LIMIT (0x100)
 
+enum RenderBlendModes {
+    RENDER_BLEND_NONE,
+    RENDER_BLEND_ALPHA,
+    RENDER_BLEND_ALPHA2,
+    RENDER_BLEND_ALPHA3,
+};
+
 struct DrawVertex {
     float vertX;
     float vertY;

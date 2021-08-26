@@ -98,7 +98,6 @@ void TitleScreen_Create(void *objPtr)
 
     entity->labelPtr->alignPtr(entity->labelPtr, 1);
 
-    entity->labelPtr        = entity->labelPtr;
     entity->labelPtr->textX = 64.0;
     entity->labelPtr->textY = -96.0;
     entity->introTextureID  = LoadTexture("Data/Game/Menu/Intro.png", 2);
@@ -151,17 +150,17 @@ void TitleScreen_Main(void *objPtr)
         case 0: {
             PlayMusic(0, 0);
             entity->state = 1;
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->introRectAlpha);
             break;
         }
         case 1: {
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             entity->meshAnimator.animationSpeed = 6.0 * Engine.deltaTime;
             AnimateMesh(entity->introMesh, &entity->meshAnimator);
             RenderMesh(entity->introMesh, 0, true);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
             if (Engine.gameDeviceType == RETRO_MOBILE && entity->introAlpha < 0x100 && entity->introRectAlpha < 0.0) {
                 entity->introAlpha += 8;
@@ -206,12 +205,12 @@ void TitleScreen_Main(void *objPtr)
         case 2: {
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             entity->meshAnimator.animationSpeed = 6.0 * Engine.deltaTime;
             AnimateMesh(entity->introMesh, &entity->meshAnimator);
             RenderMesh(entity->introMesh, 0, true);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
                         entity->introTextureID);
             if (entity->meshAnimator.frameID > 26)
@@ -246,7 +245,7 @@ void TitleScreen_Main(void *objPtr)
             break;
         }
         case 3: {
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
 
             float y = 0;
@@ -289,13 +288,13 @@ void TitleScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->matrix1);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
                         entity->introTextureID);
             break;
         }
         case 4: {
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
@@ -338,7 +337,7 @@ void TitleScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->matrix1);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
             if (entity->introAlpha > 0) {
                 entity->introAlpha -= 8;
@@ -354,7 +353,7 @@ void TitleScreen_Main(void *objPtr)
             break;
         }
         case 5: {
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
@@ -369,7 +368,7 @@ void TitleScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->matrix1);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
             if (entity->logoAlpha > 0)
                 entity->logoAlpha -= 8;
@@ -390,7 +389,7 @@ void TitleScreen_Main(void *objPtr)
             break;
         }
         case 6: {
-            SetRenderBlendMode(0);
+            SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_CENTERY_F - entity->field_38, 160, 192, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);

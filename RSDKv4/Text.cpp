@@ -582,11 +582,11 @@ void LoadBitmapFont(const char *filePath, int index, char textureID)
 
             // Height
             pos = 0;
-            if (hPos + 7 >= basePos) {
+            if (hPos + 7 >= xOffPos) {
                 pos = 0;
             }
             else {
-                pos = basePos - 7 - hPos;
+                pos = xOffPos - 7 - hPos;
                 memcpy(buffer, &lineBuffer[hPos + 7], pos);
             }
             buffer[pos] = 0;
@@ -644,7 +644,7 @@ void LoadBitmapFont(const char *filePath, int index, char textureID)
 void ResetBitmapFonts()
 {
     for (int i = 0; i < FONTLIST_COUNT; ++i) {
-        fontList[i].count = 2;
+        fontList[i].count = 2; //none & newline
     }
 }
 

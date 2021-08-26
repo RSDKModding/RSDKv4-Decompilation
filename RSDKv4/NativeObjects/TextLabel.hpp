@@ -12,7 +12,7 @@ struct NativeEntity_TextLabel : NativeEntityBase {
     int fontID;
     ushort text[64];
     int alignment;
-    byte byteB4;
+    byte useMatrix;
     MatrixF renderMatrix;
     void (*alignPtr)(NativeEntity_TextLabel *, int);
 };

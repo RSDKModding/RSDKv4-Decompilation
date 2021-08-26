@@ -19,7 +19,7 @@ void SubMenuButton_Create(void *objPtr)
 void SubMenuButton_Main(void *objPtr)
 {
     RSDK_THIS(SubMenuButton);
-    if (entity->setNewState) {
+    if (entity->useMatrix) {
         NewRenderState();
         matrixTranslateXYZF(&entity->renderMatrix, entity->matX - entity->matXOff, entity->matY, entity->matZ);
         matrixMultiplyF(&entity->renderMatrix, &entity->matrix);
@@ -29,7 +29,7 @@ void SubMenuButton_Main(void *objPtr)
 
     switch (entity->state) {
         case 0:
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderMesh(entity->meshButton, 0, 0);
             RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
             break;
@@ -38,7 +38,7 @@ void SubMenuButton_Main(void *objPtr)
             if (entity->flashTimer > 1.0)
                 entity->flashTimer -= 1.0;
 
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderMesh(entity->meshButton, 0, 0);
             if (entity->flashTimer > 0.5)
                 RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
@@ -47,7 +47,7 @@ void SubMenuButton_Main(void *objPtr)
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderMesh(entity->meshButton, 0, 0);
             if (entity->flashTimer > 0.05)
                 RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
@@ -71,7 +71,7 @@ void SubMenuButton_Main(void *objPtr)
             }
             // FallThrough
         case 4:
-            SetRenderBlendMode(1);
+            SetRenderBlendMode(RENDER_BLEND_ALPHA);
             if (entity->useMeshH)
                 RenderMesh(entity->meshButtonH, 0, 0);
             else
@@ -142,7 +142,7 @@ void SubMenuButton_Main(void *objPtr)
     }
 
     SetRenderVertexColor(255, 255, 255);
-    if (entity->setNewState == 1) {
+    if (entity->useMatrix) {
         NewRenderState();
         SetRenderMatrix(NULL);
     }

@@ -877,7 +877,7 @@ void receive2PVSMatchCode(int code)
 
 int ShowPromoPopup(int a1, void *a2)
 {
-    printLog("Attempting to show promo popup (%d) (%c)", a1, (char *)a2);
+    printLog("Attempting to show promo popup (%d) (%s)", a1, (char *)a2);
     if (Engine.onlineActive) {
         // Do online code
         return 1;

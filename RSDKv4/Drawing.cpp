@@ -319,19 +319,34 @@ int InitRenderDevice()
     int lineSize = (displayWidth + 9) & -0x10;
     SetScreenSize(displayWidth, lineSize);
 
-    Engine.useHighResAssets = displaySettings.height > 480;
+    Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    int width2 = 0;
+    int wBuf   = GFX_LINESIZE;
+    while (wBuf > 0) {
+        width2++;
+        wBuf >>= 1;
+    }
+    int height2 = 0;
+    int hBuf    = SCREEN_YSIZE;
+    while (hBuf > 0) {
+        height2++;
+        hBuf >>= 1;
+    }
+    int texWidth = 1 << width2;
+    int texHeight = 1 << height2;
+
     textureCount = 1;
     StrCopy(textureList[0].fileName, "RetroBuffer");
-    textureList[0].width   = 512;
-    textureList[0].height  = 256;
+    textureList[0].width   = texWidth;
+    textureList[0].height  = texHeight;
     textureList[0].format  = 4;
     textureList[0].id      = 0;
-    textureList[0].widthN  = 1.0f / 512;
-    textureList[0].heightN = 1.0f / 256;
+    textureList[0].widthN  = 1.0f / texWidth;
+    textureList[0].heightN = 1.0f / texHeight;
 
     if (Engine.useHighResAssets) {
         glGenFramebuffers(1, &framebuffer480);
@@ -373,15 +388,16 @@ int InitRenderDevice()
 
     glGenTextures(1, &textureList[0].id);
     glBindTexture(GL_TEXTURE_2D, textureList[0].id);
+
     convertTo32Bit = true;
     if (displaySettings.height > 720) {
         convertTo32Bit = true;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     }
     else if (convertTo32Bit)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 256, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // GL_LINEAR
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
@@ -829,6 +845,7 @@ void ClearScreen(byte index)
 
 void SetScreenDimensions(int width, int height)
 {
+
     touchWidth               = width;
     touchHeight              = height;
     displaySettings.width    = width;
@@ -837,7 +854,7 @@ void SetScreenDimensions(int width, int height)
     displaySettings.field_10 = 16;
     touchHeightF             = height;
     displaySettings.maxWidth = 424;
-    double aspect             = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
+    double aspect            = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
     SCREEN_XSIZE             = SCREEN_YSIZE * aspect;
     SCREEN_CENTERX_F         = aspect * SCREEN_CENTERY;
     SetPerspectiveMatrix(SCREEN_YSIZE * aspect, SCREEN_YSIZE_F, 0.0, 1000.0);
@@ -848,11 +865,27 @@ void SetScreenDimensions(int width, int height)
     if (val > displaySettings.maxWidth)
         val = displaySettings.maxWidth;
     SetScreenSize(val, (int)(val + 9) & -0x10);
-    textureList[0].widthN  = 1.0f / 512;
-    textureList[0].heightN = 1.0f / 256;
 
-    float w                = (val * (1.0f / 512)) - 0.001;
-    float w2               = ((((int)(val + 9) & -0x10) + 0.5) * (1.0f / 512)) - 0.001;
+    int width2 = 0;
+    int wBuf   = SCREEN_XSIZE;
+    while (wBuf > 0) {
+        width2++;
+        wBuf >>= 1;
+    }
+    int height2 = 0;
+    int hBuf    = SCREEN_YSIZE;
+    while (hBuf > 0) {
+        height2++;
+        hBuf >>= 1;
+    }
+    int texWidth = 1 << width2;
+    int texHeight = 1 << height2;
+
+    textureList[0].widthN  = 1.0f / texWidth;
+    textureList[0].heightN = 1.0f / texHeight;
+
+    float w                = (val * (1.0f / texWidth)) - 0.001;
+    float w2               = ((((int)(val + 9) & -0x10) + 0.5) * (1.0f / texWidth)) - 0.001;
     retroVertexList[0]     = -SCREEN_CENTERX_F;
     retroVertexList[1]     = SCREEN_CENTERY_F;
     retroVertexList[2]     = 160.0;

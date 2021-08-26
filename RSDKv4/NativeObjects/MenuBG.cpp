@@ -26,7 +26,7 @@ void MenuBG_Main(void *objPtr)
     if (entity->isFading) {
         if (entity->isFading != 1)
             return;
-        SetRenderBlendMode(0);
+        SetRenderBlendMode(RENDER_BLEND_NONE);
         entity->fadeTimer += Engine.deltaTime;
         if (entity->fadeTimer > 1.5)
             entity->isFading = false;
@@ -36,12 +36,12 @@ void MenuBG_Main(void *objPtr)
             entity->fadeR = fadeR;
         }
         fadeG = entity->fadeG;
-        if (fadeG <= 0xF7u) {
+        if (fadeG < 0xF8) {
             fadeG += 8;
             entity->fadeG = fadeG;
         }
         fadeB = entity->fadeB;
-        if (fadeB <= 0xF7u) {
+        if (fadeB < 0xF8) {
             fadeB += 8;
             entity->fadeB = fadeB;
         }
@@ -51,11 +51,11 @@ void MenuBG_Main(void *objPtr)
         entity->Ztrans2      = ((160.0 - entity->Ztrans2) / (18.0 * Engine.deltaTime * 60.0)) + entity->Ztrans2;
         entity->ZtransRender = ((160.0 - entity->ZtransRender) / (Engine.deltaTime * 60.0 * 20.0)) + entity->ZtransRender;
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, fadeR, fadeG, fadeB, 255);
-        SetRenderBlendMode(1);
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         SetRenderVertexColor(224, 208, 192);
-        RenderImage(-64.0, 0.0, 160.0, 0.44999999, 0.44999999, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, entity->alpha, entity->textureID);
+        RenderImage(-64.0, 0.0, 160.0, 0.45, 0.45, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, entity->alpha, entity->textureID);
         SetRenderVertexColor(255, 255, 255);
-        SetRenderBlendMode(0);
+        SetRenderBlendMode(RENDER_BLEND_NONE);
         entity->circle1Rot = entity->circle1Rot - Engine.deltaTime;
         if (entity->circle1Rot < M_PI * -2)
             entity->circle1Rot += M_PI * 2;
@@ -76,13 +76,13 @@ void MenuBG_Main(void *objPtr)
         matrixTranslateXYZF(&entity->renderMatrix, 0.0, 0.0, entity->ZtransRender);
     }
     else {
-        SetRenderBlendMode(0);
+        SetRenderBlendMode(RENDER_BLEND_NONE);
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 248, 248, 248, 255);
-        SetRenderBlendMode(1);
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         SetRenderVertexColor(0xE0, 0xD0, 0xC0);
-        RenderImage(-64.0, 0.0, 160.0, 0.44999999, 0.44999999, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, entity->textureID);
+        RenderImage(-64.0, 0.0, 160.0, 0.45, 0.45, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, entity->textureID);
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-        SetRenderBlendMode(0);
+        SetRenderBlendMode(RENDER_BLEND_NONE);
         entity->circle1Rot = entity->circle1Rot - Engine.deltaTime;
         if (entity->circle1Rot < M_PI * -2)
             entity->circle1Rot += M_PI * 2;
