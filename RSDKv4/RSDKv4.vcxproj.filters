@@ -117,6 +117,42 @@
     <ClInclude Include="NativeObjects\SubMenuButton.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
+    <ClInclude Include="NativeObjects\MenuBG.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MenuControl.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\AchievementsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\BackButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\LeaderboardsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\ModsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\OptionsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\StartGameButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TimeAttackButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\DialogPanel.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PushButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -210,6 +246,42 @@
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
     <ClCompile Include="NativeObjects\SubMenuButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MenuBG.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MenuControl.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\AchievementsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\BackButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\LeaderboardsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\ModsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\OptionsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\StartGameButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TimeAttackButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\DialogPanel.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PushButton.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>

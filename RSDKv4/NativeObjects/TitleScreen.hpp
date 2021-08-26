@@ -19,7 +19,7 @@ struct NativeEntity_TitleScreen : NativeEntityBase {
     float rotationZ;
     float matrixY;
     float matrixZ;
-    MatrixF matrix1;
+    MatrixF renderMatrix;
     MatrixF matrix2;
     MatrixF matrix3;
     byte logoTextureID;

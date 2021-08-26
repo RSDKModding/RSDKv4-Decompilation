@@ -280,12 +280,12 @@ void TitleScreen_Main(void *objPtr)
                 entity->translateX            = 0.0;
             }
             entity->rotationY += Engine.deltaTime;
-            matrixScaleXYZF(&entity->matrix1, entity->meshScale, entity->meshScale, entity->meshScale);
+            matrixScaleXYZF(&entity->renderMatrix, entity->meshScale, entity->meshScale, entity->meshScale);
             matrixRotateYF(&entity->matrix3, entity->rotationY);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
             matrixTranslateXYZF(&entity->matrix3, 0.0, 0.0, 200.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
-            SetRenderMatrix(&entity->matrix1);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
@@ -329,12 +329,12 @@ void TitleScreen_Main(void *objPtr)
                 entity->translateX += ((-97.0 - entity->translateX) / ((Engine.deltaTime * 60.0) * 16.0));
             }
             NewRenderState();
-            matrixScaleXYZF(&entity->matrix1, entity->meshScale, entity->meshScale, entity->meshScale);
+            matrixScaleXYZF(&entity->renderMatrix, entity->meshScale, entity->meshScale, entity->meshScale);
             matrixRotateYF(&entity->matrix3, entity->rotationY);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
             matrixTranslateXYZF(&entity->matrix3, entity->translateX, 0.0, 200.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
-            SetRenderMatrix(&entity->matrix1);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
@@ -362,10 +362,10 @@ void TitleScreen_Main(void *objPtr)
             entity->translateX /= div;
             entity->rotationY /= div;
             NewRenderState();
-            matrixRotateYF(&entity->matrix1, entity->rotationY);
+            matrixRotateYF(&entity->renderMatrix, entity->rotationY);
             matrixTranslateXYZF(&entity->matrix3, entity->translateX, 0.0, 200.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
-            SetRenderMatrix(&entity->matrix1);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, 1, true);
             SetRenderMatrix(NULL);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
@@ -412,10 +412,10 @@ void TitleScreen_Main(void *objPtr)
                 entity->rotationZ += ((0.0 - entity->rotationZ) / (val * 22.0));
             }
             NewRenderState();
-            matrixRotateXF(&entity->matrix1, entity->rotationY);
+            matrixRotateXF(&entity->renderMatrix, entity->rotationY);
             matrixTranslateXYZF(&entity->matrix3, entity->translateX, entity->field_4C, 200.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix3);
-            SetRenderMatrix(&entity->matrix1);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, 1, true);
 
             matrixRotateXYZF(&entity->matrix2, 0.0, 0.0, entity->rotationZ);
