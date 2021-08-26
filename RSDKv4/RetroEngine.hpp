@@ -259,11 +259,12 @@ public:
     bool running     = false;
     double deltaTime = 0;
 
-    int gameMode        = ENGINE_MAINGAME;
-    int language        = RETRO_EN;
-    int message         = 0;
-    int gameDeviceType  = 0;
-    int globalBoxRegion = 0;
+    int gameMode          = ENGINE_MAINGAME;
+    int language          = RETRO_EN;
+    int message           = 0;
+    int gameDeviceType    = 0;
+    int globalBoxRegion   = 0;
+    bool nativeMenuFadeIn = false;
 
     bool trialMode        = false;
     bool onlineActive     = true;

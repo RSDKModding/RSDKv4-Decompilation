@@ -8,6 +8,8 @@
 
 #define SAVEDATA_MAX (0x2000)
 
+#define NATIIVEFUNCTION_MAX (0x10)
+
 #if RETRO_USE_MOD_LOADER
 #include <string>
 #include <map>
@@ -24,10 +26,10 @@ struct SaveFile {
     int lives;
     int score;
     int scoreBonus;
-    int continues;
     int zoneID;
     int emeralds;
     int specialZoneID;
+    int unused;
 };
 
 struct SaveGame {
@@ -84,7 +86,7 @@ struct ModInfo {
 };
 #endif
 
-extern int (*nativeFunction[16])(int, void *);
+extern void *nativeFunction[NATIIVEFUNCTION_MAX];
 extern int nativeFunctionCount;
 
 extern int globalVariablesCount;
@@ -144,13 +146,11 @@ inline int GetGlobalVariableID(const char *name)
     return 0;
 }
 
-inline void AddNativeFunction(const char *name, int (*funcPtr)(int, void *))
-{
-    if (nativeFunctionCount > 0xF)
-        return;
-    SetGlobalVariableByName(name, nativeFunctionCount);
-    nativeFunction[nativeFunctionCount++] = funcPtr;
-}
+#define AddNativeFunction(name, funcPtr)                                                                                                             \
+    if (nativeFunctionCount < NATIIVEFUNCTION_MAX) {                                                                                                 \
+        SetGlobalVariableByName(name, nativeFunctionCount);                                                                                          \
+        nativeFunction[nativeFunctionCount++] = (void *)funcPtr;                                                                                     \
+    }
 
 inline bool ReadSaveRAMData()
 {
@@ -202,43 +202,52 @@ void ReadUserdata();
 void WriteUserdata();
 #endif
 
+int SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
-
-int SetAchievement(int achievementID, void *achDone);
-int SetLeaderboard(int leaderboardID, void *res);
+#if RETRO_USE_MOD_LOADER
+int AddAchievement(int *id, const char *name);
+int ClearAchievements();
+int GetAchievement(int *id, void *a2);
+#endif
 inline void LoadAchievementsMenu()
 {
 #if !RETRO_USE_ORIGINAL_CODE
     ReadUserdata();
 #endif
 }
+void ShowAchievementsScreen();
+
+int SetLeaderboard(int *leaderboardID, int *result);
 inline void LoadLeaderboardsMenu()
 {
 #if !RETRO_USE_ORIGINAL_CODE
     ReadUserdata();
 #endif
 }
+void ShowLeaderboardsScreen();
 
-int Connect2PVS(int a1, void *a2);
-int Disconnect2PVS(int a1, void *a2);
-int SendEntity(int a1, void *a2);
-int SendValue(int a1, void *a2);
-int ReceiveEntity(int a1, void *a2);
-int ReceiveValue(int a1, void *a2);
-int TransmitGlobal(int a1, void *a2);
+int Connect2PVS(int *gameLength, int *itemMode);
+int Disconnect2PVS(int *a1, int *a2);
+int SendEntity(int *entityID, int *dataSlot);
+int SendValue(int *value, int *dataSlot);
+int ReceiveEntity(int *entityID, int *dataSlot);
+int ReceiveValue(int *value, int *dataSlot);
+int TransmitGlobal(int *globalValue, const char *globalName);
 
 void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
-int ShowPromoPopup(int a1, void *a2);
+int ShowPromoPopup(int *a1, const char *popupName);
 
-int ExitGame(int val, void *name);
-int OpenModMenu(int val, void *name);
+int ExitGame();
+int OpenModMenu();
 
 #if RETRO_USE_MOD_LOADER
 void initMods();
 bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool active);
 void saveMods();
+
+void RefreshEngine();
 #endif
 
 #endif //! USERDATA_H

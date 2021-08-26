@@ -4,7 +4,7 @@
 struct NativeEntity_SegaSplash : NativeEntityBase {
     int state;
     float rectAlpha;
-    char textureID;
+    byte textureID;
 };
 
 void SegaSplash_Create(void *objPtr);

@@ -754,7 +754,7 @@ void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
         if (!animator->animationFinished) {
             animator->animationTimer += animator->animationSpeed;
 
-            if (animator->animationTimer > 1.0f) { // new frame (forwards)
+            while (animator->animationTimer > 1.0f) { // new frame (forwards)
                 animator->animationTimer -= 1.0f;
                 animator->frameID++;
 
@@ -768,7 +768,7 @@ void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
                     animator->animationTimer    = 0.0f;
                 }
             }
-            else if (animator->animationTimer < 0.0f) { // new frame (backwards)
+            while (animator->animationTimer < 0.0f) { // new frame (backwards)
                 animator->animationTimer += 1.0f;
                 animator->frameID--;
 

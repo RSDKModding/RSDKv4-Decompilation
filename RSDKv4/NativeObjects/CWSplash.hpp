@@ -4,7 +4,7 @@
 struct NativeEntity_CWSplash : NativeEntityBase {
     int state;
     float rectAlpha;
-    char textureID;
+    byte textureID;
 };
 
 void CWSplash_Create(void *objPtr);

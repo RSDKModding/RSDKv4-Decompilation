@@ -153,6 +153,15 @@
     <ClInclude Include="NativeObjects\PushButton.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
+    <ClInclude Include="NativeObjects\SegaIDButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PlayerSelectScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SaveSelect.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -282,6 +291,15 @@
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
     <ClCompile Include="NativeObjects\PushButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SegaIDButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PlayerSelectScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SaveSelect.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>

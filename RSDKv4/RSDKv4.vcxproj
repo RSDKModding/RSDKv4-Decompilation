@@ -422,8 +422,11 @@
     <ClCompile Include="NativeObjects\ModsButton.cpp" />
     <ClCompile Include="NativeObjects\OptionsButton.cpp" />
     <ClCompile Include="NativeObjects\PauseMenu.cpp" />
+    <ClCompile Include="NativeObjects\PlayerSelectScreen.cpp" />
     <ClCompile Include="NativeObjects\PushButton.cpp" />
     <ClCompile Include="NativeObjects\RetroGameLoop.cpp" />
+    <ClCompile Include="NativeObjects\SaveSelect.cpp" />
+    <ClCompile Include="NativeObjects\SegaIDButton.cpp" />
     <ClCompile Include="NativeObjects\SegaSplash.cpp" />
     <ClCompile Include="NativeObjects\StartGameButton.cpp" />
     <ClCompile Include="NativeObjects\SubMenuButton.cpp" />
@@ -465,8 +468,11 @@
     <ClInclude Include="NativeObjects\NativeObjects.hpp" />
     <ClInclude Include="NativeObjects\OptionsButton.hpp" />
     <ClInclude Include="NativeObjects\PauseMenu.hpp" />
+    <ClInclude Include="NativeObjects\PlayerSelectScreen.hpp" />
     <ClInclude Include="NativeObjects\PushButton.hpp" />
     <ClInclude Include="NativeObjects\RetroGameLoop.hpp" />
+    <ClInclude Include="NativeObjects\SaveSelect.hpp" />
+    <ClInclude Include="NativeObjects\SegaIDButton.hpp" />
     <ClInclude Include="NativeObjects\SegaSplash.hpp" />
     <ClInclude Include="NativeObjects\StartGameButton.hpp" />
     <ClInclude Include="NativeObjects\SubMenuButton.hpp" />

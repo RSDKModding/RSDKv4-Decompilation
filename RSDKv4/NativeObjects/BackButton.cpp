@@ -3,6 +3,7 @@
 void BackButton_Create(void *objPtr)
 {
     RSDK_THIS(BackButton);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
 
     int texture        = LoadTexture("Data/Game/Menu/Intro.png", 1);
     entity->meshBack   = LoadMesh("Data/Game/Models/BackArrow.bin", texture);
@@ -17,7 +18,7 @@ void BackButton_Main(void *objPtr)
 {
     RSDK_THIS(BackButton);
 
-    if (entity->field_14) {
+    if (entity->visible) {
         if (entity->scale < 0.2) {
             entity->scale += ((0.25 - entity->scale) / ((60.0 * Engine.deltaTime) * 16.0));
             if (entity->scale > 0.2)

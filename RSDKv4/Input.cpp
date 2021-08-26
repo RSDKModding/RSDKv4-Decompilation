@@ -7,6 +7,8 @@ int touchDown[8];
 int touchX[8];
 int touchY[8];
 int touchID[8];
+float touchXF[8];
+float touchYF[8];
 int touches = 0;
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -480,25 +482,25 @@ void CheckKeyDown(InputData *input)
 #endif
 }
 
-int CheckTouchRect(float x1, float y1, float x2, float y2)
+int CheckTouchRect(float x, float y, float w, float h)
 {
     for (int f = 0; f < touches; ++f) {
-        if (touchDown[f] && touchX[f] > x1 && touchX[f] < y1 && touchY[f] > x2 && touchY[f] < y2) {
+        if (touchDown[f] && touchXF[f] > (x - w) && touchYF[f] > (y - h) && touchXF[f] <= (x + w) && touchYF[f] <= (y + h)) {
             return f;
         }
     }
     return -1;
 }
 
-int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2)
+int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
 {
     MatrixF *mat = (MatrixF *)m;
     for (int f = 0; f < touches; ++f) {
-        float valX = (((touchX[f] * mat->values[0][0]) + (touchY[f] * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
-        if (valX > (x1 - x2) && (x1 + x2) > valX) {
+        float valX = (((touchXF[f] * mat->values[0][0]) + (touchYF[f] * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
+        if (valX > (x - w) && (x + w) > valX) {
             float valY =
-                (((touchX[f] * mat->values[0][1]) + (touchY[f] * mat->values[1][1])) + (SCREEN_YSIZE * mat->values[2][1])) + mat->values[3][1];
-            if (valY > (y1 - y2) && (y1 + y2) > valY)
+                (((touchXF[f] * mat->values[0][1]) + (touchYF[f] * mat->values[1][1])) + (SCREEN_YSIZE * mat->values[2][1])) + mat->values[3][1];
+            if (valY > (y - h) && (y + h) > valY)
                 return f;
         }
     }

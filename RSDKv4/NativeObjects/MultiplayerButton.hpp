@@ -1,9 +1,9 @@
 #ifndef NATIVE_VSBUTTON_H
 #define NATIVE_VSBUTTON_H
 
-struct NativeEntity_VSButton : NativeEntityBase {
+struct NativeEntity_MultiplayerButton : NativeEntityBase {
     int field_10;
-    byte field_14;
+    byte visible;
     int field_18;
     int field_1C;
     float translateX;
@@ -21,7 +21,7 @@ struct NativeEntity_VSButton : NativeEntityBase {
     NativeEntity_TextLabel *labelPtr;
 };
 
-void VSButton_Create(void *objPtr);
-void VSButton_Main(void *objPtr);
+void MultiplayerButton_Create(void *objPtr);
+void MultiplayerButton_Main(void *objPtr);
 
 #endif // !NATIVE_VSBUTTON_H

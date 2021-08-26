@@ -425,7 +425,7 @@ void TitleScreen_Main(void *objPtr)
             RenderMesh(entity->cartMesh, 1, true);
             SetRenderMatrix(NULL);
             if (entity->field_4C < -360.0) {
-                ShowPromoPopup(0, (void *)"BootupPromo");
+                ShowPromoPopup(0, "BootupPromo");
                 ResetNativeObject(entity, MenuControl_Create, MenuControl_Main);
             }
             break;

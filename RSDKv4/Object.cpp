@@ -411,23 +411,29 @@ void InitNativeObjectSystem()
         saveGame->vDPadY_Move     = 184;
         saveGame->vDPadX_Jump     = -56;
         saveGame->vDPadY_Jump     = 188;
-        saveGame->tailsUnlocked   = false;
-        saveGame->knuxUnlocked    = false;
+        if (Engine.gameType == GAME_SONIC1) {
+            saveGame->tailsUnlocked = false;
+            saveGame->knuxUnlocked  = false;
+        }
+        else {
+            saveGame->tailsUnlocked = true;
+            saveGame->knuxUnlocked  = true;
+        }
         saveGame->unknown         = false;
         WriteSaveRAMData();
     }
-    saveGame->musVolume    = bgmVolume;
-    saveGame->sfxVolume            = sfxVolume;
+    saveGame->musVolume = bgmVolume;
+    saveGame->sfxVolume = sfxVolume;
 
     if (!saveGame->musVolume)
         musicEnabled = false;
 
-    // if (!saveGame->vDPadX_Move)
-    //    _mm_storeu_si128((__m128i *)&saveRAM[39], _mm_load_si128((const __m128i *)&xmmword_8C670));
     Engine.globalBoxRegion = saveGame->boxRegion;
     SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-    CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
-    //CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
+    if (skipStartMenu)
+        CREATE_ENTITY(RetroGameLoop);
+    else
+        CREATE_ENTITY(SegaSplash);
 }
 NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {
@@ -468,45 +474,26 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
 }
 void RemoveNativeObject(NativeEntityBase *entity)
 {
-    for (int o = 0; o < nativeEntityCount; ++o) {
-        if (objectEntityBank[o].createPtr == entity->createPtr && objectEntityBank[o].mainPtr == entity->mainPtr
-            && objectEntityBank[o].slotID == entity->slotID && objectEntityBank[o].objectID == entity->objectID) {
-            objectEntityBank[o].createPtr = nullptr;
-            objectEntityBank[o].mainPtr   = nullptr;
-            objectEntityBank[o].slotID    = 0;
-            objectEntityBank[o].objectID  = 0;
-
-            nativeEntityCount--;
-            for (int i = o; i < nativeEntityCount; ++i) {
-                objectEntityBank[i].createPtr = objectEntityBank[i + 1].createPtr;
-                objectEntityBank[i].mainPtr   = objectEntityBank[i + 1].mainPtr;
-                objectEntityBank[i].slotID    = objectEntityBank[i + 1].slotID;
-                objectEntityBank[i].objectID  = objectEntityBank[i + 1].objectID;
-            }
-        }
-    }
-
-    /*if (nativeEntityCount <= 0) {
-        objectRemoveFlag[entity->slotID] = 1;
+    if (nativeEntityCount <= 0) {
+        objectRemoveFlag[entity->slotID] = true;
     }
     else {
         memset(objectRemoveFlag, 0, nativeEntityCount);
         int slotStore                    = 0;
         objectRemoveFlag[entity->slotID] = 1;
-        int curSlot                      = 0;
-        do {
-            if (!objectRemoveFlag[curSlot]) {
-                if (curSlot != slotStore) {
-                    int store                   = activeEntityList[curSlot];
-                    objectRemoveFlag[slotStore] = 0;
+        int s                            = 0;
+        for (; s < nativeEntityCount; ++s) {
+            if (!objectRemoveFlag[s]) {
+                if (s != slotStore) {
+                    int store                   = activeEntityList[s];
+                    objectRemoveFlag[slotStore] = false;
                     activeEntityList[slotStore] = store;
                 }
                 ++slotStore;
             }
-            ++curSlot;
-        } while (curSlot != nativeEntityCount);
-        nativeEntityCount = curSlot - 1;
-    }*/
+        }
+        nativeEntityCount = s - 1;
+    }
 }
 void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void (*main)(void *objPtr))
 {

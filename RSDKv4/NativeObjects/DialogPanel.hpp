@@ -5,7 +5,7 @@ struct NativeEntity_DialogPanel : NativeEntityBase {
     int state;
     int buttonCount;
     float stateTimer;
-    byte gap1C[4]; //??
+    int field_1C; //??
     float buttonScale;
     MeshInfo *panelMesh;
     MatrixF buttonMatrix;

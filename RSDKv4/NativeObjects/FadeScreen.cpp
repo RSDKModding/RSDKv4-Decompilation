@@ -7,7 +7,7 @@ void FadeScreen_Create(void *objPtr)
     entity->timeLimit = 1.5;
     entity->fadeSpeed = 2.0;
     entity->state     = 2;
-    // nativeMenuFadeIn                = 1;
+    Engine.nativeMenuFadeIn = true;
 }
 void FadeScreen_Main(void *objPtr)
 {
@@ -22,7 +22,7 @@ void FadeScreen_Main(void *objPtr)
                        entity->fadeA);
             if (entity->timer > entity->timeLimit) {
                 RemoveNativeObject(entity);
-                // nativeMenuFadeIn = false;
+                Engine.nativeMenuFadeIn = false;
                 SetMusicTrack("MainMenu.ogg", 0, 1, 106596);
                 PlayMusic(0, 0);
             }
@@ -42,9 +42,9 @@ void FadeScreen_Main(void *objPtr)
                        entity->fadeA);
             if (entity->timer > entity->timeLimit) {
                 ClearNativeObjects();
-                CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
-                if (Engine.gameDeviceType == 1)
-                    CreateNativeObject(VirtualDPad_Create, VirtualDPad_Main);
+                CREATE_ENTITY(RetroGameLoop);
+                if (Engine.gameDeviceType == RETRO_MOBILE)
+                    CREATE_ENTITY(VirtualDPad);
             }
             break;
     }

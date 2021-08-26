@@ -4,8 +4,8 @@ void InitPauseMenu()
 {
     PauseSound();
     ClearNativeObjects();
-    CreateNativeObject(MenuBG_Create, MenuBG_Main);
-    CreateNativeObject(PauseMenu_Create, PauseMenu_Main);
+    CREATE_ENTITY(MenuBG);
+    CREATE_ENTITY(PauseMenu);
 }
 
 void RetroGameLoop_Create(void *objPtr)

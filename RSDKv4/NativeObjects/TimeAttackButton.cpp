@@ -6,7 +6,8 @@ void TimeAttackButton_Create(void *objPtr)
     entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
 
     int texture                    = LoadTexture("Data/Game/Menu/Intro.png", 1);
-    entity->meshTimeAttack         = LoadMesh("Data/Game/Models/TimeAttack.bin", texture);
+    entity->meshTimeAttack = LoadMesh("Data/Game/Models/TimeAttack.bin", texture);
+    SetMeshAnimation(entity->meshTimeAttack, &entity->animator, 0, 16, 0.0);
     entity->animator.loopAnimation = true;
     entity->translateX             = 0.0;
     entity->translateY             = 16.0;
@@ -26,7 +27,7 @@ void TimeAttackButton_Main(void *objPtr)
 {
     RSDK_THIS(TimeAttackButton);
 
-    if (entity->field_14) {
+    if (entity->visible) {
         if (entity->scale < 0.2) {
             entity->scale += ((0.25 - entity->scale) / ((60.0 * Engine.deltaTime) * 16.0));
             if (entity->scale > 0.2)

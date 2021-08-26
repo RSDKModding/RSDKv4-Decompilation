@@ -4,7 +4,7 @@ int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
 
-int (*nativeFunction[16])(int, void *);
+void *nativeFunction[NATIIVEFUNCTION_MAX];
 int nativeFunctionCount = 0;
 
 char gamePath[0x100];
@@ -691,21 +691,38 @@ void AwardAchievement(int id, int status)
 #endif
 }
 
-int SetAchievement(int achievementID, void *achDone)
+int SetAchievement(int *achievementID, int *status)
 {
-    int achievementDone = static_cast<int>(reinterpret_cast<intptr_t>(achDone));
     if (!Engine.trialMode && !debugMode) {
-        AwardAchievement(achievementID, achievementDone);
+        AwardAchievement(*achievementID, *status);
         return 1;
     }
     return 0;
 }
-int SetLeaderboard(int leaderboardID, void *res)
+#if RETRO_USE_MOD_LOADER
+int AddAchievement(int *id, const char *name)
 {
-    int result = static_cast<int>(reinterpret_cast<intptr_t>(res));
+    StrCopy(achievements[*id].name, name);
+    return 0;
+}
+int ClearAchievements()
+{   
+    /*TODO*/
+    return 0;
+}
+int GetAchievement(int *id, void *a2) { return achievements[*id].status; }
+#endif
+void ShowAchievementsScreen() { 
+    /*TODO*/
+    printLog("we're showing the achievements screen");
+}
+
+
+int SetLeaderboard(int *leaderboardID, int *result)
+{
     if (!Engine.trialMode && !debugMode) {
-        printLog("Set leaderboard (%d) value to %d", leaderboard, result);
-        switch (leaderboardID) {
+        printLog("Set leaderboard (%d) value to %d", leaderboardID, *result);
+        switch (*leaderboardID) {
             case 0:
             case 1:
             case 2:
@@ -727,7 +744,7 @@ int SetLeaderboard(int leaderboardID, void *res)
             case 18:
             case 19:
             case 20:
-            case 21: leaderboard[leaderboardID].status = result;
+            case 21: leaderboard[*leaderboardID].status = *result;
 #if !RETRO_USE_ORIGINAL_CODE
                 WriteUserdata();
 #endif
@@ -736,17 +753,22 @@ int SetLeaderboard(int leaderboardID, void *res)
     }
     return 0;
 }
+void ShowLeaderboardsScreen()
+{ 
+    /*TODO*/
+    printLog("we're showing the leaderboards screen");
+}
 
-int Connect2PVS(int gameLength, void *itemMode)
+int Connect2PVS(int *gameLength, int *itemMode)
 {
-    printLog("Attempting to connect to 2P game (%d) (%p)", gameLength, itemMode);
+    printLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
 
     multiplayerDataIN.type = 0;
     matchValueData[0]      = 0;
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
-    Engine.gameMode        = ENGINE_CONNECT2PVS;
+    //Engine.gameMode        = ENGINE_CONNECT2PVS;
     PauseSound();
 
     // actual connection code
@@ -756,9 +778,9 @@ int Connect2PVS(int gameLength, void *itemMode)
     }
     return 0;
 }
-int Disconnect2PVS(int a1, void *a2)
+int Disconnect2PVS(int *a1, int *a2)
 {
-    printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
+    printLog("Attempting to disconnect from 2P game (%p) (%p)", a1, a2);
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
@@ -768,13 +790,13 @@ int Disconnect2PVS(int a1, void *a2)
     }
     return 0;
 }
-int SendEntity(int dataSlot, void *entityID)
+int SendEntity(int *entityID, int *dataSlot)
 {
-    printLog("Attempting to send entity (%d) (%p)", dataSlot, entityID);
+    printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
 
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
-        memcpy(multiplayerDataOUT.data, &objectEntityList[static_cast<int>(reinterpret_cast<intptr_t>(entityID))], sizeof(Entity));
+        memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
             sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
@@ -786,12 +808,12 @@ int SendEntity(int dataSlot, void *entityID)
     sendCounter %= 2;
     return 0;
 }
-int SendValue(int a1, void *value)
+int SendValue(int *value, int *dataSlot)
 {
-    printLog("Attempting to send value (%d) (%p)", a1, value);
+    printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
     multiplayerDataOUT.type    = 0;
-    multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
+    multiplayerDataOUT.data[0] = *value;
     if (Engine.onlineActive && sendDataMethod) {
 #if RETRO_USE_NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
@@ -800,53 +822,52 @@ int SendValue(int a1, void *value)
     }
     return 0;
 }
-int ReceiveEntity(int dataSlotID, void *entityID)
+int ReceiveEntity(int *entityID, int *dataSlot)
 {
-    printLog("Attempting to receive entity (%d) (%p)", dataSlotID, entityID);
+    printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
 
     if (Engine.onlineActive) {
         // Do online code
-        int entitySlot = static_cast<int>(reinterpret_cast<intptr_t>(entityID));
-        if (dataSlotID == 1) {
+        if (*dataSlot == 1) {
             if (multiplayerDataIN.type == 1) {
-                memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
+                memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
             }
             multiplayerDataIN.type = 0;
         }
         else {
-            memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
-        }
-    }
-    return 0;
-}
-int ReceiveValue(int dataSlot, void *value)
-{
-    printLog("Attempting to receive value (%d) (%p)", dataSlot, value);
-
-    if (Engine.onlineActive) {
-        // Do online code
-        int *val = (int *)value;
-
-        if (dataSlot == 1) {
-            if (matchValueReadPos != matchValueWritePos) {
-                *val = matchValueData[matchValueReadPos];
-                matchValueReadPos++;
-            }
-        }
-        else {
-            *val = matchValueData[matchValueReadPos];
+            memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
         }
         return 1;
     }
     return 0;
 }
-int TransmitGlobal(int globalValue, void *globalName)
+int ReceiveValue(int *value, int *dataSlot)
 {
-    printLog("Attempting to transmit global (%s) (%d)", (char *)globalName, globalValue);
+    printLog("Attempting to receive value (%d) (%d)", *dataSlot, *value);
+
+    if (Engine.onlineActive) {
+        // Do online code
+
+        if (*dataSlot == 1) {
+            if (matchValueReadPos != matchValueWritePos) {
+                *value = matchValueData[matchValueReadPos];
+                matchValueReadPos++;
+            }
+        }
+        else {
+            *value = matchValueData[matchValueReadPos];
+        }
+        return 1;
+    }
+    return 0;
+}
+int TransmitGlobal(int *globalValue, const char *globalName)
+{
+    printLog("Attempting to transmit global (%s) (%d)", globalName, globalValue);
 
     multiplayerDataOUT.type    = 2;
-    multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
-    multiplayerDataOUT.data[1] = globalValue;
+    multiplayerDataOUT.data[0] = GetGlobalVariableID(globalName);
+    multiplayerDataOUT.data[1] = *globalValue;
     if (Engine.onlineActive && sendDataMethod) {
 #if RETRO_USE_NETWORKING
         sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
@@ -875,9 +896,9 @@ void receive2PVSMatchCode(int code)
     Engine.gameMode = ENGINE_MAINGAME;
 }
 
-int ShowPromoPopup(int a1, void *a2)
+int ShowPromoPopup(int *a1, const char *popupName)
 {
-    printLog("Attempting to show promo popup (%d) (%s)", a1, (char *)a2);
+    printLog("Attempting to show promo popup (%p) (%s)", a1, popupName);
     if (Engine.onlineActive) {
         // Do online code
         return 1;
@@ -885,13 +906,13 @@ int ShowPromoPopup(int a1, void *a2)
     return 0;
 }
 
-int ExitGame(int val, void *name)
+int ExitGame()
 {
     Engine.running = false;
     return 1;
 }
 
-int OpenModMenu(int val, void *name)
+int OpenModMenu()
 {
 #if RETRO_USE_MOD_LOADER
     Engine.gameMode = ENGINE_INITMODMENU;
@@ -1197,5 +1218,34 @@ void saveMods()
 
         modConfig.Write(mod_config.c_str(), false);
     }
+}
+
+void RefreshEngine() {
+    // Reload entire engine
+    Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+    if (Engine.window) {
+        char gameTitle[0x40];
+        sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+        SDL_SetWindowTitle(Engine.window, gameTitle);
+    }
+#endif
+
+    ReleaseStageSfx();
+    ReleaseGlobalSfx();
+    LoadGlobalSfx();
+
+    forceUseScripts   = false;
+    skipStartMenu     = skipStartMenu_Config;
+    disableFocusPause = disableFocusPause_Config;
+    for (int m = 0; m < modList.size(); ++m) {
+        if (modList[m].useScripts && modList[m].active)
+            forceUseScripts = true;
+        if (modList[m].skipStartMenu && modList[m].active)
+            skipStartMenu = true;
+        if (modList[m].disableFocusPause && modList[m].active)
+            disableFocusPause = true;
+    }
+    saveMods();
 }
 #endif

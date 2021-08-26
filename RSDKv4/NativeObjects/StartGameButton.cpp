@@ -57,7 +57,7 @@ void StartGameButton_Main(void *objPtr)
         entity->prevRegion = Engine.globalBoxRegion;
     }
 
-    if (entity->field_14) {
+    if (entity->visible) {
         if (entity->scale < 0.2) {
             entity->scale += ((0.25 - entity->scale) / ((60.0 * Engine.deltaTime) * 16.0));
             if (entity->scale > 0.2)

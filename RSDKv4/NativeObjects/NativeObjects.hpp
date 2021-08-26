@@ -29,6 +29,9 @@ extern bool usePhysicalControls;
 #endif
 #include "OptionsButton.hpp"
 #include "BackButton.hpp"
+#include "SegaIDButton.hpp"
 #include "MenuControl.hpp"
+#include "SaveSelect.hpp"
+#include "PlayerSelectScreen.hpp"
 
 #endif // !NATIVE_OBJECTS_H

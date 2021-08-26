@@ -3,7 +3,7 @@
 
 struct NativeEntity_StartGameButton : NativeEntityBase {
     int field_10;
-    byte field_14;
+    byte visible;
     int field_18;
     int field_1C;
     float translateX;
