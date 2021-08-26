@@ -7,6 +7,184 @@ void DialogPanel_Create(void *objPtr)
     SetMeshVertexColors(entity->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
     entity->buttonCount = 2;
 }
-void DialogPanel_Main(void *objPtr) { RSDK_THIS(DialogPanel); }
 
-void DialogPanel_CheckTouch(void *objPtr) { RSDK_THIS(DialogPanel); }
+void DialogPanel_Main(void *objPtr)
+{
+    RSDK_THIS(DialogPanel);
+    NewRenderState();
+    SetRenderBlendMode(1);
+    switch (entity->state) {
+        case 0: {
+            NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
+            entity->buttons[0]                     = confirmButton;
+            if (entity->buttonCount == 1) {
+                confirmButton->x               = 0.0;
+                confirmButton->y               = -40.0;
+                confirmButton->z               = 0.0;
+                confirmButton->scale           = 0.25;
+                confirmButton->blue            = 0xA048;
+                confirmButton->blue2           = 0xC060;
+                confirmButton->useRenderMatrix = 1;
+                SetStringToFont8(confirmButton->text, " OK ", 1);
+            }
+            else {
+                confirmButton->x               = -48.0;
+                confirmButton->y               = -40.0;
+                confirmButton->z               = 0.0;
+                confirmButton->scale           = 0.25;
+                confirmButton->blue            = 0xA048;
+                confirmButton->blue2           = 0xC060;
+                confirmButton->useRenderMatrix = 1;
+                SetStringToFont(confirmButton->text, strYes, 1);
+                NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
+                entity->buttons[1]                = noButton;
+                noButton->useRenderMatrix         = 1;
+                noButton->scale                   = 0.25;
+                noButton->x                       = 48.0;
+                noButton->y                       = -40.0;
+                noButton->z                       = 0.0;
+                SetStringToFont(noButton->text, strNo, 1);
+            }
+            entity->textScale = 224.0 / (GetTextWidth(entity->text, 2, 1.0) + 1.0);
+            if (entity->textScale > 0.4)
+                entity->textScale = 0.4;
+            entity->textX = GetTextWidth(entity->text, 2, entity->textScale) * -0.5;
+            entity->textY = GetTextHeight(entity->text, 2, entity->textScale) * 0.5;
+            entity->state = 1;
+        }
+        // FallThrough
+        case 1: {
+            entity->buttonScale += ((0.77 - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
+            if (entity->buttonScale > 0.75)
+                entity->buttonScale = 0.75;
+            NewRenderState();
+            matrixScaleXYZF(&entity->buttonMatrix, entity->buttonScale, entity->buttonScale, 1.0);
+            matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
+            matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
+            SetRenderMatrix(&entity->buttonMatrix);
+            entity->buttons[0]->renderMatrix = entity->buttonMatrix;
+            if (entity->buttonCount != 1)
+                entity->buttons[1]->renderMatrix = entity->buttonMatrix;
+
+            entity->stateTimer += Engine.deltaTime;
+            if (entity->stateTimer > 0.5) {
+                entity->state      = 2;
+                entity->stateTimer = 0.0;
+            }
+            break;
+        }
+        case 2: {
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
+            SetRenderMatrix(&entity->buttonMatrix);
+            if (!usePhysicalControls) {
+                if (touches < 1) {
+                    if (entity->buttons[0]->state == 1) {
+                        entity->buttonSelected = 0;
+                        entity->state          = 3;
+                        PlaySfx(22, 0);
+                        entity->buttons[0]->state = 2;
+                    }
+                    if (entity->buttonCount == 2 && entity->buttons[1]->state == 1) {
+                        entity->buttonSelected = 1;
+                        entity->state          = 3;
+                        PlaySfx(22, 0);
+                        entity->buttons[1]->state = 2;
+                    }
+                }
+                else {
+                    if (entity->buttonCount == 1) {
+                        entity->buttons[0]->state =
+                            CheckTouchRect(0.0, -30.0, (entity->buttons[0]->textWidth + (entity->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                    }
+                    else {
+                        entity->buttons[0]->state =
+                            CheckTouchRect(-36.0, -30.0, (entity->buttons[0]->textWidth + (entity->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                        entity->buttons[1]->state =
+                            CheckTouchRect(36.0, -30.0, (entity->buttons[1]->textWidth + (entity->buttons[1]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                    }
+                }
+                if (entity->state == 2) {
+                    if (keyDown.left == 1) {
+                        usePhysicalControls    = 1;
+                        entity->buttonSelected = 1;
+                    }
+                    else if (keyDown.right == 1) {
+                        usePhysicalControls    = 1;
+                        entity->buttonSelected = 0;
+                    }
+                }
+            }
+            else if (touches >= 1) {
+                usePhysicalControls = 0;
+            }
+            else if (entity->buttonCount == 1) {
+                entity->buttonSelected = 0;
+                if (keyPress.start || keyPress.A) {
+                    entity->state = 3;
+                    PlaySfx(22, 0);
+                    entity->buttons[entity->buttonSelected]->state = 2;
+                }
+            }
+            else if (keyPress.left || keyPress.right) {
+                if (keyPress.left) {
+                    PlaySfx(21, 0);
+                    if (entity->buttonSelected-- < 1)
+                        entity->buttonSelected = 1;
+                }
+                if (keyPress.right) {
+                    PlaySfx(21, 0);
+                    PlaySfx(21, 0);
+                    if (entity->buttonSelected++ > 0)
+                        entity->buttonSelected = 0;
+                }
+                entity->buttons[0]->state                      = 0;
+                entity->buttons[1]->state                      = 0;
+                entity->buttons[entity->buttonSelected]->state = 1;
+
+                if (keyPress.start || keyPress.A) {
+                    entity->state = 3;
+                    PlaySfx(22, 0);
+                    entity->buttons[entity->buttonSelected]->state = 2;
+                }
+            }
+            if (entity->state == 2 && keyPress.B) {
+                PlaySfx(23, 0);
+                entity->selection = 2;
+                entity->state     = 4;
+            }
+            break;
+        }
+        case 3:
+            SetRenderMatrix(&entity->buttonMatrix);
+            if (!entity->buttons[entity->buttonSelected]->state) {
+                entity->selection = entity->buttonSelected + 1;
+                entity->state     = 4;
+                if (entity->buttonCount == 1)
+                    entity->selection = 3;
+            }
+            break;
+        case 4:
+            entity->buttonScale =
+                entity->buttonScale + ((((entity->stateTimer < 0.2) ? 1 : -1) - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
+            if (entity->buttonScale < 0.0)
+                entity->buttonScale = 0.0;
+            NewRenderState();
+            matrixScaleXYZF(&entity->buttonMatrix, entity->buttonScale, entity->buttonScale, 1.0);
+            matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
+            matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
+            SetRenderMatrix(&entity->buttonMatrix);
+
+            entity->stateTimer += Engine.deltaTime;
+            if (entity->stateTimer <= 0.5)
+                break;
+            RemoveNativeObject(entity->buttons[0]);
+            if (entity->buttonCount == 2)
+                RemoveNativeObject(entity->buttons[1]);
+            return RemoveNativeObject(entity);
+        case 5: SetRenderMatrix(&entity->buttonMatrix); break;
+        default: break;
+    }
+    RenderMesh(entity->panelMesh, 0, 0);
+    return RenderText(entity->text, 2, entity->textX, entity->textY, 0.0, entity->textScale, 255);
+}

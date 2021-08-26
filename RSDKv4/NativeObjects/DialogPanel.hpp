@@ -9,10 +9,10 @@ struct NativeEntity_DialogPanel : NativeEntityBase {
     float buttonScale;
     MeshInfo *panelMesh;
     MatrixF buttonMatrix;
-    Matrix buttonMult;
+    MatrixF buttonMult;
     NativeEntity_PushButton *buttons[2];
-    int buttonPressed;
-    int dwordB4;
+    int buttonSelected;
+    int selection;
     ushort text[128];
     float textX;
     float textY;
