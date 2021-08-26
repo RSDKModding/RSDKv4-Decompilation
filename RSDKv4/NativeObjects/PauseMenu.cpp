@@ -35,7 +35,7 @@ void PauseMenu_Create(void *objPtr)
         entity->buttons[i]                 = button;
         button->textScale                  = 0.1;
         button->matZ                       = 0.0;
-        button->matXD                      = 512.0;
+        button->matXOff                    = 512.0;
         button->textY                      = -4.0;
         entity->buttonRot[i]               = DegreesToRad(16.0);
         matrixRotateYF(&button->matrix, DegreesToRad(16.0));

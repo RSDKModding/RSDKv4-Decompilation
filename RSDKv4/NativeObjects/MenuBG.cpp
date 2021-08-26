@@ -8,7 +8,7 @@ void MenuBG_Create(void *objPtr)
     entity->bgCircle2 = LoadMesh("Data/Game/Models/BGCircle2.bin", 255);
     entity->bgLines   = LoadMesh("Data/Game/Models/BGLines.bin", 255);
     SetMeshAnimation(entity->bgLines, &entity->animator, 0, 40u, 0.0);
-    entity->animator.flag1 = 1;
+    entity->animator.loopAnimation = 1;
     entity->fadeR          = -96;
     entity->fadeG          = -64;
     entity->fadeB          = -8;

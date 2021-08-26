@@ -63,8 +63,8 @@ struct MeshAnimator {
     ushort frameID;
     ushort loopIndex;
     ushort frameCount;
-    byte flag1;
-    byte flag2;
+    byte loopAnimation;
+    byte animationFinished;
 };
 
 struct RenderState {

@@ -754,62 +754,50 @@ void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, us
 void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
 {
     if (mesh->frameCount > 1) {
-        if (!animator->flag2) {
-            int nextFrame = animator->frameID + 1;
-            if (nextFrame >= animator->frameCount)
-                nextFrame = animator->loopIndex;
-
+        if (!animator->animationFinished) {
             animator->animationTimer += animator->animationSpeed;
 
             if (animator->animationTimer > 1.0f) { // new frame (forwards)
                 animator->animationTimer -= 1.0f;
                 animator->frameID++;
 
-                nextFrame = animator->frameID + 1;
-                if (nextFrame >= animator->frameCount)
-                    nextFrame = animator->loopIndex;
-
-                if (animator->flag1) {
-                    if (animator->frameID > animator->frameCount)
+                if (animator->loopAnimation) {
+                    if (animator->frameID >= animator->frameCount)
                         animator->frameID = animator->loopIndex;
                 }
                 else if (animator->frameID >= animator->frameCount) {
-                    animator->frameID        = animator->frameCount;
-                    animator->flag2          = true;
-                    animator->animationTimer = 0.0f;
+                    animator->frameID           = animator->frameCount;
+                    animator->animationFinished = true;
+                    animator->animationTimer    = 0.0f;
                 }
             }
             else if (animator->animationTimer < 0.0f) { // new frame (backwards)
                 animator->animationTimer += 1.0f;
                 animator->frameID--;
 
-                if (animator->flag1) {
-                    if (animator->frameID < animator->loopIndex || animator->frameID >= mesh->frameCount) {
+                if (animator->frameID < animator->loopIndex || animator->frameID >= animator->frameCount) {
+                    if (animator->loopAnimation) {
                         animator->frameID = animator->frameCount;
-                        nextFrame         = animator->loopIndex;
                     }
                     else {
-                        nextFrame = animator->frameID - 1;
-                        if (nextFrame <= animator->frameCount)
-                            nextFrame = animator->loopIndex;
-                    }
-                }
-                else {
-                    if (animator->frameID < animator->loopIndex || animator->frameID >= mesh->frameCount) {
-                        animator->frameID        = animator->loopIndex;
-                        animator->animationTimer = 0.0f;
-                        animator->flag2          = true;
-                        nextFrame                = animator->frameID + 1;
-                        if (animator->frameID >= animator->frameCount)
-                            nextFrame = animator->loopIndex;
+                        animator->frameID           = animator->loopIndex;
+                        animator->animationTimer    = 0.0f;
+                        animator->animationFinished = true;
                     }
                 }
             }
 
+            ushort frameID   = animator->frameID;
+            ushort nextFrame = animator->frameID + 1;
+            if (nextFrame >= animator->frameCount && animator->animationSpeed >= 0)
+                nextFrame = animator->loopIndex;
+            if (frameID >= animator->frameCount && animator->animationSpeed < 0)
+                frameID = animator->loopIndex;
+
             float interp2 = animator->animationTimer;
             float interp  = 1.0 - animator->animationTimer;
 
-            MeshVertex *vert     = &mesh->frames[animator->frameID * mesh->vertexCount];
+            MeshVertex *vert     = &mesh->frames[frameID * mesh->vertexCount];
             MeshVertex *nextVert = &mesh->frames[nextFrame * mesh->vertexCount];
             for (int v = 0; v < mesh->vertexCount; ++v) {
                 mesh->vertices[v].vertX   = (vert->vertX * interp) + (nextVert->vertX * interp2);
@@ -823,8 +811,8 @@ void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator)
                 nextVert++;
             }
         }
-        else if (animator->flag1)
-            animator->flag2 = false;
+        else if (animator->loopAnimation)
+            animator->animationFinished = false;
     }
 }
 
