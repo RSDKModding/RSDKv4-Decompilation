@@ -1,5 +1,7 @@
 #include "RetroEngine.hpp"
 
+bool usePhysicalControls = false;
+
 void MenuControl_Create(void *objPtr)
 {
     RSDK_THIS(MenuControl);

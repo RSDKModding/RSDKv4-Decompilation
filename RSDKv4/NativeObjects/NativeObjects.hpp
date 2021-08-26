@@ -3,9 +3,12 @@
 
 #define RSDK_THIS(type) NativeEntity_##type *entity = (NativeEntity_##type *)objPtr
 
+extern bool usePhysicalControls;
+
 #include "MenuBG.hpp"
 #include "TextLabel.hpp"
 #include "SubMenuButton.hpp"
+#include "DialogPanel.hpp"
 #include "FadeScreen.hpp"
 #include "VirtualDPad.hpp"
 #include "VirtualDPadM.hpp"
