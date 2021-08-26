@@ -209,7 +209,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -233,7 +233,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -257,7 +257,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -281,7 +281,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -337,7 +337,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -393,7 +393,7 @@
         </Link>
         <PostBuildEvent>
             <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
         </PostBuildEvent>
         <PostBuildEvent>
             <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -412,6 +412,7 @@
         <ClCompile Include="NativeObjects\CWSplash.cpp"/>
         <ClCompile Include="NativeObjects\FadeScreen.cpp"/>
         <ClCompile Include="NativeObjects\MenuBG.cpp"/>
+        <ClCompile Include="NativeObjects\PushButton.cpp"/>
         <ClCompile Include="NativeObjects\MenuControl.cpp"/>
         <ClCompile Include="NativeObjects\PauseMenu.cpp"/>
         <ClCompile Include="NativeObjects\RetroGameLoop.cpp"/>

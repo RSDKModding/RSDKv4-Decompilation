@@ -7,6 +7,7 @@ extern bool usePhysicalControls;
 
 #include "MenuBG.hpp"
 #include "TextLabel.hpp"
+#include "PushButton.hpp"
 #include "SubMenuButton.hpp"
 #include "DialogPanel.hpp"
 #include "FadeScreen.hpp"

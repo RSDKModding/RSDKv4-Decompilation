@@ -257,7 +257,7 @@ public:
 
     bool initialised = false;
     bool running     = false;
-    double deltaTime  = 0;
+    double deltaTime = 0;
 
     int gameMode        = ENGINE_MAINGAME;
     int language        = RETRO_EN;
