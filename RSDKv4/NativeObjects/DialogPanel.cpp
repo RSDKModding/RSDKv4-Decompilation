@@ -8,3 +8,5 @@ void DialogPanel_Create(void *objPtr)
     entity->buttonCount = 2;
 }
 void DialogPanel_Main(void *objPtr) { RSDK_THIS(DialogPanel); }
+
+void DialogPanel_CheckTouch(void *objPtr) { RSDK_THIS(DialogPanel); }
