@@ -17,14 +17,14 @@ void StaffCredits_Create(void *objPtr)
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
     entity->textureArrows    = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
-    entity->creditsTextCount = 0;
+    entity->creditsTextID = 0;
 
     float offY =  -128.0;
     for (int i = 0; i < 0x10; ++i) {
         NativeEntity_CreditText *creditText = CREATE_ENTITY(CreditText);
         entity->creditText[i]               = creditText;
 
-        switch (creditsType[entity->creditsTextCount]) {
+        switch (creditsType[entity->creditsTextID]) {
             case 0:
                 creditText->fontID = 1;
                 creditText->colour = 0xFFFFFF;
@@ -47,20 +47,21 @@ void StaffCredits_Create(void *objPtr)
             default: break;
         }
 
-        SetStringToFont(creditText->text, strCreditsList[entity->creditsTextCount], creditText->fontID);
+        SetStringToFont(creditText->text, strCreditsList[entity->creditsTextID], creditText->fontID);
+        offY -= creditsAdvanceY[entity->creditsTextID];
         creditText->textX           = 0.0;
         creditText->useRenderMatrix = true;
         creditText->textZ           = 8.0;
-        creditText->textY           = offY - creditsAdvanceY[entity->creditsTextCount];
-        ++entity->creditsTextCount;
+        creditText->textY           = offY - creditsAdvanceY[entity->creditsTextID];
+        ++entity->creditsTextID;
     }
 
-    entity->textID = 15;
+    entity->latestTextID = 15;
 }
 void StaffCredits_Main(void *objPtr)
 {
     RSDK_THIS(StaffCredits);
-    NativeEntityBase *optionsMenu = entity->optionsMenu;
+    NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)entity->optionsMenu;
 
     switch (entity->state) {
         case 0: //fade in
@@ -131,8 +132,8 @@ void StaffCredits_Main(void *objPtr)
 
             entity->field_18 += Engine.deltaTime;
             if (entity->field_18 > 0.5) {
-                // optionsMenu->state = 7;
-                for (int i = 16 - 1; i >= 0; --i) RemoveNativeObject(entity->creditText[i]);
+                optionsMenu->state = 7;
+                for (int i = 15; i >= 0; --i) RemoveNativeObject(entity->creditText[i]);
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity);
             }
@@ -151,9 +152,9 @@ void StaffCredits_Main(void *objPtr)
         }
         
         if (creditText->textY > SCREEN_CENTERY_F) {
-            creditText->textY = entity->creditText[entity->textID]->textY - creditsAdvanceY[entity->creditsTextCount];
+            creditText->textY = entity->creditText[entity->latestTextID]->textY - creditsAdvanceY[entity->creditsTextID];
 
-            switch (creditsType[entity->creditsTextCount]) {
+            switch (creditsType[entity->creditsTextID]) {
                 case 0:
                     creditText->fontID = 1;
                     creditText->colour = 0xFFFFFF;
@@ -175,11 +176,11 @@ void StaffCredits_Main(void *objPtr)
                     break;
                 default: break;
             }
-            SetStringToFont(creditText->text, strCreditsList[entity->creditsTextCount], creditText->fontID);
-            entity->textID = (entity->textID + 1) & 0xF;
-            entity->creditsTextCount++;
-            if (entity->creditsTextCount >= creditsListSize)
-                entity->creditsTextCount = 0;
+            SetStringToFont(creditText->text, strCreditsList[entity->creditsTextID], creditText->fontID);
+            entity->latestTextID = (entity->latestTextID + 1) & 0xF;
+            entity->creditsTextID++;
+            if (entity->creditsTextID >= creditsListSize)
+                entity->creditsTextID = 0;
         }
     }
     RenderMesh(entity->meshPanel, 0, false);

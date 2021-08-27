@@ -1179,12 +1179,9 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
             vertex1->g          = vertexG;
             vertex1->b          = vertexB;
             vertex1->a          = a;
-            if (vertex1->vertY <= 76.0) {
-                vertex1->texCoordY = sprY * textureList[texture].heightN;
-            }
-            else {
-                vertex1->vertY     = 76.0;
+            if (vertex1->vertY > 76.0) {
                 vertex1->texCoordY = (((vertex1->vertY - 76.0) / scaleY) + sprY) * textureList[texture].heightN;
+                vertex1->vertY     = 76.0;
             }
 
             DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
@@ -1208,12 +1205,9 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
             vertex3->g          = vertexG;
             vertex3->b          = vertexB;
             vertex3->a          = a;
-            if (vertex3->vertY >= -76.0) {
-                vertex3->texCoordY = vertex3->texCoordY * textureList[texture].heightN;
-            }
-            else {
+            if (vertex3->vertY < -76.0) {
+                vertex3->texCoordY = (((vertex3->vertY + 76.0) / scaleY) + (sprY + sprH)) * textureList[texture].heightN;
                 vertex3->vertY     = -76.0;
-                vertex3->texCoordY = (((vertex3->vertY + 76.0) / scaleY) + vertex3->texCoordY) * textureList[texture].heightN;
             }
 
             DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
@@ -1478,12 +1472,9 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                     vertex1->g          = vertexG;
                     vertex1->b          = vertexB;
                     vertex1->a          = a;
-                    if (vertex1->vertY <= 76.0) {
-                        vertex1->texCoordY = fontChar->y * texture->heightN;
-                    }
-                    else {
-                        vertex1->vertY     = 76.0;
+                    if (vertex1->vertY > 76.0) {
                         vertex1->texCoordY = (((vertex1->vertY - 76.0) / scale) + fontChar->y) * texture->heightN;
+                        vertex1->vertY     = 76.0;
                     }
 
                     DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
@@ -1507,12 +1498,9 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                     vertex3->g          = vertexG;
                     vertex3->b          = vertexB;
                     vertex3->a          = a;
-                    if (vertex3->vertY >= -76.0) {
-                        vertex3->texCoordY = vertex3->texCoordY * texture->heightN;
-                    }
-                    else {
+                    if (vertex3->vertY < -76.0) {
+                        vertex3->texCoordY = (((vertex3->vertY + 76.0) / scale) + (fontChar->y + fontChar->height)) * texture->heightN;
                         vertex3->vertY     = -76.0;
-                        vertex3->texCoordY = (((vertex3->vertY + 76.0) / scale) + vertex3->texCoordY) * texture->heightN;
                     }
 
                     DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];

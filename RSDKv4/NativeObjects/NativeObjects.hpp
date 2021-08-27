@@ -42,10 +42,10 @@ extern bool usePhysicalControls;
 #include "AchievementDisplay.hpp"
 #include "AchievementsMenu.hpp"
 #endif
-#include "OptionsMenu.hpp"
 #include "InstructionsScreen.hpp"
 #include "AboutScreen.hpp"
 #include "CreditText.hpp"
 #include "StaffCredits.hpp"
+#include "OptionsMenu.hpp"
 
 #endif // !NATIVE_OBJECTS_H

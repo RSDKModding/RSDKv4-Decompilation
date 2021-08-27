@@ -22,7 +22,7 @@ struct NativeEntity_SaveSelect : NativeEntityBase {
     NativeEntity_SubMenuButton *saveButtons[5];
     NativeEntity_PushButton *delButton;
     NativeEntity_DialogPanel *dialog;
-    byte field_90;
+    byte deleteEnabled;
     int selectedSave;
     float rotateY[5];
     float field_AC[5];

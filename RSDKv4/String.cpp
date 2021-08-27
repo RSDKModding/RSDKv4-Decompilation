@@ -508,8 +508,6 @@ void ReadCreditsList(const char *filePath)
         float advance = 24.0;
         if (!ReachedEndOfFile()) {
             while (creditsListSize < CREDITS_LIST_SIZE) {
-                strCreditsList[creditsListSize] = stringStorage[stringStorePos];
-                StrCopy(dest, "NULL");
                 ReadCreditsLine(dest);
                 
                 if (dest[0] != '[' || dest[2] != ']') {
@@ -517,13 +515,13 @@ void ReadCreditsList(const char *filePath)
                 }
                 else {
                     int strPos   = 0;
-                    char curChar = dest[strPos++ + 3];
+                    char curChar = dest[strPos + 3];
                     while (curChar) {
                         stringStorage[stringStorePos][strPos] = curChar;
-                        curChar                               = dest[strPos + 3];
                         strPos++;
+                        curChar                               = dest[strPos + 3];
                     }
-                    stringStorage[stringStorePos++][strPos] = 0;
+                    stringStorage[stringStorePos][strPos] = 0;
 
                     switch (dest[1]) {
                         default:
@@ -533,7 +531,8 @@ void ReadCreditsList(const char *filePath)
                         case '3': creditsType[creditsListSize] = 3; break;
                     }
 
-                    creditsAdvanceY[creditsListSize++] = advance;
+                    creditsAdvanceY[creditsListSize]  = advance;
+                    strCreditsList[creditsListSize++] = stringStorage[stringStorePos++];
                     advance                          = 24.0;
                 }
 

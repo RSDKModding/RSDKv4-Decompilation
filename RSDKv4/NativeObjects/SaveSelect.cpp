@@ -59,7 +59,7 @@ void SaveSelect_Create(void *objPtr)
             entity->saveButtons[i]->state     = 4;
             entity->saveButtons[i]->textY     = 2.0;
             entity->saveButtons[i]->textScale = 0.08;
-            entity->field_90                  = 1;
+            entity->deleteEnabled                  = 1;
         }
         else if (stagePos > 0) {
             if (stagePos - 1 > 18)
@@ -69,7 +69,7 @@ void SaveSelect_Create(void *objPtr)
             entity->saveButtons[i]->state     = 4;
             entity->saveButtons[i]->textY     = 2.0;
             entity->saveButtons[i]->textScale = 0.08;
-            entity->field_90                  = 1;
+            entity->deleteEnabled                  = 1;
         }
         else {
             SetStringToFont(entity->saveButtons[i]->text, strNewGame, 1);
@@ -105,7 +105,7 @@ void SaveSelect_Main(void *objPtr)
         }
         case 1: {
             entity->labelPtr->textWidth = entity->labelPtr->textWidth / (1.125 * (60.0 * Engine.deltaTime));
-            if (entity->field_90 == 1)
+            if (entity->deleteEnabled)
                 entity->delButton->x = ((92.0 - entity->delButton->x) / (8.0 * (60.0 * Engine.deltaTime))) + entity->delButton->x;
 
             float div                       = (60.0 * Engine.deltaTime) * 16.0;
@@ -126,7 +126,7 @@ void SaveSelect_Main(void *objPtr)
             break;
         }
         case 2: {
-            if (!entity->field_90)
+            if (!entity->deleteEnabled)
                 entity->delButton->x += ((512.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
             else
                 entity->delButton->x += ((92.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
@@ -139,7 +139,7 @@ void SaveSelect_Main(void *objPtr)
                     if (keyPress.up) {
                         PlaySfx(21, 0);
                         entity->selectedSave--;
-                        if (entity->field_90) {
+                        if (entity->deleteEnabled) {
                             if (entity->selectedSave < 0)
                                 entity->selectedSave = 5;
                         }
@@ -150,7 +150,7 @@ void SaveSelect_Main(void *objPtr)
                     else if (keyPress.down) {
                         PlaySfx(21, 0);
                         entity->selectedSave++;
-                        if (entity->field_90) {
+                        if (entity->deleteEnabled) {
                             if (entity->selectedSave > 5) {
                                 entity->selectedSave = 0;
                             }
@@ -164,7 +164,7 @@ void SaveSelect_Main(void *objPtr)
                     entity->saveButtons[2]->b = 0xFF;
                     entity->saveButtons[3]->b = 0xFF;
                     entity->saveButtons[4]->b = 0xFF;
-                    if (entity->field_90 && (keyPress.left || keyPress.right)) {
+                    if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
                         if (entity->selectedSave <= 4) {
                             entity->selectedSave     = 5;
                             entity->delButton->state = 1;
@@ -228,7 +228,7 @@ void SaveSelect_Main(void *objPtr)
                     y -= 30.0;
                 }
                 if (entity->state == 2) {
-                    if (!entity->field_90) {
+                    if (!entity->deleteEnabled) {
                         if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
                             entity->selectedSave = 0;
                             usePhysicalControls  = true;
@@ -436,7 +436,7 @@ void SaveSelect_Main(void *objPtr)
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
             button->translateX += ((112.0 - button->translateX) / div);
             backButton->translateX += ((230.0 - backButton->translateX) / div);
-            if (entity->field_90)
+            if (entity->deleteEnabled)
                 entity->delButton->x += ((92.0 - entity->delButton->x) / div);
 
             if (backButton->translateX < SCREEN_YSIZE) {
@@ -512,7 +512,7 @@ void SaveSelect_Main(void *objPtr)
                     if (keyPress.up) {
                         PlaySfx(21, 0);
                         entity->selectedSave--;
-                        if (entity->field_90) {
+                        if (entity->deleteEnabled) {
                             if (entity->selectedSave < 0)
                                 entity->selectedSave = 5;
                         }
@@ -523,7 +523,7 @@ void SaveSelect_Main(void *objPtr)
                     else if (keyPress.down) {
                         PlaySfx(21, 0);
                         entity->selectedSave++;
-                        if (entity->field_90) {
+                        if (entity->deleteEnabled) {
                             if (entity->selectedSave > 5)
                                 entity->selectedSave = 0;
                         }
@@ -536,7 +536,7 @@ void SaveSelect_Main(void *objPtr)
                         entity->saveButtons[2]->b = 0xFF;
                         entity->saveButtons[3]->b = 0xFF;
                         entity->saveButtons[4]->b = 0xFF;
-                        if (entity->field_90 && (keyPress.left || keyPress.right)) {
+                        if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
                             if (entity->selectedSave <= 4) {
                                 entity->selectedSave     = 5;
                                 entity->delButton->state = 1;
@@ -619,10 +619,10 @@ void SaveSelect_Main(void *objPtr)
                 saveGame->files[entity->selectedSave - 1].specialZoneID = 0;
                 WriteSaveRAMData();
 
-                entity->field_90 = 0;
+                entity->deleteEnabled = 0;
                 for (int i = 1; i <= 4; ++i) {
                     if (entity->saveButtons[i]->state == 4)
-                        entity->field_90 = true;
+                        entity->deleteEnabled = true;
                 }
             }
             else if (entity->dialog->selection == 2) {
