@@ -391,7 +391,7 @@ void MenuControl_Main(void *objPtr)
                         break;
                     case BUTTON_ACHIEVEMENTS:
                         entity->state = 0;
-                        if (!Engine.onlineActive) {
+                        if (Engine.onlineActive) {
                             ShowAchievementsScreen();
                         }
                         else {
