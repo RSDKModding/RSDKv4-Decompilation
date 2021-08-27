@@ -10,7 +10,7 @@ void SubMenuButton_Create(void *objPtr)
     entity->r              = 0xFF;
     entity->g              = 0xFF;
     entity->b              = 0xFF;
-    entity->textureSymbols = LoadTexture("Data/Game/Menu/Symbols.png", 1);
+    entity->textureSymbols = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
     entity->meshButton     = LoadMesh("Data/Game/Models/Button.bin", 255);
     entity->meshButtonH    = LoadMesh("Data/Game/Models/ButtonH.bin", 255);
     SetMeshVertexColors(entity->meshButton, 0, 0, 0, 0xC0);

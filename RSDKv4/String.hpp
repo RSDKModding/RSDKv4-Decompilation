@@ -75,7 +75,7 @@ extern ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
 extern int stringStorePos;
 
 extern int creditsListSize;
-extern const ushort *strCreditsList[CREDITS_LIST_SIZE];
+extern ushort *strCreditsList[CREDITS_LIST_SIZE];
 extern byte creditsType[CREDITS_LIST_SIZE];
 extern float creditsAdvanceY[CREDITS_LIST_SIZE];
 

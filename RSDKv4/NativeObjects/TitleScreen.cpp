@@ -9,21 +9,21 @@ void TitleScreen_Create(void *objPtr)
 
     entity->state          = 0;
     entity->introRectAlpha = 320.0;
-    entity->logoTextureID  = LoadTexture("Data/Game/Menu/SonicLogo.png", 3);
+    entity->logoTextureID  = LoadTexture("Data/Game/Menu/SonicLogo.png", TEXFMT_RGBA8888);
     ResetBitmapFonts();
     if (Engine.useHighResAssets)
-        heading = LoadTexture("Data/Game/Menu/Heading_EN.png", 1);
+        heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
     else
-        heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", 1);
+        heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
     LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", 0, heading);
 
     if (Engine.useHighResAssets)
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", 1);
+        labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
     else
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", 1);
+        labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
     LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", 1, labelTex);
 
-    textTex = LoadTexture("Data/Game/Menu/Text_EN.png", 1);
+    textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
     LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", 2, textTex);
 
     entity->labelPtr            = CREATE_ENTITY(TextLabel);
@@ -34,55 +34,55 @@ void TitleScreen_Create(void *objPtr)
         case RETRO_ES: entity->labelPtr->textScale = 0.125; break;
         case RETRO_JP:
             entity->labelPtr->textScale = 0.1;
-            heading                     = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", 1);
+            heading                     = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", 0, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", 1);
+            labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", 1, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", 1);
+            textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", 2, textTex);
             break;
         case 7:
             entity->labelPtr->textScale = 0.08;
             if (Engine.useHighResAssets)
-                heading = LoadTexture("Data/Game/Menu/Heading_RU.png", 1);
+                heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
             else
-                heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", 1);
+                heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", 0, heading);
 
             if (Engine.useHighResAssets)
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", 1);
+                labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
             else
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", 1);
+                labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", 1, labelTex);
             break;
         case RETRO_KO:
-            heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", 1);
+            heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", 0, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", 1);
+            labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", 1, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_KO.png", 1);
+            textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", 2, textTex);
             break;
         case RETRO_ZH:
-            heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", 1);
+            heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", 0, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", 1);
+            labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", 1, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", 1);
+            textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", 2, textTex);
             break;
         case RETRO_ZS:
-            heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", 1);
+            heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", 0, heading);
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", 1);
+            labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", 1, labelTex);
-            textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", 1);
+            textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", 2, textTex);
             break;
         default: break;
@@ -100,24 +100,24 @@ void TitleScreen_Create(void *objPtr)
 
     entity->labelPtr->textX = 64.0;
     entity->labelPtr->textY = -96.0;
-    entity->introTextureID  = LoadTexture("Data/Game/Menu/Intro.png", 2);
+    entity->introTextureID  = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA5551);
 
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case 0:
-            package           = LoadTexture("Data/Game/Models/Package_JP.png", 2);
+            package           = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
             entity->introMesh = LoadMesh("Data/Game/Models/Intro.bin", entity->introTextureID);
             entity->boxMesh   = LoadMesh("Data/Game/Models/JPBox.bin", package);
             entity->cartMesh  = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
             break;
         case 1:
-            package           = LoadTexture("Data/Game/Models/Package_US.png", 2);
+            package           = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
             entity->introMesh = LoadMesh("Data/Game/Models/Intro.bin", entity->introTextureID);
             entity->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
             entity->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
         case 2:
-            package           = LoadTexture("Data/Game/Models/Package_EU.png", 2);
+            package           = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
             entity->introMesh = LoadMesh("Data/Game/Models/Intro.bin", entity->introTextureID);
             entity->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
             entity->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
@@ -132,15 +132,15 @@ void TitleScreen_Create(void *objPtr)
     entity->rotationY = 0.0;
     SetMusicTrack("MenuIntro.ogg", 0, 0, 0);
     SetMusicTrack("MainMenu.ogg", 1, 1, 106596);
-    LoadTexture("Data/Game/Menu/Circle.png", 1);
-    LoadTexture("Data/Game/Menu/BG1.png", 1);
-    LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
+    LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
+    LoadTexture("Data/Game/Menu/BG1.png", TEXFMT_RGBA4444);
+    LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
     if (Engine.gameDeviceType == RETRO_MOBILE)
-        LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
+        LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
     else
-        LoadTexture("Data/Game/Menu/Generic.png", 3);
-    LoadTexture("Data/Game/Menu/PlayerSelect.png", 3);
-    LoadTexture("Data/Game/Menu/SegaID.png", 3);
+        LoadTexture("Data/Game/Menu/Generic.png", TEXFMT_RGBA8888);
+    LoadTexture("Data/Game/Menu/PlayerSelect.png", TEXFMT_RGBA8888);
+    LoadTexture("Data/Game/Menu/SegaID.png", TEXFMT_RGBA8888);
 }
 void TitleScreen_Main(void *objPtr)
 {

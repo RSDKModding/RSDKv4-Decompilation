@@ -363,7 +363,7 @@ void MenuControl_Main(void *objPtr)
                         button->g                   = 0xFF;
                         button->labelPtr->alignment = -1;
                         entity->backButton->visible = true;
-                        // CREATE_ENTITY(TimeAttack);
+                        CREATE_ENTITY(TimeAttack);
                         break;
                     case BUTTON_MULTIPLAYER:
                         entity->state               = 2;
@@ -421,7 +421,7 @@ void MenuControl_Main(void *objPtr)
                         button->g                   = 0xFF;
                         button->labelPtr->alignment = -1;
                         entity->backButton->visible = true;
-                        // CREATE_ENTITY(OptionsMenu);
+                        CREATE_ENTITY(OptionsMenu);
                         break;
 #if RETRO_USE_MOD_LOADER
                     case BUTTON_MODS:
@@ -430,7 +430,7 @@ void MenuControl_Main(void *objPtr)
                         button->g                   = 0xFF;
                         button->labelPtr->alignment = -1;
                         entity->backButton->visible = true;
-                        // CREATE_ENTITY(ModsMenu);
+                        CREATE_ENTITY(ModsMenu);
                         break;
 #endif
                     default:

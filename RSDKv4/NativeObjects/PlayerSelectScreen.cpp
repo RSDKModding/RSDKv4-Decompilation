@@ -27,8 +27,8 @@ void PlayerSelectScreen_Create(void *objPtr)
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
 
-    entity->textureArrows    = LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
-    entity->texturePlayerSel = LoadTexture("Data/Game/Menu/PlayerSelect.png", 3);
+    entity->textureArrows    = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
+    entity->texturePlayerSel = LoadTexture("Data/Game/Menu/PlayerSelect.png", TEXFMT_RGBA8888);
     entity->touchValid       = 0;
     entity->flag             = true;
 }

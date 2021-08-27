@@ -5,7 +5,7 @@ void SegaIDButton_Create(void *objPtr)
     RSDK_THIS(SegaIDButton);
     entity->translateZ = 160.0;
     entity->state      = 0;
-    entity->textureID  = LoadTexture("Data/Game/Menu/SegaID.png", 3);
+    entity->textureID  = LoadTexture("Data/Game/Menu/SegaID.png", TEXFMT_RGBA8888);
 }
 void SegaIDButton_Main(void *objPtr)
 {

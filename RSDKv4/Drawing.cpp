@@ -343,7 +343,7 @@ int InitRenderDevice()
     StrCopy(textureList[0].fileName, "RetroBuffer");
     textureList[0].width   = texWidth;
     textureList[0].height  = texHeight;
-    textureList[0].format  = 4;
+    textureList[0].format  = TEXFMT_RETROBUFFER;
     textureList[0].id      = 0;
     textureList[0].widthN  = 1.0f / texWidth;
     textureList[0].heightN = 1.0f / texHeight;

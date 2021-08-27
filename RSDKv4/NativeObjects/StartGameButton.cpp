@@ -3,20 +3,20 @@
 void StartGameButton_Create(void *objPtr)
 {
     RSDK_THIS(StartGameButton);
-    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case 0:
-            package          = LoadTexture("Data/Game/Models/Package_JP.png", 2);
+            package          = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
             entity->meshCart = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
             break;
         case 1:
-            package          = LoadTexture("Data/Game/Models/Package_US.png", 2);
+            package          = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
             entity->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
         case 2:
-            package          = LoadTexture("Data/Game/Models/Package_EU.png", 2);
+            package          = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
             entity->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
     }
@@ -42,15 +42,15 @@ void StartGameButton_Main(void *objPtr)
         int package = 0;
         switch (Engine.globalBoxRegion) {
             case 0:
-                package          = LoadTexture("Data/Game/Models/Package_JP.png", 2);
+                package          = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
                 entity->meshCart = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
                 break;
             case 1:
-                package          = LoadTexture("Data/Game/Models/Package_US.png", 2);
+                package          = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
                 entity->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
                 break;
             case 2:
-                package          = LoadTexture("Data/Game/Models/Package_EU.png", 2);
+                package          = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
                 entity->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
                 break;
         }

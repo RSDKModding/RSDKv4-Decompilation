@@ -67,7 +67,7 @@ ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
 int stringStorePos = 0;
 
 int creditsListSize = 0;
-const ushort *strCreditsList[CREDITS_LIST_SIZE];
+ushort *strCreditsList[CREDITS_LIST_SIZE];
 byte creditsType[CREDITS_LIST_SIZE];
 float creditsAdvanceY[CREDITS_LIST_SIZE];
 

@@ -714,7 +714,10 @@ int GetAchievement(int *id, void *a2) { return achievements[*id].status; }
 #endif
 void ShowAchievementsScreen() { 
     /*TODO*/
-    printLog("we're showing the achievements screen");
+    //printLog("we're showing the achievements screen");
+#if !RETRO_USE_ORIGINAL_CODE
+    CREATE_ENTITY(AchievementsMenu);
+#endif
 }
 
 

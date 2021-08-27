@@ -7,7 +7,7 @@ void PushButton_Create(void *objPtr)
     entity->alpha      = 255;
     entity->scale      = 0.15f;
     entity->state      = 3;
-    entity->symbolsTex = LoadTexture("Data/Game/Menu/Symbols.png", 1);
+    entity->symbolsTex = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
     entity->blue       = 0xFF0000;
     entity->blue2      = 0xFF4000;
     entity->white      = 0xFFFFFF;

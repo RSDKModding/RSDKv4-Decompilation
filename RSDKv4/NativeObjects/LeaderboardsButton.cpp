@@ -3,9 +3,9 @@
 void LeaderboardsButton_Create(void *objPtr)
 {
     RSDK_THIS(LeaderboardsButton);
-    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture                 = LoadTexture("Data/Game/Menu/Intro.png", 1);
+    int texture                 = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     entity->meshLeaderboards    = LoadMesh("Data/Game/Models/Leaderboards.bin", texture);
     entity->translateX          = 0.0;
     entity->translateY          = 16.0;

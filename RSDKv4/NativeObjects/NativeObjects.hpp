@@ -26,6 +26,8 @@ extern bool usePhysicalControls;
 #include "LeaderboardsButton.hpp"
 #if RETRO_USE_MOD_LOADER
 #include "ModsButton.hpp"
+#include "ModInfoButton.hpp"
+#include "ModsMenu.hpp"
 #endif
 #include "OptionsButton.hpp"
 #include "BackButton.hpp"
@@ -33,5 +35,17 @@ extern bool usePhysicalControls;
 #include "MenuControl.hpp"
 #include "SaveSelect.hpp"
 #include "PlayerSelectScreen.hpp"
+#include "ZoneButton.hpp"
+#include "RecordsScreen.hpp"
+#include "TimeAttack.hpp"
+#if !RETRO_USE_ORIGINAL_CODE
+#include "AchievementDisplay.hpp"
+#include "AchievementsMenu.hpp"
+#endif
+#include "OptionsMenu.hpp"
+#include "InstructionsScreen.hpp"
+#include "AboutScreen.hpp"
+#include "CreditText.hpp"
+#include "StaffCredits.hpp"
 
 #endif // !NATIVE_OBJECTS_H

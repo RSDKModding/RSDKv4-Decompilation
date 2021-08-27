@@ -500,11 +500,12 @@ int LoadTexture(const char *filePath, int format)
 #if RETRO_USING_OPENGL
             glGenTextures(1, &texture->id);
             glBindTexture(GL_TEXTURE_2D, texture->id);
+#endif
 
             int id = 0;
             switch (format) {
                 default: break;
-                case 1: // 4444
+                case TEXFMT_RGBA4444: 
                 {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
@@ -518,15 +519,17 @@ int LoadTexture(const char *filePath, int format)
                         }
                     }
 
+#if RETRO_USING_OPENGL
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, pixels);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 
                     free(pixels);
                     break;
                 }
-                case 2: // 5551
+                case TEXFMT_RGBA5551:
                 {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
@@ -539,15 +542,18 @@ int LoadTexture(const char *filePath, int format)
                             pixels[x + (y * width)] = RGB888_TO_RGB5551(r, g, b) | (a ? 1 : 0);
                         }
                     }
+
+#if RETRO_USING_OPENGL
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 
                     free(pixels);
                     break;
                 }
-                case 3: // rgba
+                case TEXFMT_RGBA8888:
                 {
                     uint *pixels = (uint *)malloc(width * height * sizeof(uint));
 
@@ -561,16 +567,17 @@ int LoadTexture(const char *filePath, int format)
                         }
                     }
 
+#if RETRO_USING_OPENGL
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 
                     free(pixels);
                     break;
                 }
             }
-#endif
             ++textureCount;
         }
 
@@ -580,6 +587,115 @@ int LoadTexture(const char *filePath, int format)
         return texID;
     }
     return 0;
+}
+void ReplaceTexture(const char *filePath, int texID)
+{
+    FileInfo info;
+    if (LoadFile(filePath, &info)) {
+
+        stbi_io_callbacks callbacks;
+        callbacks.read = stb_read_cb;
+        callbacks.skip = stb_skip_cb;
+        callbacks.eof  = stb_eof_cb;
+
+        int width     = 0;
+        int height    = 0;
+        int channels  = 0;
+        stbi_uc *data = stbi_load_from_callbacks(&callbacks, NULL, &width, &height, &channels, 4);
+
+        if (width > 0 && height > 0) {
+            TextureInfo *texture = &textureList[texID];
+            StrCopy(texture->fileName, filePath);
+
+            float normalize = 0;
+            if (FindStringToken(fileName, "@2", 1) > 0)
+                normalize = 2.0;
+            else if (FindStringToken(fileName, "@1", 1) > 0)
+                normalize = 0.5;
+            else
+                normalize = 1.0;
+            texture->widthN  = normalize / width;
+            texture->heightN = normalize / height;
+
+#if RETRO_USING_OPENGL
+            glBindTexture(GL_TEXTURE_2D, texture->id);
+#endif
+
+            int id = 0;
+            switch (texture->format) {
+                default: break;
+                case TEXFMT_RGBA4444:
+                {
+                    ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
+
+                    for (int y = 0; y < height; ++y) {
+                        for (int x = 0; x < width; ++x) {
+                            int r                   = (data[id++] >> 4) << 12;
+                            int g                   = (data[id++] >> 4) << 8;
+                            int b                   = (data[id++]) & 0xF0;
+                            int a                   = (data[id++] >> 4);
+                            pixels[x + (y * width)] = a | r | g | b;
+                        }
+                    }
+
+#if RETRO_USING_OPENGL
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, pixels);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+#endif
+
+                    free(pixels);
+                    break;
+                }
+                case TEXFMT_RGBA5551:
+                {
+                    ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
+
+                    for (int y = 0; y < height; ++y) {
+                        for (int x = 0; x < width; ++x) {
+                            int r                   = data[id++];
+                            int g                   = data[id++];
+                            int b                   = data[id++];
+                            int a                   = data[id++];
+                            pixels[x + (y * width)] = RGB888_TO_RGB5551(r, g, b) | (a ? 1 : 0);
+                        }
+                    }
+#if RETRO_USING_OPENGL
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+#endif
+
+                    free(pixels);
+                    break;
+                }
+                case TEXFMT_RGBA8888:
+                {
+                    uint *pixels = (uint *)malloc(width * height * sizeof(uint));
+
+                    for (int y = 0; y < height; ++y) {
+                        for (int x = 0; x < width; ++x) {
+                            int r                   = data[id++];
+                            int g                   = data[id++];
+                            int b                   = data[id++];
+                            int a                   = data[id++];
+                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                        }
+                    }
+
+#if RETRO_USING_OPENGL
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+#endif
+
+                    free(pixels);
+                    break;
+                }
+            }
+            ++textureCount;
+        }
+
+        CloseFile();
+        stbi_image_free(data);
+    }
 }
 void ClearTextures()
 {
@@ -1012,6 +1128,199 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
         }
     }
 }
+void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,
+                 int alpha, byte texture)
+{
+    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
+        if (renderStateCount < 0) {
+            currentRenderState.indexCount = 0;
+            currentRenderState.id         = textureList[texture].id;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = true;
+            currentRenderState.useFilter  = 0;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
+            renderStateCount++;
+        }
+        else {
+            bool flag = false;
+            if (currentRenderState.useTexture)
+                flag = currentRenderState.id == textureList[texture].id;
+
+            if (!flag) {
+                RenderState *state = &renderStateList[renderStateCount];
+                memcpy(state, &currentRenderState, sizeof(RenderState));
+
+                currentRenderState.indexCount = 0;
+                currentRenderState.id         = textureList[texture].id;
+                currentRenderState.useColours = true;
+                currentRenderState.useTexture = true;
+                currentRenderState.useFilter  = 0;
+                currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+                currentRenderState.indexPtr   = drawIndexList;
+                renderStateCount++;
+            }
+        }
+
+        if (renderStateCount < RENDERSTATE_LIMIT) {
+            int a = 0;
+            if (alpha >= 0)
+                a = alpha;
+            if (a > 0xFF)
+                a = 0xFF;
+
+            DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+            vertex1->vertX      = x - (pivotX * scaleX);
+            vertex1->vertY      = (pivotY * scaleY) + y;
+            vertex1->vertZ      = z;
+            vertex1->texCoordX  = sprX * textureList[texture].widthN;
+            vertex1->texCoordY  = sprY * textureList[texture].heightN;
+            vertex1->r          = vertexR;
+            vertex1->g          = vertexG;
+            vertex1->b          = vertexB;
+            vertex1->a          = a;
+            if (vertex1->vertY <= 76.0) {
+                vertex1->texCoordY = sprY * textureList[texture].heightN;
+            }
+            else {
+                vertex1->vertY     = 76.0;
+                vertex1->texCoordY = (((vertex1->vertY - 76.0) / scaleY) + sprY) * textureList[texture].heightN;
+            }
+
+            DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+            vertex2->vertX      = ((sprW - pivotX) * scaleX) + x;
+            vertex2->vertY      = vertex1->vertY;
+            vertex2->vertZ      = z;
+            vertex2->texCoordX  = (sprX + sprW) * textureList[texture].widthN;
+            vertex2->texCoordY  = vertex1->texCoordY;
+            vertex2->r          = vertexR;
+            vertex2->g          = vertexG;
+            vertex2->b          = vertexB;
+            vertex2->a          = a;
+
+            DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+            vertex3->vertX      = vertex1->vertX;
+            vertex3->vertY      = y - ((sprH - pivotY) * scaleY);
+            vertex3->vertZ      = z;
+            vertex3->texCoordX  = vertex1->texCoordX;
+            vertex3->texCoordY  = (sprY + sprH) * textureList[texture].heightN;
+            vertex3->r          = vertexR;
+            vertex3->g          = vertexG;
+            vertex3->b          = vertexB;
+            vertex3->a          = a;
+            if (vertex3->vertY >= -76.0) {
+                vertex3->texCoordY = vertex3->texCoordY * textureList[texture].heightN;
+            }
+            else {
+                vertex3->vertY     = -76.0;
+                vertex3->texCoordY = (((vertex3->vertY + 76.0) / scaleY) + vertex3->texCoordY) * textureList[texture].heightN;
+            }
+
+            DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+            vertex4->vertX      = vertex2->vertX;
+            vertex4->vertY      = vertex3->vertY;
+            vertex4->vertZ      = z;
+            vertex4->texCoordX  = vertex2->texCoordX;
+            vertex4->texCoordY  = vertex3->texCoordY;
+            vertex4->r          = vertexR;
+            vertex4->g          = vertexG;
+            vertex4->b          = vertexB;
+            vertex4->a          = a;
+            vertexListSize += 4;
+            currentRenderState.indexCount += 6;
+        }
+    }
+}
+
+void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
+                      float sprY, int alpha, byte texture)
+{
+    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
+        if (renderStateCount < 0) {
+            currentRenderState.indexCount = 0;
+            currentRenderState.id         = textureList[texture].id;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = true;
+            currentRenderState.useFilter  = 0;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
+            renderStateCount++;
+        }
+        else {
+            bool flag = false;
+            if (currentRenderState.useTexture)
+                flag = currentRenderState.id == textureList[texture].id;
+
+            if (!flag) {
+                RenderState *state = &renderStateList[renderStateCount];
+                memcpy(state, &currentRenderState, sizeof(RenderState));
+
+                currentRenderState.indexCount = 0;
+                currentRenderState.id         = textureList[texture].id;
+                currentRenderState.useColours = true;
+                currentRenderState.useTexture = true;
+                currentRenderState.useFilter  = 0;
+                currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+                currentRenderState.indexPtr   = drawIndexList;
+                renderStateCount++;
+            }
+        }
+
+        if (renderStateCount < RENDERSTATE_LIMIT) {
+            int a = 0;
+            if (alpha >= 0)
+                a = alpha;
+            if (a > 0xFF)
+                a = 0xFF;
+
+            DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+            vertex1->vertX      = x - (pivotX * scaleX);
+            vertex1->vertY      = (pivotY * scaleY) + y;
+            vertex1->vertZ      = z;
+            vertex1->texCoordX  = (sprX + sprW) * textureList[texture].widthN;
+            vertex1->texCoordY  = sprY * textureList[texture].heightN;
+            vertex1->r          = vertexR;
+            vertex1->g          = vertexG;
+            vertex1->b          = vertexB;
+            vertex1->a          = a;
+
+            DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+            vertex2->vertX      = ((sprW - pivotX) * scaleX) + x;
+            vertex2->vertY      = vertex1->vertY;
+            vertex2->vertZ      = z;
+            vertex2->texCoordX  = sprX * textureList[texture].widthN;
+            vertex2->texCoordY  = vertex1->texCoordY;
+            vertex2->r          = vertexR;
+            vertex2->g          = vertexG;
+            vertex2->b          = vertexB;
+            vertex2->a          = a;
+
+            DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+            vertex3->vertX      = vertex1->vertX;
+            vertex3->vertY      = y - ((sprH - pivotY) * scaleY);
+            vertex3->vertZ      = z;
+            vertex3->texCoordX  = vertex1->texCoordX;
+            vertex3->texCoordY  = (sprY + sprH) * textureList[texture].heightN;
+            vertex3->r          = vertexR;
+            vertex3->g          = vertexG;
+            vertex3->b          = vertexB;
+            vertex3->a          = a;
+
+            DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+            vertex4->vertX      = vertex2->vertX;
+            vertex4->vertY      = vertex3->vertY;
+            vertex4->vertZ      = z;
+            vertex4->texCoordX  = vertex2->texCoordX;
+            vertex4->texCoordY  = vertex3->texCoordY;
+            vertex4->r          = vertexR;
+            vertex4->g          = vertexG;
+            vertex4->b          = vertexB;
+            vertex4->a          = a;
+            vertexListSize += 4;
+            currentRenderState.indexCount += 6;
+        }
+    }
+}
 
 void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, int alpha)
 {
@@ -1092,6 +1401,119 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
                     vertex3->g          = vertexG;
                     vertex3->b          = vertexB;
                     vertex3->a          = a;
+
+                    DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+                    vertex4->vertX      = vertex2->vertX;
+                    vertex4->vertY      = vertex3->vertY;
+                    vertex4->vertZ      = z;
+                    vertex4->texCoordX  = vertex2->texCoordX;
+                    vertex4->texCoordY  = vertex3->texCoordY;
+                    vertex4->r          = vertexR;
+                    vertex4->g          = vertexG;
+                    vertex4->b          = vertexB;
+                    vertex4->a          = a;
+                    vertexListSize += 4;
+                    currentRenderState.indexCount += 6;
+                }
+                posX += (fontChar->xAdvance * scale);
+                character = *text++;
+            }
+        }
+    }
+}
+void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float scale, int alpha)
+{
+    BitmapFont *font = &fontList[fontID];
+    float posX       = x;
+    float posY       = (font->base * scale) + y;
+
+    if (vertexListSize < DRAWVERTEX_LIMIT) {
+        if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColours)) {
+            if (renderStateCount >= 0) {
+                RenderState *state = &renderStateList[renderStateCount];
+                memcpy(state, &currentRenderState, sizeof(RenderState));
+            }
+            currentRenderState.indexCount = 0;
+            currentRenderState.id         = textureList[font->characters[*text].textureID].id;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = true;
+            currentRenderState.useFilter  = 0;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
+            renderStateCount++;
+        }
+
+        if (renderStateCount < RENDERSTATE_LIMIT) {
+            int a = 0;
+            if (alpha >= 0)
+                a = alpha;
+            if (a > 0xFF)
+                a = 0xFF;
+
+            ushort character = *text++;
+            while (character && vertexListSize < DRAWVERTEX_LIMIT) {
+                BitmapFontCharacter *fontChar = &font->characters[character];
+                TextureInfo *texture          = &textureList[fontChar->textureID];
+
+                if (texture->format) {
+                    if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
+                        currentRenderState.indexCount       = 0;
+                        renderStateList[renderStateCount++] = currentRenderState;
+                        currentRenderState.vertPtr          = &drawVertexList[vertexListSize];
+                        currentRenderState.indexPtr         = drawIndexList;
+                        currentRenderState.id               = texture->id;
+                    }
+                    if (character == 1) {
+                        posX = x;
+                        posY -= (font->lineHeight * scale);
+                    }
+
+                    DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+                    vertex1->vertX      = posX + (fontChar->xOffset * scale);
+                    vertex1->vertY      = posY - (fontChar->yOffset * scale);
+                    vertex1->vertZ      = z;
+                    vertex1->texCoordX  = fontChar->x * texture->widthN;
+                    vertex1->texCoordY  = fontChar->y * texture->heightN;
+                    vertex1->r          = vertexR;
+                    vertex1->g          = vertexG;
+                    vertex1->b          = vertexB;
+                    vertex1->a          = a;
+                    if (vertex1->vertY <= 76.0) {
+                        vertex1->texCoordY = fontChar->y * texture->heightN;
+                    }
+                    else {
+                        vertex1->vertY     = 76.0;
+                        vertex1->texCoordY = (((vertex1->vertY - 76.0) / scale) + fontChar->y) * texture->heightN;
+                    }
+
+                    DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+                    vertex2->vertX      = posX + ((fontChar->width + fontChar->xOffset) * scale);
+                    vertex2->vertY      = vertex1->vertY;
+                    vertex2->vertZ      = z;
+                    vertex2->texCoordX  = (fontChar->x + fontChar->width) * texture->widthN;
+                    vertex2->texCoordY  = vertex1->texCoordY;
+                    vertex2->r          = vertexR;
+                    vertex2->g          = vertexG;
+                    vertex2->b          = vertexB;
+                    vertex2->a          = a;
+
+                    DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+                    vertex3->vertX      = vertex1->vertX;
+                    vertex3->vertY      = posY - ((fontChar->height + fontChar->yOffset) * scale);
+                    vertex3->vertZ      = z;
+                    vertex3->texCoordX  = vertex1->texCoordX;
+                    vertex3->texCoordY  = (fontChar->y + fontChar->height) * texture->heightN;
+                    vertex3->r          = vertexR;
+                    vertex3->g          = vertexG;
+                    vertex3->b          = vertexB;
+                    vertex3->a          = a;
+                    if (vertex3->vertY >= -76.0) {
+                        vertex3->texCoordY = vertex3->texCoordY * texture->heightN;
+                    }
+                    else {
+                        vertex3->vertY     = -76.0;
+                        vertex3->texCoordY = (((vertex3->vertY + 76.0) / scale) + vertex3->texCoordY) * texture->heightN;
+                    }
 
                     DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
                     vertex4->vertX      = vertex2->vertX;

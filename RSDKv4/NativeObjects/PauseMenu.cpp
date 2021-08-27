@@ -54,7 +54,7 @@ void PauseMenu_Create(void *objPtr)
     SetStringToFont(entity->buttons[1]->text, strRestart, 1);
     SetStringToFont(entity->buttons[2]->text, strSettings, 1);
     SetStringToFont(entity->buttons[3]->text, strExit, 1);
-    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", 1);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     entity->rotationY     = 0.0;
     entity->float118      = DegreesToRad(-16.0);
     entity->matrixX       = 0.0;
@@ -62,7 +62,7 @@ void PauseMenu_Create(void *objPtr)
     entity->matrixZ       = 160.0;
     entity->float108      = (1.75 * SCREEN_CENTERX_F) - ((SCREEN_CENTERX_F - 160) * 2);
     if (Engine.gameDeviceType == RETRO_MOBILE)
-        entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
+        entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
     entity->pfunc128 = 104.0;
     entity->state    = 1;
     entity->byte131  = 1;

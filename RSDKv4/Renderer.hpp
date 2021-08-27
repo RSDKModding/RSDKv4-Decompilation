@@ -15,6 +15,14 @@ enum RenderBlendModes {
     RENDER_BLEND_ALPHA3,
 };
 
+enum TextureFormats {
+    TEXFMT_NONE,
+    TEXFMT_RGBA4444,
+    TEXFMT_RGBA5551,
+    TEXFMT_RGBA8888,
+    TEXFMT_RETROBUFFER,
+};
+
 struct DrawVertex {
     float vertX;
     float vertY;
@@ -131,6 +139,7 @@ void RenderScene();
 
 // Textures
 int LoadTexture(const char *filePath, int format);
+void ReplaceTexture(const char *filePath, int textureID);
 void ClearTextures();
 
 // Meshes
@@ -145,7 +154,12 @@ void TransferRetroBuffer();
 void RenderRetroBuffer(int alpha, float z);
 void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,
                  int alpha, byte texture);
+void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
+                        float sprY, int alpha, byte texture);
+void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
+                      float sprY, int alpha, byte texture);
 void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
+void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
 void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha);
 void RenderMesh(MeshInfo *mesh, byte a2, byte a3);
 
