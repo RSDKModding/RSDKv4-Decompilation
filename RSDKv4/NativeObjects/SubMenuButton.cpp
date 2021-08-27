@@ -30,7 +30,7 @@ void SubMenuButton_Main(void *objPtr)
     switch (entity->state) {
         case 0:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, 0);
+            RenderMesh(entity->meshButton, 0, false);
             RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
             break;
         case 1:
@@ -39,7 +39,7 @@ void SubMenuButton_Main(void *objPtr)
                 entity->flashTimer -= 1.0;
 
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, 0);
+            RenderMesh(entity->meshButton, 0, false);
             if (entity->flashTimer > 0.5)
                 RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
             break;
@@ -48,7 +48,7 @@ void SubMenuButton_Main(void *objPtr)
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, 0);
+            RenderMesh(entity->meshButton, 0, false);
             if (entity->flashTimer > 0.05)
                 RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
 
@@ -73,9 +73,9 @@ void SubMenuButton_Main(void *objPtr)
         case 4:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             if (entity->useMeshH)
-                RenderMesh(entity->meshButtonH, 0, 0);
+                RenderMesh(entity->meshButtonH, 0, false);
             else
-                RenderMesh(entity->meshButton, 0, 0);
+                RenderMesh(entity->meshButton, 0, false);
             if (entity->flashTimer < 0.05)
                 RenderText(entity->text, 1, -64.0, entity->textY, 0, entity->textScale, entity->textAlpha);
 

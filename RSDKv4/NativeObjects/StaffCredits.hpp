@@ -17,7 +17,7 @@ struct NativeEntity_StaffCredits : NativeEntityBase {
     int alpha;
     NativeEntity_CreditText *creditText[16];
     int creditsTextID;
-    int latestTextID;
+    byte latestTextID;
 };
 
 void StaffCredits_Create(void *objPtr);

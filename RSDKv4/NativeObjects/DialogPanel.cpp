@@ -22,9 +22,9 @@ void DialogPanel_Main(void *objPtr)
                 confirmButton->y               = -40.0;
                 confirmButton->z               = 0.0;
                 confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0xA048;
-                confirmButton->blue2           = 0xC060;
-                confirmButton->useRenderMatrix = 1;
+                confirmButton->blue            = 0x00A048;
+                confirmButton->blue2           = 0x00C060;
+                confirmButton->useRenderMatrix = true;
                 SetStringToFont8(confirmButton->text, (char *)" OK ", 1);
             }
             else {
@@ -32,9 +32,9 @@ void DialogPanel_Main(void *objPtr)
                 confirmButton->y               = -40.0;
                 confirmButton->z               = 0.0;
                 confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0xA048;
-                confirmButton->blue2           = 0xC060;
-                confirmButton->useRenderMatrix = 1;
+                confirmButton->blue            = 0x00A048;
+                confirmButton->blue2           = 0x00C060;
+                confirmButton->useRenderMatrix = true;
                 SetStringToFont(confirmButton->text, strYes, 1);
                 NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
                 entity->buttons[1]                = noButton;
@@ -62,9 +62,7 @@ void DialogPanel_Main(void *objPtr)
             matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
             SetRenderMatrix(&entity->buttonMatrix);
-            entity->buttons[0]->renderMatrix = entity->buttonMatrix;
-            if (entity->buttonCount != 1)
-                entity->buttons[1]->renderMatrix = entity->buttonMatrix;
+            for (int i = 0; i < entity->buttonCount; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->buttonMatrix, sizeof(MatrixF));
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
@@ -104,19 +102,17 @@ void DialogPanel_Main(void *objPtr)
                             CheckTouchRect(36.0, -30.0, (entity->buttons[1]->textWidth + (entity->buttons[1]->scale * 64.0)) * 0.75, 12.0) >= 0;
                     }
                 }
-                if (entity->state == 2) {
-                    if (keyDown.left == 1) {
-                        usePhysicalControls    = 1;
-                        entity->buttonSelected = 1;
-                    }
-                    else if (keyDown.right == 1) {
-                        usePhysicalControls    = 1;
-                        entity->buttonSelected = 0;
-                    }
+                if (keyDown.left) {
+                    usePhysicalControls    = true;
+                    entity->buttonSelected = 1;
+                }
+                else if (keyDown.right) {
+                    usePhysicalControls    = true;
+                    entity->buttonSelected = 0;
                 }
             }
             else if (touches >= 1) {
-                usePhysicalControls = 0;
+                usePhysicalControls = false;
             }
             else if (entity->buttonCount == 1) {
                 entity->buttonSelected = 0;
@@ -126,7 +122,7 @@ void DialogPanel_Main(void *objPtr)
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
             }
-            else if (keyPress.left || keyPress.right) {
+            else {
                 if (keyPress.left) {
                     PlaySfx(21, 0);
                     if (entity->buttonSelected-- < 1)
@@ -174,17 +170,18 @@ void DialogPanel_Main(void *objPtr)
             matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
             SetRenderMatrix(&entity->buttonMatrix);
+            for (int i = 0; i < entity->buttonCount; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->buttonMatrix, sizeof(MatrixF));
 
             entity->stateTimer += Engine.deltaTime;
-            if (entity->stateTimer <= 0.5)
-                break;
-            RemoveNativeObject(entity->buttons[0]);
-            if (entity->buttonCount == 2)
-                RemoveNativeObject(entity->buttons[1]);
-            return RemoveNativeObject(entity);
+            if (entity->stateTimer > 0.5) {
+                for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
+                RemoveNativeObject(entity);
+                return;
+            }
+            break;
         case 5: SetRenderMatrix(&entity->buttonMatrix); break;
         default: break;
     }
     RenderMesh(entity->panelMesh, 0, 0);
-    return RenderText(entity->text, 2, entity->textX, entity->textY, 0.0, entity->textScale, 255);
+    RenderText(entity->text, 2, entity->textX, entity->textY, 0.0, entity->textScale, 255);
 }

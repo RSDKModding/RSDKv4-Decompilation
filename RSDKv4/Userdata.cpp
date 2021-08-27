@@ -11,7 +11,7 @@ char gamePath[0x100];
 char modsPath[0x100];
 int saveRAM[SAVEDATA_MAX];
 Achievement achievements[ACHIEVEMENT_MAX];
-LeaderboardEntry leaderboard[LEADERBOARD_MAX];
+LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 MultiplayerData multiplayerDataIN  = MultiplayerData();
 MultiplayerData multiplayerDataOUT = MultiplayerData();
@@ -635,7 +635,9 @@ void ReadUserdata()
     }
     for (int l = 0; l < LEADERBOARD_MAX; ++l) {
         fRead(&buf, 4, 1, userFile);
-        leaderboard[l].status = buf;
+        leaderboards[l].score = buf;
+        if (!leaderboards[l].score)
+            leaderboards[l].score = 0x7FFFFFF;
     }
 
     fClose(userFile);
@@ -663,7 +665,7 @@ void WriteUserdata()
         return;
 
     for (int a = 0; a < ACHIEVEMENT_MAX; ++a) fWrite(&achievements[a].status, 4, 1, userFile);
-    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboard[l].status, 4, 1, userFile);
+    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboards[l].score, 4, 1, userFile);
 
     fClose(userFile);
 
@@ -721,38 +723,45 @@ void ShowAchievementsScreen() {
 }
 
 
-int SetLeaderboard(int *leaderboardID, int *result)
+int SetLeaderboard(int *leaderboardID, int *score)
 {
     if (!Engine.trialMode && !debugMode) {
-        printLog("Set leaderboard (%d) value to %d", leaderboardID, *result);
-        switch (*leaderboardID) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17:
-            case 18:
-            case 19:
-            case 20:
-            case 21: leaderboard[*leaderboardID].status = *result;
+        // 0  = GHZ1/EHZ1
+        // 1  = GHZ2/EHZ1
+        // 2  = GHZ3/CPZ1
+        // 3  = MZ1/CPZ1
+        // 4  = MZ2/ARZ1
+        // 5  = MZ3/ARZ1
+        // 6  = SYZ1/CNZ1
+        // 7  = SYZ2/CNZ1
+        // 8  = SYZ3/HTZ1
+        // 9  = LZ1/HTZ1
+        // 10 = LZ2/MCZ1
+        // 11 = LZ3/MCZ1
+        // 12 = SLZ1/OOZ1
+        // 13 = SLZ2/OOZ1
+        // 14 = SLZ3/MPZ1
+        // 15 = SBZ1/MPZ2
+        // 15 = SBZ2/MPZ3
+        // 16 = SBZ3/SCZ
+        // 17 = ???/WFZ
+        // 18 = ???/DEZ
+        // 19 = TotalScore (S1)/???
+        // 20 = ???
+        // 21 = HPZ
+        // 22 = TotalScore (S2)
 #if !RETRO_USE_ORIGINAL_CODE
-                WriteUserdata();
-#endif
-                return 1;
+        if (*score < leaderboards[*leaderboardID].score) {
+            printLog("Set leaderboard (%d) value to %d", *leaderboardID, score);
+            leaderboards[*leaderboardID].score = *score;
+            WriteUserdata();
         }
+        else {
+            printLog("Attempted to set leaderboard (%d) value to %d... but score was already %d!", *leaderboardID, *score,
+                     leaderboards[*leaderboardID].score);
+        }
+#endif
+        return 1;
     }
     return 0;
 }
@@ -773,7 +782,6 @@ int Connect2PVS(int *gameLength, int *itemMode)
     matchValueWritePos     = 0;
     //Engine.gameMode        = ENGINE_CONNECT2PVS;
     PauseSound();
-
     // actual connection code
     if (Engine.onlineActive) {
         // Do online code
@@ -907,6 +915,17 @@ int ShowPromoPopup(int *a1, const char *popupName)
         return 1;
     }
     return 0;
+}
+void ShowWebsite(int websiteID)
+{
+    switch (websiteID) {
+        case 0:
+            //http://www.sega.com/mprivacy
+            break;
+        case 1:
+            //http://www.sega.com/legal
+            break;
+    }
 }
 
 int ExitGame()

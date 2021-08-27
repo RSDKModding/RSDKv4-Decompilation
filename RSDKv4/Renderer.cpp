@@ -638,7 +638,7 @@ void ReplaceTexture(const char *filePath, int texID)
                     }
 
 #if RETRO_USING_OPENGL
-                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, pixels);
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, pixels);
                     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 
@@ -659,7 +659,7 @@ void ReplaceTexture(const char *filePath, int texID)
                         }
                     }
 #if RETRO_USING_OPENGL
-                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
                     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 
@@ -681,7 +681,7 @@ void ReplaceTexture(const char *filePath, int texID)
                     }
 
 #if RETRO_USING_OPENGL
-                    glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
                     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 

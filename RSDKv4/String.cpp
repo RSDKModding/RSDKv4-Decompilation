@@ -385,53 +385,29 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
     FileInfo info;
     ushort strName[0x40];
     ushort langName[0x8];
-    ushort textBuffer[0x200];
+    ushort lineBuffer[0x200];
 
     memset(strName, 0, 0x40 * sizeof(ushort));
     memset(langName, 0, 0x8 * sizeof(ushort));
-    memset(textBuffer, 0, 0x200 * sizeof(ushort));
+    memset(lineBuffer, 0, 0x200 * sizeof(ushort));
 
     char strNameChar = *stringName;
     int strNamePos   = 0;
-    if (strNameChar) {
-        strNamePos = 0;
-        do {
-            strName[strNamePos++] = strNameChar;
-            strNameChar           = stringName[strNamePos];
-        } while (strNameChar);
-        ++strNamePos;
+    while (stringName[strNamePos]) {
+        strName[strNamePos] = stringName[strNamePos];
+        strNamePos++;
     }
     strName[strNamePos++] = ':';
     strName[strNamePos]   = 0;
 
-    char langNameChar = *language;
     int langNamePos   = 0;
-    if (langNameChar) {
-        langName[0] = langNameChar;
-        if (language[1]) {
-            langName[1] = language[1];
-            if (language[2]) {
-                langName[2] = language[2];
-                if (language[3]) {
-                    langName[3] = language[3];
-                    langNamePos = 4;
-                }
-                else {
-                    langNamePos = 3;
-                }
-            }
-            else {
-                langNamePos = 2;
-            }
-        }
-        else {
-            langNamePos = 1;
-        }
-        langNamePos++;
+    for (langNamePos = 0; langNamePos < 4; ++langNamePos) {
+        if (!language[langNamePos])
+            break;
+        else
+            langName[langNamePos] = language[langNamePos];
     }
-    else {
-        langNamePos = 0;
-    }
+
     langName[langNamePos++] = ':';
     langName[langNamePos]   = 0;
 
@@ -443,31 +419,26 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
         while (!ReachedEndOfFile()) {
             switch (readMode) {
                 case 0:
-                    ReadStringLineUnicode(textBuffer);
-                    if (!FindStringTokenUnicode(textBuffer, langName, 1u)) {
-                        int tPos = FindStringTokenUnicode(textBuffer, strName, 1u);
+                    ReadStringLineUnicode(lineBuffer);
+                    if (!FindStringTokenUnicode(lineBuffer, langName, 1)) {
+                        int tPos = FindStringTokenUnicode(lineBuffer, strName, 1);
                         if (tPos == 3)
-                            flag = 1;
+                            flag = true;
                         readMode = tPos == 3;
                     }
                     break;
                 case 1:
-                    FileRead(fileBuffer, 2);
+                    FileRead(fileBuffer, sizeof(ushort));
                     curChar = fileBuffer[0] + (fileBuffer[1] << 8);
-                    if (curChar != '\t' && curChar != '\r') {
+                    if (curChar > '\n' && curChar != '\r') {
                         stringStorage[stringStorePos][charID++] = 0;
                         CloseFile();
 
-                        endLine = false;
-                        //printLog("Loaded String\nLanguage: %s\nStringName: %s\nString: ", language, stringName);
-                        //printLog(stringStorage[stringStorePos]);
-                        endLine = true;
-
                         return stringStorage[stringStorePos++];
                     }
-                    if (curChar == '\t') {
+                    else if (curChar == '\t') {
                         if (flag) {
-                            flag     = 1;
+                            flag     = true;
                             readMode = 2;
                         }
                         else {
@@ -477,11 +448,11 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     }
                     break;
                 case 2:
-                    FileRead(fileBuffer, 2);
+                    FileRead(fileBuffer, sizeof(ushort));
                     curChar = fileBuffer[0] + (fileBuffer[1] << 8);
                     if (curChar != '\t') {
                         if (curChar == '\r' || curChar == '\n') {
-                            flag     = 0;
+                            flag     = false;
                             readMode = 1;
                         }
                         else {

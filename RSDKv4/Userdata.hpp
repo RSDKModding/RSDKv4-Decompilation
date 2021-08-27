@@ -47,7 +47,7 @@ struct SaveGame {
     int vDPadY_Jump;
     int tailsUnlocked;
     int knuxUnlocked;
-    int unknown;
+    int totalScore;
     int unused[18];
     int records[64];
 };
@@ -63,7 +63,7 @@ struct Achievement {
 };
 
 struct LeaderboardEntry {
-    int status;
+    int score;
 };
 
 struct MultiplayerData {
@@ -96,7 +96,7 @@ extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
 extern char gamePath[0x100];
 extern int saveRAM[SAVEDATA_MAX];
 extern Achievement achievements[ACHIEVEMENT_MAX];
-extern LeaderboardEntry leaderboard[LEADERBOARD_MAX];
+extern LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 extern MultiplayerData multiplayerDataIN;
 extern MultiplayerData multiplayerDataOUT;
@@ -238,6 +238,7 @@ void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
 int ShowPromoPopup(int *a1, const char *popupName);
+void ShowWebsite(int websiteID);
 
 int ExitGame();
 int OpenModMenu();

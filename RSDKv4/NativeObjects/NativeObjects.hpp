@@ -6,6 +6,7 @@
 
 extern bool usePhysicalControls;
 extern byte timeAttackTex[0x10];
+extern ushort helpText[0x1000];
 
 #include "MenuBG.hpp"
 #include "TextLabel.hpp"

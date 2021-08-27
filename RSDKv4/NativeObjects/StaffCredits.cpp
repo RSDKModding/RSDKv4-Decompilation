@@ -47,16 +47,16 @@ void StaffCredits_Create(void *objPtr)
             default: break;
         }
 
-        SetStringToFont(creditText->text, strCreditsList[entity->creditsTextID], creditText->fontID);
         offY -= creditsAdvanceY[entity->creditsTextID];
+        SetStringToFont(creditText->text, strCreditsList[entity->creditsTextID], creditText->fontID);
         creditText->textX           = 0.0;
         creditText->useRenderMatrix = true;
         creditText->textZ           = 8.0;
-        creditText->textY           = offY - creditsAdvanceY[entity->creditsTextID];
+        creditText->textY           = offY;
         ++entity->creditsTextID;
     }
 
-    entity->latestTextID = 15;
+    entity->latestTextID = -1;
 }
 void StaffCredits_Main(void *objPtr)
 {
@@ -68,9 +68,7 @@ void StaffCredits_Main(void *objPtr)
             if (entity->alpha < 0x100)
                 entity->alpha += 8;
 
-            entity->scale += ((1.05 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
-            if (entity->scale < -8.0)
-                entity->scale = -8.0;
+            entity->scale = fminf(entity->scale + ((1.05 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
@@ -78,6 +76,7 @@ void StaffCredits_Main(void *objPtr)
             matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
             SetRenderMatrix(&entity->renderMatrix);
 
+            memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 16; ++i) {
                 memcpy(&entity->creditText[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             }
@@ -91,7 +90,7 @@ void StaffCredits_Main(void *objPtr)
             break;
         case 1: //da credits
             CheckKeyDown(&keyDown);
-            CheckKeyDown(&keyPress);
+            CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->renderMatrix);
             if (touches <= 0) {
                 if (entity->useRenderMatrix) {
@@ -113,12 +112,10 @@ void StaffCredits_Main(void *objPtr)
             if (entity->alpha > 0)
                 entity->alpha -= 8;
 
-            if (entity->field_14 >= 0.2)
-                entity->scale += ((-1.0f - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
+            if (entity->field_18 < 0.2)
+                entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
             else
-                entity->scale += ((1.5 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
-            if (entity->scale < 0.0)
-                entity->scale = 0.0;
+                entity->scale = fmaxf(entity->scale + ((-1.0f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
@@ -126,6 +123,7 @@ void StaffCredits_Main(void *objPtr)
             matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
             SetRenderMatrix(&entity->renderMatrix);
 
+            memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 16; ++i) {
                 memcpy(&entity->creditText[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             }
@@ -136,39 +134,41 @@ void StaffCredits_Main(void *objPtr)
                 for (int i = 15; i >= 0; --i) RemoveNativeObject(entity->creditText[i]);
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity);
+                return;
             }
-            return;
+            break;
     }
 
     
     for (int i = 0; i < 0x10; ++i) {
         NativeEntity_CreditText *creditText = entity->creditText[i];
 
+        creditText->textY += 0.75;
         if (touches > 0 || keyDown.A || keyDown.C) {
-            creditText->textY += 1.5;
-        }
-        else {
             creditText->textY += 0.75;
         }
         
         if (creditText->textY > SCREEN_CENTERY_F) {
-            creditText->textY = entity->creditText[entity->latestTextID]->textY - creditsAdvanceY[entity->creditsTextID];
+            creditText->textY = entity->creditText[entity->latestTextID & 0xF]->textY - creditsAdvanceY[entity->creditsTextID];
 
             switch (creditsType[entity->creditsTextID]) {
                 case 0:
                     creditText->fontID = 1;
                     creditText->colour = 0xFFFFFF;
                     creditText->scaleX = 0.125;
+                    creditText->state  = 3;
                     break;
                 case 1:
                     creditText->fontID = 2;
                     creditText->colour = 0xFF8000;
                     creditText->scaleX = 0.25;
+                    creditText->state  = 3;
                     break;
                 case 2:
                     creditText->fontID = 2;
                     creditText->colour = 0xFFFFFF;
                     creditText->scaleX = 0.25;
+                    creditText->state  = 3;
                     break;
                 case 3:
                     creditText->fontID = 2;
@@ -177,7 +177,7 @@ void StaffCredits_Main(void *objPtr)
                 default: break;
             }
             SetStringToFont(creditText->text, strCreditsList[entity->creditsTextID], creditText->fontID);
-            entity->latestTextID = (entity->latestTextID + 1) & 0xF;
+            entity->latestTextID++;
             entity->creditsTextID++;
             if (entity->creditsTextID >= creditsListSize)
                 entity->creditsTextID = 0;

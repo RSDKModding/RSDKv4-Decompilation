@@ -401,6 +401,7 @@ void MenuControl_Main(void *objPtr)
                             SetStringToFont(entity->dialog->text, strNetworkMessage, 2);
                             entity->state = 6;
                         }
+                        button->labelPtr->alignment = 0;
                         break;
                     case BUTTON_LEADERBOARDS:
                         entity->state = 0;

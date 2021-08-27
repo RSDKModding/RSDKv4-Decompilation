@@ -11,7 +11,6 @@ void InitPauseMenu()
 void RetroGameLoop_Create(void *objPtr)
 {
     RSDK_THIS(RetroGameLoop);
-    // entity->pauseMenu                  = nullptr;
     mixFiltersOnJekyll = Engine.useHighResAssets;
 }
 void RetroGameLoop_Main(void *objPtr)
@@ -68,16 +67,15 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_ENDGAME:
             ClearScreen(1);
             TransferRetroBuffer();
+            RestoreNativeObjects();
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             activeStageList   = 0;
             stageListPosition = 0;
-#if !RETRO_USE_ORIGINAL_CODE
-            initStartMenu(0);
-#endif
             break;
         case ENGINE_RESETGAME: // Also called when 2P VS disconnects
             ClearScreen(1);
             TransferRetroBuffer();
+            RestoreNativeObjects();
             break;
 #if !RETRO_USE_ORIGINAL_CODE
         case ENGINE_STARTMENU: processStartMenu(); break;

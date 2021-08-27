@@ -4411,16 +4411,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
-                    if (StrLength(scriptText)) {
-                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
-                        if (func)
-                            func(&scriptEng.operands[1], scriptText);
-                    }
-                    else {
-                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
-                        if (func)
-                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
-                    }
+                    void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                    if (func)
+                        func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:

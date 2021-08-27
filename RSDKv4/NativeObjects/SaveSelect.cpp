@@ -32,7 +32,7 @@ void SaveSelect_Create(void *objPtr)
     else
         entity->delButton->scale = 0.2;
 
-    entity->delButton->blue = 41032;
+    entity->delButton->blue = 0x00A048;
     SetStringToFont(entity->delButton->text, strDelete, 1);
 
     entity->saveButtons[0] = CREATE_ENTITY(SubMenuButton);
@@ -54,22 +54,22 @@ void SaveSelect_Create(void *objPtr)
         entity->saveButtons[i] = CREATE_ENTITY(SubMenuButton);
 
         int stagePos = saveGame->files[i - 1].zoneID;
-        if (stagePos > 127) {
+        if (stagePos >= 0x80) {
             SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialZoneID + 19], 1);
             entity->saveButtons[i]->state     = 4;
             entity->saveButtons[i]->textY     = 2.0;
             entity->saveButtons[i]->textScale = 0.08;
-            entity->deleteEnabled                  = 1;
+            entity->deleteEnabled             = true;
         }
         else if (stagePos > 0) {
-            if (stagePos - 1 > 18)
+            if (stagePos - 1 > 18 && Engine.gameType == GAME_SONIC1)
                 SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[25], 1);
             else
                 SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[stagePos - 1], 1);
             entity->saveButtons[i]->state     = 4;
             entity->saveButtons[i]->textY     = 2.0;
             entity->saveButtons[i]->textScale = 0.08;
-            entity->deleteEnabled                  = 1;
+            entity->deleteEnabled             = true;
         }
         else {
             SetStringToFont(entity->saveButtons[i]->text, strNewGame, 1);
@@ -193,7 +193,7 @@ void SaveSelect_Main(void *objPtr)
                                 StopMusic(true);
                                 entity->saveButtons[entity->selectedSave]->state = 3;
                             }
-                            entity->saveButtons[entity->selectedSave]->b = -1;
+                            entity->saveButtons[entity->selectedSave]->b = 0xFF;
                             entity->state                                = 4;
                         }
                         else {
@@ -357,8 +357,9 @@ void SaveSelect_Main(void *objPtr)
         }
         case 5: {
             if (entity->deleteRotateY > entity->field_2C) {
-                entity->field_30 -= (0.0025 * (Engine.deltaTime * 60.0));
-                entity->deleteRotateY += ((Engine.deltaTime * 60.0) * entity->field_30);
+                entity->field_30 -= 0.0025 * (Engine.deltaTime * 60.0);
+                entity->deleteRotateY += (Engine.deltaTime * 60.0) * entity->field_30;
+                entity->field_30 -= 0.0025 * (Engine.deltaTime * 60.0);
                 matrixRotateYF(&entity->labelPtr->renderMatrix, entity->deleteRotateY);
                 matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
                 matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
@@ -405,9 +406,9 @@ void SaveSelect_Main(void *objPtr)
             break;
         case 7: {
             if (entity->field_2C > entity->deleteRotateY) {
-                entity->field_30 += (0.0025 * (Engine.deltaTime * 60.0));
-                entity->field_30 += (0.0025 * (Engine.deltaTime * 60.0));
-                entity->deleteRotateY += ((Engine.deltaTime * 60.0) * entity->field_30);
+                entity->field_30 += 0.0025 * (Engine.deltaTime * 60.0);
+                entity->deleteRotateY += (Engine.deltaTime * 60.0) * entity->field_30;
+                entity->field_30 += 0.0025 * (Engine.deltaTime * 60.0);
                 if (entity->deleteRotateY > entity->field_2C)
                     entity->deleteRotateY = entity->field_2C;
                 matrixRotateYF(&entity->labelPtr->renderMatrix, entity->deleteRotateY);

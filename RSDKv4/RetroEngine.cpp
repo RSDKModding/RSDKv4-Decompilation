@@ -163,7 +163,8 @@ bool processEvents()
                                 saveMods();
                             }
 #endif
-
+                            ClearNativeObjects();
+                            CREATE_ENTITY(RetroGameLoop);
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
                         break;

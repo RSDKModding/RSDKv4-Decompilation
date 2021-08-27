@@ -31,6 +31,7 @@ int lastMouseY = 0;
 struct InputDevice {
 #if RETRO_USING_SDL2
     SDL_GameController *devicePtr;
+    SDL_Haptic *hapticPtr;
 #endif
     int id;
 };
@@ -212,11 +213,21 @@ void controllerInit(byte controllerID)
         }
     }
 
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         InputDevice device;
         device.id        = 0;
         device.devicePtr = controller;
+        device.hapticPtr = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(controller));
+        if (device.hapticPtr == NULL) {
+            printLog("Could not open controller haptics...\nSDL_GetError() -> %s", SDL_GetError());
+        }
+        else {
+            if (SDL_HapticRumbleInit(device.hapticPtr) < 0) {
+                printf("Unable to initialize rumble!\nSDL_GetError() -> %s", SDL_GetError());
+            }
+        }
 
         controllers.push_back(device);
         inputType = 1;
@@ -224,20 +235,30 @@ void controllerInit(byte controllerID)
     else {
         printLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
     }
+#endif
 }
 
 void controllerClose(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
+#endif
         for (int i = 0; i < controllers.size(); ++i) {
             if (controllers[i].id == controllerID) {
                 controllers.erase(controllers.begin() + controllerID);
+#if RETRO_USING_SDL2
+                if (controllers[i].hapticPtr) {
+                    SDL_HapticClose(controllers[i].hapticPtr);
+                }
+#endif
                 break;
             }
         }
+#if RETRO_USING_SDL2
     }
+#endif
 
     if (controllers.empty())
         inputType = 0;
@@ -276,13 +297,15 @@ void InitInputDevices()
 
 void ReleaseInputDevices()
 {
-#if RETRO_USING_SDL2
     for (int i = 0; i < controllers.size(); i++) {
+#if RETRO_USING_SDL2
         if (controllers[i].devicePtr)
             SDL_GameControllerClose(controllers[i].devicePtr);
+        if (controllers[i].hapticPtr)
+            SDL_HapticClose(controllers[i].hapticPtr);
+#endif
     }
     controllers.clear();
-#endif
 }
 
 void ProcessInput()

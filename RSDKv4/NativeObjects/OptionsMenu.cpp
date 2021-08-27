@@ -15,8 +15,8 @@ void OptionsMenu_Create(void *objPtr)
     entity->labelPtr->alignment = 0;
     SetStringToFont(entity->labelPtr->text, strHelpAndOptions, 0);
     entity->labelPtr->textWidth = 512.0;
-    entity->float34             = DegreesToRad(22.5);
-    matrixRotateYF(&entity->labelPtr->renderMatrix, entity->float34);
+    entity->labelRotateY             = DegreesToRad(22.5);
+    matrixRotateYF(&entity->labelPtr->renderMatrix, entity->labelRotateY);
     matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
     entity->labelPtr->useMatrix = true;
@@ -29,8 +29,8 @@ void OptionsMenu_Create(void *objPtr)
         entity->buttons[i]->textY     = -4.0;
         entity->buttons[i]->matZ      = 0.0;
         entity->buttons[i]->textScale = 0.1;
-        entity->field_94[i]           = DegreesToRad(16.0);
-        matrixRotateYF(&entity->buttons[i]->matrix, entity->field_94[i]);
+        entity->buttonRotateY[i]      = DegreesToRad(16.0);
+        matrixRotateYF(&entity->buttons[i]->matrix, entity->buttonRotateY[i]);
         matrixTranslateXYZF(&entity->matrix1, -128.0, y, 160.0);
         matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix1);
         entity->buttons[i]->useMatrix = true;
@@ -54,7 +54,7 @@ void OptionsMenu_Main(void *objPtr)
             break;
         }
         case 1: {
-            entity->labelPtr->textWidth = entity->labelPtr->textWidth / (1.125 * (60.0 * Engine.deltaTime));
+            entity->labelPtr->textWidth /= (1.125 * (60.0 * Engine.deltaTime));
 
             float div                   = (60.0 * Engine.deltaTime) * 16.0;
             entity->buttons[0]->matXOff = ((-176.0 - entity->buttons[0]->matXOff) / div) + entity->buttons[0]->matXOff;
@@ -166,29 +166,30 @@ void OptionsMenu_Main(void *objPtr)
             break;
         }
         case 5: {
-            if (entity->float34 > entity->float38) {
-                entity->field_3C -= (0.0025 * (Engine.deltaTime * 60.0));
-                entity->float34 += ((Engine.deltaTime * 60.0) * entity->field_3C);
-                matrixRotateYF(&entity->labelPtr->renderMatrix, entity->float34);
+            if (entity->labelRotateY > entity->float38) {
+                entity->field_3C -= 0.0025 * (Engine.deltaTime * 60.0);
+                entity->labelRotateY += (Engine.deltaTime * 60.0) * entity->field_3C;
+                entity->field_3C -= 0.0025 * (Engine.deltaTime * 60.0);
+                matrixRotateYF(&entity->labelPtr->renderMatrix, entity->labelRotateY);
                 matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
                 matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
             }
 
             float y = 48.0;
             for (int i = 0; i < 4; ++i) {
-                if (entity->field_94[i] > entity->field_A4[i]) {
+                if (entity->buttonRotateY[i] > entity->field_A4[i]) {
                     entity->field_B4[i] -= 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->field_B4[i] < 0.0)
-                        entity->field_94[i] += ((60.0 * Engine.deltaTime) * entity->field_B4[i]);
+                        entity->buttonRotateY[i] += ((60.0 * Engine.deltaTime) * entity->field_B4[i]);
                     entity->field_B4[i] -= 0.0025 * (60.0 * Engine.deltaTime);
-                    matrixRotateYF(&entity->buttons[i]->matrix, entity->field_94[i]);
+                    matrixRotateYF(&entity->buttons[i]->matrix, entity->buttonRotateY[i]);
                     matrixTranslateXYZF(&entity->matrix1, -128.0, y, 160.0);
                     matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix1);
                 }
                 y -= 30.0;
             }
 
-            if (entity->field_A4[3] >= entity->field_94[3]) {
+            if (entity->field_A4[3] >= entity->buttonRotateY[3]) {
                 entity->state    = 6;
                 entity->field_3C = 0.0;
                 entity->float38  = DegreesToRad(22.5);
@@ -202,7 +203,7 @@ void OptionsMenu_Main(void *objPtr)
                     default: break;
                     case 0:
                         entity->instructionsScreen = CREATE_ENTITY(InstructionsScreen);
-                        // entity->instructionsScreen->optionsMenu = entity;
+                        entity->instructionsScreen->optionsMenu = entity;
                         break;
                     case 1:
                         entity->settingsScreen              = CREATE_ENTITY(SettingsScreen);
@@ -210,7 +211,7 @@ void OptionsMenu_Main(void *objPtr)
                         break;
                     case 2:
                         entity->aboutScreen = CREATE_ENTITY(AboutScreen);
-                        // entity->aboutScreen->optionsMenu = entity;
+                        entity->aboutScreen->optionsMenu = entity;
                         break;
                     case 3:
                         entity->staffCredits              = CREATE_ENTITY(StaffCredits);
@@ -229,27 +230,27 @@ void OptionsMenu_Main(void *objPtr)
         case 6: // sub menu idle
             break;
         case 7: {
-            if (entity->float38 > entity->float34) {
-                entity->field_3C += (0.0025 * (Engine.deltaTime * 60.0));
-                entity->field_3C += (0.0025 * (Engine.deltaTime * 60.0));
-                entity->float34 += ((Engine.deltaTime * 60.0) * entity->field_3C);
-                if (entity->float34 > entity->float38)
-                    entity->float34 = entity->float38;
-                matrixRotateYF(&entity->labelPtr->renderMatrix, entity->float34);
+            if (entity->float38 > entity->labelRotateY) {
+                entity->field_3C += 0.0025 * (Engine.deltaTime * 60.0);
+                entity->labelRotateY += (Engine.deltaTime * 60.0) * entity->field_3C;
+                entity->field_3C += 0.0025 * (Engine.deltaTime * 60.0);
+                if (entity->labelRotateY > entity->float38)
+                    entity->labelRotateY = entity->float38;
+                matrixRotateYF(&entity->labelPtr->renderMatrix, entity->labelRotateY);
                 matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
                 matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
             }
 
             float y = 48.0;
             for (int i = 0; i < 4; ++i) {
-                if (entity->field_A4[i] > entity->field_94[i]) {
+                if (entity->field_A4[i] > entity->buttonRotateY[i]) {
                     entity->field_B4[i] += 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->field_B4[i] > 0.0)
-                        entity->field_94[i] += ((60.0 * Engine.deltaTime) * entity->field_B4[i]);
+                        entity->buttonRotateY[i] += ((60.0 * Engine.deltaTime) * entity->field_B4[i]);
                     entity->field_B4[i] += 0.0025 * (60.0 * Engine.deltaTime);
-                    if (entity->field_94[i] > entity->field_B4[i])
-                        entity->field_94[i] = entity->field_B4[i];
-                    matrixRotateYF(&entity->buttons[i]->matrix, entity->field_94[i]);
+                    if (entity->buttonRotateY[i] > entity->field_A4[i])
+                        entity->buttonRotateY[i] = entity->field_A4[i];
+                    matrixRotateYF(&entity->buttons[i]->matrix, entity->buttonRotateY[i]);
                     matrixTranslateXYZF(&entity->matrix1, -128.0, y, 160.0);
                     matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix1);
                 }

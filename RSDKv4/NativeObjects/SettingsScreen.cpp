@@ -136,7 +136,9 @@ void SettingsScreen_Main(void *objPtr)
         case 0:
             if (entity->alpha <= 255)
                 entity->alpha += 8;
-            entity->buttonMatScale = ((1.05 - entity->buttonMatScale) / ((60.0 * Engine.deltaTime) * 8.0)) + entity->buttonMatScale;
+
+            entity->buttonMatScale = fminf(entity->buttonMatScale + ((1.05 - entity->buttonMatScale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
+
             NewRenderState();
             matrixScaleXYZF(&entity->buttonMatrix, entity->buttonMatScale, entity->buttonMatScale, 1.0);
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
@@ -153,16 +155,16 @@ void SettingsScreen_Main(void *objPtr)
                 entity->alpha    = 256;
                 entity->timer    = 0.0;
                 entity->state    = 1;
-                entity->selected = usePhysicalControls == 1;
+                entity->selected = usePhysicalControls == true;
             }
             break;
         case 1:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
-            if (usePhysicalControls == 1) {
+            if (usePhysicalControls) {
                 if (touches <= 0) {
-                    if (keyPress.up == 1) {
+                    if (keyPress.up) {
                         PlaySfx(21, 0);
                         entity->selected--;
                         if (entity->controlStyle == 1 && entity->selected == 4)
@@ -170,7 +172,7 @@ void SettingsScreen_Main(void *objPtr)
                         if (entity->selected <= 0)
                             entity->selected = 5;
                     }
-                    if (keyPress.down == 1) {
+                    if (keyPress.down) {
                         PlaySfx(21, 0);
                         entity->selected++;
                         if (entity->controlStyle == 1 && entity->selected == 2)
@@ -195,62 +197,64 @@ void SettingsScreen_Main(void *objPtr)
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                                 if (!saveGame->musVolume)
                                     musicEnabled = 0;
-                                if (entity->state == 1 && keyPress.B == 1) {
+                                if (entity->state == 1 && keyPress.B) {
                                     PlaySfx(23, 0);
                                     entity->touched = 0;
                                     entity->state   = 6;
                                 }
-                                break;
                             }
-                            if (keyPress.right != 1) {
-                                if (entity->state == 1 && keyPress.B == 1) {
+                            else if (keyPress.right) {
+                                PlaySfx(21, 0);
+                                if (saveGame->musVolume <= 99)
+                                    saveGame->musVolume += 20;
+                                if (!musicEnabled) {
+                                    musicEnabled = 1;
+                                    if (entity->controlStyle)
+                                        ;
+                                    // BYTE2(optionsMenu[1].matrix1.values[2][3]) = 1;
+                                    else
+                                        PlayMusic(0, 0);
+                                }
+                                SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
+                                if (entity->state == 1 && keyPress.B) {
                                     PlaySfx(23, 0);
                                     entity->touched = 0;
                                     entity->state   = 6;
                                 }
-                                break;
                             }
-                            PlaySfx(21, 0);
-                            if (saveGame->musVolume <= 99)
-                                saveGame->musVolume += 20;
-                            if (!musicEnabled) {
-                                musicEnabled = 1;
-                                if (entity->controlStyle)
-                                    ;
-                                // BYTE2(optionsMenu[1].matrix1.values[2][3]) = 1;
-                                else
-                                    PlayMusic(0, 0);
-                            }
-                            SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-                            if (entity->state == 1 && keyPress.B == 1) {
-                                PlaySfx(23, 0);
-                                entity->touched = 0;
-                                entity->state   = 6;
+                            else {
+                                if (entity->state == 1 && keyPress.B) {
+                                    PlaySfx(23, 0);
+                                    entity->touched = 0;
+                                    entity->state   = 6;
+                                }
                             }
                             break;
                         case 2:
                             entity->buttons[2]->state = keyDown.left == 1;
                             entity->buttons[3]->state = keyDown.right == 1;
-                            if (keyPress.left == 1) {
+                            if (keyPress.left) {
                                 PlaySfx(21, 0);
                                 if (saveGame->sfxVolume > 0)
                                     saveGame->sfxVolume -= 20;
                             }
                             else {
-                                if (keyPress.right != 1) {
-                                    if (entity->state == 1 && keyPress.B == 1) {
+                                if (keyPress.right) {
+                                    PlaySfx(21, 0);
+                                    if (saveGame->sfxVolume <= 99)
+                                        saveGame->sfxVolume += 20;
+                                }
+                                else {
+                                    if (entity->state == 1 && keyPress.B) {
                                         PlaySfx(23, 0);
                                         entity->touched = 0;
                                         entity->state   = 6;
                                     }
                                     break;
                                 }
-                                PlaySfx(21, 0);
-                                if (saveGame->sfxVolume <= 99)
-                                    saveGame->sfxVolume += 20;
                             }
                             SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-                            if (entity->state == 1 && keyPress.B == 1) {
+                            if (entity->state == 1 && keyPress.B) {
                                 PlaySfx(23, 0);
                                 entity->touched = 0;
                                 entity->state   = 6;
@@ -261,7 +265,7 @@ void SettingsScreen_Main(void *objPtr)
                                 entity->buttons[4]->state = 1;
                             else
                                 entity->buttons[5]->state = 1;
-                            if (keyPress.left == 1 || keyPress.right == 1) {
+                            if (keyPress.left || keyPress.right) {
                                 PlaySfx(21, 0);
                                 if (saveGame->spindashEnabled) {
                                     entity->buttons[4]->state = 0;
@@ -281,7 +285,7 @@ void SettingsScreen_Main(void *objPtr)
                                 }
                                 entity->buttons[5]->blue2 = 0xC060;
                             }
-                            if (entity->state == 1 && keyPress.B == 1) {
+                            if (entity->state == 1 && keyPress.B) {
                                 PlaySfx(23, 0);
                                 entity->touched = 0;
                                 entity->state   = 6;
@@ -290,7 +294,7 @@ void SettingsScreen_Main(void *objPtr)
                         case 4:
                             if (keyPress.left || keyPress.right) {
                                 int boxRegion;
-                                if (keyPress.left == 1) {
+                                if (keyPress.left) {
                                     PlaySfx(21, 0);
                                     boxRegion = 2;
                                     if (saveGame->boxRegion - 1 >= 0)
@@ -313,7 +317,7 @@ void SettingsScreen_Main(void *objPtr)
                                 entity->buttons[saveGame->boxRegion + 6]->blue2 = 0xC060;
                             }
                             entity->buttons[saveGame->boxRegion + 6]->state = 1;
-                            if (entity->state == 1 && keyPress.B == 1) {
+                            if (entity->state == 1 && keyPress.B) {
                                 PlaySfx(23, 0);
                                 entity->touched = 0;
                                 entity->state   = 6;
@@ -321,20 +325,22 @@ void SettingsScreen_Main(void *objPtr)
                             break;
                         case 5:
                             entity->buttons[9]->state = 1;
-                            if (keyPress.start != 1 && keyPress.A != 1) {
-                                if (entity->state == 1 && keyPress.B == 1) {
+                            if (keyPress.start || keyPress.A) {
+                                PlaySfx(22, 0);
+                                entity->buttons[9]->state = 2;
+                                entity->state             = 2;
+                            }
+                            else {
+                                if (entity->state == 1 && keyPress.B) {
                                     PlaySfx(23, 0);
                                     entity->touched = 0;
                                     entity->state   = 6;
                                 }
                                 break;
                             }
-                            PlaySfx(22, 0);
-                            entity->buttons[9]->state = 2;
-                            entity->state             = 2;
                             break;
                         default:
-                            if (entity->state == 1 && keyPress.B == 1) {
+                            if (entity->state == 1 && keyPress.B) {
                                 PlaySfx(23, 0);
                                 entity->touched = 0;
                                 entity->state   = 6;
@@ -342,8 +348,10 @@ void SettingsScreen_Main(void *objPtr)
                             break;
                     }
                 }
-                usePhysicalControls = 0;
-                entity->selected    = 0;
+                else {
+                    usePhysicalControls = false;
+                    entity->selected    = 0;
+                }
             }
             else {
                 if (touches <= 0) {
@@ -355,7 +363,7 @@ void SettingsScreen_Main(void *objPtr)
                         }
                         SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                         if (!saveGame->musVolume)
-                            musicEnabled = 0;
+                            musicEnabled = false;
                     }
                     if (entity->buttons[1]->state == 1) {
                         PlaySfx(21, 0);
@@ -364,7 +372,7 @@ void SettingsScreen_Main(void *objPtr)
                             saveGame->musVolume += 20;
                         }
                         if (!musicEnabled) {
-                            musicEnabled = 1;
+                            musicEnabled = true;
                             if (entity->controlStyle)
                                 ;
                             // BYTE2(optionsMenu[1].matrix1.values[2][3]) = 1;
@@ -387,7 +395,7 @@ void SettingsScreen_Main(void *objPtr)
                         PlaySfx(21, 0);
                         entity->buttons[3]->state = 0;
                         sfxVolume                 = saveGame->sfxVolume;
-                        if (sfxVolume <= 99) {
+                        if (sfxVolume < MAX_VOLUME) {
                             sfxVolume += 20;
                             saveGame->sfxVolume = sfxVolume;
                         }
@@ -422,8 +430,7 @@ void SettingsScreen_Main(void *objPtr)
                         entity->buttons[8]->blue2 = 0xC060;
                         saveGame->boxRegion       = 0;
                     }
-                    else {
-                    }
+
                     if (entity->buttons[7]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[7]->state = 0;
@@ -435,8 +442,7 @@ void SettingsScreen_Main(void *objPtr)
                         entity->buttons[8]->blue2 = 0xC060;
                         saveGame->boxRegion       = 1;
                     }
-                    else {
-                    }
+
                     if (entity->buttons[8]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[8]->state = 0;
@@ -453,7 +459,7 @@ void SettingsScreen_Main(void *objPtr)
                         entity->buttons[9]->state = 2;
                         entity->state             = 2;
                     }
-                    if (entity->touched == 1 || keyPress.B == 1) {
+                    if (entity->touched || keyPress.B) {
                         PlaySfx(23, 0);
                         entity->touched = 0;
                         entity->state   = 6;
@@ -521,7 +527,7 @@ void SettingsScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->buttonMatrix);
             if (entity->buttons[9]->state)
                 break;
-            if (!Engine.gameDeviceType) {
+            if (Engine.gameDeviceType == RETRO_STANDARD) {
                 entity->state = 7;
                 break;
             }
@@ -538,14 +544,14 @@ void SettingsScreen_Main(void *objPtr)
                         entity->subState = 0;
                         SetStringToFont(entity->label->text, strSettings, 0);
                         if (entity->controlStyle == 1)
-                            SetGlobalVariableByName("options.touchControls", 1);
+                            SetGlobalVariableByName("options.touchControls", true);
                     }
                 }
                 else {
                     entity->subState = 1;
                     SetStringToFont(entity->label->text, strCustomizeDPad, 0);
                     BackupNativeObjectsSettings();
-                    if (Engine.language == 5 || Engine.language == 7)
+                    if (Engine.language == RETRO_JP || Engine.language == RETRO_RU)
                         entity->label->textScale = 0.15;
                     else
                         entity->label->textScale = 0.2;
@@ -558,7 +564,7 @@ void SettingsScreen_Main(void *objPtr)
                     entity->buttons[2]->y               = entity->buttons[2]->y + 4.0;
                     entity->buttons[3]->y               = entity->buttons[3]->y + 4.0;
                     entity->buttons[4]                  = CREATE_ENTITY(PushButton);
-                    entity->buttons[4]->useRenderMatrix = 1;
+                    entity->buttons[4]->useRenderMatrix = true;
                     entity->buttons[4]->x               = 88.0;
                     entity->buttons[4]->y               = 6.0;
                     entity->buttons[4]->z               = 0.0;
@@ -571,7 +577,7 @@ void SettingsScreen_Main(void *objPtr)
                     entity->virtualDPad           = CREATE_ENTITY(VirtualDPad);
                     entity->virtualDPad           = entity->virtualDPad;
                     entity->virtualDPad->editMode = 1;
-                    SetGlobalVariableByName("options.touchControls", 1);
+                    SetGlobalVariableByName("options.touchControls", true);
                 }
             }
             NewRenderState();
@@ -579,7 +585,7 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
         case 4:
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
@@ -598,7 +604,7 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
         case 5:
             CheckKeyDown(&keyDown);
@@ -612,179 +618,172 @@ void SettingsScreen_Main(void *objPtr)
                     touchCheck = CheckTouchRect(108.0, 54.0, ((64.0 * entity->buttons[1]->scale) + entity->buttons[1]->textWidth) * 0.75, 12.0) < 0;
                     if (touchCheck) {
                         entity->buttons[1]->state = 0;
-                    LABEL_7:
-                        touchCheck =
-                            CheckTouchRect(32.0, 26.0, ((64.0 * entity->buttons[2]->scale) + entity->buttons[2]->textWidth) * 0.75, 12.0) < 0;
-                        if (touchCheck) {
-                            entity->buttons[2]->state = 0;
-                            touchCheck =
-                                CheckTouchRect(108.0, 26.0, ((64.0 * entity->buttons[3]->scale) + entity->buttons[3]->textWidth) * 0.75, 12.0) < 0;
-                            if (!touchCheck) {
-                                entity->buttons[3]->state = 1;
-                                if (saveGame->vDPadOpacity <= 255)
-                                    saveGame->vDPadOpacity += 4;
-                            }
-                            else
-                                entity->buttons[3]->state = 0;
-                        }
-                        else {
-                            entity->buttons[2]->state = 1;
-                            if (saveGame->vDPadOpacity > 0) {
-                                saveGame->vDPadOpacity -= 4;
-                            }
-                        }
-                        entity->virtualDPad->alpha = saveGame->vDPadOpacity;
-                        touchCheck =
-                            CheckTouchRect(88.0, -2.0, ((64.0 * entity->buttons[9]->scale) + entity->buttons[9]->textWidth) * 0.75, 12.0) < 0;
-                        entity->buttons[4]->state = !touchCheck;
-                        entity->virtualDPad       = entity->virtualDPad;
-                        int moveTouch, jumpTouch;
-                        float relativeX, relativeY, touchX, touchY, relTouchH, relTouchW;
-                        if (entity->virtualDPad->moveFinger == -1)
-                            moveTouch = CheckTouchRect(entity->virtualDPad->moveX, entity->virtualDPad->moveY, 128.0 * entity->virtualDPad->moveSize,
-                                                       128.0 * entity->virtualDPad->moveSize);
-                        else
-                            moveTouch =
-                                CheckTouchRect(-0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * -0.5, 0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * 0.5);
-                        entity->virtualDPad = entity->virtualDPad;
-                        if (moveTouch >= 0) {
-                            touchX = touchXF[moveTouch];
-                            touchY = touchYF[moveTouch];
-                            if (entity->virtualDPad->moveFinger == -1) {
-                                relativeX                       = entity->virtualDPad->moveX - touchX;
-                                relativeY                       = entity->virtualDPad->moveY - touchY;
-                                entity->virtualDPad->moveFinger = moveTouch;
-                                entity->virtualDPad->relativeX  = relativeX;
-                                entity->virtualDPad->relativeY  = relativeY;
-                            }
-                            else {
-                                relativeX = entity->virtualDPad->relativeX;
-                                relativeY = entity->virtualDPad->relativeY;
-                            }
-                            relTouchH                  = touchY + relativeY;
-                            relTouchW                  = relativeX + touchX;
-                            float moveSizeScale        = 128.0 * entity->virtualDPad->moveSize;
-                            entity->virtualDPad->moveY = relTouchH;
-                            entity->virtualDPad->moveX = relTouchW;
-                            if (-SCREEN_CENTERX_F > (relTouchW - moveSizeScale)) {
-                                relTouchW                  = moveSizeScale - SCREEN_CENTERX_F;
-                                entity->virtualDPad->moveX = moveSizeScale - SCREEN_CENTERX_F;
-                            }
-                            if ((relTouchW + moveSizeScale) > 0.0)
-                                entity->virtualDPad->moveX = -moveSizeScale;
-                            if ((relTouchH + moveSizeScale) > -8.0) {
-                                relTouchH                  = -8.0 - moveSizeScale;
-                                entity->virtualDPad->moveY = -8.0 - moveSizeScale;
-                            }
-                            if (-SCREEN_CENTERY_F > (relTouchH - moveSizeScale))
-                                entity->virtualDPad->moveY = moveSizeScale - SCREEN_CENTERY_F;
-                        }
-                        if (entity->virtualDPad->moveFinger == -1) {
-                            jumpTouch =
-                                entity->virtualDPad->jumpFinger == -1
-                                    ? CheckTouchRect(entity->virtualDPad->jumpX, entity->virtualDPad->jumpY, 128.0 * entity->virtualDPad->jumpSize,
-                                                     128.0 * entity->virtualDPad->jumpSize)
-                                    : CheckTouchRect(SCREEN_CENTERX_F * 0.5, SCREEN_CENTERY_F * -0.5, SCREEN_CENTERX_F * 0.5, 0.5 * SCREEN_CENTERY_F);
-                            if (jumpTouch >= 0) {
-                                entity->virtualDPad = entity->virtualDPad;
-                                touchX              = touchXF[jumpTouch];
-                                touchY              = touchYF[jumpTouch];
-                                if (entity->virtualDPad->jumpFinger == -1) {
-                                    relativeX                       = entity->virtualDPad->jumpX - touchX;
-                                    relativeY                       = entity->virtualDPad->jumpY - touchY;
-                                    entity->virtualDPad->jumpFinger = jumpTouch;
-                                    entity->virtualDPad->relativeX  = relativeX;
-                                    entity->virtualDPad->relativeY  = relativeY;
-                                }
-                                else {
-                                    relativeX = entity->virtualDPad->relativeX;
-                                    relativeY = entity->virtualDPad->relativeY;
-                                }
-                                relTouchH                  = touchY + relativeY;
-                                relTouchW                  = relativeX + touchX;
-                                float jumpScaleSize        = 128.0 * entity->virtualDPad->jumpSize;
-                                entity->virtualDPad->jumpY = relTouchH;
-                                entity->virtualDPad->jumpX = relTouchW;
-                                if ((relTouchW - jumpScaleSize) < 0.0) {
-                                    entity->virtualDPad->jumpX = jumpScaleSize;
-                                    relTouchW                  = jumpScaleSize;
-                                }
-                                if ((relTouchW + jumpScaleSize) > SCREEN_CENTERX_F)
-                                    entity->virtualDPad->jumpX = SCREEN_CENTERX_F - jumpScaleSize;
-                                if ((relTouchH + jumpScaleSize) > -8.0) {
-                                    relTouchH                  = -8.0 - jumpScaleSize;
-                                    entity->virtualDPad->jumpY = -8.0 - jumpScaleSize;
-                                }
-                                if (-SCREEN_CENTERY_F > (relTouchH - jumpScaleSize))
-                                    entity->virtualDPad->jumpY = jumpScaleSize - SCREEN_CENTERY_F;
-                            }
-                        }
-                        entity->touched = CheckTouchRect(136.0, 88.0, 32.0, 16.0) >= 0;
-                        if (entity->state == 5 && keyPress.B == 1) {
-                            PlaySfx(23, 0);
-                            entity->touched = 0;
-                            entity->state   = 3;
-                            SetGlobalVariableByName("options.touchControls", 0);
-                            saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
-                            saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
-                            saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;
-                            saveGame->vDPadY_Jump = -(entity->virtualDPad->jumpY - SCREEN_CENTERY_F);
-                        }
-                        break;
+
                     }
-                    entity->buttons[1]->state = 1;
-                    if (saveGame->vDPadSize <= 0x7F)
-                        saveGame->vDPadSize += 4;
+                    else {
+                        entity->buttons[1]->state = 1;
+                        if (saveGame->vDPadSize < 0x80)
+                            saveGame->vDPadSize += 4;
+                        entity->virtualDPad              = entity->virtualDPad;
+                        entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
+                        entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
+                        entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
+                    }
                 }
                 else {
                     entity->buttons[0]->state = 1;
                     if (saveGame->vDPadSize > 0x20)
                         saveGame->vDPadSize -= 4;
+                    entity->virtualDPad              = entity->virtualDPad;
+                    entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                 }
-                entity->virtualDPad              = entity->virtualDPad;
-                entity->virtualDPad->moveSize    = saveGame->vDPadSize * 0.00390625;
-                entity->virtualDPad->jumpSize    = saveGame->vDPadSize * 0.00390625;
-                entity->virtualDPad->unknownSize = saveGame->vDPadSize * 0.00390625 * 0.85000002;
-                goto LABEL_7;
+
+                touchCheck = CheckTouchRect(32.0, 26.0, ((64.0 * entity->buttons[2]->scale) + entity->buttons[2]->textWidth) * 0.75, 12.0) < 0;
+                if (touchCheck) {
+                    entity->buttons[2]->state = 0;
+                    touchCheck = CheckTouchRect(108.0, 26.0, ((64.0 * entity->buttons[3]->scale) + entity->buttons[3]->textWidth) * 0.75, 12.0) < 0;
+                    if (!touchCheck) {
+                        entity->buttons[3]->state = 1;
+                        if (saveGame->vDPadOpacity <= 255)
+                            saveGame->vDPadOpacity += 4;
+                    }
+                    else
+                        entity->buttons[3]->state = 0;
+                }
+                else {
+                    entity->buttons[2]->state = 1;
+                    if (saveGame->vDPadOpacity > 0) {
+                        saveGame->vDPadOpacity -= 4;
+                    }
+                }
+                entity->virtualDPad->alpha = saveGame->vDPadOpacity;
+                touchCheck = CheckTouchRect(88.0, -2.0, ((64.0 * entity->buttons[9]->scale) + entity->buttons[9]->textWidth) * 0.75, 12.0) < 0;
+                entity->buttons[4]->state = !touchCheck;
+                entity->virtualDPad       = entity->virtualDPad;
+                int moveTouch, jumpTouch;
+                float relativeX, relativeY, touchX, touchY, relTouchH, relTouchW;
+                if (entity->virtualDPad->moveFinger == -1)
+                    moveTouch = CheckTouchRect(entity->virtualDPad->moveX, entity->virtualDPad->moveY, 128.0 * entity->virtualDPad->moveSize,
+                                               128.0 * entity->virtualDPad->moveSize);
+                else
+                    moveTouch = CheckTouchRect(-0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * -0.5, 0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * 0.5);
+                entity->virtualDPad = entity->virtualDPad;
+                if (moveTouch >= 0) {
+                    touchX = touchXF[moveTouch];
+                    touchY = touchYF[moveTouch];
+                    if (entity->virtualDPad->moveFinger == -1) {
+                        relativeX                       = entity->virtualDPad->moveX - touchX;
+                        relativeY                       = entity->virtualDPad->moveY - touchY;
+                        entity->virtualDPad->moveFinger = moveTouch;
+                        entity->virtualDPad->relativeX  = relativeX;
+                        entity->virtualDPad->relativeY  = relativeY;
+                    }
+                    else {
+                        relativeX = entity->virtualDPad->relativeX;
+                        relativeY = entity->virtualDPad->relativeY;
+                    }
+                    relTouchH                  = touchY + relativeY;
+                    relTouchW                  = relativeX + touchX;
+                    float moveSizeScale        = 128.0 * entity->virtualDPad->moveSize;
+                    entity->virtualDPad->moveY = relTouchH;
+                    entity->virtualDPad->moveX = relTouchW;
+                    if (-SCREEN_CENTERX_F > (relTouchW - moveSizeScale)) {
+                        relTouchW                  = moveSizeScale - SCREEN_CENTERX_F;
+                        entity->virtualDPad->moveX = moveSizeScale - SCREEN_CENTERX_F;
+                    }
+                    if ((relTouchW + moveSizeScale) > 0.0)
+                        entity->virtualDPad->moveX = -moveSizeScale;
+                    if ((relTouchH + moveSizeScale) > -8.0) {
+                        relTouchH                  = -8.0 - moveSizeScale;
+                        entity->virtualDPad->moveY = -8.0 - moveSizeScale;
+                    }
+                    if (-SCREEN_CENTERY_F > (relTouchH - moveSizeScale))
+                        entity->virtualDPad->moveY = moveSizeScale - SCREEN_CENTERY_F;
+                }
+                if (entity->virtualDPad->moveFinger == -1) {
+                    jumpTouch = entity->virtualDPad->jumpFinger == -1
+                                    ? CheckTouchRect(entity->virtualDPad->jumpX, entity->virtualDPad->jumpY, 128.0 * entity->virtualDPad->jumpSize,
+                                                     128.0 * entity->virtualDPad->jumpSize)
+                                    : CheckTouchRect(SCREEN_CENTERX_F * 0.5, SCREEN_CENTERY_F * -0.5, SCREEN_CENTERX_F * 0.5, 0.5 * SCREEN_CENTERY_F);
+                    if (jumpTouch >= 0) {
+                        entity->virtualDPad = entity->virtualDPad;
+                        touchX              = touchXF[jumpTouch];
+                        touchY              = touchYF[jumpTouch];
+                        if (entity->virtualDPad->jumpFinger == -1) {
+                            relativeX                       = entity->virtualDPad->jumpX - touchX;
+                            relativeY                       = entity->virtualDPad->jumpY - touchY;
+                            entity->virtualDPad->jumpFinger = jumpTouch;
+                            entity->virtualDPad->relativeX  = relativeX;
+                            entity->virtualDPad->relativeY  = relativeY;
+                        }
+                        else {
+                            relativeX = entity->virtualDPad->relativeX;
+                            relativeY = entity->virtualDPad->relativeY;
+                        }
+                        relTouchH                  = touchY + relativeY;
+                        relTouchW                  = relativeX + touchX;
+                        float jumpScaleSize        = 128.0 * entity->virtualDPad->jumpSize;
+                        entity->virtualDPad->jumpY = relTouchH;
+                        entity->virtualDPad->jumpX = relTouchW;
+                        if ((relTouchW - jumpScaleSize) < 0.0) {
+                            entity->virtualDPad->jumpX = jumpScaleSize;
+                            relTouchW                  = jumpScaleSize;
+                        }
+                        if ((relTouchW + jumpScaleSize) > SCREEN_CENTERX_F)
+                            entity->virtualDPad->jumpX = SCREEN_CENTERX_F - jumpScaleSize;
+                        if ((relTouchH + jumpScaleSize) > -8.0) {
+                            relTouchH                  = -8.0 - jumpScaleSize;
+                            entity->virtualDPad->jumpY = -8.0 - jumpScaleSize;
+                        }
+                        if (-SCREEN_CENTERY_F > (relTouchH - jumpScaleSize))
+                            entity->virtualDPad->jumpY = jumpScaleSize - SCREEN_CENTERY_F;
+                    }
+                }
+                entity->touched = CheckTouchRect(136.0, 88.0, 32.0, 16.0) >= 0;
             }
-            entity->virtualDPad             = entity->virtualDPad;
-            entity->virtualDPad->moveFinger = -1;
-            entity->virtualDPad->jumpFinger = -1;
-            entity->buttons[0]->state       = 0;
-            entity->buttons[1]->state       = 0;
-            entity->buttons[2]->state       = 0;
-            entity->buttons[3]->state       = 0;
-            if (entity->touched == 1) {
-                PlaySfx(23, 0);
-                entity->touched = 0;
-                entity->state   = 3;
-                SetGlobalVariableByName("options.touchControls", 0);
-                saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
-                saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
-                saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;
-                saveGame->vDPadY_Jump = -(entity->virtualDPad->jumpY - SCREEN_CENTERY_F);
+            else {
+                entity->virtualDPad             = entity->virtualDPad;
+                entity->virtualDPad->moveFinger = -1;
+                entity->virtualDPad->jumpFinger = -1;
+                entity->buttons[0]->state       = 0;
+                entity->buttons[1]->state       = 0;
+                entity->buttons[2]->state       = 0;
+                entity->buttons[3]->state       = 0;
+                if (entity->touched) {
+                    PlaySfx(23, 0);
+                    entity->touched = false;
+                    entity->state   = 3;
+                    SetGlobalVariableByName("options.touchControls", 0);
+                    saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
+                    saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
+                    saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;
+                    saveGame->vDPadY_Jump = -(entity->virtualDPad->jumpY - SCREEN_CENTERY_F);
+                }
+                if (entity->buttons[4]->state == 1) {
+                    entity->buttons[4]->state = 0;
+                    PlaySfx(39, 0);
+                    saveGame->vDPadSize              = 64;
+                    saveGame->vDPadX_Move            = 56;
+                    saveGame->vDPadY_Move            = 184;
+                    saveGame->vDPadX_Jump            = -56;
+                    saveGame->vDPadY_Jump            = 188;
+                    saveGame->vDPadOpacity           = 160;
+                    entity->virtualDPad->alpha       = 160;
+                    entity->virtualDPad->moveX       = saveGame->vDPadX_Move - SCREEN_CENTERX_F;
+                    entity->virtualDPad->moveY       = -(saveGame->vDPadY_Move - SCREEN_CENTERY_F);
+                    entity->virtualDPad->jumpX       = saveGame->vDPadX_Jump + SCREEN_CENTERX_F;
+                    entity->virtualDPad->jumpY       = -(saveGame->vDPadY_Jump - SCREEN_CENTERY_F);
+                    entity->virtualDPad->moveFinger  = -1;
+                    entity->virtualDPad->jumpFinger  = -1;
+                    entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
+                }
             }
-            if (entity->buttons[4]->state == 1) {
-                entity->buttons[4]->state = 0;
-                PlaySfx(39, 0);
-                saveGame->vDPadSize              = 64;
-                saveGame->vDPadX_Move            = 56;
-                saveGame->vDPadY_Move            = 184;
-                saveGame->vDPadX_Jump            = -56;
-                saveGame->vDPadY_Jump            = 188;
-                saveGame->vDPadOpacity           = 160;
-                entity->virtualDPad->alpha       = 160;
-                entity->virtualDPad->moveX       = saveGame->vDPadX_Move - SCREEN_CENTERX_F;
-                entity->virtualDPad->moveY       = -(saveGame->vDPadY_Move - SCREEN_CENTERY_F);
-                entity->virtualDPad->jumpX       = saveGame->vDPadX_Jump + SCREEN_CENTERX_F;
-                entity->virtualDPad->jumpY       = -(saveGame->vDPadY_Jump - SCREEN_CENTERY_F);
-                entity->virtualDPad->moveFinger  = -1;
-                entity->virtualDPad->jumpFinger  = -1;
-                entity->virtualDPad->moveSize    = saveGame->vDPadSize * 0.00390625;
-                entity->virtualDPad->jumpSize    = saveGame->vDPadSize * 0.00390625;
-                entity->virtualDPad->unknownSize = saveGame->vDPadSize * 0.00390625 * 0.85;
-            }
-            if (entity->state == 5 && keyPress.B == 1) {
+
+            if (entity->state == 5 && keyPress.B) {
                 PlaySfx(23, 0);
                 entity->touched = 0;
                 entity->state   = 3;
@@ -798,7 +797,12 @@ void SettingsScreen_Main(void *objPtr)
         case 6: {
             if (entity->alpha > 0)
                 entity->alpha -= 8;
-            entity->buttonMatScale += (((entity->timer < 0.2) ? 1.5f : -1.0f) - entity->buttonMatScale) / ((60.0 * Engine.deltaTime) * 8.0);
+
+            if (entity->timer < 0.2)
+                entity->buttonMatScale = fmaxf(entity->buttonMatScale + ((1.5f - entity->buttonMatScale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+            else
+                entity->buttonMatScale = fmaxf(entity->buttonMatScale + ((-1.0f - entity->buttonMatScale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+
             NewRenderState();
             matrixScaleXYZF(&entity->buttonMatrix, entity->buttonMatScale, entity->buttonMatScale, 1.0);
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
@@ -808,60 +812,48 @@ void SettingsScreen_Main(void *objPtr)
             for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
 
             entity->timer += Engine.deltaTime;
-            if (entity->timer <= 0.5)
-                break;
-            optionsMenu->state = 7;
-            RemoveNativeObject(entity->buttons[9]);
-            RemoveNativeObject(entity->buttons[8]);
-            RemoveNativeObject(entity->buttons[7]);
-            RemoveNativeObject(entity->buttons[6]);
-            RemoveNativeObject(entity->buttons[5]);
-            RemoveNativeObject(entity->buttons[4]);
-            RemoveNativeObject(entity->buttons[3]);
-            RemoveNativeObject(entity->buttons[2]);
-            RemoveNativeObject(entity->buttons[1]);
-            RemoveNativeObject(entity->buttons[0]);
-            RemoveNativeObject(entity->label);
-            RemoveNativeObject(entity);
-            Engine.gameMode = 0;
-            if (saveGame->spindashEnabled == 1) {
-                SetGlobalVariableByName("options.originalControls", 0);
-                SetGlobalVariableByName("options.airSpeedCap", 0);
-            }
-            else {
-                SetGlobalVariableByName("options.originalControls", 1);
-                SetGlobalVariableByName("options.airSpeedCap", 1);
-            }
-            int gameRegion = saveGame->boxRegion, newBoxTex;
-            if (Engine.globalBoxRegion != gameRegion) {
-                if (Engine.globalBoxRegion == 1) {
-                    newBoxTex  = LoadTexture("Data/Game/Models/Package_US.png", 3);
-                    gameRegion = saveGame->boxRegion;
+            if (entity->timer > 0.5) {
+                optionsMenu->state = 7;
+                RemoveNativeObject(entity->buttons[9]);
+                RemoveNativeObject(entity->buttons[8]);
+                RemoveNativeObject(entity->buttons[7]);
+                RemoveNativeObject(entity->buttons[6]);
+                RemoveNativeObject(entity->buttons[5]);
+                RemoveNativeObject(entity->buttons[4]);
+                RemoveNativeObject(entity->buttons[3]);
+                RemoveNativeObject(entity->buttons[2]);
+                RemoveNativeObject(entity->buttons[1]);
+                RemoveNativeObject(entity->buttons[0]);
+                RemoveNativeObject(entity->label);
+                RemoveNativeObject(entity);
+                Engine.gameMode = ENGINE_MAINGAME;
+                if (saveGame->spindashEnabled) {
+                    SetGlobalVariableByName("options.originalControls", false);
+                    SetGlobalVariableByName("options.airSpeedCap", false);
                 }
-                else if (Engine.globalBoxRegion) {
-                    if (Engine.globalBoxRegion == 2) {
-                        newBoxTex  = LoadTexture("Data/Game/Models/Package_EU.png", 3);
-                        gameRegion = saveGame->boxRegion;
+                else {
+                    SetGlobalVariableByName("options.originalControls", true);
+                    SetGlobalVariableByName("options.airSpeedCap", true);
+                }
+                int gameRegion = saveGame->boxRegion, newBoxTex;
+                if (Engine.globalBoxRegion != gameRegion) {
+                    int package = 0;
+                    switch (Engine.globalBoxRegion) {
+                        case 0: package = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA8888); break;
+                        case 1: package = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA8888); break;
+                        case 2: package = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA8888); break;
+                    }
+                    Engine.globalBoxRegion = gameRegion;
+                    switch (Engine.globalBoxRegion) {
+                        case 0: ReplaceTexture("Data/Game/Models/Package_JP.png", package); break;
+                        case 1: ReplaceTexture("Data/Game/Models/Package_US.png", package); break;
+                        case 2: ReplaceTexture("Data/Game/Models/Package_EU.png", package); break;
                     }
                 }
-                else {
-                    newBoxTex  = LoadTexture("Data/Game/Models/Package_JP.png", 3);
-                    gameRegion = saveGame->boxRegion;
-                }
-                Engine.globalBoxRegion = gameRegion;
-                if (gameRegion == 1) {
-                    ReplaceTexture("Data/Game/Models/Package_US.png", newBoxTex);
-                }
-                else if (gameRegion) {
-                    if (gameRegion == 2)
-                        ReplaceTexture("Data/Game/Models/Package_EU.png", newBoxTex);
-                }
-                else {
-                    ReplaceTexture("Data/Game/Models/Package_JP.png", newBoxTex);
-                }
+                WriteSaveRAMData();
+                return;
             }
-            WriteSaveRAMData();
-            return;
+            break;
         }
         case 7: {
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
@@ -874,7 +866,7 @@ void SettingsScreen_Main(void *objPtr)
                         entity->subState = 0;
                         SetStringToFont(entity->label->text, strSettings, 0);
                         if (entity->controlStyle == 1)
-                            SetGlobalVariableByName("options.touchControls", 1);
+                            SetGlobalVariableByName("options.touchControls", true);
                     }
                 }
                 else {
@@ -900,7 +892,7 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
         }
         case 8:
@@ -920,14 +912,14 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
         case 9:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
             if (touches <= 0) {
-                if (entity->touched == 1) {
+                if (entity->touched) {
                     PlaySfx(23, 0);
                     entity->touched = 0;
                     entity->state   = 7;
@@ -937,20 +929,20 @@ void SettingsScreen_Main(void *objPtr)
             else {
                 entity->touched = CheckTouchRect(136.0, 88.0, 32.0, 16.0) >= 0;
             }
-            if (entity->state != 9 || keyPress.B != 1)
-                break;
-            PlaySfx(23, 0);
-            entity->touched = 0;
-            entity->state   = 7;
+            if (keyPress.B) {
+                PlaySfx(23, 0);
+                entity->touched = 0;
+                entity->state   = 7;
+            }
             break;
         default: break;
     }
-    RenderMesh(entity->panelMesh, 0, 0);
+    RenderMesh(entity->panelMesh, 0, false);
     switch (entity->subState) {
         case 1:
             if (Engine.language == 5) {
-                RenderText(entity->musicText, 1, -128.0, 58.0, 0, 0.090000004, 255);
-                RenderText(entity->sfxText, 1, -128.0, 30.0, 0, 0.090000004, 255);
+                RenderText(entity->musicText, 1, -128.0, 58.0, 0, 0.09, 255);
+                RenderText(entity->sfxText, 1, -128.0, 30.0, 0, 0.09, 255);
             }
             else {
                 RenderText(entity->musicText, 1, -128.0, 58.0, 0, 0.125, 255);
@@ -964,7 +956,7 @@ void SettingsScreen_Main(void *objPtr)
             if (entity->virtualDPad->jumpFinger >= 0)
                 RenderRect(0.0, 0.0, 0.0, SCREEN_CENTERX_F, SCREEN_CENTERY_F, 255, 0, 0, 64);
             break;
-        case 2: RenderImage(0.0, 0.0, 0.0, 0.27500001, 0.27500001, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, entity->controllerTex); break;
+        case 2: RenderImage(0.0, 0.0, 0.0, 0.275, 0.275, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, entity->controllerTex); break;
         case 0:
             if (entity->selected == 1)
                 SetRenderVertexColor(255, 255, 0);
@@ -984,7 +976,7 @@ void SettingsScreen_Main(void *objPtr)
             else
                 SetRenderVertexColor(255, 255, 255);
             if (Engine.language == 7)
-                RenderText(entity->sfxText, 1, -128.0, 26.0, 0, 0.090000004, 255);
+                RenderText(entity->sfxText, 1, -128.0, 26.0, 0, 0.09, 255);
             else
                 RenderText(entity->sfxText, 1, -128.0, 26.0, 0, 0.125, 255);
             if (entity->selected == 3)
@@ -992,8 +984,8 @@ void SettingsScreen_Main(void *objPtr)
             else
                 SetRenderVertexColor(255, 255, 255);
             if (!entity->controlStyle) {
-                if ((Engine.language - 1) <= 6u && ((1 << (Engine.language - 1)) & 0x43) != 0)
-                    RenderText(entity->spindashText, 1, -128.0, -6.0, 0, 0.090000004, 255);
+                if ((Engine.language - 1) <= 6 && ((1 << (Engine.language - 1)) & 0x43))
+                    RenderText(entity->spindashText, 1, -128.0, -6.0, 0, 0.09, 255);
                 else
                     RenderText(entity->spindashText, 1, -128.0, -6.0, 0, 0.125, 255);
             }
@@ -1006,15 +998,14 @@ void SettingsScreen_Main(void *objPtr)
             break;
     }
     NewRenderState();
-    SetRenderMatrix(0);
+    SetRenderMatrix(NULL);
     if (entity->subState) {
         if (entity->subState >= 0 && entity->subState <= 2) {
-            RenderImage(136.0, 88.0, 160.0, 0.25, 0.25, 64.0, 64.0, 128.0, 128.0, 128.0, (entity->touched == 1) ? 128.0 : 0, entity->alpha,
+            RenderImage(136.0, 88.0, 160.0, 0.25, 0.25, 64.0, 64.0, 128.0, 128.0, 128.0, entity->touched ? 128.0 : 0, entity->alpha,
                         entity->arrowsTex);
         }
     }
     else {
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, (entity->touched == 1) ? 128.0 : 0, entity->alpha,
-                    entity->arrowsTex);
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, entity->touched ? 128.0 : 0, entity->alpha, entity->arrowsTex);
     }
 }
