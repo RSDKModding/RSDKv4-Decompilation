@@ -3,27 +3,20 @@
 void SettingsScreen_Create(void *objPtr)
 {
     RSDK_THIS(SettingsScreen);
-    NativeEntity_TextLabel *label;   // eax
-    NativeEntity_PushButton *button; // eax MAPDST
-    int blue;                        // ecx
-    bool v9;                         // zf
-    bool v11;                        // cf
-    int v14;                         // ecx
-    int v16;                         // ecx
-    int v19;                         // eax
 
+    NativeEntity_PushButton *button;
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
-    label            = CREATE_ENTITY(TextLabel);
-    entity->label    = label;
-    label->useMatrix = 1;
-    label->fontID    = 0;
-    label->textScale = 0.2;
-    label->textAlpha = 256;
-    label->textX     = -144.0;
-    label->textY     = 100.0;
-    label->textZ     = 16.0;
-    label->alignment = 0;
+    NativeEntity_TextLabel *label = CREATE_ENTITY(TextLabel);
+    entity->label                 = label;
+    label->useMatrix              = 1;
+    label->fontID                 = 0;
+    label->textScale              = 0.2;
+    label->textAlpha              = 256;
+    label->textX                  = -144.0;
+    label->textY                  = 100.0;
+    label->textZ                  = 16.0;
+    label->alignment              = 0;
     SetStringToFont(entity->label->text, strSettings, 0);
     entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->panelMesh, 0, 0, 0, 0xC0);
@@ -85,7 +78,6 @@ void SettingsScreen_Create(void *objPtr)
     button->blue            = saveGame->boxRegion == 1 ? 0xA048 : 0x6020;
     SetStringToFont8(entity->buttons[7]->text, (char *)"US", 1);
     button                  = CREATE_ENTITY(PushButton);
-    v16                     = 0xC060;
     entity->buttons[8]      = button;
     button->x               = 100.0;
     button->y               = -34.0;

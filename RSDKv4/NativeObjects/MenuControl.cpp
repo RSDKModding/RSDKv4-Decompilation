@@ -44,31 +44,30 @@ void MenuControl_Create(void *objPtr)
     entity->buttonFlags[entity->buttonCount] = BUTTON_OPTIONS;
     entity->buttonCount++;
 
-    
-    entity->backButton                       = CREATE_ENTITY(BackButton);
-    entity->backButton->visible      = false;
-    entity->backButton->translateX   = 240.0;
-    entity->backButton->translateY   = -160.0;
-    entity->backButton->translateZ   = 0.0;
-    
+    entity->backButton             = CREATE_ENTITY(BackButton);
+    entity->backButton->visible    = false;
+    entity->backButton->translateX = 240.0;
+    entity->backButton->translateY = -160.0;
+    entity->backButton->translateZ = 0.0;
+
     entity->segaIDButton             = CREATE_ENTITY(SegaIDButton);
     entity->segaIDButton->translateY = -92.0;
     entity->segaIDButton->texX       = 0.0;
     entity->segaIDButton->translateX = SCREEN_CENTERX_F - 32.0;
 
-    entity->float28                  = 0.15707964;
-    entity->float2C                  = 0.078539819;
-    entity->float30                  = (entity->buttonCount * 0.15707964) * 0.5;
+    entity->float28 = 0.15707964;
+    entity->float2C = 0.078539819;
+    entity->float30 = (entity->buttonCount * 0.15707964) * 0.5;
 
     float offset = 0.0;
     for (int b = 0; b < entity->buttonCount; ++b) {
-        NativeEntity_AchievementsButton *button             = entity->buttons[b];
+        NativeEntity_AchievementsButton *button = entity->buttons[b];
         float sin                               = sinf(offset + entity->float18);
-        float cos                                     = cosf(entity->float18 + offset);
-        button->translateX = 1024.0 * sin;
-        button->translateZ = (cos * -512.0) + 672.0;
-        button->translateY = (128.0 * sin) + 16.0;
-        button->visible    = button->translateZ <= 288.0;
+        float cos                               = cosf(entity->float18 + offset);
+        button->translateX                      = 1024.0 * sin;
+        button->translateZ                      = (cos * -512.0) + 672.0;
+        button->translateY                      = (128.0 * sin) + 16.0;
+        button->visible                         = button->translateZ <= 288.0;
         offset += entity->float28;
     }
 
@@ -153,7 +152,7 @@ void MenuControl_Main(void *objPtr)
                         }
                         break;
                     }
-                    case 2: { //touch release
+                    case 2: { // touch release
                         entity->field_70 = entity->field_70 / (1.125 * (60.0 * Engine.deltaTime));
                         entity->float18 += entity->field_70;
 
@@ -392,7 +391,7 @@ void MenuControl_Main(void *objPtr)
                         break;
                     case BUTTON_ACHIEVEMENTS:
                         entity->state = 0;
-                        if (Engine.onlineActive) {
+                        if (!Engine.onlineActive) {
                             ShowAchievementsScreen();
                         }
                         else {
