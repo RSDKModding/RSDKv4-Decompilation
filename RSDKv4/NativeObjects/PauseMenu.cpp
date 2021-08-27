@@ -2,16 +2,6 @@
 
 TextMenu pauseTextMenu;
 
-int CheckTouchRect(int x1, int y1, int x2, int y2)
-{
-    for (int f = 0; f < touches; ++f) {
-        if (touchDown[f] && touchX[f] > x1 && touchX[f] < x2 && touchY[f] > y1 && touchY[f] < y2) {
-            return f;
-        }
-    }
-    return -1;
-}
-
 void PauseMenu_Create(void *objPtr)
 {
     RSDK_THIS(PauseMenu);

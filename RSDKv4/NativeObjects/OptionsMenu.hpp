@@ -7,7 +7,7 @@ struct NativeEntity_OptionsMenu : NativeEntityBase {
     int field_18;
     NativeEntity_MenuControl *menuControl;
     NativeEntity_InstructionsScreen *instructionsScreen;
-    NativeEntityBase *field_24;
+    NativeEntity_SettingsScreen *settingsScreen;
     NativeEntity_AboutScreen *aboutScreen;
     NativeEntity_StaffCredits *staffCredits;
     NativeEntity_TextLabel *labelPtr;

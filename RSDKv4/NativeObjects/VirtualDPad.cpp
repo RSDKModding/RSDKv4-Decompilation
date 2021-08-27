@@ -14,8 +14,8 @@ void VirtualDPad_Create(void *objPtr)
     entity->jumpY       = -(float)(saveGame->vDPadY_Jump - screenYCenter);
     entity->pauseX      = screenXCenter - 76.0f;
     entity->pauseX_S    = screenXCenter - 52.0f;
-    entity->dword5C     = -1;
-    entity->dword60     = -1;
+    entity->moveFinger  = -1;
+    entity->jumpFinger  = -1;
 
     float dpadSize              = saveGame->vDPadSize * (1 / 256.0f);
     entity->moveSize            = dpadSize;
@@ -31,7 +31,7 @@ void VirtualDPad_Main(void *objPtr)
     RSDK_THIS(VirtualDPad);
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
-    if (globalVariables[entity->useTouchControls] && (globalVariables[entity->usePhysicalControls] || entity->field_70 == 1)) {
+    if (globalVariables[entity->useTouchControls] && (globalVariables[entity->usePhysicalControls] || entity->editMode == 1)) {
         if (entity->alpha < saveGame->vDPadOpacity) {
             entity->alpha += 4;
             if (entity->pauseAlpha <= 254) {

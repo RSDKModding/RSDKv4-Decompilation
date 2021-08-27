@@ -205,8 +205,8 @@ void OptionsMenu_Main(void *objPtr)
                         // entity->instructionsScreen->optionsMenu = entity;
                         break;
                     case 1:
-                        // entity->field_24  = CREATE_ENTITY(SettingsScreen);
-                        // entity->field_24->optionsMenu = entity;
+                        entity->settingsScreen              = CREATE_ENTITY(SettingsScreen);
+                        entity->settingsScreen->optionsMenu = entity;
                         break;
                     case 2:
                         entity->aboutScreen = CREATE_ENTITY(AboutScreen);

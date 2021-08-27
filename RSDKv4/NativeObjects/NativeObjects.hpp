@@ -5,6 +5,7 @@
 #define CREATE_ENTITY(type) ((NativeEntity_##type *)CreateNativeObject(type##_Create, type##_Main))
 
 extern bool usePhysicalControls;
+extern byte timeAttackTex[0x10];
 
 #include "MenuBG.hpp"
 #include "TextLabel.hpp"
@@ -14,6 +15,7 @@ extern bool usePhysicalControls;
 #include "FadeScreen.hpp"
 #include "VirtualDPad.hpp"
 #include "VirtualDPadM.hpp"
+#include "SettingsScreen.hpp"
 #include "RetroGameLoop.hpp"
 #include "PauseMenu.hpp"
 #include "SegaSplash.hpp"

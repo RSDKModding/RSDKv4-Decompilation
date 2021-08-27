@@ -19,17 +19,17 @@ struct NativeEntity_VirtualDPad : NativeEntityBase {
     float pauseX_S;
     float pauseY;
     int pauseAlpha;
-    int field_54;
-    int field_58;
-    byte dword5C;
-    byte dword60;
+    float relativeX;
+    float relativeY;
+    byte moveFinger;
+    byte jumpFinger;
     int useTouchControls;
     int usePhysicalControls;
     int isVSMode;
-    byte field_70;
+    byte editMode;
 };
 
 void VirtualDPad_Create(void *objPtr);
 void VirtualDPad_Main(void *objPtr);
 
-#endif //!NATIVE_VIRTUALDPAD_H
+#endif //! NATIVE_VIRTUALDPAD_H

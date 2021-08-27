@@ -51,6 +51,8 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
 void PauseMenu_Create(void *objPtr);
 void PauseMenu_Main(void *objPtr);
 
+// added by me rmg
 void PauseMenu_Render(void *objPtr);
+void PauseMenu_CheckTouch(void *objPtr);
 
 #endif // NATIVE_PAUSEMENU_H

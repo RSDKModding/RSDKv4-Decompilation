@@ -486,7 +486,6 @@ int LoadTexture(const char *filePath, int format)
             texture->format      = format;
             StrCopy(texture->fileName, filePath);
 
-            
             float normalize = 0;
             if (FindStringToken(fileName, "@2", 1) > 0)
                 normalize = 2.0;
