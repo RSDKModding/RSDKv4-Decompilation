@@ -44,16 +44,16 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
-                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                            Engine.gameMode = ENGINE_INITPAUSE;
+                        //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                        //    Engine.gameMode = ENGINE_INITPAUSE;
                         break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
-                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                    Engine.gameMode = ENGINE_INITPAUSE;
+                //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                //    Engine.gameMode = ENGINE_INITPAUSE;
                 break;
             case SDL_APP_TERMINATING: return false;
 #endif
@@ -66,6 +66,8 @@ bool processEvents()
 
                     int width = 0, height = 0;
                     SDL_GetWindowSize(Engine.window, &width, &height);
+                    touchXF[0] = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                    touchYF[0] = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
                     touchX[0] = (touchX[0] / (float)width) * SCREEN_XSIZE;
                     touchY[0] = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
@@ -76,7 +78,7 @@ bool processEvents()
                 if (touches <= 0) { // Touch always takes priority over mouse
 #endif
                     switch (Engine.sdlEvents.button.button) {
-                        case SDL_BUTTON_LEFT: touchDown[0] = 1; break;
+                        case SDL_BUTTON_LEFT: touchDown[0] = true; break;
                     }
                     touches = 1;
 #if RETRO_USING_SDL2
@@ -88,7 +90,7 @@ bool processEvents()
                 if (touches <= 1) { // Touch always takes priority over mouse
 #endif
                     switch (Engine.sdlEvents.button.button) {
-                        case SDL_BUTTON_LEFT: touchDown[0] = 0; break;
+                        case SDL_BUTTON_LEFT: touchDown[0] = false; break;
                     }
                     touches = 0;
 #if RETRO_USING_SDL2
@@ -106,6 +108,8 @@ bool processEvents()
                         touchDown[i] = true;
                         touchX[i]    = finger->x * SCREEN_XSIZE;
                         touchY[i]    = finger->y * SCREEN_YSIZE;
+                        touchXF[i]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                        touchYF[i]   = -((finger->y * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
                     }
                 }
                 break;
@@ -117,6 +121,8 @@ bool processEvents()
                         touchDown[i] = true;
                         touchX[i]    = finger->x * SCREEN_XSIZE;
                         touchY[i]    = finger->y * SCREEN_YSIZE;
+                        touchXF[i]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                        touchYF[i]   = -((finger->y * SCREEN_XSIZE_F) - SCREEN_CENTERX_F);
                     }
                 }
                 break;
@@ -157,7 +163,8 @@ bool processEvents()
                                 saveMods();
                             }
 #endif
-
+                            ClearNativeObjects();
+                            CREATE_ENTITY(RetroGameLoop);
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
                         break;
@@ -336,8 +343,6 @@ void RetroEngine::Init()
     }
 #endif
 
-    InitNativeObjectSystem();
-
     gameMode = ENGINE_MAINGAME;
     running  = false;
 #if !RETRO_USE_ORIGINAL_CODE
@@ -421,18 +426,17 @@ void RetroEngine::Init()
         }
     }
 
+    InitNativeObjectSystem();
+
 #if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
     skipFrameIndex   = refreshRate / lower;
 
-    gameType = GAME_UNKNOWN;
+    gameType = GAME_SONIC2;
     if (strstr(gameWindowText, "Sonic 1")) {
         gameType = GAME_SONIC1;
-    }
-    if (strstr(gameWindowText, "Sonic 2")) {
-        gameType = GAME_SONIC2;
     }
 
     ReadSaveRAMData();
@@ -485,9 +489,6 @@ void RetroEngine::Init()
         StrCopy(achievements[11].name, "Beat the Clock");
     }
 
-    // note to future rdc (or anyone else): what does this do? no vars are named this
-    SetGlobalVariableByName("Engine.PlatformID", RETRO_GAMEPLATFORM);
-
     if (!skipStart)
         initStartMenu(0);
 #endif
@@ -498,6 +499,7 @@ void RetroEngine::Run()
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
     float frameDelta = 0.0f;
+    Engine.deltaTime = 0.0f;
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
@@ -507,6 +509,7 @@ void RetroEngine::Run()
             continue;
         }
         frameEnd = SDL_GetPerformanceCounter();
+        Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
 #endif
 
         running = processEvents();
@@ -530,7 +533,7 @@ void RetroEngine::Run()
             FlipScreen();
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_OPENGL && RETRO_USING_SDL2 && RETRO_HARDWARE_RENDER
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2
             SDL_GL_SwapWindow(Engine.window);
 #endif
             frameStep  = false;
@@ -672,6 +675,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
+    //TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
     AddNativeFunction("Connect2PVS", Connect2PVS);
     AddNativeFunction("Disconnect2PVS", Disconnect2PVS);
     AddNativeFunction("SendEntity", SendEntity);
@@ -681,9 +685,13 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
     AddNativeFunction("OpenModMenu", OpenModMenu);
+    //AddNativeFunction("GetModInfo", GetModInfo);
+    //AddNativeFunction("SetModInfo", SetModInfo);
+    //AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
+    AddNativeFunction("GetAchievement", GetAchievement);
 #endif
 
     return loaded;

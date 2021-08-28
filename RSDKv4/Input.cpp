@@ -7,6 +7,8 @@ int touchDown[8];
 int touchX[8];
 int touchY[8];
 int touchID[8];
+float touchXF[8];
+float touchYF[8];
 int touches = 0;
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -29,6 +31,7 @@ int lastMouseY = 0;
 struct InputDevice {
 #if RETRO_USING_SDL2
     SDL_GameController *devicePtr;
+    SDL_Haptic *hapticPtr;
 #endif
     int id;
 };
@@ -210,11 +213,21 @@ void controllerInit(byte controllerID)
         }
     }
 
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         InputDevice device;
         device.id        = 0;
         device.devicePtr = controller;
+        device.hapticPtr = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(controller));
+        if (device.hapticPtr == NULL) {
+            printLog("Could not open controller haptics...\nSDL_GetError() -> %s", SDL_GetError());
+        }
+        else {
+            if (SDL_HapticRumbleInit(device.hapticPtr) < 0) {
+                printf("Unable to initialize rumble!\nSDL_GetError() -> %s", SDL_GetError());
+            }
+        }
 
         controllers.push_back(device);
         inputType = 1;
@@ -222,20 +235,30 @@ void controllerInit(byte controllerID)
     else {
         printLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
     }
+#endif
 }
 
 void controllerClose(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
+#endif
         for (int i = 0; i < controllers.size(); ++i) {
             if (controllers[i].id == controllerID) {
                 controllers.erase(controllers.begin() + controllerID);
+#if RETRO_USING_SDL2
+                if (controllers[i].hapticPtr) {
+                    SDL_HapticClose(controllers[i].hapticPtr);
+                }
+#endif
                 break;
             }
         }
+#if RETRO_USING_SDL2
     }
+#endif
 
     if (controllers.empty())
         inputType = 0;
@@ -274,13 +297,15 @@ void InitInputDevices()
 
 void ReleaseInputDevices()
 {
-#if RETRO_USING_SDL2
     for (int i = 0; i < controllers.size(); i++) {
+#if RETRO_USING_SDL2
         if (controllers[i].devicePtr)
             SDL_GameControllerClose(controllers[i].devicePtr);
+        if (controllers[i].hapticPtr)
+            SDL_HapticClose(controllers[i].hapticPtr);
+#endif
     }
     controllers.clear();
-#endif
 }
 
 void ProcessInput()
@@ -478,4 +503,29 @@ void CheckKeyDown(InputData *input)
     input->start  = inputDevice[INPUT_START].hold;
     input->select = inputDevice[INPUT_SELECT].hold;
 #endif
+}
+
+int CheckTouchRect(float x, float y, float w, float h)
+{
+    for (int f = 0; f < touches; ++f) {
+        if (touchDown[f] && touchXF[f] > (x - w) && touchYF[f] > (y - h) && touchXF[f] <= (x + w) && touchYF[f] <= (y + h)) {
+            return f;
+        }
+    }
+    return -1;
+}
+
+int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
+{
+    MatrixF *mat = (MatrixF *)m;
+    for (int f = 0; f < touches; ++f) {
+        float valX = (((touchXF[f] * mat->values[0][0]) + (touchYF[f] * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
+        if (valX > (x - w) && (x + w) > valX) {
+            float valY =
+                (((touchXF[f] * mat->values[0][1]) + (touchYF[f] * mat->values[1][1])) + (SCREEN_YSIZE * mat->values[2][1])) + mat->values[3][1];
+            if (valY > (y - h) && (y + h) > valY)
+                return f;
+        }
+    }
+    return -1;
 }

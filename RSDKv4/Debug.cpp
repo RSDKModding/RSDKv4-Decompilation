@@ -153,7 +153,18 @@ void processStageSelect()
                     stageMode                  = DEVMENU_PLAYERSEL;
                 }
                 else if (gameMenu[0].selection2 == 13) {
-                    initStartMenu(0);
+                    ClearNativeObjects();
+                    if (skipStartMenu) {
+                        ClearGraphicsData();
+                        ClearAnimationData();
+                        activeStageList   = 0;
+                        stageMode         = STAGEMODE_LOAD;
+                        Engine.gameMode   = ENGINE_MAINGAME;
+                        stageListPosition = 0;
+                        CREATE_ENTITY(RetroGameLoop);
+                    }
+                    else
+                        CREATE_ENTITY(SegaSplash);
                 }
 #if RETRO_USE_MOD_LOADER
                 else if (gameMenu[0].selection2 == 15) {
@@ -428,31 +439,7 @@ void processStageSelect()
             }
 
             if (keyPress.B) {
-                // Reload entire engine
-                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-                if (Engine.window) {
-                    char gameTitle[0x40];
-                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
-                    SDL_SetWindowTitle(Engine.window, gameTitle);
-                }
-#endif
-
-                ReleaseStageSfx();
-                ReleaseGlobalSfx();
-                LoadGlobalSfx();
-
-                forceUseScripts = false;
-                disableFocusPause = disableFocusPause_Config;
-                for (int m = 0; m < modList.size(); ++m) {
-                    if (modList[m].useScripts && modList[m].active)
-                        forceUseScripts = true;
-                    if (modList[m].skipStartMenu && modList[m].active)
-                        skipStartMenu = true;
-                    if (modList[m].disableFocusPause && modList[m].active)
-                        disableFocusPause = true;
-                }
-                saveMods();
+                RefreshEngine();
                 setTextMenu(DEVMENU_MAIN);
             }
 
@@ -1677,33 +1664,7 @@ void processStartMenu()
             }
 
             if (keyPress.B) {
-
-                // Reload entire engine
-                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-                if (Engine.window) {
-                    char gameTitle[0x40];
-                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
-                    SDL_SetWindowTitle(Engine.window, gameTitle);
-                }
-#endif
-
-                ReleaseStageSfx();
-                ReleaseGlobalSfx();
-                LoadGlobalSfx();
-
-                forceUseScripts = false;
-                skipStartMenu   = skipStartMenu_Config;
-                disableFocusPause = disableFocusPause_Config;
-                for (int m = 0; m < modList.size(); ++m) {
-                    if (modList[m].useScripts && modList[m].active)
-                        forceUseScripts = true;
-                    if (modList[m].skipStartMenu && modList[m].active)
-                        skipStartMenu = true;
-                    if (modList[m].disableFocusPause && modList[m].active)
-                        disableFocusPause = true;
-                }
-                saveMods();
+                RefreshEngine();
 
                 if (Engine.modMenuCalled) {
                     stageMode            = STAGEMODE_LOAD;

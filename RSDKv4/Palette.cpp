@@ -9,6 +9,13 @@ ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
 ushort *activePalette = fullPalette[0]; // Ptr to the 256 colour set thats active
 
 byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
+int GFX_LINESIZE;
+int GFX_LINESIZE_MINUSONE;
+int GFX_LINESIZE_DOUBLE;
+int GFX_FRAMEBUFFERSIZE;
+int GFX_FBUFFERMINUSONE;
+
+uint gfxPalette16to32[0x10000];
 
 int fadeMode = 0;
 byte fadeA   = 0;

@@ -62,6 +62,8 @@ extern int touchDown[8];
 extern int touchX[8];
 extern int touchY[8];
 extern int touchID[8];
+extern float touchXF[8];
+extern float touchYF[8];
 extern int touches;
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -113,5 +115,8 @@ void ProcessInput();
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
+
+int CheckTouchRect(float x1, float y1, float x2, float y2);
+int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2);
 
 #endif // !INPUT_H

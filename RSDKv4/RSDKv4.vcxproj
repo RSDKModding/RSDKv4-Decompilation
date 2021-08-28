@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_HW|Win32">
@@ -200,20 +200,21 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Debug/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)" </Command>
+      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
+      <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_HW|Win32'">
@@ -223,7 +224,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_HW_REN;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -234,7 +235,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -247,20 +248,21 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_SW_REN;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Debug/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Debug/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)" </Command>
+      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
+      <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_HW|x64'">
@@ -270,7 +272,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_HW_REN;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -281,7 +283,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -296,7 +298,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -304,11 +306,12 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)" </Command>
+      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
+            </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
@@ -323,7 +326,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_HW_REN;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -336,7 +339,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -351,7 +354,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_SW_REN;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -359,11 +362,12 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)" </Command>
+      <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
+            </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 library DLL to the build directory. build should fail if it's not found</Message>
@@ -378,7 +382,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_HW_REN;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -391,7 +395,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
-copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
+                                copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copying SDL2 &amp; glew library DLLs to the build directory. build should fail if it's not found</Message>
@@ -407,12 +411,49 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="NativeObjects\AboutScreen.cpp" />
+    <ClCompile Include="NativeObjects\AchievementDisplay.cpp" />
+    <ClCompile Include="NativeObjects\AchievementsButton.cpp" />
+    <ClCompile Include="NativeObjects\AchievementsMenu.cpp" />
+    <ClCompile Include="NativeObjects\BackButton.cpp" />
+    <ClCompile Include="NativeObjects\CreditText.cpp" />
+    <ClCompile Include="NativeObjects\CWSplash.cpp" />
+    <ClCompile Include="NativeObjects\DialogPanel.cpp" />
+    <ClCompile Include="NativeObjects\FadeScreen.cpp" />
+    <ClCompile Include="NativeObjects\InstructionsScreen.cpp" />
+    <ClCompile Include="NativeObjects\LeaderboardsButton.cpp" />
+    <ClCompile Include="NativeObjects\MenuBG.cpp" />
+    <ClCompile Include="NativeObjects\MenuControl.cpp" />
+    <ClCompile Include="NativeObjects\ModInfoButton.cpp" />
+    <ClCompile Include="NativeObjects\ModsButton.cpp" />
+    <ClCompile Include="NativeObjects\ModsMenu.cpp" />
+    <ClCompile Include="NativeObjects\OptionsButton.cpp" />
+    <ClCompile Include="NativeObjects\OptionsMenu.cpp" />
+    <ClCompile Include="NativeObjects\PauseMenu.cpp" />
+    <ClCompile Include="NativeObjects\PlayerSelectScreen.cpp" />
+    <ClCompile Include="NativeObjects\PushButton.cpp" />
+    <ClCompile Include="NativeObjects\RecordsScreen.cpp" />
+    <ClCompile Include="NativeObjects\RetroGameLoop.cpp" />
+    <ClCompile Include="NativeObjects\SaveSelect.cpp" />
+    <ClCompile Include="NativeObjects\SegaIDButton.cpp" />
+    <ClCompile Include="NativeObjects\SegaSplash.cpp" />
+    <ClCompile Include="NativeObjects\SettingsScreen.cpp" />
+    <ClCompile Include="NativeObjects\StaffCredits.cpp" />
+    <ClCompile Include="NativeObjects\StartGameButton.cpp" />
+    <ClCompile Include="NativeObjects\SubMenuButton.cpp" />
+    <ClCompile Include="NativeObjects\TextLabel.cpp" />
+    <ClCompile Include="NativeObjects\TimeAttack.cpp" />
+    <ClCompile Include="NativeObjects\TimeAttackButton.cpp" />
+    <ClCompile Include="NativeObjects\TitleScreen.cpp" />
+    <ClCompile Include="NativeObjects\VirtualDPad.cpp" />
+    <ClCompile Include="NativeObjects\VirtualDPadM.cpp" />
+    <ClCompile Include="NativeObjects\MultiplayerButton.cpp" />
+    <ClCompile Include="NativeObjects\ZoneButton.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Palette.cpp" />
-    <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="Reader.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RetroEngine.cpp" />
-    <ClCompile Include="RetroGameLoop.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene3D.cpp" />
     <ClCompile Include="Script.cpp" />
@@ -428,10 +469,48 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Drawing.hpp" />
     <ClInclude Include="Ini.hpp" />
-    <ClInclude Include="PauseMenu.hpp" />
+    <ClInclude Include="NativeObjects\AboutScreen.hpp" />
+    <ClInclude Include="NativeObjects\AchievementDisplay.hpp" />
+    <ClInclude Include="NativeObjects\AchievementsButton.hpp" />
+    <ClInclude Include="NativeObjects\AchievementsMenu.hpp" />
+    <ClInclude Include="NativeObjects\BackButton.hpp" />
+    <ClInclude Include="NativeObjects\CreditText.hpp" />
+    <ClInclude Include="NativeObjects\CWSplash.hpp" />
+    <ClInclude Include="NativeObjects\DialogPanel.hpp" />
+    <ClInclude Include="NativeObjects\FadeScreen.hpp" />
+    <ClInclude Include="NativeObjects\InstructionsScreen.hpp" />
+    <ClInclude Include="NativeObjects\LeaderboardsButton.hpp" />
+    <ClInclude Include="NativeObjects\MenuBG.hpp" />
+    <ClInclude Include="NativeObjects\MenuControl.hpp" />
+    <ClInclude Include="NativeObjects\ModInfoButton.hpp" />
+    <ClInclude Include="NativeObjects\ModsButton.hpp" />
+    <ClInclude Include="NativeObjects\ModsMenu.hpp" />
+    <ClInclude Include="NativeObjects\NativeObjects.hpp" />
+    <ClInclude Include="NativeObjects\OptionsButton.hpp" />
+    <ClInclude Include="NativeObjects\OptionsMenu.hpp" />
+    <ClInclude Include="NativeObjects\PauseMenu.hpp" />
+    <ClInclude Include="NativeObjects\PlayerSelectScreen.hpp" />
+    <ClInclude Include="NativeObjects\PushButton.hpp" />
+    <ClInclude Include="NativeObjects\RecordsScreen.hpp" />
+    <ClInclude Include="NativeObjects\RetroGameLoop.hpp" />
+    <ClInclude Include="NativeObjects\SaveSelect.hpp" />
+    <ClInclude Include="NativeObjects\SegaIDButton.hpp" />
+    <ClInclude Include="NativeObjects\SegaSplash.hpp" />
+    <ClInclude Include="NativeObjects\SettingsScreen.hpp" />
+    <ClInclude Include="NativeObjects\StaffCredits.hpp" />
+    <ClInclude Include="NativeObjects\StartGameButton.hpp" />
+    <ClInclude Include="NativeObjects\SubMenuButton.hpp" />
+    <ClInclude Include="NativeObjects\TextLabel.hpp" />
+    <ClInclude Include="NativeObjects\TimeAttack.hpp" />
+    <ClInclude Include="NativeObjects\TimeAttackButton.hpp" />
+    <ClInclude Include="NativeObjects\TitleScreen.hpp" />
+    <ClInclude Include="NativeObjects\VirtualDPad.hpp" />
+    <ClInclude Include="NativeObjects\VirtualDPadM.hpp" />
+    <ClInclude Include="NativeObjects\MultiplayerButton.hpp" />
+    <ClInclude Include="NativeObjects\ZoneButton.hpp" />
     <ClInclude Include="Reader.hpp" />
+    <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="RetroGameLoop.hpp" />
     <ClInclude Include="Scene3D.hpp" />
     <ClInclude Include="Sprite.hpp" />
     <ClInclude Include="Input.hpp" />

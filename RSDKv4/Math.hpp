@@ -20,7 +20,8 @@ extern byte atanVal256[0x100 * 0x100];
 // Setup Angles
 void CalculateTrigAngles();
 
-inline int sin512(int angle) {
+inline int sin512(int angle)
+{
     if (angle < 0)
         angle = 0x200 - angle;
     angle &= 0x1FF;
@@ -53,5 +54,7 @@ inline int cos256(int angle)
 
 // Get Arc Tan value
 byte ArcTanLookup(int X, int Y);
+
+inline double DegreesToRad(float degrees) { return (M_PI / 180) * degrees; }
 
 #endif // !MATH_H

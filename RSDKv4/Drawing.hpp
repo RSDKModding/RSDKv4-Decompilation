@@ -38,6 +38,25 @@ struct GFXSurface
     int dataPosition;
 };
 
+struct DisplaySettings {
+    byte field_0;
+    int field_4;
+    int width;
+    int height;
+    int field_10;
+    int field_14;
+    int field_18;
+    int maxWidth;
+    byte field_20;
+    int field_24;
+    int field_28;
+    int field_2C;
+    int field_30;
+    int field_34;
+    int field_38;
+    int field_3C;
+};
+
 extern ushort blendLookupTable[BLENDTABLE_SIZE];
 extern ushort subtractLookupTable[BLENDTABLE_SIZE];
 extern ushort tintLookupTable[TINTTABLE_SIZE];
@@ -45,14 +64,32 @@ extern ushort tintLookupTable[TINTTABLE_SIZE];
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
+extern int SCREEN_XSIZE_F;
+extern int SCREEN_CENTERX_F;
+
+extern int SCREEN_YSIZE_F;
+extern int SCREEN_CENTERY_F;
+
 extern int touchWidth;
 extern int touchHeight;
+extern float touchWidthF;
+extern float touchHeightF;
 
 extern DrawListEntry drawListEntries[DRAWLAYER_COUNT];
 
 extern int gfxDataPosition;
 extern GFXSurface gfxSurface[SURFACE_MAX];
 extern byte graphicData[GFXDATA_MAX];
+
+extern DisplaySettings displaySettings;
+extern bool convertTo32Bit;
+extern bool mixFiltersOnJekyll;
+
+#if RETRO_USING_OPENGL
+extern GLint defaultFramebuffer;
+extern GLuint framebuffer480;
+extern GLuint renderbuffer480;
+#endif
 
 #if RETRO_HARDWARE_RENDER
 #define INDEX_LIMIT      (0xC000)
@@ -136,9 +173,9 @@ inline void ClearGraphicsData()
     gfxDataPosition = 0;
 }
 void ClearScreen(byte index);
-void SetScreenSize(int width, int height);
+void SetScreenDimensions(int width, int height);
+void SetScreenSize(int width, int lineSize);
 
-void SetScreenSize(int width, int height);
 #if RETRO_SOFTWARE_RENDER
 void CopyFrameOverlay2x();
 #endif

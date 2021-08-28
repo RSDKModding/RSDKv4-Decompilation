@@ -120,14 +120,10 @@ typedef unsigned int uint;
 #define RETRO_RENDERTYPE (RETRO_HW_RENDER)
 #endif
 
-#if RETRO_RENDERTYPE == RETRO_SW_RENDER
-#define RETRO_USING_OPENGL (0)
-#elif RETRO_RENDERTYPE == RETRO_HW_RENDER
 #define RETRO_USING_OPENGL (1)
-#endif
 
 #define RETRO_SOFTWARE_RENDER (RETRO_RENDERTYPE == RETRO_SW_RENDER)
-#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
+//#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
 
 #if RETRO_USING_OPENGL
 #include <GL/glew.h>
@@ -234,20 +230,24 @@ extern bool engineDebugMode;
 #include "Text.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
+#include "Renderer.hpp"
 
 // Native Entities
-#include "PauseMenu.hpp"
-#include "RetroGameLoop.hpp"
+#include "NativeObjects.hpp"
 
 class RetroEngine
 {
 public:
     RetroEngine()
     {
-        if (RETRO_GAMEPLATFORM == RETRO_STANDARD)
-            gamePlatform = "STANDARD";
-        else
-            gamePlatform = "MOBILE";
+        if (RETRO_GAMEPLATFORM == RETRO_STANDARD) {
+            gamePlatform   = "STANDARD";
+            gameDeviceType = RETRO_STANDARD;
+        }
+        else {
+            gamePlatform   = "MOBILE";
+            gameDeviceType = RETRO_MOBILE;
+        }
     }
 
     bool usingDataFile = false;
@@ -257,14 +257,19 @@ public:
 
     bool initialised = false;
     bool running     = false;
+    double deltaTime = 0;
 
-    int gameMode = 1;
-    int language = RETRO_EN;
-    int message  = 0;
+    int gameMode          = ENGINE_MAINGAME;
+    int language          = RETRO_EN;
+    int message           = 0;
+    int gameDeviceType    = 0;
+    int globalBoxRegion   = 0;
+    bool nativeMenuFadeIn = false;
 
-    bool trialMode      = false;
-    bool onlineActive   = true;
-    bool hapticsEnabled = true;
+    bool trialMode        = false;
+    bool onlineActive     = true;
+    bool hapticsEnabled   = true;
+    bool useHighResAssets = false;
 
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;
@@ -300,7 +305,7 @@ public:
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
-    const char *gameVersion  = "1.1.2";
+    const char *gameVersion  = "1.3.0";
     const char *gamePlatform = nullptr;
 
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
@@ -326,6 +331,7 @@ public:
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
 #endif
+    uint *texBuffer = nullptr;
 
 #if !RETRO_USE_ORIGINAL_CODE
     bool isFullScreen = false;
@@ -349,17 +355,19 @@ public:
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
-    SDL_Window *window     = nullptr;
+    SDL_Window *window = nullptr;
+#if !RETRO_USING_OPENGL
     SDL_Renderer *renderer = nullptr;
 #if RETRO_SOFTWARE_RENDER
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
 #endif // RETRO_SOFTWARE_RENDERER
+#endif
 
     SDL_Event sdlEvents;
 
 #if RETRO_USING_OPENGL
-    SDL_GLContext m_glContext; // OpenGL context
+    SDL_GLContext glContext; // OpenGL context
 #endif // RETRO_USING_OPENGL
 #endif // RETRO_USING_SDL2
 

@@ -4403,24 +4403,32 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
-                    nativeFunction[scriptEng.operands[0]](0x00, NULL);
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
+                    void (*func)(void) = (void(*)(void))nativeFunction[scriptEng.operands[0]];
+                    if (func)
+                        func();
+                }
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF) {
-                    if (StrLength(scriptText)) {
-                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
-                    }
-                    else {
-                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
-                                                              reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
-                    }
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
+                    void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                    if (func)
+                        func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
-                                                          reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
+                    if (StrLength(scriptText)) {
+                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[1], scriptText);
+                    }
+                    else {
+                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
+                    }
+                }
                 break;
             case FUNC_SETOBJECTRANGE: {
                 opcodeSize       = 0;

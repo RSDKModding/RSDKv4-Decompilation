@@ -40,7 +40,7 @@ extern ushort *strNSExitMessage;
 extern ushort *strExitGame;
 extern ushort *strNetworkMessage;
 extern ushort *strStageList[8];
-extern ushort *strSaveStageList[26];
+extern ushort *strSaveStageList[32];
 extern ushort *strNewBestTime;
 extern ushort *strRecords;
 extern ushort *strNextAct;
@@ -75,7 +75,7 @@ extern ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
 extern int stringStorePos;
 
 extern int creditsListSize;
-extern const ushort *strCreditsList[CREDITS_LIST_SIZE];
+extern ushort *strCreditsList[CREDITS_LIST_SIZE];
 extern byte creditsType[CREDITS_LIST_SIZE];
 extern float creditsAdvanceY[CREDITS_LIST_SIZE];
 
@@ -306,11 +306,10 @@ inline void ReadStringLine(char *text)
     int textPos = 0;
     while (true) {
         FileRead(&curChar, 1);
-        if (curChar == '\t' || curChar == ' ')
-            break;
+
         if (curChar == '\r' || curChar == '\n')
             break;
-        if (curChar != ';')
+        if (curChar != ';' && curChar != '\t' && curChar != ' ')
             text[textPos++] = curChar;
 
         if (ReachedEndOfFile()) {
