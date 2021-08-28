@@ -30,8 +30,8 @@ bool mixFiltersOnJekyll = false;
 
 #if RETRO_USING_OPENGL
 GLint defaultFramebuffer;
-GLuint framebuffer480;
-GLuint renderbuffer480;
+GLuint framebufferHiRes;
+GLuint renderbufferHiRes;
 #endif
 
 #if RETRO_HARDWARE_RENDER
@@ -349,16 +349,16 @@ int InitRenderDevice()
     textureList[0].heightN = 1.0f / texHeight;
 
     if (Engine.useHighResAssets) {
-        glGenFramebuffers(1, &framebuffer480);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer480);
-        glGenTextures(1, &renderbuffer480);
-        glBindTexture(GL_TEXTURE_2D, renderbuffer480);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glGenFramebuffers(1, &framebufferHiRes);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
+        glGenTextures(1, &renderbufferHiRes);
+        glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 512, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderbuffer480, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth << 1, texHeight << 1, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderbufferHiRes, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
 

@@ -87,8 +87,8 @@ extern bool mixFiltersOnJekyll;
 
 #if RETRO_USING_OPENGL
 extern GLint defaultFramebuffer;
-extern GLuint framebuffer480;
-extern GLuint renderbuffer480;
+extern GLuint framebufferHiRes;
+extern GLuint renderbufferHiRes;
 #endif
 
 #if RETRO_HARDWARE_RENDER

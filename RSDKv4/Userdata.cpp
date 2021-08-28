@@ -909,7 +909,7 @@ void receive2PVSMatchCode(int code)
 
 int ShowPromoPopup(int *a1, const char *popupName)
 {
-    printLog("Attempting to show promo popup (%p) (%s)", a1, popupName);
+    printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, a1 ? *a1 : 0);
     if (Engine.onlineActive) {
         // Do online code
         return 1;
@@ -919,11 +919,12 @@ int ShowPromoPopup(int *a1, const char *popupName)
 void ShowWebsite(int websiteID)
 {
     switch (websiteID) {
+        default: printLog("Showing unknown website: (%d)", websiteID); break;
         case 0:
-            //http://www.sega.com/mprivacy
+            printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID);
             break;
         case 1:
-            //http://www.sega.com/legal
+            printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID);
             break;
     }
 }

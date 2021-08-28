@@ -2,7 +2,7 @@
 #define STRING_H
 
 #define STRSTORAGE_SIZE (1000)
-#define STRING_SIZE (0x200)
+#define STRING_SIZE (0x400)
 
 #define CREDITS_LIST_SIZE (0x200)
 
@@ -71,7 +71,7 @@ extern ushort *strTerms;
 
 extern int stageStrCount;
 
-extern ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
+extern ushort stringStorage[STRSTORAGE_SIZE * STRING_SIZE];
 extern int stringStorePos;
 
 extern int creditsListSize;

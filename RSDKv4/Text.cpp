@@ -652,21 +652,19 @@ float GetTextWidth(ushort *text, int fontID, float scaleX)
 {
     float width      = 0.0;
     ushort character = *text++;
-    if (character) {
-        float lineMax = 0.0;
-        float w  = 0.0;
-        while (character) {
-            w += fontList[fontID].characters[character].xAdvance;
-            if (character == 1) {
-                if (w > lineMax)
-                    lineMax = w;
-                w = 0.0;
-            }
-            character = *text++;
+    float lineMax    = 0.0;
+    float w          = 0.0;
+    while (character) {
+        w += fontList[fontID].characters[character].xAdvance;
+        if (character == 1) {
+            if (w > lineMax)
+                lineMax = w;
+            w = 0.0;
         }
-
-        width = fmaxf(w, lineMax);
+        character = *text++;
     }
+
+    width = fmaxf(w, lineMax);
     return width * scaleX;
 }
 
@@ -674,13 +672,11 @@ float GetTextHeight(ushort *text, int fontID, float scaleY)
 {
     float height     = 0.0;
     ushort character = *text++;
-    if (character) {
-        while (character) {
-            if (character == 1) {
-                height += fontList[fontID].lineHeight;
-            }
-            character = *text++;
+    while (character) {
+        if (character == 1) {
+            height += fontList[fontID].lineHeight;
         }
+        character = *text++;
     }
     return height * scaleY;
 }
@@ -714,7 +710,7 @@ void SetStringToFont(ushort *text, ushort *string, int fontID)
     text[textPos] = 0;
 }
 
-void SetStringToFont8(ushort *text, char *string, int fontID)
+void SetStringToFont8(ushort *text, const char *string, int fontID)
 {
     char stringChar = *string++;
 

@@ -282,6 +282,25 @@ void RenderScene()
 {
     if (renderStateCount == -1)
         return;
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (Engine.dimTimer < Engine.dimLimit) {
+        if (Engine.dimPercent < 1.0) {
+            Engine.dimPercent += 0.05;
+            if (Engine.dimPercent > 1.0)
+                Engine.dimPercent = 1.0;
+        }
+    }
+    else if (Engine.dimPercent > 0.25 && Engine.dimLimit >= 0) {
+        Engine.dimPercent *= 0.9;
+    }
+
+    float dimAmount = Engine.dimMax * Engine.dimPercent;
+
+    if (dimAmount < 1.0)
+        RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
+#endif
+
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
@@ -410,7 +429,7 @@ void RenderScene()
 
         if (state->useFilter && mixFiltersOnJekyll) {
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer);
-            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer480);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), screenBufferVertexList);
@@ -426,7 +445,7 @@ void RenderScene()
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-            glBindTexture(GL_TEXTURE_2D, renderbuffer480);
+            glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
             glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), state->vertPtr);
             glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->texCoordX);
             glViewport(0, 0, displaySettings.width, displaySettings.height);
@@ -1047,7 +1066,7 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
             currentRenderState.id         = textureList[texture].id;
             currentRenderState.useColours = true;
             currentRenderState.useTexture = true;
-            currentRenderState.useFilter  = 0;
+            currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
             currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
@@ -1065,7 +1084,7 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
                 currentRenderState.id         = textureList[texture].id;
                 currentRenderState.useColours = true;
                 currentRenderState.useTexture = true;
-                currentRenderState.useFilter  = 0;
+                currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
                 currentRenderState.indexPtr   = drawIndexList;
                 renderStateCount++;
@@ -1136,7 +1155,7 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
             currentRenderState.id         = textureList[texture].id;
             currentRenderState.useColours = true;
             currentRenderState.useTexture = true;
-            currentRenderState.useFilter  = 0;
+            currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
             currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
@@ -1154,7 +1173,7 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
                 currentRenderState.id         = textureList[texture].id;
                 currentRenderState.useColours = true;
                 currentRenderState.useTexture = true;
-                currentRenderState.useFilter  = 0;
+                currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
                 currentRenderState.indexPtr   = drawIndexList;
                 renderStateCount++;
@@ -1234,7 +1253,7 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
             currentRenderState.id         = textureList[texture].id;
             currentRenderState.useColours = true;
             currentRenderState.useTexture = true;
-            currentRenderState.useFilter  = 0;
+            currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
             currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
@@ -1252,7 +1271,7 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
                 currentRenderState.id         = textureList[texture].id;
                 currentRenderState.useColours = true;
                 currentRenderState.useTexture = true;
-                currentRenderState.useFilter  = 0;
+                currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
                 currentRenderState.indexPtr   = drawIndexList;
                 renderStateCount++;
@@ -1331,7 +1350,7 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
             currentRenderState.id         = textureList[font->characters[*text].textureID].id;
             currentRenderState.useColours = true;
             currentRenderState.useTexture = true;
-            currentRenderState.useFilter  = 0;
+            currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
             currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
@@ -1350,63 +1369,65 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
                 TextureInfo *texture          = &textureList[fontChar->textureID];
 
                 if (texture->format) {
-                    if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
-                        currentRenderState.indexCount       = 0;
-                        renderStateList[renderStateCount++] = currentRenderState;
-                        currentRenderState.vertPtr          = &drawVertexList[vertexListSize];
-                        currentRenderState.indexPtr         = drawIndexList;
-                        currentRenderState.id               = texture->id;
-                    }
                     if (character == 1) {
                         posX = x;
                         posY -= (font->lineHeight * scale);
                     }
+                    else {
+                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
+                            currentRenderState.indexCount = 0;
+                            memcpy(&renderStateList[renderStateCount++], &currentRenderState, sizeof(RenderState));
+                            currentRenderState.vertPtr  = &drawVertexList[vertexListSize];
+                            currentRenderState.indexPtr = drawIndexList;
+                            currentRenderState.id       = texture->id;
+                        }
 
-                    DrawVertex *vertex1 = &drawVertexList[vertexListSize];
-                    vertex1->vertX      = posX + (fontChar->xOffset * scale);
-                    vertex1->vertY      = posY - (fontChar->yOffset * scale);
-                    vertex1->vertZ      = z;
-                    vertex1->texCoordX  = fontChar->x * texture->widthN;
-                    vertex1->texCoordY  = fontChar->y * texture->heightN;
-                    vertex1->r          = vertexR;
-                    vertex1->g          = vertexG;
-                    vertex1->b          = vertexB;
-                    vertex1->a          = a;
+                        DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+                        vertex1->vertX      = posX + (fontChar->xOffset * scale);
+                        vertex1->vertY      = posY - (fontChar->yOffset * scale);
+                        vertex1->vertZ      = z;
+                        vertex1->texCoordX  = fontChar->x * texture->widthN;
+                        vertex1->texCoordY  = fontChar->y * texture->heightN;
+                        vertex1->r          = vertexR;
+                        vertex1->g          = vertexG;
+                        vertex1->b          = vertexB;
+                        vertex1->a          = a;
 
-                    DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
-                    vertex2->vertX      = posX + ((fontChar->width + fontChar->xOffset) * scale);
-                    vertex2->vertY      = vertex1->vertY;
-                    vertex2->vertZ      = z;
-                    vertex2->texCoordX  = (fontChar->x + fontChar->width) * texture->widthN;
-                    vertex2->texCoordY  = vertex1->texCoordY;
-                    vertex2->r          = vertexR;
-                    vertex2->g          = vertexG;
-                    vertex2->b          = vertexB;
-                    vertex2->a          = a;
+                        DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+                        vertex2->vertX      = posX + ((fontChar->width + fontChar->xOffset) * scale);
+                        vertex2->vertY      = vertex1->vertY;
+                        vertex2->vertZ      = z;
+                        vertex2->texCoordX  = (fontChar->x + fontChar->width) * texture->widthN;
+                        vertex2->texCoordY  = vertex1->texCoordY;
+                        vertex2->r          = vertexR;
+                        vertex2->g          = vertexG;
+                        vertex2->b          = vertexB;
+                        vertex2->a          = a;
 
-                    DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
-                    vertex3->vertX      = vertex1->vertX;
-                    vertex3->vertY      = posY - ((fontChar->height + fontChar->yOffset) * scale);
-                    vertex3->vertZ      = z;
-                    vertex3->texCoordX  = vertex1->texCoordX;
-                    vertex3->texCoordY  = (fontChar->y + fontChar->height) * texture->heightN;
-                    vertex3->r          = vertexR;
-                    vertex3->g          = vertexG;
-                    vertex3->b          = vertexB;
-                    vertex3->a          = a;
+                        DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+                        vertex3->vertX      = vertex1->vertX;
+                        vertex3->vertY      = posY - ((fontChar->height + fontChar->yOffset) * scale);
+                        vertex3->vertZ      = z;
+                        vertex3->texCoordX  = vertex1->texCoordX;
+                        vertex3->texCoordY  = (fontChar->y + fontChar->height) * texture->heightN;
+                        vertex3->r          = vertexR;
+                        vertex3->g          = vertexG;
+                        vertex3->b          = vertexB;
+                        vertex3->a          = a;
 
-                    DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
-                    vertex4->vertX      = vertex2->vertX;
-                    vertex4->vertY      = vertex3->vertY;
-                    vertex4->vertZ      = z;
-                    vertex4->texCoordX  = vertex2->texCoordX;
-                    vertex4->texCoordY  = vertex3->texCoordY;
-                    vertex4->r          = vertexR;
-                    vertex4->g          = vertexG;
-                    vertex4->b          = vertexB;
-                    vertex4->a          = a;
-                    vertexListSize += 4;
-                    currentRenderState.indexCount += 6;
+                        DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+                        vertex4->vertX      = vertex2->vertX;
+                        vertex4->vertY      = vertex3->vertY;
+                        vertex4->vertZ      = z;
+                        vertex4->texCoordX  = vertex2->texCoordX;
+                        vertex4->texCoordY  = vertex3->texCoordY;
+                        vertex4->r          = vertexR;
+                        vertex4->g          = vertexG;
+                        vertex4->b          = vertexB;
+                        vertex4->a          = a;
+                        vertexListSize += 4;
+                        currentRenderState.indexCount += 6;
+                    }
                 }
                 posX += (fontChar->xAdvance * scale);
                 character = *text++;
@@ -1430,7 +1451,7 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
             currentRenderState.id         = textureList[font->characters[*text].textureID].id;
             currentRenderState.useColours = true;
             currentRenderState.useTexture = true;
-            currentRenderState.useFilter  = 0;
+            currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
             currentRenderState.indexPtr   = drawIndexList;
             renderStateCount++;
@@ -1449,71 +1470,73 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                 TextureInfo *texture          = &textureList[fontChar->textureID];
 
                 if (texture->format) {
-                    if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
-                        currentRenderState.indexCount       = 0;
-                        renderStateList[renderStateCount++] = currentRenderState;
-                        currentRenderState.vertPtr          = &drawVertexList[vertexListSize];
-                        currentRenderState.indexPtr         = drawIndexList;
-                        currentRenderState.id               = texture->id;
-                    }
                     if (character == 1) {
                         posX = x;
                         posY -= (font->lineHeight * scale);
                     }
+                    else {
+                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
+                            currentRenderState.indexCount = 0;
+                            memcpy(&renderStateList[renderStateCount++], &currentRenderState, sizeof(RenderState));
+                            currentRenderState.vertPtr          = &drawVertexList[vertexListSize];
+                            currentRenderState.indexPtr         = drawIndexList;
+                            currentRenderState.id               = texture->id;
+                        }
 
-                    DrawVertex *vertex1 = &drawVertexList[vertexListSize];
-                    vertex1->vertX      = posX + (fontChar->xOffset * scale);
-                    vertex1->vertY      = posY - (fontChar->yOffset * scale);
-                    vertex1->vertZ      = z;
-                    vertex1->texCoordX  = fontChar->x * texture->widthN;
-                    vertex1->texCoordY  = fontChar->y * texture->heightN;
-                    vertex1->r          = vertexR;
-                    vertex1->g          = vertexG;
-                    vertex1->b          = vertexB;
-                    vertex1->a          = a;
-                    if (vertex1->vertY > 76.0) {
-                        vertex1->texCoordY = (((vertex1->vertY - 76.0) / scale) + fontChar->y) * texture->heightN;
-                        vertex1->vertY     = 76.0;
+                        DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+                        vertex1->vertX      = posX + (fontChar->xOffset * scale);
+                        vertex1->vertY      = posY - (fontChar->yOffset * scale);
+                        vertex1->vertZ      = z;
+                        vertex1->texCoordX  = fontChar->x * texture->widthN;
+                        vertex1->texCoordY  = fontChar->y * texture->heightN;
+                        vertex1->r          = vertexR;
+                        vertex1->g          = vertexG;
+                        vertex1->b          = vertexB;
+                        vertex1->a          = a;
+                        if (vertex1->vertY > 76.0) {
+                            vertex1->texCoordY = (((vertex1->vertY - 76.0) / scale) + fontChar->y) * texture->heightN;
+                            vertex1->vertY     = 76.0;
+                        }
+
+                        DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+                        vertex2->vertX      = posX + ((fontChar->width + fontChar->xOffset) * scale);
+                        vertex2->vertY      = vertex1->vertY;
+                        vertex2->vertZ      = z;
+                        vertex2->texCoordX  = (fontChar->x + fontChar->width) * texture->widthN;
+                        vertex2->texCoordY  = vertex1->texCoordY;
+                        vertex2->r          = vertexR;
+                        vertex2->g          = vertexG;
+                        vertex2->b          = vertexB;
+                        vertex2->a          = a;
+
+                        DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+                        vertex3->vertX      = vertex1->vertX;
+                        vertex3->vertY      = posY - ((fontChar->height + fontChar->yOffset) * scale);
+                        vertex3->vertZ      = z;
+                        vertex3->texCoordX  = vertex1->texCoordX;
+                        vertex3->texCoordY  = (fontChar->y + fontChar->height) * texture->heightN;
+                        vertex3->r          = vertexR;
+                        vertex3->g          = vertexG;
+                        vertex3->b          = vertexB;
+                        vertex3->a          = a;
+                        if (vertex3->vertY < -76.0) {
+                            vertex3->texCoordY = (((vertex3->vertY + 76.0) / scale) + (fontChar->y + fontChar->height)) * texture->heightN;
+                            vertex3->vertY     = -76.0;
+                        }
+
+                        DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+                        vertex4->vertX      = vertex2->vertX;
+                        vertex4->vertY      = vertex3->vertY;
+                        vertex4->vertZ      = z;
+                        vertex4->texCoordX  = vertex2->texCoordX;
+                        vertex4->texCoordY  = vertex3->texCoordY;
+                        vertex4->r          = vertexR;
+                        vertex4->g          = vertexG;
+                        vertex4->b          = vertexB;
+                        vertex4->a          = a;
+                        vertexListSize += 4;
+                        currentRenderState.indexCount += 6;
                     }
-
-                    DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
-                    vertex2->vertX      = posX + ((fontChar->width + fontChar->xOffset) * scale);
-                    vertex2->vertY      = vertex1->vertY;
-                    vertex2->vertZ      = z;
-                    vertex2->texCoordX  = (fontChar->x + fontChar->width) * texture->widthN;
-                    vertex2->texCoordY  = vertex1->texCoordY;
-                    vertex2->r          = vertexR;
-                    vertex2->g          = vertexG;
-                    vertex2->b          = vertexB;
-                    vertex2->a          = a;
-
-                    DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
-                    vertex3->vertX      = vertex1->vertX;
-                    vertex3->vertY      = posY - ((fontChar->height + fontChar->yOffset) * scale);
-                    vertex3->vertZ      = z;
-                    vertex3->texCoordX  = vertex1->texCoordX;
-                    vertex3->texCoordY  = (fontChar->y + fontChar->height) * texture->heightN;
-                    vertex3->r          = vertexR;
-                    vertex3->g          = vertexG;
-                    vertex3->b          = vertexB;
-                    vertex3->a          = a;
-                    if (vertex3->vertY < -76.0) {
-                        vertex3->texCoordY = (((vertex3->vertY + 76.0) / scale) + (fontChar->y + fontChar->height)) * texture->heightN;
-                        vertex3->vertY     = -76.0;
-                    }
-
-                    DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
-                    vertex4->vertX      = vertex2->vertX;
-                    vertex4->vertY      = vertex3->vertY;
-                    vertex4->vertZ      = z;
-                    vertex4->texCoordX  = vertex2->texCoordX;
-                    vertex4->texCoordY  = vertex3->texCoordY;
-                    vertex4->r          = vertexR;
-                    vertex4->g          = vertexG;
-                    vertex4->b          = vertexB;
-                    vertex4->a          = a;
-                    vertexListSize += 4;
-                    currentRenderState.indexCount += 6;
                 }
                 posX += (fontChar->xAdvance * scale);
                 character = *text++;

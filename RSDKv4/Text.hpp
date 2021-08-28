@@ -95,7 +95,7 @@ void ResetBitmapFonts();
 float GetTextWidth(ushort *text, int fontID, float scaleX);
 float GetTextHeight(ushort *text, int fontID, float scaleY);
 void SetStringToFont(ushort *text, ushort *string, int fontID);
-void SetStringToFont8(ushort *text, char *string, int fontID);
+void SetStringToFont8(ushort *text, const char *string, int fontID);
 void AddTimeStringToFont(ushort *text, int time, int fontID);
 
 #endif // !TEXTSYSTEM_H

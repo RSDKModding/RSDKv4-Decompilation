@@ -4,7 +4,7 @@
 struct NativeEntity_InstructionsScreen : NativeEntityBase {
     int state;
     int pageID;
-    int field_18;
+    int shownPage;
     float field_1C;
     float rotationY;
     float scale;
@@ -16,18 +16,18 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     byte textureArrows;
     byte textureHelp;
     byte textureDPad;
-    byte touchValid1;
-    byte touchValid2;
-    byte touchValid3;
+    byte touchedBack;
+    byte touchedPrev;
+    byte touchedNext;
     int arrowAlpha;
-    int field_C0;
+    int stateInput;
     float textY;
-    float floatC8;
+    float textHeight;
     float field_CC;
     float field_D0;
     float field_D4;
     float field_D8;
-    float field_DC;
+    float lastTouchX;
     byte field_E0;
     byte field_E1;
     ushort pageIDText[8];
