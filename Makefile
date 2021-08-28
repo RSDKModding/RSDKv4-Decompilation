@@ -1,8 +1,9 @@
-CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis) $(CXXFLAGS) \
-               -DBASE_PATH='"$(BASE_PATH)"'
+CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew) $(CXXFLAGS) \
+               -DBASE_PATH='"$(BASE_PATH)"' \
+               -IRSDKv4/NativeObjects/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis) -pthread $(LIBS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
 
 SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/Audio.cpp         \
@@ -15,10 +16,8 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/Math.cpp          \
           RSDKv4/Object.cpp        \
           RSDKv4/Palette.cpp       \
-          RSDKv4/PauseMenu.cpp     \
           RSDKv4/Reader.cpp        \
           RSDKv4/RetroEngine.cpp   \
-          RSDKv4/RetroGameLoop.cpp \
           RSDKv4/Scene.cpp         \
           RSDKv4/Scene3D.cpp       \
           RSDKv4/Script.cpp        \
@@ -26,7 +25,45 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/String.cpp        \
           RSDKv4/Text.cpp          \
           RSDKv4/Userdata.cpp      \
-	  
+          RSDKv4/NativeObjects/AboutScreen.cpp \
+          RSDKv4/NativeObjects/AchievementDisplay.cpp \
+          RSDKv4/NativeObjects/AchievementsButton.cpp \
+          RSDKv4/NativeObjects/AchievementsMenu.cpp \
+          RSDKv4/NativeObjects/BackButton.cpp \
+          RSDKv4/NativeObjects/CreditText.cpp \
+          RSDKv4/NativeObjects/CWSplash.cpp \
+          RSDKv4/NativeObjects/DialogPanel.cpp \
+          RSDKv4/NativeObjects/FadeScreen.cpp \
+          RSDKv4/NativeObjects/InstructionsScreen.cpp \
+          RSDKv4/NativeObjects/LeaderboardsButton.cpp \
+          RSDKv4/NativeObjects/MenuBG.cpp \
+          RSDKv4/NativeObjects/MenuControl.cpp \
+          RSDKv4/NativeObjects/ModInfoButton.cpp \
+          RSDKv4/NativeObjects/ModsButton.cpp \
+          RSDKv4/NativeObjects/ModsMenu.cpp \
+          RSDKv4/NativeObjects/MultiplayerButton.cpp \
+          RSDKv4/NativeObjects/OptionsButton.cpp \
+          RSDKv4/NativeObjects/OptionsMenu.cpp \
+          RSDKv4/NativeObjects/PauseMenu.cpp \
+          RSDKv4/NativeObjects/PlayerSelectScreen.cpp \
+          RSDKv4/NativeObjects/PushButton.cpp \
+          RSDKv4/NativeObjects/RecordsScreen.cpp \
+          RSDKv4/NativeObjects/RetroGameLoop.cpp \
+          RSDKv4/NativeObjects/SaveSelect.cpp \
+          RSDKv4/NativeObjects/SegaIDButton.cpp \
+          RSDKv4/NativeObjects/SegaSplash.cpp \
+          RSDKv4/NativeObjects/SettingsScreen.cpp \
+          RSDKv4/NativeObjects/StaffCredits.cpp \
+          RSDKv4/NativeObjects/StartGameButton.cpp \
+          RSDKv4/NativeObjects/SubMenuButton.cpp \
+          RSDKv4/NativeObjects/TextLabel.cpp \
+          RSDKv4/NativeObjects/TimeAttack.cpp \
+          RSDKv4/NativeObjects/TimeAttackButton.cpp \
+          RSDKv4/NativeObjects/TitleScreen.cpp \
+          RSDKv4/NativeObjects/VirtualDPad.cpp \
+          RSDKv4/NativeObjects/VirtualDPadM.cpp \
+          RSDKv4/NativeObjects/ZoneButton.cpp 
+   
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
 	SOURCES += RSDKv4/fcaseopen.c
