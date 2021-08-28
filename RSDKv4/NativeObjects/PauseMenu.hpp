@@ -1,51 +1,54 @@
 #ifndef NATIVE_PAUSEMENU_H
 #define NATIVE_PAUSEMENU_H
 
+enum PauseMenuButtons {
+    PMB_CONTINUE,
+    PMB_RESTART,
+    PMB_SETTINGS,
+    PMB_EXIT,
+#if !RETRO_USE_ORIGINAL_CODE
+    PMB_DEVMENU,
+#endif
+    PMB_COUNT
+};
+
 struct NativeEntity_PauseMenu : NativeEntityBase {
-    uint state;
-    float float14;
-    char field_18;
-    char field_19;
-    char field_1A;
-    char field_1B;
+    int state;
+    float timer;
+    float float18;
     NativeEntity_RetroGameLoop *retroGameLoop;
-    int dword20;
+    NativeEntity_SettingsScreen *settingsScreen;
     NativeEntity_TextLabel *label;
     float renderRot;
-    float float2C;
-    float float30;
+    float renderRotMax;
+    float rotInc;
     MatrixF matrix2;
     MatrixF matrix;
-    NativeEntity_SubMenuButton *buttons[4];
-    uint buttonID;
-    float buttonRot[4];
-    float floatD8;
-    float floatDC;
-    float floatE0;
-    float floatE4;
-    int dwordE8;
-    int dwordEC;
-    int dwordF0;
-    int dwordF4;
-    int dwordF8;
+    NativeEntity_SubMenuButton *buttons[PMB_COUNT];
+    int buttonSelected;
+    float buttonRot[PMB_COUNT];
+    float rotMax[PMB_COUNT];
+    float buttonRotY[PMB_COUNT];
+    NativeEntity_DialogPanel *dialog;
     int dwordFC;
-    float dword100;
+    float buttonX;
     float matrixX;
-    float float108;
+    float width;
     float matrixY;
     float matrixZ;
     float rotationY;
-    float float118;
+    float rotYOff;
     byte textureCircle;
     byte textureDPad;
-    byte field_11E;
-    char field_11F;
-    float float120;
-    float float124;
-    float pfunc128;
-    int dword12C;
-    byte byte130;
-    byte byte131;
+    float dpadX;
+    float dpadXSpecial;
+    float dpadY;
+    int unusedAlpha;
+    byte makeSound;
+    byte miniPauseDisabled;
+#if !RETRO_USE_ORIGINAL_CODE
+    NativeEntity_FadeScreen *devMenuFade;
+#endif
 };
 
 void PauseMenu_Create(void *objPtr);
