@@ -1,13 +1,13 @@
 #include "RetroEngine.hpp"
 
-int buttonCount;
+int pauseMenuButtonCount;
 
 void PauseMenu_Create(void *objPtr)
 {
     RSDK_THIS(PauseMenu);
-    buttonCount = PMB_COUNT;
+    pauseMenuButtonCount = PMB_COUNT;
     if (PMB_COUNT == 5 && !Engine.devMenu)
-        buttonCount--;
+        pauseMenuButtonCount--;
 
     entity->retroGameLoop    = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
     entity->label            = CREATE_ENTITY(TextLabel);
@@ -24,7 +24,7 @@ void PauseMenu_Create(void *objPtr)
     matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
     entity->label->useMatrix = 1;
     entity->buttonX          = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
-    for (int i = 0; i < buttonCount; ++i) {
+    for (int i = 0; i < pauseMenuButtonCount; ++i) {
         NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
         entity->buttons[i]                 = button;
         button->textScale                  = 0.1;
@@ -36,10 +36,10 @@ void PauseMenu_Create(void *objPtr)
         matrixTranslateXYZF(&entity->matrix, entity->buttonX, 48.0 - i * 30, 160.0);
         matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix);
         button->symbol    = 1;
-        button->useMatrix = 1;
+        button->useMatrix = true;
     }
     if (GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1 || !activeStageList
-        || GetGlobalVariableByName("options.attractMode") == 1) {
+        || GetGlobalVariableByName("options.attractMode") == 1 || GetGlobalVariableByName("options.vsMode") == 1) {
         entity->buttons[1]->r = 0x80;
         entity->buttons[1]->g = 0x80;
         entity->buttons[1]->b = 0x80;
@@ -48,7 +48,7 @@ void PauseMenu_Create(void *objPtr)
     SetStringToFont(entity->buttons[1]->text, strRestart, 1);
     SetStringToFont(entity->buttons[2]->text, strSettings, 1);
     SetStringToFont(entity->buttons[3]->text, strExit, 1);
-    if (buttonCount == 5)
+    if (pauseMenuButtonCount == 5)
         SetStringToFont8(entity->buttons[4]->text, (char *)"DEV MENU", 1);
     entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     entity->rotationY     = 0.0;
@@ -61,7 +61,7 @@ void PauseMenu_Create(void *objPtr)
         entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
     entity->dpadY             = 104.0;
     entity->state             = 1;
-    entity->miniPauseDisabled = 1;
+    entity->miniPauseDisabled = true;
     entity->dpadX             = SCREEN_CENTERX_F - 76.0;
     entity->dpadXSpecial      = SCREEN_CENTERX_F - 52.0;
 }
@@ -74,7 +74,6 @@ void PauseMenu_Main(void *objPtr)
             if (entity->timer > 1.0) {
                 entity->timer = 0.0;
                 entity->state = 1;
-                break;
             }
             break;
         case 1:
@@ -83,15 +82,15 @@ void PauseMenu_Main(void *objPtr)
             entity->timer += Engine.deltaTime * 2;
             entity->label->textWidth = entity->label->textWidth / (1.125 * (60.0 * Engine.deltaTime));
             entity->label->textAlpha = (256.0 * entity->timer);
-            for (int i = 0; i < buttonCount; ++i)
+            for (int i = 0; i < pauseMenuButtonCount; ++i)
                 entity->buttons[i]->matXOff += ((-176.0 - entity->buttons[i]->matXOff) / (16.0 * (60.0 * Engine.deltaTime)));
             entity->matrixX += ((entity->width - entity->matrixX) / ((60.0 * Engine.deltaTime) * 12.0));
             entity->matrixZ += ((512.0 - entity->matrixZ) / ((60.0 * Engine.deltaTime) * 12.0));
             entity->rotationY += ((entity->rotYOff - entity->rotationY) / (16.0 * (60.0 * Engine.deltaTime)));
-            if (entity->timer <= 1.0)
-                break;
-            entity->timer = 0.0;
-            entity->state = 2;
+            if (entity->timer > 1.0) {
+                entity->timer = 0.0;
+                entity->state = 2;
+            }
             break;
         case 2: {
             CheckKeyDown(&keyDown);
@@ -105,15 +104,15 @@ void PauseMenu_Main(void *objPtr)
                         PlaySfx(21, 0);
                         entity->buttonSelected--;
                         if (entity->buttonSelected < 0)
-                            entity->buttonSelected = buttonCount - 1;
+                            entity->buttonSelected = pauseMenuButtonCount - 1;
                     }
                     else if (keyPress.down) {
                         PlaySfx(21, 0);
                         entity->buttonSelected++;
-                        if (entity->buttonSelected >= buttonCount)
+                        if (entity->buttonSelected >= pauseMenuButtonCount)
                             entity->buttonSelected = 0;
                     }
-                    for (int i = 0; i < buttonCount; ++i) entity->buttons[i]->b = 0xFF;
+                    for (int i = 0; i < pauseMenuButtonCount; ++i) entity->buttons[i]->b = 0xFF;
                     entity->buttons[entity->buttonSelected]->b = 0;
                     if (entity->buttons[entity->buttonSelected]->g > 0x80 && (keyPress.start || keyPress.A)) {
                         PlaySfx(22, 0);
@@ -124,9 +123,9 @@ void PauseMenu_Main(void *objPtr)
                 }
             }
             else {
-                for (int i = 0; i < buttonCount; ++i) {
+                for (int i = 0; i < pauseMenuButtonCount; ++i) {
                     if (touches > 0) {
-                        if (entity->buttons[i]->g > 0x80u)
+                        if (entity->buttons[i]->g > 0x80)
                             entity->buttons[i]->b = (CheckTouchRect(-80.0, 48.0 - i * 30, 112.0, 12.0) < 0) * 0xFF;
                     }
                     else if (!entity->buttons[i]->b) {
@@ -153,18 +152,18 @@ void PauseMenu_Main(void *objPtr)
                 }
                 break;
             }
-            entity->miniPauseDisabled = 0;
-            if (entity->makeSound != 1)
-                break;
-            PlaySfx(22, 0);
-            entity->makeSound = 0;
+            entity->miniPauseDisabled = false;
+            if (entity->makeSound) {
+                PlaySfx(22, 0);
+                entity->makeSound = false;
+            }
             break;
         }
 
         case 3:
             entity->label->textWidth += 10.0 * (60.0 * Engine.deltaTime);
             entity->timer += Engine.deltaTime * 2;
-            for (int i = 0; i < buttonCount; ++i) entity->buttons[i]->matXOff += ((12.0 + i) * (60.0 * Engine.deltaTime));
+            for (int i = 0; i < pauseMenuButtonCount; ++i) entity->buttons[i]->matXOff += ((12.0 + i) * (60.0 * Engine.deltaTime));
             entity->matrixX += ((-entity->matrixX) / (5.0 * (60.0 * Engine.deltaTime)));
             entity->matrixZ += ((160.0 - entity->matrixZ) / (5.0 * (60.0 * Engine.deltaTime)));
             entity->rotationY += ((entity->rotYOff - entity->rotationY) / ((60.0 * Engine.deltaTime) * 6.0));
@@ -204,7 +203,7 @@ void PauseMenu_Main(void *objPtr)
                         entity->state        = 5;
                         entity->rotInc       = 0.0;
                         entity->renderRotMax = DegreesToRad(-90.0);
-                        for (int i = 0; i < buttonCount; ++i) {
+                        for (int i = 0; i < pauseMenuButtonCount; ++i) {
                             entity->rotMax[i]     = DegreesToRad(-90.0);
                             entity->buttonRotY[i] = 0.02 * (i + 1);
                         }
@@ -214,7 +213,8 @@ void PauseMenu_Main(void *objPtr)
                         entity->dialog = CREATE_ENTITY(DialogPanel);
                         SetStringToFont(entity->dialog->text, GetGlobalVariableByName("options.gameMode") ? strExitMessage : strNSExitMessage, 2);
                         entity->state = 9;
-                        SetGlobalVariableByName("timeAttack.result", 0xF4240);
+                        if (Engine.gameType == GAME_SONIC1)
+                            SetGlobalVariableByName("timeAttack.result", 0xF4240);
                         break;
 #if !RETRO_USE_ORIGINAL_CODE
                     case PMB_DEVMENU:
@@ -235,7 +235,7 @@ void PauseMenu_Main(void *objPtr)
                 matrixTranslateXYZF(&entity->matrix, entity->buttonX, 80.0, 160.0);
                 matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
             }
-            for (int i = 0; i < buttonCount; ++i) {
+            for (int i = 0; i < pauseMenuButtonCount; ++i) {
                 if (entity->buttonRot[i] > entity->rotMax[i]) {
                     entity->buttonRotY[i] -= 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->buttonRotY[i] < 0.0) {
@@ -247,12 +247,12 @@ void PauseMenu_Main(void *objPtr)
                     matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix);
                 }
             }
-            if (entity->rotMax[buttonCount - 1] >= entity->buttonRot[buttonCount - 1]) {
+            if (entity->rotMax[pauseMenuButtonCount - 1] >= entity->buttonRot[pauseMenuButtonCount - 1]) {
                 entity->state = 6;
 
                 entity->rotInc       = 0.0;
                 entity->renderRotMax = DegreesToRad(22.5);
-                for (int i = 0; i < buttonCount; ++i) {
+                for (int i = 0; i < pauseMenuButtonCount; ++i) {
                     entity->rotMax[i]     = DegreesToRad(16.0);
                     entity->buttonRotY[i] = -0.02 * (i + 1);
                 }
@@ -274,7 +274,7 @@ void PauseMenu_Main(void *objPtr)
                 matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
             }
 
-            for (int i = 0; i < buttonCount; ++i) {
+            for (int i = 0; i < pauseMenuButtonCount; ++i) {
                 if (entity->rotMax[i] > entity->buttonRot[i]) {
                     entity->buttonRotY[i] += 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->buttonRotY[i] > 0.0)
@@ -307,13 +307,13 @@ void PauseMenu_Main(void *objPtr)
                     SetGlobalVariableByName("player.lives", GetGlobalVariableByName("player.lives") - 1);
                 }
                 SetGlobalVariableByName("lampPostID", 0);
+                SetGlobalVariableByName("starPostID", 0);
                 entity->dialog->state = 5;
                 CREATE_ENTITY(FadeScreen);
                 break;
             }
-            if (entity->dialog->selection != 2)
-                break;
-            entity->state = 2;
+            if (entity->dialog->selection == 2)
+                entity->state = 2;
             break;
         case 9:
             if (entity->dialog->selection == 1) {
@@ -340,15 +340,16 @@ void PauseMenu_Main(void *objPtr)
             }
             if (!entity->devMenuFade->timeLimit || entity->devMenuFade->timer >= entity->devMenuFade->timeLimit) {
                 ClearNativeObjects();
-                RenderRect(0, 0, 1, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
+                RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                 CREATE_ENTITY(RetroGameLoop);
                 Engine.gameMode = ENGINE_INITDEVMENU;
                 return;
             }
+            break;
 #endif
         default: break;
     }
-    SetRenderBlendMode(0);
+    SetRenderBlendMode(RENDER_BLEND_NONE);
     NewRenderState();
     matrixRotateYF(&entity->matrix2, entity->rotationY);
     matrixTranslateXYZF(&entity->matrix, entity->matrixX, entity->matrixY, entity->matrixZ);

@@ -314,8 +314,8 @@ int InitRenderDevice()
     SetPerspectiveMatrix(90.0, 0.75, 1.0, 5000.0);
     glViewport(0, 0, displaySettings.width, displaySettings.height);
     int displayWidth = (int)(((displaySettings.width / (double)displaySettings.height) * SCREEN_YSIZE) + 8) & -0x10;
-    if (displayWidth > displaySettings.maxWidth)
-        displayWidth = displaySettings.maxWidth;
+    //if (displayWidth > displaySettings.maxWidth)
+    //    displayWidth = displaySettings.maxWidth;
     int lineSize = (displayWidth + 9) & -0x10;
     SetScreenSize(displayWidth, lineSize);
 
@@ -853,7 +853,7 @@ void SetScreenDimensions(int width, int height)
     touchWidthF              = width;
     displaySettings.field_10 = 16;
     touchHeightF             = height;
-    displaySettings.maxWidth = 424;
+    //displaySettings.maxWidth = 424;
     double aspect            = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
     SCREEN_XSIZE             = SCREEN_YSIZE * aspect;
     SCREEN_CENTERX_F         = aspect * SCREEN_CENTERY;
@@ -861,9 +861,9 @@ void SetScreenDimensions(int width, int height)
     glViewport(0, 0, displaySettings.width, displaySettings.height);
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
-    float val               = (int)((displaySettings.width / (double)displaySettings.height) * SCREEN_YSIZE + 8) & -0x10;
-    if (val > displaySettings.maxWidth)
-        val = displaySettings.maxWidth;
+    int val               = (int)((displaySettings.width / (double)displaySettings.height) * SCREEN_YSIZE + 8) & -0x10;
+    //if (val > displaySettings.maxWidth)
+    //    val = displaySettings.maxWidth;
     SetScreenSize(val, (int)(val + 9) & -0x10);
 
     int width2 = 0;
