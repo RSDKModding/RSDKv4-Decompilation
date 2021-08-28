@@ -38,7 +38,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild RSDKv4.sln /p:Configuration=Release_HW /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x86_HW.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -78,9 +78,9 @@ jobs:
         run: |
           vcpkg install libogg:x64-windows-static libvorbis:x64-windows-static
           vcpkg integrate install
-      - name: Build RSDKv4
+      - name: Build RSDKv4(HW)
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild RSDKv4.sln /p:Configuration=Release_HW /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64_HW.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -99,9 +99,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev
       - name: Build RSDKv4
-        run: make
+        run: make USE_HW_REN=1
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
