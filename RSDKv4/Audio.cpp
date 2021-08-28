@@ -244,6 +244,7 @@ int closeVorbis_Sfx(void *ptr)
     return 0;
 }
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 #if !RETRO_USE_ORIGINAL_CODE
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
 {
@@ -353,7 +354,9 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
             break;
     }
 }
+#endif
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 {
     (void)userdata; // Unused
@@ -430,6 +433,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
         samples_remaining -= samples_to_do;
     }
 }
+#endif
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
@@ -610,7 +614,9 @@ bool PlayMusic(int track, int musStartPos)
         }
         trackBuffer = track;
         musicStatus = MUSIC_LOADING;
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+#endif
         UnlockAudioDevice();
         return true;
     }
@@ -652,6 +658,7 @@ void LoadSfx(char *filePath, byte sfxID)
             FileRead(sfx, info.vfileSize);
             CloseFile();
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
             SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
             if (src == NULL) {
                 printLog("Unable to open sfx: %s", info.fileName);
@@ -788,6 +795,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 sfxList[sfxID].loaded = true;
                 UnlockAudioDevice();
             }
+#endif
         }
         else {
             // wtf lol

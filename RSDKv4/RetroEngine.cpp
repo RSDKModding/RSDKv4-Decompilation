@@ -495,18 +495,22 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
     float frameDelta = 0.0f;
+#endif
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         frameStart = SDL_GetPerformanceCounter();
         frameDelta = frameStart - frameEnd;
         if (frameDelta < frequency / (float)refreshRate) {
             continue;
         }
         frameEnd = SDL_GetPerformanceCounter();
+#endif
 #endif
 
         running = processEvents();

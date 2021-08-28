@@ -1,6 +1,13 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#if !RETRO_USING_SDL1 && !RETRO_USING_SDL2
+typedef signed short	Sint16;
+typedef signed int	Sint32;
+
+typedef unsigned char	Uint8;
+#endif
+
 #define TRACK_COUNT (0x10)
 #define SFX_COUNT   (0x100)
 #if !RETRO_USE_ORIGINAL_CODE
@@ -90,19 +97,20 @@ extern SDL_AudioSpec audioDeviceFormat;
 int InitAudioPlayback();
 void LoadGlobalSfx();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
 // These functions did exist, but with different signatures
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
 void ProcessAudioPlayback(void *data, Uint8 *stream, int len);
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan);
 #endif
 
-#if !RETRO_USE_ORIGINAL_CODE
 inline void freeMusInfo()
 {
     if (musInfo.loaded) {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         SDL_LockAudio();
+#endif
 
         if (musInfo.buffer)
             delete[] musInfo.buffer;
@@ -119,31 +127,11 @@ inline void freeMusInfo()
         musInfo.loopPoint = 0;
         musInfo.loaded    = false;
 
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
         SDL_UnlockAudio();
+#endif
     }
 }
-#endif
-#else
-void ProcessMusicStream() {}
-void ProcessAudioPlayback() {}
-void ProcessAudioMixing() {}
-
-#if !RETRO_USE_ORIGINAL_CODE
-inline void freeMusInfo()
-{
-    if (musInfo.loaded) {
-        if (musInfo.musicFile)
-            delete[] musInfo.musicFile;
-        musInfo.musicFile    = nullptr;
-        musInfo.buffer       = nullptr;
-        musInfo.stream       = nullptr;
-        musInfo.pos          = 0;
-        musInfo.len          = 0;
-        musInfo.currentTrack = nullptr;
-        musInfo.loaded       = false;
-    }
-}
-#endif
 #endif
 
 void LoadMusic(void *userdata);
@@ -155,9 +143,13 @@ inline void StopMusic(bool setStatus)
     if (setStatus)
         musicStatus = MUSIC_STOPPED;
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_LockAudio();
+#endif
     freeMusInfo();
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_UnlockAudio();
+#endif
 #endif
 }
 

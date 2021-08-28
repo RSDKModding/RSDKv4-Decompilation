@@ -204,6 +204,7 @@ bool getControllerButton(byte buttonID)
 
 void controllerInit(byte controllerID)
 {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     for (int i = 0; i < controllers.size(); ++i) {
         if (controllers[i].id == controllerID) {
             return; // we already opened this one!
@@ -222,10 +223,12 @@ void controllerInit(byte controllerID)
     else {
         printLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
     }
+#endif
 }
 
 void controllerClose(byte controllerID)
 {
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
@@ -239,6 +242,7 @@ void controllerClose(byte controllerID)
 
     if (controllers.empty())
         inputType = 0;
+#endif
 }
 
 void InitInputDevices()
