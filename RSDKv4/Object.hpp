@@ -107,7 +107,7 @@ extern NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 //Game Objects
 extern int objectEntityPos;
 extern int curObjectType;
-extern Entity objectEntityList[ENTITY_COUNT];
+extern Entity objectEntityList[ENTITY_COUNT * 2];
 extern int processObjectFlag[ENTITY_COUNT];
 extern TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 

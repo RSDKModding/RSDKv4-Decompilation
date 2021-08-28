@@ -34,8 +34,8 @@ SDL_AudioDeviceID audioDevice;
 #endif
 SDL_AudioSpec audioDeviceFormat;
 
-#define LOCK_AUDIO_DEVICE()   SDL_LockAudio();
-#define UNLOCK_AUDIO_DEVICE() SDL_UnlockAudio();
+#define LockAudioDevice()   SDL_LockAudio()
+#define UnlockAudioDevice() SDL_UnlockAudio()
 
 #define AUDIO_FREQUENCY (44100)
 #define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */
@@ -45,8 +45,8 @@ SDL_AudioSpec audioDeviceFormat;
 #define ADJUST_VOLUME(s, v) (s = (s * v) / MAX_VOLUME)
 
 #else
-#define LOCK_AUDIO_DEVICE()   ;
-#define UNLOCK_AUDIO_DEVICE() ;
+#define LockAudioDevice()   ;
+#define UnlockAudioDevice() ;
 #endif
 
 #define MIX_BUFFER_SAMPLES (256)
@@ -361,84 +361,6 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
     if (!audioEnabled)
         return;
 
-    if (musicStatus == MUSIC_LOADING) {
-        if (trackBuffer < 0 || trackBuffer >= TRACK_COUNT) {
-            StopMusic();
-            return;
-        }
-
-        TrackInfo *trackPtr = &musicTracks[trackBuffer];
-
-        if (!trackPtr->fileName[0]) {
-            StopMusic();
-            return;
-        }
-
-        uint oldPos   = 0;
-        uint oldTotal = 0;
-        if (musInfo.loaded) {
-            oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
-            oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
-            StopMusic();
-        }
-
-        if (LoadFile2(trackPtr->fileName, &musInfo.fileInfo)) {
-            musInfo.trackLoop = trackPtr->trackLoop;
-            musInfo.loopPoint = trackPtr->loopPoint;
-            musInfo.loaded    = true;
-
-            unsigned long long samples = 0;
-            ov_callbacks callbacks;
-
-            callbacks.read_func  = readVorbis;
-            callbacks.seek_func  = seekVorbis;
-            callbacks.tell_func  = tellVorbis;
-            callbacks.close_func = closeVorbis;
-
-            int error = ov_open_callbacks(&musInfo, &musInfo.vorbisFile, NULL, 0, callbacks);
-            if (error == 0) {
-                musInfo.vorbBitstream = -1;
-                musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
-
-                samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
-
-#if RETRO_USING_SDL2
-                musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, (int)musInfo.vorbisFile.vi->rate, audioDeviceFormat.format,
-                                                    audioDeviceFormat.channels, audioDeviceFormat.freq);
-                if (!musInfo.stream) {
-                    printLog("Failed to create stream: %s", SDL_GetError());
-                }
-#endif
-
-#if RETRO_USING_SDL1
-                musInfo.spec.format   = AUDIO_S16;
-                musInfo.spec.channels = musInfo.vorbisFile.vi->channels;
-                musInfo.spec.freq     = (int)musInfo.vorbisFile.vi->rate;
-#endif
-
-                musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
-
-                if (musicStartPos) {
-                    float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
-                    musicStartPos = fmod(newPos, samples);
-
-                    ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
-                }
-                musicStartPos = 0;
-
-                musicStatus  = MUSIC_PLAYING;
-                masterVolume = MAX_VOLUME;
-                trackID      = trackBuffer;
-                trackBuffer  = -1;
-            }
-            else {
-                musicStatus = MUSIC_STOPPED;
-                CloseFile2(&musInfo.fileInfo);
-                printLog("Failed to load vorbis! erorr: %d", error);
-            }
-        }
-    }
-
     Sint16 *output_buffer = (Sint16 *)stream;
 
     size_t samples_remaining = (size_t)len / sizeof(Sint16);
@@ -552,31 +474,123 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
 #endif
 #endif
 
+void LoadMusic(void *userdata)
+{
+    if (trackBuffer < 0 || trackBuffer >= TRACK_COUNT) {
+        LockAudioDevice();
+        StopMusic(true);
+        UnlockAudioDevice();
+        return;
+    }
+
+    TrackInfo *trackPtr = &musicTracks[trackBuffer];
+
+    if (!trackPtr->fileName[0]) {
+        LockAudioDevice();
+        StopMusic(true);
+        UnlockAudioDevice();
+        return;
+    }
+
+    LockAudioDevice();
+    uint oldPos   = 0;
+    uint oldTotal = 0;
+    if (musInfo.loaded) {
+        oldPos   = (uint)ov_pcm_tell(&musInfo.vorbisFile);
+        oldTotal = (uint)ov_pcm_total(&musInfo.vorbisFile, -1);
+        StopMusic(false);
+    }
+
+    if (LoadFile2(trackPtr->fileName, &musInfo.fileInfo)) {
+        musInfo.trackLoop = trackPtr->trackLoop;
+        musInfo.loopPoint = trackPtr->loopPoint;
+        musInfo.loaded    = true;
+
+        unsigned long long samples = 0;
+        ov_callbacks callbacks;
+
+        callbacks.read_func  = readVorbis;
+        callbacks.seek_func  = seekVorbis;
+        callbacks.tell_func  = tellVorbis;
+        callbacks.close_func = closeVorbis;
+
+        int error = ov_open_callbacks(&musInfo, &musInfo.vorbisFile, NULL, 0, callbacks);
+        if (error == 0) {
+            musInfo.vorbBitstream = -1;
+            musInfo.vorbisFile.vi = ov_info(&musInfo.vorbisFile, -1);
+
+            samples = (unsigned long long)ov_pcm_total(&musInfo.vorbisFile, -1);
+
+#if RETRO_USING_SDL2
+            musInfo.stream = SDL_NewAudioStream(AUDIO_S16, musInfo.vorbisFile.vi->channels, (int)musInfo.vorbisFile.vi->rate,
+                                                audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
+            if (!musInfo.stream)
+                printLog("Failed to create stream: %s", SDL_GetError());
+#endif
+
+#if RETRO_USING_SDL1
+            musInfo.spec.format   = AUDIO_S16;
+            musInfo.spec.channels = musInfo.vorbisFile.vi->channels;
+            musInfo.spec.freq     = (int)musInfo.vorbisFile.vi->rate;
+#endif
+
+            musInfo.buffer = new Sint16[MIX_BUFFER_SAMPLES];
+
+            if (musicStartPos) {
+                float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+                musicStartPos = fmod(newPos, samples);
+
+                ov_pcm_seek(&musInfo.vorbisFile, musicStartPos);
+            }
+            musicStartPos = 0;
+
+            musicStatus  = MUSIC_PLAYING;
+            masterVolume = MAX_VOLUME;
+            trackID      = trackBuffer;
+            trackBuffer  = -1;
+        }
+        else {
+            musicStatus = MUSIC_STOPPED;
+            CloseFile2(&musInfo.fileInfo);
+            printLog("Failed to load vorbis! error: %d", error);
+            switch (error) {
+                default: printLog("Vorbis open error: Unknown (%d)", error); break;
+                case OV_EREAD: printLog("Vorbis open error: A read from media returned an error"); break;
+                case OV_ENOTVORBIS: printLog("Vorbis open error: Bitstream does not contain any Vorbis data"); break;
+                case OV_EVERSION: printLog("Vorbis open error: Vorbis version mismatch"); break;
+                case OV_EBADHEADER: printLog("Vorbis open error: Invalid Vorbis bitstream header"); break;
+                case OV_EFAULT: printLog("Vorbis open error: Internal logic fault; indicates a bug or heap / stack corruption"); break;
+            }
+        }
+    }
+    UnlockAudioDevice();
+}
+
 void SetMusicTrack(const char *filePath, byte trackID, bool loop, uint loopPoint)
 {
-    LOCK_AUDIO_DEVICE()
+    LockAudioDevice();
     TrackInfo *track = &musicTracks[trackID];
     StrCopy(track->fileName, "Data/Music/");
     StrAdd(track->fileName, filePath);
     track->trackLoop = loop;
     track->loopPoint = loopPoint;
-    UNLOCK_AUDIO_DEVICE()
+    UnlockAudioDevice();
 }
 
 void SwapMusicTrack(const char *filePath, byte trackID, uint loopPoint, uint ratio)
 {
     if (StrLength(filePath) <= 0) {
-        StopMusic();
+        StopMusic(true);
     }
     else {
-        LOCK_AUDIO_DEVICE()
+        LockAudioDevice();
         TrackInfo *track = &musicTracks[trackID];
         StrCopy(track->fileName, "Data/Music/");
         StrAdd(track->fileName, filePath);
         track->trackLoop = true;
         track->loopPoint = loopPoint;
         musicRatio       = ratio;
-        UNLOCK_AUDIO_DEVICE()
+        UnlockAudioDevice();
         PlayMusic(trackID, 1);
     }
 }
@@ -586,17 +600,24 @@ bool PlayMusic(int track, int musStartPos)
     if (!audioEnabled)
         return false;
 
-    LOCK_AUDIO_DEVICE()
-    musicStartPos = musStartPos;
-    if (track < 0 || track >= TRACK_COUNT) {
-        StopMusic();
-        trackBuffer = -1;
-        return false;
+    if (musicStatus != MUSIC_LOADING) {
+        LockAudioDevice();
+        musicStartPos = musStartPos;
+        if (track < 0 || track >= TRACK_COUNT) {
+            StopMusic(true);
+            trackBuffer = -1;
+            return false;
+        }
+        trackBuffer = track;
+        musicStatus = MUSIC_LOADING;
+        SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+        UnlockAudioDevice();
+        return true;
     }
-    trackBuffer = track;
-    musicStatus = MUSIC_LOADING;
-    UNLOCK_AUDIO_DEVICE()
-    return true;
+    else {
+        printLog("WARNING music tried to play while music was loading!");
+    }
+    return false;
 }
 
 void SetSfxName(const char *sfxName, int sfxID)
@@ -656,24 +677,24 @@ void LoadSfx(char *filePath, byte sfxID)
                         memcpy(convert.buf, wav_buffer, wav_length);
                         SDL_ConvertAudio(&convert);
 
-                        LOCK_AUDIO_DEVICE()
+                        LockAudioDevice();
                         StrCopy(sfxList[sfxID].name, filePath);
                         sfxList[sfxID].buffer = (Sint16 *)convert.buf;
                         sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                         sfxList[sfxID].loaded = true;
-                        UNLOCK_AUDIO_DEVICE()
+                        UnlockAudioDevice();
                         SDL_FreeWAV(wav_buffer);
                     }
                     else { //this causes errors, actually
                         printLog("Unable to read sfx: %s (error: %s)", info.fileName, SDL_GetError());
                         sfxList[sfxID].loaded = false;
                         SDL_FreeWAV(wav_buffer);
-                        //LOCK_AUDIO_DEVICE()
+                        //LockAudioDevice()
                         //StrCopy(sfxList[sfxID].name, filePath);
                         //sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
                         //sfxList[sfxID].length = wav_length / sizeof(Sint16);
                         //sfxList[sfxID].loaded = false;
-                        //UNLOCK_AUDIO_DEVICE()
+                        //UnlockAudioDevice()
                     }
                 }
             }
@@ -751,21 +772,21 @@ void LoadSfx(char *filePath, byte sfxID)
                 memcpy(convert.buf, audioBuf, audioLen);
                 SDL_ConvertAudio(&convert);
 
-                LOCK_AUDIO_DEVICE()
+                LockAudioDevice();
                 StrCopy(sfxList[sfxID].name, filePath);
                 sfxList[sfxID].buffer = (Sint16 *)convert.buf;
                 sfxList[sfxID].length = convert.len_cvt / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
-                UNLOCK_AUDIO_DEVICE()
+                UnlockAudioDevice();
                 free(audioBuf);
             }
             else {
-                LOCK_AUDIO_DEVICE()
+                LockAudioDevice();
                 StrCopy(sfxList[sfxID].name, filePath);
                 sfxList[sfxID].buffer = (Sint16 *)audioBuf;
                 sfxList[sfxID].length = audioLen / sizeof(Sint16);
                 sfxList[sfxID].loaded = true;
-                UNLOCK_AUDIO_DEVICE()
+                UnlockAudioDevice();
             }
         }
         else {
@@ -778,7 +799,7 @@ void LoadSfx(char *filePath, byte sfxID)
 }
 void PlaySfx(int sfx, bool loop)
 {
-    LOCK_AUDIO_DEVICE()
+    LockAudioDevice();
     int sfxChannelID = -1;
     for (int c = 0; c < CHANNEL_COUNT; ++c) {
         if (sfxChannels[c].sfxID == sfx || sfxChannels[c].sfxID == -1) {
@@ -793,11 +814,11 @@ void PlaySfx(int sfx, bool loop)
     sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loop;
     sfxInfo->pan          = 0;
-    UNLOCK_AUDIO_DEVICE()
+    UnlockAudioDevice();
 }
 void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
 {
-    LOCK_AUDIO_DEVICE()
+    LockAudioDevice();
     int sfxChannel = -1;
     for (int i = 0; i < CHANNEL_COUNT; ++i) {
         if (sfxChannels[i].sfxID == sfx) {
@@ -806,7 +827,7 @@ void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
         }
     }
     if (sfxChannel == -1) {
-        UNLOCK_AUDIO_DEVICE()
+        UnlockAudioDevice();
         return; // wasn't found
     }
 
@@ -814,5 +835,5 @@ void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
     sfxInfo->loopSFX     = loopCount == -1 ? sfxInfo->loopSFX : loopCount;
     sfxInfo->pan         = pan;
     sfxInfo->sfxID       = sfx;
-    UNLOCK_AUDIO_DEVICE()
+    UnlockAudioDevice();
 }

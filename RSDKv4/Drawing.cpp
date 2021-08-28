@@ -79,13 +79,6 @@ int InitRenderDevice()
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_SOFTWARE_RENDER
-    Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
-    Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
-    memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
-    memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
-#endif
-
 #if RETRO_USING_SDL2
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -98,6 +91,24 @@ int InitRenderDevice()
 #if RETRO_USING_OPENGL
     flags |= SDL_WINDOW_OPENGL;
 #endif
+#if RETRO_DEVICETYPE == RETRO_STANDARD
+    flags |= SDL_WINDOW_HIDDEN;
+#else
+    Engine.startFullScreen = true;
+
+    SDL_DisplayMode dm;
+    SDL_GetDesktopDisplayMode(0, &dm);
+    
+    bool landscape = dm.h < dm.w;
+    int h = landscape ? dm.w : dm.h;
+    int w = landscape ? dm.h : dm.w;
+
+    SCREEN_XSIZE = ((float)SCREEN_YSIZE * h / w);
+    if (SCREEN_XSIZE % 2) ++SCREEN_XSIZE;
+#endif
+
+    SCREEN_CENTERX = SCREEN_XSIZE / 2;
+
     Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
                                      SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
 
@@ -149,12 +160,6 @@ int InitRenderDevice()
     if (SDL_GetDisplayMode(0, 0, &disp) == 0) {
         Engine.screenRefreshRate = disp.refresh_rate;
     }
-
-#if RETRO_PLATFORM == RETRO_iOS
-    SDL_RestoreWindow(Engine.window);
-    SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    Engine.isFullScreen = true;
-#endif
 
 #endif
 
@@ -269,12 +274,22 @@ int InitRenderDevice()
 
     SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE, Engine.windowScale);
 #endif
+
+#if RETRO_SOFTWARE_RENDER
+    Engine.frameBuffer   = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    Engine.frameBuffer2x = new ushort[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
+    memset(Engine.frameBuffer, 0, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+    memset(Engine.frameBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(ushort));
+#endif
+
 #endif
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
     OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
     // OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
+
+    InitInputDevices();
 
     return 1;
 }
@@ -442,6 +457,7 @@ void FlipScreen()
         // no change here
         SDL_RenderPresent(Engine.renderer);
     }
+    SDL_ShowWindow(Engine.window);
 #endif
 
 #if RETRO_USING_SDL1
@@ -1283,6 +1299,7 @@ void DrawStageGFX()
 #if RETRO_HARDWARE_RENDER
                     Draw3DFloorLayer(2);
 #endif
+                    break;
                 default: break;
             }
         }
@@ -1368,6 +1385,7 @@ void DrawStageGFX()
 #if RETRO_HARDWARE_RENDER
                     Draw3DFloorLayer(2);
 #endif
+                    break;
                 default: break;
             }
         }

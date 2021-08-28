@@ -26,8 +26,15 @@ int mouseHideTimer = 0;
 int lastMouseX = 0;
 int lastMouseY = 0;
 
+struct InputDevice {
 #if RETRO_USING_SDL2
-std::vector <SDL_GameController *> controllers;
+    SDL_GameController *devicePtr;
+#endif
+    int id;
+};
+
+#if RETRO_USING_SDL2
+std::vector<InputDevice> controllers;
 #endif
 
 #if RETRO_USING_SDL1
@@ -44,7 +51,7 @@ bool getControllerButton(byte buttonID)
     bool pressed = false;
 
     for (int i = 0; i < controllers.size(); ++i) {
-        SDL_GameController *controller = controllers[i];
+        SDL_GameController *controller = controllers[i].devicePtr;
 
         if (SDL_GameControllerGetButton(controller, (SDL_GameControllerButton)buttonID)) {
             pressed |= true;
@@ -197,10 +204,23 @@ bool getControllerButton(byte buttonID)
 
 void controllerInit(byte controllerID)
 {
+    for (int i = 0; i < controllers.size(); ++i) {
+        if (controllers[i].id == controllerID) {
+            return; // we already opened this one!
+        }
+    }
+
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
-        controllers.push_back(controller);
+        InputDevice device;
+        device.id        = 0;
+        device.devicePtr = controller;
+
+        controllers.push_back(device);
         inputType = 1;
+    }
+    else {
+        printLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
     }
 }
 
@@ -209,12 +229,58 @@ void controllerClose(byte controllerID)
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
-        controllers.erase(std::remove(controllers.begin(), controllers.end(), controller), controllers.end());
+        for (int i = 0; i < controllers.size(); ++i) {
+            if (controllers[i].id == controllerID) {
+                controllers.erase(controllers.begin() + controllerID);
+                break;
+            }
+        }
     }
 
-    if (controllers.empty()) {
+    if (controllers.empty())
         inputType = 0;
+}
+
+void InitInputDevices()
+{
+#if RETRO_USING_SDL2
+    printLog("Initializing gamepads...");
+    int joyStickCount = SDL_NumJoysticks();
+    controllers.clear();
+    int gamepadCount = 0;
+
+    // Count how many controllers there are
+    for (int i = 0; i < joyStickCount; i++)
+        if (SDL_IsGameController(i))
+            gamepadCount++;
+
+    printLog("Found %d gamepads!", gamepadCount);
+    for (int i = 0; i < gamepadCount; i++) {
+        SDL_GameController *gamepad = SDL_GameControllerOpen(i);
+        InputDevice device;
+        device.id = 0;
+        device.devicePtr = gamepad;
+
+        if (SDL_GameControllerGetAttached(gamepad))
+            controllers.push_back(device);
+        else
+            printLog("InitInputDevices() error -> %s", SDL_GetError());
     }
+
+    if (gamepadCount > 0)
+        SDL_GameControllerEventState(SDL_ENABLE);
+#endif
+}
+
+void ReleaseInputDevices()
+{
+#if RETRO_USING_SDL2
+    for (int i = 0; i < controllers.size(); i++) {
+        if (controllers[i].devicePtr)
+            SDL_GameControllerClose(controllers[i].devicePtr);
+    }
+    controllers.clear();
+#endif
 }
 
 void ProcessInput()
@@ -278,7 +344,7 @@ void ProcessInput()
     }
 
 #ifdef RETRO_USING_MOUSE
-    if (SDL_GetNumTouchFingers(SDL_GetTouchDevice(RETRO_TOUCH_DEVICE)) <= 0) { // Touch always takes priority over mouse
+    if (touches <= 0) { // Touch always takes priority over mouse
 #endif                                                                         //! RETRO_USING_SDL2
         int mx = 0, my = 0;
         SDL_GetMouseState(&mx, &my);

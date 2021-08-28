@@ -73,7 +73,7 @@ typedef unsigned int uint;
 #elif defined __ANDROID__
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
-#undef RETRO_USE_MOD_LOADER
+#include <jni.h>
 #else
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
@@ -139,13 +139,6 @@ typedef unsigned int uint;
 #endif
 
 #define RETRO_USE_HAPTICS (1)
-
-// this macro defines the touch device read by the game (UWP requires DIRECT)
-#if RETRO_PLATFORM == RETRO_UWP
-#define RETRO_TOUCH_DEVICE 0
-#else
-#define RETRO_TOUCH_DEVICE 1
-#endif
 
 // reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
 // generally advised to keep this set to 0
@@ -324,6 +317,9 @@ public:
 
 #if !RETRO_USE_ORIGINAL_CODE
     byte gameType = GAME_UNKNOWN;
+#if RETRO_USE_MOD_LOADER
+    bool modMenuCalled = false;
+#endif
 #endif
 
 #if RETRO_SOFTWARE_RENDER
@@ -358,14 +354,14 @@ public:
 #if RETRO_SOFTWARE_RENDER
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
-#endif
+#endif // RETRO_SOFTWARE_RENDERER
 
     SDL_Event sdlEvents;
 
 #if RETRO_USING_OPENGL
     SDL_GLContext m_glContext; // OpenGL context
-#endif
-#endif
+#endif // RETRO_USING_OPENGL
+#endif // RETRO_USING_SDL2
 
 #if RETRO_USING_SDL1
     SDL_Surface *windowSurface = nullptr;
@@ -374,8 +370,8 @@ public:
     SDL_Surface *screenBuffer2x = nullptr;
 
     SDL_Event sdlEvents;
-#endif
-#endif
+#endif // RETRO_USING_SDL1
+#endif //! RETRO_USE_ORIGINAL_CODE
 };
 
 extern RetroEngine Engine;

@@ -116,6 +116,10 @@ inline void CloseRSDKContainers()
     rsdkContainer.fileCount = 0;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
+int CheckFileInfo(const char *filepath);
+#endif
+
 bool LoadFile(const char *filePath, FileInfo *fileInfo);
 inline bool CloseFile()
 {
@@ -135,7 +139,7 @@ inline size_t FillFileBuffer()
 {
     if (readPos + 0x2000 <= fileSize)
         readSize = 0x2000;
-    else 
+    else
         readSize = fileSize - readPos;
 
     size_t result = fRead(fileBuffer, 1u, readSize, cFileHandle);

@@ -84,7 +84,7 @@ void InitFirstStage(void)
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode = 0;
@@ -102,7 +102,7 @@ void InitStartingStage(int list, int stage, int player)
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
-    StopMusic();
+    StopMusic(true);
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode      = 0;
@@ -120,7 +120,6 @@ void InitStartingStage(int list, int stage, int player)
 
 void ProcessStage(void)
 {
-    int updateMax = 0;
     switch (stageMode) {
         case STAGEMODE_LOAD: // Startup
             fadeMode = 0;
@@ -227,7 +226,10 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
+			
             // Update
             ProcessObjects();
 
@@ -344,8 +346,9 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-
-            updateMax = 1;
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
 
             // Update
             Process2PObjects();
@@ -393,6 +396,10 @@ void ProcessStage(void)
                     }
                     stageMilliseconds = 100 * frameCounter / 60;
                 }
+				else {
+					frameCounter = 60 * stageMilliseconds / 100;
+				}
+
 
                 ProcessObjects();
                 if (cameraTarget > -1) {
@@ -511,7 +518,10 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-
+			else {
+				frameCounter = 60 * stageMilliseconds / 100;
+			}
+			
             // Update
             Process2PObjects();
 
@@ -589,7 +599,16 @@ void LoadStageFiles(void)
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
-            if (Engine.usingBytecode && !forceUseScripts) {
+            bool bytecodeExists = false;
+            FileInfo bytecodeInfo;
+            GetFileInfo(&infoStore);
+            if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
+                bytecodeExists = true;
+                CloseFile();
+            }
+            SetFileInfo(&infoStore);
+
+            if (bytecodeExists && !forceUseScripts) {
 #else
             if (Engine.usingBytecode) {
 #endif
@@ -653,7 +672,28 @@ void LoadStageFiles(void)
             }
 
 #if !RETRO_USE_ORIGINAL_CODE
-            if (Engine.usingBytecode && !forceUseScripts) {
+            char scriptPath[0x40];
+            switch (activeStageList) {
+                case STAGELIST_PRESENTATION:
+                case STAGELIST_REGULAR:
+                case STAGELIST_BONUS:
+                case STAGELIST_SPECIAL:
+                    StrCopy(scriptPath, "Bytecode/");
+                    StrAdd(scriptPath, stageList[activeStageList][stageListPosition].folder);
+                    StrAdd(scriptPath, ".bin");
+                    break;
+                default: break;
+            }
+            bool bytecodeExists = false;
+            FileInfo bytecodeInfo;
+            GetFileInfo(&infoStore);
+            if (LoadFile(scriptPath, &info)) {
+                bytecodeExists = true;
+                CloseFile();
+            }
+            SetFileInfo(&infoStore);
+
+            if (bytecodeExists && !forceUseScripts) {
 #else
             if (Engine.usingBytecode) {
 #endif
@@ -775,7 +815,7 @@ void LoadActLayout()
                 FileRead(&fileBuffer[0], 1);
                 tiles[x] = fileBuffer[0];
                 FileRead(&fileBuffer[0], 1);
-                tiles[x] += fileBuffer[0] << 8;
+                tiles[x] |= fileBuffer[0] << 8;
             }
         }
 

@@ -20,7 +20,7 @@ NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 // Game Objects
 int objectEntityPos = 0;
 int curObjectType   = 0;
-Entity objectEntityList[ENTITY_COUNT];
+Entity objectEntityList[ENTITY_COUNT * 2]; //"regular" list & "storage" list
 int processObjectFlag[ENTITY_COUNT];
 TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 

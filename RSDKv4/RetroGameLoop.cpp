@@ -105,7 +105,7 @@ void RetroGameLoop_Main(void *objPtr)
             initMods(); // reload mods
 
             char buffer[0x100];
-            for (int m = 0; m < modCount; ++m) {
+            for (int m = 0; m < modList.size(); ++m) {
                 StrCopy(buffer, modList[m].name.c_str());
                 StrAdd(buffer, ": ");
                 StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");

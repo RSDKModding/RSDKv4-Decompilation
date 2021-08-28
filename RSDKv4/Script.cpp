@@ -1112,10 +1112,10 @@ void CheckStaticText(char *text)
     if (FindStringToken(text, "privatevalue", 1) == 0) {
         if (privateStaticVarCount >= STATICVAR_COUNT) // private value and we reached the cap
             return;
-        var       = &privateStaticVariables[privateStaticVarCount];
-        cnt       = &privateStaticVarCount;
-        textPos   = 12;
-        priv = true;
+        var     = &privateStaticVariables[privateStaticVarCount];
+        cnt     = &privateStaticVarCount;
+        textPos = 12;
+        priv    = true;
     }
     MEM_ZEROP(var);
 
@@ -2194,8 +2194,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
 #if RETRO_USE_HAPTICS
                                  && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
-                                 )
-                        {
+                        ) {
                             parseMode = PARSEMODE_PLATFORMSKIP;
                         }
                     }
@@ -4049,7 +4048,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_STOPMUSIC:
                 opcodeSize = 0;
-                StopMusic();
+                StopMusic(true);
                 break;
             case FUNC_PAUSEMUSIC:
                 opcodeSize = 0;
@@ -4359,8 +4358,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
                 TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
-                DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
-                               scriptEng.operands[5], scriptEng.operands[6]);
+                if (!Engine.drawLock) {
+                    DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                                   scriptEng.operands[5], scriptEng.operands[6]);
+                }
                 break;
             }
 #endif
@@ -4432,38 +4433,44 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
 #if !RETRO_REV01
             case FUNC_GETOBJECTVALUE: {
-                int valID = scriptEng.operands[1];
-                if (valID <= 47)
-                    scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[valID];
+                if (scriptEng.operands[1] < 48)
+                    scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]];
                 break;
             }
             case FUNC_SETOBJECTVALUE: {
                 opcodeSize = 0;
-                int valID  = scriptEng.operands[1];
-                if (valID <= 47)
-                    objectEntityList[scriptEng.operands[2]].values[valID] = scriptEng.operands[0];
+                if (scriptEng.operands[1] < 48)
+                    objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]] = scriptEng.operands[0];
                 break;
             }
             case FUNC_COPYOBJECT: {
-                opcodeSize = 0;
-                // start index, copy offset, count
-                Entity *src = &objectEntityList[scriptEng.operands[0]];
-                for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                    Entity *dst = &src[scriptEng.operands[1]];
-                    ++src;
-                    memcpy(dst, src, sizeof(Entity));
-                }
+                // dstID, srcID, count
+                Entity *storageList = &objectEntityList[ENTITY_COUNT + scriptEng.operands[0]];
+                Entity *objList     = &objectEntityList[scriptEng.operands[1]];
+
+                if (scriptEng.operands[2])
+                    memcpy(objList, storageList, sizeof(Entity));
+                else
+                    memcpy(storageList, objList, sizeof(Entity));
+
+                //for (int e = 0; e < scriptEng.operands[2]; ++e) {
+                //    memcpy(storageList, objList, sizeof(Entity));
+                //    storageList++;
+                //    objList++;
+                //}
                 break;
             }
 #endif
             case FUNC_PRINT: {
+                endLine = false;
                 if (scriptEng.operands[1])
-                    printf("%d", scriptEng.operands[0]);
+                    printLog("%d", scriptEng.operands[0]);
                 else
-                    printf("%s", scriptText);
+                    printLog("%s", scriptText);
 
                 if (scriptEng.operands[2])
-                    printf("\n");
+                    printLog("\n");
+                endLine = true;
                 break;
             }
         }
