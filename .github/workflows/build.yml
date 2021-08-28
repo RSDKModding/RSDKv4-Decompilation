@@ -104,9 +104,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev stb-dev
       - name: Build RSDKv4
-        run: make USE_HW_REN=1
+        run: make
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
