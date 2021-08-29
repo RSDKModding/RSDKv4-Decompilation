@@ -43,7 +43,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Debug /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -90,7 +90,7 @@ jobs:
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Debug /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
@@ -109,7 +109,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev stb-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev libstb-dev
       - name: Build RSDKv4
         run: make
       - name: Upload artifact
