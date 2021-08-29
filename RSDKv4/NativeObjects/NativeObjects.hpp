@@ -5,7 +5,7 @@
 #define CREATE_ENTITY(type) ((NativeEntity_##type *)CreateNativeObject(type##_Create, type##_Main))
 
 extern bool usePhysicalControls;
-extern byte timeAttackTex[0x10];
+extern byte timeAttackTex;
 extern ushort helpText[0x1000];
 
 #include "MenuBG.hpp"

@@ -758,10 +758,9 @@ void AddTimeStringToFont(ushort *text, int time, int fontID)
     }
     StrAdd(textBuffer, "'");
     if (seconds) {
-        if (seconds <= 9) {
+        if (seconds <= 9)
             StrAdd(textBuffer, "0");
-        }
-        ConvertIntegerToString(numBuffer, milliseconds);
+        ConvertIntegerToString(numBuffer, seconds);
         StrAdd(textBuffer, numBuffer);
     }
     else {
@@ -777,6 +776,12 @@ void AddTimeStringToFont(ushort *text, int time, int fontID)
     }
     else {
         StrAdd(textBuffer, "00");
+    }
+
+    while (*text) {
+        if (*text == 1)
+            *text = 2;
+        text++;
     }
 
     SetStringToFont8(text, textBuffer, fontID);

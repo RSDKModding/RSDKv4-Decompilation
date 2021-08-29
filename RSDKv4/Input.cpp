@@ -519,12 +519,15 @@ int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
 {
     MatrixF *mat = (MatrixF *)m;
     for (int f = 0; f < touches; ++f) {
-        float valX = (((touchXF[f] * mat->values[0][0]) + (touchYF[f] * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
-        if (valX > (x - w) && (x + w) > valX) {
-            float valY =
-                (((touchXF[f] * mat->values[0][1]) + (touchYF[f] * mat->values[1][1])) + (SCREEN_YSIZE * mat->values[2][1])) + mat->values[3][1];
-            if (valY > (y - h) && (y + h) > valY)
-                return f;
+        float tx = touchXF[f];
+        float ty = touchYF[f];
+        if (touchDown[f]) {
+            float posX = (((tx * mat->values[0][0]) + (ty * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
+            if (posX > (x - w) && posX <= (x + w)) {
+                float posY = (((tx * mat->values[0][1]) + (ty * mat->values[1][1])) + (mat->values[2][1] * SCREEN_YSIZE)) + mat->values[3][1];
+                if (posY > (y - h) && posY <= (y + h))
+                    return f;
+            }
         }
     }
     return -1;

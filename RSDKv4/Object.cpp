@@ -448,19 +448,17 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
             entity->createPtr(entity);
         return entity;
     }
-    else if (nativeEntityCount >= 0xFF) {
+    else if (nativeEntityCount >= NATIVEENTITY_COUNT) {
         // TODO
         return NULL;
     }
     else {
-        NativeEntity *entity = objectEntityBank;
-        int slot             = 0;
-        while (entity->mainPtr) {
-            ++entity;
-            ++slot;
-            if (slot >= NATIVEENTITY_COUNT)
-                return entity;
+        int slot = 0;
+        for (; slot < NATIVEENTITY_COUNT; ++slot) {
+            if (!objectEntityBank[slot].mainPtr)
+                break;
         }
+        NativeEntity *entity = &objectEntityBank[slot];
         memset(entity, 0, sizeof(NativeEntity));
         entity->slotID                        = slot;
         entity->objectID                      = nativeEntityCount;
@@ -515,4 +513,13 @@ void ProcessNativeObjects()
         entity->mainPtr(entity);
     }
     RenderScene();
+}
+
+void RestoreNativeObjects()
+{
+    memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
+    nativeEntityCount = nativeEntityCountBackup;
+
+    CREATE_ENTITY(FadeScreen)->state = 0;
 }

@@ -39,7 +39,7 @@ extern ushort *strNSRestartMessage;
 extern ushort *strNSExitMessage;
 extern ushort *strExitGame;
 extern ushort *strNetworkMessage;
-extern ushort *strStageList[8];
+extern ushort *strStageList[16];
 extern ushort *strSaveStageList[32];
 extern ushort *strNewBestTime;
 extern ushort *strRecords;

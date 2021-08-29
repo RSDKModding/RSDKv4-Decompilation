@@ -25,7 +25,7 @@ void DialogPanel_Main(void *objPtr)
                 confirmButton->blue            = 0x00A048;
                 confirmButton->blue2           = 0x00C060;
                 confirmButton->useRenderMatrix = true;
-                SetStringToFont8(confirmButton->text, (char *)" OK ", 1);
+                SetStringToFont8(confirmButton->text, " OK ", 1);
             }
             else {
                 confirmButton->x               = -48.0;

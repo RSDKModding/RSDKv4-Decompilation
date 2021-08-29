@@ -16,7 +16,7 @@ void InstructionsScreen_Create(void *objPtr)
     entity->labelPtr->textZ           = 16.0;
     entity->labelPtr->alignment       = 0;
     SetStringToFont(entity->labelPtr->text, strInstructions, 0);
-    SetStringToFont8(entity->pageIDText, (char*)"1 / 5", 2);
+    SetStringToFont8(entity->pageIDText, "1 / 5", 2);
     SetStringToFont(helpText, strHelpText1, 2);
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
@@ -27,15 +27,15 @@ void InstructionsScreen_Create(void *objPtr)
     entity->textHeight       = (GetTextHeight(helpText, 2, 0.14) - 152.0) + 68.0;
     if (Engine.gameDeviceType == RETRO_STANDARD) {
         entity->textureDPad = LoadTexture("Data/Game/Menu/Generic.png", TEXFMT_RGBA8888);
-        if (timeAttackTex[0])
-            ReplaceTexture("Data/Game/Menu/HelpGraphics.png", timeAttackTex[0]);
+        if (timeAttackTex)
+            ReplaceTexture("Data/Game/Menu/HelpGraphics.png", timeAttackTex);
         else
             entity->textureHelp = LoadTexture("Data/Game/Menu/HelpGraphics.png", TEXFMT_RGBA5551);
     }
     else {
         entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
-        if (timeAttackTex[0])
-            ReplaceTexture("Data/Game/Menu/HelpGraphics.png", timeAttackTex[0]);
+        if (timeAttackTex)
+            ReplaceTexture("Data/Game/Menu/HelpGraphics.png", timeAttackTex);
         else
             entity->textureHelp = LoadTexture("Data/Game/Menu/HelpGraphics.png", TEXFMT_RGBA5551);
     }

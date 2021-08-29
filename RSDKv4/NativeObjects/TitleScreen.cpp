@@ -397,7 +397,7 @@ void TitleScreen_Main(void *objPtr)
             AnimateMesh(entity->boxMesh, &entity->meshAnimator);
 
             float val  = 60.0 * Engine.deltaTime;
-            float val2 = 0.125 * (60.0 * Engine.deltaTime);
+            float val2 = 0.125 * val;
 
             entity->field_3C = (entity->field_3C - val2) - val2;
             entity->field_38 += (val * (entity->field_3C - val2));

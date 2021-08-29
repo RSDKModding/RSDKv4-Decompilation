@@ -49,7 +49,7 @@ struct SaveGame {
     int knuxUnlocked;
     int totalScore;
     int unused[18];
-    int records[64];
+    int records[0x80];
 };
 
 enum OnlineMenuTypes {

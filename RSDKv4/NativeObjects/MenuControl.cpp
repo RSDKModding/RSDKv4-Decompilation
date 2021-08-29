@@ -377,6 +377,7 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("specialStage.emeralds", 0);
                         SetGlobalVariableByName("specialStage.nextZone", 0);
                         SetGlobalVariableByName("timeAttack.result", 0);
+                        SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
                         if (Engine.onlineActive) {
                             InitStartingStage(0, 3, 0);

@@ -31,7 +31,7 @@ ushort *strNSRestartMessage = NULL;
 ushort *strNSExitMessage    = NULL;
 ushort *strExitGame         = NULL;
 ushort *strNetworkMessage   = NULL;
-ushort *strStageList[8];
+ushort *strStageList[16];
 ushort *strSaveStageList[32];
 ushort *strNewBestTime      = NULL;
 ushort *strRecords          = NULL;
@@ -325,15 +325,7 @@ void InitLocalizedStrings() {
     }
     strExitGame          = ReadLocalizedString("ExitGame", langStr, "Data/Game/StringList.txt");
     strNetworkMessage    = ReadLocalizedString("NetworkMessage", langStr, "Data/Game/StringList.txt");
-    strStageList[0]      = ReadLocalizedString("StageName1", "en", "Data/Game/StringList.txt");
-    strStageList[1]      = ReadLocalizedString("StageName2", "en", "Data/Game/StringList.txt");
-    strStageList[2]      = ReadLocalizedString("StageName3", "en", "Data/Game/StringList.txt");
-    strStageList[3]      = ReadLocalizedString("StageName4", "en", "Data/Game/StringList.txt");
-    strStageList[4]      = ReadLocalizedString("StageName5", "en", "Data/Game/StringList.txt");
-    strStageList[5]      = ReadLocalizedString("StageName6", "en", "Data/Game/StringList.txt");
-    strStageList[6]      = ReadLocalizedString("StageName7", "en", "Data/Game/StringList.txt");
-    strStageList[7]      = ReadLocalizedString("StageName8", "en", "Data/Game/StringList.txt");
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 16; ++i) {
         char buffer[0x10];
         sprintf(buffer, "StageName%d", i + 1);
 

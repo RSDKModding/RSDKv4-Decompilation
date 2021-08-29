@@ -49,7 +49,7 @@ void PauseMenu_Create(void *objPtr)
     SetStringToFont(entity->buttons[2]->text, strSettings, 1);
     SetStringToFont(entity->buttons[3]->text, strExit, 1);
     if (pauseMenuButtonCount == 5)
-        SetStringToFont8(entity->buttons[4]->text, (char *)"DEV MENU", 1);
+        SetStringToFont8(entity->buttons[4]->text, "DEV MENU", 1);
     entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     entity->rotationY     = 0.0;
     entity->rotYOff       = DegreesToRad(-16.0);
@@ -214,7 +214,7 @@ void PauseMenu_Main(void *objPtr)
                         SetStringToFont(entity->dialog->text, GetGlobalVariableByName("options.gameMode") ? strExitMessage : strNSExitMessage, 2);
                         entity->state = 9;
                         if (Engine.gameType == GAME_SONIC1)
-                            SetGlobalVariableByName("timeAttack.result", 0xF4240);
+                            SetGlobalVariableByName("timeAttack.result", 1000000);
                         break;
 #if !RETRO_USE_ORIGINAL_CODE
                     case PMB_DEVMENU:

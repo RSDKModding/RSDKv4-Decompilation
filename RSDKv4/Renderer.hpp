@@ -126,6 +126,7 @@ void matrixRotateXF(MatrixF *matrix, float rotationX);
 void matrixRotateYF(MatrixF *matrix, float rotationY);
 void matrixRotateZF(MatrixF *matrix, float rotationZ);
 void matrixRotateXYZF(MatrixF *matrix, float rotationX, float rotationY, float rotationZ);
+void matrixInvertF(MatrixF *dstMatrix, MatrixF *matrix);
 
 //Render States
 void ResetRenderStates();
