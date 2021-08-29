@@ -52,12 +52,6 @@ void ProcessStartupObjects()
     memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
     memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
 
-#if !RETRO_USE_ORIGINAL_CODE
-    int flagStore  = GetGlobalVariableByName("options.stageSelectFlag");
-    int flagStore2 = GetGlobalVariableByName("options.saveSlot");
-    SetGlobalVariableByName("options.stageSelectFlag", 1); // temp, to allow game opts
-#endif
-
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];
         objectEntityPos             = TEMPENTITY_START;
@@ -66,47 +60,12 @@ void ProcessStartupObjects()
         scriptInfo->spriteSheetID   = 0;
         entity->type                = i;
 
-#if !RETRO_USE_ORIGINAL_CODE
-        // Man this is so hacky, I hope there's a better way to do this
-        if (StrComp("StageSetup", typeNames[i])) {
-            SetGlobalVariableByName("options.saveSlot", 0);
-        }
-#endif
-
         if (scriptData[scriptInfo->eventStartup.scriptCodePtr] > 0)
             ProcessScript(scriptInfo->eventStartup.scriptCodePtr, scriptInfo->eventStartup.jumpTablePtr, EVENT_SETUP);
         scriptInfo->frameCount = scriptFrameCount - scriptInfo->frameListOffset;
-
-#if !RETRO_USE_ORIGINAL_CODE
-        if (StrComp("StageSetup", typeNames[i])) {
-            SetGlobalVariableByName("options.saveSlot", flagStore2);
-        }
-#endif
     }
     entity->type  = 0;
     curObjectType = 0;
-
-#if !RETRO_USE_ORIGINAL_CODE
-    // Temp(?): forces game options to load on non-no save slots
-    SetGlobalVariableByName("options.stageSelectFlag", flagStore);
-    if (GetGlobalVariableByName("options.gameMode") == 1) {
-        if (Engine.gameType == GAME_SONIC1) {
-            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
-        }
-        else {
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-    }
-#endif
 }
 
 void ProcessObjects()

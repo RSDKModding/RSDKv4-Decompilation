@@ -127,8 +127,8 @@ void TimeAttack_Create(void *objPtr)
 
     int zone = saveGame->totalScore;
     for (int i = 0; i < 4; ++i) {
-        if (saveGame->files[i].zoneID > zone)
-            zone = saveGame->files[i].zoneID;
+        if (saveGame->files[i].stageID > zone)
+            zone = saveGame->files[i].stageID;
     }
     saveGame->totalScore = zone;
 

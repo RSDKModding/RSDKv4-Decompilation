@@ -53,9 +53,9 @@ void SaveSelect_Create(void *objPtr)
     for (int i = 1; i <= 4; ++i) {
         entity->saveButtons[i] = CREATE_ENTITY(SubMenuButton);
 
-        int stagePos = saveGame->files[i - 1].zoneID;
+        int stagePos = saveGame->files[i - 1].stageID;
         if (stagePos >= 0x80) {
-            SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialZoneID + 19], 1);
+            SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialStageID + 19], 1);
             entity->saveButtons[i]->state     = 4;
             entity->saveButtons[i]->textY     = 2.0;
             entity->saveButtons[i]->textScale = 0.08;
@@ -189,7 +189,7 @@ void SaveSelect_Main(void *objPtr)
                         if (entity->selectedSave <= 4) {
                             PlaySfx(22, 0);
                             entity->saveButtons[entity->selectedSave]->state = 2;
-                            if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].zoneID > 0) {
+                            if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
                                 StopMusic(true);
                                 entity->saveButtons[entity->selectedSave]->state = 3;
                             }
@@ -217,7 +217,7 @@ void SaveSelect_Main(void *objPtr)
                         entity->selectedSave = i;
                         PlaySfx(22, 0);
                         entity->saveButtons[i]->state = 2;
-                        if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].zoneID > 0) {
+                        if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
                             StopMusic(true);
                             entity->saveButtons[i]->state = 3;
                         }
@@ -303,7 +303,7 @@ void SaveSelect_Main(void *objPtr)
                 }
                 else if (entity->selectedSave) {
                     int saveSlot = entity->selectedSave - 1;
-                    if (saveGame->files[saveSlot].zoneID) {
+                    if (saveGame->files[saveSlot].stageID) {
                         entity->state = 6;
                         SetGlobalVariableByName("options.saveSlot", saveSlot);
                         SetGlobalVariableByName("options.gameMode", 1);
@@ -311,18 +311,18 @@ void SaveSelect_Main(void *objPtr)
                         SetGlobalVariableByName("player.lives", saveGame->files[saveSlot].lives);
                         SetGlobalVariableByName("player.score", saveGame->files[saveSlot].score);
                         SetGlobalVariableByName("player.scoreBonus", saveGame->files[saveSlot].scoreBonus);
-                        SetGlobalVariableByName("specialStage.listPos", saveGame->files[saveSlot].specialZoneID);
+                        SetGlobalVariableByName("specialStage.listPos", saveGame->files[saveSlot].specialStageID);
                         SetGlobalVariableByName("specialStage.emeralds", saveGame->files[saveSlot].emeralds);
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
                         debugMode = false;
-                        if (saveGame->files[saveSlot].zoneID >= 0x80) {
-                            SetGlobalVariableByName("specialStage.nextZone", saveGame->files[saveSlot].zoneID - 129);
-                            InitStartingStage(3, saveGame->files[saveSlot].specialZoneID, saveGame->files[saveSlot].characterID);
+                        if (saveGame->files[saveSlot].stageID >= 0x80) {
+                            SetGlobalVariableByName("specialStage.nextZone", saveGame->files[saveSlot].stageID - 0x81);
+                            InitStartingStage(STAGELIST_SPECIAL, saveGame->files[saveSlot].specialStageID, saveGame->files[saveSlot].characterID);
                         }
                         else {
-                            SetGlobalVariableByName("specialStage.nextZone", saveGame->files[saveSlot].zoneID - 1);
-                            InitStartingStage(1, saveGame->files[saveSlot].zoneID - 1, saveGame->files[saveSlot].characterID);
+                            SetGlobalVariableByName("specialStage.nextZone", saveGame->files[saveSlot].stageID - 1);
+                            InitStartingStage(STAGELIST_REGULAR, saveGame->files[saveSlot].stageID - 1, saveGame->files[saveSlot].characterID);
                         }
                         CREATE_ENTITY(FadeScreen);
                     }
@@ -615,9 +615,9 @@ void SaveSelect_Main(void *objPtr)
                 saveGame->files[entity->selectedSave - 1].lives         = 3;
                 saveGame->files[entity->selectedSave - 1].score         = 0;
                 saveGame->files[entity->selectedSave - 1].scoreBonus    = 500000;
-                saveGame->files[entity->selectedSave - 1].zoneID        = 0;
+                saveGame->files[entity->selectedSave - 1].stageID        = 0;
                 saveGame->files[entity->selectedSave - 1].emeralds      = 0;
-                saveGame->files[entity->selectedSave - 1].specialZoneID = 0;
+                saveGame->files[entity->selectedSave - 1].specialStageID = 0;
                 WriteSaveRAMData();
 
                 entity->deleteEnabled = 0;

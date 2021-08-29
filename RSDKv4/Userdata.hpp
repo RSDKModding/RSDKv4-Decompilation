@@ -26,9 +26,9 @@ struct SaveFile {
     int lives;
     int score;
     int scoreBonus;
-    int zoneID;
+    int stageID;
     int emeralds;
-    int specialZoneID;
+    int specialStageID;
     int unused;
 };
 

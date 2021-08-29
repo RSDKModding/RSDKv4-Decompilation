@@ -213,9 +213,9 @@ void PlayerSelectScreen_Main(void *objPtr)
                     saveGame->files[saveSel->selectedSave - 1].lives         = 3;
                     saveGame->files[saveSel->selectedSave - 1].score         = 0;
                     saveGame->files[saveSel->selectedSave - 1].scoreBonus    = 500000;
-                    saveGame->files[saveSel->selectedSave - 1].zoneID        = 1;
+                    saveGame->files[saveSel->selectedSave - 1].stageID        = 1;
                     saveGame->files[saveSel->selectedSave - 1].emeralds      = 0;
-                    saveGame->files[saveSel->selectedSave - 1].specialZoneID = 0;
+                    saveGame->files[saveSel->selectedSave - 1].specialStageID = 0;
                     WriteSaveRAMData();
                 }
                 SetGlobalVariableByName("player.lives", 3);
@@ -234,7 +234,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                     case SAVESEL_KNUX: saveGame->files[saveSel->selectedSave - 1].characterID = 2; break;
                     case SAVESEL_ST: saveGame->files[saveSel->selectedSave - 1].characterID = 3; break;
                 }
-                InitStartingStage(0, 0, saveGame->files[saveSel->selectedSave - 1].characterID);
+                InitStartingStage(STAGELIST_PRESENTATION, 0, saveGame->files[saveSel->selectedSave - 1].characterID);
 
                 CREATE_ENTITY(FadeScreen);
             }

@@ -380,7 +380,7 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
                         if (Engine.onlineActive) {
-                            InitStartingStage(0, 3, 0);
+                            InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
                             CREATE_ENTITY(FadeScreen);
                         }
                         else {

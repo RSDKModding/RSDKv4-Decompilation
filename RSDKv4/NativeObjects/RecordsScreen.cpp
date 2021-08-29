@@ -516,17 +516,18 @@ void RecordsScreen_Main(void *objPtr)
                 SetGlobalVariableByName("timeAttack.result", 0);
 
                 if (entity->zoneID >= 7 && Engine.gameType == GAME_SONIC1)
-                    InitStartingStage(3, entity->actID, 0);
+                    InitStartingStage(STAGELIST_SPECIAL, entity->actID, 0);
                 else if (entity->zoneID >= 9 && Engine.gameType == GAME_SONIC2) {
                     switch (entity->zoneID) {
                         default: break;
-                        case 9: InitStartingStage(2, 1, 0); break;
-                        case 10: InitStartingStage(1, entity->zoneID * timeAttack_ActCount, 0); break;
-                        case 11: InitStartingStage(2, 0, 0); break;
+                        case 9: InitStartingStage(STAGELIST_BONUS, 1, 0); break;
+                        case 10: InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount, 0); break;
+                        case 11: InitStartingStage(STAGELIST_BONUS, 0, 0); break;
                     }
                 } 
                 else
-                    InitStartingStage(1, entity->zoneID * timeAttack_ActCount + entity->actID, 0);
+                    InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount + entity->actID, 0);
+
                 entity->state      = 6;
                 entity->taResultID = GetGlobalVariableID("timeAttack.result");
                 BackupNativeObjects();
