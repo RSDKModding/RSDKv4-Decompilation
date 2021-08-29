@@ -19,7 +19,7 @@ void AboutScreen_Create(void *objPtr)
     for (int i = 0; i < StrLength(Engine.gameWindowText); ++i) title[i] = toupper(Engine.gameWindowText[i]);
     SetStringToFont8(entity->gameTitle, title, 1);
     SetStringToFont(entity->versionNameText, strVersionName, 1);
-    SetStringToFont8(entity->versionText, (char*)Engine.gameVersion, 1);
+    SetStringToFont8(entity->versionText, Engine.gameVersion, 1);
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 192);
@@ -138,7 +138,7 @@ void AboutScreen_Main(void *objPtr)
                     else if (keyPress.B) {
                         PlaySfx(23, 0);
                         entity->touchValid = false;
-                        entity->state      = 2;
+                        entity->state      = 3;
                     }
                 }
             }
@@ -146,9 +146,8 @@ void AboutScreen_Main(void *objPtr)
                 if (touches > 0) {
                     float y = -32.0f;
                     for (int i = 0; i < 2; ++i) {
-                        bool valid =
-                            CheckTouchRect(64.0, -32.0, ((64.0 * entity->buttons[i]->scale) + entity->buttons[i]->textWidth) * 0.75, 12.0) >= 0;
-                        entity->buttons[0]->state = valid;
+                        bool valid = CheckTouchRect(64.0, y, ((64.0 * entity->buttons[i]->scale) + entity->buttons[i]->textWidth) * 0.75, 12.0) >= 0;
+                        entity->buttons[i]->state = valid;
 
                         y -= 32.0f;
                     }
@@ -175,12 +174,12 @@ void AboutScreen_Main(void *objPtr)
                         }
                     }
 
-                    if (keyPress.B) {
+                    if (keyPress.B || entity->touchValid) {
                         PlaySfx(23, 0);
                         entity->touchValid = false;
-                        entity->state      = 2;
+                        entity->state      = 3;
                     }
-                    else if (entity->touchValid) {
+                    else {
                         if (entity->state == 1) {
                             if (keyDown.up) {
                                 entity->selectedButton = 1;
@@ -200,7 +199,7 @@ void AboutScreen_Main(void *objPtr)
             CheckKeyDown(&keyDown);
             SetRenderMatrix(&entity->renderMatrix);
 
-            if (!entity->buttons[entity->selectedButton]->state) {
+            if (entity->buttons[entity->selectedButton]->state) {
                 switch (entity->selectedButton) {
                     default: break;
                     case 0: ShowWebsite(0); break;

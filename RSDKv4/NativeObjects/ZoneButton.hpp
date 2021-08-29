@@ -20,8 +20,8 @@ struct NativeEntity_ZoneButton : NativeEntityBase {
     uint colourYellow;
     byte textureIntro;
     byte textureSymbols;
-    ushort text1[32];
-    ushort text2[32];
+    ushort zoneText[32];
+    ushort timeText[32];
     byte useRenderMatrix;
     MatrixF renderMatrix;
 };

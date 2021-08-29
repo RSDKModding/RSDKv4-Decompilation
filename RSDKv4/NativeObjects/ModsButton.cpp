@@ -19,7 +19,7 @@ void ModsButton_Create(void *objPtr)
     entity->labelPtr->textScale = 0.15;
     entity->labelPtr->textAlpha = 0;
     entity->labelPtr->alignment = 0;
-    SetStringToFont8(entity->labelPtr->text, (char *)"MODS", 0);
+    SetStringToFont8(entity->labelPtr->text, "MODS", 0);
     entity->labelPtr->alignPtr(entity->labelPtr, 1);
 }
 void ModsButton_Main(void *objPtr)

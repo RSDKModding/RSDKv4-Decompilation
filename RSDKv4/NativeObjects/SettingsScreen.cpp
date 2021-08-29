@@ -18,9 +18,9 @@ void SettingsScreen_Create(void *objPtr)
     label->textZ                  = 16.0;
     label->alignment              = 0;
     SetStringToFont(entity->label->text, strSettings, 0);
-    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 255);
+    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->panelMesh, 0, 0, 0, 0xC0);
-    entity->arrowsTex = LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
+    entity->arrowsTex = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
     SetStringToFont(entity->musicText, strMusic, 1);
     SetStringToFont(entity->sfxText, strSoundFX, 1);
     SetStringToFont(entity->spindashText, strSpindash, 1);
@@ -28,14 +28,14 @@ void SettingsScreen_Create(void *objPtr)
     for (int i = 0; i < 4; ++i) {
         button                  = CREATE_ENTITY(PushButton);
         entity->buttons[i]      = button;
-        button->x               = 32.0 + (i % 2) * 76;
-        button->y               = 62.0 - (i / 2) * 32;
+        button->x               = 32.0f + (i % 2) * 76;
+        button->y               = 62.0f - (i / 2) * 32;
         button->z               = 0.0;
         button->scale           = 0.175;
-        button->blue            = 0xA048;
-        button->blue2           = 0xC060;
+        button->blue            = 0x00A048;
+        button->blue2           = 0x00C060;
         button->useRenderMatrix = 1;
-        SetStringToFont8(entity->buttons[i]->text, (char *)((i % 2) ? "+" : "-"), 1);
+        SetStringToFont8(entity->buttons[i]->text, ((i % 2) ? "+" : "-"), 1);
     }
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[4]      = button;
@@ -44,8 +44,8 @@ void SettingsScreen_Create(void *objPtr)
     button->z               = 0.0;
     button->scale           = 0.175;
     button->useRenderMatrix = 1;
-    button->blue2           = 0xC060;
-    button->blue            = saveGame->spindashEnabled ? 0xA048 : 0x6020;
+    button->blue2           = 0x00C060;
+    button->blue            = saveGame->spindashEnabled ? 0x00A048 : 0x006020;
     SetStringToFont(entity->buttons[4]->text, strOn, 1);
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[5]      = button;
@@ -54,8 +54,8 @@ void SettingsScreen_Create(void *objPtr)
     button->z               = 0.0;
     button->scale           = 0.175;
     button->useRenderMatrix = 1;
-    button->blue2           = 0XA048;
-    button->blue            = !saveGame->spindashEnabled ? 0xA048 : 0x6020;
+    button->blue2           = 0x00A048;
+    button->blue            = !saveGame->spindashEnabled ? 0x00A048 : 0x006020;
     SetStringToFont(entity->buttons[5]->text, strOff, 1);
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[6]      = button;
@@ -64,9 +64,9 @@ void SettingsScreen_Create(void *objPtr)
     button->z               = 0.0;
     button->scale           = 0.175;
     button->useRenderMatrix = 1;
-    button->blue2           = 0XA048;
-    button->blue            = saveGame->boxRegion == 0 ? 0xA048 : 0x6020;
-    SetStringToFont8(entity->buttons[6]->text, (char *)"JP", 1);
+    button->blue2           = 0x00A048;
+    button->blue            = saveGame->boxRegion == 0 ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[6]->text, "JP", 1);
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[7]      = button;
     button->x               = 52.0;
@@ -74,9 +74,9 @@ void SettingsScreen_Create(void *objPtr)
     button->z               = 0.0;
     button->scale           = 0.175;
     button->useRenderMatrix = 1;
-    button->blue2           = 0xC060;
-    button->blue            = saveGame->boxRegion == 1 ? 0xA048 : 0x6020;
-    SetStringToFont8(entity->buttons[7]->text, (char *)"US", 1);
+    button->blue2           = 0x00C060;
+    button->blue            = saveGame->boxRegion == 1 ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[7]->text, "US", 1);
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[8]      = button;
     button->x               = 100.0;
@@ -84,9 +84,9 @@ void SettingsScreen_Create(void *objPtr)
     button->z               = 0.0;
     button->scale           = 0.175;
     button->useRenderMatrix = 1;
-    button->blue2           = 0xA048;
-    button->blue            = saveGame->boxRegion == 2 ? 0xA048 : 0x6020;
-    SetStringToFont8(entity->buttons[8]->text, (char *)"EU", 1);
+    button->blue2           = 0x00A048;
+    button->blue            = saveGame->boxRegion == 2 ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[8]->text, "EU", 1);
     button                  = CREATE_ENTITY(PushButton);
     entity->buttons[9]      = button;
     button->useRenderMatrix = 1;
@@ -94,26 +94,29 @@ void SettingsScreen_Create(void *objPtr)
     button->y               = -64.0;
     button->z               = 0.0;
     button->scale           = 0.13;
-    button->blue            = 0xA048;
-    button->blue2           = 0xC060;
+    button->blue            = 0x00A048;
+    button->blue2           = 0x00C060;
     SetStringToFont(button->text, strControls, 1);
-    if (Engine.gameDeviceType) {
-        int physControls = GetGlobalVariableByName("options.physicalControls");
-        if (physControls == 2) {
-            if (timeAttackTex[0])
-                ReplaceTexture("Data/Game/Menu/Moga.png", timeAttackTex[0]);
-            else
-                entity->controllerTex = LoadTexture("Data/Game/Menu/Moga.png", 2);
-        }
-        else if (physControls == 3) {
-            if (timeAttackTex[0])
-                ReplaceTexture("Data/Game/Menu/MogaPro.png", timeAttackTex[0]);
-            else
-                entity->controllerTex = LoadTexture("Data/Game/Menu/MogaPro.png", 2);
+
+    if (Engine.gameDeviceType == RETRO_MOBILE) {
+        switch (GetGlobalVariableByName("options.physicalControls")) {
+            default:  break;
+            case 2:
+                if (timeAttackTex)
+                    ReplaceTexture("Data/Game/Menu/Moga.png", timeAttackTex);
+                else
+                    entity->controllerTex = LoadTexture("Data/Game/Menu/Moga.png", TEXFMT_RGBA5551);
+                break;
+            case 3:
+                if (timeAttackTex)
+                    ReplaceTexture("Data/Game/Menu/MogaPro.png", timeAttackTex);
+                else
+                    entity->controllerTex = LoadTexture("Data/Game/Menu/MogaPro.png", TEXFMT_RGBA5551);
+                break;
         }
     }
     else {
-        entity->controllerTex = LoadTexture("Data/Game/Menu/Generic.png", 3);
+        entity->controllerTex = LoadTexture("Data/Game/Menu/Generic.png", TEXFMT_RGBA8888);
     }
 }
 
@@ -122,8 +125,8 @@ void SettingsScreen_Main(void *objPtr)
     RSDK_THIS(SettingsScreen);
 
     SaveGame *saveGame = (SaveGame *)saveRAM;
-
     NativeEntity_OptionsMenu *optionsMenu = entity->optionsMenu;
+
     switch (entity->state) {
         case 0:
             if (entity->alpha <= 255)
@@ -197,7 +200,7 @@ void SettingsScreen_Main(void *objPtr)
                             }
                             else if (keyPress.right) {
                                 PlaySfx(21, 0);
-                                if (saveGame->musVolume <= 99)
+                                if (saveGame->musVolume < MAX_VOLUME)
                                     saveGame->musVolume += 20;
                                 if (!musicEnabled) {
                                     musicEnabled = 1;
@@ -223,8 +226,8 @@ void SettingsScreen_Main(void *objPtr)
                             }
                             break;
                         case 2:
-                            entity->buttons[2]->state = keyDown.left == 1;
-                            entity->buttons[3]->state = keyDown.right == 1;
+                            entity->buttons[2]->state = keyDown.left == true;
+                            entity->buttons[3]->state = keyDown.right == true;
                             if (keyPress.left) {
                                 PlaySfx(21, 0);
                                 if (saveGame->sfxVolume > 0)
@@ -233,7 +236,7 @@ void SettingsScreen_Main(void *objPtr)
                             else {
                                 if (keyPress.right) {
                                     PlaySfx(21, 0);
-                                    if (saveGame->sfxVolume <= 99)
+                                    if (saveGame->sfxVolume < MAX_VOLUME)
                                         saveGame->sfxVolume += 20;
                                 }
                                 else {
@@ -253,7 +256,7 @@ void SettingsScreen_Main(void *objPtr)
                             }
                             break;
                         case 3:
-                            if (saveGame->spindashEnabled == 1)
+                            if (saveGame->spindashEnabled)
                                 entity->buttons[4]->state = 1;
                             else
                                 entity->buttons[5]->state = 1;
@@ -263,19 +266,19 @@ void SettingsScreen_Main(void *objPtr)
                                     entity->buttons[4]->state = 0;
                                     entity->buttons[5]->state = 1;
                                     saveGame->spindashEnabled = 0;
-                                    entity->buttons[4]->blue  = 0x6020;
-                                    entity->buttons[4]->blue2 = 0xC060;
-                                    entity->buttons[5]->blue  = 0xA048;
+                                    entity->buttons[4]->blue  = 0x006020;
+                                    entity->buttons[4]->blue2 = 0x00C060;
+                                    entity->buttons[5]->blue  = 0x00A048;
                                 }
                                 else {
                                     entity->buttons[4]->state = 1;
                                     entity->buttons[5]->state = 0;
                                     saveGame->spindashEnabled = 1;
-                                    entity->buttons[4]->blue  = 0xA048;
-                                    entity->buttons[4]->blue2 = 0xC060;
-                                    entity->buttons[5]->blue  = 0x6020;
+                                    entity->buttons[4]->blue  = 0x00A048;
+                                    entity->buttons[4]->blue2 = 0x00C060;
+                                    entity->buttons[5]->blue  = 0x006020;
                                 }
-                                entity->buttons[5]->blue2 = 0xC060;
+                                entity->buttons[5]->blue2 = 0x00C060;
                             }
                             if (entity->state == 1 && keyPress.B) {
                                 PlaySfx(23, 0);
@@ -299,14 +302,14 @@ void SettingsScreen_Main(void *objPtr)
                                         boxRegion = saveGame->boxRegion + 1;
                                 }
                                 saveGame->boxRegion                             = boxRegion;
-                                entity->buttons[6]->blue                        = 0x6020;
-                                entity->buttons[6]->blue2                       = 0xC060;
-                                entity->buttons[7]->blue                        = 0x6020;
-                                entity->buttons[7]->blue2                       = 0xC060;
-                                entity->buttons[8]->blue                        = 0x6020;
-                                entity->buttons[8]->blue2                       = 0xC060;
-                                entity->buttons[saveGame->boxRegion + 6]->blue  = 0xA048;
-                                entity->buttons[saveGame->boxRegion + 6]->blue2 = 0xC060;
+                                entity->buttons[6]->blue                        = 0x006020;
+                                entity->buttons[6]->blue2                       = 0x00C060;
+                                entity->buttons[7]->blue                        = 0x006020;
+                                entity->buttons[7]->blue2                       = 0x00C060;
+                                entity->buttons[8]->blue                        = 0x006020;
+                                entity->buttons[8]->blue2                       = 0x00C060;
+                                entity->buttons[saveGame->boxRegion + 6]->blue  = 0x00A048;
+                                entity->buttons[saveGame->boxRegion + 6]->blue2 = 0x00C060;
                             }
                             entity->buttons[saveGame->boxRegion + 6]->state = 1;
                             if (entity->state == 1 && keyPress.B) {
@@ -396,54 +399,54 @@ void SettingsScreen_Main(void *objPtr)
                     if (entity->buttons[4]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[4]->state = 0;
-                        saveGame->spindashEnabled = 1;
-                        entity->buttons[4]->blue  = 0xA048;
-                        entity->buttons[4]->blue2 = 0xC060;
-                        entity->buttons[5]->blue  = 0x6020;
-                        entity->buttons[5]->blue2 = 0xC060;
+                        saveGame->spindashEnabled = true;
+                        entity->buttons[4]->blue  = 0x00A048;
+                        entity->buttons[4]->blue2 = 0x00C060;
+                        entity->buttons[5]->blue  = 0x006020;
+                        entity->buttons[5]->blue2 = 0x00C060;
                     }
                     if (entity->buttons[5]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[5]->state = 0;
                         saveGame->spindashEnabled = 0;
-                        entity->buttons[4]->blue  = 0x6020;
-                        entity->buttons[4]->blue2 = 0xC060;
-                        entity->buttons[5]->blue  = 0xA048;
-                        entity->buttons[5]->blue2 = 0xC060;
+                        entity->buttons[4]->blue  = 0x006020;
+                        entity->buttons[4]->blue2 = 0x00C060;
+                        entity->buttons[5]->blue  = 0x00A048;
+                        entity->buttons[5]->blue2 = 0x00C060;
                     }
                     if (entity->buttons[6]->state == 1) {
                         PlaySfx(21, 0);
-                        entity->buttons[6]->blue  = 0xA048;
-                        entity->buttons[6]->blue2 = 0xC060;
                         entity->buttons[6]->state = 0;
-                        entity->buttons[7]->blue  = 0x6020;
-                        entity->buttons[7]->blue2 = 0xC060;
-                        entity->buttons[8]->blue  = 0x6020;
-                        entity->buttons[8]->blue2 = 0xC060;
+                        entity->buttons[6]->blue  = 0x00A048;
+                        entity->buttons[6]->blue2 = 0x00C060;
+                        entity->buttons[7]->blue  = 0x006020;
+                        entity->buttons[7]->blue2 = 0x00C060;
+                        entity->buttons[8]->blue  = 0x006020;
+                        entity->buttons[8]->blue2 = 0x00C060;
                         saveGame->boxRegion       = 0;
                     }
 
                     if (entity->buttons[7]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[7]->state = 0;
-                        entity->buttons[6]->blue  = 0x6020;
-                        entity->buttons[6]->blue2 = 0xC060;
-                        entity->buttons[7]->blue  = 0xA048;
-                        entity->buttons[7]->blue2 = 0xC060;
-                        entity->buttons[8]->blue  = 0x6020;
-                        entity->buttons[8]->blue2 = 0xC060;
+                        entity->buttons[6]->blue  = 0x006020;
+                        entity->buttons[6]->blue2 = 0x00C060;
+                        entity->buttons[7]->blue  = 0x00A048;
+                        entity->buttons[7]->blue2 = 0x00C060;
+                        entity->buttons[8]->blue  = 0x006020;
+                        entity->buttons[8]->blue2 = 0x00C060;
                         saveGame->boxRegion       = 1;
                     }
 
                     if (entity->buttons[8]->state == 1) {
                         PlaySfx(21, 0);
                         entity->buttons[8]->state = 0;
-                        entity->buttons[6]->blue  = 0x6020;
-                        entity->buttons[6]->blue2 = 0xC060;
-                        entity->buttons[7]->blue  = 0x6020;
-                        entity->buttons[7]->blue2 = 0xC060;
-                        entity->buttons[8]->blue  = 0xA048;
-                        entity->buttons[8]->blue2 = 0xC060;
+                        entity->buttons[6]->blue  = 0x006020;
+                        entity->buttons[6]->blue2 = 0x00C060;
+                        entity->buttons[7]->blue  = 0x006020;
+                        entity->buttons[7]->blue2 = 0x00C060;
+                        entity->buttons[8]->blue  = 0x00A048;
+                        entity->buttons[8]->blue2 = 0x00C060;
                         saveGame->boxRegion       = 2;
                     }
                     if (entity->buttons[9]->state == 1) {
@@ -457,13 +460,13 @@ void SettingsScreen_Main(void *objPtr)
                         entity->state   = 6;
                     }
                     else if (entity->state == 1) {
-                        if (keyDown.up == 1) {
+                        if (keyDown.up) {
                             entity->selected    = 5;
-                            usePhysicalControls = 1;
+                            usePhysicalControls = true;
                         }
-                        else if (keyDown.down == 1) {
+                        else if (keyDown.down) {
                             entity->selected    = 1;
-                            usePhysicalControls = 1;
+                            usePhysicalControls = true;
                         }
                     }
                 }
@@ -563,7 +566,7 @@ void SettingsScreen_Main(void *objPtr)
                     entity->buttons[4]->scale           = 0.175;
                     entity->buttons[4]->blue            = 41032;
                     entity->buttons[4]->blue2           = 49248;
-                    SetStringToFont8(entity->buttons[4]->text, (char *)"RESET", 1);
+                    SetStringToFont8(entity->buttons[4]->text, "RESET", 1);
                     SetStringToFont(entity->musicText, strDPadSize, 1);
                     SetStringToFont(entity->sfxText, strDPadOpacity, 1);
                     entity->virtualDPad           = CREATE_ENTITY(VirtualDPad);

@@ -78,16 +78,16 @@ void RetroGameLoop_Main(void *objPtr)
             RestoreNativeObjects();
             break;
 #if !RETRO_USE_ORIGINAL_CODE
-        case ENGINE_STARTMENU: processStartMenu(); break;
         case ENGINE_CONNECT2PVS:
             // connect screen goes here
             break;
+#if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-            initStartMenu(0);
+            initDevMenu();
+
             ResetCurrentStageFolder();
 
-#if RETRO_USE_MOD_LOADER
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "MOD LIST");
             SetupTextMenu(&gameMenu[1], 0);
@@ -113,10 +113,9 @@ void RetroGameLoop_Main(void *objPtr)
             gameMenu[0].selectionCount   = 1;
             gameMenu[1].timer            = 0;
             gameMenu[1].visibleRowOffset = 0;
-            stageMode                    = STARTMENU_MODMENU;
-#endif
-
+            stageMode                    = DEVMENU_MODMENU;
             break;
+#endif
 #endif
         default:
             printLog("GameMode '%d' Called", Engine.gameMode);

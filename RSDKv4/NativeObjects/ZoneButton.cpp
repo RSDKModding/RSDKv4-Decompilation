@@ -38,9 +38,9 @@ void ZoneButton_Main(void *objPtr)
                         entity->textureIntro);
 
             SetRenderVertexColor((entity->colourWhite2 >> 16) & 0xFF, (entity->colourWhite2 >> 8) & 0xFF, entity->colourWhite2 & 0xFF);
-            RenderText(entity->text1, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
             if (entity->flag)
-                RenderText(entity->text2, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+                RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
             else
                 RenderImage(entity->textX - 32.0, entity->textY - 6.0, entity->textZ, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255,
                             entity->textureSymbols);
@@ -54,9 +54,9 @@ void ZoneButton_Main(void *objPtr)
                         (entity->texX - 64.0) + (cosf(entity->angle) * 24.0), (entity->texY - 48.0) + (sinf(entity->angle) * 24.0), 255,
                         entity->textureIntro);
             SetRenderVertexColor((entity->colourYellow2 >> 16) & 0xFF, (entity->colourYellow2 >> 8) & 0xFF, entity->colourYellow2 & 0xFF);
-            RenderText(entity->text1, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
             if (entity->flag)
-                RenderText(entity->text2, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+                RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
             else
                 RenderImage(entity->textX - 32.0, entity->textY - 6.0, entity->textZ, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255,
                             entity->textureSymbols);
@@ -82,8 +82,8 @@ void ZoneButton_Main(void *objPtr)
             if (entity->float3C <= 0.05)
                 colour = entity->colourWhite2;
             SetRenderVertexColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
-            RenderText(entity->text1, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
-            RenderText(entity->text2, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
+            RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
 
             entity->float38 += Engine.deltaTime;
             if (entity->float38 > 0.5) {
