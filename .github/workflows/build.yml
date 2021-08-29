@@ -18,8 +18,7 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "libAsio.zip"
           Expand-Archive -Path libAsio.zip -DestinationPath ./dependencies/all/
-          Rename-Item .dependencies/all/libAsio cheese
-          Rename-Item .dependencies/all/asio-master cheese
+          move-Item -path .dependencies/all/asio-master -Destination ./dependencies/all/
       - name: Download STB
         run: |
           Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "libSTB.zip"
