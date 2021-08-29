@@ -98,30 +98,11 @@ enum DevMenuMenus {
 #endif
 };
 
-enum StartMenuMenus {
-    STARTMENU_MAIN = 6,
-    STARTMENU_SAVESEL,
-    STARTMENU_PLAYERSEL,
-    STARTMENU_GAMEOPTS,
-    STARTMENU_TASTAGESEL,
-    STARTMENU_TACONFIRMSEL,
-    STARTMENU_ACHIEVEMENTS,
-    STARTMENU_LEADERBOARDS,
-#if RETRO_USE_MOD_LOADER
-    STARTMENU_MODMENU
-#endif
-};
-
 void initDevMenu();
 void initErrorMessage();
 void processStageSelect();
 
 // Not in original, but the code was, and its cleaner this way
 void setTextMenu(int mode);
-#if !RETRO_USE_ORIGINAL_CODE
-// added due to lack of normal main menu
-void initStartMenu(int mode);
-void processStartMenu();
-#endif
 
 #endif //! DEBUG_H

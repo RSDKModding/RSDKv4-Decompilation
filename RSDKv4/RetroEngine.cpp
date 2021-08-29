@@ -44,16 +44,16 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
-                        //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                        //    Engine.gameMode = ENGINE_INITPAUSE;
+                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                            Engine.gameMode = ENGINE_INITPAUSE;
                         break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
-                //if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
-                //    Engine.gameMode = ENGINE_INITPAUSE;
+                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                    Engine.gameMode = ENGINE_INITPAUSE;
                 break;
             case SDL_APP_TERMINATING: return false;
 #endif
@@ -68,8 +68,8 @@ bool processEvents()
                     SDL_GetWindowSize(Engine.window, &width, &height);
                     touchXF[0] = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
                     touchYF[0] = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    touchX[0] = (touchX[0] / (float)width) * SCREEN_XSIZE;
-                    touchY[0] = (touchY[0] / (float)height) * SCREEN_YSIZE;
+                    touchX[0]  = (touchX[0] / (float)width) * SCREEN_XSIZE;
+                    touchY[0]  = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
 #endif
                 break;
@@ -136,8 +136,7 @@ bool processEvents()
                         if (Engine.devMenu) {
 #if RETRO_USE_MOD_LOADER
                             // hacky patch because people can escape
-                            if ((Engine.gameMode == ENGINE_STARTMENU && stageMode == STARTMENU_MODMENU)
-                                || (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)) {
+                            if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
                                 // Reload entire engine
                                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
@@ -305,6 +304,11 @@ void RetroEngine::Init()
 #if RETRO_USE_MOD_LOADER
     initMods();
 #endif
+#if RETRO_USE_NETWORKING
+    StrCopy(networkHost, "127.0.0.1");
+    networkPort = 50;
+    initNetwork();
+#endif
 
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
@@ -348,6 +352,8 @@ void RetroEngine::Init()
 #if !RETRO_USE_ORIGINAL_CODE
     bool skipStart = skipStartMenu;
 #endif
+    SaveGame *saveGame = (SaveGame *)saveRAM;
+
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
@@ -359,7 +365,8 @@ void RetroEngine::Init()
 #if !RETRO_USE_ORIGINAL_CODE
                 if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
                     skipStart = true;
-                    InitStartingStage(startList == 0xFF ? 0 : startList, startStage == 0xFF ? 0 : startStage, startPlayer == 0xFF ? 0 : startPlayer);
+                    InitStartingStage(startList == 0xFF ? STAGELIST_PRESENTATION : startList, startStage == 0xFF ? 0 : startStage,
+                                      startPlayer == 0xFF ? 0 : startPlayer);
                 }
                 else if (startSave != 0xFF && startSave < 4) {
                     if (startSave == 0) {
@@ -385,41 +392,41 @@ void RetroEngine::Init()
                         SetGlobalVariableByName("options.gameMode", 1);
                         int slot = (startSave - 1) << 3;
 
-                        SetGlobalVariableByName("options.stageSelectFlag", 0);
-                        SetGlobalVariableByName("player.lives", saveRAM[slot + 1]);
-                        SetGlobalVariableByName("player.score", saveRAM[slot + 2]);
-                        SetGlobalVariableByName("player.scoreBonus", saveRAM[slot + 3]);
-                        SetGlobalVariableByName("specialStage.emeralds", saveRAM[slot + 5]);
-                        SetGlobalVariableByName("specialStage.listPos", saveRAM[slot + 6]);
-                        SetGlobalVariableByName("stage.player2Enabled", saveRAM[slot + 0] == 3);
+                        SetGlobalVariableByName("options.stageSelectFlag", false);
+                        SetGlobalVariableByName("player.lives", saveGame->files[slot].lives);
+                        SetGlobalVariableByName("player.score", saveGame->files[slot].score);
+                        SetGlobalVariableByName("player.scoreBonus", saveGame->files[slot].scoreBonus);
+                        SetGlobalVariableByName("specialStage.emeralds", saveGame->files[slot].emeralds);
+                        SetGlobalVariableByName("specialStage.listPos", saveGame->files[slot].specialStageID);
+                        SetGlobalVariableByName("stage.player2Enabled", saveGame->files[slot].characterID == 3);
                         SetGlobalVariableByName("lampPostID", 0); // For S1
                         SetGlobalVariableByName("starPostID", 0); // For S2
                         SetGlobalVariableByName("options.vsMode", 0);
 
-                        int nextZone = saveRAM[slot + 4];
-                        if (nextZone > 127) {
-                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 129);
-                            InitStartingStage(STAGELIST_SPECIAL, saveRAM[slot + 6], saveRAM[slot + 0]);
+                        int nextStage = saveGame->files[slot].stageID;
+                        if (nextStage >= 0x80) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextStage - 0x81);
+                            InitStartingStage(STAGELIST_SPECIAL, saveGame->files[slot].specialStageID, saveGame->files[slot].characterID);
                         }
-                        else if (nextZone >= 1) {
-                            SetGlobalVariableByName("specialStage.nextZone", nextZone - 1);
-                            InitStartingStage(STAGELIST_REGULAR, saveRAM[slot + 4] - 1, saveRAM[slot + 0]);
+                        else if (nextStage >= 1) {
+                            SetGlobalVariableByName("specialStage.nextZone", nextStage - 1);
+                            InitStartingStage(STAGELIST_REGULAR, nextStage - 1, saveGame->files[slot].characterID);
                         }
                         else {
-                            saveRAM[slot + 0] = 0;
-                            saveRAM[slot + 1] = 3;
-                            saveRAM[slot + 2] = 0;
-                            saveRAM[slot + 3] = 50000;
-                            saveRAM[slot + 4] = 0;
-                            saveRAM[slot + 5] = 0;
-                            saveRAM[slot + 6] = 0;
-                            saveRAM[slot + 7] = 0;
+                            saveGame->files[slot].characterID    = 0;
+                            saveGame->files[slot].lives          = 3;
+                            saveGame->files[slot].score          = 0;
+                            saveGame->files[slot].scoreBonus     = 50000;
+                            saveGame->files[slot].stageID        = 0;
+                            saveGame->files[slot].emeralds       = 0;
+                            saveGame->files[slot].specialStageID = 0;
+                            saveGame->files[slot].unused         = 0;
 
                             SetGlobalVariableByName("specialStage.nextZone", 0);
                             InitStartingStage(STAGELIST_REGULAR, 0, 0);
                         }
                     }
-                    skipStart = true;
+                    skipStartMenu = true;
                 }
 #endif
             }
@@ -440,25 +447,6 @@ void RetroEngine::Init()
     }
 
     ReadSaveRAMData();
-    if (saveRAM[0x100] != Engine.gameType) {
-        saveRAM[0x100] = Engine.gameType;
-    }
-    else {
-        if (Engine.gameType == GAME_SONIC1) {
-            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-        else {
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-    }
 
     if (Engine.gameType == GAME_SONIC1) {
         StrCopy(achievements[5].name, "Secret of Labyrinth Zone");
@@ -488,9 +476,6 @@ void RetroEngine::Init()
         StrCopy(achievements[10].name, "Scrambled Egg");
         StrCopy(achievements[11].name, "Beat the Clock");
     }
-
-    if (!skipStart)
-        initStartMenu(0);
 #endif
 }
 
@@ -508,7 +493,7 @@ void RetroEngine::Run()
         if (frameDelta < frequency / (float)refreshRate) {
             continue;
         }
-        frameEnd = SDL_GetPerformanceCounter();
+        frameEnd         = SDL_GetPerformanceCounter();
         Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
 #endif
 
@@ -536,7 +521,7 @@ void RetroEngine::Run()
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
             SDL_GL_SwapWindow(Engine.window);
 #endif
-            frameStep  = false;
+            frameStep = false;
         }
 #endif
     }
@@ -545,6 +530,9 @@ void RetroEngine::Run()
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
+#if RETRO_USE_NETWORKING
+    disconnectNetwork();
+#endif
     writeSettings();
 #if RETRO_USE_MOD_LOADER
     saveMods();
@@ -675,7 +663,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
-    //TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
+    // TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
     AddNativeFunction("Connect2PVS", Connect2PVS);
     AddNativeFunction("Disconnect2PVS", Disconnect2PVS);
     AddNativeFunction("SendEntity", SendEntity);
@@ -688,9 +676,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
     AddNativeFunction("OpenModMenu", OpenModMenu);
-    //AddNativeFunction("GetModInfo", GetModInfo);
-    //AddNativeFunction("SetModInfo", SetModInfo);
-    //AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
+    // AddNativeFunction("GetModInfo", GetModInfo);
+    // AddNativeFunction("SetModInfo", SetModInfo);
+    // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
     AddNativeFunction("GetAchievement", GetAchievement);
 #endif
 

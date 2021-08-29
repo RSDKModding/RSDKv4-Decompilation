@@ -31,7 +31,7 @@ ushort *strNSRestartMessage = NULL;
 ushort *strNSExitMessage    = NULL;
 ushort *strExitGame         = NULL;
 ushort *strNetworkMessage   = NULL;
-ushort *strStageList[8];
+ushort *strStageList[16];
 ushort *strSaveStageList[32];
 ushort *strNewBestTime      = NULL;
 ushort *strRecords          = NULL;
@@ -63,7 +63,7 @@ ushort *strTerms            = NULL;
 
 int stageStrCount = 0;
 
-ushort stringStorage[STRSTORAGE_SIZE][STRING_SIZE];
+ushort stringStorage[STRSTORAGE_SIZE * STRING_SIZE];
 int stringStorePos = 0;
 
 int creditsListSize = 0;
@@ -325,15 +325,7 @@ void InitLocalizedStrings() {
     }
     strExitGame          = ReadLocalizedString("ExitGame", langStr, "Data/Game/StringList.txt");
     strNetworkMessage    = ReadLocalizedString("NetworkMessage", langStr, "Data/Game/StringList.txt");
-    strStageList[0]      = ReadLocalizedString("StageName1", "en", "Data/Game/StringList.txt");
-    strStageList[1]      = ReadLocalizedString("StageName2", "en", "Data/Game/StringList.txt");
-    strStageList[2]      = ReadLocalizedString("StageName3", "en", "Data/Game/StringList.txt");
-    strStageList[3]      = ReadLocalizedString("StageName4", "en", "Data/Game/StringList.txt");
-    strStageList[4]      = ReadLocalizedString("StageName5", "en", "Data/Game/StringList.txt");
-    strStageList[5]      = ReadLocalizedString("StageName6", "en", "Data/Game/StringList.txt");
-    strStageList[6]      = ReadLocalizedString("StageName7", "en", "Data/Game/StringList.txt");
-    strStageList[7]      = ReadLocalizedString("StageName8", "en", "Data/Game/StringList.txt");
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 16; ++i) {
         char buffer[0x10];
         sprintf(buffer, "StageName%d", i + 1);
 
@@ -431,10 +423,12 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     FileRead(fileBuffer, sizeof(ushort));
                     curChar = fileBuffer[0] + (fileBuffer[1] << 8);
                     if (curChar > '\n' && curChar != '\r') {
-                        stringStorage[stringStorePos][charID++] = 0;
+                        stringStorage[stringStorePos + charID++] = 0;
                         CloseFile();
 
-                        return stringStorage[stringStorePos++];
+                        int pos = stringStorePos;
+                        stringStorePos += charID;
+                        return &stringStorage[pos];
                     }
                     else if (curChar == '\t') {
                         if (flag) {
@@ -443,7 +437,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                         }
                         else {
                             readMode                                = 2;
-                            stringStorage[stringStorePos][charID++] = '\n';
+                            stringStorage[stringStorePos + charID++] = '\n';
                         }
                     }
                     break;
@@ -451,12 +445,10 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                     FileRead(fileBuffer, sizeof(ushort));
                     curChar = fileBuffer[0] + (fileBuffer[1] << 8);
                     if (curChar != '\t') {
+                        stringStorage[stringStorePos + charID++] = curChar;
                         if (curChar == '\r' || curChar == '\n') {
                             flag     = false;
                             readMode = 1;
-                        }
-                        else {
-                            stringStorage[stringStorePos][charID++] = curChar;
                         }
                     }
                     break;
@@ -488,11 +480,11 @@ void ReadCreditsList(const char *filePath)
                     int strPos   = 0;
                     char curChar = dest[strPos + 3];
                     while (curChar) {
-                        stringStorage[stringStorePos][strPos] = curChar;
+                        stringStorage[stringStorePos + strPos] = curChar;
                         strPos++;
                         curChar                               = dest[strPos + 3];
                     }
-                    stringStorage[stringStorePos][strPos] = 0;
+                    stringStorage[stringStorePos + strPos++] = 0;
 
                     switch (dest[1]) {
                         default:
@@ -503,7 +495,9 @@ void ReadCreditsList(const char *filePath)
                     }
 
                     creditsAdvanceY[creditsListSize]  = advance;
-                    strCreditsList[creditsListSize++] = stringStorage[stringStorePos++];
+
+                    strCreditsList[creditsListSize++] = &stringStorage[stringStorePos];
+                    stringStorePos += strPos;
                     advance                          = 24.0;
                 }
 
