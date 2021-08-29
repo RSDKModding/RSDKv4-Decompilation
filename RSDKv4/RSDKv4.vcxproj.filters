@@ -380,6 +380,9 @@
     <ClCompile Include="NativeObjects\SettingsScreen.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
+    <ClCompile Include="Networking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RSDKv4.rc">

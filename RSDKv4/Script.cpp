@@ -4404,16 +4404,23 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
-                    void (*func)(void) = (void(*)(void))nativeFunction[scriptEng.operands[0]];
+                    void (*func)(void) = (void (*)(void))nativeFunction[scriptEng.operands[0]];
                     if (func)
                         func();
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
-                    void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
-                    if (func)
-                        func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
+                    if (StrLength(scriptText)) {
+                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[2], scriptText);
+                    }
+                    else {
+                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
+                    }
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
@@ -4421,7 +4428,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     if (StrLength(scriptText)) {
                         void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[1], scriptText);
+                            func(&scriptEng.operands[2], scriptText);
                     }
                     else {
                         void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
@@ -4461,7 +4468,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 else
                     memcpy(storageList, objList, sizeof(Entity));
 
-                //for (int e = 0; e < scriptEng.operands[2]; ++e) {
+                // for (int e = 0; e < scriptEng.operands[2]; ++e) {
                 //    memcpy(storageList, objList, sizeof(Entity));
                 //    storageList++;
                 //    objList++;

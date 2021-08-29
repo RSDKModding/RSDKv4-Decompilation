@@ -16,8 +16,8 @@
 #include <unordered_map>
 #endif
 
-#define intToVoid(x)   (void *)(size_t)(x)
-#define voidToInt(x)   (int)(size_t)(x)
+#define intToVoid(x) (void *)(size_t)(x)
+#define voidToInt(x) (int)(size_t)(x)
 
 #define unused(x) (void)x
 
@@ -66,10 +66,12 @@ struct LeaderboardEntry {
     int score;
 };
 
+#ifndef NETWORKING_H
 struct MultiplayerData {
     int type;
     int data[0x1FF];
 };
+#endif
 
 #if RETRO_USE_MOD_LOADER
 struct ModInfo {
@@ -100,11 +102,15 @@ extern LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 extern MultiplayerData multiplayerDataIN;
 extern MultiplayerData multiplayerDataOUT;
-extern int matchValueData[0x100];
-extern int matchValueReadPos;
-extern int matchValueWritePos;
 
-extern int sendDataMethod;
+extern int matchValueData[0x100];
+extern byte matchValueReadPos;
+extern byte matchValueWritePos;
+
+extern int vsGameLength;
+extern int vsItemMode;
+extern int vsPlayerID;
+
 extern int sendCounter;
 
 #if RETRO_USE_MOD_LOADER

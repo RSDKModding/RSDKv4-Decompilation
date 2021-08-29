@@ -16,11 +16,10 @@ LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 MultiplayerData multiplayerDataIN  = MultiplayerData();
 MultiplayerData multiplayerDataOUT = MultiplayerData();
 int matchValueData[0x100];
-int matchValueReadPos  = 0;
-int matchValueWritePos = 0;
+byte matchValueReadPos  = 0;
+byte matchValueWritePos = 0;
 
-int sendDataMethod = 0;
-int sendCounter    = 0;
+int sendCounter = 0;
 
 #if RETRO_USE_MOD_LOADER
 std::vector<ModInfo> modList;
@@ -39,7 +38,6 @@ bool skipStartMenu            = false;
 bool skipStartMenu_Config     = false;
 bool disableFocusPause        = false;
 bool disableFocusPause_Config = false;
-
 
 void InitUserdata()
 {
@@ -708,20 +706,20 @@ int AddAchievement(int *id, const char *name)
     return 0;
 }
 int ClearAchievements()
-{   
+{
     /*TODO*/
     return 0;
 }
 int GetAchievement(int *id, void *a2) { return achievements[*id].status; }
 #endif
-void ShowAchievementsScreen() { 
+void ShowAchievementsScreen()
+{
     /*TODO*/
-    //printLog("we're showing the achievements screen");
+    // printLog("we're showing the achievements screen");
 #if !RETRO_USE_ORIGINAL_CODE
     CREATE_ENTITY(AchievementsMenu);
 #endif
 }
-
 
 int SetLeaderboard(int *leaderboardID, int *score)
 {
@@ -766,7 +764,7 @@ int SetLeaderboard(int *leaderboardID, int *score)
     return 0;
 }
 void ShowLeaderboardsScreen()
-{ 
+{
     /*TODO*/
     printLog("we're showing the leaderboards screen");
 }
@@ -780,11 +778,13 @@ int Connect2PVS(int *gameLength, int *itemMode)
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
-    //Engine.gameMode        = ENGINE_CONNECT2PVS;
+    Engine.gameMode        = ENGINE_CONNECT2PVS;
     PauseSound();
     // actual connection code
+    vsGameLength = *gameLength;
+    vsItemMode   = *itemMode;
     if (Engine.onlineActive) {
-        // Do online code
+        runNetwork();
         return 1;
     }
     return 0;
@@ -795,7 +795,7 @@ int Disconnect2PVS(int *a1, int *a2)
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+        disconnectNetwork();
 #endif
         return 1;
     }
@@ -810,7 +810,7 @@ int SendEntity(int *entityID, int *dataSlot)
         memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-            sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+            sendData();
 #endif
             return 1;
         }
@@ -825,20 +825,21 @@ int SendValue(int *value, int *dataSlot)
 
     multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = *value;
-    if (Engine.onlineActive && sendDataMethod) {
+    if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+        sendData();
 #endif
         return 1;
     }
     return 0;
 }
+bool recieveReady = false;
 int ReceiveEntity(int *entityID, int *dataSlot)
 {
     printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
 
-    if (Engine.onlineActive) {
-        // Do online code
+    if (Engine.onlineActive && recieveReady) {
+        // recieveReady = false;
         if (*dataSlot == 1) {
             if (multiplayerDataIN.type == 1) {
                 memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
@@ -856,9 +857,8 @@ int ReceiveValue(int *value, int *dataSlot)
 {
     printLog("Attempting to receive value (%d) (%d)", *dataSlot, *value);
 
-    if (Engine.onlineActive) {
-        // Do online code
-
+    if (Engine.onlineActive && recieveReady) {
+        // recieveReady = false;
         if (*dataSlot == 1) {
             if (matchValueReadPos != matchValueWritePos) {
                 *value = matchValueData[matchValueReadPos];
@@ -874,14 +874,14 @@ int ReceiveValue(int *value, int *dataSlot)
 }
 int TransmitGlobal(int *globalValue, const char *globalName)
 {
-    printLog("Attempting to transmit global (%s) (%d)", globalName, globalValue);
+    printLog("Attempting to transmit global (%s) (%d)", globalName, *globalValue);
 
     multiplayerDataOUT.type    = 2;
     multiplayerDataOUT.data[0] = GetGlobalVariableID(globalName);
     multiplayerDataOUT.data[1] = *globalValue;
-    if (Engine.onlineActive && sendDataMethod) {
+    if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+        sendData();
 #endif
         return 1;
     }
@@ -890,6 +890,7 @@ int TransmitGlobal(int *globalValue, const char *globalName)
 
 void receive2PVSData(MultiplayerData *data)
 {
+    recieveReady = true;
     switch (data->type) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
@@ -902,8 +903,13 @@ void receive2PVSData(MultiplayerData *data)
 
 void receive2PVSMatchCode(int code)
 {
+    recieveReady = true;
+    code &= 0x00000FF0;
+    code |= 0x00001000 * vsPlayerID;
     matchValueData[matchValueWritePos++] = code;
     ResumeSound();
+    vsPlayerID      = Engine.devMenu;
+    Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
 }
 
@@ -920,12 +926,8 @@ void ShowWebsite(int websiteID)
 {
     switch (websiteID) {
         default: printLog("Showing unknown website: (%d)", websiteID); break;
-        case 0:
-            printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID);
-            break;
-        case 1:
-            printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID);
-            break;
+        case 0: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID); break;
+        case 1: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID); break;
     }
 }
 
@@ -938,7 +940,7 @@ int ExitGame()
 int OpenModMenu()
 {
 #if RETRO_USE_MOD_LOADER
-    Engine.gameMode = ENGINE_INITMODMENU;
+    Engine.gameMode      = ENGINE_INITMODMENU;
     Engine.modMenuCalled = true;
 #endif
     return 1;
@@ -978,7 +980,6 @@ void initMods()
             }
         }
 
-
         try {
             auto rdi = fs::directory_iterator(modPath);
             for (auto de : rdi) {
@@ -1017,12 +1018,12 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         return false;
 
     info->fileMap.clear();
-    info->name                = "";
-    info->desc                = "";
-    info->author              = "";
-    info->version             = "";
-    info->folder              = "";
-    info->active              = false;
+    info->name    = "";
+    info->desc    = "";
+    info->author  = "";
+    info->version = "";
+    info->folder  = "";
+    info->active  = false;
 
     const std::string modDir = modsPath + "/" + folder;
 
@@ -1234,7 +1235,7 @@ void saveMods()
         IniParser modConfig;
 
         for (int m = 0; m < modList.size(); ++m) {
-            ModInfo *info                 = &modList[m];
+            ModInfo *info = &modList[m];
 
             modConfig.SetBool("mods", info->folder.c_str(), info->active);
         }
@@ -1243,7 +1244,8 @@ void saveMods()
     }
 }
 
-void RefreshEngine() {
+void RefreshEngine()
+{
     // Reload entire engine
     Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2

@@ -8,10 +8,13 @@
 // be set to true only for preservation purposes
 #define RETRO_USE_ORIGINAL_CODE (0)
 #define RETRO_USE_MOD_LOADER    (0)
+#define RETRO_USE_NETWORKING    (0)
 
 #if !RETRO_USE_ORIGINAL_CODE
 #undef RETRO_USE_MOD_LOADER
 #define RETRO_USE_MOD_LOADER (1)
+#undef RETRO_USE_NETWORKING
+#define RETRO_USE_NETWORKING (1)
 #endif //  !RETRO_USE_ORIGINAL_CODE
 
 // ================
@@ -228,6 +231,7 @@ extern bool engineDebugMode;
 #include "Script.hpp"
 #include "Sprite.hpp"
 #include "Text.hpp"
+#include "Networking.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
 #include "Renderer.hpp"

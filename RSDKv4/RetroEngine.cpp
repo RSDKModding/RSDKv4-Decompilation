@@ -68,8 +68,8 @@ bool processEvents()
                     SDL_GetWindowSize(Engine.window, &width, &height);
                     touchXF[0] = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
                     touchYF[0] = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    touchX[0] = (touchX[0] / (float)width) * SCREEN_XSIZE;
-                    touchY[0] = (touchY[0] / (float)height) * SCREEN_YSIZE;
+                    touchX[0]  = (touchX[0] / (float)width) * SCREEN_XSIZE;
+                    touchY[0]  = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
 #endif
                 break;
@@ -304,6 +304,11 @@ void RetroEngine::Init()
 #if RETRO_USE_MOD_LOADER
     initMods();
 #endif
+#if RETRO_USE_NETWORKING
+    StrCopy(networkHost, "127.0.0.1");
+    networkPort = 50;
+    initNetwork();
+#endif
 
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
@@ -488,7 +493,7 @@ void RetroEngine::Run()
         if (frameDelta < frequency / (float)refreshRate) {
             continue;
         }
-        frameEnd = SDL_GetPerformanceCounter();
+        frameEnd         = SDL_GetPerformanceCounter();
         Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
 #endif
 
@@ -516,7 +521,7 @@ void RetroEngine::Run()
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
             SDL_GL_SwapWindow(Engine.window);
 #endif
-            frameStep  = false;
+            frameStep = false;
         }
 #endif
     }
@@ -525,6 +530,9 @@ void RetroEngine::Run()
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
+#if RETRO_USE_NETWORKING
+    disconnectNetwork();
+#endif
     writeSettings();
 #if RETRO_USE_MOD_LOADER
     saveMods();
@@ -655,7 +663,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
-    //TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
+    // TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
     AddNativeFunction("Connect2PVS", Connect2PVS);
     AddNativeFunction("Disconnect2PVS", Disconnect2PVS);
     AddNativeFunction("SendEntity", SendEntity);
@@ -668,9 +676,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
     AddNativeFunction("OpenModMenu", OpenModMenu);
-    //AddNativeFunction("GetModInfo", GetModInfo);
-    //AddNativeFunction("SetModInfo", SetModInfo);
-    //AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
+    // AddNativeFunction("GetModInfo", GetModInfo);
+    // AddNativeFunction("SetModInfo", SetModInfo);
+    // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
     AddNativeFunction("GetAchievement", GetAchievement);
 #endif
 
