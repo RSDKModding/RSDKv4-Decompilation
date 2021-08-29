@@ -16,9 +16,9 @@ jobs:
         uses: microsoft/setup-msbuild@v1
       - name: Download Asio
         run: |
-          Invoke-WebRequest -Uri "https://sourceforge.net/projects/asio/files/latest/download" -OutFile "libAsio.zip"
+          Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "libAsio.zip"
           Expand-Archive -Path libAsio.zip -DestinationPath ./dependencies/all/
-          Rename-Item .dependencies/all/asio-1.18.1 asio
+          Move-Item -Path .dependencies/all/asio-master/asio -DestinationPath .dependencies/all/
       - name: Download STB
         run: |
           Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "libSTB.zip"
