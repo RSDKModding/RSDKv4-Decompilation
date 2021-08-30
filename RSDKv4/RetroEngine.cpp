@@ -578,7 +578,7 @@ void RetroEngine::LoadXMLVariables()
             continue;
 
         SetActiveMod(m);
-        if (LoadFile("Data/Game/Variables.xml", &info)) {
+        if (LoadFile("Data/Game/Game.xml", &info)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData              = new char[info.fileSize + 1];
@@ -630,7 +630,7 @@ void RetroEngine::LoadXMLSoundFX()
             continue;
 
         SetActiveMod(m);
-        if (LoadFile("Data/Game/SoundFX.xml", &info)) {
+        if (LoadFile("Data/Game/Game.xml", &info)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
             char *xmlData = new char[info.fileSize + 1];
