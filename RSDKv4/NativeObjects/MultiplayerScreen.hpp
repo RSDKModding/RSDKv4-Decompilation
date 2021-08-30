@@ -23,6 +23,8 @@ struct NativeEntity_MultiplayerScreen : NativeEntityBase {
     byte rightPressed;
     int arrowAlpha;
     int arrowAlphaLR;
+    sbyte touchedUpID;
+    sbyte touchedDownID;
     NativeEntity_PushButton *buttons[4];
     int selectedButton;
     byte flipDir;

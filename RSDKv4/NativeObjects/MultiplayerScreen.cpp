@@ -98,7 +98,7 @@ void MultiplayerScreen_Create(void *objPtr)
         entity->enterCodeLabel[i]->alignPtr(entity->enterCodeLabel[i], 1);
         entity->enterCodeLabel[i]->textY -= 20.0f;
 
-        x += 12.0f;
+        x += 16.0f;
     }
 }
 void MultiplayerScreen_Main(void *objPtr)
@@ -488,6 +488,23 @@ void MultiplayerScreen_Main(void *objPtr)
             }
             else {
                 if (touches > 0) {
+                    float x       = -58.0f;
+                    for (int i = 0; i < 8; ++i) {
+                        if (CheckTouchRect(x, 16.0f, 16.0f, 16.0) >= 0)
+                            entity->touchedUpID = i;
+                        if (CheckTouchRect(x, -16.0f, 16.0f, 16.0) >= 0)
+                            entity->touchedDownID = i;
+                        x += 16;
+                    }
+
+                    for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->useColours = false;
+
+                    int id = entity->touchedDownID;
+                    if (entity->touchedUpID >= 0)
+                        id = entity->touchedUpID;
+                    if (id >= 0)
+                        entity->enterCodeLabel[id]->useColours = true;
+
                     entity->buttons[2]->state =
                         CheckTouchRect(0, -64.0f, ((64.0 * entity->buttons[2]->scale) + entity->buttons[2]->textWidth) * 0.75, 12.0) >= 0;
                     entity->leftPressed  = CheckTouchRect(-124.0, 0.0, 32.0, 32.0) >= 0;
@@ -504,6 +521,58 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
                 }
                 else {
+                    if (entity->touchedUpID >= 0 || entity->touchedDownID >= 0) {
+                        int id = entity->touchedDownID;
+                        if (entity->touchedUpID >= 0)
+                            id = entity->touchedUpID;
+
+                        union {
+                            int val;
+                            byte bytes[4];
+                        } u;
+                        u.val         = entity->roomCode;
+                        int n         = 7 - id;
+                        int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
+
+                        byte val = nybbles[n & 1];
+                        if (entity->touchedUpID >= 0) {
+                            PlaySfx(21, 0);
+                            nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
+                        }
+                        else if (entity->touchedDownID >= 0) {
+                            PlaySfx(21, 0);
+                            nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
+                        }
+
+                        u.bytes[n >> 1]  = (nybbles[1] << 4) | (nybbles[0] & 0xF);
+                        entity->roomCode = u.val;
+
+                        for (int i = 0; i < 8; i += 2) {
+                            int n         = 7 - i;
+                            int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
+
+                            entity->enterCodeLabel[i + 0]->textAlpha = 0x100;
+                            entity->enterCodeLabel[i + 1]->textAlpha = 0x100;
+
+                            entity->enterCodeLabel[i + 0]->useColours = false;
+                            entity->enterCodeLabel[i + 1]->useColours = false;
+
+                            char codeBuf[0x10];
+                            sprintf(codeBuf, "%X", nybbles[1]);
+                            SetStringToFont8(entity->enterCodeLabel[i + 0]->text, codeBuf, entity->enterCodeLabel[i + 0]->fontID);
+                            entity->enterCodeLabel[i + 0]->alignPtr(entity->enterCodeLabel[i + 0], 1);
+
+                            sprintf(codeBuf, "%X", nybbles[0]);
+                            SetStringToFont8(entity->enterCodeLabel[i + 1]->text, codeBuf, entity->enterCodeLabel[i + 1]->fontID);
+                            entity->enterCodeLabel[i + 1]->alignPtr(entity->enterCodeLabel[i + 1], 1);
+                        }
+
+                        entity->enterCodeLabel[id]->useColours = true;
+
+                        entity->touchedUpID   = -1;
+                        entity->touchedDownID = -1;
+                    }
+
                     if (entity->buttons[2]->state == 1) {
                         PlaySfx(22, 0);
                         entity->buttons[2]->state = 2;
@@ -524,14 +593,6 @@ void MultiplayerScreen_Main(void *objPtr)
                         if (entity->selectedButton > 10)
                             entity->selectedButton = 3;
                     }
-
-                    for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->useColours = false;
-                    entity->buttons[2]->state = 0;
-
-                    if (entity->selectedButton == 2)
-                        entity->buttons[2]->state = 1;
-                    else
-                        entity->enterCodeLabel[entity->selectedButton - 3]->useColours = true;
 
                     if (keyPress.B || entity->backPressed) {
                         PlaySfx(23, 0);
