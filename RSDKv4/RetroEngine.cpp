@@ -542,6 +542,141 @@ void RetroEngine::Run()
 #endif
 }
 
+#if RETRO_USE_MOD_LOADER
+const tinyxml2::XMLElement *firstXMLChildElement(tinyxml2::XMLDocument *doc, const tinyxml2::XMLElement *elementPtr, const char *name)
+{
+    if (doc) {
+        if (!elementPtr)
+            return doc->FirstChildElement(name);
+        else
+            return elementPtr->FirstChildElement(name);
+    }
+    return NULL;
+}
+
+const tinyxml2::XMLElement *nextXMLSiblingElement(tinyxml2::XMLDocument *doc, const tinyxml2::XMLElement *elementPtr, const char *name)
+{
+    if (doc) {
+        if (!elementPtr)
+            return doc->NextSiblingElement(name);
+        else
+            return elementPtr->NextSiblingElement(name);
+    }
+    return NULL;
+}
+
+const tinyxml2::XMLAttribute *findXMLAttribute(const tinyxml2::XMLElement *elementPtr, const char *name) { return elementPtr->FindAttribute(name); }
+const char *getXMLAttributeName(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Name(); }
+int getXMLAttributeValueInt(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->IntValue(); }
+const char *getXMLAttributeValueString(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Value(); }
+
+void RetroEngine::LoadXMLVariables()
+{
+    FileInfo info;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Variables.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData              = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *variablesElement = firstXMLChildElement(doc, nullptr, "variables");
+                if (variablesElement) {
+                    const tinyxml2::XMLElement *varElement = firstXMLChildElement(doc, variablesElement, "variable");
+                    if (varElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(varElement, "name");
+                            const char *varName                    = "unknownVariable";
+                            if (nameAttr)
+                                varName = getXMLAttributeValueString(nameAttr);
+
+                            const tinyxml2::XMLAttribute *valAttr = findXMLAttribute(varElement, "value");
+                            int varValue                          = 0;
+                            if (valAttr)
+                                varValue = getXMLAttributeValueInt(valAttr);
+
+                            StrCopy(globalVariableNames[globalVariablesCount], varName);
+                            globalVariables[globalVariablesCount] = varValue;
+                            globalVariablesCount++;
+                            // more stuff
+                        } while (varElement = nextXMLSiblingElement(doc, varElement, "variable"));
+                    }
+
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
+void RetroEngine::LoadXMLSoundFX()
+{
+    FileInfo info;
+    FileInfo infoStore;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/SoundFX.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *soundsElement = firstXMLChildElement(doc, nullptr, "sounds");
+                if (soundsElement) {
+                    const tinyxml2::XMLElement *sfxElement = firstXMLChildElement(doc, soundsElement, "soundfx");
+                    if (sfxElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(sfxElement, "name");
+                            const char *sfxName                    = "unknownSFX";
+                            if (nameAttr)
+                                sfxName = getXMLAttributeValueString(nameAttr);
+
+                            const tinyxml2::XMLAttribute *valAttr = findXMLAttribute(sfxElement, "path");
+                            const char *sfxPath                   = "unknownSFX.wav";
+                            if (valAttr)
+                                sfxPath = getXMLAttributeValueString(valAttr);
+
+                            SetSfxName(sfxName, globalSFXCount);
+
+                            GetFileInfo(&infoStore);
+                            LoadSfx((char*)sfxPath, globalSFXCount);
+                            SetFileInfo(&infoStore);
+                            globalSFXCount++;
+                            // more stuff
+                        } while (sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx"));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
+#endif
+
 bool RetroEngine::LoadGameConfig(const char *filePath)
 {
     FileInfo info;
@@ -655,6 +790,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         CloseFile();
+#if RETRO_USE_MOD_LOADER
+        LoadXMLVariables();
+#endif
     }
 
     // These need to be set every time its reloaded

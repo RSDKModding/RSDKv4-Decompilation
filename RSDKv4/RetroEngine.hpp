@@ -232,9 +232,12 @@ extern bool engineDebugMode;
 #include "Sprite.hpp"
 #include "Text.hpp"
 #include "Networking.hpp"
-#include "Userdata.hpp"
 #include "Debug.hpp"
 #include "Renderer.hpp"
+#include "Userdata.hpp" 
+#if RETRO_USE_MOD_LOADER
+#include "ModAPI.hpp" 
+#endif
 
 // Native Entities
 #include "NativeObjects.hpp"
@@ -301,7 +304,11 @@ public:
     void Init();
     void Run();
 
-    bool LoadGameConfig(const char *Filepath);
+    bool LoadGameConfig(const char *filepath);
+#if RETRO_USE_MOD_LOADER
+    void LoadXMLVariables();
+    void LoadXMLSoundFX();
+#endif
 
     int callbackMessage = 0;
     int prevMessage     = 0;

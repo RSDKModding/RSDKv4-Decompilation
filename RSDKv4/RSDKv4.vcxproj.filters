@@ -19,6 +19,12 @@
     <Filter Include="Header Files\nativeEntities">
       <UniqueIdentifier>{65197e20-a952-4014-93ca-c21e07885ac7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{b12dcce5-d7f2-45cc-bb4c-e0a4754247de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dependencies">
+      <UniqueIdentifier>{bd58fec9-0e89-46a0-be0d-5263fe57597c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -201,6 +207,12 @@
     <ClInclude Include="NativeObjects\SettingsScreen.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
+    <ClInclude Include="ModAPI.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\all\tinyxml2\tinyxml2.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -382,6 +394,12 @@
     </ClCompile>
     <ClCompile Include="Networking.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModAPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\all\tinyxml2\tinyxml2.cpp">
+      <Filter>Source Files\dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

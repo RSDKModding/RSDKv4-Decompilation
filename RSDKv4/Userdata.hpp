@@ -10,12 +10,6 @@
 
 #define NATIIVEFUNCTION_MAX (0x10)
 
-#if RETRO_USE_MOD_LOADER
-#include <string>
-#include <map>
-#include <unordered_map>
-#endif
-
 #define intToVoid(x) (void *)(size_t)(x)
 #define voidToInt(x) (int)(size_t)(x)
 
@@ -73,21 +67,6 @@ struct MultiplayerData {
 };
 #endif
 
-#if RETRO_USE_MOD_LOADER
-struct ModInfo {
-    std::string name;
-    std::string desc;
-    std::string author;
-    std::string version;
-    std::map<std::string, std::string> fileMap;
-    std::string folder;
-    bool useScripts;
-    bool skipStartMenu;
-    bool disableFocusPause;
-    bool active;
-};
-#endif
-
 extern void *nativeFunction[NATIIVEFUNCTION_MAX];
 extern int nativeFunctionCount;
 
@@ -112,10 +91,6 @@ extern int vsItemMode;
 extern int vsPlayerID;
 
 extern int sendCounter;
-
-#if RETRO_USE_MOD_LOADER
-extern std::vector<ModInfo> modList;
-#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
 extern bool forceUseScripts;
@@ -247,14 +222,5 @@ int ShowPromoPopup(int *a1, const char *popupName);
 void ShowWebsite(int websiteID);
 
 int ExitGame();
-int OpenModMenu();
-
-#if RETRO_USE_MOD_LOADER
-void initMods();
-bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool active);
-void saveMods();
-
-void RefreshEngine();
-#endif
 
 #endif //! USERDATA_H

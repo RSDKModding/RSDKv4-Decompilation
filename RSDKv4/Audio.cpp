@@ -161,6 +161,10 @@ void LoadGlobalSfx()
         }
 
         CloseFile();
+
+#if RETRO_USE_MOD_LOADER
+        Engine.LoadXMLSoundFX();
+#endif
     }
 
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;

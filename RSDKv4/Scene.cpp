@@ -1530,12 +1530,12 @@ void SetPlayerScreenPosition(Entity *target)
 
     xScrollOffset = cameraShakeX + centeredXBound1 - SCREEN_CENTERX;
 
-    int pos = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
+    int pos = cameraYPos + target->lookPosY - SCREEN_SCROLL_UP;
     if (pos < curYBoundary1) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
+        yScrollOffset = cameraYPos + target->lookPosY - SCREEN_SCROLL_UP;
     }
 
     int y = curYBoundary2 - SCREEN_YSIZE;
@@ -1642,61 +1642,61 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
         if (target->direction) {
             if (cameraStyle == 3 || target->speed < -0x5F5C2) {
                 cameraShift = 2;
-                if (target->camOffsetX <= 63) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX <= 63) {
+                    target->lookPosX += 2;
                 }
             }
             else {
                 cameraShift = 0;
-                if (target->camOffsetX < 0) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX < 0) {
+                    target->lookPosX += 2;
                 }
 
-                if (target->camOffsetX > 0) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX > 0) {
+                    target->lookPosX -= 2;
                 }
             }
         }
         else {
             if (cameraStyle == 2 || target->speed > 0x5F5C2) {
                 cameraShift = 1;
-                if (target->camOffsetX >= -63) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX >= -63) {
+                    target->lookPosX -= 2;
                 }
             }
             else {
                 cameraShift = 0;
-                if (target->camOffsetX < 0) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX < 0) {
+                    target->lookPosX += 2;
                 }
 
-                if (target->camOffsetX > 0) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX > 0) {
+                    target->lookPosX -= 2;
                 }
             }
         }
     }
     else {
         if (cameraShift == 1) {
-            if (target->camOffsetX >= -63) {
-                target->camOffsetX -= 2;
+            if (target->lookPosX >= -63) {
+                target->lookPosX -= 2;
             }
         }
         else if (cameraShift < 1) {
-            if (target->camOffsetX < 0) {
-                target->camOffsetX += 2;
+            if (target->lookPosX < 0) {
+                target->lookPosX += 2;
             }
-            if (target->camOffsetX > 0) {
-                target->camOffsetX -= 2;
+            if (target->lookPosX > 0) {
+                target->lookPosX -= 2;
             }
         }
         else if (cameraShift == 2) {
-            if (target->camOffsetX <= 63) {
-                target->camOffsetX += 2;
+            if (target->lookPosX <= 63) {
+                target->lookPosX += 2;
             }
         }
     }
-    cameraXPos = targetX - target->camOffsetX;
+    cameraXPos = targetX - target->lookPosX;
 
     if (!target->trackScroll) {
         if (cameraLockedY) {
@@ -1872,7 +1872,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     }
 
     xScrollOffset = cameraXPos - SCREEN_CENTERX;
-    yScrollOffset = target->lookPos + cameraYPos - SCREEN_SCROLL_UP;
+    yScrollOffset = target->lookPosY + cameraYPos - SCREEN_SCROLL_UP;
 
     int x = curXBoundary1;
     if (x <= xScrollOffset)
@@ -2074,12 +2074,12 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 
     xScrollOffset = cameraShakeX + cameraXPos - SCREEN_CENTERX;
 
-    int pos = newCamY + target->lookPos - SCREEN_SCROLL_UP;
+    int pos = newCamY + target->lookPosY - SCREEN_SCROLL_UP;
     if (pos < curYBoundary1) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = newCamY + target->lookPos - SCREEN_SCROLL_UP;
+        yScrollOffset = newCamY + target->lookPosY - SCREEN_SCROLL_UP;
     }
     int y1 = curYBoundary2 - (SCREEN_YSIZE - 1);
     int y2 = curYBoundary2 - SCREEN_YSIZE;
@@ -2290,12 +2290,12 @@ void SetPlayerScreenPositionFixed(Entity *target)
     }
 
     xScrollOffset = cameraShakeX + targetX - SCREEN_CENTERX;
-    int camY      = targetY + target->lookPos - SCREEN_CENTERY;
+    int camY      = targetY + target->lookPosY - SCREEN_CENTERY;
     if (curYBoundary1 > camY) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = targetY + target->lookPos - SCREEN_CENTERY;
+        yScrollOffset = targetY + target->lookPosY - SCREEN_CENTERY;
     }
 
     int newCamY = curYBoundary2 - SCREEN_YSIZE;

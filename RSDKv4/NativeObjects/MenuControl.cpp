@@ -28,13 +28,11 @@ void MenuControl_Create(void *objPtr)
     entity->buttonCount++;
 #endif
 
-    // if (gameOnlineActive) {
-    entity->buttons[entity->buttonCount]     = CREATE_ENTITY(AchievementsButton);
-    entity->buttonFlags[entity->buttonCount] = BUTTON_ACHIEVEMENTS;
-    entity->buttonCount++;
-    //}
+    if (Engine.onlineActive) {
+        entity->buttons[entity->buttonCount]     = CREATE_ENTITY(AchievementsButton);
+        entity->buttonFlags[entity->buttonCount] = BUTTON_ACHIEVEMENTS;
+        entity->buttonCount++;
 
-    if (Engine.gameType == GAME_SONIC2) {
         entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(LeaderboardsButton);
         entity->buttonFlags[entity->buttonCount] = BUTTON_LEADERBOARDS;
         entity->buttonCount++;

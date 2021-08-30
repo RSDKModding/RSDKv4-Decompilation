@@ -27,8 +27,8 @@ struct Entity {
     int alpha;
     int animationTimer;
     int animationSpeed;
-    int camOffsetX;
-    int lookPos;
+    int lookPosX;
+    int lookPosY;
     ushort typeGroup;
     byte type;
     byte propertyValue;

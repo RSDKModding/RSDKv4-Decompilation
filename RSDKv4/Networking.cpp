@@ -230,7 +230,7 @@ void disconnectNetwork()
     if (t.joinable()) {
         t.join();
     }
-    Engine.devMenu = vsPlayerID;
+    //Engine.devMenu = vsPlayerID;
 }
 
 void waitForData(int type, int id, int slot)

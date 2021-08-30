@@ -2704,11 +2704,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].camOffsetX;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosX;
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPos;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosY;
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
@@ -4460,19 +4460,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_COPYOBJECT: {
                 // dstID, srcID, count
-                Entity *storageList = &objectEntityList[ENTITY_COUNT + scriptEng.operands[0]];
-                Entity *objList     = &objectEntityList[scriptEng.operands[1]];
-
-                if (scriptEng.operands[2])
-                    memcpy(objList, storageList, sizeof(Entity));
-                else
-                    memcpy(storageList, objList, sizeof(Entity));
-
-                // for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                //    memcpy(storageList, objList, sizeof(Entity));
-                //    storageList++;
-                //    objList++;
-                //}
+                Entity *dstList = &objectEntityList[scriptEng.operands[0]];
+                Entity *srcList = &objectEntityList[scriptEng.operands[1]];
+                for (int i = 0; i < scriptEng.operands[2]; ++i) memcpy(&dstList[i], &srcList[i], sizeof(Entity));
                 break;
             }
 #endif
@@ -4640,11 +4630,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        objectEntityList[arrayVal].camOffsetX = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosX = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        objectEntityList[arrayVal].lookPos = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosY = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
