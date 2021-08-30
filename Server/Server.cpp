@@ -211,8 +211,8 @@ private:
                 }
             }//*/
             if (!write_msgs_.empty()) {
-                do_write();
                 socket_.async_wait(asio::socket_base::wait_write, [](std::error_code) {});
+                do_write();
             }
             do_read();
         });

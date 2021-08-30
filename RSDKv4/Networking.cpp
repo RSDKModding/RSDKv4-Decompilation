@@ -197,6 +197,7 @@ void networkLoop()
             ;
 
         session->close();
+        io_context.stop();
         t.join();
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";

@@ -248,6 +248,13 @@ void InitUserdata()
             disableFocusPause = false;
         disableFocusPause_Config = disableFocusPause;
 
+#if RETRO_USE_NETWORKING
+        if (!ini.GetString("Network", "Host", networkHost))
+            StrCopy(networkHost, "127.0.0.1");
+        if (!ini.GetInteger("Network", "Port", &networkPort))
+            networkPort = 50;
+#endif
+
         if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
             Engine.startFullScreen = DEFAULT_FULLSCREEN;
         if (!ini.GetBool("Window", "Borderless", &Engine.borderless))
@@ -513,6 +520,13 @@ void writeSettings()
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
     ini.SetComment("Game", "DFPMenuComment", "if set to true, disables the game pausing when focus is lost");
     ini.SetBool("Game", "DisableFocusPause", disableFocusPause);
+
+#if RETRO_USE_NETWORKING
+    ini.SetComment("Network", "HostComment", "The host (IP address or \"URL\") that the game will try to connect to.");
+    ini.SetString("Network", "Host", networkHost);
+    ini.SetComment("Network", "PortComment", "The port the game will try to connect to.");
+    ini.SetInteger("Network", "Port", networkPort);
+#endif
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);

@@ -305,8 +305,6 @@ void RetroEngine::Init()
     initMods();
 #endif
 #if RETRO_USE_NETWORKING
-    StrCopy(networkHost, "127.0.0.1");
-    networkPort = 50;
     initNetwork();
 #endif
 
