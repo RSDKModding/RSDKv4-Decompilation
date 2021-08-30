@@ -8,7 +8,8 @@
 #include <asio.hpp>
 
 char networkHost[64];
-int networkPort = 50;
+char networkGame[16] = "SONIC2";
+int networkPort      = 50;
 
 int vsGameLength = 4;
 int vsItemMode   = 1;
@@ -45,10 +46,13 @@ public:
             // send over a preferred roomcode style
             if (!vsGameLength)
                 vsGameLength = 4;
-            send.multiData.data[0] = vsGameLength;
             if (!vsItemMode)
                 vsItemMode = 1;
-            send.multiData.data[1] = vsItemMode;
+            send.data.multiData.type    = 0x00000FF0;
+            send.data.multiData.data[0] = (vsGameLength << 4) | (vsItemMode << 8);
+            send.data.multiData.data[1] = strlen(networkGame);
+            StrCopy((char *)&send.data.multiData.data[2], networkGame);
+
             write(send);
         }
     }
@@ -63,8 +67,8 @@ public:
 
     NetworkSession &operator=(const NetworkSession &s) { close(); }
 
-    int code  = 0;
-    bool wait = false;
+    uint64_t code = 0;
+    bool wait     = false;
 
 private:
     void do_connect(const tcp::resolver::results_type &endpoints)
@@ -81,15 +85,13 @@ private:
     {
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
             if (!ec) {
-
                 if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
                     switch (read_msg_.header) {
+                        case 0x02: vsPlayerID = 1;
                         case 0x01: { // codes
-                            code       = read_msg_.code;
-                            roomcode   = read_msg_.roomcode;
-                            vsPlayerID = read_msg_.multiData.type;
+                            code     = read_msg_.code;
+                            roomcode = read_msg_.roomcode;
                             // prepare for takeoff :trollsmile:
-                            // TODO: again, move to RSDK
                             wait = true;
                             CodedData send;
                             send.header   = 0x01;
@@ -99,24 +101,19 @@ private:
                         }
                         case 0x10: { // data
                             wait = false;
-                            receive2PVSData(&read_msg_.multiData);
+                            receive2PVSData(&read_msg_.data.multiData);
                             break;
                         }
                         case 0x20: { // send this entity back
-                            SendEntity(&read_msg_.multiData.data[0], &read_msg_.multiData.data[1]);
+                            SendEntity(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
                             break;
                         }
                         case 0x21: { // send value back
-                            SendValue(&read_msg_.multiData.data[0], &read_msg_.multiData.data[1]);
+                            SendValue(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
                             break;
                         }
-                        case 0x81: { // keep TRYING
-                            int timer = 0;
-                            CodedData send;
-                            Sleep(1000);
-                            send.header   = 0x01;
-                            send.roomcode = roomcode;
-                            write(send);
+                        case 0x81: {
+                            // error handle
                             break;
                         }
                         case 0x80: {
@@ -130,9 +127,6 @@ private:
                 if (!write_msgs_.empty())
                     do_write();
                 do_read();
-            }
-            else {
-                socket_.close();
             }
         });
     }
@@ -216,8 +210,8 @@ void runNetwork()
 void sendData()
 {
     CodedData send;
-    send.header    = 0x10;
-    send.multiData = multiplayerDataOUT;
+    send.header         = 0x10;
+    send.data.multiData = multiplayerDataOUT;
     session->write(send);
 }
 
@@ -230,16 +224,16 @@ void disconnectNetwork()
     if (t.joinable()) {
         t.join();
     }
-    //Engine.devMenu = vsPlayerID;
+    // Engine.devMenu = vsPlayerID;
 }
 
 void waitForData(int type, int id, int slot)
 {
     session->wait = true;
     CodedData send;
-    send.header            = 0x11 + type;
-    send.multiData.data[0] = id;
-    send.multiData.data[1] = slot;
+    send.header                 = 0x11 + type;
+    send.data.multiData.data[0] = id;
+    send.data.multiData.data[1] = slot;
     session->write(send);
     while (session->wait)
         ;
@@ -252,4 +246,6 @@ void joinFromCode(int code)
     send.roomcode = code;
     session->write(send, code);
 }
+
+void SetNetworkGameName(int *a1, const char *name) { StrCopy(networkGame, name); }
 #endif

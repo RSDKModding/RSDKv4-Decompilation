@@ -794,7 +794,7 @@ int Connect2PVS(int *gameLength, int *itemMode)
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         disableFocusPause_Store = disableFocusPause;
-        disableFocusPause = false;
+        disableFocusPause       = true;
         runNetwork();
 #endif
         return 1;
@@ -808,6 +808,7 @@ int Disconnect2PVS(int *a1, int *a2)
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         disableFocusPause = disableFocusPause_Store;
+        Engine.devMenu    = vsPlayerID;
         disconnectNetwork();
 #endif
         return 1;
@@ -816,7 +817,7 @@ int Disconnect2PVS(int *a1, int *a2)
 }
 int SendEntity(int *entityID, int *dataSlot)
 {
-    //printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
+    // printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
 
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
@@ -834,7 +835,7 @@ int SendEntity(int *entityID, int *dataSlot)
 }
 int SendValue(int *value, int *dataSlot)
 {
-    //printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
+    // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
     multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = *value;
@@ -849,7 +850,7 @@ int SendValue(int *value, int *dataSlot)
 bool recieveReady = false;
 int ReceiveEntity(int *entityID, int *dataSlot)
 {
-    //printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
+    // printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
 
     if (Engine.onlineActive && recieveReady) {
         // recieveReady = false;

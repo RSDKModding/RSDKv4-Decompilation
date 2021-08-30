@@ -4,6 +4,7 @@
 #include <thread>
 
 extern char networkHost[64];
+extern char networkGame[16];
 extern int networkPort;
 
 struct MultiplayerData {
@@ -13,9 +14,12 @@ struct MultiplayerData {
 
 struct CodedData {
     byte header;
-    int code;
-    int roomcode;
-    MultiplayerData multiData;
+    uint64_t code;
+    uint roomcode;
+    union {
+        unsigned char bytes[0x1000];
+        MultiplayerData multiData;
+    } data;
 };
 
 class NetworkSession;
@@ -27,6 +31,8 @@ void runNetwork();
 void sendData();
 void disconnectNetwork();
 void waitForData(int type, int id, int slot);
+
+void SetNetworkGameName(int *a1, const char *name);
 
 #endif
 #endif

@@ -581,7 +581,7 @@ void RetroEngine::LoadXMLVariables()
         if (LoadFile("Data/Game/Game.xml", &info)) {
             tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
 
-            char *xmlData              = new char[info.fileSize + 1];
+            char *xmlData = new char[info.fileSize + 1];
             FileRead(xmlData, info.fileSize);
             xmlData[info.fileSize] = 0;
 
@@ -609,7 +609,6 @@ void RetroEngine::LoadXMLVariables()
                             // more stuff
                         } while (varElement = nextXMLSiblingElement(doc, varElement, "variable"));
                     }
-
                 }
             }
 
@@ -658,7 +657,7 @@ void RetroEngine::LoadXMLSoundFX()
                             SetSfxName(sfxName, globalSFXCount);
 
                             GetFileInfo(&infoStore);
-                            LoadSfx((char*)sfxPath, globalSFXCount);
+                            LoadSfx((char *)sfxPath, globalSFXCount);
                             SetFileInfo(&infoStore);
                             globalSFXCount++;
                             // more stuff
@@ -816,6 +815,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     // AddNativeFunction("SetModInfo", SetModInfo);
     // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
     AddNativeFunction("GetAchievement", GetAchievement);
+    AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
 #endif
 
     return loaded;
