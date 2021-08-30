@@ -201,14 +201,14 @@ void TimeAttack_Create(void *objPtr)
     entity->labelPtr->textScale       = 0.2;
     entity->labelPtr->textAlpha       = 0;
     entity->labelPtr->textZ           = 0;
-    entity->labelPtr->alignment       = 0;
+    entity->labelPtr->state       = 0;
     SetStringToFont(entity->labelPtr->text, strTimeAttack, 0);
     entity->labelPtr->textWidth = 512.0;
     entity->float24             = DegreesToRad(22.5);
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->float24);
     matrixTranslateXYZF(&entity->matrix2, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix2);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
 
     entity->button                    = CREATE_ENTITY(SubMenuButton);
     entity->button->matXOff         = 512.0;

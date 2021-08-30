@@ -128,19 +128,16 @@ void LoadGlobalSfx()
 
         byte varCount = 0;
         FileRead(&varCount, 1);
-        globalVariablesCount = varCount;
         for (byte v = 0; v < varCount; ++v) {
             // Read Variable Name
             FileRead(&fileBuffer, 1);
-            FileRead(&globalVariableNames[v], fileBuffer);
-            globalVariableNames[v][fileBuffer] = 0;
+            FileRead(&strBuffer, fileBuffer);
 
             // Read Variable Value
             FileRead(&fileBuffer2, 4);
         }
 
         // Read SFX
-        globalSFXCount = 0;
         FileRead(&fileBuffer, 1);
         globalSFXCount = fileBuffer;
         for (byte s = 0; s < globalSFXCount; ++s) { // SFX Names

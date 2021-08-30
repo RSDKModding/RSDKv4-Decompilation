@@ -787,7 +787,7 @@ int Connect2PVS(int *gameLength, int *itemMode)
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
     Engine.gameMode        = ENGINE_CONNECT2PVS;
-    PauseSound();
+    //PauseSound();
     // actual connection code
     vsGameLength = *gameLength;
     vsItemMode   = *itemMode;
@@ -869,7 +869,7 @@ int ReceiveEntity(int *entityID, int *dataSlot)
 }
 int ReceiveValue(int *value, int *dataSlot)
 {
-    printLog("Attempting to receive value (%d) (%d)", *dataSlot, *value);
+    // printLog("Attempting to receive value (%d) (%d)", *dataSlot, *value);
 
     if (Engine.onlineActive && recieveReady) {
         // recieveReady = false;

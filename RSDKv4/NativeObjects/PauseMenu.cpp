@@ -11,7 +11,7 @@ void PauseMenu_Create(void *objPtr)
 
     entity->retroGameLoop    = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
     entity->label            = CREATE_ENTITY(TextLabel);
-    entity->label->alignment = 0;
+    entity->label->state = 0;
     entity->label->textZ     = 0.0;
     entity->label->textScale = 0.2;
     entity->label->textAlpha = 0;
@@ -22,7 +22,7 @@ void PauseMenu_Create(void *objPtr)
     matrixRotateYF(&entity->label->renderMatrix, DegreesToRad(22.5));
     matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
-    entity->label->useMatrix = 1;
+    entity->label->useRenderMatrix = 1;
     entity->buttonX          = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
     for (int i = 0; i < pauseMenuButtonCount; ++i) {
         NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);

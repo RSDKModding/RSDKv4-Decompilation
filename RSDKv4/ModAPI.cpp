@@ -6,6 +6,11 @@ int activeMod = -1;
 
 char modsPath[0x100];
 
+char modTypeNames[OBJECT_COUNT][0x40];
+char modScriptPaths[OBJECT_COUNT][0x40];
+byte modScriptFlags[OBJECT_COUNT];
+byte modObjCount = 0;
+
 #include <filesystem>
 
 int OpenModMenu()
@@ -340,5 +345,17 @@ void RefreshEngine()
     saveMods();
 }
 
+int GetSceneID(byte listID, const char *sceneName)
+{
+    if (listID >= 3)
+        return -1;
+
+    for (int s = 0; s < stageListCount[listID]; ++s) {
+        if (StrComp(sceneName, stageList[listID][s].name)) {
+            return s;
+        }
+    }
+    return -1;
+}
 
 #endif

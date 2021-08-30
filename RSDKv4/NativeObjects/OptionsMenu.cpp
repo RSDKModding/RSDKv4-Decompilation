@@ -12,14 +12,14 @@ void OptionsMenu_Create(void *objPtr)
         entity->labelPtr->textScale = 0.2;
     entity->labelPtr->textAlpha = 0;
     entity->labelPtr->textZ     = 0;
-    entity->labelPtr->alignment = 0;
+    entity->labelPtr->state = 0;
     SetStringToFont(entity->labelPtr->text, strHelpAndOptions, 0);
     entity->labelPtr->textWidth = 512.0;
     entity->labelRotateY             = DegreesToRad(22.5);
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->labelRotateY);
     matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
 
     float y = 48.0;
     for (int i = 0; i < 4; ++i) {

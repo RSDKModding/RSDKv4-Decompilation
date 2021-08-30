@@ -31,6 +31,9 @@ void runNetwork();
 void sendData();
 void disconnectNetwork();
 void waitForData(int type, int id, int slot);
+void sendCodedData(CodedData &send);
+int getRoomCode();
+void setRoomCode(int code);
 
 void SetNetworkGameName(int *a1, const char *name);
 

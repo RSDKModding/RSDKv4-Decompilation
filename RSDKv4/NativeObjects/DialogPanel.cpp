@@ -3,7 +3,7 @@
 void DialogPanel_Create(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
-    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 0xFF);
+    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
     entity->buttonCount = 2;
 }
@@ -12,29 +12,29 @@ void DialogPanel_Main(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
     NewRenderState();
-    SetRenderBlendMode(1);
+    SetRenderBlendMode(RENDER_BLEND_ALPHA);
     switch (entity->state) {
         case 0: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
             entity->buttons[0]                     = confirmButton;
             if (entity->buttonCount == 1) {
-                confirmButton->x               = 0.0;
-                confirmButton->y               = -40.0;
-                confirmButton->z               = 0.0;
-                confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0x00A048;
-                confirmButton->blue2           = 0x00C060;
-                confirmButton->useRenderMatrix = true;
+                confirmButton->x                = 0.0;
+                confirmButton->y                = -40.0;
+                confirmButton->z                = 0.0;
+                confirmButton->scale            = 0.25;
+                confirmButton->bgColour         = 0x00A048;
+                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->useRenderMatrix  = true;
                 SetStringToFont8(confirmButton->text, " OK ", 1);
             }
             else {
-                confirmButton->x               = -48.0;
-                confirmButton->y               = -40.0;
-                confirmButton->z               = 0.0;
-                confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0x00A048;
-                confirmButton->blue2           = 0x00C060;
-                confirmButton->useRenderMatrix = true;
+                confirmButton->x                = -48.0;
+                confirmButton->y                = -40.0;
+                confirmButton->z                = 0.0;
+                confirmButton->scale            = 0.25;
+                confirmButton->bgColour         = 0x00A048;
+                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->useRenderMatrix  = true;
                 SetStringToFont(confirmButton->text, strYes, 1);
                 NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
                 entity->buttons[1]                = noButton;
@@ -182,6 +182,6 @@ void DialogPanel_Main(void *objPtr)
         case 5: SetRenderMatrix(&entity->buttonMatrix); break;
         default: break;
     }
-    RenderMesh(entity->panelMesh, 0, 0);
+    RenderMesh(entity->panelMesh, 0, false);
     RenderText(entity->text, 2, entity->textX, entity->textY, 0.0, entity->textScale, 255);
 }

@@ -88,7 +88,7 @@ void TitleScreen_Create(void *objPtr)
         default: break;
     }
     entity->labelPtr->textAlpha = 0;
-    entity->labelPtr->alignment = -1;
+    entity->labelPtr->state = -1;
 
     ushort *str = NULL;
     if (Engine.gameDeviceType == RETRO_MOBILE)
@@ -185,7 +185,7 @@ void TitleScreen_Main(void *objPtr)
                     entity->field_130             = 1;
                     NativeEntity_TextLabel *label = entity->labelPtr;
                     label->textAlpha              = 256;
-                    label->alignment              = 1;
+                    label->state              = 1;
                 }
             }
             else if (keyPress.start || keyPress.A) {
@@ -198,7 +198,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->field_130             = 1;
                 NativeEntity_TextLabel *label = entity->labelPtr;
                 label->textAlpha              = 256;
-                label->alignment              = 1;
+                label->state              = 1;
             }
             break;
         }
@@ -227,7 +227,7 @@ void TitleScreen_Main(void *objPtr)
                     entity->field_130             = 1;
                     NativeEntity_TextLabel *label = entity->labelPtr;
                     label->textAlpha              = 256;
-                    label->alignment              = 1;
+                    label->state              = 1;
                 }
             }
             else if (keyPress.start || keyPress.A) {
@@ -240,7 +240,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->field_130             = 1;
                 NativeEntity_TextLabel *label = entity->labelPtr;
                 label->textAlpha              = 256;
-                label->alignment              = 1;
+                label->state              = 1;
             }
             break;
         }
@@ -275,7 +275,7 @@ void TitleScreen_Main(void *objPtr)
             }
             else {
                 NativeEntity_TextLabel *label = entity->labelPtr;
-                label->alignment              = 1;
+                label->state              = 1;
                 entity->state                 = 4;
                 entity->translateX            = 0.0;
             }
@@ -311,7 +311,7 @@ void TitleScreen_Main(void *objPtr)
                         if (!entity->field_130) {
                             PlaySfx(22, 0);
                             StopMusic(true);
-                            entity->labelPtr->alignment = 2;
+                            entity->labelPtr->state = 2;
                             entity->introRectAlpha      = 0.0;
                             entity->state               = 5;
                         }

@@ -16,7 +16,12 @@ void MenuControl_Create(void *objPtr)
     entity->buttonFlags[entity->buttonCount] = BUTTON_TIMEATTACK;
     entity->buttonCount++;
 
+#if RETRO_USE_MOD_LOADER
+    int vsID = GetSceneID(STAGELIST_PRESENTATION, "2P VS");
+    if (vsID != -1) {
+#else
     if (Engine.gameType == GAME_SONIC2) {
+#endif
         entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(MultiplayerButton);
         entity->buttonFlags[entity->buttonCount] = BUTTON_MULTIPLAYER;
         entity->buttonCount++;
@@ -246,7 +251,7 @@ void MenuControl_Main(void *objPtr)
                         }
                         else {
                             if (entity->buttons[entity->buttonID]->g == 0xC0) {
-                                entity->buttons[entity->buttonID]->labelPtr->alignment = 2;
+                                entity->buttons[entity->buttonID]->labelPtr->state = 2;
                                 entity->float14                                        = 0.0;
                                 entity->state                                          = 1;
                                 PlaySfx(22, 0);
@@ -296,7 +301,7 @@ void MenuControl_Main(void *objPtr)
                         }
                         else if ((keyPress.start || keyPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
-                            entity->buttons[entity->buttonID]->labelPtr->alignment = 2;
+                            entity->buttons[entity->buttonID]->labelPtr->state = 2;
                             entity->float14                                        = 0.0;
                             entity->state                                          = 1;
                             PlaySfx(22, 0);
@@ -349,7 +354,7 @@ void MenuControl_Main(void *objPtr)
                         entity->state                                          = 3;
                         entity->field_70                                       = 0.0;
                         button->g                                              = 0xFF;
-                        entity->buttons[entity->buttonID]->labelPtr->alignment = -1;
+                        entity->buttons[entity->buttonID]->labelPtr->state = -1;
                         entity->backButton->visible                            = true;
                         SetGlobalVariableByName("options.vsMode", false);
                         CREATE_ENTITY(SaveSelect);
@@ -358,13 +363,13 @@ void MenuControl_Main(void *objPtr)
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->alignment = -1;
+                        button->labelPtr->state = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(TimeAttack);
                         break;
                     case BUTTON_MULTIPLAYER:
                         entity->state               = 0;
-                        button->labelPtr->alignment = 0;
+                        button->labelPtr->state = 0;
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
                         SetGlobalVariableByName("options.vsMode", 0);
@@ -380,8 +385,13 @@ void MenuControl_Main(void *objPtr)
                         if (Engine.onlineActive) {
 #if !RETRO_USE_ORIGINAL_CODE
                             BackupNativeObjects();
-#endif
+                            int id = GetSceneID(STAGELIST_PRESENTATION, "2P VS");
+                            if (id == -1)
+                                id = 3;
+                            InitStartingStage(STAGELIST_PRESENTATION, id, 0);
+#else
                             InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
+#endif
                             CREATE_ENTITY(FadeScreen);
                         }
                         else {
@@ -402,7 +412,7 @@ void MenuControl_Main(void *objPtr)
                             SetStringToFont(entity->dialog->text, strNetworkMessage, 2);
                             entity->state = 6;
                         }
-                        button->labelPtr->alignment = 0;
+                        button->labelPtr->state = 0;
                         break;
                     case BUTTON_LEADERBOARDS:
                         entity->state = 0;
@@ -415,13 +425,13 @@ void MenuControl_Main(void *objPtr)
                             SetStringToFont(entity->dialog->text, strNetworkMessage, 2);
                             entity->state = 6;
                         }
-                        button->labelPtr->alignment = 0;
+                        button->labelPtr->state = 0;
                         break;
                     case BUTTON_OPTIONS:
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->alignment = -1;
+                        button->labelPtr->state = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(OptionsMenu);
                         break;
@@ -430,14 +440,14 @@ void MenuControl_Main(void *objPtr)
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->alignment = -1;
+                        button->labelPtr->state = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(ModsMenu);
                         break;
 #endif
                     default:
                         entity->state               = 0;
-                        button->labelPtr->alignment = 0;
+                        button->labelPtr->state = 0;
                         break;
                 }
             }
@@ -526,7 +536,7 @@ void MenuControl_Main(void *objPtr)
                 }
 
                 NativeEntity_AchievementsButton *curButton = entity->buttons[entity->buttonID];
-                curButton->labelPtr->alignment             = 0;
+                curButton->labelPtr->state             = 0;
                 curButton->translateX += ((0.0 - curButton->translateX) / div);
                 curButton->translateY += ((16.0 - curButton->translateY) / div);
                 curButton->translateZ += ((160.0 - curButton->translateZ) / div);

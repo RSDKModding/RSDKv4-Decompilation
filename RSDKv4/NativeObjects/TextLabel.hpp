@@ -11,10 +11,15 @@ struct NativeEntity_TextLabel : NativeEntityBase {
     int textAlpha;
     int fontID;
     ushort text[64];
-    int alignment;
-    byte useMatrix;
+    int state;
+    byte useRenderMatrix;
     MatrixF renderMatrix;
     void (*alignPtr)(NativeEntity_TextLabel *, int);
+
+    byte useColours;
+    byte r;
+    byte g;
+    byte b;
 };
 
 void TextLabel_Create(void *objPtr);

@@ -17,7 +17,7 @@ void OptionsButton_Create(void *objPtr)
     entity->labelPtr->fontID    = 0;
     entity->labelPtr->textScale = 0.15;
     entity->labelPtr->textAlpha = 0;
-    entity->labelPtr->alignment = 0;
+    entity->labelPtr->state = 0;
     SetStringToFont(entity->labelPtr->text, strHelpAndOptions, 0);
     entity->labelPtr->alignPtr(entity->labelPtr, 1);
 }

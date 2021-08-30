@@ -515,6 +515,7 @@
     <ClInclude Include="NativeObjects\VirtualDPadM.hpp" />
     <ClInclude Include="NativeObjects\MultiplayerButton.hpp" />
     <ClInclude Include="NativeObjects\ZoneButton.hpp" />
+    <ClInclude Include="Networking.hpp" />
     <ClInclude Include="Reader.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="resource.h" />

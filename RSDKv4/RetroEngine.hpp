@@ -308,6 +308,8 @@ public:
 #if RETRO_USE_MOD_LOADER
     void LoadXMLVariables();
     void LoadXMLSoundFX();
+    void LoadXMLObjects();
+    void LoadXMLStages(TextMenu *menu, int listNo);
 #endif
 
     int callbackMessage = 0;

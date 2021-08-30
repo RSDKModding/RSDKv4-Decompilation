@@ -25,6 +25,11 @@ extern int activeMod;
 
 extern char modsPath[0x100];
 
+extern char modTypeNames[OBJECT_COUNT][0x40];
+extern char modScriptPaths[OBJECT_COUNT][0x40];
+extern byte modScriptFlags[OBJECT_COUNT];
+extern byte modObjCount;
+
 inline void SetActiveMod(int id) { activeMod = id; }
 
 void initMods();
@@ -34,6 +39,8 @@ void saveMods();
 int OpenModMenu();
 
 void RefreshEngine();
+
+int GetSceneID(byte listID, const char *sceneName);
 
 #endif
 

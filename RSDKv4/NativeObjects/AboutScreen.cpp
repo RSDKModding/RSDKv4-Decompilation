@@ -5,14 +5,14 @@ void AboutScreen_Create(void *objPtr)
     RSDK_THIS(AboutScreen);
 
     entity->label          = CREATE_ENTITY(TextLabel);
-    entity->label->useMatrix = true;
+    entity->label->useRenderMatrix = true;
     entity->label->fontID          = 0;
     entity->label->textScale       = 0.2;
     entity->label->textAlpha       = 256;
     entity->label->textX           = -144.0;
     entity->label->textY           = 100.0;
     entity->label->textZ           = 16.0;
-    entity->label->alignment       = 0;
+    entity->label->state       = 0;
     SetStringToFont(entity->label->text, strAbout, 0);
 
     char title[0x40];
@@ -45,24 +45,24 @@ void AboutScreen_Create(void *objPtr)
     SetMeshAnimation(entity->meshBox, &entity->animator, 16, 16, 0.0);
     AnimateMesh(entity->meshBox, &entity->animator);
 
-    entity->buttons[0]                  = CREATE_ENTITY(PushButton);
-    entity->buttons[0]->useRenderMatrix = true;
-    entity->buttons[0]->x               = 64.0;
-    entity->buttons[0]->y               = -24.0;
-    entity->buttons[0]->z               = 0.0;
-    entity->buttons[0]->scale           = 0.175;
-    entity->buttons[0]->blue            = 0x00A048;
-    entity->buttons[0]->blue2           = 0x00C060;
+    entity->buttons[0]                   = CREATE_ENTITY(PushButton);
+    entity->buttons[0]->useRenderMatrix  = true;
+    entity->buttons[0]->x                = 64.0;
+    entity->buttons[0]->y                = -24.0;
+    entity->buttons[0]->z                = 0.0;
+    entity->buttons[0]->scale            = 0.175;
+    entity->buttons[0]->bgColour         = 0x00A048;
+    entity->buttons[0]->bgColourSelected = 0x00C060;
     SetStringToFont(entity->buttons[0]->text, strPrivacy, 1);
 
-    entity->buttons[1]                  = CREATE_ENTITY(PushButton);
-    entity->buttons[1]->useRenderMatrix = true;
-    entity->buttons[1]->x               = 64.0;
-    entity->buttons[1]->y               = -56.0;
-    entity->buttons[1]->z               = 0.0;
-    entity->buttons[1]->scale           = 0.175;
-    entity->buttons[1]->blue            = 0x00A048;
-    entity->buttons[1]->blue2           = 0x00C060;
+    entity->buttons[1]                   = CREATE_ENTITY(PushButton);
+    entity->buttons[1]->useRenderMatrix  = true;
+    entity->buttons[1]->x                = 64.0;
+    entity->buttons[1]->y                = -56.0;
+    entity->buttons[1]->z                = 0.0;
+    entity->buttons[1]->scale            = 0.175;
+    entity->buttons[1]->bgColour         = 0x00A048;
+    entity->buttons[1]->bgColourSelected = 0x00C060;
     SetStringToFont(entity->buttons[1]->text, strTerms, 1);
 }
 void AboutScreen_Main(void *objPtr)

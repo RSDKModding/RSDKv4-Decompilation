@@ -40,21 +40,6 @@ public:
     void start()
     {
         running = true;
-        if (!code) {
-            CodedData send;
-            send.header = 0;
-            // send over a preferred roomcode style
-            if (!vsGameLength)
-                vsGameLength = 4;
-            if (!vsItemMode)
-                vsItemMode = 1;
-            send.data.multiData.type    = 0x00000FF0;
-            send.data.multiData.data[0] = (vsGameLength << 4) | (vsItemMode << 8);
-            send.data.multiData.data[1] = strlen(networkGame);
-            StrCopy((char *)&send.data.multiData.data[2], networkGame);
-
-            write(send);
-        }
     }
 
     void close()
@@ -69,6 +54,7 @@ public:
 
     uint64_t code = 0;
     bool wait     = false;
+    int roomcode  = 0;
 
 private:
     void do_connect(const tcp::resolver::results_type &endpoints)
@@ -154,7 +140,6 @@ private:
     CodedData read_msg_;
     data_queue write_msgs_;
 
-    int roomcode = 0;
     bool writing = false;
 
     int attempts;
@@ -246,6 +231,10 @@ void joinFromCode(int code)
     send.roomcode = code;
     session->write(send, code);
 }
+
+void sendCodedData(CodedData &send) { session->write(send); }
+int getRoomCode() { return session->roomcode; }
+void setRoomCode(int code) { session->roomcode = code; }
 
 void SetNetworkGameName(int *a1, const char *name) { StrCopy(networkGame, name); }
 #endif

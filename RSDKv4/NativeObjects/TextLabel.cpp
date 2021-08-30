@@ -5,19 +5,22 @@ void TextLabel_Create(void *objPtr)
     RSDK_THIS(TextLabel);
     entity->textZ     = 160.0;
     entity->textAlpha = 255;
-    entity->alignment = 0;
+    entity->state     = 0;
     entity->alignPtr  = TextLabel_Align;
 }
 void TextLabel_Main(void *objPtr)
 {
     RSDK_THIS(TextLabel);
 
-    if (entity->useMatrix) {
+    if (entity->useRenderMatrix) {
         NewRenderState();
         SetRenderMatrix(&entity->renderMatrix);
     }
 
-    switch (entity->alignment) {
+    if (entity->useColours)
+        SetRenderVertexColor(entity->r, entity->g, entity->b);
+
+    switch (entity->state) {
         case 0:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderText(entity->text, entity->fontID, entity->textX - entity->textWidth, entity->textY, entity->textZ, entity->textScale,
@@ -47,7 +50,10 @@ void TextLabel_Main(void *objPtr)
             break;
     }
 
-    if (entity->useMatrix) {
+    if (entity->useColours)
+        SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+
+    if (entity->useRenderMatrix) {
         NewRenderState();
         SetRenderMatrix(NULL);
     }

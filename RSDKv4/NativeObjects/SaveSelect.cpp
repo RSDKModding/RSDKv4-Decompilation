@@ -14,7 +14,7 @@ void SaveSelect_Create(void *objPtr)
         entity->labelPtr->textScale = 0.2;
     entity->labelPtr->textAlpha = 0;
     entity->labelPtr->textZ     = 0;
-    entity->labelPtr->alignment = 0;
+    entity->labelPtr->state = 0;
     SetStringToFont(entity->labelPtr->text, strSaveSelect, 0);
     entity->labelPtr->textWidth = 512.0;
 
@@ -22,7 +22,7 @@ void SaveSelect_Create(void *objPtr)
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->deleteRotateY);
     matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
 
     entity->delButton    = CREATE_ENTITY(PushButton);
     entity->delButton->x = 384.0;
@@ -32,7 +32,7 @@ void SaveSelect_Create(void *objPtr)
     else
         entity->delButton->scale = 0.2;
 
-    entity->delButton->blue = 0x00A048;
+    entity->delButton->bgColour = 0x00A048;
     SetStringToFont(entity->delButton->text, strDelete, 1);
 
     entity->saveButtons[0] = CREATE_ENTITY(SubMenuButton);

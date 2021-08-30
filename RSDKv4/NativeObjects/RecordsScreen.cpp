@@ -15,8 +15,8 @@ void RecordsScreen_Create(void *objPtr)
     entity->labelPtr->textX     = -144.0;
     entity->labelPtr->textY     = 100.0;
     entity->labelPtr->textZ     = 16.0;
-    entity->labelPtr->alignment = 0;
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->state = 0;
+    entity->labelPtr->useRenderMatrix = true;
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
@@ -32,8 +32,8 @@ void RecordsScreen_Create(void *objPtr)
     entity->buttons[0]->y               = -52.0;
     entity->buttons[0]->z               = 0.0;
     entity->buttons[0]->scale           = 0.175;
-    entity->buttons[0]->blue            = 0x00A048;
-    entity->buttons[0]->blue2           = 0x00C060;
+    entity->buttons[0]->bgColour            = 0x00A048;
+    entity->buttons[0]->bgColourSelected           = 0x00C060;
     SetStringToFont(entity->buttons[0]->text, strPlay, 1);
 
     entity->buttons[1]                  = CREATE_ENTITY(PushButton);
@@ -42,8 +42,8 @@ void RecordsScreen_Create(void *objPtr)
     entity->buttons[1]->y               = -52.0;
     entity->buttons[1]->z               = 0.0;
     entity->buttons[1]->scale           = 0.175;
-    entity->buttons[1]->blue            = 0x00A048;
-    entity->buttons[1]->blue2           = 0x00C060;
+    entity->buttons[1]->bgColour            = 0x00A048;
+    entity->buttons[1]->bgColourSelected           = 0x00C060;
     SetStringToFont(entity->buttons[1]->text, strNextAct, 1);
 
     entity->state = -1;

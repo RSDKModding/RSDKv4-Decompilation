@@ -7,14 +7,14 @@ void InstructionsScreen_Create(void *objPtr)
     RSDK_THIS(InstructionsScreen);
 
     entity->labelPtr                  = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->useMatrix       = true;
+    entity->labelPtr->useRenderMatrix       = true;
     entity->labelPtr->fontID          = 0;
     entity->labelPtr->textScale       = 0.2;
     entity->labelPtr->textAlpha       = 256;
     entity->labelPtr->textX           = -144.0;
     entity->labelPtr->textY           = 100.0;
     entity->labelPtr->textZ           = 16.0;
-    entity->labelPtr->alignment       = 0;
+    entity->labelPtr->state       = 0;
     SetStringToFont(entity->labelPtr->text, strInstructions, 0);
     SetStringToFont8(entity->pageIDText, "1 / 5", 2);
     SetStringToFont(helpText, strHelpText1, 2);

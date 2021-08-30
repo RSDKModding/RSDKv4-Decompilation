@@ -568,6 +568,7 @@ const tinyxml2::XMLElement *nextXMLSiblingElement(tinyxml2::XMLDocument *doc, co
 const tinyxml2::XMLAttribute *findXMLAttribute(const tinyxml2::XMLElement *elementPtr, const char *name) { return elementPtr->FindAttribute(name); }
 const char *getXMLAttributeName(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Name(); }
 int getXMLAttributeValueInt(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->IntValue(); }
+bool getXMLAttributeValueBool(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->BoolValue(); }
 const char *getXMLAttributeValueString(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Value(); }
 
 void RetroEngine::LoadXMLVariables()
@@ -606,7 +607,7 @@ void RetroEngine::LoadXMLVariables()
                             StrCopy(globalVariableNames[globalVariablesCount], varName);
                             globalVariables[globalVariablesCount] = varValue;
                             globalVariablesCount++;
-                            // more stuff
+
                         } while (varElement = nextXMLSiblingElement(doc, varElement, "variable"));
                     }
                 }
@@ -660,8 +661,156 @@ void RetroEngine::LoadXMLSoundFX()
                             LoadSfx((char *)sfxPath, globalSFXCount);
                             SetFileInfo(&infoStore);
                             globalSFXCount++;
-                            // more stuff
+
                         } while (sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx"));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
+void RetroEngine::LoadXMLObjects()
+{
+    FileInfo info;
+    modObjCount = 0;
+
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *objectsElement = firstXMLChildElement(doc, nullptr, "objects");
+                if (objectsElement) {
+                    const tinyxml2::XMLElement *objElement = firstXMLChildElement(doc, objectsElement, "object");
+                    if (objElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(objElement, "name");
+                            const char *objName                    = "unknownObject";
+                            if (nameAttr)
+                                objName = getXMLAttributeValueString(nameAttr);
+
+                            const tinyxml2::XMLAttribute *scrAttr = findXMLAttribute(objElement, "script");
+                            const char* objScript                          = "unknownObject.txt";
+                            if (scrAttr)
+                                objScript = getXMLAttributeValueString(scrAttr);
+
+                            byte flags = 0;
+
+                            //forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
+                            //if it is, it'll cause issues!!!!
+                            const tinyxml2::XMLAttribute *loadAttr = findXMLAttribute(objElement, "forceLoad");
+                            int objForceLoad                          = false;
+                            if (loadAttr)
+                                objForceLoad = getXMLAttributeValueBool(loadAttr);
+
+                            flags |= (objForceLoad & 1);
+
+                            if (objForceLoad) {
+                                StrCopy(modTypeNames[modObjCount], objName);
+                                StrCopy(modScriptPaths[modObjCount], objScript);
+                                modScriptFlags[modObjCount] = flags;
+                                modObjCount++;
+                            }
+
+                        } while (objElement = nextXMLSiblingElement(doc, objElement, "object"));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
+void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
+{
+    FileInfo info;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const char *elementNames[] = { "presentationStages", "regularStages", "bonusStages", "specialStages" };
+
+                for (int l = 0; l < STAGELIST_MAX; ++l) {
+                    const tinyxml2::XMLElement *listElement = firstXMLChildElement(doc, nullptr, elementNames[l]);
+                    if (listElement) {
+                        const tinyxml2::XMLElement *stgElement = firstXMLChildElement(doc, listElement, "stage");
+                        if (stgElement) {
+                            do {
+                                const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(stgElement, "name");
+                                const char *stgName                    = "unknownStage";
+                                if (nameAttr)
+                                    stgName = getXMLAttributeValueString(nameAttr);
+
+                                const tinyxml2::XMLAttribute *folderAttr = findXMLAttribute(stgElement, "folder");
+                                const char *stgFolder                  = "unknownStageFolder";
+                                if (nameAttr)
+                                    stgFolder = getXMLAttributeValueString(folderAttr);
+
+                                const tinyxml2::XMLAttribute *idAttr = findXMLAttribute(stgElement, "id");
+                                const char *stgID                    = "unknownStageID";
+                                if (idAttr)
+                                    stgID = getXMLAttributeValueString(idAttr);
+
+                                const tinyxml2::XMLAttribute *highlightAttr = findXMLAttribute(stgElement, "highlight");
+                                int stgHighlighted                          = 0;
+                                if (stgHighlighted)
+                                    stgHighlighted = getXMLAttributeValueInt(highlightAttr);
+
+                                if (menu) {
+                                    if (listNo == 2 || listNo == 3) {
+                                        if (listNo == ((l + 1) ^ 1)) {
+                                            AddTextMenuEntry(menu, stgName);
+                                            menu->entryHighlight[menu->rowCount - 1] = stgHighlighted;
+                                        }
+                                    }
+                                    else if (listNo == l + 1) {
+                                        AddTextMenuEntry(menu, stgName);
+                                        menu->entryHighlight[menu->rowCount - 1] = stgHighlighted;
+                                    }
+                                }
+                                else {
+
+                                    StrCopy(stageList[l][stageListCount[l]].name, stgName);
+                                    StrCopy(stageList[l][stageListCount[l]].folder, stgFolder);
+                                    StrCopy(stageList[l][stageListCount[l]].id, stgID);
+                                    stageList[l][stageListCount[l]].highlighted = stgHighlighted;
+
+                                    stageListCount[l]++;
+                                }
+
+                            } while (stgElement = nextXMLSiblingElement(doc, stgElement, "stage"));
+                        }
                     }
                 }
             }
@@ -791,6 +940,8 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         CloseFile();
 #if RETRO_USE_MOD_LOADER
         LoadXMLVariables();
+        LoadXMLObjects();
+        LoadXMLStages(NULL, 0);
 #endif
     }
 
@@ -816,6 +967,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
     AddNativeFunction("GetAchievement", GetAchievement);
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
+    AddNativeFunction("GetSceneID", GetSceneID);
 #endif
 
     return loaded;

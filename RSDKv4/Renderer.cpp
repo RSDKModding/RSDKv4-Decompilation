@@ -332,8 +332,6 @@ void NewRenderState()
 }
 void RenderScene()
 {
-    if (renderStateCount == -1)
-        return;
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (Engine.dimTimer < Engine.dimLimit) {
@@ -359,6 +357,9 @@ void RenderScene()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (renderStateCount == -1)
+        return;
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glLoadIdentity();
     if (currentRenderState.indexCount) {
@@ -783,7 +784,7 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
 {
     int meshID = 0;
     for (int i = 0; i < textureCount; ++i) {
-        if (StrComp(meshList[meshID].fileName, filePath))
+        if (StrComp(meshList[meshID].fileName, filePath) && meshList[meshID].textureID == textureID)
             return &meshList[meshID];
         if (!StrLength(meshList[meshID].fileName))
             break;
@@ -1667,6 +1668,9 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
 
 void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
 {
+    if (!mesh)
+        return;
+
     if (renderStateCount < RENDERSTATE_LIMIT) {
         if (currentRenderState.indexCount) {
             RenderState *state = &renderStateList[renderStateCount++];
@@ -1676,7 +1680,7 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         currentRenderState.vertPtr    = mesh->vertices;
         currentRenderState.indexPtr   = mesh->indices;
         currentRenderState.indexCount = mesh->indexCount * 3;
-        if (mesh->textureID == 0xFF) {
+        if (mesh->textureID >= TEXTURE_LIMIT) {
             currentRenderState.useTexture = false;
             currentRenderState.id         = 0;
         }

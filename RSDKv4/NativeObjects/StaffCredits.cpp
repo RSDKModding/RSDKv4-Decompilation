@@ -5,14 +5,14 @@ void StaffCredits_Create(void *objPtr)
     RSDK_THIS(StaffCredits);
 
     entity->labelPtr            = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
     entity->labelPtr->fontID    = 0;
     entity->labelPtr->textScale = 0.2;
     entity->labelPtr->textAlpha = 256;
     entity->labelPtr->textX     = -144.0;
     entity->labelPtr->textY     = 100.0;
     entity->labelPtr->textZ     = 16.0;
-    entity->labelPtr->alignment = 0;
+    entity->labelPtr->state = 0;
     SetStringToFont(entity->labelPtr->text, strStaffCredits, 0);
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);

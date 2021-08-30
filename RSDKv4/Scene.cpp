@@ -80,6 +80,11 @@ byte tilesetGFXData[TILESET_SIZE];
 ushort tile3DFloorBuffer[0x13334];
 bool drawStageGFXHQ = false;
 
+#if RETRO_USE_MOD_LOADER
+bool loadGlobalScripts = false; //stored here so I can use it later
+int globalObjCount     = 0;
+#endif
+
 void InitFirstStage(void)
 {
     xScrollOffset = 0;
@@ -572,12 +577,15 @@ void LoadStageFiles(void)
         ClearScriptData();
         for (int i = SPRITESHEETS_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
-        bool loadGlobals = false;
+        loadGlobalScripts = false;
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
-            FileRead(&loadGlobals, 1);
+            byte buf = 0;
+            FileRead(&buf, 1);
+            loadGlobalScripts = buf;
             CloseFile();
         }
-        if (loadGlobals && LoadFile("Data/Game/GameConfig.bin", &info)) {
+
+        if (loadGlobalScripts && LoadFile("Data/Game/GameConfig.bin", &info)) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             FileRead(&fileBuffer, 1);
@@ -595,8 +603,14 @@ void LoadStageFiles(void)
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
-                SetObjectTypeName(strBuffer, i + scriptID);
+                SetObjectTypeName(strBuffer, scriptID + i);
             }
+
+#if RETRO_USE_MOD_LOADER
+            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
+            }
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
             bool bytecodeExists = false;
@@ -632,6 +646,19 @@ void LoadStageFiles(void)
                 }
             }
             CloseFile();
+
+#if RETRO_USE_MOD_LOADER
+            globalObjCount = globalObjectCount;
+            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], scriptID);
+
+                GetFileInfo(&infoStore);
+                ParseScriptFile(modScriptPaths[i], scriptID++);
+                SetFileInfo(&infoStore);
+                if (Engine.gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
+#endif
         }
 
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
@@ -830,6 +857,11 @@ void LoadActLayout()
 
             FileRead(fileBuffer, 1);
             object->type = fileBuffer[0];
+
+#if RETRO_USE_MOD_LOADER
+            if (loadGlobalScripts && modObjCount && object->type >= globalObjCount)
+                object->type += modObjCount; //offset it by our mod count
+#endif
 
             FileRead(fileBuffer, 1);
             object->propertyValue = fileBuffer[0];

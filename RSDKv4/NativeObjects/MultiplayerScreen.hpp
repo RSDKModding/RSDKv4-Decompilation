@@ -11,6 +11,7 @@ struct NativeEntity_MultiplayerScreen : NativeEntityBase {
     float scale;
     NativeEntity_MenuBG *bg;
     NativeEntity_TextLabel *label;
+    NativeEntity_DialogPanel *dialog;
     MeshInfo *meshPanel;
     MeshAnimator animator;
     MatrixF renderMatrix;
@@ -18,11 +19,17 @@ struct NativeEntity_MultiplayerScreen : NativeEntityBase {
     MatrixF matrix3;
     byte textureArrows;
     byte backPressed;
+    byte leftPressed;
+    byte rightPressed;
     int arrowAlpha;
-    NativeEntity_PushButton *buttons[2];
+    int arrowAlphaLR;
+    NativeEntity_PushButton *buttons[4];
     int selectedButton;
     byte flipDir;
     float rotationY;
+    NativeEntity_TextLabel *codeLabel[3];
+    int roomCode;
+    NativeEntity_TextLabel *enterCodeLabel[8];
 };
 
 void MultiplayerScreen_Create(void *objPtr);
