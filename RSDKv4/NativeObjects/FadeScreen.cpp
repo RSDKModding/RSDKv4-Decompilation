@@ -47,5 +47,21 @@ void FadeScreen_Main(void *objPtr)
                     CREATE_ENTITY(VirtualDPad);
             }
             break;
+        case 4:
+            entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
+            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
+                       entity->fadeA);
+            if (entity->timer > entity->timeLimit)
+                RemoveNativeObject(entity);
+            break;
+        case 5:
+            entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
+            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
+                       entity->fadeA);
+            if (entity->timer > entity->timeLimit) {
+                ClearNativeObjects();
+                RestoreNativeObjects();
+            }
+            break;
     }
 }

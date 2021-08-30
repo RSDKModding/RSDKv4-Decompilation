@@ -23,7 +23,7 @@ void AboutScreen_Create(void *objPtr)
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 192);
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
+    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
 
     int package = 0;
     switch (Engine.globalBoxRegion) {

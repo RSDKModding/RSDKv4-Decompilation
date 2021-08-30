@@ -92,7 +92,7 @@ enum ObjectPriority {
 extern int nativeEntityPos;
 
 extern int activeEntityList[NATIVEENTITY_COUNT];
-extern int objectRemoveFlag[NATIVEENTITY_COUNT];
+extern byte objectRemoveFlag[NATIVEENTITY_COUNT];
 extern NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
 extern int nativeEntityCount;
 

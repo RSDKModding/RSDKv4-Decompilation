@@ -429,6 +429,7 @@
     <ClCompile Include="NativeObjects\ModInfoButton.cpp" />
     <ClCompile Include="NativeObjects\ModsButton.cpp" />
     <ClCompile Include="NativeObjects\ModsMenu.cpp" />
+    <ClCompile Include="NativeObjects\MultiplayerScreen.cpp" />
     <ClCompile Include="NativeObjects\OptionsButton.cpp" />
     <ClCompile Include="NativeObjects\OptionsMenu.cpp" />
     <ClCompile Include="NativeObjects\PauseMenu.cpp" />
@@ -490,6 +491,7 @@
     <ClInclude Include="NativeObjects\ModInfoButton.hpp" />
     <ClInclude Include="NativeObjects\ModsButton.hpp" />
     <ClInclude Include="NativeObjects\ModsMenu.hpp" />
+    <ClInclude Include="NativeObjects\MultiplayerScreen.hpp" />
     <ClInclude Include="NativeObjects\NativeObjects.hpp" />
     <ClInclude Include="NativeObjects\OptionsButton.hpp" />
     <ClInclude Include="NativeObjects\OptionsMenu.hpp" />

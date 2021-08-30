@@ -363,7 +363,7 @@ void MenuControl_Main(void *objPtr)
                         CREATE_ENTITY(TimeAttack);
                         break;
                     case BUTTON_MULTIPLAYER:
-                        entity->state               = 2;
+                        entity->state               = 0;
                         button->labelPtr->alignment = 0;
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
@@ -378,6 +378,9 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
                         if (Engine.onlineActive) {
+#if !RETRO_USE_ORIGINAL_CODE
+                            BackupNativeObjects();
+#endif
                             InitStartingStage(STAGELIST_PRESENTATION, 3, 0);
                             CREATE_ENTITY(FadeScreen);
                         }

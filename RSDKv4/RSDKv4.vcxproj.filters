@@ -213,6 +213,9 @@
     <ClInclude Include="..\dependencies\all\tinyxml2\tinyxml2.h">
       <Filter>Header Files\dependencies</Filter>
     </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -400,6 +403,9 @@
     </ClCompile>
     <ClCompile Include="..\dependencies\all\tinyxml2\tinyxml2.cpp">
       <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
