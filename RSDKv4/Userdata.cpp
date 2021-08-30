@@ -776,6 +776,7 @@ void ShowLeaderboardsScreen()
     printLog("we're showing the leaderboards screen");
 }
 
+bool disableFocusPause_Store = false;
 int Connect2PVS(int *gameLength, int *itemMode)
 {
     printLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
@@ -791,7 +792,11 @@ int Connect2PVS(int *gameLength, int *itemMode)
     vsGameLength = *gameLength;
     vsItemMode   = *itemMode;
     if (Engine.onlineActive) {
+#if RETRO_USE_NETWORKING
+        disableFocusPause_Store = disableFocusPause;
+        disableFocusPause = false;
         runNetwork();
+#endif
         return 1;
     }
     return 0;
@@ -802,6 +807,7 @@ int Disconnect2PVS(int *a1, int *a2)
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
+        disableFocusPause = disableFocusPause_Store;
         disconnectNetwork();
 #endif
         return 1;
@@ -810,7 +816,7 @@ int Disconnect2PVS(int *a1, int *a2)
 }
 int SendEntity(int *entityID, int *dataSlot)
 {
-    printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
+    //printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
 
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
@@ -828,7 +834,7 @@ int SendEntity(int *entityID, int *dataSlot)
 }
 int SendValue(int *value, int *dataSlot)
 {
-    printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
+    //printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
     multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = *value;
@@ -843,7 +849,7 @@ int SendValue(int *value, int *dataSlot)
 bool recieveReady = false;
 int ReceiveEntity(int *entityID, int *dataSlot)
 {
-    printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
+    //printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
 
     if (Engine.onlineActive && recieveReady) {
         // recieveReady = false;
