@@ -39,7 +39,7 @@ void VirtualDPadM_Main(void *objPtr)
     }
 
     if (entity->alpha > 0) {
-        SetRenderBlendMode(1);
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, entity->alpha,
                     entity->textureID);
 

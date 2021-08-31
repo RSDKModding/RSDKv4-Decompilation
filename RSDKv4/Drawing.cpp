@@ -4,8 +4,9 @@ ushort blendLookupTable[BLENDTABLE_SIZE];
 ushort subtractLookupTable[BLENDTABLE_SIZE];
 ushort tintLookupTable[TINTTABLE_SIZE];
 
-int SCREEN_XSIZE   = 424;
-int SCREEN_CENTERX = 424 / 2;
+int SCREEN_XSIZE_CONFIG = 424;
+int SCREEN_XSIZE        = 424;
+int SCREEN_CENTERX      = 424 / 2;
 
 int SCREEN_XSIZE_F   = 424;
 int SCREEN_CENTERX_F = 424 / 2;
@@ -29,9 +30,9 @@ bool convertTo32Bit     = false;
 bool mixFiltersOnJekyll = false;
 
 #if RETRO_USING_OPENGL
-GLint defaultFramebuffer;
-GLuint framebufferHiRes;
-GLuint renderbufferHiRes;
+GLint defaultFramebuffer = -1;
+GLuint framebufferHiRes = -1;
+GLuint renderbufferHiRes = -1;
 #endif
 
 #if RETRO_HARDWARE_RENDER
@@ -82,6 +83,14 @@ float pureLight[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 #endif
 #endif
 
+// Alpha blending
+#define setPixelAlpha(colour, frameBufferClr, alpha)                                                                                                 \
+    ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - alpha)];                                                                        \
+    ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * alpha];                                                                                 \
+    frameBufferClr    = (blendPtrB[frameBufferClr & 0x1F] + blendPtrA[colour & 0x1F])                                                                \
+                     | ((blendPtrB[(frameBufferClr & 0x7E0) >> 6] + blendPtrA[(colour & 0x7E0) >> 6]) << 6)                                          \
+                     | ((blendPtrB[(frameBufferClr & 0xF800) >> 11] + blendPtrA[(colour & 0xF800) >> 11]) << 11)
+
 #if !RETRO_USE_ORIGINAL_CODE
 // enable integer scaling, which is a modification of enhanced scaling
 bool integerScaling = false;
@@ -91,6 +100,7 @@ bool disableEnhancedScaling = false;
 bool bilinearScaling = false;
 #endif
 
+#if RETRO_PLATFORM != RETRO_ANDROID
 static void glMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 {
     std::string logSeverity;
@@ -129,6 +139,7 @@ static void glMessageCallback(GLenum source, GLenum type, GLuint id, GLenum seve
 
     printLog("%s %s, Source: %s, Type: %s", logSeverity.c_str(), message, sourceStr.c_str(), typeStr.c_str());
 }
+#endif
 
 int InitRenderDevice()
 {
@@ -204,13 +215,6 @@ int InitRenderDevice()
 #endif
 #endif
 
-    if (Engine.startFullScreen) {
-        SDL_RestoreWindow(Engine.window);
-        SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        SDL_ShowCursor(SDL_FALSE);
-        Engine.isFullScreen = true;
-    }
-
     if (Engine.borderless) {
         SDL_RestoreWindow(Engine.window);
         SDL_SetWindowBordered(Engine.window, SDL_FALSE);
@@ -221,7 +225,11 @@ int InitRenderDevice()
         Engine.screenRefreshRate = disp.refresh_rate;
     }
 
-    SetScreenDimensions(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#else
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
+#endif
 
 #endif
 
@@ -270,15 +278,22 @@ int InitRenderDevice()
 #endif
 
 #if RETRO_USING_OPENGL
+
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetSwapInterval(0);
+
     // Init GL
     Engine.glContext = SDL_GL_CreateContext(Engine.window);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-
+#if RETRO_PLATFORM != RETRO_ANDROID
     // glew Setup
     GLenum err = glewInit();
     if (err != GLEW_OK) {
@@ -290,6 +305,7 @@ int InitRenderDevice()
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback((GLDEBUGPROC)glMessageCallback, NULL);
+#endif
 
     displaySettings.field_20 = 0;
 
@@ -305,105 +321,8 @@ int InitRenderDevice()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    float width            = displaySettings.width / (double)displaySettings.height;
-    SCREEN_XSIZE_F   = SCREEN_YSIZE * width;
-    SCREEN_CENTERX_F = width * SCREEN_CENTERY;
-
-    glScalef(320.0f / (SCREEN_YSIZE * width), 1.0, 1.0);
-
-    SetPerspectiveMatrix(90.0, 0.75, 1.0, 5000.0);
-    glViewport(0, 0, displaySettings.width, displaySettings.height);
-    int displayWidth = (int)(((displaySettings.width / (double)displaySettings.height) * SCREEN_YSIZE) + 8) & -0x10;
-    //if (displayWidth > displaySettings.maxWidth)
-    //    displayWidth = displaySettings.maxWidth;
-    int lineSize = (displayWidth + 9) & -0x10;
-    SetScreenSize(displayWidth, lineSize);
-
-    Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    int width2 = 0;
-    int wBuf   = GFX_LINESIZE;
-    while (wBuf > 0) {
-        width2++;
-        wBuf >>= 1;
-    }
-    int height2 = 0;
-    int hBuf    = SCREEN_YSIZE;
-    while (hBuf > 0) {
-        height2++;
-        hBuf >>= 1;
-    }
-    int texWidth = 1 << width2;
-    int texHeight = 1 << height2;
-
-    textureCount = 1;
-    StrCopy(textureList[0].fileName, "RetroBuffer");
-    textureList[0].width   = texWidth;
-    textureList[0].height  = texHeight;
-    textureList[0].format  = TEXFMT_RETROBUFFER;
-    textureList[0].id      = 0;
-    textureList[0].widthN  = 1.0f / texWidth;
-    textureList[0].heightN = 1.0f / texHeight;
-
-    if (Engine.useHighResAssets) {
-        glGenFramebuffers(1, &framebufferHiRes);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
-        glGenTextures(1, &renderbufferHiRes);
-        glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth << 1, texHeight << 1, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderbufferHiRes, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        float w                    = (((((lineSize >> 16) * 65536.0) + lineSize) + 0.5) * textureList[0].widthN) - 0.001;
-        float h                        = (SCREEN_YSIZE * textureList[0].heightN) - 0.001;
-        screenBufferVertexList[0]  = -1.0;
-        screenBufferVertexList[1]  = 1.0;
-        screenBufferVertexList[2]  = 1.0;
-        screenBufferVertexList[6]  = 0.0;
-        screenBufferVertexList[9]  = 1.0;
-        screenBufferVertexList[10] = 1.0;
-        screenBufferVertexList[11] = 1.0;
-        screenBufferVertexList[7]  = h;
-        screenBufferVertexList[16] = h;
-        screenBufferVertexList[18] = -1.0;
-        screenBufferVertexList[19] = -1.0;
-        screenBufferVertexList[20] = 1.0;
-        screenBufferVertexList[24] = 0.0;
-        screenBufferVertexList[25] = 0.0;
-        screenBufferVertexList[27] = 1.0;
-        screenBufferVertexList[28] = -1.0;
-        screenBufferVertexList[29] = 1.0;
-        screenBufferVertexList[15] = w;
-        screenBufferVertexList[34] = 0.0;
-        screenBufferVertexList[33] = w;
-    }
-
-    glGenTextures(1, &textureList[0].id);
-    glBindTexture(GL_TEXTURE_2D, textureList[0].id);
-
-    convertTo32Bit = true;
-    if (displaySettings.height > 720) {
-        convertTo32Bit = true;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    }
-    else if (convertTo32Bit)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // GL_LINEAR
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    textureList[0].id = -1;
+    setupViewport();
 
     ResetRenderStates();
     SetupDrawIndexList();
@@ -424,6 +343,10 @@ int InitRenderDevice()
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
     glEnable(GL_LIGHT0);
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+    Engine.startFullScreen = true;
+#endif
+
 #endif
 
 #if RETRO_SOFTWARE_RENDER
@@ -436,6 +359,10 @@ int InitRenderDevice()
     memset(Engine.texBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(uint));
 
 #endif
+
+    if (Engine.startFullScreen) {
+        setFullScreen(true);
+    }
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
     // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
@@ -774,7 +701,7 @@ void GenerateBlendLookupTable(void)
     for (int y = 0; y < BLENDTABLE_YSIZE; y++) {
         for (int x = 0; x < BLENDTABLE_XSIZE; x++) {
             blendLookupTable[blendTableID]      = y * x >> 8;
-            subtractLookupTable[blendTableID++] = y * ((BLENDTABLE_XSIZE - 1) - x) >> 8;
+            subtractLookupTable[blendTableID++] = y * (0x1F - x) >> 8;
         }
     }
 
@@ -845,7 +772,6 @@ void ClearScreen(byte index)
 
 void SetScreenDimensions(int width, int height)
 {
-
     touchWidth               = width;
     touchHeight              = height;
     displaySettings.width    = width;
@@ -854,20 +780,20 @@ void SetScreenDimensions(int width, int height)
     displaySettings.field_10 = 16;
     touchHeightF             = height;
     //displaySettings.maxWidth = 424;
-    double aspect            = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
-    SCREEN_XSIZE             = SCREEN_YSIZE * aspect;
-    SCREEN_CENTERX_F         = aspect * SCREEN_CENTERY;
+    double aspect    = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
+    SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
+    SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
     SetPerspectiveMatrix(SCREEN_YSIZE * aspect, SCREEN_YSIZE_F, 0.0, 1000.0);
     glViewport(0, 0, displaySettings.width, displaySettings.height);
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
-    int val               = (int)((displaySettings.width / (double)displaySettings.height) * SCREEN_YSIZE + 8) & -0x10;
+    int val                 = (int)(aspect * SCREEN_YSIZE + 8) & -0x10;
     //if (val > displaySettings.maxWidth)
     //    val = displaySettings.maxWidth;
     SetScreenSize(val, (int)(val + 9) & -0x10);
 
     int width2 = 0;
-    int wBuf   = SCREEN_XSIZE;
+    int wBuf   = SCREEN_XSIZE_F;
     while (wBuf > 0) {
         width2++;
         wBuf >>= 1;
@@ -1428,6 +1354,176 @@ void UpdateTextureBufferWithSprites()
     }
 }
 #endif
+
+void setupViewport()
+{
+    float aspect     = displaySettings.width / (double)displaySettings.height;
+    SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
+    SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
+
+    glScalef(320.0f / (SCREEN_YSIZE * aspect), 1.0, 1.0);
+
+    SetPerspectiveMatrix(90.0, 0.75, 1.0, 5000.0);
+    glViewport(0, 0, displaySettings.width, displaySettings.height);
+    int displayWidth = (int)((aspect * SCREEN_YSIZE) + 8) & -0x10;
+    int lineSize = (displayWidth + 9) & -0x10;
+    SetScreenSize(displayWidth, lineSize);
+
+    Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    int width2 = 0;
+    int wBuf   = GFX_LINESIZE - 1;
+    while (wBuf > 0) {
+        width2++;
+        wBuf >>= 1;
+    }
+    int height2 = 0;
+    int hBuf    = SCREEN_YSIZE - 1;
+    while (hBuf > 0) {
+        height2++;
+        hBuf >>= 1;
+    }
+    int texWidth  = 1 << width2;
+    int texHeight = 1 << height2;
+
+    textureCount = 1;
+    StrCopy(textureList[0].fileName, "RetroBuffer");
+    textureList[0].width   = texWidth;
+    textureList[0].height  = texHeight;
+    textureList[0].format  = TEXFMT_RETROBUFFER;
+    textureList[0].widthN  = 1.0f / texWidth;
+    textureList[0].heightN = 1.0f / texHeight;
+
+    if (Engine.useHighResAssets) {
+        if (framebufferHiRes != -1)
+            glDeleteFramebuffers(1, &framebufferHiRes);
+        if (renderbufferHiRes != -1)
+            glDeleteTextures(1, &renderbufferHiRes);
+        framebufferHiRes  = -1;
+        renderbufferHiRes = -1;
+
+        glGenFramebuffers(1, &framebufferHiRes);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
+        glGenTextures(1, &renderbufferHiRes);
+        glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth << 1, texHeight << 1, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderbufferHiRes, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        float w                    = (((((lineSize >> 16) * 65536.0) + lineSize) + 0.5) * textureList[0].widthN) - 0.001;
+        float h                    = (SCREEN_YSIZE * textureList[0].heightN) - 0.001;
+        screenBufferVertexList[0]  = -1.0;
+        screenBufferVertexList[1]  = 1.0;
+        screenBufferVertexList[2]  = 1.0;
+        screenBufferVertexList[6]  = 0.0;
+        screenBufferVertexList[9]  = 1.0;
+        screenBufferVertexList[10] = 1.0;
+        screenBufferVertexList[11] = 1.0;
+        screenBufferVertexList[7]  = h;
+        screenBufferVertexList[16] = h;
+        screenBufferVertexList[18] = -1.0;
+        screenBufferVertexList[19] = -1.0;
+        screenBufferVertexList[20] = 1.0;
+        screenBufferVertexList[24] = 0.0;
+        screenBufferVertexList[25] = 0.0;
+        screenBufferVertexList[27] = 1.0;
+        screenBufferVertexList[28] = -1.0;
+        screenBufferVertexList[29] = 1.0;
+        screenBufferVertexList[15] = w;
+        screenBufferVertexList[34] = 0.0;
+        screenBufferVertexList[33] = w;
+    }
+    else {
+        if (framebufferHiRes != -1)
+            glDeleteFramebuffers(1, &framebufferHiRes);
+        if (renderbufferHiRes != -1)
+            glDeleteTextures(1, &renderbufferHiRes);
+
+        framebufferHiRes  = -1;
+        renderbufferHiRes = -1;
+    }
+
+    bool transfer = false;
+    if (textureList[0].id != -1) {
+        glDeleteTextures(1, &textureList[0].id);
+        transfer = true;
+    }
+    glGenTextures(1, &textureList[0].id);
+    glBindTexture(GL_TEXTURE_2D, textureList[0].id);
+
+    convertTo32Bit = true;
+    if (displaySettings.height > 720) {
+        convertTo32Bit = true;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    }
+    else if (convertTo32Bit)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // GL_LINEAR
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if (transfer && Engine.frameBuffer)
+        TransferRetroBuffer();
+}
+
+void setFullScreen(bool fs)
+{
+    if (fs) {
+#if RETRO_USING_SDL1
+        Engine.windowSurface =
+            SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE | SDL_FULLSCREEN);
+        SDL_ShowCursor(SDL_FALSE);
+#elif RETRO_USING_SDL2
+        SDL_RestoreWindow(Engine.window);
+        SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_ShowCursor(SDL_FALSE);
+
+        SDL_DisplayMode mode;
+        SDL_GetDesktopDisplayMode(0, &mode);
+        //SetScreenDimensions(mode.w, mode.h);
+        setupViewport();
+        int w = mode.w;
+        int h = mode.h;
+        if (mode.h > mode.w) {
+            w = mode.h;
+            h = mode.w;
+        }
+
+        glViewport(0, 0, w, h);
+#endif
+    }
+    else {
+#if RETRO_USING_SDL1 
+        Engine.windowSurface =
+            SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
+        SDL_ShowCursor(SDL_TRUE);
+#elif RETRO_USING_SDL2
+        SDL_SetWindowFullscreen(Engine.window, false);
+        SDL_ShowCursor(SDL_TRUE);
+        SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_RestoreWindow(Engine.window);
+
+        //SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        setupViewport();
+        glViewport(0, 0, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+    }
+    Engine.isFullScreen = fs;
+}
 
 void DrawObjectList(int Layer)
 {
@@ -4259,7 +4355,7 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
                 ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
                 ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
 
-                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
+                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
                                   | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
                                   | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
                 ++frameBufferPtr;
@@ -4342,7 +4438,7 @@ void SetFadeHQ(int R, int G, int B, int A)
             while (w--) {
                 ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
                 ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
-                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
+                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
                                   | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
                                   | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
                 ++frameBufferPtr;
@@ -5779,12 +5875,7 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
             int w = width;
             while (w--) {
                 if (*gfxData > 0) {
-                    ushort colour          = activePalette[*gfxData];
-                    ushort *blendTablePtrA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
-                    ushort *blendTablePtrB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
-                    *frameBufferPtr = (blendTablePtrA[*frameBufferPtr & (BLENDTABLE_XSIZE - 1)] + blendTablePtrB[colour & (BLENDTABLE_XSIZE - 1)])
-                                      | ((blendTablePtrA[(*frameBufferPtr & 0x7E0) >> 6] + blendTablePtrB[(colour & 0x7E0) >> 6]) << 6)
-                                      | ((blendTablePtrA[(*frameBufferPtr & 0xF800) >> 11] + blendTablePtrB[(colour & 0xF800) >> 11]) << 11);
+                    setPixelAlpha(activePalette[*gfxData], *frameBufferPtr, alpha);
                 }
                 ++gfxData;
                 ++frameBufferPtr;
@@ -5893,7 +5984,7 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
                     v21 = v12 | v20;
                 else
                     v21 = v20 | 0x7E0;
-                int v13 = blendTablePtr[colour & (BLENDTABLE_XSIZE - 1)] + (*frameBufferPtr & 0x1F);
+                int v13 = blendTablePtr[colour & 0x1F] + (*frameBufferPtr & 0x1F);
                 if (v13 <= 0x1F)
                     finalColour = v13 | v21;
                 else
@@ -6283,11 +6374,7 @@ void DrawFace(void *v, uint colour)
                 frameBufferPtr += GFX_LINESIZE;
                 int vertexwidth = endX - startX + 1;
                 while (vertexwidth--) {
-                    ushort *blendTableA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
-                    ushort *blendTableB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
-                    *fbPtr              = (blendTableA[*fbPtr & (BLENDTABLE_XSIZE - 1)] + blendTableB[colour16 & (BLENDTABLE_XSIZE - 1)])
-                             | ((blendTableA[(*fbPtr & 0x7E0) >> 6] + blendTableB[(colour16 & 0x7E0) >> 6]) << 6)
-                             | ((blendTableA[(*fbPtr & 0xF800) >> 11] + blendTableB[(colour16 & 0xF800) >> 11]) << 11);
+                    setPixelAlpha(colour16, *fbPtr, alpha);
                     ++fbPtr;
                 }
             }
@@ -6444,7 +6531,7 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
             while (vertexwidth--) {
                 ushort *blendTableA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
                 ushort *blendTableB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
-                *fbPtr              = (blendTableA[fogColour16 & (BLENDTABLE_XSIZE - 1)] + blendTableB[colour16 & (BLENDTABLE_XSIZE - 1)])
+                *fbPtr              = (blendTableA[fogColour16 & 0x1F] + blendTableB[colour16 & 0x1F])
                          | ((blendTableA[(fogColour16 & 0x7E0) >> 6] + blendTableB[(colour16 & 0x7E0) >> 6]) << 6)
                          | ((blendTableA[(fogColour16 & 0xF800) >> 11] + blendTableB[(colour16 & 0xF800) >> 11]) << 11);
                 ++fbPtr;

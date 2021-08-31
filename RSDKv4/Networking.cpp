@@ -5,6 +5,10 @@
 #include <deque>
 #include <iostream>
 #include <thread>
+#if RETRO_PLATFORM == RETRO_ANDROID
+//TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
+#define ASIO_NO_TYPEID
+#endif
 #include <asio.hpp>
 
 char networkHost[64];

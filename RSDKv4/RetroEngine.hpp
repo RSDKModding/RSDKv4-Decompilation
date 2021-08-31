@@ -78,8 +78,9 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
 #else
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#error "No Platform was defined"
+//#define RETRO_PLATFORM   (RETRO_WIN)
+//#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #define DEFAULT_SCREEN_XSIZE 424
@@ -129,11 +130,31 @@ typedef unsigned int uint;
 //#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
 
 #if RETRO_USING_OPENGL
+#if RETRO_PLATFORM == RETRO_ANDROID
+#define GL_GLEXT_PROTOTYPES
+
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
+#undef glGenFramebuffers
+#undef glBindFramebuffers
+#undef glFramebufferTexture2D
+
+#undef GL_FRAMEBUFFER
+#undef GL_COLOR_ATTACHMENT0
+#undef GL_FRAMEBUFFER_BINDING
+
+#define glGenFramebuffers      glGenFramebuffersOES
+#define glBindFramebuffer      glBindFramebufferOES
+#define glFramebufferTexture2D glFramebufferTexture2DOES
+#define glDeleteFramebuffers   glDeleteFramebuffersOES
+
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#else
 #include <GL/glew.h>
 #include <GL/glu.h>
-
-#if RETRO_USING_SDL2
-#include <SDL_opengl.h>
 #endif
 #endif
 
@@ -232,9 +253,9 @@ extern bool engineDebugMode;
 #include "Sprite.hpp"
 #include "Text.hpp"
 #include "Networking.hpp"
-#include "Debug.hpp"
 #include "Renderer.hpp"
 #include "Userdata.hpp" 
+#include "Debug.hpp"
 #if RETRO_USE_MOD_LOADER
 #include "ModAPI.hpp" 
 #endif

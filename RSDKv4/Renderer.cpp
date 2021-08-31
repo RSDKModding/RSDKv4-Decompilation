@@ -275,6 +275,9 @@ void SetRenderVertexColor(byte r, byte g, byte b)
     vertexG = g;
     vertexB = b;
 }
+
+#undef near
+#undef far
 void SetPerspectiveMatrix(float w, float h, float near, float far)
 {
     float m[19];

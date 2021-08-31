@@ -31,7 +31,7 @@ void VirtualDPad_Main(void *objPtr)
     RSDK_THIS(VirtualDPad);
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
-    if (globalVariables[entity->useTouchControls] && (globalVariables[entity->usePhysicalControls] || entity->editMode == 1)) {
+    if (globalVariables[entity->useTouchControls] && (!globalVariables[entity->usePhysicalControls] || entity->editMode)) {
         if (entity->alpha < saveGame->vDPadOpacity) {
             entity->alpha += 4;
             if (entity->pauseAlpha <= 254) {
@@ -47,7 +47,7 @@ void VirtualDPad_Main(void *objPtr)
     }
 
     if (entity->alpha > 0) {
-        SetRenderBlendMode(1);
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, entity->alpha,
                     entity->textureID);
 

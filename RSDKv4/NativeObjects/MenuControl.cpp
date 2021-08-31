@@ -65,7 +65,7 @@ void MenuControl_Create(void *objPtr)
     float offset = 0.0;
     for (int b = 0; b < entity->buttonCount; ++b) {
         NativeEntity_AchievementsButton *button = entity->buttons[b];
-        float sin                               = sinf(offset + entity->float18);
+        float sin                               = sinf(entity->float18 + offset);
         float cos                               = cosf(entity->float18 + offset);
         button->translateX                      = 1024.0 * sin;
         button->translateZ                      = (cos * -512.0) + 672.0;
@@ -156,25 +156,19 @@ void MenuControl_Main(void *objPtr)
                         break;
                     }
                     case 2: { // touch release
-                        entity->field_70 = entity->field_70 / (1.125 * (60.0 * Engine.deltaTime));
+                        entity->field_70 /= (1.125 * (60.0 * Engine.deltaTime));
                         entity->float18 += entity->field_70;
+                        float val = -(entity->float30 - entity->float2C);
 
-                        bool flag = false;
-                        if ((-(entity->float30 - entity->float2C) - 0.05) > entity->float18 || entity->float18 > 0.05) {
+                        if ((val - 0.05) > entity->float18 || entity->float18 > 0.05) {
                             entity->field_70 = 0.0;
-                            flag             = true;
-                        }
-                        else if (entity->field_70 >= 0.0) {
-                            flag = entity->field_70 < 0.0025;
-                        }
-                        else {
-                            flag = entity->field_70 > -0.0025;
                         }
 
-                        if (flag) {
+                        if (abs(entity->field_70) < 0.0025) {
                             if (entity->float18 == entity->float20 && entity->field_6C < 0.0) {
                                 entity->float18 += 0.00001;
                             }
+
                             if (entity->float18 <= entity->float20) {
                                 if ((floorf(entity->float18 / entity->float2C) * entity->float2C) > (entity->float20 - entity->float2C)) {
                                     entity->float1C = entity->float20 - entity->float2C;
@@ -183,9 +177,8 @@ void MenuControl_Main(void *objPtr)
                                     entity->float1C = floorf(entity->float18 / entity->float2C) * entity->float2C;
                                 }
 
-                                if (entity->float1C <= -(entity->float30 - entity->float2C)) {
-                                    entity->float1C = -(entity->float30 - entity->float2C);
-                                }
+                                if (entity->float1C <= val)
+                                    entity->float1C = val;
                             }
                             else {
                                 if ((entity->float2C + entity->float20) > (ceilf(entity->float18 / entity->float2C) * entity->float2C)) {
@@ -195,9 +188,8 @@ void MenuControl_Main(void *objPtr)
                                     entity->float1C = ceilf(entity->float18 / entity->float2C) * entity->float2C;
                                 }
 
-                                if (entity->float1C > 0.0) {
+                                if (entity->float1C > 0.0)
                                     entity->float1C = 0.0;
-                                }
                             }
 
                             entity->stateInput = 3;
@@ -213,14 +205,7 @@ void MenuControl_Main(void *objPtr)
                         }
                         else {
                             entity->float18 += ((entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 6.0));
-                            float move = entity->float1C - entity->float18;
-                            bool flag  = false;
-
-                            if (move < 0.0)
-                                flag = move > -0.00025;
-                            else
-                                flag = move < 0.00025;
-                            if (flag) {
+                            if (abs(entity->float1C - entity->float18) < 0.00025) {
                                 entity->float18    = entity->float1C;
                                 entity->stateInput = 0;
                             }

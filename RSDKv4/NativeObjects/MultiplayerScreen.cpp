@@ -677,7 +677,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (entity->buttons[3]->state == 1) {
                         PlaySfx(22, 0);
                         entity->buttons[3]->state = 2;
-                        entity->selectedButton    = 2;
+                        entity->selectedButton    = 3;
                         entity->state             = 2;
                     }
                     else if (entity->buttons[4]->state == 1) {

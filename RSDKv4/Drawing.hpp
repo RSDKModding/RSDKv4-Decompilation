@@ -61,6 +61,7 @@ extern ushort blendLookupTable[BLENDTABLE_SIZE];
 extern ushort subtractLookupTable[BLENDTABLE_SIZE];
 extern ushort tintLookupTable[TINTTABLE_SIZE];
 
+extern int SCREEN_XSIZE_CONFIG;
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
@@ -201,6 +202,8 @@ void UpdateTextureBufferWithSortedSprites();
 void UpdateTextureBufferWithSprites();
 
 #endif
+void setupViewport();
+void setFullScreen(bool fs);
 
 // Layer Drawing
 void DrawObjectList(int layer);

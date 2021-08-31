@@ -140,6 +140,9 @@ void RemoveNativeObject(NativeEntityBase *NativeEntry);
 void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
 void ProcessNativeObjects();
 inline void BackupNativeObjects() {
+    memset(backupEntityList, 0, sizeof(backupEntityList));
+    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
+
     memcpy(backupEntityList, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackup = nativeEntityCount;

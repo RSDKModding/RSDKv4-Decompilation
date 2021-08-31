@@ -124,7 +124,7 @@ inline int GetGlobalVariableID(const char *name)
         if (StrComp(name, globalVariableNames[v]))
             return v;
     }
-    return 0;
+    return 0xFF;
 }
 
 #define AddNativeFunction(name, funcPtr)                                                                                                             \
