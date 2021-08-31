@@ -45,9 +45,10 @@ std::set<uint64_t> codes;
 
 //----------------------------------------------------------------------
 
-bool debug = false;
+bool debug   = false;
+bool verbose = false;
 
-inline uint random()
+inline uint randomint()
 {
     uint res = 0;
     for (int i = 0; i < 4; i++) {
@@ -128,7 +129,7 @@ public:
     player_connection(tcp::socket socket) : socket_(std::move(socket))
     {
         do {
-            code = random() | ((uint64_t)random() << 32);
+            code = randomint() | ((uint64_t)randomint() << 32);
         } while (codes.find(code) != codes.end());
         codes.insert(code);
     }
@@ -181,7 +182,7 @@ private:
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this, self](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
-            if (debug)
+            if (debug && verbose)
                 std::cout << "[" + self->get_room().game_name + "] "
                           << "Reading data with header " << std::uppercase << std::hex << (int)read_msg_.header << " from player " << std::hex
                           << read_msg_.code << " in room " << std::hex << read_msg_.roomcode << " to player " << self->code << std::endl;
@@ -221,7 +222,7 @@ private:
                         int tries        = 0;
                         do {
                             self->socket_.async_wait(asio::socket_base::wait_read, [](asio::error_code) {});
-                            self->roomcode = (random() & ~roomcodeMask) | roomcodeBase;
+                            self->roomcode = (randomint() & ~roomcodeMask) | roomcodeBase;
                         } while (self->get_room().rooms.find(self->roomcode) != self->get_room().rooms.end());
 
                         send.roomcode = self->roomcode;
@@ -284,7 +285,7 @@ private:
             self->writing = true;
             if (!ec && !write_msgs_.empty()) {
                 auto msg = write_msgs_.front();
-                if (debug)
+                if (debug && verbose)
                     std::cout << "[" + self->get_room().game_name + "] "
                               << "Sending data with header " << std::uppercase << std::hex << (int)msg.header << " to player " << std::hex << msg.code
                               << " in room " << std::hex << msg.roomcode << " from player " << self->code << std::endl;
@@ -345,6 +346,11 @@ int main(int argc, char *argv[])
         for (int i = 1; i < argc; ++i) {
             if (std::string(argv[i]) == "debug") {
                 debug = true;
+                continue;
+            }
+            if (std::string(argv[i]) == "verbose") {
+                debug   = true;
+                verbose = true;
                 continue;
             }
             tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[i]));

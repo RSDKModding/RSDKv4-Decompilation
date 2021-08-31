@@ -19,19 +19,17 @@ struct NativeEntity_MultiplayerScreen : NativeEntityBase {
     MatrixF matrix3;
     byte textureArrows;
     byte backPressed;
-    byte leftPressed;
-    byte rightPressed;
     int arrowAlpha;
-    int arrowAlphaLR;
     sbyte touchedUpID;
     sbyte touchedDownID;
-    NativeEntity_PushButton *buttons[4];
+    NativeEntity_PushButton *buttons[5];
     int selectedButton;
     byte flipDir;
     float rotationY;
     NativeEntity_TextLabel *codeLabel[3];
     int roomCode;
     NativeEntity_TextLabel *enterCodeLabel[8];
+    NativeEntity_TextLabel *enterCodeSlider[2];
 };
 
 void MultiplayerScreen_Create(void *objPtr);

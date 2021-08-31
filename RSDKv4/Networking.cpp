@@ -37,10 +37,7 @@ public:
         do_write();
     }
 
-    void start()
-    {
-        running = true;
-    }
+    void start() { running = true; }
 
     void close()
     {
@@ -64,6 +61,8 @@ private:
                 running = true;
                 do_read();
             }
+            else
+                Engine.onlineActive = false;
         });
     }
 
@@ -210,26 +209,6 @@ void disconnectNetwork()
         t.join();
     }
     // Engine.devMenu = vsPlayerID;
-}
-
-void waitForData(int type, int id, int slot)
-{
-    session->wait = true;
-    CodedData send;
-    send.header                 = 0x11 + type;
-    send.data.multiData.data[0] = id;
-    send.data.multiData.data[1] = slot;
-    session->write(send);
-    while (session->wait)
-        ;
-}
-
-void joinFromCode(int code)
-{
-    CodedData send;
-    send.header   = 0x01;
-    send.roomcode = code;
-    session->write(send, code);
 }
 
 void sendCodedData(CodedData &send) { session->write(send); }

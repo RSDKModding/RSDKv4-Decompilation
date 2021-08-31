@@ -1882,7 +1882,7 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
     int strLength = StrLength(text) - 1;
-    int charVal   = 0;
+    uint charVal  = 0;
     if (*text == '-') {
         negative = true;
         charID   = 1;

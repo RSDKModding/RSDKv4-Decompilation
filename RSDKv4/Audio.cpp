@@ -686,16 +686,16 @@ void LoadSfx(char *filePath, byte sfxID)
                         UnlockAudioDevice();
                         SDL_FreeWAV(wav_buffer);
                     }
-                    else { //this causes errors, actually
+                    else { // this causes errors, actually
                         printLog("Unable to read sfx: %s (error: %s)", info.fileName, SDL_GetError());
                         sfxList[sfxID].loaded = false;
                         SDL_FreeWAV(wav_buffer);
-                        //LockAudioDevice()
-                        //StrCopy(sfxList[sfxID].name, filePath);
-                        //sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
-                        //sfxList[sfxID].length = wav_length / sizeof(Sint16);
-                        //sfxList[sfxID].loaded = false;
-                        //UnlockAudioDevice()
+                        // LockAudioDevice()
+                        // StrCopy(sfxList[sfxID].name, filePath);
+                        // sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
+                        // sfxList[sfxID].length = wav_length / sizeof(Sint16);
+                        // sfxList[sfxID].loaded = false;
+                        // UnlockAudioDevice()
                     }
                 }
             }

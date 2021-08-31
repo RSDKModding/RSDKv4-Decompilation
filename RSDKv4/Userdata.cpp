@@ -787,7 +787,7 @@ int Connect2PVS(int *gameLength, int *itemMode)
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
     Engine.gameMode        = ENGINE_CONNECT2PVS;
-    //PauseSound();
+    // PauseSound();
     // actual connection code
     vsGameLength = *gameLength;
     vsItemMode   = *itemMode;
@@ -810,6 +810,7 @@ int Disconnect2PVS(int *a1, int *a2)
         disableFocusPause = disableFocusPause_Store;
         Engine.devMenu    = vsPlayerID;
         disconnectNetwork();
+        initNetwork();
 #endif
         return 1;
     }

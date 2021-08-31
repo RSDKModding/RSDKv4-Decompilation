@@ -18,15 +18,15 @@ int touches = 0;
 InputButton inputDevice[INPUT_MAX];
 int inputType = 0;
 
-//mania deadzone vals lol
+// mania deadzone vals lol
 float LSTICK_DEADZONE   = 0.3;
 float RSTICK_DEADZONE   = 0.3;
 float LTRIGGER_DEADZONE = 0.3;
 float RTRIGGER_DEADZONE = 0.3;
 
 int mouseHideTimer = 0;
-int lastMouseX = 0;
-int lastMouseY = 0;
+int lastMouseX     = 0;
+int lastMouseY     = 0;
 
 struct InputDevice {
 #if RETRO_USING_SDL2
@@ -64,7 +64,7 @@ bool getControllerButton(byte buttonID)
             switch (buttonID) {
                 default: break;
                 case SDL_CONTROLLER_BUTTON_DPAD_UP: {
-                    int axis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+                    int axis    = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
                     float delta = 0;
                     if (axis < 0)
                         delta = -normalize(-axis, 1, 32768);
@@ -281,7 +281,7 @@ void InitInputDevices()
     for (int i = 0; i < gamepadCount; i++) {
         SDL_GameController *gamepad = SDL_GameControllerOpen(i);
         InputDevice device;
-        device.id = 0;
+        device.id        = 0;
         device.devicePtr = gamepad;
 
         if (SDL_GameControllerGetAttached(gamepad))
@@ -370,7 +370,7 @@ void ProcessInput()
 
 #ifdef RETRO_USING_MOUSE
     if (touches <= 0) { // Touch always takes priority over mouse
-#endif                                                                         //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2
         int mx = 0, my = 0;
         SDL_GetMouseState(&mx, &my);
 
