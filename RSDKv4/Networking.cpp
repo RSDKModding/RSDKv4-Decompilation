@@ -14,6 +14,8 @@
 char networkHost[64];
 char networkGame[16] = "SONIC2";
 int networkPort      = 50;
+int dcError          = 0;
+float lastPing       = 0;
 
 using asio::ip::tcp;
 
@@ -71,6 +73,8 @@ private:
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
+            using namespace std::chrono;
+            lastPing = SDL_GetPerformanceCounter() - lastPing;
             if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
                 switch (read_msg_.header) {
                     case 0x02: vsPlayerID = 1;
@@ -114,9 +118,6 @@ private:
                         session->running = false;
                     }
                 }
-                if (!write_msgs_.empty())
-                    do_write();
-                do_read();
             }
             if (!write_msgs_.empty())
                 do_write();

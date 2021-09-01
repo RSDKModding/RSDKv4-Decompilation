@@ -7,6 +7,9 @@ extern char networkHost[64];
 extern char networkGame[16];
 extern int networkPort;
 
+extern float pingTimer;
+extern int dcError;
+
 struct MultiplayerData {
     int type;
     int data[0x1FF];

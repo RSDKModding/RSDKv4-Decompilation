@@ -815,6 +815,7 @@ int Disconnect2PVS(int *a1, int *a2)
 #if RETRO_USE_NETWORKING
         disableFocusPause = disableFocusPause_Store;
         Engine.devMenu    = vsPlayerID;
+        vsPlaying         = false;
         disconnectNetwork();
         initNetwork();
 #endif
@@ -932,6 +933,7 @@ void receive2PVSMatchCode(int code)
     vsPlayerID      = Engine.devMenu;
     Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
+    vsPlaying       = true;
     ClearNativeObjects();
     CREATE_ENTITY(RetroGameLoop); // hack
     if (Engine.gameDeviceType == RETRO_MOBILE)

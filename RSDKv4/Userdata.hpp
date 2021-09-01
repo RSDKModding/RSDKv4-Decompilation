@@ -89,6 +89,7 @@ extern byte matchValueWritePos;
 extern int vsGameLength;
 extern int vsItemMode;
 extern int vsPlayerID;
+extern bool vsPlaying;
 
 extern int sendCounter;
 
