@@ -585,7 +585,7 @@ void RetroEngine::LoadXMLVariables()
                             globalVariables[globalVariablesCount] = varValue;
                             globalVariablesCount++;
 
-                        } while (varElement = nextXMLSiblingElement(doc, varElement, "variable"));
+                        } while ((varElement = nextXMLSiblingElement(doc, varElement, "variable")));
                     }
                 }
             }
@@ -639,7 +639,7 @@ void RetroEngine::LoadXMLSoundFX()
                             SetFileInfo(&infoStore);
                             globalSFXCount++;
 
-                        } while (sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx"));
+                        } while ((sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx")));
                     }
                 }
             }
@@ -705,7 +705,7 @@ void RetroEngine::LoadXMLObjects()
                                 modObjCount++;
                             }
 
-                        } while (objElement = nextXMLSiblingElement(doc, objElement, "object"));
+                        } while ((objElement = nextXMLSiblingElement(doc, objElement, "object")));
                     }
                 }
             }
@@ -786,7 +786,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                                     stageListCount[l]++;
                                 }
 
-                            } while (stgElement = nextXMLSiblingElement(doc, stgElement, "stage"));
+                            } while ((stgElement = nextXMLSiblingElement(doc, stgElement, "stage")));
                         }
                     }
                 }

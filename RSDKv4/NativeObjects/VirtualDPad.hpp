@@ -21,11 +21,11 @@ struct NativeEntity_VirtualDPad : NativeEntityBase {
     int pauseAlpha;
     float relativeX;
     float relativeY;
-    byte moveFinger;
-    byte jumpFinger;
+    sbyte moveFinger;
+    sbyte jumpFinger;
     int useTouchControls;
     int usePhysicalControls;
-    int isVSMode;
+    int vsMode;
     byte editMode;
 };
 

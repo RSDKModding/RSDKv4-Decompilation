@@ -23,7 +23,7 @@ void VirtualDPad_Create(void *objPtr)
     entity->unknownSize         = dpadSize * 0.85000002;
     entity->useTouchControls    = GetGlobalVariableID("options.touchControls");
     entity->usePhysicalControls = GetGlobalVariableID("options.physicalControls");
-    entity->isVSMode            = GetGlobalVariableID("options.vsMode");
+    entity->vsMode              = GetGlobalVariableID("options.vsMode");
     entity->textureID           = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
 }
 void VirtualDPad_Main(void *objPtr)
@@ -103,7 +103,7 @@ void VirtualDPad_Main(void *objPtr)
         RenderImage(entity->jumpX, entity->jumpY, 160.0, size, size, 84.0, 83.0, 168.0, 168.0, 16.0, 328.0, entity->alpha, entity->textureID);
 
         if (Engine.gameMode == ENGINE_MAINGAME) {
-            if (!globalVariables[entity->isVSMode]) {
+            if (!globalVariables[entity->vsMode]) {
                 if (activeStageList == STAGELIST_SPECIAL)
                     RenderImage(entity->pauseX_S, entity->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, entity->pauseAlpha,
                                 entity->textureID);

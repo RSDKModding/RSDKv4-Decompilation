@@ -263,7 +263,7 @@ void SetRenderBlendMode(byte mode)
         RenderState *state = &renderStateList[renderStateCount++];
         memcpy(state, &currentRenderState, sizeof(RenderState));
 
-        currentRenderState.indexCount = NULL;
+        currentRenderState.indexCount = 0;
         currentRenderState.id         = 0;
         currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
     }
