@@ -130,8 +130,8 @@ void TitleScreen_Create(void *objPtr)
     entity->field_38  = 160.0;
     entity->meshScale = 0.0;
     entity->rotationY = 0.0;
-    SetMusicTrack("MenuIntro.ogg", 0, 0, 0);
-    SetMusicTrack("MainMenu.ogg", 1, 1, 106596);
+    SetMusicTrack("MenuIntro.ogg", 0, false, 0);
+    SetMusicTrack("MainMenu.ogg", 1, true, 106596);
     LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     LoadTexture("Data/Game/Menu/BG1.png", TEXFMT_RGBA4444);
     LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
@@ -174,7 +174,7 @@ void TitleScreen_Main(void *objPtr)
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
 
-            if (touches > 0 && entity->introRectAlpha < 0.0) {
+            if (touches > 0 && entity->introRectAlpha > 0.0) {
                 if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0) {
                     entity->state                 = 4;
                     entity->translateX            = -96.0;
