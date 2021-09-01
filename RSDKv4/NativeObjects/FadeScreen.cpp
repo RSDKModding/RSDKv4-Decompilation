@@ -23,7 +23,7 @@ void FadeScreen_Main(void *objPtr)
             if (entity->timer > entity->timeLimit) {
                 RemoveNativeObject(entity);
                 Engine.nativeMenuFadeIn = false;
-                SetMusicTrack("MainMenu.ogg", 0, 1, 106596);
+                SetMusicTrack("MainMenu.ogg", 0, true, 106596);
                 PlayMusic(0, 0);
             }
             break;
