@@ -5,6 +5,7 @@
 #include <deque>
 #include <iostream>
 #include <thread>
+#include <chrono>
 #if RETRO_PLATFORM == RETRO_ANDROID
 // TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
 #define ASIO_NO_TYPEID
@@ -49,7 +50,12 @@ public:
         }
     }
 
-    NetworkSession &operator=(const NetworkSession &s) { close(); }
+    NetworkSession &operator=(const NetworkSession &s)
+    {
+        close();
+        memcpy(this, &s, sizeof(NetworkSession));
+        return *this;
+    }
 
     uint64_t code = 0;
     bool wait     = false;
@@ -73,8 +79,8 @@ private:
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
-            using namespace std::chrono;
-            lastPing = SDL_GetPerformanceCounter() - lastPing;
+            lastPing = ((SDL_GetPerformanceCounter() - lastPing) / SDL_GetPerformanceFrequency());
+            printLog("%.1f", lastPing);
             if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
                 switch (read_msg_.header) {
                     case 0x02: vsPlayerID = 1;
@@ -133,6 +139,7 @@ private:
         asio::error_code ec;
         socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(CodedData)), ec);
         if (!ec && !write_msgs_.empty()) {
+            lastPing = SDL_GetPerformanceCounter();
             write_msgs_.pop_front();
             writing = false;
             do_write();

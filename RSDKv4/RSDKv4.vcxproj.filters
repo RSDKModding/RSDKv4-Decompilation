@@ -219,6 +219,9 @@
     <ClInclude Include="Networking.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerHandler.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -408,6 +411,9 @@
       <Filter>Source Files\dependencies</Filter>
     </ClCompile>
     <ClCompile Include="NativeObjects\MultiplayerScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerHandler.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
   </ItemGroup>

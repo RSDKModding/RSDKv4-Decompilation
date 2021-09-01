@@ -21,6 +21,7 @@ byte matchValueWritePos = 0;
 int vsGameLength = 4;
 int vsItemMode   = 1;
 int vsPlayerID   = 0;
+bool vsPlaying   = false;
 
 int sendCounter = 0;
 
@@ -938,6 +939,7 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(RetroGameLoop); // hack
     if (Engine.gameDeviceType == RETRO_MOBILE)
         CREATE_ENTITY(VirtualDPad);
+    CREATE_ENTITY(MultiplayerHandler);
 }
 
 int ShowPromoPopup(int *a1, const char *popupName)

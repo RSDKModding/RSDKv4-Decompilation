@@ -683,16 +683,16 @@ void RetroEngine::LoadXMLObjects()
                                 objName = getXMLAttributeValueString(nameAttr);
 
                             const tinyxml2::XMLAttribute *scrAttr = findXMLAttribute(objElement, "script");
-                            const char* objScript                          = "unknownObject.txt";
+                            const char *objScript                 = "unknownObject.txt";
                             if (scrAttr)
                                 objScript = getXMLAttributeValueString(scrAttr);
 
                             byte flags = 0;
 
-                            //forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
-                            //if it is, it'll cause issues!!!!
+                            // forces the object to be loaded, this means the object doesn't have to be and *SHOULD NOT* be in the stage object list
+                            // if it is, it'll cause issues!!!!
                             const tinyxml2::XMLAttribute *loadAttr = findXMLAttribute(objElement, "forceLoad");
-                            int objForceLoad                          = false;
+                            int objForceLoad                       = false;
                             if (loadAttr)
                                 objForceLoad = getXMLAttributeValueBool(loadAttr);
 
@@ -750,7 +750,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                                     stgName = getXMLAttributeValueString(nameAttr);
 
                                 const tinyxml2::XMLAttribute *folderAttr = findXMLAttribute(stgElement, "folder");
-                                const char *stgFolder                  = "unknownStageFolder";
+                                const char *stgFolder                    = "unknownStageFolder";
                                 if (nameAttr)
                                     stgFolder = getXMLAttributeValueString(folderAttr);
 
@@ -943,7 +943,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     // AddNativeFunction("SetModInfo", SetModInfo);
     // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
     AddNativeFunction("GetAchievement", GetAchievement);
+#if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
+#endif
     AddNativeFunction("GetSceneID", GetSceneID);
 #endif
 
