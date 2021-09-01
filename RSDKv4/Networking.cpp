@@ -6,7 +6,7 @@
 #include <iostream>
 #include <thread>
 #if RETRO_PLATFORM == RETRO_ANDROID
-//TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
+// TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
 #define ASIO_NO_TYPEID
 #endif
 #include <asio.hpp>
@@ -14,10 +14,6 @@
 char networkHost[64];
 char networkGame[16] = "SONIC2";
 int networkPort      = 50;
-
-int vsGameLength = 4;
-int vsItemMode   = 1;
-int vsPlayerID   = 0;
 
 using asio::ip::tcp;
 
@@ -73,50 +69,58 @@ private:
     void do_read()
     {
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
-            if (!ec) {
-                if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
-                    switch (read_msg_.header) {
-                        case 0x02: vsPlayerID = 1;
-                        case 0x01: { // codes
-                            code     = read_msg_.code;
-                            roomcode = read_msg_.roomcode;
-                            // prepare for takeoff :trollsmile:
-                            wait = true;
-                            CodedData send;
-                            send.header   = 0x01;
-                            send.roomcode = roomcode;
-                            write(send);
-                            break;
-                        }
-                        case 0x10: { // data
-                            wait = false;
-                            receive2PVSData(&read_msg_.data.multiData);
-                            break;
-                        }
-                        case 0x20: { // send this entity back
-                            SendEntity(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
-                            break;
-                        }
-                        case 0x21: { // send value back
-                            SendValue(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
-                            break;
-                        }
-                        case 0x81: {
-                            // error handle
-                            break;
-                        }
-                        case 0x80: {
-                            if (wait)
-                                receive2PVSMatchCode(roomcode);
-                            wait = false;
-                            break;
-                        }
+            if (ec)
+                return do_read();
+            if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
+                switch (read_msg_.header) {
+                    case 0x02: vsPlayerID = 1;
+                    case 0x01: { // codes
+                        code     = read_msg_.code;
+                        roomcode = read_msg_.roomcode;
+                        // prepare for takeoff :trollsmile:
+                        wait = true;
+                        CodedData send;
+                        send.header   = 0x01;
+                        send.roomcode = roomcode;
+                        write(send);
+                        break;
+                    }
+                    case 0x10: { // data
+                        receive2PVSData(&read_msg_.data.multiData);
+                        break;
+                    }
+                    case 0x20: { // send this entity back
+                        SendEntity(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
+                        break;
+                    }
+                    case 0x21: { // send value back
+                        SendValue(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
+                        break;
+                    }
+                    case 0x81: {
+                        // error handle
+                        break;
+                    }
+                    case 0x80: {
+                        if (wait)
+                            receive2PVSMatchCode(roomcode);
+                        wait = false;
+                        break;
+                    }
+                    case 0xFF: {
+                        // other end disconnected
+                        dcError          = 1;
+                        vsPlaying        = false;
+                        session->running = false;
                     }
                 }
                 if (!write_msgs_.empty())
                     do_write();
                 do_read();
             }
+            if (!write_msgs_.empty())
+                do_write();
+            do_read();
         });
     }
 
@@ -205,6 +209,8 @@ void sendData()
 
 void disconnectNetwork()
 {
+    if (!session->running)
+        return;
     CodedData send;
     send.header = 0xFF;
     session->write(send);

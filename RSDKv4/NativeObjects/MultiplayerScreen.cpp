@@ -1,6 +1,7 @@
 #include "RetroEngine.hpp"
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_NETWORKING
+
 void MultiplayerScreen_Create(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);

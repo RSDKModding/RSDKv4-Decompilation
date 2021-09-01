@@ -78,6 +78,7 @@ void RetroGameLoop_Main(void *objPtr)
             RestoreNativeObjects();
             break;
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_NETWORKING
         case ENGINE_CONNECT2PVS: {
             CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
             NativeEntity_FadeScreen *fade        = CREATE_ENTITY(FadeScreen);
@@ -90,6 +91,7 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_WAIT2PVS:
             //wait for vs responce
             break;
+#endif
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");

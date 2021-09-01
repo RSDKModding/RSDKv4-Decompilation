@@ -18,6 +18,10 @@ int matchValueData[0x100];
 byte matchValueReadPos  = 0;
 byte matchValueWritePos = 0;
 
+int vsGameLength = 4;
+int vsItemMode   = 1;
+int vsPlayerID   = 0;
+
 int sendCounter = 0;
 
 #if RETRO_PLATFORM == RETRO_OSX
@@ -928,6 +932,10 @@ void receive2PVSMatchCode(int code)
     vsPlayerID      = Engine.devMenu;
     Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
+    ClearNativeObjects();
+    CREATE_ENTITY(RetroGameLoop); // hack
+    if (Engine.gameDeviceType == RETRO_MOBILE)
+        CREATE_ENTITY(VirtualDPad);
 }
 
 int ShowPromoPopup(int *a1, const char *popupName)
