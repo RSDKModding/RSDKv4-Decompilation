@@ -1669,6 +1669,84 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
     }
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
+void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha)
+{
+    if (vertexListSize < DRAWVERTEX_LIMIT) {
+        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColours)) {
+            if (renderStateCount >= 0) {
+                RenderState *state = &renderStateList[renderStateCount];
+                memcpy(state, &currentRenderState, sizeof(RenderState));
+            }
+
+            currentRenderState.indexCount = 0;
+            currentRenderState.id         = 0;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = false;
+            currentRenderState.useFilter  = false;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
+            renderStateCount++;
+        }
+
+        if (renderStateCount < RENDERSTATE_LIMIT) {
+            int a = 0;
+            if (alpha >= 0)
+                a = alpha;
+            if (a > 0xFF)
+                a = 0xFF;
+
+            DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+            vertex1->vertX      = x;
+            vertex1->vertY      = y;
+            vertex1->vertZ      = z;
+            vertex1->r          = r;
+            vertex1->g          = g;
+            vertex1->b          = b;
+            vertex1->a          = a;
+            if (vertex1->vertY > 76.0)
+                vertex1->vertY = 76.0;
+
+            DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+            vertex2->vertX      = w + x;
+            vertex2->vertY      = y;
+            vertex2->vertZ      = z;
+            vertex2->r          = r;
+            vertex2->g          = g;
+            vertex2->b          = b;
+            vertex2->a          = a;
+            if (vertex2->vertY > 76.0)
+                vertex2->vertY = 76.0;
+
+            DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+            vertex3->vertX      = x;
+            vertex3->vertY      = y - h;
+            vertex3->vertZ      = z;
+            vertex3->r          = r;
+            vertex3->g          = g;
+            vertex3->b          = b;
+            vertex3->a          = a;
+            if (vertex3->vertY < -76.0)
+                vertex3->vertY = -76.0;
+
+            DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+            vertex4->vertX      = vertex2->vertX;
+            vertex4->vertY      = y - h;
+            vertex4->vertZ      = z;
+            vertex4->r          = r;
+            vertex4->g          = g;
+            vertex4->b          = b;
+            vertex4->a          = a;
+            if (vertex4->vertY < -76.0)
+                vertex4->vertY = -76.0;
+
+            vertexListSize += 4;
+            currentRenderState.indexCount += 6;
+        }
+    }
+}
+#endif
+
 void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
 {
     if (!mesh)
@@ -1693,15 +1771,15 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         }
 
         switch (type) {
-            case 0:
+            case MESH_COLOURS:
                 currentRenderState.useColours = true;
                 currentRenderState.useNormals = false;
                 break;
-            case 1:
+            case MESH_NORMALS:
                 currentRenderState.useColours = false;
                 currentRenderState.useNormals = true;
                 break;
-            case 2:
+            case MESH_COLOURS_NORMALS:
                 currentRenderState.useColours = true;
                 currentRenderState.useNormals = true;
                 break;

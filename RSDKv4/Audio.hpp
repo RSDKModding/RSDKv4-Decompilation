@@ -178,10 +178,19 @@ void SetSfxName(const char *sfxName, int sfxID);
 
 #if !RETRO_USE_ORIGINAL_CODE
 // Helper Funcs
-inline bool PlaySFXByName(const char *sfx, sbyte loopCnt)
+inline bool PlaySfxByName(const char *sfx, sbyte loopCnt)
 {
+    char buffer[0x40];
+    int pos = 0;
+    while (*sfx) {
+        if (*sfx != ' ')
+            buffer[pos++] = *sfx;
+        sfx++;
+    }
+    buffer[pos] = 0;
+
     for (int s = 0; s < globalSFXCount + stageSFXCount; ++s) {
-        if (StrComp(sfxNames[s], sfx)) {
+        if (StrComp(sfxNames[s], buffer)) {
             PlaySfx(s, loopCnt);
             return true;
         }
@@ -190,8 +199,17 @@ inline bool PlaySFXByName(const char *sfx, sbyte loopCnt)
 }
 inline bool StopSFXByName(const char *sfx)
 {
+    char buffer[0x40];
+    int pos = 0;
+    while (*sfx) {
+        if (*sfx != ' ')
+            buffer[pos++] = *sfx;
+        sfx++;
+    }
+    buffer[pos] = 0;
+
     for (int s = 0; s < globalSFXCount + stageSFXCount; ++s) {
-        if (StrComp(sfxNames[s], sfx)) {
+        if (StrComp(sfxNames[s], buffer)) {
             StopSfx(s);
             return true;
         }
@@ -209,11 +227,20 @@ inline void SetMusicVolume(int volume)
     masterVolume = volume;
 }
 
-inline void SetGameVolumes(int bgmVolume, int sfxVolume)
+inline void SetGameVolumes(int bgmVol, int sfxVol)
 {
-    // musicVolumeSetting = bgmVolume;
-    SetMusicVolume(masterVolume);
-    // sfxVolumeSetting = ((sfxVolume << 7) / 100);
+    bgmVolume = bgmVol;
+    sfxVolume = sfxVol;
+
+    if (bgmVolume < 0)
+        bgmVolume = 0;
+    if (bgmVolume > MAX_VOLUME)
+        bgmVolume = MAX_VOLUME;
+
+    if (sfxVolume < 0)
+        sfxVolume = 0;
+    if (sfxVolume > MAX_VOLUME)
+        sfxVolume = MAX_VOLUME;
 }
 
 inline void PauseSound()

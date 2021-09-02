@@ -7,15 +7,15 @@ void SaveSelect_Create(void *objPtr)
 
     entity->menuControl      = (NativeEntity_MenuControl *)GetNativeObject(0);
     entity->labelPtr         = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID = 0;
+    entity->labelPtr->fontID = FONT_HEADING;
     if (Engine.language != RETRO_EN)
-        entity->labelPtr->textScale = 0.12;
+        entity->labelPtr->scale = 0.12;
     else
-        entity->labelPtr->textScale = 0.2;
-    entity->labelPtr->textAlpha = 0;
-    entity->labelPtr->textZ     = 0;
+        entity->labelPtr->scale = 0.2;
+    entity->labelPtr->alpha = 0;
+    entity->labelPtr->z     = 0;
     entity->labelPtr->state = 0;
-    SetStringToFont(entity->labelPtr->text, strSaveSelect, 0);
+    SetStringToFont(entity->labelPtr->text, strSaveSelect, FONT_HEADING);
     entity->labelPtr->textWidth = 512.0;
 
     entity->deleteRotateY = DegreesToRad(22.5);
@@ -33,14 +33,14 @@ void SaveSelect_Create(void *objPtr)
         entity->delButton->scale = 0.2;
 
     entity->delButton->bgColour = 0x00A048;
-    SetStringToFont(entity->delButton->text, strDelete, 1);
+    SetStringToFont(entity->delButton->text, strDelete, FONT_LABEL);
 
     entity->saveButtons[0] = CREATE_ENTITY(SubMenuButton);
-    SetStringToFont(entity->saveButtons[0]->text, strNoSave, 1);
-    entity->saveButtons[0]->matXOff   = 512.0;
-    entity->saveButtons[0]->textY     = -4.0;
-    entity->saveButtons[0]->matZ      = 0.0;
-    entity->saveButtons[0]->textScale = 0.1;
+    SetStringToFont(entity->saveButtons[0]->text, strNoSave, FONT_LABEL);
+    entity->saveButtons[0]->matXOff = 512.0;
+    entity->saveButtons[0]->textY   = -4.0;
+    entity->saveButtons[0]->matZ    = 0.0;
+    entity->saveButtons[0]->scale   = 0.1;
 
     entity->rotateY[0] = DegreesToRad(16.0);
     matrixRotateYF(&entity->saveButtons[0]->matrix, entity->rotateY[0]);
@@ -55,33 +55,33 @@ void SaveSelect_Create(void *objPtr)
 
         int stagePos = saveGame->files[i - 1].stageID;
         if (stagePos >= 0x80) {
-            SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialStageID + 19], 1);
-            entity->saveButtons[i]->state     = 4;
-            entity->saveButtons[i]->textY     = 2.0;
-            entity->saveButtons[i]->textScale = 0.08;
-            entity->deleteEnabled             = true;
+            SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialStageID + 19], FONT_LABEL);
+            entity->saveButtons[i]->state = 4;
+            entity->saveButtons[i]->textY = 2.0;
+            entity->saveButtons[i]->scale = 0.08;
+            entity->deleteEnabled         = true;
         }
         else if (stagePos > 0) {
             if (stagePos - 1 > 18 && Engine.gameType == GAME_SONIC1)
-                SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[25], 1);
+                SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[25], FONT_LABEL);
             else
-                SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[stagePos - 1], 1);
-            entity->saveButtons[i]->state     = 4;
-            entity->saveButtons[i]->textY     = 2.0;
-            entity->saveButtons[i]->textScale = 0.08;
-            entity->deleteEnabled             = true;
+                SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[stagePos - 1], FONT_LABEL);
+            entity->saveButtons[i]->state = 4;
+            entity->saveButtons[i]->textY = 2.0;
+            entity->saveButtons[i]->scale = 0.08;
+            entity->deleteEnabled         = true;
         }
         else {
-            SetStringToFont(entity->saveButtons[i]->text, strNewGame, 1);
-            entity->saveButtons[i]->textY     = -4.0;
-            entity->saveButtons[i]->textScale = 0.1;
+            SetStringToFont(entity->saveButtons[i]->text, strNewGame, FONT_LABEL);
+            entity->saveButtons[i]->textY = -4.0;
+            entity->saveButtons[i]->scale = 0.1;
         }
 
         entity->saveButtons[i]->matXOff = 512.0;
         entity->saveButtons[i]->matZ    = 0.0;
         entity->saveButtons[i]->symbol  = saveGame->files[i - 1].characterID;
         entity->saveButtons[i]->flags   = saveGame->files[i - 1].emeralds;
-        entity->rotateY[i]           = DegreesToRad(16.0);
+        entity->rotateY[i]              = DegreesToRad(16.0);
         matrixRotateYF(&entity->saveButtons[i]->matrix, entity->rotateY[i]);
         matrixTranslateXYZF(&entity->matrix1, -128.0, y, 160.0);
         matrixMultiplyF(&entity->saveButtons[i]->matrix, &entity->matrix1);
@@ -116,7 +116,7 @@ void SaveSelect_Main(void *objPtr)
             entity->saveButtons[4]->matXOff = ((-176.0 - entity->saveButtons[4]->matXOff) / div) + entity->saveButtons[4]->matXOff;
 
             entity->field_14 += (Engine.deltaTime + Engine.deltaTime);
-            entity->labelPtr->textAlpha = (256.0 * entity->field_14);
+            entity->labelPtr->alpha = (256.0 * entity->field_14);
             if (entity->field_14 > 1.0) {
                 entity->field_14 = 0.0;
                 entity->state    = 2;
@@ -137,7 +137,7 @@ void SaveSelect_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedSave--;
                         if (entity->deleteEnabled) {
                             if (entity->selectedSave < 0)
@@ -148,7 +148,7 @@ void SaveSelect_Main(void *objPtr)
                         }
                     }
                     else if (keyPress.down) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedSave++;
                         if (entity->deleteEnabled) {
                             if (entity->selectedSave > 5) {
@@ -187,7 +187,7 @@ void SaveSelect_Main(void *objPtr)
 
                     if (keyPress.start || keyPress.A) {
                         if (entity->selectedSave <= 4) {
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->saveButtons[entity->selectedSave]->state = 2;
                             if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
                                 StopMusic(true);
@@ -197,7 +197,10 @@ void SaveSelect_Main(void *objPtr)
                             entity->state                                = 4;
                         }
                         else {
-                            PlaySfx(9, 0);
+                            if (Engine.gameType == GAME_SONIC1)
+                                PlaySfxByName("Lamp Post", false);
+                            else
+                                PlaySfxByName("Star Post", false);
                             entity->delButton->state = 2;
                             entity->state            = 4;
                         }
@@ -215,7 +218,7 @@ void SaveSelect_Main(void *objPtr)
                     }
                     else if (!entity->saveButtons[i]->b) {
                         entity->selectedSave = i;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->saveButtons[i]->state = 2;
                         if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
                             StopMusic(true);
@@ -238,7 +241,10 @@ void SaveSelect_Main(void *objPtr)
                         if (touches <= 0) {
                             if (entity->delButton->state == 1) {
                                 entity->selectedSave = 5;
-                                PlaySfx(9, 0);
+                                if (Engine.gameType == GAME_SONIC1)
+                                    PlaySfxByName("Lamp Post", false);
+                                else
+                                    PlaySfxByName("Star Post", false);
                                 entity->delButton->state = 2;
                                 entity->state            = 4;
                             }
@@ -279,11 +285,7 @@ void SaveSelect_Main(void *objPtr)
                 entity->field_14 = 0.0;
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity->delButton);
-                RemoveNativeObject(entity->saveButtons[0]);
-                RemoveNativeObject(entity->saveButtons[1]);
-                RemoveNativeObject(entity->saveButtons[2]);
-                RemoveNativeObject(entity->saveButtons[3]);
-                RemoveNativeObject(entity->saveButtons[4]);
+                for (int i = 0; i <= 4; ++i) RemoveNativeObject(entity->saveButtons[i]);
                 RemoveNativeObject(entity);
             }
             break;
@@ -397,12 +399,12 @@ void SaveSelect_Main(void *objPtr)
             float div                               = (60.0 * Engine.deltaTime) * 16.0;
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
-            button->translateX += ((512.0 - button->translateX) / div);
-            backButton->translateX += ((1024.0 - backButton->translateX) / div);
+            button->x += ((512.0 - button->x) / div);
+            backButton->x += ((1024.0 - backButton->x) / div);
             entity->delButton->x += ((512.0 - entity->delButton->x) / div);
             break;
         }
-        case 6: //player select idle
+        case 6: // player select idle
             break;
         case 7: {
             if (entity->field_2C > entity->deleteRotateY) {
@@ -435,13 +437,13 @@ void SaveSelect_Main(void *objPtr)
             float div                               = (60.0 * Engine.deltaTime) * 16.0;
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
-            button->translateX += ((112.0 - button->translateX) / div);
-            backButton->translateX += ((230.0 - backButton->translateX) / div);
+            button->x += ((112.0 - button->x) / div);
+            backButton->x += ((230.0 - backButton->x) / div);
             if (entity->deleteEnabled)
                 entity->delButton->x += ((92.0 - entity->delButton->x) / div);
 
-            if (backButton->translateX < SCREEN_YSIZE) {
-                backButton->translateX     = SCREEN_YSIZE;
+            if (backButton->x < SCREEN_YSIZE) {
+                backButton->x              = SCREEN_YSIZE;
                 entity->state              = 2;
                 entity->menuControl->state = 4;
             }
@@ -461,7 +463,10 @@ void SaveSelect_Main(void *objPtr)
                         entity->saveButtons[i]->b = 0xFF;
                         if (entity->saveButtons[i]->state == 4) {
                             entity->selectedSave = i;
-                            PlaySfx(9, 0);
+                            if (Engine.gameType == GAME_SONIC1)
+                                PlaySfxByName("Lamp Post", false);
+                            else
+                                PlaySfxByName("Star Post", false);
                             entity->state                                       = 9;
                             entity->saveButtons[1]->useMeshH                    = false;
                             entity->saveButtons[2]->useMeshH                    = false;
@@ -472,7 +477,7 @@ void SaveSelect_Main(void *objPtr)
                         }
                         else {
                             entity->state = 2;
-                            PlaySfx(23, 0);
+                            PlaySfxByName("Menu Back", false);
                             entity->saveButtons[1]->useMeshH = false;
                             entity->saveButtons[2]->useMeshH = false;
                             entity->saveButtons[3]->useMeshH = false;
@@ -496,7 +501,7 @@ void SaveSelect_Main(void *objPtr)
                     }
                     else if (entity->delButton->state == 1) {
                         entity->state = 2;
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         for (int i = 1; i <= 4; ++i) {
                             if (entity->saveButtons[i]->state == 4)
                                 entity->saveButtons[i]->useMeshH = false;
@@ -511,7 +516,7 @@ void SaveSelect_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedSave--;
                         if (entity->deleteEnabled) {
                             if (entity->selectedSave < 0)
@@ -522,7 +527,7 @@ void SaveSelect_Main(void *objPtr)
                         }
                     }
                     else if (keyPress.down) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedSave++;
                         if (entity->deleteEnabled) {
                             if (entity->selectedSave > 5)
@@ -550,33 +555,33 @@ void SaveSelect_Main(void *objPtr)
                             entity->delButton->state = 1;
                         }
                         else {
-                            entity->saveButtons[entity->selectedSave]->b = 0;
+                            entity->saveButtons[entity->selectedSave]->b = 0x00;
                             entity->delButton->state                     = 0;
                         }
                     }
 
                     if (keyPress.start && keyPress.A) {
                         if (entity->selectedSave <= 4) {
-                            entity->saveButtons[entity->selectedSave]->b = -1;
+                            entity->saveButtons[entity->selectedSave]->b = 0xFF;
                             if (entity->saveButtons[entity->selectedSave]->state == 4) {
-                                PlaySfx(9, 0);
+                                if (Engine.gameType == GAME_SONIC1)
+                                    PlaySfxByName("Lamp Post", false);
+                                else
+                                    PlaySfxByName("Star Post", false);
                                 entity->saveButtons[entity->selectedSave]->state = 3;
                                 entity->state                                    = 9;
                                 for (int i = 1; i <= 4; ++i) entity->saveButtons[i]->useMeshH = false;
-                                entity->saveButtons[entity->selectedSave]->useMeshH = 1;
+                                entity->saveButtons[entity->selectedSave]->useMeshH = true;
                             }
                             else {
                                 entity->state = 2;
-                                PlaySfx(23, 0);
-                                entity->saveButtons[1]->useMeshH = 0;
-                                entity->saveButtons[2]->useMeshH = 0;
-                                entity->saveButtons[3]->useMeshH = 0;
-                                entity->saveButtons[4]->useMeshH = 0;
+                                PlaySfxByName("Menu Back", false);
+                                for (int i = 1; i <= 4; ++i) entity->saveButtons[1]->useMeshH = false;
                             }
                         }
                         else {
                             entity->state = 2;
-                            PlaySfx(23, 0);
+                            PlaySfxByName("Menu Back", false);
                             for (int i = 1; i <= 4; ++i) {
                                 if (entity->saveButtons[i]->state == 4)
                                     entity->saveButtons[i]->useMeshH = false;
@@ -594,29 +599,29 @@ void SaveSelect_Main(void *objPtr)
             entity->menuControl->state = 2;
             if (entity->saveButtons[entity->selectedSave]->state == 4) {
                 entity->dialog = CREATE_ENTITY(DialogPanel);
-                SetStringToFont(entity->dialog->text, strDeleteMessage, 2);
+                SetStringToFont(entity->dialog->text, strDeleteMessage, FONT_TEXT);
                 entity->state = 10;
             }
             break;
         }
         case 10: {
-            if (entity->dialog->selection == 1) {
-                PlaySfx(39, 0);
+            if (entity->dialog->selection == DLG_YES) {
+                PlaySfxByName("Event", false);
                 entity->saveButtons[entity->selectedSave]->useMeshH = false;
                 entity->state                                       = 2;
                 entity->menuControl->state                          = 4;
-                SetStringToFont(entity->saveButtons[entity->selectedSave]->text, strNewGame, 1);
+                SetStringToFont(entity->saveButtons[entity->selectedSave]->text, strNewGame, FONT_LABEL);
 
-                entity->saveButtons[entity->selectedSave]->state     = 0;
-                entity->saveButtons[entity->selectedSave]->textY     = -4.0;
-                entity->saveButtons[entity->selectedSave]->textScale = 0.1;
+                entity->saveButtons[entity->selectedSave]->state = 0;
+                entity->saveButtons[entity->selectedSave]->textY = -4.0;
+                entity->saveButtons[entity->selectedSave]->scale = 0.1;
 
-                saveGame->files[entity->selectedSave - 1].characterID   = 0;
-                saveGame->files[entity->selectedSave - 1].lives         = 3;
-                saveGame->files[entity->selectedSave - 1].score         = 0;
-                saveGame->files[entity->selectedSave - 1].scoreBonus    = 500000;
+                saveGame->files[entity->selectedSave - 1].characterID    = 0;
+                saveGame->files[entity->selectedSave - 1].lives          = 3;
+                saveGame->files[entity->selectedSave - 1].score          = 0;
+                saveGame->files[entity->selectedSave - 1].scoreBonus     = 500000;
                 saveGame->files[entity->selectedSave - 1].stageID        = 0;
-                saveGame->files[entity->selectedSave - 1].emeralds      = 0;
+                saveGame->files[entity->selectedSave - 1].emeralds       = 0;
                 saveGame->files[entity->selectedSave - 1].specialStageID = 0;
                 WriteSaveRAMData();
 
@@ -626,8 +631,8 @@ void SaveSelect_Main(void *objPtr)
                         entity->deleteEnabled = true;
                 }
             }
-            else if (entity->dialog->selection == 2) {
-                entity->saveButtons[entity->selectedSave]->useMeshH = 0;
+            else if (entity->dialog->selection == DLG_NO) {
+                entity->saveButtons[entity->selectedSave]->useMeshH = false;
                 entity->state                                       = 2;
                 entity->menuControl->state                          = 4;
             }

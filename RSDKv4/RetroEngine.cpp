@@ -424,32 +424,32 @@ void RetroEngine::Init()
     ReadSaveRAMData();
 
     if (Engine.gameType == GAME_SONIC1) {
-        StrCopy(achievements[5].name, "Secret of Labyrinth Zone");
-        StrCopy(achievements[1].name, "Blast Processing");
-        StrCopy(achievements[0].name, "Ramp Ring Acrobatics");
-        StrCopy(achievements[2].name, "Secret of Marble Zone");
-        StrCopy(achievements[3].name, "Block Buster");
-        StrCopy(achievements[4].name, "Ring King");
-        StrCopy(achievements[6].name, "Flawless Pursuit");
-        StrCopy(achievements[7].name, "Bombs Away");
-        StrCopy(achievements[9].name, "Chaos Connoisseur");
-        StrCopy(achievements[8].name, "Hidden Transporter");
-        StrCopy(achievements[10].name, "One For the Road");
-        StrCopy(achievements[11].name, "Beat The Clock");
+        AddAchievement("Ramp Ring Acrobatics", "Without touching the ground,\rcollect all the rings in a\rtrapezoid formation in Green\rHill Zone Act 1");
+        AddAchievement("Blast Processing", "Clear Green Hill Zone Act 1\rin under 30 seconds");
+        AddAchievement("Secret of Marble Zone", "Travel though a secret\rroom in Marbale Zone Act 3");
+        AddAchievement("Block Buster", "Break 16 blocks in a row\rwithout stopping");
+        AddAchievement("Ring King", "Collect 200 Rings");
+        AddAchievement("Secret of Labyrinth Zone", "Activate and ride the\rhidden platform in\rLabyrinth Zone Act 1");
+        AddAchievement("Flawless Pursuit", "Clear the boss in Labyrinth\rZone without getting hurt");
+        AddAchievement("Bombs Away", "Without touching the ground,\rcollect all the rings in a trapezoid formation in GHZ1");
+        AddAchievement("Chaos Connoisseur", "Collect all the chaos\remeralds");
+        AddAchievement("Hidden Transporter", "Without touching the ground,\rcollect all the rings in a trapezoid formation in GHZ1");
+        AddAchievement("One For the Road", "As a parting gift, land a\rfinal hit on Dr. Eggman's\rescaping Egg Mobile");
+        AddAchievement("Beat The Clock", "Clear the Time Attack\rmode in less than 45\rminutes");
     }
     else if (Engine.gameType == GAME_SONIC2) {
-        StrCopy(achievements[0].name, "Quick Run");
-        StrCopy(achievements[1].name, "100% Chemical Free");
-        StrCopy(achievements[2].name, "Early Bird Special");
-        StrCopy(achievements[3].name, "Superstar");
-        StrCopy(achievements[4].name, "Hit it Big");
-        StrCopy(achievements[5].name, "Bop Non-stop");
-        StrCopy(achievements[6].name, "Perfectionist");
-        StrCopy(achievements[7].name, "A Secret Revealed");
-        StrCopy(achievements[8].name, "Head 2 Head");
-        StrCopy(achievements[9].name, "Metropolis Master");
-        StrCopy(achievements[10].name, "Scrambled Egg");
-        StrCopy(achievements[11].name, "Beat the Clock");
+        AddAchievement("Quick Run", "Complete Emerald Hill\rZone Act 1 in under 35\rseconds");
+        AddAchievement("100% Chemical Free", "Complete Chemical Plant\rwithout going underwater");
+        AddAchievement("Early Bird Special", "Collect all the Chaos\rEmeralds before Chemical\rPlant");
+        AddAchievement("Superstar", "Complete any Act as\rSuper Sonic");
+        AddAchievement("Hit it Big", "Get a jackpot on the Casino Night slot machines");
+        AddAchievement("Bop Non-stop", "Defeat any boss in 8\rconsecutive hits without\rtouching he ground");
+        AddAchievement("Perfectionist", "Get a Perfect Bonus by\rcollecting every Ring in an\rAct");
+        AddAchievement("A Secret Revealed", "Find and complete\rHidden Palace Zone");
+        AddAchievement("Head 2 Head", "Win a 2P Versus race\ragainst a friend");
+        AddAchievement("Metropolis Master", "Complete Any Metropolis\rZone Act without getting\rhurt");
+        AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack moed in under 7\rminutes");
+        AddAchievement("Beat the Clock","Complete the Time Attack\rmode in less than 45\rminutes");
     }
 #endif
 }

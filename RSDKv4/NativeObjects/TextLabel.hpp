@@ -2,13 +2,13 @@
 #define NATIVE_TEXTLABEL_H
 
 struct NativeEntity_TextLabel : NativeEntityBase {
-    float textX;
-    float textY;
-    float textZ;
+    float x;
+    float y;
+    float z;
     float textWidth;
     float timer;
-    float textScale;
-    int textAlpha;
+    float scale;
+    int alpha;
     int fontID;
     ushort text[64];
     int state;

@@ -1,6 +1,17 @@
 #ifndef NATIVE_DIALOGPANEL_H
 #define NATIVE_DIALOGPANEL_H
 
+enum DialogPanelTypes {
+    DLGTYPE_OK    = 1,
+    DLGTYPE_YESNO = 2,
+};
+
+enum DialogPanelSelections {
+    DLG_YES = 1,
+    DLG_NO,
+    DLG_OK,
+};
+
 struct NativeEntity_DialogPanel : NativeEntityBase {
     int state;
     int buttonCount;
@@ -16,7 +27,7 @@ struct NativeEntity_DialogPanel : NativeEntityBase {
     ushort text[128];
     float textX;
     float textY;
-    float textScale;
+    float scale;
 };
 
 void DialogPanel_Create(void *objPtr);

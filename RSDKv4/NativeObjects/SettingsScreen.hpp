@@ -17,7 +17,7 @@ struct NativeEntity_SettingsScreen : NativeEntityBase {
     MatrixF tempMatrix;
     byte arrowsTex;
     byte controllerTex;
-    byte touched;
+    byte backPressed;
     int alpha;
     ushort sfxText[32];
     ushort musicText[32];

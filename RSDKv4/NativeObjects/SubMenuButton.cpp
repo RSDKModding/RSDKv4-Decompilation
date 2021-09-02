@@ -4,7 +4,7 @@ void SubMenuButton_Create(void *objPtr)
 {
     RSDK_THIS(SubMenuButton);
     entity->matZ           = 160.0;
-    entity->textAlpha      = 255;
+    entity->alpha          = 255;
     entity->state          = 0;
     entity->matXOff        = 0.0;
     entity->r              = 0xFF;
@@ -30,8 +30,8 @@ void SubMenuButton_Main(void *objPtr)
     switch (entity->state) {
         case 0:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, false);
-            RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
+            RenderMesh(entity->meshButton, MESH_COLOURS, false);
+            RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
             break;
         case 1:
             entity->flashTimer += Engine.deltaTime;
@@ -39,18 +39,18 @@ void SubMenuButton_Main(void *objPtr)
                 entity->flashTimer -= 1.0;
 
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, false);
+            RenderMesh(entity->meshButton, MESH_COLOURS, false);
             if (entity->flashTimer > 0.5)
-                RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
+                RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
             break;
         case 2:
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, 0, false);
+            RenderMesh(entity->meshButton, MESH_COLOURS, false);
             if (entity->flashTimer > 0.05)
-                RenderText(entity->text, 1, -80.0, entity->textY, 0, entity->textScale, entity->textAlpha);
+                RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
 
             entity->afterFlashTimer += Engine.deltaTime;
             if (entity->afterFlashTimer > 0.5) {
@@ -73,11 +73,11 @@ void SubMenuButton_Main(void *objPtr)
         case 4:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             if (entity->useMeshH)
-                RenderMesh(entity->meshButtonH, 0, false);
+                RenderMesh(entity->meshButtonH, MESH_COLOURS, false);
             else
-                RenderMesh(entity->meshButton, 0, false);
+                RenderMesh(entity->meshButton, MESH_COLOURS, false);
             if (entity->flashTimer < 0.05)
-                RenderText(entity->text, 1, -64.0, entity->textY, 0, entity->textScale, entity->textAlpha);
+                RenderText(entity->text, FONT_LABEL, -64.0, entity->textY, 0, entity->scale, entity->alpha);
 
             switch (entity->symbol) {
                 case 0: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, entity->textureSymbols); break;

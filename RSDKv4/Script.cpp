@@ -1550,6 +1550,7 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(funcName, f);
                 }
             }
+
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
@@ -1586,6 +1587,26 @@ void ConvertFunctionText(char *text)
                 if (s == SFX_COUNT) {
                     char buf[0x40];
                     sprintf(buf, "WARNING: Unknown sfxName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = AchievementName[Ring King]
+            if (StrComp(funcName, "AchievementName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int a = 0;
+                for (; a < achievementCount; ++a) {
+                    if (StrComp(arrayStr, achievements[a].name)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, a);
+                        break;
+                    }
+                }
+
+                if (a == achievementCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown achievementName \"%s\"", arrayStr);
                     printLog(buf);
                 }
             }

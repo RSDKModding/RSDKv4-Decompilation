@@ -31,7 +31,7 @@ void PushButton_Main(void *objPtr)
             RenderImage(entity->x + entity->textWidth, entity->y, entity->z, entity->scale, entity->scale, 0.0, 64.0, 64.0, 128.0, 64.0, 0.0,
                         entity->alpha, entity->symbolsTex);
             SetRenderVertexColor(entity->textColour >> 16, (entity->textColour >> 8) & 0xFF, entity->textColour & 0xFF);
-            RenderText(entity->text, 1, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
+            RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             break;
         }
         case 1: {
@@ -52,7 +52,7 @@ void PushButton_Main(void *objPtr)
             RenderImage(entity->x + entity->textWidth, entity->y, entity->z, entity->scale, entity->scale, 0.0, 64.0, 64.0, 128.0, 64.0, 0.0,
                         entity->alpha, entity->symbolsTex);
             SetRenderVertexColor(entity->textColourSelected >> 16, (entity->textColourSelected >> 8) & 0xFF, entity->textColourSelected & 0xFF);
-            RenderText(entity->text, 1, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
+            RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             break;
         }
         case 2: {
@@ -69,7 +69,7 @@ void PushButton_Main(void *objPtr)
 
             int color = entity->flashTimer > 0.05f ? entity->textColourSelected : entity->textColour;
             SetRenderVertexColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
-            RenderText(entity->text, 1, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
+            RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
                 entity->stateTimer = 0.0;
@@ -79,8 +79,8 @@ void PushButton_Main(void *objPtr)
         }
         case 3: {
             entity->state     = 0;
-            entity->xOff      = GetTextWidth(entity->text, 1, entity->scale) * 0.375;
-            entity->textWidth = GetTextWidth(entity->text, 1, entity->scale) * 0.375;
+            entity->xOff      = GetTextWidth(entity->text, FONT_LABEL, entity->scale) * 0.375;
+            entity->textWidth = GetTextWidth(entity->text, FONT_LABEL, entity->scale) * 0.375;
             entity->yOff      = 0.75 * entity->scale * 32.0;
             entity->textScale = 0.75 * entity->scale;
 
@@ -92,7 +92,7 @@ void PushButton_Main(void *objPtr)
             RenderImage(entity->x + entity->textWidth, entity->y, entity->z, entity->scale, entity->scale, 0.0, 64.0, 64.0, 128.0, 64.0, 0.0,
                         entity->alpha, entity->symbolsTex);
             SetRenderVertexColor((entity->textColour >> 16) & 0xFF, (entity->textColour >> 8) & 0xFF, entity->textColour & 0xFF);
-            RenderText(entity->text, 1, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
+            RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             break;
         }
     }

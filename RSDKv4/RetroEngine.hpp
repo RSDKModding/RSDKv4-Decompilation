@@ -189,10 +189,12 @@ enum RetroStates {
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
     ENGINE_CONNECT2PVS = 0x80,
     ENGINE_WAIT2PVS    = 0x81,
+#endif
+#if RETRO_USE_MOD_LOADER
     ENGINE_INITMODMENU = 0x82,
 #endif
 };
@@ -289,13 +291,12 @@ public:
 
     int gameMode          = ENGINE_MAINGAME;
     int language          = RETRO_EN;
-    int message           = 0;
-    int gameDeviceType    = 0;
-    int globalBoxRegion   = 0;
+    int gameDeviceType    = RETRO_STANDARD;
+    int globalBoxRegion   = REGION_JP;
     bool nativeMenuFadeIn = false;
 
     bool trialMode        = false;
-    bool onlineActive     = false;
+    bool onlineActive     = true;
     bool hapticsEnabled   = true;
     bool useHighResAssets = false;
 

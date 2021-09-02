@@ -6,20 +6,20 @@ void ModsButton_Create(void *objPtr)
     RSDK_THIS(ModsButton);
     entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture                 = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
-    entity->meshMods            = LoadMesh("Data/Game/Models/Options.bin", texture);
-    entity->translateX          = 0.0;
-    entity->translateY          = 16.0;
-    entity->translateZ          = 160.0;
-    entity->r                   = 0xFF;
-    entity->g                   = 0xFF;
-    entity->b                   = 0x00;
-    entity->labelPtr            = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID    = 0;
-    entity->labelPtr->textScale = 0.15;
-    entity->labelPtr->textAlpha = 0;
-    entity->labelPtr->state = 0;
-    SetStringToFont8(entity->labelPtr->text, "MODS", 0);
+    int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    entity->meshMods         = LoadMesh("Data/Game/Models/Options.bin", texture);
+    entity->x                = 0.0;
+    entity->y                = 16.0;
+    entity->z                = 160.0;
+    entity->r                = 0xFF;
+    entity->g                = 0xFF;
+    entity->b                = 0x00;
+    entity->labelPtr         = CREATE_ENTITY(TextLabel);
+    entity->labelPtr->fontID = FONT_HEADING;
+    entity->labelPtr->scale  = 0.15;
+    entity->labelPtr->alpha  = 0;
+    entity->labelPtr->state  = 0;
+    SetStringToFont8(entity->labelPtr->text, "MODS", FONT_HEADING);
     entity->labelPtr->alignPtr(entity->labelPtr, 1);
 }
 void ModsButton_Main(void *objPtr)
@@ -34,8 +34,7 @@ void ModsButton_Main(void *objPtr)
         }
         SetRenderBlendMode(RENDER_BLEND_ALPHA);
         SetRenderVertexColor(entity->r, entity->g, entity->b);
-        RenderImage(entity->translateX, entity->translateY, entity->translateZ, entity->scale, entity->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0,
-                    255, entity->textureCircle);
+        RenderImage(entity->x, entity->y, entity->z, entity->scale, entity->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, entity->textureCircle);
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
         SetRenderBlendMode(RENDER_BLEND_NONE);
 
@@ -45,23 +44,23 @@ void ModsButton_Main(void *objPtr)
 
         NewRenderState();
         matrixRotateXYZF(&entity->renderMatrix, 0.0, 0.0, entity->angle);
-        matrixTranslateXYZF(&entity->matrix2, entity->translateX, entity->translateY, entity->translateZ - 8.0);
+        matrixTranslateXYZF(&entity->matrix2, entity->x, entity->y, entity->z - 8.0);
         matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
         SetRenderMatrix(&entity->renderMatrix);
-        RenderMesh(entity->meshMods, 1, true);
+        RenderMesh(entity->meshMods, MESH_NORMALS, true);
         SetRenderMatrix(NULL);
 
         NativeEntity_TextLabel *label = entity->labelPtr;
-        label->textX                  = entity->translateX;
-        label->textY                  = entity->translateY - 72.0;
-        label->textZ                  = entity->translateZ;
-        if (label->textX <= -8.0 || label->textX >= 8.0) {
-            if (label->textAlpha > 0)
-                label->textAlpha -= 8;
+        label->x                      = entity->x;
+        label->y                      = entity->y - 72.0;
+        label->z                      = entity->z;
+        if (label->x <= -8.0 || label->x >= 8.0) {
+            if (label->alpha > 0)
+                label->alpha -= 8;
         }
         else {
-            if (label->textAlpha < 0x100)
-                label->textAlpha += 8;
+            if (label->alpha < 0x100)
+                label->alpha += 8;
         }
     }
 }

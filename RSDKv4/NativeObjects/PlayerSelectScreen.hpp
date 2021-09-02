@@ -14,7 +14,7 @@ struct NativeEntity_PlayerSelectScreen : NativeEntityBase {
     MatrixF matrix2;
     byte textureArrows;
     byte texturePlayerSel;
-    byte touchValid;
+    byte backPressed;
     int alpha;
     ushort textSonic[8];
     ushort textTails[24];

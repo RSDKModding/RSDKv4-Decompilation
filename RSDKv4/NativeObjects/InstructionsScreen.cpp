@@ -7,24 +7,24 @@ void InstructionsScreen_Create(void *objPtr)
     RSDK_THIS(InstructionsScreen);
 
     entity->labelPtr                  = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->useRenderMatrix       = true;
-    entity->labelPtr->fontID          = 0;
-    entity->labelPtr->textScale       = 0.2;
-    entity->labelPtr->textAlpha       = 256;
-    entity->labelPtr->textX           = -144.0;
-    entity->labelPtr->textY           = 100.0;
-    entity->labelPtr->textZ           = 16.0;
-    entity->labelPtr->state       = 0;
-    SetStringToFont(entity->labelPtr->text, strInstructions, 0);
-    SetStringToFont8(entity->pageIDText, "1 / 5", 2);
-    SetStringToFont(helpText, strHelpText1, 2);
+    entity->labelPtr->useRenderMatrix = true;
+    entity->labelPtr->fontID          = FONT_HEADING;
+    entity->labelPtr->scale           = 0.2;
+    entity->labelPtr->alpha           = 256;
+    entity->labelPtr->x               = -144.0;
+    entity->labelPtr->y               = 100.0;
+    entity->labelPtr->z               = 16.0;
+    entity->labelPtr->state           = 0;
+    SetStringToFont(entity->labelPtr->text, strInstructions, FONT_HEADING);
+    SetStringToFont8(entity->pageIDText, "1 / 5", FONT_TEXT);
+    SetStringToFont(helpText, strHelpText1, FONT_TEXT);
 
-    entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
+    entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
+    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
     entity->touchedPrev   = 0;
     entity->textY         = 68.0;
-    entity->textHeight       = (GetTextHeight(helpText, 2, 0.14) - 152.0) + 68.0;
+    entity->textHeight    = (GetTextHeight(helpText, FONT_TEXT, 0.14) - 152.0) + 68.0;
     if (Engine.gameDeviceType == RETRO_STANDARD) {
         entity->textureDPad = LoadTexture("Data/Game/Menu/Generic.png", TEXFMT_RGBA8888);
         if (timeAttackTex)
@@ -86,18 +86,18 @@ void InstructionsScreen_Main(void *objPtr)
                             entity->textY = fminf(entity->textHeight, entity->textY + 2.0);
                     }
                     if (keyDown.left) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state       = 2;
-                        entity->stateInput    = 0;
+                        entity->stateInput  = 0;
                         entity->touchedPrev = false;
                         entity->field_E1    = true;
                         if (--entity->pageID < 0)
                             entity->pageID = 4;
                     }
                     else if (keyDown.right) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state       = 2;
-                        entity->stateInput    = 0;
+                        entity->stateInput  = 0;
                         entity->touchedNext = false;
                         entity->field_E1    = false;
                         entity->pageID      = (entity->pageID + 1) % 5;
@@ -110,8 +110,8 @@ void InstructionsScreen_Main(void *objPtr)
                         if (touches > 0) {
                             if (CheckTouchRect(0.0, -8.0, 128.0, 96.0) >= 0 && entity->textHeight > 68.0) {
                                 entity->stateInput = 1;
-                                entity->field_D4 = 0.0;
-                                entity->field_CC = touchYF[0];
+                                entity->field_D4   = 0.0;
+                                entity->field_CC   = touchYF[0];
                             }
                         }
                         else {
@@ -144,12 +144,12 @@ void InstructionsScreen_Main(void *objPtr)
                                 entity->stateInput = 0;
 
                             if (68.0 - abs(entity->field_D0 * 4.0) > entity->textY) {
-                                entity->field_D8 = 68.0;
+                                entity->field_D8   = 68.0;
                                 entity->stateInput = 3;
                             }
 
                             if (entity->textY > (abs(entity->field_D0 * 4.0) + entity->textHeight)) {
-                                entity->field_D8 = entity->textHeight;
+                                entity->field_D8   = entity->textHeight;
                                 entity->stateInput = 3;
                             }
                         }
@@ -164,7 +164,7 @@ void InstructionsScreen_Main(void *objPtr)
                             entity->textY = ((entity->field_D8 - entity->textY) / ((60.0 * Engine.deltaTime) * 8.0)) + entity->textY;
 
                             if (abs(entity->field_D8 - entity->textY) < 0.025) {
-                                entity->textY    = entity->field_D8;
+                                entity->textY      = entity->field_D8;
                                 entity->stateInput = 0;
                             }
                         }
@@ -179,12 +179,12 @@ void InstructionsScreen_Main(void *objPtr)
 
             if (touches <= 0) {
                 if (entity->touchedBack) {
-                    PlaySfx(23, 0);
+                    PlaySfxByName("Menu Back", false);
                     entity->touchedBack = false;
                     entity->state       = 4;
                 }
                 if (entity->touchedPrev) {
-                    PlaySfx(21, 0);
+                    PlaySfxByName("Menu Move", false);
                     entity->state       = 2;
                     entity->stateInput  = 0;
                     entity->touchedPrev = false;
@@ -193,7 +193,7 @@ void InstructionsScreen_Main(void *objPtr)
                         entity->pageID = 4;
                 }
                 if (entity->touchedNext) {
-                    PlaySfx(21, 0);
+                    PlaySfxByName("Menu Move", false);
                     entity->state       = 2;
                     entity->stateInput  = 0;
                     entity->touchedNext = 0;
@@ -209,7 +209,7 @@ void InstructionsScreen_Main(void *objPtr)
 
                     if (entity->field_E0) {
                         if (entity->lastTouchX - touchXF[0] > 16.0f) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->state      = 2;
                             entity->stateInput = 0;
                             entity->field_E1   = false;
@@ -217,7 +217,7 @@ void InstructionsScreen_Main(void *objPtr)
                             entity->pageID     = (entity->pageID + 1) % 5;
                         }
                         else if (entity->lastTouchX - touchXF[0] < -16.0f) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->state      = 2;
                             entity->stateInput = 0;
                             entity->field_E1   = true;
@@ -240,7 +240,7 @@ void InstructionsScreen_Main(void *objPtr)
             }
 
             if (entity->state == 1 && keyPress.B) {
-                PlaySfx(23, 0);
+                PlaySfxByName("Menu Back", false);
                 entity->touchedBack = false;
                 entity->state       = 4;
             }
@@ -259,33 +259,33 @@ void InstructionsScreen_Main(void *objPtr)
                 entity->rotationY = entity->rotationY < 0.0f ? -4.712389 : 4.712389;
                 switch (entity->pageID) {
                     case 0:
-                        SetStringToFont(helpText, strHelpText1, 2);
+                        SetStringToFont(helpText, strHelpText1, FONT_TEXT);
                         SetStringToFont8(entity->pageIDText, "1 / 5", 2);
                         break;
                     case 1:
                         if (Engine.gameDeviceType == RETRO_MOBILE)
-                            SetStringToFont(helpText, strHelpText2, 2);
+                            SetStringToFont(helpText, strHelpText2, FONT_TEXT);
                         else
-                            SetStringToFont8(helpText, "                                                      CONTROLS", 2);
-                        SetStringToFont8(entity->pageIDText, "2 / 5", 2);
+                            SetStringToFont8(helpText, "                                                      CONTROLS", FONT_TEXT);
+                        SetStringToFont8(entity->pageIDText, "2 / 5", FONT_TEXT);
                         break;
                     case 2:
                         SetStringToFont(helpText, strHelpText3, 2);
-                        SetStringToFont8(entity->pageIDText, "3 / 5", 2);
+                        SetStringToFont8(entity->pageIDText, "3 / 5", FONT_TEXT);
                         break;
                     case 3:
                         SetStringToFont(helpText, strHelpText4, 2);
-                        SetStringToFont8(entity->pageIDText, "4 / 5", 2);
+                        SetStringToFont8(entity->pageIDText, "4 / 5", FONT_TEXT);
                         break;
                     case 4:
                         SetStringToFont(helpText, strHelpText5, 2);
-                        SetStringToFont8(entity->pageIDText, "5 / 5", 2);
+                        SetStringToFont8(entity->pageIDText, "5 / 5", FONT_TEXT);
                         break;
                     default: break;
                 }
-                entity->shownPage = entity->pageID;
-                entity->textY    = 68.0;
-                entity->textHeight  = (GetTextHeight(helpText, 2, 0.14) - 152.0) + 68.0;
+                entity->shownPage  = entity->pageID;
+                entity->textY      = 68.0;
+                entity->textHeight = (GetTextHeight(helpText, FONT_TEXT, 0.14) - 152.0) + 68.0;
             }
 
             NewRenderState();
@@ -346,8 +346,8 @@ void InstructionsScreen_Main(void *objPtr)
         default: break;
     }
 
-    RenderMesh(entity->meshPanel, 0, false);
-    RenderTextClipped(helpText, 2, -138.0, entity->textY, 8.0, 0.14, 255);
+    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
+    RenderTextClipped(helpText, FONT_TEXT, -138.0, entity->textY, 8.0, 0.14, 255);
 
     switch (entity->shownPage) {
         case 0:
@@ -476,7 +476,7 @@ void InstructionsScreen_Main(void *objPtr)
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, entity->arrowAlpha, entity->textureArrows);
     else
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, entity->arrowAlpha, entity->textureArrows);
-    SetRenderVertexColor(0, 0, 64);
-    RenderText(entity->pageIDText, 2, -18.0, -110.0, 160.0, 0.25, 255);
-    SetRenderVertexColor(255, 255, 255);
+    SetRenderVertexColor(0x00, 0x00, 0x40);
+    RenderText(entity->pageIDText, FONT_TEXT, -18.0, -110.0, 160.0, 0.25, 255);
+    SetRenderVertexColor(0xFF, 0xFF, 0xFF);
 }

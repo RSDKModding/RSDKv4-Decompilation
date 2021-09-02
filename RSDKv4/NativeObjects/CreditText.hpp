@@ -7,7 +7,7 @@ struct NativeEntity_CreditText : NativeEntityBase {
     float textZ;
     float width;
     float scaleX;
-    int textAlpha;
+    int alpha;
     int fontID;
     ushort text[64];
     int state;

@@ -5,7 +5,7 @@ void CWSplash_Create(void *objPtr)
     RSDK_THIS(SegaSplash);
     entity->state     = 0;
     entity->rectAlpha = 320.0;
-    entity->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", 3);
+    entity->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", TEXFMT_RGBA8888);
 }
 void CWSplash_Main(void *objPtr)
 {

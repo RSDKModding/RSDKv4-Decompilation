@@ -5,18 +5,18 @@ void SegaSplash_Create(void *objPtr)
     RSDK_THIS(SegaSplash);
     entity->state     = 0;
     entity->rectAlpha = 320.0;
-    entity->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", 3);
+    entity->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", TEXFMT_RGBA8888);
     if (Engine.useHighResAssets) {
         if (Engine.language == RETRO_JP)
-            entity->textureID = LoadTexture("Data/Game/Menu/SegaJP@2x.png", 1);
+            entity->textureID = LoadTexture("Data/Game/Menu/SegaJP@2x.png", TEXFMT_RGBA5551);
         else
-            entity->textureID = LoadTexture("Data/Game/Menu/Sega@2x.png", 1);
+            entity->textureID = LoadTexture("Data/Game/Menu/Sega@2x.png", TEXFMT_RGBA5551);
     }
     else {
         if (Engine.language == RETRO_JP)
-            entity->textureID = LoadTexture("Data/Game/Menu/SegaJP.png", 1);
+            entity->textureID = LoadTexture("Data/Game/Menu/SegaJP.png", TEXFMT_RGBA5551);
         else
-            entity->textureID = LoadTexture("Data/Game/Menu/Sega.png", 1);
+            entity->textureID = LoadTexture("Data/Game/Menu/Sega.png", TEXFMT_RGBA5551);
     }
 }
 void SegaSplash_Main(void *objPtr)

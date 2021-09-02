@@ -10,6 +10,8 @@ int nativeFunctionCount = 0;
 char gamePath[0x100];
 int saveRAM[SAVEDATA_MAX];
 Achievement achievements[ACHIEVEMENT_MAX];
+int achievementCount = 0;
+
 LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 MultiplayerData multiplayerDataIN  = MultiplayerData();
@@ -552,7 +554,7 @@ void writeSettings()
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
+    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
 #endif
 #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
@@ -573,7 +575,7 @@ void writeSettings()
     ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
+    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
     ini.SetComment("Controller 1", "IC1Comment3", "CONTROLLER_BUTTON_ZL             = 16");
     ini.SetComment("Controller 1", "IC1Comment4", "CONTROLLER_BUTTON_ZR             = 17");
@@ -728,8 +730,6 @@ int GetAchievement(int *id, void *a2) { return achievements[*id].status; }
 #endif
 void ShowAchievementsScreen()
 {
-    /*TODO*/
-    // printLog("we're showing the achievements screen");
 #if !RETRO_USE_ORIGINAL_CODE
     CREATE_ENTITY(AchievementsMenu);
 #endif
@@ -815,7 +815,7 @@ int Disconnect2PVS(int *a1, int *a2)
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         disableFocusPause = disableFocusPause_Store;
-        Engine.devMenu    = vsPlayerID;
+        //Engine.devMenu    = vsPlayerID;
         vsPlaying         = false;
         disconnectNetwork();
         initNetwork();
@@ -932,7 +932,7 @@ void receive2PVSMatchCode(int code)
     matchValueData[matchValueWritePos++] = code;
     ResumeSound();
     vsPlayerID      = Engine.devMenu;
-    Engine.devMenu  = false;
+    //Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
     vsPlaying       = true;
     ClearNativeObjects();

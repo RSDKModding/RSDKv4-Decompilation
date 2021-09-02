@@ -6,9 +6,9 @@ struct NativeEntity_BackButton : NativeEntityBase {
     byte visible;
     int field_18;
     int field_1C;
-    float translateX;
-    float translateY;
-    float translateZ;
+    float x;
+    float y;
+    float z;
     MeshInfo *meshBack;
     float angle;
     float scale;

@@ -8,43 +8,43 @@ float timeAttackV[] = { 1.0, 1.0, 1.0, 241.0, 241.0, 241.0 };
 void RecordsScreen_Create(void *objPtr)
 {
     RSDK_THIS(RecordsScreen);
-    entity->labelPtr            = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID    = 0;
-    entity->labelPtr->textScale = 0.15;
-    entity->labelPtr->textAlpha = 256;
-    entity->labelPtr->textX     = -144.0;
-    entity->labelPtr->textY     = 100.0;
-    entity->labelPtr->textZ     = 16.0;
-    entity->labelPtr->state = 0;
+    entity->labelPtr                  = CREATE_ENTITY(TextLabel);
+    entity->labelPtr->fontID          = FONT_HEADING;
+    entity->labelPtr->scale           = 0.15;
+    entity->labelPtr->alpha           = 256;
+    entity->labelPtr->x               = -144.0;
+    entity->labelPtr->y               = 100.0;
+    entity->labelPtr->z               = 16.0;
+    entity->labelPtr->state           = 0;
     entity->labelPtr->useRenderMatrix = true;
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
 
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", 1);
-    SetStringToFont(entity->textRecords, strRecords, 1);
+    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
+    SetStringToFont(entity->textRecords, strRecords, FONT_LABEL);
 
-    entity->field_D4 = GetTextWidth(entity->textRecords, 1, 0.125) * 0.5;
+    entity->field_D4 = GetTextWidth(entity->textRecords, FONT_LABEL, 0.125) * 0.5;
 
-    entity->buttons[0]                  = CREATE_ENTITY(PushButton);
-    entity->buttons[0]->useRenderMatrix = true;
-    entity->buttons[0]->x               = -64.0;
-    entity->buttons[0]->y               = -52.0;
-    entity->buttons[0]->z               = 0.0;
-    entity->buttons[0]->scale           = 0.175;
-    entity->buttons[0]->bgColour            = 0x00A048;
-    entity->buttons[0]->bgColourSelected           = 0x00C060;
-    SetStringToFont(entity->buttons[0]->text, strPlay, 1);
+    entity->buttons[0]                   = CREATE_ENTITY(PushButton);
+    entity->buttons[0]->useRenderMatrix  = true;
+    entity->buttons[0]->x                = -64.0;
+    entity->buttons[0]->y                = -52.0;
+    entity->buttons[0]->z                = 0.0;
+    entity->buttons[0]->scale            = 0.175;
+    entity->buttons[0]->bgColour         = 0x00A048;
+    entity->buttons[0]->bgColourSelected = 0x00C060;
+    SetStringToFont(entity->buttons[0]->text, strPlay, FONT_LABEL);
 
-    entity->buttons[1]                  = CREATE_ENTITY(PushButton);
-    entity->buttons[1]->useRenderMatrix = true;
-    entity->buttons[1]->x               = 64.0;
-    entity->buttons[1]->y               = -52.0;
-    entity->buttons[1]->z               = 0.0;
-    entity->buttons[1]->scale           = 0.175;
-    entity->buttons[1]->bgColour            = 0x00A048;
-    entity->buttons[1]->bgColourSelected           = 0x00C060;
-    SetStringToFont(entity->buttons[1]->text, strNextAct, 1);
+    entity->buttons[1]                   = CREATE_ENTITY(PushButton);
+    entity->buttons[1]->useRenderMatrix  = true;
+    entity->buttons[1]->x                = 64.0;
+    entity->buttons[1]->y                = -52.0;
+    entity->buttons[1]->z                = 0.0;
+    entity->buttons[1]->scale            = 0.175;
+    entity->buttons[1]->bgColour         = 0x00A048;
+    entity->buttons[1]->bgColourSelected = 0x00C060;
+    SetStringToFont(entity->buttons[1]->text, strNextAct, FONT_LABEL);
 
     entity->state = -1;
     debugMode     = false;
@@ -60,11 +60,11 @@ void RecordsScreen_Main(void *objPtr)
             int textureID = (entity->zoneID * timeAttack_ActCount) / 6;
             textureID++;
 
-            entity->actCount = timeAttack_ActCount;
+            entity->actCount     = timeAttack_ActCount;
             entity->recordOffset = timeAttack_ActCount * entity->zoneID;
             char pathBuf[0x40];
             sprintf(pathBuf, "Data/Game/Menu/TimeAttack%d.png", textureID);
-            if (Engine.gameType == GAME_SONIC1 && entity->zoneID == 6) //dumb stupid dumb
+            if (Engine.gameType == GAME_SONIC1 && entity->zoneID == 6) // dumb stupid dumb
                 sprintf(pathBuf, "Data/Game/Menu/Intro.png");
 
             if (timeAttackTex) {
@@ -86,11 +86,11 @@ void RecordsScreen_Main(void *objPtr)
                 }
             }
             else if (Engine.gameType == GAME_SONIC2) {
-                if (entity->zoneID == 7) //metropolis sux
+                if (entity->zoneID == 7) // metropolis sux
                     entity->actCount = 3;
 
                 if (entity->zoneID >= 8) {
-                    entity->actCount     = 1;
+                    entity->actCount = 1;
                     switch (entity->zoneID) {
                         case 8: entity->recordOffset = (timeAttack_ActCount * 8) + 1; break;
                         case 9: entity->recordOffset = 22; break;
@@ -100,7 +100,7 @@ void RecordsScreen_Main(void *objPtr)
                 }
             }
 
-            entity->state    = 0;
+            entity->state = 0;
             if (Engine.gameType == GAME_SONIC2 && entity->zoneID >= 9) {
                 switch (entity->zoneID) {
                     default: break;
@@ -143,17 +143,17 @@ void RecordsScreen_Main(void *objPtr)
             pos *= 3;
 
             SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], 0);
-            SetStringToFont8(entity->rank1st, "1.", 1);
-            AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], 1);
-            SetStringToFont8(entity->rank2nd, "2.", 1);
-            AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], 1);
-            SetStringToFont8(entity->rank3rd, "3.", 1);
-            AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], 1);
+            SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
+            AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
+            SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
+            AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], FONT_LABEL);
+            SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
+            AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], FONT_LABEL);
         }
         // fallthrough
         case 0: {
-            if (entity->field_188 < 0x100)
-                entity->field_188 += 8;
+            if (entity->buttonAlpha < 0x100)
+                entity->buttonAlpha += 8;
 
             entity->scale = fminf(entity->scale + ((1.05 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
 
@@ -170,9 +170,9 @@ void RecordsScreen_Main(void *objPtr)
 
             entity->field_28 += Engine.deltaTime;
             if (entity->field_28 > 0.5) {
-                entity->field_28  = 0.0;
-                entity->state     = 1;
-                entity->field_188 = 256;
+                entity->field_28    = 0.0;
+                entity->state       = 1;
+                entity->buttonAlpha = 256;
             }
             break;
         }
@@ -184,11 +184,11 @@ void RecordsScreen_Main(void *objPtr)
                 if (touches <= 0) {
                     if (entity->buttons[0]->state == 1) {
                         entity->state = 5;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[0]->state = 2;
                     }
                     if (entity->actCount > 1 && entity->buttons[1]->state == 1) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state             = 2;
                         entity->field_191         = 0;
                         entity->actID             = (entity->actID + 1) % entity->actCount;
@@ -211,14 +211,14 @@ void RecordsScreen_Main(void *objPtr)
                 if (touches > 0 && entity->state == 1 && entity->actCount > 1) {
                     if (entity->field_190) {
                         if (entity->field_18C - touchXF[0] > 16.0f) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->state     = 2;
                             entity->field_191 = 0;
                             entity->field_190 = 0;
                             entity->actID     = (entity->actID + 1) % entity->actCount;
                         }
                         else if (entity->field_18C - touchXF[0] < -16.0f) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             if (--entity->actID < 0)
                                 entity->actID = entity->actCount - 1;
                             entity->state     = 2;
@@ -237,7 +237,7 @@ void RecordsScreen_Main(void *objPtr)
 
                 if (touches <= 0) {
                     if (entity->prevActPressed) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         if (--entity->actID < 0)
                             entity->actID = entity->actCount - 1;
                         entity->state          = 2;
@@ -245,14 +245,14 @@ void RecordsScreen_Main(void *objPtr)
                         entity->field_191      = 1;
                     }
                     if (entity->nextActPressed) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state          = 2;
                         entity->nextActPressed = false;
                         entity->field_191      = 0;
                         entity->actID          = (entity->actID + 1) % entity->actCount;
                     }
                     if (entity->backPressed) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
                         entity->state       = 4;
                     }
@@ -267,16 +267,16 @@ void RecordsScreen_Main(void *objPtr)
 
                 if (entity->state == 1) {
                     if (keyDown.left) {
-                        entity->selectedButton   = 1;
-                        usePhysicalControls = true;
+                        entity->selectedButton = 1;
+                        usePhysicalControls    = true;
                     }
                     else {
                         if (keyDown.right) {
-                            entity->selectedButton   = 0;
-                            usePhysicalControls = true;
+                            entity->selectedButton = 0;
+                            usePhysicalControls    = true;
                         }
                         else if (keyPress.B) {
-                            PlaySfx(23, 0);
+                            PlaySfxByName("Menu Back", false);
                             entity->backPressed = false;
                             entity->state       = 4;
                         }
@@ -294,11 +294,11 @@ void RecordsScreen_Main(void *objPtr)
 
                     if (entity->actCount > 1) {
                         if (keyPress.left) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->selectedButton--;
                             if (entity->selectedButton < 0) {
                                 entity->selectedButton = 1;
-                                PlaySfx(21, 0);
+                                PlaySfxByName("Menu Move", false);
                                 if (--entity->actID < 0)
                                     entity->actID = entity->actCount - 1;
                                 entity->state     = 2;
@@ -306,11 +306,11 @@ void RecordsScreen_Main(void *objPtr)
                             }
                         }
                         else if (keyPress.right) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->selectedButton++;
                             if (entity->selectedButton >= 2) {
                                 entity->selectedButton = 0;
-                                PlaySfx(21, 0);
+                                PlaySfxByName("Menu Move", false);
                                 entity->state     = 2;
                                 entity->field_191 = 0;
                                 entity->actID     = (entity->actID + 1) % entity->actCount;
@@ -325,19 +325,19 @@ void RecordsScreen_Main(void *objPtr)
 
                     if (keyPress.start || keyPress.A) {
                         if (entity->selectedButton) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->state     = 2;
                             entity->field_191 = 0;
                             entity->actID     = (entity->actID + 1) % entity->actCount;
                         }
                         else {
                             entity->state = 5;
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->buttons[0]->state = 2;
                         }
                     }
                     else if (keyPress.B) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
                         entity->state       = 4;
                     }
@@ -393,13 +393,13 @@ void RecordsScreen_Main(void *objPtr)
                         entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
                         entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
                     }
-                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], 0);
-                    SetStringToFont8(entity->rank1st, "1.", 1);
-                    AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], 1);
-                    SetStringToFont8(entity->rank2nd, "2.", 1);
-                    AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], 1);
-                    SetStringToFont8(entity->rank3rd, "3.", 1);
-                    AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], 1);
+                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], FONT_HEADING);
+                    SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
+                    SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], FONT_LABEL);
+                    SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], FONT_LABEL);
                 }
             }
             else {
@@ -412,7 +412,7 @@ void RecordsScreen_Main(void *objPtr)
                     if (Engine.gameType == GAME_SONIC2 && entity->zoneID >= 9) {
                         switch (entity->zoneID) {
                             default: break;
-                            case 9: 
+                            case 9:
                             case 11:
                                 entity->timeAttackU = timeAttackU[0];
                                 entity->timeAttackV = timeAttackV[0];
@@ -427,13 +427,13 @@ void RecordsScreen_Main(void *objPtr)
                         entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
                         entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
                     }
-                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], 0);
-                    SetStringToFont8(entity->rank1st, "1.", 1);
-                    AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], 1);
-                    SetStringToFont8(entity->rank2nd, "2.", 1);
-                    AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], 1);
-                    SetStringToFont8(entity->rank3rd, "3.", 1);
-                    AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], 1);
+                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], FONT_HEADING);
+                    SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
+                    SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], FONT_LABEL);
+                    SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
+                    AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], FONT_LABEL);
                 }
             }
             NewRenderState();
@@ -466,8 +466,8 @@ void RecordsScreen_Main(void *objPtr)
             break;
         }
         case 4: {
-            if (entity->field_188 > 0)
-                entity->field_188 -= 8;
+            if (entity->buttonAlpha > 0)
+                entity->buttonAlpha -= 8;
 
             if (entity->field_28 < 0.2)
                 entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
@@ -524,7 +524,7 @@ void RecordsScreen_Main(void *objPtr)
                         case 10: InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount, 0); break;
                         case 11: InitStartingStage(STAGELIST_BONUS, 0, 0); break;
                     }
-                } 
+                }
                 else
                     InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount + entity->actID, 0);
 
@@ -562,7 +562,7 @@ void RecordsScreen_Main(void *objPtr)
             if (globalVariables[entity->taResultID] > 0) {
                 int *records  = &saveGame->records[pos + (3 * entity->actID)];
                 entity->state = 1;
-                SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 192);
+                SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
                 int time = globalVariables[entity->taResultID];
 
                 for (int r = 0; r < 3; ++r) {
@@ -574,16 +574,16 @@ void RecordsScreen_Main(void *objPtr)
                     }
                 }
 
-                SetStringToFont8(entity->rank1st, "1.", 1);
-                AddTimeStringToFont(entity->rank1st, records[0], 1);
-                SetStringToFont8(entity->rank2nd, "2.", 1);
-                AddTimeStringToFont(entity->rank2nd, records[1], 1);
-                SetStringToFont8(entity->rank3rd, "3.", 1);
-                AddTimeStringToFont(entity->rank3rd, records[2], 1);
+                SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
+                AddTimeStringToFont(entity->rank1st, records[0], FONT_LABEL);
+                SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
+                AddTimeStringToFont(entity->rank2nd, records[1], FONT_LABEL);
+                SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
+                AddTimeStringToFont(entity->rank3rd, records[2], FONT_LABEL);
 
                 entity->field_28 = 0.0;
                 entity->state    = 7;
-                PlaySfx(39, 0);
+                PlaySfxByName("Event", false);
                 WriteSaveRAMData();
 
                 int pos = 0;
@@ -615,9 +615,9 @@ void RecordsScreen_Main(void *objPtr)
                             pos++;
                         }
                     }
-                    SetStringToFont8(timeAttack->zoneButtons[i]->timeText, "", 2);
-                    AddTimeStringToFont(timeAttack->zoneButtons[i]->timeText, timeAttack->totalTime, 2);
-                    timeAttack->zoneButtons[i]->textWidth = GetTextWidth(timeAttack->zoneButtons[i]->zoneText, 2, 0.25) * 0.5;
+                    SetStringToFont8(timeAttack->zoneButtons[i]->timeText, "", FONT_TEXT);
+                    AddTimeStringToFont(timeAttack->zoneButtons[i]->timeText, timeAttack->totalTime, FONT_TEXT);
+                    timeAttack->zoneButtons[i]->textWidth = GetTextWidth(timeAttack->zoneButtons[i]->zoneText, FONT_TEXT, 0.25) * 0.5;
                 }
 
                 pos                   = 0;
@@ -652,8 +652,8 @@ void RecordsScreen_Main(void *objPtr)
                     }
                 }
 
-                SetStringToFont(timeAttack->button->text, strTotalTime, 1);
-                AddTimeStringToFont(timeAttack->button->text, timeAttack->totalTime, 1);
+                SetStringToFont(timeAttack->button->text, strTotalTime, FONT_LABEL);
+                AddTimeStringToFont(timeAttack->button->text, timeAttack->totalTime, FONT_LABEL);
                 if (timeAttack->totalTime <= 270000) {
                     int ach    = 11;
                     int status = 100;
@@ -680,35 +680,35 @@ void RecordsScreen_Main(void *objPtr)
         default: break;
     }
 
-    RenderMesh(entity->meshPanel, 0, false);
+    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
     RenderRect(-124.0, 69.0, 0.0, 128.0, 98.0, 128, 128, 128, 255);
     RenderImage(-60.0, 20.0, 0.0, 0.38, 0.38, 159.0, 119.0, 318.0, 238.0, entity->timeAttackU, entity->timeAttackV, 255, entity->textureTimeAttack);
-    RenderText(entity->textRecords, 1, 72.0 - entity->field_D4, 56.0, 0.0, 0.125, 255);
+    RenderText(entity->textRecords, FONT_LABEL, 72.0 - entity->field_D4, 56.0, 0.0, 0.125, 255);
 
     if (entity->field_2C < 0.05 || entity->rank != 1)
-        RenderText(entity->rank1st, 1, 24.0, 32.0, 0.0, 0.125, 255);
+        RenderText(entity->rank1st, FONT_LABEL, 24.0, 32.0, 0.0, 0.125, 255);
 
     if (entity->field_2C < 0.05 || entity->rank != 2)
-        RenderText(entity->rank2nd, 1, 24.0, 8.0, 0.0, 0.125, 255);
+        RenderText(entity->rank2nd, FONT_LABEL, 24.0, 8.0, 0.0, 0.125, 255);
 
     if (entity->field_2C < 0.05 || entity->rank != 3)
-        RenderText(entity->rank3rd, 1, 24.0, -16.0, 0.0, 0.125, 255);
+        RenderText(entity->rank3rd, FONT_LABEL, 24.0, -16.0, 0.0, 0.125, 255);
     NewRenderState();
     SetRenderMatrix(NULL);
     if (entity->actCount > 1) {
         if (entity->prevActPressed)
-            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->field_188, entity->textureArrows);
+            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->buttonAlpha, entity->textureArrows);
         else
-            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->field_188, entity->textureArrows);
+            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->buttonAlpha, entity->textureArrows);
 
         if (entity->nextActPressed)
-            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->field_188, entity->textureArrows);
+            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->buttonAlpha, entity->textureArrows);
         else
-            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->field_188, entity->textureArrows);
+            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->buttonAlpha, entity->textureArrows);
     }
 
     if (entity->backPressed)
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, entity->field_188, entity->textureArrows);
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, entity->buttonAlpha, entity->textureArrows);
     else
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, entity->field_188, entity->textureArrows);
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, entity->buttonAlpha, entity->textureArrows);
 }

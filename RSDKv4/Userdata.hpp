@@ -53,6 +53,7 @@ enum OnlineMenuTypes {
 
 struct Achievement {
     char name[0x40];
+    char desc[0x80];
     int status;
 };
 
@@ -77,6 +78,7 @@ extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
 extern char gamePath[0x100];
 extern int saveRAM[SAVEDATA_MAX];
 extern Achievement achievements[ACHIEVEMENT_MAX];
+extern int achievementCount;
 extern LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 extern MultiplayerData multiplayerDataIN;
@@ -184,6 +186,16 @@ void ReadUserdata();
 void WriteUserdata();
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+inline void AddAchievement(const char *name, const char *description)
+{
+    if (achievementCount < ACHIEVEMENT_MAX) {
+        StrCopy(achievements[achievementCount].name, name);
+        StrCopy(achievements[achievementCount].desc, description);
+        achievementCount++;
+    }
+}
+#endif
 int SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
 #if RETRO_USE_MOD_LOADER

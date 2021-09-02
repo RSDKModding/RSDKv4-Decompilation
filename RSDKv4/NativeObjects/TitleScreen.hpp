@@ -1,6 +1,9 @@
 #ifndef NATIVE_TITLESCREEN_H
 #define NATIVE_TITLESCREEN_H
 
+enum FontIDs { FONT_HEADING, FONT_LABEL, FONT_TEXT };
+enum RegionIDs { REGION_JP, REGION_US, REGION_EU };
+
 struct NativeEntity_TitleScreen : NativeEntityBase {
     int state;
     float introRectAlpha;
@@ -13,7 +16,7 @@ struct NativeEntity_TitleScreen : NativeEntityBase {
     float field_3C;
     float meshScale;
     float rotationY;
-    float translateX;
+    float x;
     float field_4C;
     float field_50;
     float rotationZ;

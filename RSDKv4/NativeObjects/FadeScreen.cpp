@@ -3,10 +3,10 @@
 void FadeScreen_Create(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
-    entity->timer     = 0.0;
-    entity->timeLimit = 1.5;
-    entity->fadeSpeed = 2.0;
-    entity->state     = 2;
+    entity->timer           = 0.0;
+    entity->timeLimit       = 1.5;
+    entity->fadeSpeed       = 2.0;
+    entity->state           = 2;
     Engine.nativeMenuFadeIn = true;
 }
 void FadeScreen_Main(void *objPtr)

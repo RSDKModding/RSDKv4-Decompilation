@@ -3,6 +3,17 @@
 
 #if !RETRO_USE_ORIGINAL_CODE
 struct NativeEntity_AchievementsMenu : NativeEntityBase {
+    NativeEntity_TextLabel *label;
+    NativeEntity_AchievementDisplay *displays[5];
+    MeshInfo *meshPanel;
+    MatrixF renderMatrix;
+    MatrixF matrix2;
+    float scale;
+    byte textureArrows;
+    byte backPressed;
+    int arrowAlpha;
+    int state;
+    float timer;
 };
 
 void AchievementsMenu_Create(void *objPtr);

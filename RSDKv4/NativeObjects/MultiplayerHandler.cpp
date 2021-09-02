@@ -5,11 +5,11 @@ void MultiplayerHandler_Create(void *objPtr)
     RSDK_THIS(MultiplayerHandler);
 
     entity->pingLabel         = CREATE_ENTITY(TextLabel);
-    entity->pingLabel->fontID = 2;
-    entity->pingLabel->textX  = SCREEN_XSIZE_F / 2 - 64.0f;
-    entity->pingLabel->textY  = -(SCREEN_YSIZE_F / 2) + 4.0f;
+    entity->pingLabel->fontID = FONT_TEXT;
+    entity->pingLabel->x      = SCREEN_XSIZE_F / 2 - 64.0f;
+    entity->pingLabel->y      = -(SCREEN_YSIZE_F / 2) + 4.0f;
     entity->pingLabel->alignPtr(entity->pingLabel, 0);
-    entity->pingLabel->textScale  = 0.175;
+    entity->pingLabel->scale      = 0.175;
     entity->pingLabel->useColours = true;
     entity->pingLabel->r          = 0xFF;
 
@@ -28,7 +28,7 @@ void MultiplayerHandler_Main(void *objPtr)
             entity->timer += Engine.deltaTime;
             if (entity->pingLabel->textWidth) {
                 entity->pingLabel->alignPtr(entity->pingLabel, 0);
-                entity->pingLabel->textX -= 28.0f;
+                entity->pingLabel->x -= 28.0f;
             }
             if (entity->timer >= 1.0f && !waitingForPing) {
                 waitingForPing = true;
@@ -48,7 +48,7 @@ void MultiplayerHandler_Main(void *objPtr)
                     entity->pingLabel->b = 0x30;
                     sprintf(buf, "Ping: %.0fs", entity->timer);
                 }
-                SetStringToFont8(entity->pingLabel->text, buf, 2);
+                SetStringToFont8(entity->pingLabel->text, buf, FONT_TEXT);
             }
             else if (entity->timer >= 10.0f) {
                 disconnectNetwork();
@@ -60,9 +60,9 @@ void MultiplayerHandler_Main(void *objPtr)
                 entity->pingLabel->g = 0xCF * (fmod(entity->timer, .5) >= .25) + 0x30;
                 entity->pingLabel->b = 0xCF * (fmod(entity->timer, .5) >= .25) + 0x30;
                 entity->pingLabel->alignPtr(entity->pingLabel, 1);
-                entity->pingLabel->textX += 28.0f;
+                entity->pingLabel->x += 28.0f;
                 sprintf(buf, " !! %.2fs !!", 10 - entity->timer);
-                SetStringToFont8(entity->pingLabel->text, buf, 2);
+                SetStringToFont8(entity->pingLabel->text, buf, FONT_TEXT);
             }
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderRect(SCREEN_XSIZE_F / 2 - 68, -(SCREEN_YSIZE_F / 2) + 16, 160, 68, 16, 0, 0, 0, 0x80);
@@ -89,14 +89,14 @@ void MultiplayerHandler_Main(void *objPtr)
             RemoveNativeObjectType(RetroGameLoop_Create, RetroGameLoop_Main);
             RemoveNativeObjectType(VirtualDPad_Create, VirtualDPad_Main);
             // entity->errorPanel              = CREATE_ENTITY(DialogPanel);
-            // entity->errorPanel->buttonCount = 1;
+            // entity->errorPanel->buttonCount = DLGTYPE_OK;
             char *set;
             switch (dcError) {
                 case 1: set = (char *)"The other player has disconnected. Returning to title screen."; break;
                 case 2: set = (char *)"Connection timed out. Returning to title screen."; break;
                 default: set = (char *)"You shouldn't get this message! If you do, message me."; break;
             }
-            // SetStringToFont8(entity->errorPanel->text, set, 2);
+            // SetStringToFont8(entity->errorPanel->text, set, FONT_TEXT);
             entity->state = 3;
             // FallThrough
         case 3:

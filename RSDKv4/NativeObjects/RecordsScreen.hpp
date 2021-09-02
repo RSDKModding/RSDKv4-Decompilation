@@ -41,7 +41,7 @@ struct NativeEntity_RecordsScreen : NativeEntityBase {
     byte prevActPressed;
     byte nextActPressed;
     byte field_187;
-    int field_188;
+    int buttonAlpha;
     float field_18C;
     byte field_190;
     byte field_191;

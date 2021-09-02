@@ -330,6 +330,12 @@ void RefreshEngine()
     ReleaseStageSfx();
     ReleaseGlobalSfx();
     LoadGlobalSfx();
+    InitLocalizedStrings();
+
+    Engine.gameType = GAME_SONIC2;
+    if (strstr(Engine.gameWindowText, "Sonic 1")) {
+        Engine.gameType = GAME_SONIC1;
+    }
 
     forceUseScripts   = false;
     skipStartMenu     = skipStartMenu_Config;

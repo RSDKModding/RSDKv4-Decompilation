@@ -3,7 +3,7 @@
 void CreditText_Create(void *objPtr)
 {
     RSDK_THIS(CreditText);
-    entity->textAlpha = 255;
+    entity->alpha     = 255;
     entity->state     = 3;
     entity->textureID = LoadTexture("Data/Game/Menu/DevLogos.png", TEXFMT_RGBA8888);
 }
@@ -17,13 +17,12 @@ void CreditText_Main(void *objPtr)
     }
 
     switch (entity->state) {
-        case 3:
-            entity->state = 0;
-            entity->width = GetTextWidth(entity->text, entity->fontID, entity->scaleX) * 0.5;
+        case 3: entity->state = 0; entity->width = GetTextWidth(entity->text, entity->fontID, entity->scaleX) * 0.5;
         default:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             SetRenderVertexColor((entity->colour >> 16) & 0xFF, (entity->colour >> 8) & 0xFF, entity->colour & 0xFF);
-            RenderTextClipped(entity->text, entity->fontID, entity->textX - entity->width, entity->textY, entity->textZ, entity->scaleX, entity->textAlpha);
+            RenderTextClipped(entity->text, entity->fontID, entity->textX - entity->width, entity->textY, entity->textZ, entity->scaleX,
+                              entity->alpha);
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
             break;
         case 4:

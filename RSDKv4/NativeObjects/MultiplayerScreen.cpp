@@ -8,14 +8,14 @@ void MultiplayerScreen_Create(void *objPtr)
 
     entity->label                  = CREATE_ENTITY(TextLabel);
     entity->label->useRenderMatrix = true;
-    entity->label->fontID          = 0;
-    entity->label->textScale       = 0.2;
-    entity->label->textAlpha       = 256;
-    entity->label->textX           = -144.0;
-    entity->label->textY           = 100.0;
-    entity->label->textZ           = 16.0;
+    entity->label->fontID          = FONT_HEADING;
+    entity->label->scale           = 0.2;
+    entity->label->alpha           = 256;
+    entity->label->x               = -144.0;
+    entity->label->y               = 100.0;
+    entity->label->z               = 16.0;
     entity->label->state           = 0;
-    SetStringToFont8(entity->label->text, "MULTIPLAYER", 0);
+    SetStringToFont8(entity->label->text, "MULTIPLAYER", FONT_HEADING);
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -2);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
@@ -29,7 +29,7 @@ void MultiplayerScreen_Create(void *objPtr)
     entity->buttons[0]->scale            = 0.25;
     entity->buttons[0]->bgColour         = 0x00A048;
     entity->buttons[0]->bgColourSelected = 0x00C060;
-    SetStringToFont8(entity->buttons[0]->text, "HOST", 1);
+    SetStringToFont8(entity->buttons[0]->text, "HOST", FONT_LABEL);
 
     entity->buttons[1]                   = CREATE_ENTITY(PushButton);
     entity->buttons[1]->useRenderMatrix  = true;
@@ -39,7 +39,7 @@ void MultiplayerScreen_Create(void *objPtr)
     entity->buttons[1]->scale            = 0.25;
     entity->buttons[1]->bgColour         = 0x00A048;
     entity->buttons[1]->bgColourSelected = 0x00C060;
-    SetStringToFont8(entity->buttons[1]->text, "JOIN", 1);
+    SetStringToFont8(entity->buttons[1]->text, "JOIN", FONT_LABEL);
 
     entity->buttons[2]                   = CREATE_ENTITY(PushButton);
     entity->buttons[2]->useRenderMatrix  = true;
@@ -50,7 +50,7 @@ void MultiplayerScreen_Create(void *objPtr)
     entity->buttons[2]->bgColour         = 0x00A048;
     entity->buttons[2]->bgColourSelected = 0x00C060;
     entity->buttons[2]->alpha            = 0;
-    SetStringToFont8(entity->buttons[2]->text, "COPY", 1);
+    SetStringToFont8(entity->buttons[2]->text, "COPY", FONT_LABEL);
 
     entity->buttons[3]                   = CREATE_ENTITY(PushButton);
     entity->buttons[3]->useRenderMatrix  = true;
@@ -61,7 +61,7 @@ void MultiplayerScreen_Create(void *objPtr)
     entity->buttons[3]->bgColour         = 0x00A048;
     entity->buttons[3]->bgColourSelected = 0x00C060;
     entity->buttons[3]->alpha            = 0;
-    SetStringToFont8(entity->buttons[3]->text, "JOIN ROOM", 1);
+    SetStringToFont8(entity->buttons[3]->text, "JOIN ROOM", FONT_LABEL);
 
     entity->buttons[4]                   = CREATE_ENTITY(PushButton);
     entity->buttons[4]->useRenderMatrix  = true;
@@ -72,31 +72,31 @@ void MultiplayerScreen_Create(void *objPtr)
     entity->buttons[4]->bgColour         = 0x00A048;
     entity->buttons[4]->bgColourSelected = 0x00C060;
     entity->buttons[4]->alpha            = 0;
-    SetStringToFont8(entity->buttons[4]->text, "PASTE", 1);
+    SetStringToFont8(entity->buttons[4]->text, "PASTE", FONT_LABEL);
 
     for (int i = 0; i < 3; ++i) {
         entity->codeLabel[i]                  = CREATE_ENTITY(TextLabel);
         entity->codeLabel[i]->useRenderMatrix = true;
-        entity->codeLabel[i]->fontID          = 1;
-        entity->codeLabel[i]->textScale       = 0.15;
-        entity->codeLabel[i]->textAlpha       = 0;
-        entity->codeLabel[i]->textX           = 0;
-        entity->codeLabel[i]->textY           = 0;
-        entity->codeLabel[i]->textZ           = 16.0;
+        entity->codeLabel[i]->fontID          = FONT_LABEL;
+        entity->codeLabel[i]->scale           = 0.15;
+        entity->codeLabel[i]->alpha           = 0;
+        entity->codeLabel[i]->x               = 0;
+        entity->codeLabel[i]->y               = 0;
+        entity->codeLabel[i]->z               = 16.0;
         entity->codeLabel[i]->state           = 0;
     }
 
     SetStringToFont8(entity->codeLabel[0]->text, "ROOM CODE", entity->codeLabel[0]->fontID);
-    entity->codeLabel[0]->alignPtr(entity->codeLabel[0], 1);
+    entity->codeLabel[0]->alignPtr(entity->codeLabel[0], FONT_LABEL);
 
     SetStringToFont8(entity->codeLabel[1]->text, "UNKNOWN", entity->codeLabel[1]->fontID);
-    entity->codeLabel[1]->alignPtr(entity->codeLabel[1], 1);
-    entity->codeLabel[1]->textY -= 20.0f;
+    entity->codeLabel[1]->alignPtr(entity->codeLabel[1], FONT_LABEL);
+    entity->codeLabel[1]->y -= 20.0f;
 
-    entity->codeLabel[2]->textY     = 48.0f;
-    entity->codeLabel[2]->textScale = 0.20f;
+    entity->codeLabel[2]->y     = 48.0f;
+    entity->codeLabel[2]->scale = 0.20f;
     SetStringToFont8(entity->codeLabel[2]->text, "WAITING FOR 2P...", entity->codeLabel[2]->fontID);
-    entity->codeLabel[2]->alignPtr(entity->codeLabel[2], 1);
+    entity->codeLabel[2]->alignPtr(entity->codeLabel[2], FONT_LABEL);
 
     char codeBuf[0x8];
     sprintf(codeBuf, "%X", 0);
@@ -104,12 +104,12 @@ void MultiplayerScreen_Create(void *objPtr)
     for (int i = 0; i < 8; ++i) {
         entity->enterCodeLabel[i]                  = CREATE_ENTITY(TextLabel);
         entity->enterCodeLabel[i]->useRenderMatrix = true;
-        entity->enterCodeLabel[i]->fontID          = 1;
-        entity->enterCodeLabel[i]->textScale       = 0.25;
-        entity->enterCodeLabel[i]->textAlpha       = 0;
-        entity->enterCodeLabel[i]->textX           = -102.0f + (i * 27.2) + 8.0f;
-        entity->enterCodeLabel[i]->textY           = 0;
-        entity->enterCodeLabel[i]->textZ           = 16.0;
+        entity->enterCodeLabel[i]->fontID          = FONT_LABEL;
+        entity->enterCodeLabel[i]->scale           = 0.25;
+        entity->enterCodeLabel[i]->alpha           = 0;
+        entity->enterCodeLabel[i]->x               = -102.0f + (i * 27.2) + 8.0f;
+        entity->enterCodeLabel[i]->y               = 0;
+        entity->enterCodeLabel[i]->z               = 16.0;
         entity->enterCodeLabel[i]->state           = 0;
 
         entity->enterCodeLabel[i]->r = 0xFF;
@@ -117,17 +117,17 @@ void MultiplayerScreen_Create(void *objPtr)
         entity->enterCodeLabel[i]->b = 0x00;
 
         SetStringToFont8(entity->enterCodeLabel[i]->text, codeBuf, entity->enterCodeLabel[i]->fontID);
-        entity->enterCodeLabel[i]->alignPtr(entity->enterCodeLabel[i], 1);
+        entity->enterCodeLabel[i]->alignPtr(entity->enterCodeLabel[i], FONT_LABEL);
     }
     for (int i = 0; i < 2; ++i) {
         entity->enterCodeSlider[i]                  = CREATE_ENTITY(TextLabel);
         entity->enterCodeSlider[i]->useRenderMatrix = true;
-        entity->enterCodeSlider[i]->fontID          = 1;
-        entity->enterCodeSlider[i]->textScale       = 0.175;
-        entity->enterCodeSlider[i]->textAlpha       = 0;
+        entity->enterCodeSlider[i]->fontID          = FONT_LABEL;
+        entity->enterCodeSlider[i]->scale           = 0.175;
+        entity->enterCodeSlider[i]->alpha           = 0;
         // entity->enterCodeSlider[i]->textX           = -102.0f + (i * 27.2) + 8.0f;
-        entity->enterCodeSlider[i]->textY = (i ? -23.0 : -40.0);
-        entity->enterCodeSlider[i]->textZ = 16.0;
+        entity->enterCodeSlider[i]->y     = (i ? -23.0 : -40.0);
+        entity->enterCodeSlider[i]->z     = 16.0;
         entity->enterCodeSlider[i]->state = 0;
         SetStringToFont8(entity->enterCodeSlider[i]->text, "V", entity->enterCodeSlider[i]->fontID);
         entity->enterCodeSlider[i]->alignPtr(entity->enterCodeSlider[i], 1);
@@ -147,8 +147,8 @@ void MultiplayerScreen_DrawJoinCode(void *objPtr, int v)
         int n         = 7 - i;
         int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
-        entity->enterCodeLabel[i + 0]->textAlpha = 0x100;
-        entity->enterCodeLabel[i + 1]->textAlpha = 0x100;
+        entity->enterCodeLabel[i + 0]->alpha = 0x100;
+        entity->enterCodeLabel[i + 1]->alpha = 0x100;
 
         entity->enterCodeLabel[i + 0]->useColours = false;
         entity->enterCodeLabel[i + 1]->useColours = false;
@@ -208,13 +208,13 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->selectedButton < 0)
                             entity->selectedButton = 1;
                     }
                     else if (keyPress.down) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->selectedButton >= 2)
                             entity->selectedButton = 0;
@@ -225,12 +225,12 @@ void MultiplayerScreen_Main(void *objPtr)
                     entity->buttons[entity->selectedButton]->state = 1;
 
                     if (keyPress.start || keyPress.A) {
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[entity->selectedButton]->state = 2;
                         entity->state                                  = 2;
                     }
                     else if (keyPress.B) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
                         entity->state       = 3;
                     }
@@ -258,7 +258,7 @@ void MultiplayerScreen_Main(void *objPtr)
                 else {
                     for (int i = 0; i < 2; ++i) {
                         if (entity->buttons[i]->state == 1) {
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->buttons[i]->state = 2;
                             entity->selectedButton    = i;
                             entity->state             = 2;
@@ -267,7 +267,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
 
                     if (keyPress.B || entity->backPressed) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->backPressed           = false;
                         entity->state                 = 3;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen); // fade back to menu
@@ -438,7 +438,7 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.A || keyPress.start) {
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         char buffer[0x30];
                         int code = getRoomCode();
                         sprintf(buffer, "%08X", code);
@@ -449,7 +449,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         SetStringToFont8(entity->dialog->text,
                                          "Are you sure you want to exit?\rThis will close the room, and you will return to the title screen.", 2);
                         entity->state = 8;
-                        PlaySfx(40, 0);
+                        PlaySfxByName("Resume", false);
                     }
                 }
             }
@@ -465,7 +465,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         entity->buttons[2]->state = 0;
                         if (keyPress.A || keyPress.start)
                             usePhysicalControls = true;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         char buffer[0x30];
                         int code = getRoomCode();
                         sprintf(buffer, "%08X", code);
@@ -476,7 +476,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         SetStringToFont8(entity->dialog->text,
                                          "Are you sure you want to exit?\rThis will close the room, and you will return to the title screen.", 2);
                         entity->state = 8;
-                        PlaySfx(40, 0);
+                        PlaySfxByName("Resume", false);
                     }
                 }
             }
@@ -493,13 +493,13 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.left) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->selectedButton < 3)
                             entity->selectedButton = 12;
                     }
                     else if (keyPress.right) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->selectedButton > 12)
                             entity->selectedButton = 3;
@@ -516,11 +516,11 @@ void MultiplayerScreen_Main(void *objPtr)
 
                         byte val = nybbles[n & 1];
                         if (keyPress.up) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
                         }
                         else if (keyPress.down) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
@@ -531,27 +531,27 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
 
                     for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->useColours = false;
-                    entity->buttons[3]->state             = 0;
-                    entity->buttons[4]->state             = 0;
-                    entity->enterCodeSlider[0]->textAlpha = 0;
-                    entity->enterCodeSlider[1]->textAlpha = 0;
+                    entity->buttons[3]->state         = 0;
+                    entity->buttons[4]->state         = 0;
+                    entity->enterCodeSlider[0]->alpha = 0;
+                    entity->enterCodeSlider[1]->alpha = 0;
 
                     if (entity->selectedButton == 3)
                         entity->buttons[3]->state = 1;
                     else if (entity->selectedButton == 4)
                         entity->buttons[4]->state = 1;
                     else if (entity->selectedButton > 4) {
-                        entity->enterCodeSlider[0]->textX     = entity->enterCodeLabel[7 - (entity->selectedButton - 5)]->textX - 2.5;
-                        entity->enterCodeSlider[1]->textX     = -(entity->enterCodeLabel[7 - (entity->selectedButton - 5)]->textX - 2.5);
-                        entity->enterCodeSlider[0]->textAlpha = 0x100;
-                        entity->enterCodeSlider[1]->textAlpha = 0x100;
+                        entity->enterCodeSlider[0]->x     = entity->enterCodeLabel[7 - (entity->selectedButton - 5)]->x - 2.5;
+                        entity->enterCodeSlider[1]->x     = -(entity->enterCodeLabel[7 - (entity->selectedButton - 5)]->x - 2.5);
+                        entity->enterCodeSlider[0]->alpha = 0x100;
+                        entity->enterCodeSlider[1]->alpha = 0x100;
 
                         entity->enterCodeLabel[entity->selectedButton - 5]->useColours = true;
                     }
 
                     if (keyPress.start || keyPress.A) {
                         if (entity->selectedButton == 3) {
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->buttons[3]->state = 2;
                             entity->selectedButton    = 3;
                             entity->state             = 2;
@@ -568,20 +568,23 @@ void MultiplayerScreen_Main(void *objPtr)
                                     MultiplayerScreen_DrawJoinCode(entity, 0);
                                     entity->enterCodeLabel[0]->useColours = false;
                                     entity->selectedButton                = 3;
-                                    PlaySfx(9, 0);
+                                    if (Engine.gameType == GAME_SONIC1)
+                                        PlaySfxByName("Lamp Post", false);
+                                    else
+                                        PlaySfxByName("Star Post", false);
                                 }
                                 else {
                                     entity->roomCode = before;
-                                    PlaySfx(5, 0);
+                                    PlaySfxByName("Hurt", false);
                                 }
                             }
                             else
-                                PlaySfx(5, 0);
+                                PlaySfxByName("Hurt", false);
                             SDL_free(txt);
                         }
                     }
                     else if (keyPress.B) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->state         = 4;
                         entity->nextState     = 1;
                         entity->nextStateDraw = 0;
@@ -590,11 +593,11 @@ void MultiplayerScreen_Main(void *objPtr)
             }
             else {
                 if (touches > 0) {
-                    float w = entity->enterCodeLabel[1]->textX - entity->enterCodeLabel[0]->textX;
+                    float w = entity->enterCodeLabel[1]->x - entity->enterCodeLabel[0]->x;
                     for (int i = 0; i < 8; ++i) {
-                        if (CheckTouchRect(entity->enterCodeLabel[i]->textX, 16.0f, w / 2, 16.0) >= 0)
+                        if (CheckTouchRect(entity->enterCodeLabel[i]->x, 16.0f, w / 2, 16.0) >= 0)
                             entity->touchedUpID = i;
-                        if (CheckTouchRect(entity->enterCodeLabel[i]->textX, -16.0f, w / 2, 16.0) >= 0)
+                        if (CheckTouchRect(entity->enterCodeLabel[i]->x, -16.0f, w / 2, 16.0) >= 0)
                             entity->touchedDownID = i;
                     }
 
@@ -604,11 +607,11 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (entity->touchedUpID >= 0)
                         id = entity->touchedUpID;
                     if (id >= 0) {
-                        entity->selectedButton                = id + 5;
-                        entity->enterCodeSlider[0]->textX     = entity->enterCodeLabel[7 - (id)]->textX - 2.5;
-                        entity->enterCodeSlider[1]->textX     = -(entity->enterCodeLabel[7 - (id)]->textX - 2.5);
-                        entity->enterCodeSlider[0]->textAlpha = 0x100;
-                        entity->enterCodeSlider[1]->textAlpha = 0x100;
+                        entity->selectedButton            = id + 5;
+                        entity->enterCodeSlider[0]->x     = entity->enterCodeLabel[7 - (id)]->x - 2.5;
+                        entity->enterCodeSlider[1]->x     = -(entity->enterCodeLabel[7 - (id)]->x - 2.5);
+                        entity->enterCodeSlider[0]->alpha = 0x100;
+                        entity->enterCodeSlider[1]->alpha = 0x100;
 
                         entity->enterCodeLabel[id]->useColours = true;
                     }
@@ -639,11 +642,11 @@ void MultiplayerScreen_Main(void *objPtr)
 
                         byte val = nybbles[n & 1];
                         if (entity->touchedUpID >= 0) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
                         }
                         else if (entity->touchedDownID >= 0) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
@@ -654,8 +657,8 @@ void MultiplayerScreen_Main(void *objPtr)
                             int n         = 7 - i;
                             int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
-                            entity->enterCodeLabel[i + 0]->textAlpha = 0x100;
-                            entity->enterCodeLabel[i + 1]->textAlpha = 0x100;
+                            entity->enterCodeLabel[i + 0]->alpha = 0x100;
+                            entity->enterCodeLabel[i + 1]->alpha = 0x100;
 
                             entity->enterCodeLabel[i + 0]->useColours = false;
                             entity->enterCodeLabel[i + 1]->useColours = false;
@@ -676,7 +679,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
 
                     if (entity->buttons[3]->state == 1) {
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[3]->state = 2;
                         entity->selectedButton    = 3;
                         entity->state             = 2;
@@ -693,20 +696,23 @@ void MultiplayerScreen_Main(void *objPtr)
                                 MultiplayerScreen_DrawJoinCode(entity, 0);
                                 entity->enterCodeLabel[0]->useColours = false;
                                 entity->selectedButton                = 3;
-                                PlaySfx(9, 0);
+                                if (Engine.gameType == GAME_SONIC1)
+                                    PlaySfxByName("Lamp Post", false);
+                                else
+                                    PlaySfxByName("Star Post", false);
                             }
                             else {
                                 entity->roomCode = before;
-                                PlaySfx(5, 0);
+                                PlaySfxByName("Hurt", false);
                             }
                         }
                         else
-                            PlaySfx(5, 0);
+                            PlaySfxByName("Hurt", false);
                         SDL_free(txt);
                     }
 
                     if (keyPress.B || entity->backPressed) {
-                        PlaySfx(23, 0);
+                        PlaySfxByName("Menu Back", false);
                         entity->backPressed   = false;
                         entity->state         = 4;
                         entity->nextState     = 1;
@@ -724,15 +730,14 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
                 }
             }
-
             break;
         }
         case 8: {
-            if (entity->dialog->selection == 2 || entity->dialog->selection == 3) {
+            if (entity->dialog->selection == DLG_NO || entity->dialog->selection == DLG_OK) {
                 entity->state = 5;
             }
-            else if (entity->dialog->selection == 1) {
-                PlaySfx(23, 0);
+            else if (entity->dialog->selection == DLG_YES) {
+                PlaySfxByName("Menu Back", false);
                 entity->backPressed = false;
                 entity->state       = 3;
                 entity->timer       = 0;
@@ -750,17 +755,17 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->buttons[0]->alpha = 0x100;
             entity->buttons[1]->alpha = 0x100;
 
-            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->textAlpha = 0;
-            for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->textAlpha = 0;
-            for (int i = 0; i < 2; ++i) entity->enterCodeSlider[i]->textAlpha = 0;
+            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->alpha = 0;
+            for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->alpha = 0;
+            for (int i = 0; i < 2; ++i) entity->enterCodeSlider[i]->alpha = 0;
 
             entity->selectedButton = 0;
             break;
         case 1: { // host screen
             for (int i = 0; i < 5; ++i) entity->buttons[i]->alpha = 0;
-            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->textAlpha = 0x100;
-            for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->textAlpha = 0;
-            for (int i = 0; i < 2; ++i) entity->enterCodeSlider[i]->textAlpha = 0;
+            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->alpha = 0x100;
+            for (int i = 0; i < 8; ++i) entity->enterCodeLabel[i]->alpha = 0;
+            for (int i = 0; i < 2; ++i) entity->enterCodeSlider[i]->alpha = 0;
 
             entity->selectedButton    = 2;
             entity->buttons[2]->alpha = 0x100;
@@ -788,11 +793,11 @@ void MultiplayerScreen_Main(void *objPtr)
             for (int i = 0; i < 5; ++i) entity->buttons[i]->alpha = 0;
             entity->selectedButton = 5; // 0
 
-            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->textAlpha = 0;
+            for (int i = 0; i < 3; ++i) entity->codeLabel[i]->alpha = 0;
 
             entity->roomCode = 0;
             for (int i = 0; i < 8; ++i) {
-                entity->enterCodeLabel[i]->textAlpha  = 0x100;
+                entity->enterCodeLabel[i]->alpha      = 0x100;
                 entity->enterCodeLabel[i]->useColours = false;
 
                 char codeBuf[0x10];
@@ -810,7 +815,7 @@ void MultiplayerScreen_Main(void *objPtr)
     entity->stateDraw = -1;
 
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
-    RenderMesh(entity->meshPanel, 0, false);
+    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     NewRenderState();
     SetRenderMatrix(NULL);
