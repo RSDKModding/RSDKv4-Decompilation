@@ -254,10 +254,10 @@ extern bool engineDebugMode;
 #include "Text.hpp"
 #include "Networking.hpp"
 #include "Renderer.hpp"
-#include "Userdata.hpp" 
+#include "Userdata.hpp"
 #include "Debug.hpp"
 #if RETRO_USE_MOD_LOADER
-#include "ModAPI.hpp" 
+#include "ModAPI.hpp"
 #endif
 
 // Native Entities
@@ -295,7 +295,7 @@ public:
     bool nativeMenuFadeIn = false;
 
     bool trialMode        = false;
-    bool onlineActive     = true;
+    bool onlineActive     = false;
     bool hapticsEnabled   = true;
     bool useHighResAssets = false;
 

@@ -9,6 +9,7 @@ extern int networkPort;
 
 extern float lastPing;
 extern int dcError;
+extern bool waitingForPing;
 
 struct MultiplayerData {
     int type;

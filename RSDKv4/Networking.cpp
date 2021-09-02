@@ -18,9 +18,13 @@ int networkPort      = 50;
 int dcError          = 0;
 float lastPing       = 0;
 
+bool waitingForPing = false;
+
+uint64_t lastTime = 0;
+
 using asio::ip::tcp;
 
-typedef std::deque<CodedData> data_queue;
+typedef std::deque<CodedData> DataQueue;
 
 class NetworkSession
 {
@@ -66,7 +70,8 @@ private:
     {
         asio::async_connect(socket_, endpoints, [this](std::error_code ec, tcp::endpoint) {
             if (!ec) {
-                running = true;
+                Engine.onlineActive = true;
+                running             = true;
                 do_read();
             }
             else
@@ -79,8 +84,9 @@ private:
         asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
-            lastPing = ((SDL_GetPerformanceCounter() - lastPing) / SDL_GetPerformanceFrequency());
-            printLog("%.1f", lastPing);
+            lastPing       = ((SDL_GetPerformanceCounter() - lastTime) * 1000.0 / SDL_GetPerformanceFrequency());
+            lastTime       = SDL_GetPerformanceCounter();
+            waitingForPing = false;
             if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
                 switch (read_msg_.header) {
                     case 0x02: vsPlayerID = 1;
@@ -139,7 +145,7 @@ private:
         asio::error_code ec;
         socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(CodedData)), ec);
         if (!ec && !write_msgs_.empty()) {
-            lastPing = SDL_GetPerformanceCounter();
+            lastTime = SDL_GetPerformanceCounter();
             write_msgs_.pop_front();
             writing = false;
             do_write();
@@ -153,7 +159,7 @@ private:
     asio::io_context &io_context_;
     tcp::socket socket_;
     CodedData read_msg_;
-    data_queue write_msgs_;
+    DataQueue write_msgs_;
 
     bool writing = false;
 
@@ -172,7 +178,6 @@ void initNetwork()
         session.reset();
         auto newsession = std::make_shared<NetworkSession>(io_context, endpoints);
         session.swap(newsession);
-        Engine.onlineActive = true;
     } catch (std::exception &e) {
         Engine.onlineActive = false;
         printLog("Failed to initialize networking: %s", e.what());
@@ -192,7 +197,7 @@ void networkLoop()
 
         session->close();
         io_context.stop();
-        t.join();
+        t.detach(); // let it handle itself i guess
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }

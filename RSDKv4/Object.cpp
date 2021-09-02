@@ -433,7 +433,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
         objectRemoveFlag[entity->slotID] = true;
     }
     else {
-        memset(objectRemoveFlag, 0, sizeof(objectRemoveFlag));
+        memset(objectRemoveFlag, 0, nativeEntityCount);
         int slotStore                    = 0;
         objectRemoveFlag[entity->slotID] = true;
         int s                            = 0;

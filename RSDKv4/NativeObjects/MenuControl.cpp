@@ -237,8 +237,8 @@ void MenuControl_Main(void *objPtr)
                         else {
                             if (entity->buttons[entity->buttonID]->g == 0xC0) {
                                 entity->buttons[entity->buttonID]->labelPtr->state = 2;
-                                entity->float14                                        = 0.0;
-                                entity->state                                          = 1;
+                                entity->float14                                    = 0.0;
+                                entity->state                                      = 1;
                                 PlaySfx(22, 0);
                             }
                             entity->buttons[entity->buttonID]->g = 0xFF;
@@ -287,8 +287,8 @@ void MenuControl_Main(void *objPtr)
                         else if ((keyPress.start || keyPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
                             entity->buttons[entity->buttonID]->labelPtr->state = 2;
-                            entity->float14                                        = 0.0;
-                            entity->state                                          = 1;
+                            entity->float14                                    = 0.0;
+                            entity->state                                      = 1;
                             PlaySfx(22, 0);
                         }
 
@@ -336,11 +336,11 @@ void MenuControl_Main(void *objPtr)
                 NativeEntity_AchievementsButton *button = entity->buttons[entity->buttonID];
                 switch (entity->buttonFlags[entity->buttonID]) {
                     case BUTTON_STARTGAME:
-                        entity->state                                          = 3;
-                        entity->field_70                                       = 0.0;
-                        button->g                                              = 0xFF;
+                        entity->state                                      = 3;
+                        entity->field_70                                   = 0.0;
+                        button->g                                          = 0xFF;
                         entity->buttons[entity->buttonID]->labelPtr->state = -1;
-                        entity->backButton->visible                            = true;
+                        entity->backButton->visible                        = true;
                         SetGlobalVariableByName("options.vsMode", false);
                         CREATE_ENTITY(SaveSelect);
                         break;
@@ -348,12 +348,12 @@ void MenuControl_Main(void *objPtr)
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->state = -1;
+                        button->labelPtr->state     = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(TimeAttack);
                         break;
                     case BUTTON_MULTIPLAYER:
-                        entity->state               = 0;
+                        entity->state           = 0;
                         button->labelPtr->state = 0;
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
@@ -367,6 +367,10 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("timeAttack.result", 0);
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
+                        if (!Engine.onlineActive) {
+                            disconnectNetwork();
+                            initNetwork(); // let's see if we can turn it on
+                        }
                         if (Engine.onlineActive) {
 #if !RETRO_USE_ORIGINAL_CODE
                             BackupNativeObjects();
@@ -416,7 +420,7 @@ void MenuControl_Main(void *objPtr)
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->state = -1;
+                        button->labelPtr->state     = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(OptionsMenu);
                         break;
@@ -425,13 +429,13 @@ void MenuControl_Main(void *objPtr)
                         entity->state               = 3;
                         entity->field_70            = 0.0;
                         button->g                   = 0xFF;
-                        button->labelPtr->state = -1;
+                        button->labelPtr->state     = -1;
                         entity->backButton->visible = true;
                         CREATE_ENTITY(ModsMenu);
                         break;
 #endif
                     default:
-                        entity->state               = 0;
+                        entity->state           = 0;
                         button->labelPtr->state = 0;
                         break;
                 }
@@ -521,7 +525,7 @@ void MenuControl_Main(void *objPtr)
                 }
 
                 NativeEntity_AchievementsButton *curButton = entity->buttons[entity->buttonID];
-                curButton->labelPtr->state             = 0;
+                curButton->labelPtr->state                 = 0;
                 curButton->translateX += ((0.0 - curButton->translateX) / div);
                 curButton->translateY += ((16.0 - curButton->translateY) / div);
                 curButton->translateZ += ((160.0 - curButton->translateZ) / div);
