@@ -1,10 +1,13 @@
 #ifndef NATIVE_ABOUTSCREEN_H
 #define NATIVE_ABOUTSCREEN_H
 
+enum AboutMenuButtons { ABOUT_BTN_PRIVACY, ABOUT_BTN_TERMS, ABOUT_BTN_COUNT };
+enum AboutMenuStates { ABOUT_STATE_ENTER, ABOUT_STATE_MAIN, ABOUT_STATE_ACTION, ABOUT_STATE_EXIT };
+
 struct NativeEntity_AboutScreen : NativeEntityBase {
     int state;
     int field_14;
-    float field_18;
+    float timer;
     float rotationY;
     float scale;
     NativeEntity_OptionsMenu *optionsMenu;
@@ -16,12 +19,12 @@ struct NativeEntity_AboutScreen : NativeEntityBase {
     MatrixF matrix2;
     MatrixF matrix3;
     byte textureArrows;
-    byte touchValid;
+    byte backPressed;
     int arrowAlpha;
     ushort gameTitle[16];
     ushort versionNameText[16];
     ushort versionText[16];
-    NativeEntity_PushButton *buttons[2];
+    NativeEntity_PushButton *buttons[ABOUT_BTN_COUNT];
     int selectedButton;
 };
 

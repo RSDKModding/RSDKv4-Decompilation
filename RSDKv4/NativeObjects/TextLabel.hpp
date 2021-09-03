@@ -2,19 +2,24 @@
 #define NATIVE_TEXTLABEL_H
 
 struct NativeEntity_TextLabel : NativeEntityBase {
-    float textX;
-    float textY;
-    float textZ;
+    float x;
+    float y;
+    float z;
     float textWidth;
     float timer;
-    float textScale;
-    int textAlpha;
+    float scale;
+    int alpha;
     int fontID;
     ushort text[64];
-    int alignment;
-    byte useMatrix;
+    int state;
+    byte useRenderMatrix;
     MatrixF renderMatrix;
     void (*alignPtr)(NativeEntity_TextLabel *, int);
+
+    byte useColours;
+    byte r;
+    byte g;
+    byte b;
 };
 
 void TextLabel_Create(void *objPtr);

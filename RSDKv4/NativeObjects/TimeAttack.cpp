@@ -3,7 +3,7 @@
 byte timeAttackTex;
 
 int timeAttack_ZoneCount = 12;
-int timeAttack_ActCount    = 2;
+int timeAttack_ActCount  = 2;
 
 void TimeAttack_Create(void *objPtr)
 {
@@ -16,8 +16,8 @@ void TimeAttack_Create(void *objPtr)
     if (Engine.gameType == GAME_SONIC1) {
         timeAttack_ZoneCount = 8;
         timeAttack_ActCount  = 3;
-        //GHZ-SBZ + FZ & 6 SS
-        actCount              = (timeAttack_ZoneCount * timeAttack_ActCount) + 7;
+        // GHZ-SBZ + FZ & 6 SS
+        actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 7;
     }
     else {
         timeAttack_ZoneCount = 12;
@@ -27,22 +27,22 @@ void TimeAttack_Create(void *objPtr)
 
     bool saveRAMUpdated = false;
     for (int i = 0; i < actCount * 3; i += 3) {
-        //1st
+        // 1st
         if (!saveGame->records[i]) {
             saveGame->records[i] = 60000;
             saveRAMUpdated       = true;
         }
 
-        //2nd
+        // 2nd
         if (!saveGame->records[i + 1]) {
             saveGame->records[i + 1] = 60000;
-            saveRAMUpdated       = true;
+            saveRAMUpdated           = true;
         }
 
-        //3rd
+        // 3rd
         if (!saveGame->records[i + 2]) {
             saveGame->records[i + 2] = 60000;
-            saveRAMUpdated       = true;
+            saveRAMUpdated           = true;
         }
     }
     if (saveRAMUpdated)
@@ -53,8 +53,8 @@ void TimeAttack_Create(void *objPtr)
     for (int i = 0; i < timeAttack_ZoneCount; ++i) {
         NativeEntity_ZoneButton *zoneButton = CREATE_ENTITY(ZoneButton);
         entity->zoneButtons[i]              = zoneButton;
-        zoneButton->textX                    = x;
-        SetStringToFont(zoneButton->zoneText, strStageList[i], 2);
+        zoneButton->x                       = x;
+        SetStringToFont(zoneButton->zoneText, strStageList[i], FONT_TEXT);
 
         entity->totalTime = 0;
         if (Engine.gameType == GAME_SONIC1) {
@@ -63,11 +63,11 @@ void TimeAttack_Create(void *objPtr)
                     for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
                     pos += timeAttack_ActCount;
                     break;
-                case 6:// final zone
+                case 6: // final zone
                     entity->totalTime += saveGame->records[3 * pos];
                     pos++;
                     break;
-                case 7:// special stage
+                case 7: // special stage
                     for (int a = 0; a < 6; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
                     pos += 6;
                     break;
@@ -83,9 +83,9 @@ void TimeAttack_Create(void *objPtr)
                 pos++;
             }
         }
-        SetStringToFont8(entity->zoneButtons[i]->timeText, "", 2);
-        AddTimeStringToFont(entity->zoneButtons[i]->timeText, entity->totalTime, 2);
-        entity->zoneButtons[i]->textWidth = GetTextWidth(entity->zoneButtons[i]->zoneText, 2, 0.25) * 0.5;
+        SetStringToFont8(entity->zoneButtons[i]->timeText, "", FONT_TEXT);
+        AddTimeStringToFont(entity->zoneButtons[i]->timeText, entity->totalTime, FONT_TEXT);
+        entity->zoneButtons[i]->textWidth = GetTextWidth(entity->zoneButtons[i]->zoneText, FONT_TEXT, 0.25) * 0.5;
 
         if (!((i + 1) % 3))
             x += 432.0;
@@ -174,7 +174,7 @@ void TimeAttack_Create(void *objPtr)
                     ty += 240.0f;
                 }
 
-                //skip icon section
+                // skip icon section
                 if (i == 6) {
                     tx += 320.0f;
                     if (tx >= 960.0f) {
@@ -186,43 +186,43 @@ void TimeAttack_Create(void *objPtr)
         }
     }
 
-    entity->translateY = -400.0;
-    entity->float134   = -72.0;
+    entity->y        = -400.0;
+    entity->float134 = -72.0;
     matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
     matrixTranslateXYZF(&entity->matrix2, 0.0, -36.0, 240.0);
     matrixMultiplyF(&entity->matrix1, &entity->matrix2);
     matrixInvertF(&entity->matrix3, &entity->matrix1);
     matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
-    matrixTranslateXYZF(&entity->matrix2, 0.0, entity->translateY, 80.0);
+    matrixTranslateXYZF(&entity->matrix2, 0.0, entity->y, 80.0);
     matrixMultiplyF(&entity->matrix1, &entity->matrix2);
 
     entity->labelPtr         = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID = 0;
-    entity->labelPtr->textScale       = 0.2;
-    entity->labelPtr->textAlpha       = 0;
-    entity->labelPtr->textZ           = 0;
-    entity->labelPtr->alignment       = 0;
-    SetStringToFont(entity->labelPtr->text, strTimeAttack, 0);
+    entity->labelPtr->fontID = FONT_HEADING;
+    entity->labelPtr->scale  = 0.2;
+    entity->labelPtr->alpha  = 0;
+    entity->labelPtr->z      = 0;
+    entity->labelPtr->state  = 0;
+    SetStringToFont(entity->labelPtr->text, strTimeAttack, FONT_HEADING);
     entity->labelPtr->textWidth = 512.0;
     entity->float24             = DegreesToRad(22.5);
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->float24);
     matrixTranslateXYZF(&entity->matrix2, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix2);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
 
-    entity->button                    = CREATE_ENTITY(SubMenuButton);
-    entity->button->matXOff         = 512.0;
-    entity->button->textY           = -4.0;
-    entity->button->matZ            = 0.0;
-    entity->button->textScale       = 0.1;
+    entity->button          = CREATE_ENTITY(SubMenuButton);
+    entity->button->matXOff = 512.0;
+    entity->button->textY   = -4.0;
+    entity->button->matZ    = 0.0;
+    entity->button->scale   = 0.1;
 
-    entity->float3C                   = DegreesToRad(16.0);
+    entity->float3C = DegreesToRad(16.0);
     matrixRotateYF(&entity->button->matrix, entity->float3C);
     matrixTranslateXYZF(&entity->matrix2, -128.0, 48.0, 160.0);
     matrixMultiplyF(&entity->button->matrix, &entity->matrix2);
     entity->button->useMatrix = true;
-    SetStringToFont(entity->button->text, strTotalTime, 1);
-    AddTimeStringToFont(entity->button->text, entity->totalTime, 1);
+    SetStringToFont(entity->button->text, strTotalTime, FONT_LABEL);
+    AddTimeStringToFont(entity->button->text, entity->totalTime, FONT_LABEL);
 
     entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
     entity->pagePrevAlpha = 0;
@@ -243,11 +243,11 @@ void TimeAttack_Main(void *objPtr)
         case 1: {
             entity->labelPtr->textWidth /= (1.125 * (60.0 * Engine.deltaTime));
             entity->timer += (Engine.deltaTime + Engine.deltaTime);
-            entity->labelPtr->textAlpha = (entity->timer * 256.0);
+            entity->labelPtr->alpha = (entity->timer * 256.0);
             entity->button->matXOff += ((-176.0 - entity->button->matXOff) / ((60.0 * Engine.deltaTime) * 16.0));
-            entity->translateY += ((-36.0 - entity->translateY) / ((60.0 * Engine.deltaTime) * 8.0));
+            entity->y += ((-36.0 - entity->y) / ((60.0 * Engine.deltaTime) * 8.0));
             matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
-            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->translateY, 80.0);
+            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->y, 80.0);
             matrixMultiplyF(&entity->matrix1, &entity->matrix2);
 
             if (entity->timer > 1.0) {
@@ -287,7 +287,7 @@ void TimeAttack_Main(void *objPtr)
                 if (touches <= 0) {
                     for (int i = 0; i < timeAttack_ZoneCount; ++i) {
                         if (entity->zoneButtons[i]->state == 1) {
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->zoneButtons[i]->state = 2;
                             entity->zoneID                = i;
                             entity->state                 = 6;
@@ -296,7 +296,7 @@ void TimeAttack_Main(void *objPtr)
 
                     if (entity->pagePrevPressed && canPrev) {
                         entity->pagePrevPressed = false;
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state = 5;
                         entity->pageID--;
                         entity->float134 = -72.0f - (720.0f * entity->pageID);
@@ -304,18 +304,18 @@ void TimeAttack_Main(void *objPtr)
                     }
                     if (entity->pageNextPressed && canNext) {
                         entity->pageNextPressed = false;
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->state = 5;
                         entity->pageID++;
                         entity->float134 = -72.0f - (720.0f * entity->pageID);
                         entity->zoneID   = (3 * entity->pageID);
-                        entity->byte148 = 0;
+                        entity->byte148  = 0;
                     }
                 }
                 else {
                     for (int i = 0; i < timeAttack_ZoneCount; ++i) entity->zoneButtons[i]->state = 0;
 
-                    if (CheckTouchRectMatrix(&entity->matrix3, 0.0, entity->zoneButtons[0]->textY + 16.0, 512.0, 40.0) >= 0) {
+                    if (CheckTouchRectMatrix(&entity->matrix3, 0.0, entity->zoneButtons[0]->y + 16.0, 512.0, 40.0) >= 0) {
                         int offset = entity->pageID * 3;
 
                         if (entity->zoneButtons[offset]->flag && CheckTouchRect(-78.0, 0.0, 48.0, 120.0) >= 0)
@@ -345,7 +345,7 @@ void TimeAttack_Main(void *objPtr)
                 if (touches > 0 && entity->state == 2) {
                     if (entity->byte148) {
                         if ((entity->float144 - touchXF[0]) < -16.0f) {
-                            PlaySfx(21, 0);
+                            PlaySfxByName("Menu Move", false);
                             entity->state = 5;
                             entity->pageID--;
                             entity->float134 = -72.0f - (720.0f * (entity->pageID));
@@ -380,7 +380,7 @@ void TimeAttack_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.left && entity->zoneID > 0) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->zoneID--;
                         if (entity->zoneID < (entity->pageID * 3) && entity->zoneID > 0) {
                             entity->pageID--;
@@ -391,7 +391,7 @@ void TimeAttack_Main(void *objPtr)
                         }
                     }
                     else if (keyPress.right && entity->zoneID < timeAttack_ZoneCount - 1) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         ++entity->zoneID;
                         if (entity->zoneID >= ((entity->pageID + 1) * 3)) {
                             entity->pageID++;
@@ -406,7 +406,7 @@ void TimeAttack_Main(void *objPtr)
                     if (entity->state == 2) {
                         entity->zoneButtons[entity->zoneID]->state = 1;
                         if (entity->zoneButtons[entity->zoneID]->flag && (keyPress.start || keyPress.A)) {
-                            PlaySfx(22, 0);
+                            PlaySfxByName("Menu Select", false);
                             entity->zoneButtons[entity->zoneID]->state = 2;
                             entity->state                              = 6;
                         }
@@ -422,19 +422,19 @@ void TimeAttack_Main(void *objPtr)
         case 5: {
             entity->pagePrevPressed = false;
             entity->pageNextPressed = false;
-            entity->zoneButtons[0]->textX += ((entity->float134 - entity->zoneButtons[0]->textX) / ((60.0 * Engine.deltaTime) * 6.0));
+            entity->zoneButtons[0]->x += ((entity->float134 - entity->zoneButtons[0]->x) / ((60.0 * Engine.deltaTime) * 6.0));
             entity->timer += (Engine.deltaTime * 1.5);
             if (entity->timer > 1.0) {
-                entity->timer                 = 0.0;
-                entity->state                 = 2;
-                entity->zoneButtons[0]->textX = entity->float134;
+                entity->timer             = 0.0;
+                entity->state             = 2;
+                entity->zoneButtons[0]->x = entity->float134;
                 if (usePhysicalControls)
                     entity->zoneID = entity->dword12C;
             }
 
-            float x = entity->zoneButtons[0]->textX + 144.0;
+            float x = entity->zoneButtons[0]->x + 144.0;
             for (int i = 1; i < timeAttack_ZoneCount; ++i) {
-                entity->zoneButtons[i]->textX = x;
+                entity->zoneButtons[i]->x = x;
                 if (!((i + 1) % 3))
                     x += 432.0;
                 else
@@ -459,10 +459,10 @@ void TimeAttack_Main(void *objPtr)
             if (entity->pagePrevAlpha > 0)
                 entity->pageNextAlpha -= 32;
 
-            entity->translateY += ((-512.0 - entity->translateY) / ((Engine.deltaTime * 60.0) * 16.0));
+            entity->y += ((-512.0 - entity->y) / ((Engine.deltaTime * 60.0) * 16.0));
 
             matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
-            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->translateY, 80.0);
+            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->y, 80.0);
             matrixMultiplyF(&entity->matrix1, &entity->matrix2);
 
             if (entity->float24 > entity->float28) {
@@ -492,7 +492,7 @@ void TimeAttack_Main(void *objPtr)
                 entity->float28 = DegreesToRad(22.5);
                 entity->float40 = DegreesToRad(16.0);
 
-                entity->recordsScreen = CREATE_ENTITY(RecordsScreen);
+                entity->recordsScreen             = CREATE_ENTITY(RecordsScreen);
                 entity->recordsScreen->timeAttack = entity;
                 entity->recordsScreen->zoneID     = entity->zoneID;
             }
@@ -500,8 +500,8 @@ void TimeAttack_Main(void *objPtr)
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
             float div                               = (60.0 * Engine.deltaTime) * 16.0;
-            button->translateX += ((512.0 - button->translateX) / div);
-            backButton->translateX += ((1024.0 - button->translateX) / div);
+            button->x += ((512.0 - button->x) / div);
+            backButton->x += ((1024.0 - button->x) / div);
             break;
         }
         case 9: {
@@ -516,9 +516,9 @@ void TimeAttack_Main(void *objPtr)
                 matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix2);
             }
 
-            entity->translateY += ((-38.0 - entity->translateY) / ((60.0 * Engine.deltaTime) * 16.0));
+            entity->y += ((-38.0 - entity->y) / ((60.0 * Engine.deltaTime) * 16.0));
             matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
-            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->translateY, 80.0);
+            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->y, 80.0);
             matrixMultiplyF(&entity->matrix1, &entity->matrix2);
 
             if (entity->float40 > entity->float3C) {
@@ -538,12 +538,12 @@ void TimeAttack_Main(void *objPtr)
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
 
-            button->translateX += ((112.0 - button->translateX) / ((60.0 * Engine.deltaTime) * 16.0));
-            backButton->translateX += ((230.0 - backButton->translateX) / ((60.0 * Engine.deltaTime) * 16.0));
-            if (backButton->translateX < SCREEN_YSIZE) {
-                backButton->translateX = SCREEN_YSIZE;
+            button->x += ((112.0 - button->x) / ((60.0 * Engine.deltaTime) * 16.0));
+            backButton->x += ((230.0 - backButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
+            if (backButton->x < SCREEN_YSIZE) {
+                backButton->x = SCREEN_YSIZE;
 
-                entity->state = 2;
+                entity->state              = 2;
                 entity->menuControl->state = 4;
             }
             break;
@@ -557,10 +557,10 @@ void TimeAttack_Main(void *objPtr)
             entity->timer += (Engine.deltaTime + Engine.deltaTime);
             entity->labelPtr->textWidth = (10.0 * (60.0 * Engine.deltaTime)) + entity->labelPtr->textWidth;
             entity->button->matXOff += (12.0 * (60.0 * Engine.deltaTime));
-            entity->translateY += ((-512.0 - entity->translateY) / ((60.0 * Engine.deltaTime) * 16.0));
+            entity->y += ((-512.0 - entity->y) / ((60.0 * Engine.deltaTime) * 16.0));
 
             matrixRotateXYZF(&entity->matrix1, 0.0, DegreesToRad(12.25), DegreesToRad(6.125));
-            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->translateY, 80.0);
+            matrixTranslateXYZF(&entity->matrix2, 0.0, entity->y, 80.0);
             matrixMultiplyF(&entity->matrix1, &entity->matrix2);
             if (entity->timer > 1.0) {
                 entity->timer = 0.0;
@@ -574,7 +574,6 @@ void TimeAttack_Main(void *objPtr)
         default: break;
     }
 
-    
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     NewRenderState();
     SetRenderMatrix(&entity->matrix1);

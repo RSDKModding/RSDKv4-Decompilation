@@ -15,7 +15,7 @@ enum MenuButtonIDs {
 
 struct NativeEntity_MenuControl : NativeEntityBase {
     int state;
-    float float14;
+    float timer;
     float float18;
     float float1C;
     float float20;
@@ -37,7 +37,7 @@ struct NativeEntity_MenuControl : NativeEntityBase {
     NativeEntity_SegaIDButton *segaIDButton;
     int field_84;
     NativeEntity_DialogPanel *dialog;
-    int timer;
+    int dialogTimer;
 };
 
 void MenuControl_Create(void *objPtr);

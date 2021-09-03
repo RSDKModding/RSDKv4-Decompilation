@@ -10,8 +10,8 @@ struct NativeEntity_SubMenuButton : NativeEntityBase {
     float textY;
     float afterFlashTimer;
     float flashTimer;
-    float textScale;
-    int textAlpha;
+    float scale;
+    int alpha;
     byte r;
     byte g;
     byte b;

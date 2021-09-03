@@ -22,7 +22,7 @@ struct NativeEntity_TimeAttack : NativeEntityBase {
     NativeEntity_ZoneButton *zoneButtons[16];
     int zoneID;
     int dword12C;
-    float translateY;
+    float y;
     float float134;
     int textureArrows;
     int pagePrevPressed;

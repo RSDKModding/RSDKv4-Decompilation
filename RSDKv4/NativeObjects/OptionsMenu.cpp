@@ -5,51 +5,51 @@ void OptionsMenu_Create(void *objPtr)
     RSDK_THIS(OptionsMenu);
     entity->menuControl      = (NativeEntity_MenuControl *)GetNativeObject(0);
     entity->labelPtr         = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID = 0;
+    entity->labelPtr->fontID = FONT_HEADING;
     if (Engine.language == RETRO_RU)
-        entity->labelPtr->textScale = 0.125;
+        entity->labelPtr->scale = 0.125;
     else
-        entity->labelPtr->textScale = 0.2;
-    entity->labelPtr->textAlpha = 0;
-    entity->labelPtr->textZ     = 0;
-    entity->labelPtr->alignment = 0;
-    SetStringToFont(entity->labelPtr->text, strHelpAndOptions, 0);
+        entity->labelPtr->scale = 0.2;
+    entity->labelPtr->alpha = 0;
+    entity->labelPtr->z     = 0;
+    entity->labelPtr->state = 0;
+    SetStringToFont(entity->labelPtr->text, strHelpAndOptions, FONT_HEADING);
     entity->labelPtr->textWidth = 512.0;
-    entity->labelRotateY             = DegreesToRad(22.5);
+    entity->labelRotateY        = DegreesToRad(22.5);
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->labelRotateY);
     matrixTranslateXYZF(&entity->matrix1, -128.0, 80.0, 160.0);
     matrixMultiplyF(&entity->labelPtr->renderMatrix, &entity->matrix1);
-    entity->labelPtr->useMatrix = true;
+    entity->labelPtr->useRenderMatrix = true;
 
     float y = 48.0;
     for (int i = 0; i < 4; ++i) {
         entity->buttons[i] = CREATE_ENTITY(SubMenuButton);
 
-        entity->buttons[i]->matXOff   = 512.0;
-        entity->buttons[i]->textY     = -4.0;
-        entity->buttons[i]->matZ      = 0.0;
-        entity->buttons[i]->textScale = 0.1;
-        entity->buttonRotateY[i]      = DegreesToRad(16.0);
+        entity->buttons[i]->matXOff = 512.0;
+        entity->buttons[i]->textY   = -4.0;
+        entity->buttons[i]->matZ    = 0.0;
+        entity->buttons[i]->scale   = 0.1;
+        entity->buttonRotateY[i]    = DegreesToRad(16.0);
         matrixRotateYF(&entity->buttons[i]->matrix, entity->buttonRotateY[i]);
         matrixTranslateXYZF(&entity->matrix1, -128.0, y, 160.0);
         matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix1);
         entity->buttons[i]->useMatrix = true;
         y -= 30.0;
     }
-    SetStringToFont(entity->buttons[0]->text, strInstructions, 1);
-    SetStringToFont(entity->buttons[1]->text, strSettings, 1);
-    SetStringToFont(entity->buttons[2]->text, strAbout, 1);
-    SetStringToFont(entity->buttons[3]->text, strStaffCredits, 1);
+    SetStringToFont(entity->buttons[0]->text, strInstructions, FONT_LABEL);
+    SetStringToFont(entity->buttons[1]->text, strSettings, FONT_LABEL);
+    SetStringToFont(entity->buttons[2]->text, strAbout, FONT_LABEL);
+    SetStringToFont(entity->buttons[3]->text, strStaffCredits, FONT_LABEL);
 }
 void OptionsMenu_Main(void *objPtr)
 {
     RSDK_THIS(OptionsMenu);
     switch (entity->state) {
         case 0: {
-            entity->field_14 += Engine.deltaTime;
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
-                entity->state    = 1;
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 1.0) {
+                entity->timer = 0.0;
+                entity->state = 1;
             }
             break;
         }
@@ -62,13 +62,13 @@ void OptionsMenu_Main(void *objPtr)
             entity->buttons[2]->matXOff = ((-176.0 - entity->buttons[2]->matXOff) / div) + entity->buttons[2]->matXOff;
             entity->buttons[3]->matXOff = ((-176.0 - entity->buttons[3]->matXOff) / div) + entity->buttons[3]->matXOff;
 
-            entity->field_14 += (Engine.deltaTime + Engine.deltaTime);
-            entity->labelPtr->textAlpha = (256.0 * entity->field_14);
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
-                entity->state    = 2;
-                keyPress.start   = false;
-                keyPress.A       = false;
+            entity->timer += (Engine.deltaTime + Engine.deltaTime);
+            entity->labelPtr->alpha = (256.0 * entity->timer);
+            if (entity->timer > 1.0) {
+                entity->timer  = 0.0;
+                entity->state  = 2;
+                keyPress.start = false;
+                keyPress.A     = false;
             }
             break;
         }
@@ -82,13 +82,13 @@ void OptionsMenu_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->selectedButton < 0)
                             entity->selectedButton = 3;
                     }
                     else if (keyPress.down) {
-                        PlaySfx(21, 0);
+                        PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->selectedButton >= 4)
                             entity->selectedButton = 0;
@@ -100,7 +100,7 @@ void OptionsMenu_Main(void *objPtr)
                     entity->buttons[entity->selectedButton]->b = 0x00;
 
                     if (entity->buttons[entity->selectedButton]->g > 0x80 && (keyPress.start || keyPress.A)) {
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[entity->selectedButton]->state = 2;
                         entity->buttons[entity->selectedButton]->b     = -1;
                         entity->state                                  = 4;
@@ -118,7 +118,7 @@ void OptionsMenu_Main(void *objPtr)
                     }
                     else if (!entity->buttons[i]->b) {
                         entity->selectedButton = i;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[i]->state = 2;
                         entity->buttons[i]->b     = 0xFF;
                         entity->state             = 4;
@@ -136,14 +136,14 @@ void OptionsMenu_Main(void *objPtr)
         }
         case 3: {
             entity->labelPtr->textWidth = (10.0 * (60.0 * Engine.deltaTime)) + entity->labelPtr->textWidth;
-            entity->field_14 += (Engine.deltaTime + Engine.deltaTime);
+            entity->timer += (Engine.deltaTime + Engine.deltaTime);
 
             entity->buttons[0]->matXOff = (12.0 * (60.0 * Engine.deltaTime)) + entity->buttons[0]->matXOff;
             entity->buttons[1]->matXOff = (13.0 * (60.0 * Engine.deltaTime)) + entity->buttons[1]->matXOff;
             entity->buttons[2]->matXOff = (14.0 * (60.0 * Engine.deltaTime)) + entity->buttons[2]->matXOff;
             entity->buttons[3]->matXOff = (15.0 * (60.0 * Engine.deltaTime)) + entity->buttons[3]->matXOff;
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
+            if (entity->timer > 1.0) {
+                entity->timer = 0.0;
                 RemoveNativeObject(entity->labelPtr);
                 for (int i = 0; i < 4; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
@@ -202,7 +202,7 @@ void OptionsMenu_Main(void *objPtr)
                 switch (entity->selectedButton) {
                     default: break;
                     case 0:
-                        entity->instructionsScreen = CREATE_ENTITY(InstructionsScreen);
+                        entity->instructionsScreen              = CREATE_ENTITY(InstructionsScreen);
                         entity->instructionsScreen->optionsMenu = entity;
                         break;
                     case 1:
@@ -210,7 +210,7 @@ void OptionsMenu_Main(void *objPtr)
                         entity->settingsScreen->optionsMenu = entity;
                         break;
                     case 2:
-                        entity->aboutScreen = CREATE_ENTITY(AboutScreen);
+                        entity->aboutScreen              = CREATE_ENTITY(AboutScreen);
                         entity->aboutScreen->optionsMenu = entity;
                         break;
                     case 3:
@@ -223,8 +223,8 @@ void OptionsMenu_Main(void *objPtr)
             float div                               = (60.0 * Engine.deltaTime) * 16.0;
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
-            button->translateX += ((512.0 - button->translateX) / div);
-            backButton->translateX += ((1024.0 - backButton->translateX) / div);
+            button->x += ((512.0 - button->x) / div);
+            backButton->x += ((1024.0 - backButton->x) / div);
             break;
         }
         case 6: // sub menu idle
@@ -260,11 +260,11 @@ void OptionsMenu_Main(void *objPtr)
             float div                               = (60.0 * Engine.deltaTime) * 16.0;
             NativeEntity_AchievementsButton *button = entity->menuControl->buttons[entity->menuControl->buttonID];
             NativeEntity_BackButton *backButton     = entity->menuControl->backButton;
-            button->translateX += ((112.0 - button->translateX) / div);
-            backButton->translateX += ((230.0 - backButton->translateX) / div);
+            button->x += ((112.0 - button->x) / div);
+            backButton->x += ((230.0 - backButton->x) / div);
 
-            if (backButton->translateX < SCREEN_YSIZE) {
-                backButton->translateX     = SCREEN_YSIZE;
+            if (backButton->x < SCREEN_YSIZE) {
+                backButton->x              = SCREEN_YSIZE;
                 entity->state              = 2;
                 entity->menuControl->state = 4;
             }

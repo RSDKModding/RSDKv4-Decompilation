@@ -14,10 +14,10 @@ struct NativeEntity_PushButton : NativeEntityBase {
     float scale;
     float textScale;
     int alpha;
-    int white;
-    int cyan;
-    int blue;
-    int blue2;
+    int textColour;
+    int textColourSelected;
+    int bgColour;
+    int bgColourSelected;
     byte symbolsTex;
     ushort text[64];
     byte useRenderMatrix;

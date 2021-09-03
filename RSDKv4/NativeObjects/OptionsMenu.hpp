@@ -3,7 +3,7 @@
 
 struct NativeEntity_OptionsMenu : NativeEntityBase {
     int state;
-    float field_14;
+    float timer;
     int field_18;
     NativeEntity_MenuControl *menuControl;
     NativeEntity_InstructionsScreen *instructionsScreen;

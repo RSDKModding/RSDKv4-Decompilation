@@ -50,5 +50,9 @@ extern ushort helpText[0x1000];
 #include "CreditText.hpp"
 #include "StaffCredits.hpp"
 #include "OptionsMenu.hpp"
+#if RETRO_USE_NETWORKING
+#include "MultiplayerHandler.hpp"
+#include "MultiplayerScreen.hpp"
+#endif
 
 #endif // !NATIVE_OBJECTS_H

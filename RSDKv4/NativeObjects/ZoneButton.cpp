@@ -3,7 +3,7 @@
 void ZoneButton_Create(void *objPtr)
 {
     RSDK_THIS(ZoneButton);
-    entity->textZ          = 160.0;
+    entity->z              = 160.0;
     entity->state          = 0;
     entity->textureIntro   = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     entity->textureSymbols = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
@@ -30,36 +30,39 @@ void ZoneButton_Main(void *objPtr)
     switch (entity->state) {
         case 0:
             SetRenderVertexColor((entity->colourWhite >> 16) & 0xFF, (entity->colourWhite >> 8) & 0xFF, entity->colourWhite & 0xFF);
-            RenderRect(entity->textX - 64.0, entity->textY + 64.0, entity->textZ, 128.0, 96.0, (entity->colourWhite >> 16) & 0xFF,
+            RenderRect(entity->x - 64.0, entity->y + 64.0, entity->z, 128.0, 96.0, (entity->colourWhite >> 16) & 0xFF,
                        (entity->colourWhite >> 8) & 0xFF, entity->colourWhite & 0xFF, 255);
+
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-            RenderImage(entity->textX, entity->textY + 16.0, entity->textZ, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
+            RenderImage(entity->x, entity->y + 16.0, entity->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
                         (entity->texX - 64.0) + (cosf(entity->angle) * 24.0), (entity->texY - 48.0) + (sinf(entity->angle) * 24.0), 255,
                         entity->textureIntro);
 
             SetRenderVertexColor((entity->colourWhite2 >> 16) & 0xFF, (entity->colourWhite2 >> 8) & 0xFF, entity->colourWhite2 & 0xFF);
-            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, FONT_TEXT, entity->x - entity->textWidth, entity->y - 48.0, entity->z, 0.25, 255);
+
             if (entity->flag)
-                RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+                RenderText(entity->timeText, FONT_TEXT, entity->x - 56.0, entity->y - 24.0, entity->z, 0.25, 255);
             else
-                RenderImage(entity->textX - 32.0, entity->textY - 6.0, entity->textZ, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255,
-                            entity->textureSymbols);
+                RenderImage(entity->x - 32.0, entity->y - 6.0, entity->z, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255, entity->textureSymbols);
             break;
         case 1:
             SetRenderVertexColor((entity->colourWhite >> 16) & 0xFF, (entity->colourWhite >> 8) & 0xFF, entity->colourWhite & 0xFF);
-            RenderRect(entity->textX - 64.0, entity->textY + 64.0, entity->textZ, 128.0, 96.0, (entity->colourYellow >> 16) & 0xFF,
+            RenderRect(entity->x - 64.0, entity->y + 64.0, entity->z, 128.0, 96.0, (entity->colourYellow >> 16) & 0xFF,
                        (entity->colourYellow >> 8) & 0xFF, entity->colourYellow & 0xFF, 255);
+
             SetRenderVertexColor(255, 255, 255);
-            RenderImage(entity->textX, entity->textY + 16.0, entity->textZ, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
+            RenderImage(entity->x, entity->y + 16.0, entity->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
                         (entity->texX - 64.0) + (cosf(entity->angle) * 24.0), (entity->texY - 48.0) + (sinf(entity->angle) * 24.0), 255,
                         entity->textureIntro);
+
             SetRenderVertexColor((entity->colourYellow2 >> 16) & 0xFF, (entity->colourYellow2 >> 8) & 0xFF, entity->colourYellow2 & 0xFF);
-            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, FONT_TEXT, entity->x - entity->textWidth, entity->y - 48.0, entity->z, 0.25, 255);
+
             if (entity->flag)
-                RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+                RenderText(entity->timeText, FONT_TEXT, entity->x - 56.0, entity->y - 24.0, entity->z, 0.25, 255);
             else
-                RenderImage(entity->textX - 32.0, entity->textY - 6.0, entity->textZ, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255,
-                            entity->textureSymbols);
+                RenderImage(entity->x - 32.0, entity->y - 6.0, entity->z, 0.5, 0.5, 24.0, 32.0, 48.0, 64.0, 205.0, 68.0, 255, entity->textureSymbols);
             break;
         case 2:
             entity->float3C += Engine.deltaTime;
@@ -71,10 +74,11 @@ void ZoneButton_Main(void *objPtr)
                 colour = entity->colourYellow;
 
             SetRenderVertexColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
-            RenderRect(entity->textX - 64.0, entity->textY + 64.0, entity->textZ, 128.0, 96.0, (entity->colourYellow >> 16) & 0xFF,
+            RenderRect(entity->x - 64.0, entity->y + 64.0, entity->z, 128.0, 96.0, (entity->colourYellow >> 16) & 0xFF,
                        (entity->colourYellow >> 8) & 0xFF, entity->colourYellow & 0xFF, 255);
+
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-            RenderImage(entity->textX, entity->textY + 16.0, entity->textZ, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
+            RenderImage(entity->x, entity->y + 16.0, entity->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
                         (entity->texX - 64.0) + (cosf(entity->angle) * 24.0), (entity->texY - 48.0) + (sinf(entity->angle) * 24.0), 255,
                         entity->textureIntro);
 
@@ -82,8 +86,8 @@ void ZoneButton_Main(void *objPtr)
             if (entity->float3C <= 0.05)
                 colour = entity->colourWhite2;
             SetRenderVertexColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
-            RenderText(entity->zoneText, 2, entity->textX - entity->textWidth, entity->textY - 48.0, entity->textZ, 0.25, 255);
-            RenderText(entity->timeText, 2, entity->textX - 56.0, entity->textY - 24.0, entity->textZ, 0.25, 255);
+            RenderText(entity->zoneText, FONT_TEXT, entity->x - entity->textWidth, entity->y - 48.0, entity->z, 0.25, 255);
+            RenderText(entity->timeText, FONT_TEXT, entity->x - 56.0, entity->y - 24.0, entity->z, 0.25, 255);
 
             entity->float38 += Engine.deltaTime;
             if (entity->float38 > 0.5) {

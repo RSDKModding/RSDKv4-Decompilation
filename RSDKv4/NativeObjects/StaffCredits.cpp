@@ -4,44 +4,44 @@ void StaffCredits_Create(void *objPtr)
 {
     RSDK_THIS(StaffCredits);
 
-    entity->labelPtr            = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->useMatrix = true;
-    entity->labelPtr->fontID    = 0;
-    entity->labelPtr->textScale = 0.2;
-    entity->labelPtr->textAlpha = 256;
-    entity->labelPtr->textX     = -144.0;
-    entity->labelPtr->textY     = 100.0;
-    entity->labelPtr->textZ     = 16.0;
-    entity->labelPtr->alignment = 0;
-    SetStringToFont(entity->labelPtr->text, strStaffCredits, 0);
+    entity->labelPtr                  = CREATE_ENTITY(TextLabel);
+    entity->labelPtr->useRenderMatrix = true;
+    entity->labelPtr->fontID          = FONT_HEADING;
+    entity->labelPtr->scale           = 0.2;
+    entity->labelPtr->alpha           = 256;
+    entity->labelPtr->x               = -144.0;
+    entity->labelPtr->y               = 100.0;
+    entity->labelPtr->z               = 16.0;
+    entity->labelPtr->state           = 0;
+    SetStringToFont(entity->labelPtr->text, strStaffCredits, FONT_HEADING);
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
-    entity->textureArrows    = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
+    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
     entity->creditsTextID = 0;
 
-    float offY =  -128.0;
+    float offY = -128.0;
     for (int i = 0; i < 0x10; ++i) {
         NativeEntity_CreditText *creditText = CREATE_ENTITY(CreditText);
         entity->creditText[i]               = creditText;
 
         switch (creditsType[entity->creditsTextID]) {
             case 0:
-                creditText->fontID = 1;
+                creditText->fontID = FONT_LABEL;
                 creditText->colour = 0xFFFFFF;
                 creditText->scaleX = 0.125;
                 break;
             case 1:
-                creditText->fontID = 2;
+                creditText->fontID = FONT_TEXT;
                 creditText->colour = 0xFF8000;
                 creditText->scaleX = 0.25;
                 break;
             case 2:
-                creditText->fontID = 2;
+                creditText->fontID = FONT_TEXT;
                 creditText->colour = 0xFFFFFF;
                 creditText->scaleX = 0.25;
                 break;
             case 3:
-                creditText->fontID = 2;
+                creditText->fontID = FONT_TEXT;
                 creditText->state  = 4;
                 break;
             default: break;
@@ -64,7 +64,7 @@ void StaffCredits_Main(void *objPtr)
     NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)entity->optionsMenu;
 
     switch (entity->state) {
-        case 0: //fade in
+        case 0: // fade in
             if (entity->alpha < 0x100)
                 entity->alpha += 8;
 
@@ -88,13 +88,13 @@ void StaffCredits_Main(void *objPtr)
                 entity->state    = 1;
             }
             break;
-        case 1: //da credits
+        case 1: // da credits
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->renderMatrix);
             if (touches <= 0) {
                 if (entity->useRenderMatrix) {
-                    PlaySfx(23, 0);
+                    PlaySfxByName("Menu Back", false);
                     entity->useRenderMatrix = 0;
                     entity->state           = 2;
                 }
@@ -103,12 +103,12 @@ void StaffCredits_Main(void *objPtr)
                 entity->useRenderMatrix = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
             }
             if (keyPress.B) {
-                PlaySfx(23, 0);
+                PlaySfxByName("Menu Back", false);
                 entity->useRenderMatrix = false;
                 entity->state           = 2;
             }
             break;
-        case 2: //fade out
+        case 2: // fade out
             if (entity->alpha > 0)
                 entity->alpha -= 8;
 
@@ -139,7 +139,6 @@ void StaffCredits_Main(void *objPtr)
             break;
     }
 
-    
     for (int i = 0; i < 0x10; ++i) {
         NativeEntity_CreditText *creditText = entity->creditText[i];
 
@@ -147,31 +146,31 @@ void StaffCredits_Main(void *objPtr)
         if (touches > 0 || keyDown.A || keyDown.C) {
             creditText->textY += 0.75;
         }
-        
+
         if (creditText->textY > SCREEN_CENTERY_F) {
             creditText->textY = entity->creditText[entity->latestTextID & 0xF]->textY - creditsAdvanceY[entity->creditsTextID];
 
             switch (creditsType[entity->creditsTextID]) {
                 case 0:
-                    creditText->fontID = 1;
+                    creditText->fontID = FONT_LABEL;
                     creditText->colour = 0xFFFFFF;
                     creditText->scaleX = 0.125;
                     creditText->state  = 3;
                     break;
                 case 1:
-                    creditText->fontID = 2;
+                    creditText->fontID = FONT_TEXT;
                     creditText->colour = 0xFF8000;
                     creditText->scaleX = 0.25;
                     creditText->state  = 3;
                     break;
                 case 2:
-                    creditText->fontID = 2;
+                    creditText->fontID = FONT_TEXT;
                     creditText->colour = 0xFFFFFF;
                     creditText->scaleX = 0.25;
                     creditText->state  = 3;
                     break;
                 case 3:
-                    creditText->fontID = 2;
+                    creditText->fontID = FONT_TEXT;
                     creditText->state  = 4;
                     break;
                 default: break;
@@ -183,7 +182,7 @@ void StaffCredits_Main(void *objPtr)
                 entity->creditsTextID = 0;
         }
     }
-    RenderMesh(entity->meshPanel, 0, false);
+    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
     NewRenderState();
     SetRenderMatrix(NULL);
 

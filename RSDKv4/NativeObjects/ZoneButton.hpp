@@ -2,9 +2,9 @@
 #define NATIVE_ZONEBUTTON_H
 
 struct NativeEntity_ZoneButton : NativeEntityBase {
-    float textX;
-    float textY;
-    float textZ;
+    float x;
+    float y;
+    float z;
     float texX;
     float texY;
     float angle;

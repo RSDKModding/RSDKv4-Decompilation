@@ -23,7 +23,7 @@ void VirtualDPad_Create(void *objPtr)
     entity->unknownSize         = dpadSize * 0.85000002;
     entity->useTouchControls    = GetGlobalVariableID("options.touchControls");
     entity->usePhysicalControls = GetGlobalVariableID("options.physicalControls");
-    entity->isVSMode            = GetGlobalVariableID("options.vsMode");
+    entity->vsMode              = GetGlobalVariableID("options.vsMode");
     entity->textureID           = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
 }
 void VirtualDPad_Main(void *objPtr)
@@ -31,7 +31,7 @@ void VirtualDPad_Main(void *objPtr)
     RSDK_THIS(VirtualDPad);
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
-    if (globalVariables[entity->useTouchControls] && (globalVariables[entity->usePhysicalControls] || entity->editMode == 1)) {
+    if (globalVariables[entity->useTouchControls] && (!globalVariables[entity->usePhysicalControls] || entity->editMode)) {
         if (entity->alpha < saveGame->vDPadOpacity) {
             entity->alpha += 4;
             if (entity->pauseAlpha <= 254) {
@@ -47,7 +47,7 @@ void VirtualDPad_Main(void *objPtr)
     }
 
     if (entity->alpha > 0) {
-        SetRenderBlendMode(1);
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, entity->alpha,
                     entity->textureID);
 
@@ -103,7 +103,7 @@ void VirtualDPad_Main(void *objPtr)
         RenderImage(entity->jumpX, entity->jumpY, 160.0, size, size, 84.0, 83.0, 168.0, 168.0, 16.0, 328.0, entity->alpha, entity->textureID);
 
         if (Engine.gameMode == ENGINE_MAINGAME) {
-            if (!globalVariables[entity->isVSMode]) {
+            if (!globalVariables[entity->vsMode]) {
                 if (activeStageList == STAGELIST_SPECIAL)
                     RenderImage(entity->pauseX_S, entity->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, entity->pauseAlpha,
                                 entity->textureID);

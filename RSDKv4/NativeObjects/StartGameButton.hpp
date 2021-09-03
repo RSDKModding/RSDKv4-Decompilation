@@ -6,9 +6,9 @@ struct NativeEntity_StartGameButton : NativeEntityBase {
     byte visible;
     int field_18;
     int field_1C;
-    float translateX;
-    float translateY;
-    float translateZ;
+    float x;
+    float y;
+    float z;
     MeshInfo *meshCart;
     float angle;
     float scale;

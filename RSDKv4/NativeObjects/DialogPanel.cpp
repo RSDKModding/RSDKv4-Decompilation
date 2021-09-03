@@ -3,53 +3,54 @@
 void DialogPanel_Create(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
-    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", 0xFF);
+    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
-    entity->buttonCount = 2;
+    entity->buttonCount = DLGTYPE_YESNO;
 }
 
 void DialogPanel_Main(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
     NewRenderState();
-    SetRenderBlendMode(1);
+    SetRenderBlendMode(RENDER_BLEND_ALPHA);
     switch (entity->state) {
         case 0: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
             entity->buttons[0]                     = confirmButton;
-            if (entity->buttonCount == 1) {
-                confirmButton->x               = 0.0;
-                confirmButton->y               = -40.0;
-                confirmButton->z               = 0.0;
-                confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0x00A048;
-                confirmButton->blue2           = 0x00C060;
-                confirmButton->useRenderMatrix = true;
-                SetStringToFont8(confirmButton->text, " OK ", 1);
+            if (entity->buttonCount == DLGTYPE_OK) {
+                confirmButton->x                = 0.0;
+                confirmButton->y                = -40.0;
+                confirmButton->z                = 0.0;
+                confirmButton->scale            = 0.25;
+                confirmButton->bgColour         = 0x00A048;
+                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->useRenderMatrix  = true;
+                SetStringToFont8(confirmButton->text, " OK ", FONT_LABEL);
             }
             else {
-                confirmButton->x               = -48.0;
-                confirmButton->y               = -40.0;
-                confirmButton->z               = 0.0;
-                confirmButton->scale           = 0.25;
-                confirmButton->blue            = 0x00A048;
-                confirmButton->blue2           = 0x00C060;
-                confirmButton->useRenderMatrix = true;
-                SetStringToFont(confirmButton->text, strYes, 1);
+                confirmButton->x                = -48.0;
+                confirmButton->y                = -40.0;
+                confirmButton->z                = 0.0;
+                confirmButton->scale            = 0.25;
+                confirmButton->bgColour         = 0x00A048;
+                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->useRenderMatrix  = true;
+                SetStringToFont(confirmButton->text, strYes, FONT_LABEL);
+
                 NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
                 entity->buttons[1]                = noButton;
-                noButton->useRenderMatrix         = 1;
+                noButton->useRenderMatrix         = true;
                 noButton->scale                   = 0.25;
                 noButton->x                       = 48.0;
                 noButton->y                       = -40.0;
                 noButton->z                       = 0.0;
-                SetStringToFont(noButton->text, strNo, 1);
+                SetStringToFont(noButton->text, strNo, FONT_LABEL);
             }
-            entity->textScale = 224.0 / (GetTextWidth(entity->text, 2, 1.0) + 1.0);
-            if (entity->textScale > 0.4)
-                entity->textScale = 0.4;
-            entity->textX = GetTextWidth(entity->text, 2, entity->textScale) * -0.5;
-            entity->textY = GetTextHeight(entity->text, 2, entity->textScale) * 0.5;
+            entity->scale = 224.0 / (GetTextWidth(entity->text, FONT_TEXT, 1.0) + 1.0);
+            if (entity->scale > 0.4)
+                entity->scale = 0.4;
+            entity->textX = GetTextWidth(entity->text, FONT_TEXT, entity->scale) * -0.5;
+            entity->textY = GetTextHeight(entity->text, FONT_TEXT, entity->scale) * 0.5;
             entity->state = 1;
         }
         // FallThrough
@@ -80,18 +81,18 @@ void DialogPanel_Main(void *objPtr)
                     if (entity->buttons[0]->state == 1) {
                         entity->buttonSelected = 0;
                         entity->state          = 3;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[0]->state = 2;
                     }
-                    if (entity->buttonCount == 2 && entity->buttons[1]->state == 1) {
+                    if (entity->buttonCount == DLGTYPE_YESNO && entity->buttons[1]->state == 1) {
                         entity->buttonSelected = 1;
                         entity->state          = 3;
-                        PlaySfx(22, 0);
+                        PlaySfxByName("Menu Select", false);
                         entity->buttons[1]->state = 2;
                     }
                 }
                 else {
-                    if (entity->buttonCount == 1) {
+                    if (entity->buttonCount == DLGTYPE_OK) {
                         entity->buttons[0]->state =
                             CheckTouchRect(0.0, -30.0, (entity->buttons[0]->textWidth + (entity->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
                     }
@@ -114,23 +115,22 @@ void DialogPanel_Main(void *objPtr)
             else if (touches >= 1) {
                 usePhysicalControls = false;
             }
-            else if (entity->buttonCount == 1) {
+            else if (entity->buttonCount == DLGTYPE_OK) {
                 entity->buttonSelected = 0;
                 if (keyPress.start || keyPress.A) {
                     entity->state = 3;
-                    PlaySfx(22, 0);
+                    PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
             }
             else {
                 if (keyPress.left) {
-                    PlaySfx(21, 0);
+                    PlaySfxByName("Menu Move", false);
                     if (entity->buttonSelected-- < 1)
                         entity->buttonSelected = 1;
                 }
                 if (keyPress.right) {
-                    PlaySfx(21, 0);
-                    PlaySfx(21, 0);
+                    PlaySfxByName("Menu Move", false);
                     if (entity->buttonSelected++ > 0)
                         entity->buttonSelected = 0;
                 }
@@ -140,13 +140,13 @@ void DialogPanel_Main(void *objPtr)
 
                 if (keyPress.start || keyPress.A) {
                     entity->state = 3;
-                    PlaySfx(22, 0);
+                    PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
             }
             if (entity->state == 2 && keyPress.B) {
-                PlaySfx(23, 0);
-                entity->selection = 2;
+                PlaySfxByName("Menu Back", false);
+                entity->selection = DLG_NO;
                 entity->state     = 4;
             }
             break;
@@ -156,8 +156,8 @@ void DialogPanel_Main(void *objPtr)
             if (!entity->buttons[entity->buttonSelected]->state) {
                 entity->selection = entity->buttonSelected + 1;
                 entity->state     = 4;
-                if (entity->buttonCount == 1)
-                    entity->selection = 3;
+                if (entity->buttonCount == DLGTYPE_OK)
+                    entity->selection = DLG_OK;
             }
             break;
         case 4:
@@ -182,6 +182,6 @@ void DialogPanel_Main(void *objPtr)
         case 5: SetRenderMatrix(&entity->buttonMatrix); break;
         default: break;
     }
-    RenderMesh(entity->panelMesh, 0, 0);
-    RenderText(entity->text, 2, entity->textX, entity->textY, 0.0, entity->textScale, 255);
+    RenderMesh(entity->panelMesh, MESH_COLOURS, false);
+    RenderText(entity->text, FONT_TEXT, entity->textX, entity->textY, 0.0, entity->scale, 255);
 }

@@ -9,10 +9,10 @@ void MenuBG_Create(void *objPtr)
     entity->bgLines   = LoadMesh("Data/Game/Models/BGLines.bin", 255);
     SetMeshAnimation(entity->bgLines, &entity->animator, 0, 40u, 0.0);
     entity->animator.loopAnimation = 1;
-    entity->fadeR          = -96;
-    entity->fadeG          = -64;
-    entity->fadeB          = -8;
-    entity->isFading       = 1;
+    entity->fadeR                  = -96;
+    entity->fadeG                  = -64;
+    entity->fadeB                  = -8;
+    entity->isFading               = 1;
     SetMeshVertexColors(entity->bgCircle1, 0xE0, 0xD0, 0xC0, 0xFF);
     SetMeshVertexColors(entity->bgCircle2, 0xE0, 0xD0, 0xC0, 0xFF);
     SetMeshVertexColors(entity->bgLines, 0xE0, 0, 0, 0xFF);
@@ -24,8 +24,6 @@ void MenuBG_Main(void *objPtr)
 {
     RSDK_THIS(MenuBG);
     if (entity->isFading) {
-        if (entity->isFading != 1)
-            return;
         SetRenderBlendMode(RENDER_BLEND_NONE);
         entity->fadeTimer += Engine.deltaTime;
         if (entity->fadeTimer > 1.5)
@@ -67,12 +65,14 @@ void MenuBG_Main(void *objPtr)
         matrixTranslateXYZF(&entity->matrix2, 120.0, 94.0, entity->Ztrans1);
         matrixMultiplyF(&entity->circle1, &entity->matrix2);
         SetRenderMatrix(&entity->circle1);
-        RenderMesh(entity->bgCircle1, 0, 0);
+        RenderMesh(entity->bgCircle1, MESH_COLOURS, false);
+
         matrixRotateZF(&entity->circle2, entity->circle2Rot);
         matrixTranslateXYZF(&entity->matrix2, 4.0, 150.0, entity->Ztrans2);
         matrixMultiplyF(&entity->circle2, &entity->matrix2);
         SetRenderMatrix(&entity->circle2);
-        RenderMesh(entity->bgCircle2, 0, 0);
+        RenderMesh(entity->bgCircle2, MESH_COLOURS, false);
+
         matrixTranslateXYZF(&entity->renderMatrix, 0.0, 0.0, entity->ZtransRender);
     }
     else {
@@ -94,17 +94,19 @@ void MenuBG_Main(void *objPtr)
         matrixTranslateXYZF(&entity->matrix2, 120.0, 94.0, 160.0);
         matrixMultiplyF(&entity->circle1, &entity->matrix2);
         SetRenderMatrix(&entity->circle1);
-        RenderMesh(entity->bgCircle1, 0, 0);
+        RenderMesh(entity->bgCircle1, MESH_COLOURS, false);
+
         matrixRotateZF(&entity->circle2, entity->circle2Rot);
         matrixTranslateXYZF(&entity->matrix2, 4.0, 150.0, 160.0);
         matrixMultiplyF(&entity->circle2, &entity->matrix2);
         SetRenderMatrix(&entity->circle2);
-        RenderMesh(entity->bgCircle2, 0, 0);
+        RenderMesh(entity->bgCircle2, MESH_COLOURS, false);
+
         matrixTranslateXYZF(&entity->renderMatrix, 0.0, 0.0, 160.0);
     }
     SetRenderMatrix(&entity->renderMatrix);
     entity->animator.animationSpeed = 8.0 * Engine.deltaTime;
     AnimateMesh(entity->bgLines, &entity->animator);
-    RenderMesh(entity->bgLines, 0, 0);
-    SetRenderMatrix(0);
+    RenderMesh(entity->bgLines, MESH_COLOURS, false);
+    SetRenderMatrix(NULL);
 }

@@ -77,9 +77,18 @@ void RetroGameLoop_Main(void *objPtr)
             TransferRetroBuffer();
             RestoreNativeObjects();
             break;
-#if !RETRO_USE_ORIGINAL_CODE
-        case ENGINE_CONNECT2PVS:
-            // connect screen goes here
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
+        case ENGINE_CONNECT2PVS: {
+            CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
+            NativeEntity_FadeScreen *fade        = CREATE_ENTITY(FadeScreen);
+            fade->state                          = 4;
+            fade->timeLimit                      = 1.5;
+            fade->fadeSpeed                      = 1.0;
+            Engine.gameMode                      = ENGINE_WAIT2PVS;
+            break;
+        }
+        case ENGINE_WAIT2PVS:
+            //wait for vs responce
             break;
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:

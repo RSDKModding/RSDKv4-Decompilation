@@ -2,9 +2,9 @@
 #define NATIVE_SEGAIDBUTTON_H
 
 struct NativeEntity_SegaIDButton : NativeEntityBase {
-    float translateX;
-    float translateY;
-    float translateZ;
+    float x;
+    float y;
+    float z;
     float texX;
     int state;
     int alpha;
