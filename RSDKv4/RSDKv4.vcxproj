@@ -171,7 +171,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;ogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
@@ -199,7 +199,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\SDL2.dl
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/libvorbis/win32/VS2010/$(Platform)/Release/;$(SolutionDir)dependencies/windows/libogg/win32/VS2015/$(Platform)/Release/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;ogg.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libogg.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)dependencies\windows\SDL2\lib\$(PlatformTargetAsMSBuildArchitecture)\SDL2.dll" "$(OutDir)"
