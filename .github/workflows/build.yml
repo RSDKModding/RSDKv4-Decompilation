@@ -51,7 +51,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x86-windows-static libvorbis:x86-windows-static
+          vcpkg install libogg:x86-windows-dynamic libvorbis:x86-windows-dynamic
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
@@ -109,7 +109,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x64-windows-static libvorbis:x64-windows-static
+          vcpkg install libogg:x64-windows-dynamic libvorbis:x64-windows-dynamic
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
