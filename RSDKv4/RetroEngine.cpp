@@ -846,7 +846,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     StrCopy(gameWindowText, "Retro-Engine"); // this is the default window name
 
     globalVariablesCount = 0;
-    globalSFXCount       = 0;
 #if RETRO_USE_MOD_LOADER
     playerCount = 0;
 #endif

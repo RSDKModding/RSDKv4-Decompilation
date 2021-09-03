@@ -100,6 +100,8 @@ void LoadGlobalSfx()
     byte fileBuffer = 0;
     int fileBuffer2 = 0;
 
+    globalSFXCount = 0;
+
     if (LoadFile("Data/Game/GameConfig.bin", &info)) {
         infoStore = info;
 

@@ -36,6 +36,7 @@ void initMods()
 
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
+
     fs::path modPath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {

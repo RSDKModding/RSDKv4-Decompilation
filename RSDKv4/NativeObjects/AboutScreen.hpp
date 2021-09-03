@@ -1,11 +1,7 @@
 #ifndef NATIVE_ABOUTSCREEN_H
 #define NATIVE_ABOUTSCREEN_H
 
-enum AboutMenuButtons {
-    ABOUT_BTN_PRIVACY,
-    ABOUT_BTN_TERMS,
-    ABOUT_BTN_COUNT };
-
+enum AboutMenuButtons { ABOUT_BTN_PRIVACY, ABOUT_BTN_TERMS, ABOUT_BTN_COUNT };
 enum AboutMenuStates { ABOUT_STATE_ENTER, ABOUT_STATE_MAIN, ABOUT_STATE_ACTION, ABOUT_STATE_EXIT };
 
 struct NativeEntity_AboutScreen : NativeEntityBase {
