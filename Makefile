@@ -1,6 +1,10 @@
 CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"' \
-               -IRSDKv4/NativeObjects/
+               -IRSDKv4/ \
+               -IRSDKv4/NativeObjects/ \
+               -Idependencies/all/asio/include/ \
+               -Idependencies/all/stb-image/ \
+               -Idependencies/all/tinyxml2/
 
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
@@ -62,7 +66,8 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/TitleScreen.cpp \
           RSDKv4/NativeObjects/VirtualDPad.cpp \
           RSDKv4/NativeObjects/VirtualDPadM.cpp \
-          RSDKv4/NativeObjects/ZoneButton.cpp 
+          RSDKv4/NativeObjects/ZoneButton.cpp \
+          dependencies/all/tinyxml2/tinyxml2.cpp \
    
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE

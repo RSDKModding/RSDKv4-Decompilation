@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <tinyxml2.h>
 
+#define PLAYER_MAX (0x10)
+
 struct ModInfo {
     std::string name;
     std::string desc;
@@ -30,6 +32,9 @@ extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern byte modScriptFlags[OBJECT_COUNT];
 extern byte modObjCount;
 
+extern char playerNames[PLAYER_MAX][0x20];
+extern byte playerCount;
+
 inline void SetActiveMod(int id) { activeMod = id; }
 
 void initMods();
@@ -39,6 +44,12 @@ void saveMods();
 int OpenModMenu();
 
 void RefreshEngine();
+void GetModCount();
+void GetModName(int *textMenu, int *highlight, uint *id, int *unused);
+void GetModDescription(int *textMenu, int *highlight, uint *id, int *unused);
+void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused);
+void GetModActive(uint *id, int *unused);
+void SetModActive(uint *id, int *active);
 
 int GetSceneID(byte listID, const char *sceneName);
 

@@ -440,7 +440,10 @@ void LoadConfigListText(TextMenu *menu, int listNo)
         CloseFile();
 
 #if RETRO_USE_MOD_LOADER
-        Engine.LoadXMLStages(menu, listNo);
+        if (listNo == 0)
+            Engine.LoadXMLPlayers(menu);
+        else
+            Engine.LoadXMLStages(menu, listNo);
 #endif
     }
 }

@@ -9,3 +9,5 @@ download libogg and unzip it in "./libogg/", then build the static library
 
 libvorbis: https://xiph.org/downloads/ (libvorbis)
 download libvorbis and unzip it in "./libvorbis/", then build the VS2010 static library (win32/VS2010/vorbis_static.sln)
+
+glew: http://glew.sourceforge.net/ download binaries, place the unzipped folder into "./" and rename it to "glew"

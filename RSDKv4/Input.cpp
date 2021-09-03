@@ -11,6 +11,8 @@ float touchXF[8];
 float touchYF[8];
 int touches = 0;
 
+int hapticEffectNum = -2;
+
 #if !RETRO_USE_ORIGINAL_CODE
 #include <algorithm>
 #include <vector>
@@ -33,17 +35,16 @@ struct InputDevice {
     SDL_GameController *devicePtr;
     SDL_Haptic *hapticPtr;
 #endif
+#if RETRO_USING_SDL1
+    SDL_Joystick *devicePtr;
+#endif
     int id;
 };
 
-#if RETRO_USING_SDL2
 std::vector<InputDevice> controllers;
-#endif
 
 #if RETRO_USING_SDL1
 byte keyState[SDLK_LAST];
-
-SDL_Joystick *controller = nullptr;
 #endif
 
 #define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
@@ -531,4 +532,11 @@ int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
         }
     }
     return -1;
+}
+
+void HapticEffect(int *hapticID, int *a2, int *a3, int *a4)
+{
+    if (Engine.hapticsEnabled) {
+        hapticEffectNum = *hapticID;
+    }
 }

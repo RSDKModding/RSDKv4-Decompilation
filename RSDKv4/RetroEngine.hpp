@@ -7,15 +7,9 @@
 // Setting this to true removes (almost) ALL changes from the original code, the trade off is that a playable game cannot be built, it is advised to
 // be set to true only for preservation purposes
 #define RETRO_USE_ORIGINAL_CODE (0)
-#define RETRO_USE_MOD_LOADER    (0)
-#define RETRO_USE_NETWORKING    (0)
 
-#if !RETRO_USE_ORIGINAL_CODE
-#undef RETRO_USE_MOD_LOADER
-#define RETRO_USE_MOD_LOADER (1)
-#undef RETRO_USE_NETWORKING
-#define RETRO_USE_NETWORKING (1)
-#endif //  !RETRO_USE_ORIGINAL_CODE
+#define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
+#define RETRO_USE_NETWORKING (!RETRO_USE_ORIGINAL_CODE && 1)
 
 // ================
 // STANDARD LIBS
@@ -329,14 +323,11 @@ public:
     bool LoadGameConfig(const char *filepath);
 #if RETRO_USE_MOD_LOADER
     void LoadXMLVariables();
-    void LoadXMLSoundFX();
     void LoadXMLObjects();
+    void LoadXMLSoundFX();
+    void LoadXMLPlayers(TextMenu *menu);
     void LoadXMLStages(TextMenu *menu, int listNo);
 #endif
-
-    int callbackMessage = 0;
-    int prevMessage     = 0;
-    int waitValue       = 0;
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];

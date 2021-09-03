@@ -8,7 +8,11 @@
 
 #define SAVEDATA_MAX (0x2000)
 
+#if RETRO_USE_MOD_LOADER
+#define NATIIVEFUNCTION_MAX (0x30)
+#else
 #define NATIIVEFUNCTION_MAX (0x10)
+#endif
 
 #define intToVoid(x) (void *)(size_t)(x)
 #define voidToInt(x) (int)(size_t)(x)
@@ -196,12 +200,16 @@ inline void AddAchievement(const char *name, const char *description)
     }
 }
 #endif
-int SetAchievement(int *achievementID, int *status);
+void SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
 #if RETRO_USE_MOD_LOADER
-int AddAchievement(int *id, const char *name);
-int ClearAchievements();
-int GetAchievement(int *id, void *a2);
+void AddGameAchievement(int *unused, const char *name);
+void SetAchievementDescription(int *id, const char *desc);
+void ClearAchievements();
+void GetAchievementCount();
+void GetAchievementName(uint *id, int *textMenu);
+void GetAchievementDescription(uint *id, int *textMenu);
+void GetAchievement(uint *id, void *unused);
 #endif
 inline void LoadAchievementsMenu()
 {
@@ -220,20 +228,27 @@ inline void LoadLeaderboardsMenu()
 }
 void ShowLeaderboardsScreen();
 
-int Connect2PVS(int *gameLength, int *itemMode);
-int Disconnect2PVS(int *a1, int *a2);
-int SendEntity(int *entityID, int *dataSlot);
-int SendValue(int *value, int *dataSlot);
-int ReceiveEntity(int *entityID, int *dataSlot);
-int ReceiveValue(int *value, int *dataSlot);
-int TransmitGlobal(int *globalValue, const char *globalName);
+void Connect2PVS(int *gameLength, int *itemMode);
+void Disconnect2PVS();
+void SendEntity(int *entityID, void *unused);
+void SendValue(int *value, void *unused);
+void ReceiveEntity(int *entityID, int *incrementPos);
+void ReceiveValue(int *value, int *incrementPos);
+void TransmitGlobal(int *globalValue, const char *globalName);
 
 void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
-int ShowPromoPopup(int *a1, const char *popupName);
+int ShowPromoPopup(int *id, const char *popupName);
 void ShowWebsite(int websiteID);
 
 int ExitGame();
+
+#if RETRO_USE_MOD_LOADER
+void SetScreenWidth(int *width, int *unused);
+void SetWindowScale(int *scale, int *unused);
+void SetWindowFullScreen(int *fullscreen, int *unused);
+void SetWindowBorderless(int *borderless, int *unused);
+#endif
 
 #endif //! USERDATA_H

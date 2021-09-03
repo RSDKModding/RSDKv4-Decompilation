@@ -114,10 +114,7 @@ extern byte vertexG;
 extern byte vertexB;
 
 extern TextureInfo textureList[TEXTURE_LIMIT];
-extern int textureCount;
-
 extern MeshInfo meshList[MESH_LIMIT];
-extern int meshCount;
 
 extern int renderStateCount;
 extern RenderState renderStateList[RENDERSTATE_LIMIT];

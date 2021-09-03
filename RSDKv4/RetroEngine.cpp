@@ -136,31 +136,8 @@ bool processEvents()
                         if (Engine.devMenu) {
 #if RETRO_USE_MOD_LOADER
                             // hacky patch because people can escape
-                            if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU) {
-                                // Reload entire engine
-                                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-                                if (Engine.window) {
-                                    char gameTitle[0x40];
-                                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
-                                    SDL_SetWindowTitle(Engine.window, gameTitle);
-                                }
-#endif
-
-                                ReleaseStageSfx();
-                                ReleaseGlobalSfx();
-                                LoadGlobalSfx();
-
-                                forceUseScripts = false;
-                                skipStartMenu   = skipStartMenu_Config;
-                                for (int m = 0; m < modList.size(); ++m) {
-                                    if (modList[m].useScripts && modList[m].active)
-                                        forceUseScripts = true;
-                                    if (modList[m].skipStartMenu && modList[m].active)
-                                        skipStartMenu = true;
-                                }
-                                saveMods();
-                            }
+                            if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)
+                                RefreshEngine();
 #endif
                             ClearNativeObjects();
                             CREATE_ENTITY(RetroGameLoop);
@@ -499,6 +476,14 @@ void RetroEngine::Run()
             frameStep = false;
         }
 #endif
+
+        int hapticID = GetHapticEffectNum();
+        if (hapticID >= 0) {
+            // playHaptics(hapticID);
+        }
+        else if (hapticID == HAPTIC_STOP) {
+            // stopHaptics();
+        } 
     }
 
     ReleaseAudioDevice();
@@ -598,60 +583,6 @@ void RetroEngine::LoadXMLVariables()
     }
     SetActiveMod(-1);
 }
-void RetroEngine::LoadXMLSoundFX()
-{
-    FileInfo info;
-    FileInfo infoStore;
-    for (int m = 0; m < (int)modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-
-        SetActiveMod(m);
-        if (LoadFile("Data/Game/Game.xml", &info)) {
-            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
-
-            char *xmlData = new char[info.fileSize + 1];
-            FileRead(xmlData, info.fileSize);
-            xmlData[info.fileSize] = 0;
-
-            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
-
-            if (success) {
-                const tinyxml2::XMLElement *soundsElement = firstXMLChildElement(doc, nullptr, "sounds");
-                if (soundsElement) {
-                    const tinyxml2::XMLElement *sfxElement = firstXMLChildElement(doc, soundsElement, "soundfx");
-                    if (sfxElement) {
-                        do {
-                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(sfxElement, "name");
-                            const char *sfxName                    = "unknownSFX";
-                            if (nameAttr)
-                                sfxName = getXMLAttributeValueString(nameAttr);
-
-                            const tinyxml2::XMLAttribute *valAttr = findXMLAttribute(sfxElement, "path");
-                            const char *sfxPath                   = "unknownSFX.wav";
-                            if (valAttr)
-                                sfxPath = getXMLAttributeValueString(valAttr);
-
-                            SetSfxName(sfxName, globalSFXCount);
-
-                            GetFileInfo(&infoStore);
-                            LoadSfx((char *)sfxPath, globalSFXCount);
-                            SetFileInfo(&infoStore);
-                            globalSFXCount++;
-
-                        } while ((sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx")));
-                    }
-                }
-            }
-
-            delete[] xmlData;
-            delete doc;
-
-            CloseFile();
-        }
-    }
-    SetActiveMod(-1);
-}
 void RetroEngine::LoadXMLObjects()
 {
     FileInfo info;
@@ -718,6 +649,110 @@ void RetroEngine::LoadXMLObjects()
     }
     SetActiveMod(-1);
 }
+void RetroEngine::LoadXMLSoundFX()
+{
+    FileInfo info;
+    FileInfo infoStore;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *soundsElement = firstXMLChildElement(doc, nullptr, "sounds");
+                if (soundsElement) {
+                    const tinyxml2::XMLElement *sfxElement = firstXMLChildElement(doc, soundsElement, "soundfx");
+                    if (sfxElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(sfxElement, "name");
+                            const char *sfxName                    = "unknownSFX";
+                            if (nameAttr)
+                                sfxName = getXMLAttributeValueString(nameAttr);
+
+                            const tinyxml2::XMLAttribute *valAttr = findXMLAttribute(sfxElement, "path");
+                            const char *sfxPath                   = "unknownSFX.wav";
+                            if (valAttr)
+                                sfxPath = getXMLAttributeValueString(valAttr);
+
+                            SetSfxName(sfxName, globalSFXCount);
+
+                            GetFileInfo(&infoStore);
+                            LoadSfx((char *)sfxPath, globalSFXCount);
+                            SetFileInfo(&infoStore);
+                            globalSFXCount++;
+
+                        } while ((sfxElement = nextXMLSiblingElement(doc, sfxElement, "soundfx")));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
+void RetroEngine::LoadXMLPlayers(TextMenu *menu)
+{
+    if (!menu)
+        return;
+
+    FileInfo info;
+
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *objectsElement = firstXMLChildElement(doc, nullptr, "players");
+                if (objectsElement) {
+                    const tinyxml2::XMLElement *objElement = firstXMLChildElement(doc, objectsElement, "player");
+                    if (objElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(objElement, "name");
+                            const char *plrName                    = "unknownPlayer";
+                            if (nameAttr)
+                                plrName = getXMLAttributeValueString(nameAttr);
+
+                            if (menu)
+                                AddTextMenuEntry(menu, plrName);
+                            else
+                                StrCopy(playerNames[playerCount++], plrName);
+
+                        } while ((objElement = nextXMLSiblingElement(doc, objElement, "player")));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
 void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
 {
     FileInfo info;
@@ -760,9 +795,9 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                                     stgID = getXMLAttributeValueString(idAttr);
 
                                 const tinyxml2::XMLAttribute *highlightAttr = findXMLAttribute(stgElement, "highlight");
-                                int stgHighlighted                          = 0;
+                                bool stgHighlighted                         = false;
                                 if (stgHighlighted)
-                                    stgHighlighted = getXMLAttributeValueInt(highlightAttr);
+                                    stgHighlighted = getXMLAttributeValueBool(highlightAttr);
 
                                 if (menu) {
                                     if (listNo == 2 || listNo == 3) {
@@ -809,6 +844,12 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     byte fileBuffer2 = 0;
     char strBuffer[0x40];
     StrCopy(gameWindowText, "Retro-Engine"); // this is the default window name
+
+    globalVariablesCount = 0;
+    globalSFXCount       = 0;
+#if RETRO_USE_MOD_LOADER
+    playerCount = 0;
+#endif
 
     bool loaded = LoadFile(filePath, &info);
     if (loaded) {
@@ -875,11 +916,15 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         }
 
         // Read Player Names
-        byte playerCount = 0;
-        FileRead(&playerCount, 1);
-        for (byte p = 0; p < playerCount; ++p) {
+        byte plrCount = 0;
+        FileRead(&plrCount, 1);
+        for (byte p = 0; p < plrCount; ++p) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
+#if RETRO_USE_MOD_LOADER
+            strBuffer[fileBuffer] = 0;
+            StrCopy(playerNames[p], strBuffer);
+#endif
         }
 
         for (byte c = 0; c < 4; ++c) {
@@ -919,6 +964,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #if RETRO_USE_MOD_LOADER
         LoadXMLVariables();
         LoadXMLObjects();
+        LoadXMLPlayers(NULL);
         LoadXMLStages(NULL, 0);
 #endif
     }
@@ -927,7 +973,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
-    // TODO: maybe a haptic func??? RSDKv4 supports this, though never in any public builds
+#if RETRO_USE_HAPTICS
+    AddNativeFunction("HapticEffect", HapticEffect);
+#endif
     AddNativeFunction("Connect2PVS", Connect2PVS);
     AddNativeFunction("Disconnect2PVS", Disconnect2PVS);
     AddNativeFunction("SendEntity", SendEntity);
@@ -937,17 +985,31 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
-#if RETRO_USE_MOD_LOADER
-    AddNativeFunction("ExitGame", ExitGame);
-    AddNativeFunction("OpenModMenu", OpenModMenu);
-    // AddNativeFunction("GetModInfo", GetModInfo);
-    // AddNativeFunction("SetModInfo", SetModInfo);
-    // AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
-    AddNativeFunction("GetAchievement", GetAchievement);
 #if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
 #endif
-    AddNativeFunction("GetSceneID", GetSceneID);
+
+#if RETRO_USE_MOD_LOADER
+    AddNativeFunction("ExitGame", ExitGame);
+    AddNativeFunction("OpenModMenu", OpenModMenu); //Opens the dev menu-based mod menu incase you cant be bothered or smth
+    AddNativeFunction("AddAchievement", AddGameAchievement);
+    AddNativeFunction("SetAchievementDescription", SetAchievementDescription);
+    AddNativeFunction("ClearAchievements", ClearAchievements);
+    AddNativeFunction("GetAchievementCount", GetAchievementCount);
+    AddNativeFunction("GetAchievement", GetAchievement);
+    AddNativeFunction("GetAchievementName", GetAchievementName);
+    AddNativeFunction("GetAchievementDescription", GetAchievementDescription);
+    AddNativeFunction("SetScreenWidth", SetScreenWidth);
+    AddNativeFunction("SetWindowScale", SetWindowScale);
+    AddNativeFunction("SetWindowFullScreen", SetWindowFullScreen);
+    AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
+    AddNativeFunction("GetModCount", GetModCount);
+    AddNativeFunction("GetModName", GetModName);
+    AddNativeFunction("GetModDescription", GetModDescription);
+    AddNativeFunction("GetModVersion", GetModVersion);
+    AddNativeFunction("GetModActive", GetModActive);
+    AddNativeFunction("SetModActive", SetModActive);
+    AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
 #endif
 
     return loaded;

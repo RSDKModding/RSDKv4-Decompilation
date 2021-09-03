@@ -611,7 +611,11 @@ bool PlayMusic(int track, int musStartPos)
         }
         trackBuffer = track;
         musicStatus = MUSIC_LOADING;
+#if RETRO_USING_SDL2
         SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+#else
+        LoadMusic(NULL);
+#endif
         UnlockAudioDevice();
         return true;
     }

@@ -707,26 +707,41 @@ void AwardAchievement(int id, int status)
 #endif
 }
 
-int SetAchievement(int *achievementID, int *status)
+void SetAchievement(int *achievementID, int *status)
 {
     if (!Engine.trialMode && !debugMode) {
         AwardAchievement(*achievementID, *status);
-        return 1;
     }
-    return 0;
 }
 #if RETRO_USE_MOD_LOADER
-int AddAchievement(int *id, const char *name)
+void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[achievementCount++].name, name); }
+void SetAchievementDescription(int *id, const char *desc) { StrCopy(achievements[*id].desc, desc); }
+void ClearAchievements() { achievementCount = 0; }
+void GetAchievementCount() { scriptEng.checkResult = achievementCount; }
+void GetAchievementName(uint *id, int* textMenu)
 {
-    StrCopy(achievements[*id].name, name);
-    return 0;
+    if (*id >= achievementCount)
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = false;
+    AddTextMenuEntry(menu, achievements[*id].name);
 }
-int ClearAchievements()
+void GetAchievementDescription(uint *id, int *textMenu)
 {
-    /*TODO*/
-    return 0;
+    if (*id >= achievementCount)
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = false;
+    AddTextMenuEntry(menu, achievements[*id].desc);
 }
-int GetAchievement(int *id, void *a2) { return achievements[*id].status; }
+void GetAchievement(uint *id, void *unused)
+{
+    if (*id >= achievementCount)
+        return;
+    scriptEng.checkResult = achievements[*id].status;
+}
 #endif
 void ShowAchievementsScreen()
 {
@@ -784,7 +799,7 @@ void ShowLeaderboardsScreen()
 }
 
 bool disableFocusPause_Store = false;
-int Connect2PVS(int *gameLength, int *itemMode)
+void Connect2PVS(int *gameLength, int *itemMode)
 {
     printLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
 
@@ -804,13 +819,11 @@ int Connect2PVS(int *gameLength, int *itemMode)
         disableFocusPause       = true;
         runNetwork();
 #endif
-        return 1;
     }
-    return 0;
 }
-int Disconnect2PVS(int *a1, int *a2)
+void Disconnect2PVS()
 {
-    printLog("Attempting to disconnect from 2P game (%p) (%p)", a1, a2);
+    printLog("Attempting to disconnect from 2P game");
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
@@ -820,14 +833,10 @@ int Disconnect2PVS(int *a1, int *a2)
         disconnectNetwork();
         initNetwork();
 #endif
-        return 1;
     }
-    return 0;
 }
-int SendEntity(int *entityID, int *dataSlot)
+void SendEntity(int *entityID, void *unused)
 {
-    // printLog("Attempting to send entity (%d) (%d)", *dataSlot, *entityID);
-
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
         memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
@@ -835,14 +844,11 @@ int SendEntity(int *entityID, int *dataSlot)
 #if RETRO_USE_NETWORKING
             sendData();
 #endif
-            return 1;
         }
     }
-    sendCounter += 1;
-    sendCounter %= 2;
-    return 0;
+    sendCounter = (sendCounter + 1) % 2;
 }
-int SendValue(int *value, int *dataSlot)
+void SendValue(int *value, void *unused)
 {
     // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
@@ -852,18 +858,16 @@ int SendValue(int *value, int *dataSlot)
 #if RETRO_USE_NETWORKING
         sendData();
 #endif
-        return 1;
     }
-    return 0;
 }
 bool recieveReady = false;
-int ReceiveEntity(int *entityID, int *dataSlot)
+void ReceiveEntity(int *entityID, int *incrementPos)
 {
-    // printLog("Attempting to receive entity (%d) (%d)", *dataSlot, *entityID);
+    // printLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
 
     if (Engine.onlineActive && recieveReady) {
         // recieveReady = false;
-        if (*dataSlot == 1) {
+        if (*incrementPos == 1) {
             if (multiplayerDataIN.type == 1) {
                 memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
             }
@@ -872,17 +876,15 @@ int ReceiveEntity(int *entityID, int *dataSlot)
         else {
             memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
         }
-        return 1;
     }
-    return 0;
 }
-int ReceiveValue(int *value, int *dataSlot)
+void ReceiveValue(int *value, int *incrementPos)
 {
-    // printLog("Attempting to receive value (%d) (%d)", *dataSlot, *value);
+    // printLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
 
     if (Engine.onlineActive && recieveReady) {
         // recieveReady = false;
-        if (*dataSlot == 1) {
+        if (*incrementPos == 1) {
             if (matchValueReadPos != matchValueWritePos) {
                 *value = matchValueData[matchValueReadPos];
                 matchValueReadPos++;
@@ -891,11 +893,9 @@ int ReceiveValue(int *value, int *dataSlot)
         else {
             *value = matchValueData[matchValueReadPos];
         }
-        return 1;
     }
-    return 0;
 }
-int TransmitGlobal(int *globalValue, const char *globalName)
+void TransmitGlobal(int *globalValue, const char *globalName)
 {
     printLog("Attempting to transmit global (%s) (%d)", globalName, *globalValue);
 
@@ -906,9 +906,7 @@ int TransmitGlobal(int *globalValue, const char *globalName)
 #if RETRO_USE_NETWORKING
         sendData();
 #endif
-        return 1;
     }
-    return 0;
 }
 
 void receive2PVSData(MultiplayerData *data)
@@ -942,9 +940,9 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(MultiplayerHandler);
 }
 
-int ShowPromoPopup(int *a1, const char *popupName)
+int ShowPromoPopup(int *id, const char *popupName)
 {
-    printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, a1 ? *a1 : 0);
+    printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0);
     if (Engine.onlineActive) {
         // Do online code
         return 1;
@@ -964,4 +962,36 @@ int ExitGame()
 {
     Engine.running = false;
     return 1;
+}
+
+void SetScreenWidth(int *width, int *unused)
+{
+    SCREEN_XSIZE = SCREEN_XSIZE_CONFIG = *width;
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+
+#if RETRO_USING_SDL2
+    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+}
+void SetWindowScale(int *scale, int *unused)
+{
+    Engine.windowScale = *scale;
+#if RETRO_USING_SDL2
+    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+}
+void SetWindowFullScreen(int *fullscreen, int *unused)
+{
+    Engine.isFullScreen = *fullscreen;
+    setFullScreen(Engine.isFullScreen);
+}
+void SetWindowBorderless(int *borderless, int *unused)
+{
+    Engine.borderless = *borderless;
+#if RETRO_USING_SDL2
+    SDL_RestoreWindow(Engine.window);
+    SDL_SetWindowBordered(Engine.window, Engine.borderless ? SDL_FALSE : SDL_TRUE);
+#endif
 }

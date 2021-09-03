@@ -11,6 +11,9 @@ char modScriptPaths[OBJECT_COUNT][0x40];
 byte modScriptFlags[OBJECT_COUNT];
 byte modObjCount = 0;
 
+char playerNames[PLAYER_MAX][0x20];
+byte playerCount = 0;
+
 #include <filesystem>
 
 int OpenModMenu()
@@ -319,12 +322,16 @@ void RefreshEngine()
 {
     // Reload entire engine
     Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL2
     if (Engine.window) {
         char gameTitle[0x40];
         sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
         SDL_SetWindowTitle(Engine.window, gameTitle);
     }
+#elif RETRO_USING_SDL1
+    char gameTitle[0x40];
+    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
+    SDL_WM_SetCaption(gameTitle, NULL);
 #endif
 
     ReleaseStageSfx();
@@ -349,6 +356,53 @@ void RefreshEngine()
             disableFocusPause = true;
     }
     saveMods();
+}
+
+void GetModCount() { scriptEng.checkResult = modList.size(); }
+void GetModName(int *textMenu, int *highlight, uint *id, int *unused)
+{
+    if (*id >= modList.size())
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = *highlight;
+    AddTextMenuEntry(menu, modList[*id].name.c_str());
+}
+
+void GetModDescription(int *textMenu, int *highlight, uint *id, int *unused)
+{
+    if (*id >= modList.size())
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = *highlight;
+    AddTextMenuEntry(menu, modList[*id].desc.c_str());
+}
+
+void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused)
+{
+    if (*id >= modList.size())
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = *highlight;
+    AddTextMenuEntry(menu, modList[*id].version.c_str());
+}
+
+void GetModActive(uint *id, int *unused)
+{
+    scriptEng.checkResult = false;
+    if (*id >= modList.size())
+        return;
+    scriptEng.checkResult = modList[*id].active;
+}
+
+void SetModActive(uint *id, int *active)
+{
+    if (*id >= modList.size())
+        return;
+
+    modList[*id].active = *active;
 }
 
 int GetSceneID(byte listID, const char *sceneName)

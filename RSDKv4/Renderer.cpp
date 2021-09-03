@@ -15,10 +15,7 @@ byte vertexG = 0xFF;
 byte vertexB = 0xFF;
 
 TextureInfo textureList[TEXTURE_LIMIT];
-int textureCount = 0;
-
 MeshInfo meshList[MESH_LIMIT];
-int meshCount = 0;
 
 int renderStateCount = 0;
 RenderState renderStateList[RENDERSTATE_LIMIT];
@@ -354,17 +351,21 @@ void RenderScene()
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
 #endif
 
+#if RETRO_USING_OPENGL
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
     if (renderStateCount == -1)
         return;
 
+#if RETRO_USING_OPENGL
     glEnableClientState(GL_VERTEX_ARRAY);
     glLoadIdentity();
+#endif
     if (currentRenderState.indexCount) {
         RenderState *state = &renderStateList[renderStateCount];
         memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -388,72 +389,100 @@ void RenderScene()
 
         if (state->renderMatrix != prevMat) {
             if (state->renderMatrix) {
+#if RETRO_USING_OPENGL
                 glLoadMatrixf((const GLfloat *)state->renderMatrix);
+#endif
                 prevMat = state->renderMatrix;
             }
             else {
+#if RETRO_USING_OPENGL
                 glLoadIdentity();
+#endif
                 prevMat = NULL;
             }
         }
 
+#if RETRO_USING_OPENGL
         glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->vertX);
+#endif
         if (state->useTexture) {
             if (!prevTextures) {
+#if RETRO_USING_OPENGL
                 glEnable(GL_TEXTURE_2D);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
             }
+#if RETRO_USING_OPENGL
             glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->texCoordX);
+#endif
             prevTextures = true;
             if (state->id != prevTexID) {
+#if RETRO_USING_OPENGL
                 glBindTexture(GL_TEXTURE_2D, state->id);
+#endif
                 prevTexID = state->id;
             }
         }
         else {
             if (prevTextures) {
+#if RETRO_USING_OPENGL
                 glDisable(GL_TEXTURE_2D);
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
             }
             prevTextures = false;
         }
 
         if (state->useColours) {
+#if RETRO_USING_OPENGL
             if (!prevColours)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
+#endif
             prevColours = true;
         }
         else {
+#if RETRO_USING_OPENGL
             if (prevColours)
                 glDisableClientState(GL_COLOR_ARRAY);
+#endif
             prevColours = false;
         }
 
         if (state->useNormals) {
             if (!prevNormals) {
+#if RETRO_USING_OPENGL
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glEnable(GL_LIGHTING);
+#endif
             }
+#if RETRO_USING_OPENGL
             glNormalPointer(GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->normalX);
+#endif
             prevNormals = true;
         }
         else {
             if (prevNormals) {
+#if RETRO_USING_OPENGL
                 glDisableClientState(GL_NORMAL_ARRAY);
                 glDisable(GL_LIGHTING);
+#endif
             }
             prevNormals = false;
         }
 
         if (state->depthTest) {
+#if RETRO_USING_OPENGL
             if (!prevDepth)
                 glEnable(GL_DEPTH_TEST);
+#endif
             prevDepth = true;
         }
         else {
+#if RETRO_USING_OPENGL
             if (prevDepth)
                 glDisable(GL_DEPTH_TEST);
+#endif
             prevDepth = false;
         }
 
@@ -461,29 +490,38 @@ void RenderScene()
             switch (state->blendMode) {
                 default: prevBlendMode = state->blendMode; break;
                 case 0:
-                    prevBlendMode = 0;
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glDisable(GL_BLEND);
+#endif 
+                    prevBlendMode = 0;
                     break;
                 case 1:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 1;
                     break;
                 case 2:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 2;
                     break;
                 case 3:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 3;
                     break;
             }
         }
 
         if (state->useFilter && mixFiltersOnJekyll) {
+#if RETRO_USING_OPENGL
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -508,15 +546,21 @@ void RenderScene()
             glPopMatrix();
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
+#endif
         }
+
+#if RETRO_USING_OPENGL
         glDrawElements(GL_TRIANGLES, state->indexCount, GL_UNSIGNED_SHORT, state->indexPtr);
+#endif
     }
 
+#if RETRO_USING_OPENGL
     glDisableClientState(GL_VERTEX_ARRAY);
     if (prevTextures)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     if (prevColours)
         glDisableClientState(GL_COLOR_ARRAY);
+#endif
 }
 
 int stb_read_cb(void *user, char *data, int size)
@@ -531,7 +575,7 @@ int stb_eof_cb(void *user) { return ReachedEndOfFile(); }
 int LoadTexture(const char *filePath, int format)
 {
     int texID = 0;
-    for (int i = 0; i < textureCount; ++i) {
+    for (int i = 0; i < TEXTURE_LIMIT; ++i) {
         if (StrComp(textureList[texID].fileName, filePath))
             return texID;
         if (!StrLength(textureList[texID].fileName))
@@ -652,7 +696,6 @@ int LoadTexture(const char *filePath, int format)
                     break;
                 }
             }
-            ++textureCount;
         }
 
         CloseFile();
@@ -764,7 +807,6 @@ void ReplaceTexture(const char *filePath, int texID)
                     break;
                 }
             }
-            ++textureCount;
         }
 
         CloseFile();
@@ -773,20 +815,19 @@ void ReplaceTexture(const char *filePath, int texID)
 }
 void ClearTextures()
 {
-    for (int i = 0; i < textureCount; ++i) {
+    for (int i = 0; i < MESH_LIMIT; ++i) {
 #if RETRO_USING_OPENGL
         glDeleteTextures(1, &textureList[i].id);
 #endif
         StrCopy(textureList[i].fileName, "");
     }
-    textureCount = 0;
 }
 
 // Meshes
 MeshInfo *LoadMesh(const char *filePath, byte textureID)
 {
     int meshID = 0;
-    for (int i = 0; i < textureCount; ++i) {
+    for (int i = 0; i < MESH_LIMIT; ++i) {
         if (StrComp(meshList[meshID].fileName, filePath) && meshList[meshID].textureID == textureID)
             return &meshList[meshID];
         if (!StrLength(meshList[meshID].fileName))
@@ -905,23 +946,23 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
 }
 void ClearMeshData()
 {
-    for (int i = 0; i < meshCount; ++i) {
+    for (int i = 0; i < MESH_LIMIT; ++i) {
         MeshInfo *mesh = &meshList[i];
+        if (StrLength(mesh->fileName)) {
+            if (mesh->frameCount > 1)
+                free(mesh->frames);
+            if (mesh->indexCount)
+                free(mesh->indices);
+            if (mesh->vertexCount)
+                free(mesh->vertices);
 
-        if (mesh->frameCount > 1)
-            free(mesh->frames);
-        if (mesh->indexCount)
-            free(mesh->indices);
-        if (mesh->vertexCount)
-            free(mesh->vertices);
+            mesh->frameCount  = 0;
+            mesh->indexCount  = 0;
+            mesh->vertexCount = 0;
 
-        mesh->frameCount  = 0;
-        mesh->indexCount  = 0;
-        mesh->vertexCount = 0;
-
-        StrCopy(meshList[i].fileName, "");
+            StrCopy(meshList[i].fileName, "");
+        }
     }
-    meshCount = 0;
 }
 void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, ushort frameCount, float speed)
 {
@@ -1021,7 +1062,6 @@ void TransferRetroBuffer()
     if (convertTo32Bit) {
         ushort *frameBufferPtr = Engine.frameBuffer;
         uint *texBufferPtr     = Engine.texBuffer;
-        bool flag              = false;
         for (int y = 0; y < SCREEN_YSIZE; ++y) {
             for (int x = 0; x < GFX_LINESIZE; ++x) {
                 texBufferPtr[x] = gfxPalette16to32[frameBufferPtr[x]];

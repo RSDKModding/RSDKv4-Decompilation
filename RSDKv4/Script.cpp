@@ -1591,13 +1591,25 @@ void ConvertFunctionText(char *text)
                 }
             }
 
+#if RETRO_USE_MOD_LOADER
             // Eg: TempValue0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
                 int a = 0;
                 for (; a < achievementCount; ++a) {
-                    if (StrComp(arrayStr, achievements[a].name)) {
+                    char buf[0x40];
+                    char *str = achievements[a].name;
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, a);
                         break;
@@ -1606,10 +1618,57 @@ void ConvertFunctionText(char *text)
 
                 if (a == achievementCount) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown achievementName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\"", arrayStr);
                     printLog(buf);
                 }
             }
+
+            // Eg: TempValue0 = PlayerName[SONIC]
+            if (StrComp(funcName, "PlayerName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int p = 0;
+                for (; p < PLAYER_MAX; ++p) {
+                    char buf[0x40];
+                    char *str = playerNames[p];
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, p);
+                        break;
+                    }
+                }
+
+                if (p == PLAYER_MAX) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = StageName[GREEN HILL 1]
+            if (StrComp(funcName, "StageName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int s = GetSceneID(activeStageList, arrayStr);
+
+                if (s == -1) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, s);
+            }
+#endif
 
             // Storing Values
             if (ConvertStringToInteger(funcName, &value)) {

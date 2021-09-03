@@ -575,7 +575,7 @@ void LoadStageFiles(void)
         printLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
         ReleaseStageSfx();
         ClearScriptData();
-        for (int i = SPRITESHEETS_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
+        for (int i = SURFACE_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
         loadGlobalScripts = false;
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
