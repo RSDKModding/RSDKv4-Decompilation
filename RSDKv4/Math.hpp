@@ -1,7 +1,9 @@
 #ifndef MATH_H
 #define MATH_H
 
-//#define M_PI (3.1415927)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288
+#endif
 
 #define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))

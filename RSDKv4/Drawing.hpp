@@ -1,16 +1,15 @@
 #ifndef DRAWING_H
 #define DRAWING_H
 
-#define SPRITESHEETS_MAX (16)
-#define SURFACE_MAX      (24)
-#define GFXDATA_MAX      (0x200000)
+#define SURFACE_MAX (24)
+#define GFXDATA_MAX (0x800 * 0x800)
 
 #define BLENDTABLE_YSIZE (0x100)
 #define BLENDTABLE_XSIZE (0x20)
 #define BLENDTABLE_SIZE  (BLENDTABLE_XSIZE * BLENDTABLE_YSIZE)
-#define TINTTABLE_SIZE (0x1000)
+#define TINTTABLE_SIZE   (0x1000)
 
-#define DRAWLAYER_COUNT (0x7)
+#define DRAWLAYER_COUNT (7)
 
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
 enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
@@ -61,6 +60,7 @@ extern ushort blendLookupTable[BLENDTABLE_SIZE];
 extern ushort subtractLookupTable[BLENDTABLE_SIZE];
 extern ushort tintLookupTable[TINTTABLE_SIZE];
 
+extern int SCREEN_XSIZE_CONFIG;
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
@@ -201,6 +201,8 @@ void UpdateTextureBufferWithSortedSprites();
 void UpdateTextureBufferWithSprites();
 
 #endif
+void setupViewport();
+void setFullScreen(bool fs);
 
 // Layer Drawing
 void DrawObjectList(int layer);

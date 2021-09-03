@@ -4,8 +4,7 @@
 int nativeEntityPos;
 
 int activeEntityList[NATIVEENTITY_COUNT];
-int objectRemoveFlag[NATIVEENTITY_COUNT];
-NativeEntity *nativeEntityList[NATIVEENTITY_COUNT];
+byte objectRemoveFlag[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
 int nativeEntityCount = 0;
 
@@ -341,18 +340,17 @@ void InitNativeObjectSystem()
     InitLocalizedStrings();
 
     nativeEntityCount = 0;
-    memset(activeEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectRemoveFlag, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(nativeEntityList, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase *));
-    memset(objectEntityBank, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(activeEntityList, 0, sizeof(activeEntityList));
+    memset(objectRemoveFlag, 0, sizeof(objectRemoveFlag));
+    memset(objectEntityBank, 0, sizeof(objectEntityBank));
 
     nativeEntityCountBackup = 0;
-    memset(backupEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectEntityBackup, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(backupEntityList, 0, sizeof(backupEntityList));
+    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
 
     nativeEntityCountBackupS = 0;
-    memset(backupEntityListS, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectEntityBackupS, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(backupEntityListS, 0, sizeof(backupEntityListS));
+    memset(objectEntityBackupS, 0, sizeof(objectEntityBackupS));
 
     ReadSaveRAMData();
 
@@ -437,7 +435,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
     else {
         memset(objectRemoveFlag, 0, nativeEntityCount);
         int slotStore                    = 0;
-        objectRemoveFlag[entity->slotID] = 1;
+        objectRemoveFlag[entity->slotID] = true;
         int s                            = 0;
         for (; s < nativeEntityCount; ++s) {
             if (!objectRemoveFlag[s]) {

@@ -7,15 +7,9 @@
 // Setting this to true removes (almost) ALL changes from the original code, the trade off is that a playable game cannot be built, it is advised to
 // be set to true only for preservation purposes
 #define RETRO_USE_ORIGINAL_CODE (0)
-#define RETRO_USE_MOD_LOADER    (0)
-#define RETRO_USE_NETWORKING    (0)
 
-#if !RETRO_USE_ORIGINAL_CODE
-#undef RETRO_USE_MOD_LOADER
-#define RETRO_USE_MOD_LOADER (1)
-#undef RETRO_USE_NETWORKING
-#define RETRO_USE_NETWORKING (1)
-#endif //  !RETRO_USE_ORIGINAL_CODE
+#define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
+#define RETRO_USE_NETWORKING (!RETRO_USE_ORIGINAL_CODE && 1)
 
 // ================
 // STANDARD LIBS
@@ -78,8 +72,9 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
 #else
-#define RETRO_PLATFORM   (RETRO_WIN)
-#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#error "No Platform was defined"
+//#define RETRO_PLATFORM   (RETRO_WIN)
+//#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #define DEFAULT_SCREEN_XSIZE 424
@@ -129,11 +124,31 @@ typedef unsigned int uint;
 //#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
 
 #if RETRO_USING_OPENGL
+#if RETRO_PLATFORM == RETRO_ANDROID
+#define GL_GLEXT_PROTOTYPES
+
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
+#undef glGenFramebuffers
+#undef glBindFramebuffers
+#undef glFramebufferTexture2D
+
+#undef GL_FRAMEBUFFER
+#undef GL_COLOR_ATTACHMENT0
+#undef GL_FRAMEBUFFER_BINDING
+
+#define glGenFramebuffers      glGenFramebuffersOES
+#define glBindFramebuffer      glBindFramebufferOES
+#define glFramebufferTexture2D glFramebufferTexture2DOES
+#define glDeleteFramebuffers   glDeleteFramebuffersOES
+
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#else
 #include <GL/glew.h>
 #include <GL/glu.h>
-
-#if RETRO_USING_SDL2
-#include <SDL_opengl.h>
 #endif
 #endif
 
@@ -168,10 +183,12 @@ enum RetroStates {
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
-    ENGINE_STARTMENU   = 0x80,
-    ENGINE_CONNECT2PVS = 0x81,
+    ENGINE_CONNECT2PVS = 0x80,
+    ENGINE_WAIT2PVS    = 0x81,
+#endif
+#if RETRO_USE_MOD_LOADER
     ENGINE_INITMODMENU = 0x82,
 #endif
 };
@@ -232,9 +249,12 @@ extern bool engineDebugMode;
 #include "Sprite.hpp"
 #include "Text.hpp"
 #include "Networking.hpp"
+#include "Renderer.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
-#include "Renderer.hpp"
+#if RETRO_USE_MOD_LOADER
+#include "ModAPI.hpp"
+#endif
 
 // Native Entities
 #include "NativeObjects.hpp"
@@ -265,9 +285,8 @@ public:
 
     int gameMode          = ENGINE_MAINGAME;
     int language          = RETRO_EN;
-    int message           = 0;
-    int gameDeviceType    = 0;
-    int globalBoxRegion   = 0;
+    int gameDeviceType    = RETRO_STANDARD;
+    int globalBoxRegion   = REGION_JP;
     bool nativeMenuFadeIn = false;
 
     bool trialMode        = false;
@@ -301,11 +320,14 @@ public:
     void Init();
     void Run();
 
-    bool LoadGameConfig(const char *Filepath);
-
-    int callbackMessage = 0;
-    int prevMessage     = 0;
-    int waitValue       = 0;
+    bool LoadGameConfig(const char *filepath);
+#if RETRO_USE_MOD_LOADER
+    void LoadXMLVariables();
+    void LoadXMLObjects();
+    void LoadXMLSoundFX();
+    void LoadXMLPlayers(TextMenu *menu);
+    void LoadXMLStages(TextMenu *menu, int listNo);
+#endif
 
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];

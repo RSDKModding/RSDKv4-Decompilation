@@ -27,8 +27,8 @@ struct Entity {
     int alpha;
     int animationTimer;
     int animationSpeed;
-    int camOffsetX;
-    int lookPos;
+    int lookPosX;
+    int lookPosY;
     ushort typeGroup;
     byte type;
     byte propertyValue;
@@ -92,7 +92,7 @@ enum ObjectPriority {
 extern int nativeEntityPos;
 
 extern int activeEntityList[NATIVEENTITY_COUNT];
-extern int objectRemoveFlag[NATIVEENTITY_COUNT];
+extern byte objectRemoveFlag[NATIVEENTITY_COUNT];
 extern NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
 extern int nativeEntityCount;
 
@@ -140,6 +140,9 @@ void RemoveNativeObject(NativeEntityBase *NativeEntry);
 void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
 void ProcessNativeObjects();
 inline void BackupNativeObjects() {
+    memset(backupEntityList, 0, sizeof(backupEntityList));
+    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
+
     memcpy(backupEntityList, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackup = nativeEntityCount;

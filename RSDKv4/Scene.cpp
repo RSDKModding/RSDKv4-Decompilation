@@ -80,6 +80,11 @@ byte tilesetGFXData[TILESET_SIZE];
 ushort tile3DFloorBuffer[0x13334];
 bool drawStageGFXHQ = false;
 
+#if RETRO_USE_MOD_LOADER
+bool loadGlobalScripts = false; //stored here so I can use it later
+int globalObjCount     = 0;
+#endif
+
 void InitFirstStage(void)
 {
     xScrollOffset = 0;
@@ -570,14 +575,17 @@ void LoadStageFiles(void)
         printLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
         ReleaseStageSfx();
         ClearScriptData();
-        for (int i = SPRITESHEETS_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
+        for (int i = SURFACE_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
-        bool loadGlobals = false;
+        loadGlobalScripts = false;
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
-            FileRead(&loadGlobals, 1);
+            byte buf = 0;
+            FileRead(&buf, 1);
+            loadGlobalScripts = buf;
             CloseFile();
         }
-        if (loadGlobals && LoadFile("Data/Game/GameConfig.bin", &info)) {
+
+        if (loadGlobalScripts && LoadFile("Data/Game/GameConfig.bin", &info)) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
             FileRead(&fileBuffer, 1);
@@ -595,8 +603,14 @@ void LoadStageFiles(void)
                 FileRead(&fileBuffer2, 1);
                 FileRead(strBuffer, fileBuffer2);
                 strBuffer[fileBuffer2] = 0;
-                SetObjectTypeName(strBuffer, i + scriptID);
+                SetObjectTypeName(strBuffer, scriptID + i);
             }
+
+#if RETRO_USE_MOD_LOADER
+            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
+            }
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
             bool bytecodeExists = false;
@@ -632,6 +646,19 @@ void LoadStageFiles(void)
                 }
             }
             CloseFile();
+
+#if RETRO_USE_MOD_LOADER
+            globalObjCount = globalObjectCount;
+            for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
+                SetObjectTypeName(modTypeNames[i], scriptID);
+
+                GetFileInfo(&infoStore);
+                ParseScriptFile(modScriptPaths[i], scriptID++);
+                SetFileInfo(&infoStore);
+                if (Engine.gameMode == ENGINE_SCRIPTERROR)
+                    return;
+            }
+#endif
         }
 
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
@@ -830,6 +857,11 @@ void LoadActLayout()
 
             FileRead(fileBuffer, 1);
             object->type = fileBuffer[0];
+
+#if RETRO_USE_MOD_LOADER
+            if (loadGlobalScripts && modObjCount && object->type >= globalObjCount)
+                object->type += modObjCount; //offset it by our mod count
+#endif
 
             FileRead(fileBuffer, 1);
             object->propertyValue = fileBuffer[0];
@@ -1530,12 +1562,12 @@ void SetPlayerScreenPosition(Entity *target)
 
     xScrollOffset = cameraShakeX + centeredXBound1 - SCREEN_CENTERX;
 
-    int pos = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
+    int pos = cameraYPos + target->lookPosY - SCREEN_SCROLL_UP;
     if (pos < curYBoundary1) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = cameraYPos + target->lookPos - SCREEN_SCROLL_UP;
+        yScrollOffset = cameraYPos + target->lookPosY - SCREEN_SCROLL_UP;
     }
 
     int y = curYBoundary2 - SCREEN_YSIZE;
@@ -1642,61 +1674,61 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
         if (target->direction) {
             if (cameraStyle == 3 || target->speed < -0x5F5C2) {
                 cameraShift = 2;
-                if (target->camOffsetX <= 63) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX <= 63) {
+                    target->lookPosX += 2;
                 }
             }
             else {
                 cameraShift = 0;
-                if (target->camOffsetX < 0) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX < 0) {
+                    target->lookPosX += 2;
                 }
 
-                if (target->camOffsetX > 0) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX > 0) {
+                    target->lookPosX -= 2;
                 }
             }
         }
         else {
             if (cameraStyle == 2 || target->speed > 0x5F5C2) {
                 cameraShift = 1;
-                if (target->camOffsetX >= -63) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX >= -63) {
+                    target->lookPosX -= 2;
                 }
             }
             else {
                 cameraShift = 0;
-                if (target->camOffsetX < 0) {
-                    target->camOffsetX += 2;
+                if (target->lookPosX < 0) {
+                    target->lookPosX += 2;
                 }
 
-                if (target->camOffsetX > 0) {
-                    target->camOffsetX -= 2;
+                if (target->lookPosX > 0) {
+                    target->lookPosX -= 2;
                 }
             }
         }
     }
     else {
         if (cameraShift == 1) {
-            if (target->camOffsetX >= -63) {
-                target->camOffsetX -= 2;
+            if (target->lookPosX >= -63) {
+                target->lookPosX -= 2;
             }
         }
         else if (cameraShift < 1) {
-            if (target->camOffsetX < 0) {
-                target->camOffsetX += 2;
+            if (target->lookPosX < 0) {
+                target->lookPosX += 2;
             }
-            if (target->camOffsetX > 0) {
-                target->camOffsetX -= 2;
+            if (target->lookPosX > 0) {
+                target->lookPosX -= 2;
             }
         }
         else if (cameraShift == 2) {
-            if (target->camOffsetX <= 63) {
-                target->camOffsetX += 2;
+            if (target->lookPosX <= 63) {
+                target->lookPosX += 2;
             }
         }
     }
-    cameraXPos = targetX - target->camOffsetX;
+    cameraXPos = targetX - target->lookPosX;
 
     if (!target->trackScroll) {
         if (cameraLockedY) {
@@ -1872,7 +1904,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     }
 
     xScrollOffset = cameraXPos - SCREEN_CENTERX;
-    yScrollOffset = target->lookPos + cameraYPos - SCREEN_SCROLL_UP;
+    yScrollOffset = target->lookPosY + cameraYPos - SCREEN_SCROLL_UP;
 
     int x = curXBoundary1;
     if (x <= xScrollOffset)
@@ -2074,12 +2106,12 @@ void SetPlayerHLockedScreenPosition(Entity *target)
 
     xScrollOffset = cameraShakeX + cameraXPos - SCREEN_CENTERX;
 
-    int pos = newCamY + target->lookPos - SCREEN_SCROLL_UP;
+    int pos = newCamY + target->lookPosY - SCREEN_SCROLL_UP;
     if (pos < curYBoundary1) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = newCamY + target->lookPos - SCREEN_SCROLL_UP;
+        yScrollOffset = newCamY + target->lookPosY - SCREEN_SCROLL_UP;
     }
     int y1 = curYBoundary2 - (SCREEN_YSIZE - 1);
     int y2 = curYBoundary2 - SCREEN_YSIZE;
@@ -2290,12 +2322,12 @@ void SetPlayerScreenPositionFixed(Entity *target)
     }
 
     xScrollOffset = cameraShakeX + targetX - SCREEN_CENTERX;
-    int camY      = targetY + target->lookPos - SCREEN_CENTERY;
+    int camY      = targetY + target->lookPosY - SCREEN_CENTERY;
     if (curYBoundary1 > camY) {
         yScrollOffset = curYBoundary1;
     }
     else {
-        yScrollOffset = targetY + target->lookPos - SCREEN_CENTERY;
+        yScrollOffset = targetY + target->lookPosY - SCREEN_CENTERY;
     }
 
     int newCamY = curYBoundary2 - SCREEN_YSIZE;

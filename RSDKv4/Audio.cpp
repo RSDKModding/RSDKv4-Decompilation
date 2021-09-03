@@ -100,6 +100,8 @@ void LoadGlobalSfx()
     byte fileBuffer = 0;
     int fileBuffer2 = 0;
 
+    globalSFXCount = 0;
+
     if (LoadFile("Data/Game/GameConfig.bin", &info)) {
         infoStore = info;
 
@@ -128,19 +130,16 @@ void LoadGlobalSfx()
 
         byte varCount = 0;
         FileRead(&varCount, 1);
-        globalVariablesCount = varCount;
         for (byte v = 0; v < varCount; ++v) {
             // Read Variable Name
             FileRead(&fileBuffer, 1);
-            FileRead(&globalVariableNames[v], fileBuffer);
-            globalVariableNames[v][fileBuffer] = 0;
+            FileRead(&strBuffer, fileBuffer);
 
             // Read Variable Value
             FileRead(&fileBuffer2, 4);
         }
 
         // Read SFX
-        globalSFXCount = 0;
         FileRead(&fileBuffer, 1);
         globalSFXCount = fileBuffer;
         for (byte s = 0; s < globalSFXCount; ++s) { // SFX Names
@@ -161,6 +160,10 @@ void LoadGlobalSfx()
         }
 
         CloseFile();
+
+#if RETRO_USE_MOD_LOADER
+        Engine.LoadXMLSoundFX();
+#endif
     }
 
     for (int i = 0; i < CHANNEL_COUNT; ++i) sfxChannels[i].sfxID = -1;
@@ -610,7 +613,11 @@ bool PlayMusic(int track, int musStartPos)
         }
         trackBuffer = track;
         musicStatus = MUSIC_LOADING;
+#if RETRO_USING_SDL2
         SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+#else
+        LoadMusic(NULL);
+#endif
         UnlockAudioDevice();
         return true;
     }
@@ -685,16 +692,16 @@ void LoadSfx(char *filePath, byte sfxID)
                         UnlockAudioDevice();
                         SDL_FreeWAV(wav_buffer);
                     }
-                    else { //this causes errors, actually
+                    else { // this causes errors, actually
                         printLog("Unable to read sfx: %s (error: %s)", info.fileName, SDL_GetError());
                         sfxList[sfxID].loaded = false;
                         SDL_FreeWAV(wav_buffer);
-                        //LockAudioDevice()
-                        //StrCopy(sfxList[sfxID].name, filePath);
-                        //sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
-                        //sfxList[sfxID].length = wav_length / sizeof(Sint16);
-                        //sfxList[sfxID].loaded = false;
-                        //UnlockAudioDevice()
+                        // LockAudioDevice()
+                        // StrCopy(sfxList[sfxID].name, filePath);
+                        // sfxList[sfxID].buffer = (Sint16 *)wav_buffer;
+                        // sfxList[sfxID].length = wav_length / sizeof(Sint16);
+                        // sfxList[sfxID].loaded = false;
+                        // UnlockAudioDevice()
                     }
                 }
             }

@@ -8,12 +8,10 @@
 
 #define SAVEDATA_MAX (0x2000)
 
-#define NATIIVEFUNCTION_MAX (0x10)
-
 #if RETRO_USE_MOD_LOADER
-#include <string>
-#include <map>
-#include <unordered_map>
+#define NATIIVEFUNCTION_MAX (0x30)
+#else
+#define NATIIVEFUNCTION_MAX (0x10)
 #endif
 
 #define intToVoid(x) (void *)(size_t)(x)
@@ -59,6 +57,7 @@ enum OnlineMenuTypes {
 
 struct Achievement {
     char name[0x40];
+    char desc[0x80];
     int status;
 };
 
@@ -73,21 +72,6 @@ struct MultiplayerData {
 };
 #endif
 
-#if RETRO_USE_MOD_LOADER
-struct ModInfo {
-    std::string name;
-    std::string desc;
-    std::string author;
-    std::string version;
-    std::map<std::string, std::string> fileMap;
-    std::string folder;
-    bool useScripts;
-    bool skipStartMenu;
-    bool disableFocusPause;
-    bool active;
-};
-#endif
-
 extern void *nativeFunction[NATIIVEFUNCTION_MAX];
 extern int nativeFunctionCount;
 
@@ -98,6 +82,7 @@ extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
 extern char gamePath[0x100];
 extern int saveRAM[SAVEDATA_MAX];
 extern Achievement achievements[ACHIEVEMENT_MAX];
+extern int achievementCount;
 extern LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 extern MultiplayerData multiplayerDataIN;
@@ -110,12 +95,9 @@ extern byte matchValueWritePos;
 extern int vsGameLength;
 extern int vsItemMode;
 extern int vsPlayerID;
+extern bool vsPlaying;
 
 extern int sendCounter;
-
-#if RETRO_USE_MOD_LOADER
-extern std::vector<ModInfo> modList;
-#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
 extern bool forceUseScripts;
@@ -149,7 +131,7 @@ inline int GetGlobalVariableID(const char *name)
         if (StrComp(name, globalVariableNames[v]))
             return v;
     }
-    return 0;
+    return 0xFF;
 }
 
 #define AddNativeFunction(name, funcPtr)                                                                                                             \
@@ -208,12 +190,26 @@ void ReadUserdata();
 void WriteUserdata();
 #endif
 
-int SetAchievement(int *achievementID, int *status);
+#if !RETRO_USE_ORIGINAL_CODE
+inline void AddAchievement(const char *name, const char *description)
+{
+    if (achievementCount < ACHIEVEMENT_MAX) {
+        StrCopy(achievements[achievementCount].name, name);
+        StrCopy(achievements[achievementCount].desc, description);
+        achievementCount++;
+    }
+}
+#endif
+void SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
 #if RETRO_USE_MOD_LOADER
-int AddAchievement(int *id, const char *name);
-int ClearAchievements();
-int GetAchievement(int *id, void *a2);
+void AddGameAchievement(int *unused, const char *name);
+void SetAchievementDescription(int *id, const char *desc);
+void ClearAchievements();
+void GetAchievementCount();
+void GetAchievementName(uint *id, int *textMenu);
+void GetAchievementDescription(uint *id, int *textMenu);
+void GetAchievement(uint *id, void *unused);
 #endif
 inline void LoadAchievementsMenu()
 {
@@ -232,29 +228,27 @@ inline void LoadLeaderboardsMenu()
 }
 void ShowLeaderboardsScreen();
 
-int Connect2PVS(int *gameLength, int *itemMode);
-int Disconnect2PVS(int *a1, int *a2);
-int SendEntity(int *entityID, int *dataSlot);
-int SendValue(int *value, int *dataSlot);
-int ReceiveEntity(int *entityID, int *dataSlot);
-int ReceiveValue(int *value, int *dataSlot);
-int TransmitGlobal(int *globalValue, const char *globalName);
+void Connect2PVS(int *gameLength, int *itemMode);
+void Disconnect2PVS();
+void SendEntity(int *entityID, void *unused);
+void SendValue(int *value, void *unused);
+void ReceiveEntity(int *entityID, int *incrementPos);
+void ReceiveValue(int *value, int *incrementPos);
+void TransmitGlobal(int *globalValue, const char *globalName);
 
 void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
-int ShowPromoPopup(int *a1, const char *popupName);
+int ShowPromoPopup(int *id, const char *popupName);
 void ShowWebsite(int websiteID);
 
 int ExitGame();
-int OpenModMenu();
 
 #if RETRO_USE_MOD_LOADER
-void initMods();
-bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool active);
-void saveMods();
-
-void RefreshEngine();
+void SetScreenWidth(int *width, int *unused);
+void SetWindowScale(int *scale, int *unused);
+void SetWindowFullScreen(int *fullscreen, int *unused);
+void SetWindowBorderless(int *borderless, int *unused);
 #endif
 
 #endif //! USERDATA_H

@@ -15,10 +15,7 @@ byte vertexG = 0xFF;
 byte vertexB = 0xFF;
 
 TextureInfo textureList[TEXTURE_LIMIT];
-int textureCount = 0;
-
 MeshInfo meshList[MESH_LIMIT];
-int meshCount = 0;
 
 int renderStateCount = 0;
 RenderState renderStateList[RENDERSTATE_LIMIT];
@@ -263,7 +260,7 @@ void SetRenderBlendMode(byte mode)
         RenderState *state = &renderStateList[renderStateCount++];
         memcpy(state, &currentRenderState, sizeof(RenderState));
 
-        currentRenderState.indexCount = NULL;
+        currentRenderState.indexCount = 0;
         currentRenderState.id         = 0;
         currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
     }
@@ -275,6 +272,9 @@ void SetRenderVertexColor(byte r, byte g, byte b)
     vertexG = g;
     vertexB = b;
 }
+
+#undef near
+#undef far
 void SetPerspectiveMatrix(float w, float h, float near, float far)
 {
     float m[19];
@@ -332,8 +332,6 @@ void NewRenderState()
 }
 void RenderScene()
 {
-    if (renderStateCount == -1)
-        return;
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (Engine.dimTimer < Engine.dimLimit) {
@@ -353,14 +351,21 @@ void RenderScene()
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
 #endif
 
+#if RETRO_USING_OPENGL
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
+    if (renderStateCount == -1)
+        return;
+
+#if RETRO_USING_OPENGL
     glEnableClientState(GL_VERTEX_ARRAY);
     glLoadIdentity();
+#endif
     if (currentRenderState.indexCount) {
         RenderState *state = &renderStateList[renderStateCount];
         memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -384,72 +389,100 @@ void RenderScene()
 
         if (state->renderMatrix != prevMat) {
             if (state->renderMatrix) {
+#if RETRO_USING_OPENGL
                 glLoadMatrixf((const GLfloat *)state->renderMatrix);
+#endif
                 prevMat = state->renderMatrix;
             }
             else {
+#if RETRO_USING_OPENGL
                 glLoadIdentity();
+#endif
                 prevMat = NULL;
             }
         }
 
+#if RETRO_USING_OPENGL
         glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->vertX);
+#endif
         if (state->useTexture) {
             if (!prevTextures) {
+#if RETRO_USING_OPENGL
                 glEnable(GL_TEXTURE_2D);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
             }
+#if RETRO_USING_OPENGL
             glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->texCoordX);
+#endif
             prevTextures = true;
             if (state->id != prevTexID) {
+#if RETRO_USING_OPENGL
                 glBindTexture(GL_TEXTURE_2D, state->id);
+#endif
                 prevTexID = state->id;
             }
         }
         else {
             if (prevTextures) {
+#if RETRO_USING_OPENGL
                 glDisable(GL_TEXTURE_2D);
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
             }
             prevTextures = false;
         }
 
         if (state->useColours) {
+#if RETRO_USING_OPENGL
             if (!prevColours)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
+#endif
             prevColours = true;
         }
         else {
+#if RETRO_USING_OPENGL
             if (prevColours)
                 glDisableClientState(GL_COLOR_ARRAY);
+#endif
             prevColours = false;
         }
 
         if (state->useNormals) {
             if (!prevNormals) {
+#if RETRO_USING_OPENGL
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glEnable(GL_LIGHTING);
+#endif
             }
+#if RETRO_USING_OPENGL
             glNormalPointer(GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->normalX);
+#endif
             prevNormals = true;
         }
         else {
             if (prevNormals) {
+#if RETRO_USING_OPENGL
                 glDisableClientState(GL_NORMAL_ARRAY);
                 glDisable(GL_LIGHTING);
+#endif
             }
             prevNormals = false;
         }
 
         if (state->depthTest) {
+#if RETRO_USING_OPENGL
             if (!prevDepth)
                 glEnable(GL_DEPTH_TEST);
+#endif
             prevDepth = true;
         }
         else {
+#if RETRO_USING_OPENGL
             if (prevDepth)
                 glDisable(GL_DEPTH_TEST);
+#endif
             prevDepth = false;
         }
 
@@ -457,29 +490,38 @@ void RenderScene()
             switch (state->blendMode) {
                 default: prevBlendMode = state->blendMode; break;
                 case 0:
-                    prevBlendMode = 0;
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glDisable(GL_BLEND);
+#endif 
+                    prevBlendMode = 0;
                     break;
                 case 1:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 1;
                     break;
                 case 2:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 2;
                     break;
                 case 3:
+#if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glEnable(GL_BLEND);
+#endif
                     prevBlendMode = 3;
                     break;
             }
         }
 
         if (state->useFilter && mixFiltersOnJekyll) {
+#if RETRO_USING_OPENGL
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -504,15 +546,21 @@ void RenderScene()
             glPopMatrix();
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
+#endif
         }
+
+#if RETRO_USING_OPENGL
         glDrawElements(GL_TRIANGLES, state->indexCount, GL_UNSIGNED_SHORT, state->indexPtr);
+#endif
     }
 
+#if RETRO_USING_OPENGL
     glDisableClientState(GL_VERTEX_ARRAY);
     if (prevTextures)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     if (prevColours)
         glDisableClientState(GL_COLOR_ARRAY);
+#endif
 }
 
 int stb_read_cb(void *user, char *data, int size)
@@ -527,7 +575,7 @@ int stb_eof_cb(void *user) { return ReachedEndOfFile(); }
 int LoadTexture(const char *filePath, int format)
 {
     int texID = 0;
-    for (int i = 0; i < textureCount; ++i) {
+    for (int i = 0; i < TEXTURE_LIMIT; ++i) {
         if (StrComp(textureList[texID].fileName, filePath))
             return texID;
         if (!StrLength(textureList[texID].fileName))
@@ -648,7 +696,6 @@ int LoadTexture(const char *filePath, int format)
                     break;
                 }
             }
-            ++textureCount;
         }
 
         CloseFile();
@@ -760,7 +807,6 @@ void ReplaceTexture(const char *filePath, int texID)
                     break;
                 }
             }
-            ++textureCount;
         }
 
         CloseFile();
@@ -769,21 +815,20 @@ void ReplaceTexture(const char *filePath, int texID)
 }
 void ClearTextures()
 {
-    for (int i = 0; i < textureCount; ++i) {
+    for (int i = 0; i < MESH_LIMIT; ++i) {
 #if RETRO_USING_OPENGL
         glDeleteTextures(1, &textureList[i].id);
 #endif
         StrCopy(textureList[i].fileName, "");
     }
-    textureCount = 0;
 }
 
 // Meshes
 MeshInfo *LoadMesh(const char *filePath, byte textureID)
 {
     int meshID = 0;
-    for (int i = 0; i < textureCount; ++i) {
-        if (StrComp(meshList[meshID].fileName, filePath))
+    for (int i = 0; i < MESH_LIMIT; ++i) {
+        if (StrComp(meshList[meshID].fileName, filePath) && meshList[meshID].textureID == textureID)
             return &meshList[meshID];
         if (!StrLength(meshList[meshID].fileName))
             break;
@@ -901,23 +946,23 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
 }
 void ClearMeshData()
 {
-    for (int i = 0; i < meshCount; ++i) {
+    for (int i = 0; i < MESH_LIMIT; ++i) {
         MeshInfo *mesh = &meshList[i];
+        if (StrLength(mesh->fileName)) {
+            if (mesh->frameCount > 1)
+                free(mesh->frames);
+            if (mesh->indexCount)
+                free(mesh->indices);
+            if (mesh->vertexCount)
+                free(mesh->vertices);
 
-        if (mesh->frameCount > 1)
-            free(mesh->frames);
-        if (mesh->indexCount)
-            free(mesh->indices);
-        if (mesh->vertexCount)
-            free(mesh->vertices);
+            mesh->frameCount  = 0;
+            mesh->indexCount  = 0;
+            mesh->vertexCount = 0;
 
-        mesh->frameCount  = 0;
-        mesh->indexCount  = 0;
-        mesh->vertexCount = 0;
-
-        StrCopy(meshList[i].fileName, "");
+            StrCopy(meshList[i].fileName, "");
+        }
     }
-    meshCount = 0;
 }
 void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, ushort frameCount, float speed)
 {
@@ -1017,7 +1062,6 @@ void TransferRetroBuffer()
     if (convertTo32Bit) {
         ushort *frameBufferPtr = Engine.frameBuffer;
         uint *texBufferPtr     = Engine.texBuffer;
-        bool flag              = false;
         for (int y = 0; y < SCREEN_YSIZE; ++y) {
             for (int x = 0; x < GFX_LINESIZE; ++x) {
                 texBufferPtr[x] = gfxPalette16to32[frameBufferPtr[x]];
@@ -1665,8 +1709,89 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
     }
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
+void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha)
+{
+    if (vertexListSize < DRAWVERTEX_LIMIT) {
+        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColours)) {
+            if (renderStateCount >= 0) {
+                RenderState *state = &renderStateList[renderStateCount];
+                memcpy(state, &currentRenderState, sizeof(RenderState));
+            }
+
+            currentRenderState.indexCount = 0;
+            currentRenderState.id         = 0;
+            currentRenderState.useColours = true;
+            currentRenderState.useTexture = false;
+            currentRenderState.useFilter  = false;
+            currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
+            currentRenderState.indexPtr   = drawIndexList;
+            renderStateCount++;
+        }
+
+        if (renderStateCount < RENDERSTATE_LIMIT) {
+            int a = 0;
+            if (alpha >= 0)
+                a = alpha;
+            if (a > 0xFF)
+                a = 0xFF;
+
+            DrawVertex *vertex1 = &drawVertexList[vertexListSize];
+            vertex1->vertX      = x;
+            vertex1->vertY      = y;
+            vertex1->vertZ      = z;
+            vertex1->r          = r;
+            vertex1->g          = g;
+            vertex1->b          = b;
+            vertex1->a          = a;
+            if (vertex1->vertY > 76.0)
+                vertex1->vertY = 76.0;
+
+            DrawVertex *vertex2 = &drawVertexList[vertexListSize + 1];
+            vertex2->vertX      = w + x;
+            vertex2->vertY      = y;
+            vertex2->vertZ      = z;
+            vertex2->r          = r;
+            vertex2->g          = g;
+            vertex2->b          = b;
+            vertex2->a          = a;
+            if (vertex2->vertY > 76.0)
+                vertex2->vertY = 76.0;
+
+            DrawVertex *vertex3 = &drawVertexList[vertexListSize + 2];
+            vertex3->vertX      = x;
+            vertex3->vertY      = y - h;
+            vertex3->vertZ      = z;
+            vertex3->r          = r;
+            vertex3->g          = g;
+            vertex3->b          = b;
+            vertex3->a          = a;
+            if (vertex3->vertY < -76.0)
+                vertex3->vertY = -76.0;
+
+            DrawVertex *vertex4 = &drawVertexList[vertexListSize + 3];
+            vertex4->vertX      = vertex2->vertX;
+            vertex4->vertY      = y - h;
+            vertex4->vertZ      = z;
+            vertex4->r          = r;
+            vertex4->g          = g;
+            vertex4->b          = b;
+            vertex4->a          = a;
+            if (vertex4->vertY < -76.0)
+                vertex4->vertY = -76.0;
+
+            vertexListSize += 4;
+            currentRenderState.indexCount += 6;
+        }
+    }
+}
+#endif
+
 void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
 {
+    if (!mesh)
+        return;
+
     if (renderStateCount < RENDERSTATE_LIMIT) {
         if (currentRenderState.indexCount) {
             RenderState *state = &renderStateList[renderStateCount++];
@@ -1676,7 +1801,7 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         currentRenderState.vertPtr    = mesh->vertices;
         currentRenderState.indexPtr   = mesh->indices;
         currentRenderState.indexCount = mesh->indexCount * 3;
-        if (mesh->textureID == 0xFF) {
+        if (mesh->textureID >= TEXTURE_LIMIT) {
             currentRenderState.useTexture = false;
             currentRenderState.id         = 0;
         }
@@ -1686,15 +1811,15 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         }
 
         switch (type) {
-            case 0:
+            case MESH_COLOURS:
                 currentRenderState.useColours = true;
                 currentRenderState.useNormals = false;
                 break;
-            case 1:
+            case MESH_NORMALS:
                 currentRenderState.useColours = false;
                 currentRenderState.useNormals = true;
                 break;
-            case 2:
+            case MESH_COLOURS_NORMALS:
                 currentRenderState.useColours = true;
                 currentRenderState.useNormals = true;
                 break;

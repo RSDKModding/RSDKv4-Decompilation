@@ -1550,6 +1550,7 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(funcName, f);
                 }
             }
+
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
@@ -1589,6 +1590,85 @@ void ConvertFunctionText(char *text)
                     printLog(buf);
                 }
             }
+
+#if RETRO_USE_MOD_LOADER
+            // Eg: TempValue0 = AchievementName[Ring King]
+            if (StrComp(funcName, "AchievementName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int a = 0;
+                for (; a < achievementCount; ++a) {
+                    char buf[0x40];
+                    char *str = achievements[a].name;
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, a);
+                        break;
+                    }
+                }
+
+                if (a == achievementCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = PlayerName[SONIC]
+            if (StrComp(funcName, "PlayerName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int p = 0;
+                for (; p < PLAYER_MAX; ++p) {
+                    char buf[0x40];
+                    char *str = playerNames[p];
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, p);
+                        break;
+                    }
+                }
+
+                if (p == PLAYER_MAX) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = StageName[GREEN HILL 1]
+            if (StrComp(funcName, "StageName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int s = GetSceneID(activeStageList, arrayStr);
+
+                if (s == -1) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\"", arrayStr);
+                    printLog(buf);
+                }
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, s);
+            }
+#endif
 
             // Storing Values
             if (ConvertStringToInteger(funcName, &value)) {
@@ -1882,7 +1962,7 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
     int strLength = StrLength(text) - 1;
-    int charVal   = 0;
+    uint charVal  = 0;
     if (*text == '-') {
         negative = true;
         charID   = 1;
@@ -2704,11 +2784,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].camOffsetX;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosX;
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPos;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosY;
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
@@ -4460,19 +4540,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_COPYOBJECT: {
                 // dstID, srcID, count
-                Entity *storageList = &objectEntityList[ENTITY_COUNT + scriptEng.operands[0]];
-                Entity *objList     = &objectEntityList[scriptEng.operands[1]];
-
-                if (scriptEng.operands[2])
-                    memcpy(objList, storageList, sizeof(Entity));
-                else
-                    memcpy(storageList, objList, sizeof(Entity));
-
-                // for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                //    memcpy(storageList, objList, sizeof(Entity));
-                //    storageList++;
-                //    objList++;
-                //}
+                Entity *dstList = &objectEntityList[scriptEng.operands[0]];
+                Entity *srcList = &objectEntityList[scriptEng.operands[1]];
+                for (int i = 0; i < scriptEng.operands[2]; ++i) memcpy(&dstList[i], &srcList[i], sizeof(Entity));
                 break;
             }
 #endif
@@ -4640,11 +4710,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        objectEntityList[arrayVal].camOffsetX = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosX = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        objectEntityList[arrayVal].lookPos = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosY = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {

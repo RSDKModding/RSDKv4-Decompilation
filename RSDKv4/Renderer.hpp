@@ -23,6 +23,12 @@ enum TextureFormats {
     TEXFMT_RETROBUFFER,
 };
 
+enum MeshRenderTypes {
+    MESH_COLOURS,
+    MESH_NORMALS,
+    MESH_COLOURS_NORMALS,
+};
+
 struct DrawVertex {
     float vertX;
     float vertY;
@@ -108,10 +114,7 @@ extern byte vertexG;
 extern byte vertexB;
 
 extern TextureInfo textureList[TEXTURE_LIMIT];
-extern int textureCount;
-
 extern MeshInfo meshList[MESH_LIMIT];
-extern int meshCount;
 
 extern int renderStateCount;
 extern RenderState renderStateList[RENDERSTATE_LIMIT];
@@ -162,6 +165,9 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
 void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
 void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
 void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha);
-void RenderMesh(MeshInfo *mesh, byte a2, byte a3);
+#if !RETRO_USE_ORIGINAL_CODE
+void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha);
+#endif
+void RenderMesh(MeshInfo *mesh, byte type, byte depthTest);
 
 #endif // !RENDERER_H
