@@ -206,7 +206,7 @@ void InitUserdata()
     }
     else {
         fClose(file);
-        IniParser ini(buffer);
+        IniParser ini(buffer, false);
 
         if (!ini.GetBool("Dev", "DevMenu", &Engine.devMenu))
             Engine.devMenu = false;
@@ -622,7 +622,7 @@ void writeSettings()
     sprintf(buffer, "%ssettings.ini", gamePath);
 #endif
 
-    ini.Write(buffer);
+    ini.Write(buffer, false);
 }
 
 void ReadUserdata()

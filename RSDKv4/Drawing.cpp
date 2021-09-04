@@ -135,8 +135,7 @@ int InitRenderDevice()
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
 
-    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
 
     if (!Engine.window) {
         printLog("ERROR: failed to create window!");
@@ -182,12 +181,6 @@ int InitRenderDevice()
         Engine.screenRefreshRate = disp.refresh_rate;
     }
 
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#else
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
-#endif
-
 #endif
 
 #if RETRO_USING_SDL1
@@ -196,6 +189,17 @@ int InitRenderDevice()
     byte flags = 0;
 #if RETRO_USING_OPENGL
     flags |= SDL_OPENGL;
+    
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetSwapInterval(0);
 #endif
 
     Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 32, SDL_SWSURFACE | flags);
@@ -241,21 +245,10 @@ int InitRenderDevice()
 
 #if RETRO_USING_OPENGL
 
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#endif
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetSwapInterval(0);
-
     // Init GL
     Engine.glContext = SDL_GL_CreateContext(Engine.window);
 
-#if RETRO_PLATFORM != RETRO_ANDROID
+#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         printLog("glew init error:");
@@ -265,9 +258,10 @@ int InitRenderDevice()
 #endif
 
     displaySettings.field_20 = 0;
-
+    
     glClearColor(0.0, 0.0, 0.0, 1.0);
-    glDisable(GL_LIGHTING);
+    
+    //glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_DITHER);
@@ -277,6 +271,12 @@ int InitRenderDevice()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    
+#if RETRO_PLATFORM == RETRO_ANDROID
+    Engine.windowScale = 1;
+#endif
+    displaySettings.width = SCREEN_XSIZE_CONFIG * Engine.windowScale;
+    displaySettings.height = SCREEN_YSIZE * Engine.windowScale;
 
     textureList[0].id = -1;
     setupViewport();

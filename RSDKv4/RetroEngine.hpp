@@ -131,8 +131,9 @@ typedef unsigned int uint;
 #include <GLES/glext.h>
 
 #undef glGenFramebuffers
-#undef glBindFramebuffers
+#undef glBindFramebuffer
 #undef glFramebufferTexture2D
+#undef glDeleteFramebuffers
 
 #undef GL_FRAMEBUFFER
 #undef GL_COLOR_ATTACHMENT0
@@ -146,11 +147,33 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#elif RETRO_PLATFORM == RETRO_OSX
+#define GL_GLEXT_PROTOTYPES
+#define GL_SILENCE_DEPRECATION
+
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+
+#undef glGenFramebuffers
+#undef glBindFramebuffer
+#undef glFramebufferTexture2D
+#undef glDeleteFramebuffers
+
+#undef GL_FRAMEBUFFER
+#undef GL_COLOR_ATTACHMENT0
+#undef GL_FRAMEBUFFER_BINDING
+
+#define glGenFramebuffers      glGenFramebuffersEXT
+#define glBindFramebuffer      glBindFramebufferEXT
+#define glFramebufferTexture2D glFramebufferTexture2DEXT
+#define glDeleteFramebuffers   glDeleteFramebuffersEXT
+
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
 #else
 #include <GL/glew.h>
-#if RETRO_PLATFORM != RETRO_OSX
 #include <GL/glu.h>
-#endif
 #endif
 #endif
 

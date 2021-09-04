@@ -81,8 +81,6 @@
 		C975E71726E3199000F09AD4 /* ModAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C975E71426E3199000F09AD4 /* ModAPI.cpp */; };
 		C975E71826E3199000F09AD4 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C975E71526E3199000F09AD4 /* Renderer.cpp */; };
 		C975E72126E31AC000F09AD4 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C975E72026E31AC000F09AD4 /* tinyxml2.cpp */; };
-		C975E72326E31F0700F09AD4 /* libGLEW.2.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C975E72226E31F0700F09AD4 /* libGLEW.2.1.0.dylib */; };
-		C975E72426E31F0700F09AD4 /* libGLEW.2.1.0.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C975E72226E31F0700F09AD4 /* libGLEW.2.1.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -92,7 +90,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				C975E72426E31F0700F09AD4 /* libGLEW.2.1.0.dylib in Embed Frameworks */,
 				C928353026461CDE00D51CCE /* Ogg.framework in Embed Frameworks */,
 				C928352B26461CDB00D51CCE /* Vorbis.framework in Embed Frameworks */,
 				C928352E26461CDC00D51CCE /* SDL2.framework in Embed Frameworks */,
@@ -256,7 +253,6 @@
 				C975E69926E3190B00F09AD4 /* OpenGL.framework in Frameworks */,
 				C928352D26461CDC00D51CCE /* SDL2.framework in Frameworks */,
 				C928352A26461CDB00D51CCE /* Vorbis.framework in Frameworks */,
-				C975E72326E31F0700F09AD4 /* libGLEW.2.1.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -771,7 +767,6 @@
 					"$(PROJECT_DIR)/dependencies/all/asio/include",
 					"$(PROJECT_DIR)/dependencies/all/tinyxml2",
 					"$(PROJECT_DIR)/dependencies/all/stb-image",
-					"$(PROJECT_DIR)/dependencies/mac/glew/2.1.0_1/include",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/dependencies/mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -810,7 +805,6 @@
 					"$(PROJECT_DIR)/dependencies/all/asio/include",
 					"$(PROJECT_DIR)/dependencies/all/tinyxml2",
 					"$(PROJECT_DIR)/dependencies/all/stb-image",
-					"$(PROJECT_DIR)/dependencies/mac/glew/2.1.0_1/include",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/dependencies/mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
