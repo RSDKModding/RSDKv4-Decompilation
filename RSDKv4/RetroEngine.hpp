@@ -72,9 +72,8 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
 #else
-#error "No Platform was defined"
-//#define RETRO_PLATFORM   (RETRO_WIN)
-//#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#define RETRO_PLATFORM   (RETRO_WIN)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
 #define DEFAULT_SCREEN_XSIZE 424
