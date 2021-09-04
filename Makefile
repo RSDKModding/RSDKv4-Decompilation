@@ -67,7 +67,6 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/VirtualDPad.cpp \
           RSDKv4/NativeObjects/VirtualDPadM.cpp \
           RSDKv4/NativeObjects/ZoneButton.cpp \
-  	  dependencies/all/tinyxml2/tinyxml2.cpp
    
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
