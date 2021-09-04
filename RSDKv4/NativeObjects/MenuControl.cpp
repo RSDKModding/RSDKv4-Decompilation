@@ -251,15 +251,8 @@ void MenuControl_Main(void *objPtr)
             else {
                 if (entity->stateInput == 1) {
                     entity->float18 += (((entity->float24 + entity->float1C) - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0));
-                    float move = entity->float1C - entity->float18;
 
-                    bool flag = false;
-                    if (move < 0.0)
-                        flag = move > -0.001;
-                    else
-                        flag = move < 0.001;
-
-                    if (flag) {
+                    if (abs(entity->float1C - entity->float18) < 0.001) {
                         entity->float18    = entity->float1C;
                         entity->stateInput = 0;
                     }

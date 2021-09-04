@@ -376,7 +376,7 @@ void InitNativeObjectSystem()
             saveGame->tailsUnlocked = true;
             saveGame->knuxUnlocked  = true;
         }
-        saveGame->totalScore = 0;
+        saveGame->unlockedActs = 0;
         WriteSaveRAMData();
     }
     saveGame->musVolume = bgmVolume;

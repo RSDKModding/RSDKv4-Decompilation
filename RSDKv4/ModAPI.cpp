@@ -334,6 +334,8 @@ void RefreshEngine()
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
     SDL_WM_SetCaption(gameTitle, NULL);
 #endif
+    ClearMeshData();
+    ClearTextures(true);
 
     ReleaseStageSfx();
     ReleaseGlobalSfx();

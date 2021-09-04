@@ -393,7 +393,7 @@ void RecordsScreen_Main(void *objPtr)
                         entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
                         entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
                     }
-                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], FONT_HEADING);
+                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset + entity->actID], FONT_HEADING);
                     SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
                     AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
                     SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
@@ -427,7 +427,7 @@ void RecordsScreen_Main(void *objPtr)
                         entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
                         entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
                     }
-                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], FONT_HEADING);
+                    SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset + entity->actID], FONT_HEADING);
                     SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
                     AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
                     SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);

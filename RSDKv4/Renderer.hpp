@@ -144,7 +144,7 @@ void RenderScene();
 // Textures
 int LoadTexture(const char *filePath, int format);
 void ReplaceTexture(const char *filePath, int textureID);
-void ClearTextures();
+void ClearTextures(bool keepBuffer);
 
 // Meshes
 MeshInfo *LoadMesh(const char *filePath, byte textureID);

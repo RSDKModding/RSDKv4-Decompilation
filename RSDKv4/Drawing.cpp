@@ -182,6 +182,12 @@ int InitRenderDevice()
         Engine.screenRefreshRate = disp.refresh_rate;
     }
 
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#else
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
+#endif
+
 #endif
 
 #if RETRO_USING_SDL1
@@ -271,12 +277,6 @@ int InitRenderDevice()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#else
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
-#endif
 
     textureList[0].id = -1;
     setupViewport();
@@ -634,7 +634,7 @@ void FlipScreen()
 void ReleaseRenderDevice()
 {
     ClearMeshData();
-    ClearTextures();
+    ClearTextures(false);
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER

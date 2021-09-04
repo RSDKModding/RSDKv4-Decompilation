@@ -50,53 +50,13 @@ void TimeAttack_Create(void *objPtr)
 
     int pos = 0;
     float x = -72.0;
-    for (int i = 0; i < timeAttack_ZoneCount; ++i) {
+    for (int z = 0; z < timeAttack_ZoneCount; ++z) {
         NativeEntity_ZoneButton *zoneButton = CREATE_ENTITY(ZoneButton);
-        entity->zoneButtons[i]              = zoneButton;
+        entity->zoneButtons[z]              = zoneButton;
         zoneButton->x                       = x;
-        SetStringToFont(zoneButton->zoneText, strStageList[i], FONT_TEXT);
+        SetStringToFont(zoneButton->zoneText, strStageList[z], FONT_TEXT);
 
         entity->totalTime = 0;
-        if (Engine.gameType == GAME_SONIC1) {
-            switch (i) {
-                default:
-                    for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += timeAttack_ActCount;
-                    break;
-                case 6: // final zone
-                    entity->totalTime += saveGame->records[3 * pos];
-                    pos++;
-                    break;
-                case 7: // special stage
-                    for (int a = 0; a < 6; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += 6;
-                    break;
-            }
-        }
-        else {
-            if (i < 9) {
-                for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
-                pos += timeAttack_ActCount;
-            }
-            else {
-                entity->totalTime += saveGame->records[3 * pos];
-                pos++;
-            }
-        }
-        SetStringToFont8(entity->zoneButtons[i]->timeText, "", FONT_TEXT);
-        AddTimeStringToFont(entity->zoneButtons[i]->timeText, entity->totalTime, FONT_TEXT);
-        entity->zoneButtons[i]->textWidth = GetTextWidth(entity->zoneButtons[i]->zoneText, FONT_TEXT, 0.25) * 0.5;
-
-        if (!((i + 1) % 3))
-            x += 432.0;
-        else
-            x += 144.0;
-    }
-
-    entity->totalTime = 0;
-    pos               = 0;
-    for (int z = 0; z < timeAttack_ZoneCount; ++z) {
-        // 1st
         if (Engine.gameType == GAME_SONIC1) {
             switch (z) {
                 default:
@@ -114,7 +74,54 @@ void TimeAttack_Create(void *objPtr)
             }
         }
         else {
-            if (z < 9) {
+            if (z == 7) { // metropolis
+                for (int a = 0; a < 3; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
+                pos += 3;
+            }
+            else if (z < 8) {
+                for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
+                pos += timeAttack_ActCount;
+            }
+            else {
+                entity->totalTime += saveGame->records[3 * pos];
+                pos++;
+            }
+        }
+        SetStringToFont8(entity->zoneButtons[z]->timeText, "", FONT_TEXT);
+        AddTimeStringToFont(entity->zoneButtons[z]->timeText, entity->totalTime, FONT_TEXT);
+        entity->zoneButtons[z]->textWidth = GetTextWidth(entity->zoneButtons[z]->zoneText, FONT_TEXT, 0.25) * 0.5;
+
+        if (!((z + 1) % 3))
+            x += 432.0;
+        else
+            x += 144.0;
+    }
+
+    entity->totalTime = 0;
+    pos               = 0;
+    for (int z = 0; z < timeAttack_ZoneCount; ++z) {
+        if (Engine.gameType == GAME_SONIC1) {
+            switch (z) {
+                default:
+                    for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
+                    pos += timeAttack_ActCount;
+                    break;
+                case 6: // final zone
+                    entity->totalTime += saveGame->records[3 * pos];
+                    pos++;
+                    break;
+                case 7: // special stage
+                    for (int a = 0; a < 6; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
+                    pos += 6;
+                    break;
+            }
+        }
+        else {
+            if (z == 7) { // metropolis
+                for (int a = 0; a < 3; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
+                pos += 3;
+            }
+            else if (z < 8) {
                 for (int a = 0; a < timeAttack_ActCount; ++a) entity->totalTime += saveGame->records[3 * (pos + a)];
                 pos += timeAttack_ActCount;
             }
@@ -125,12 +132,12 @@ void TimeAttack_Create(void *objPtr)
         }
     }
 
-    int zone = saveGame->totalScore;
+    int zone = saveGame->unlockedActs;
     for (int i = 0; i < 4; ++i) {
         if (saveGame->files[i].stageID > zone)
             zone = saveGame->files[i].stageID;
     }
-    saveGame->totalScore = zone;
+    saveGame->unlockedActs = zone;
 
     float tx = 480.0f;
     float ty = 120.0f;
@@ -138,7 +145,7 @@ void TimeAttack_Create(void *objPtr)
         entity->zoneButtons[i]->texX = tx;
         entity->zoneButtons[i]->texY = ty;
         entity->zoneButtons[i]->flag = false;
-        if (zone > timeAttack_ActCount * (i + 1) || i > 6) {
+        if (zone > timeAttack_ActCount * (i + 1)) {
             entity->zoneButtons[i]->flag = true;
         }
 
@@ -150,9 +157,12 @@ void TimeAttack_Create(void *objPtr)
 
                 entity->zoneButtons[i + 1]->texX = tx;
                 entity->zoneButtons[i + 1]->texY = ty;
-                if (zone > timeAttack_ActCount * (i + 1)) {
-                    entity->zoneButtons[i]->flag = true;
+
+                entity->zoneButtons[i + 1]->flag = false;
+                if (zone > (timeAttack_ActCount * (i + 1)) + 1) {
+                    entity->zoneButtons[i + 1]->flag = true;
                 }
+
                 ++i;
 
                 tx -= 320.0f;
@@ -182,6 +192,12 @@ void TimeAttack_Create(void *objPtr)
                         ty += 240.0f;
                     }
                 }
+            }
+            else {
+                //entity->zoneButtons[i + 1]->flag = false;
+                //if (zone > (timeAttack_ActCount * (i + 1)) + 1) {
+                //    entity->zoneButtons[i + 1]->flag = true;
+                //}
             }
         }
     }

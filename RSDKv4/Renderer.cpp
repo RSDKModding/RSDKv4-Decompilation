@@ -813,9 +813,9 @@ void ReplaceTexture(const char *filePath, int texID)
         stbi_image_free(data);
     }
 }
-void ClearTextures()
+void ClearTextures(bool keepBuffer)
 {
-    for (int i = 0; i < MESH_LIMIT; ++i) {
+    for (int i = (keepBuffer ? 1 : 0); i < TEXTURE_LIMIT; ++i) {
 #if RETRO_USING_OPENGL
         glDeleteTextures(1, &textureList[i].id);
 #endif

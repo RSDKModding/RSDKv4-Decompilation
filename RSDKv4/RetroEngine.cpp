@@ -447,6 +447,7 @@ void RetroEngine::Run()
         }
         frameEnd         = SDL_GetPerformanceCounter();
         Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
+        Engine.deltaTime = 0.016666668;
 #endif
 
         running = processEvents();
