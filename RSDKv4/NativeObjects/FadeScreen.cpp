@@ -6,7 +6,7 @@ void FadeScreen_Create(void *objPtr)
     entity->timer           = 0.0;
     entity->timeLimit       = 1.5;
     entity->fadeSpeed       = 2.0;
-    entity->state           = 2;
+    entity->state           = FADESCREEN_STATE_GAMEFADEOUT;
     Engine.nativeMenuFadeIn = true;
 }
 void FadeScreen_Main(void *objPtr)
@@ -16,7 +16,7 @@ void FadeScreen_Main(void *objPtr)
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
     switch (entity->state) {
-        case 0:
+        case FADESCREEN_STATE_MENUFADEIN:
             entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
@@ -27,14 +27,14 @@ void FadeScreen_Main(void *objPtr)
                 PlayMusic(0, 0);
             }
             break;
-        case 1:
+        case FADESCREEN_STATE_FADEOUT:
             entity->fadeA = entity->timer * 256.0;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
             if (entity->timer > entity->timeLimit)
                 RemoveNativeObject(entity);
             break;
-        case 2:
+        case FADESCREEN_STATE_GAMEFADEOUT:
             SetMusicVolume(bgmVolume - 2);
 
             entity->fadeA = 256.0f * entity->timer;
@@ -47,14 +47,15 @@ void FadeScreen_Main(void *objPtr)
                     CREATE_ENTITY(VirtualDPad);
             }
             break;
-        case 4:
+#if !RETRO_USE_ORIGINAL_CODE
+        case FADESCREEN_STATE_FADEIN:
             entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
             if (entity->timer > entity->timeLimit)
                 RemoveNativeObject(entity);
             break;
-        case 5:
+        case FADESCREEN_STATE_FADEIN_CLEAR:
             entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
@@ -63,5 +64,6 @@ void FadeScreen_Main(void *objPtr)
                 RestoreNativeObjects();
             }
             break;
+#endif
     }
 }

@@ -1,17 +1,25 @@
 #ifndef NATIVE_PLAYERSELECTSCREEN_H
 #define NATIVE_PLAYERSELECTSCREEN_H
 
+enum PlayerSelectScreenStates {
+    PLAYERSELECTSCREEN_STATE_ENTER,
+    PLAYERSELECTSCREEN_STATE_MAIN,
+    PLAYERSELECTSCREEN_STATE_ACTION,
+    PLAYERSELECTSCREEN_STATE_IDLE,
+    PLAYERSELECTSCREEN_STATE_EXIT
+};
+
 struct NativeEntity_PlayerSelectScreen : NativeEntityBase {
-    int state;
-    float field_14;
-    float field_18;
+    PlayerSelectScreenStates state;
+    float timer;
+    float timer2;
     int field_1C;
     float scale;
     NativeEntity_SaveSelect *saveSel;
     NativeEntity_TextLabel *labelPtr;
     MeshInfo *meshPanel;
     MatrixF matrix1;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     byte textureArrows;
     byte texturePlayerSel;
     byte backPressed;

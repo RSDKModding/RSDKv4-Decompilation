@@ -31,13 +31,13 @@ void BackButton_Main(void *objPtr)
         SetRenderBlendMode(RENDER_BLEND_NONE);
 
         entity->angle -= (Engine.deltaTime + Engine.deltaTime);
-        if (entity->angle < -(M_PI * 2))
-            entity->angle += (M_PI * 2);
+        if (entity->angle < -M_PI_2)
+            entity->angle += M_PI_2;
 
         NewRenderState();
         matrixScaleXYZF(&entity->renderMatrix, (cosf(entity->angle) * 0.35) + 1.25, (sinf(entity->angle) * 0.35) + 1.25, 1.0);
-        matrixTranslateXYZF(&entity->matrix2, entity->x, entity->y, entity->z - 8.0);
-        matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+        matrixTranslateXYZF(&entity->matrixTemp, entity->x, entity->y, entity->z - 8.0);
+        matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
         SetRenderMatrix(&entity->renderMatrix);
         RenderMesh(entity->meshBack, MESH_NORMALS, true);
         SetRenderMatrix(NULL);

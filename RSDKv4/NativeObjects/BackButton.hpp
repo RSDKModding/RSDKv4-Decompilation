@@ -17,7 +17,7 @@ struct NativeEntity_BackButton : NativeEntityBase {
     byte g;
     byte b;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
 };
 
 void BackButton_Create(void *objPtr);

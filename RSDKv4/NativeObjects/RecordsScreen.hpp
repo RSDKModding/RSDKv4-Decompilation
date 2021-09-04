@@ -1,8 +1,22 @@
 #ifndef NATIVE_RECORDSSCREEN_H
 #define NATIVE_RECORDSSCREEN_H
 
+enum RecordsScreenStates {
+    RECORDSSCREEN_STATE_SETUP = -1,
+    RECORDSSCREEN_STATE_ENTER,
+    RECORDSSCREEN_STATE_MAIN,
+    RECORDSSCREEN_STATE_FLIP,
+    RECORDSSCREEN_STATE_FINISHFLIP,
+    RECORDSSCREEN_STATE_EXIT,
+    RECORDSSCREEN_STATE_LOADSTAGE,
+    RECORDSSCREEN_STATE_SHOWRESULTS,
+    RECORDSSCREEN_STATE_EXITRESULTS
+};
+
+enum RecordsScreenButtons { RECORDSSCREEN_BUTTON_PLAY, RECORDSSCREEN_BUTTON_NEXTACT };
+
 struct NativeEntity_RecordsScreen : NativeEntityBase {
-    int state;
+    RecordsScreenStates state;
     int zoneID;
     int actID;
     int actCount;
@@ -16,7 +30,7 @@ struct NativeEntity_RecordsScreen : NativeEntityBase {
     NativeEntity_TextLabel *labelPtr;
     MeshInfo *meshPanel;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     byte textureArrows;
     byte textureTimeAttack;
     float timeAttackU;
@@ -44,7 +58,7 @@ struct NativeEntity_RecordsScreen : NativeEntityBase {
     int buttonAlpha;
     float field_18C;
     byte field_190;
-    byte field_191;
+    byte flipRight;
 };
 
 void RecordsScreen_Create(void *objPtr);

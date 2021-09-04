@@ -1,8 +1,10 @@
 #ifndef NATIVE_CWSPLASH_H
 #define NATIVE_CWSPLASH_H
 
+enum CWSplashStates { CWSPLASH_STATE_ENTER, CWSPLASH_STATE_EXIT, CWSPLASH_STATE_SPAWNTITLE };
+
 struct NativeEntity_CWSplash : NativeEntityBase {
-    int state;
+    CWSplashStates state;
     float rectAlpha;
     byte textureID;
 };

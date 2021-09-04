@@ -1,10 +1,14 @@
 #ifndef NATIVE_STAFFCREDITS_H
 #define NATIVE_STAFFCREDITS_H
 
+#define StaffCredits_CreditsCount (0x10)
+
+enum StaffCreditsStates { STAFFCREDITS_STATE_ENTER, STAFFCREDITS_STATE_SCROLL, STAFFCREDITS_STATE_EXIT };
+
 struct NativeEntity_StaffCredits : NativeEntityBase {
-    int state;
+    StaffCreditsStates state;
     int field_14;
-    float field_18;
+    float timer;
     int field_1C;
     float scale;
     NativeEntityBase *optionsMenu;
@@ -15,7 +19,7 @@ struct NativeEntity_StaffCredits : NativeEntityBase {
     byte textureArrows;
     byte useRenderMatrix;
     int alpha;
-    NativeEntity_CreditText *creditText[16];
+    NativeEntity_CreditText *creditText[StaffCredits_CreditsCount];
     int creditsTextID;
     byte latestTextID;
 };

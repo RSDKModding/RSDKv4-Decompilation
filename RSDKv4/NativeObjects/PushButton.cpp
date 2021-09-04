@@ -6,7 +6,7 @@ void PushButton_Create(void *objPtr)
     entity->z                  = 160.0f;
     entity->alpha              = 255;
     entity->scale              = 0.15f;
-    entity->state              = 3;
+    entity->state              = PUSHBUTTON_STATE_SCALED;
     entity->symbolsTex         = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
     entity->bgColour           = 0xFF0000;
     entity->bgColourSelected   = 0xFF4000;
@@ -22,7 +22,7 @@ void PushButton_Main(void *objPtr)
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
     switch (entity->state) {
-        case 0: {
+        case PUSHBUTTON_STATE_UNSELECTED: {
             SetRenderVertexColor((entity->bgColour >> 16) & 0xFF, (entity->bgColour >> 8) & 0xFF, entity->bgColour & 0xFF);
             RenderImage(entity->x - entity->textWidth, entity->y, entity->z, entity->scale, entity->scale, 64.0, 64.0, 64.0, 128.0, 0.0, 0.0,
                         entity->alpha, entity->symbolsTex);
@@ -34,7 +34,7 @@ void PushButton_Main(void *objPtr)
             RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             break;
         }
-        case 1: {
+        case PUSHBUTTON_STATE_SELECTED: {
             if (usePhysicalControls) {
                 SetRenderVertexColor(0x00, 0x00, 0x00);
                 RenderImage(entity->x - entity->textWidth, entity->y, entity->z, 1.1 * entity->scale, 1.1 * entity->scale, 64.0, 64.0, 64.0, 128.0,
@@ -55,7 +55,7 @@ void PushButton_Main(void *objPtr)
             RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             break;
         }
-        case 2: {
+        case PUSHBUTTON_STATE_FLASHING: {
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
@@ -67,8 +67,8 @@ void PushButton_Main(void *objPtr)
             RenderImage(entity->x + entity->textWidth, entity->y, entity->z, entity->scale, entity->scale, 0.0, 64.0, 64.0, 128.0, 64.0, 0.0,
                         entity->alpha, entity->symbolsTex);
 
-            int color = entity->flashTimer > 0.05f ? entity->textColourSelected : entity->textColour;
-            SetRenderVertexColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+            int colour = entity->flashTimer > 0.05f ? entity->textColourSelected : entity->textColour;
+            SetRenderVertexColor((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
             RenderText(entity->text, FONT_LABEL, entity->x - entity->xOff, entity->y - entity->yOff, entity->z, entity->textScale, entity->alpha);
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
@@ -77,7 +77,7 @@ void PushButton_Main(void *objPtr)
             }
             break;
         }
-        case 3: {
+        case PUSHBUTTON_STATE_SCALED: {
             entity->state     = 0;
             entity->xOff      = GetTextWidth(entity->text, FONT_LABEL, entity->scale) * 0.375;
             entity->textWidth = GetTextWidth(entity->text, FONT_LABEL, entity->scale) * 0.375;

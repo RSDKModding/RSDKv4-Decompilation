@@ -17,7 +17,7 @@ struct NativeEntity_MultiplayerButton : NativeEntityBase {
     byte g;
     byte b;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     NativeEntity_TextLabel *labelPtr;
 };
 

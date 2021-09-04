@@ -620,7 +620,7 @@ void LoadStageFiles(void)
                 bytecodeExists = true;
                 CloseFile();
             }
-            SetFileInfo(&infoStore);
+            SetFileInfo(&bytecodeInfo);
 
             if (bytecodeExists && !forceUseScripts) {
 #else
@@ -718,7 +718,7 @@ void LoadStageFiles(void)
                 bytecodeExists = true;
                 CloseFile();
             }
-            SetFileInfo(&infoStore);
+            SetFileInfo(&bytecodeInfo);
 
             if (bytecodeExists && !forceUseScripts) {
 #else

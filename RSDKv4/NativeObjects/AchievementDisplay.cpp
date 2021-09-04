@@ -6,7 +6,7 @@ void AchievementDisplay_Create(void *objPtr)
     RSDK_THIS(AchievementDisplay);
     entity->z     = 160.0;
     entity->alpha = 0xFF;
-    entity->state = 0;
+    entity->state = ACHDISP_STATE_LOCKED;
 }
 void AchievementDisplay_Main(void *objPtr)
 {
@@ -21,7 +21,7 @@ void AchievementDisplay_Main(void *objPtr)
     float height = GetTextHeight(entity->achievementText, entity->fontID, entity->scale) + fontList[entity->fontID].lineHeight * entity->scale;
 
     switch (entity->state) {
-        case 0: // locked
+        case ACHDISP_STATE_LOCKED: // locked
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
             // RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);
@@ -36,7 +36,7 @@ void AchievementDisplay_Main(void *objPtr)
             RenderTextClipped(entity->descriptionText, entity->fontID, entity->x + 8.0f, entity->y - height, entity->z, entity->scale * 0.75,
                               entity->alpha);
             break;
-        case 1: // unlocked
+        case ACHDISP_STATE_UNLOCKED: // unlocked
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
             // RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);

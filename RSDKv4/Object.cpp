@@ -478,5 +478,5 @@ void RestoreNativeObjects()
     memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
     nativeEntityCount = nativeEntityCountBackup;
 
-    CREATE_ENTITY(FadeScreen)->state = 0;
+    CREATE_ENTITY(FadeScreen)->state = FADESCREEN_STATE_MENUFADEIN;
 }

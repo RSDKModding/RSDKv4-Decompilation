@@ -1,8 +1,10 @@
 #ifndef NATIVE_SEGASPLASH_H
 #define NATIVE_SEGASPLASH_H
 
+enum SegaSplashStates { SEGAPLASH_STATE_ENTER, SEGAPLASH_STATE_EXIT, SEGAPLASH_STATE_SPAWNCWSPLASH };
+
 struct NativeEntity_SegaSplash : NativeEntityBase {
-    int state;
+    SegaSplashStates state;
     float rectAlpha;
     byte textureID;
 };

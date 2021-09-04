@@ -12,7 +12,7 @@ void AboutScreen_Create(void *objPtr)
     entity->label->x               = -144.0;
     entity->label->y               = 100.0;
     entity->label->z               = 16.0;
-    entity->label->state           = 0;
+    entity->label->state           = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->label->text, strAbout, FONT_HEADING);
 
     char title[0x40];
@@ -85,8 +85,8 @@ void AboutScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
@@ -216,8 +216,8 @@ void AboutScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
@@ -225,7 +225,7 @@ void AboutScreen_Main(void *objPtr)
 
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
-                optionsMenu->state = 7;
+                optionsMenu->state = OPTIONSMENU_STATE_EXITSUBMENU;
                 RemoveNativeObject(entity->label);
                 for (int i = 0; i < ABOUT_BTN_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
@@ -242,15 +242,15 @@ void AboutScreen_Main(void *objPtr)
     NewRenderState();
 
     entity->rotationY -= Engine.deltaTime;
-    if (entity->rotationY < -(M_PI * 2))
-        entity->rotationY += (M_PI * 2);
+    if (entity->rotationY < -(M_PI_2))
+        entity->rotationY += (M_PI_2);
 
-    matrixScaleXYZF(&entity->matrix3, 0.6 * entity->scale, 0.6 * entity->scale, 0.6 * entity->scale);
-    matrixRotateYF(&entity->matrix2, entity->rotationY);
-    matrixMultiplyF(&entity->matrix3, &entity->matrix2);
-    matrixTranslateXYZF(&entity->matrix2, -56.0, -8.0, 160.0);
-    matrixMultiplyF(&entity->matrix3, &entity->matrix2);
-    SetRenderMatrix(&entity->matrix3);
+    matrixScaleXYZF(&entity->renderMatrix2, 0.6 * entity->scale, 0.6 * entity->scale, 0.6 * entity->scale);
+    matrixRotateYF(&entity->matrixTemp, entity->rotationY);
+    matrixMultiplyF(&entity->renderMatrix2, &entity->matrixTemp);
+    matrixTranslateXYZF(&entity->matrixTemp, -56.0, -8.0, 160.0);
+    matrixMultiplyF(&entity->renderMatrix2, &entity->matrixTemp);
+    SetRenderMatrix(&entity->renderMatrix2);
     RenderMesh(entity->meshBox, MESH_NORMALS, true);
     SetRenderMatrix(NULL);
 

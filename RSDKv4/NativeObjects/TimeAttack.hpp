@@ -1,8 +1,20 @@
 #ifndef NATIVE_TIMEATTACK_H
 #define NATIVE_TIMEATTACK_H
 
+enum TimeAttackStates {
+    TIMEATTACK_STATE_SETUP,
+    TIMEATTACK_STATE_ENTER,
+    TIMEATTACK_STATE_MAIN,
+    TIMEATTACK_STATE_PAGECHANGE,
+    TIMEATTACK_STATE_ACTION,
+    TIMEATTACK_STATE_ENTERSUBMENU,
+    TIMEATTACK_STATE_SUBMENU,
+    TIMEATTACK_STATE_EXITSUBMENU,
+    TIMEATTACK_STATE_EXIT,
+};
+
 struct NativeEntity_TimeAttack : NativeEntityBase {
-    int state;
+    TimeAttackStates state;
     float timer;
     int field_18;
     NativeEntity_MenuControl *menuControl;
@@ -16,12 +28,12 @@ struct NativeEntity_TimeAttack : NativeEntityBase {
     float float3C;
     float float40;
     float float44;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     MatrixF matrix1;
-    MatrixF matrix3;
+    MatrixF matrixTouch;
     NativeEntity_ZoneButton *zoneButtons[16];
     int zoneID;
-    int dword12C;
+    int storedZoneID;
     float y;
     float float134;
     int textureArrows;

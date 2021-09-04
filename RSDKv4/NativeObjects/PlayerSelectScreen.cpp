@@ -11,7 +11,7 @@ void PlayerSelectScreen_Create(void *objPtr)
     entity->labelPtr->x               = -144.0;
     entity->labelPtr->y               = 100.0;
     entity->labelPtr->z               = 16.0;
-    entity->labelPtr->state           = 0;
+    entity->labelPtr->state           = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, strPlayerSelect, FONT_HEADING);
 
     SetStringToFont(entity->textSonic, strSonic, FONT_TEXT);
@@ -41,8 +41,8 @@ void PlayerSelectScreen_Main(void *objPtr)
     SaveGame *saveGame               = (SaveGame *)saveRAM;
 
     switch (entity->state) {
-        case 0:
-            if (entity->alpha <= 255)
+        case PLAYERSELECTSCREEN_STATE_ENTER:
+            if (entity->alpha < 0x100)
                 entity->alpha += 8;
 
             entity->scale += ((1.025 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
@@ -51,26 +51,26 @@ void PlayerSelectScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->matrix1, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->matrix1, &entity->matrixTemp);
             SetRenderMatrix(&entity->matrix1);
             label->renderMatrix = entity->matrix1;
 
-            entity->field_14 += Engine.deltaTime;
-            if (entity->field_14 > 0.5) {
-                entity->field_14 = 0.0;
-                entity->state    = 1;
-                keyPress.start   = false;
-                keyPress.A       = false;
-                entity->alpha    = 256;
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 0.5) {
+                entity->timer  = 0.0;
+                entity->state  = PLAYERSELECTSCREEN_STATE_MAIN;
+                keyPress.start = false;
+                keyPress.A     = false;
+                entity->alpha  = 256;
                 if (usePhysicalControls)
                     entity->playerID = SAVESEL_SONIC;
             }
             break;
-        case 1:
+        case PLAYERSELECTSCREEN_STATE_MAIN:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
-            SetRenderMatrix(&entity->matrix2);
+            SetRenderMatrix(&entity->matrixTemp);
             if (usePhysicalControls) {
                 if (touches > 0) {
                     usePhysicalControls = false;
@@ -79,33 +79,27 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (keyPress.left) {
                         if (saveGame->knuxUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            if (entity->playerID - 1 > 0)
-                                entity->playerID--;
-                            else
+                            if (--entity->playerID < 0)
                                 entity->playerID = SAVESEL_KNUX;
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            if (entity->playerID - 1 > 0)
-                                entity->playerID--;
-                            else
+                            if (--entity->playerID > 0)
                                 entity->playerID = SAVESEL_TAILS;
                         }
                     }
                     else if (keyPress.right) {
                         if (saveGame->knuxUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            entity->playerID++;
-                            if (entity->playerID > SAVESEL_KNUX) {
+
+                            if (++entity->playerID > SAVESEL_KNUX)
                                 entity->playerID = SAVESEL_SONIC;
-                            }
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            entity->playerID++;
-                            if (entity->playerID > SAVESEL_TAILS) {
+
+                            if (++entity->playerID > SAVESEL_TAILS)
                                 entity->playerID = SAVESEL_SONIC;
-                            }
                         }
                         else {
                             entity->playerID = SAVESEL_SONIC;
@@ -114,12 +108,12 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (keyPress.start || keyPress.A) {
                         PlaySfxByName("Menu Select", false);
                         StopMusic(true);
-                        entity->state = 2;
+                        entity->state = PLAYERSELECTSCREEN_STATE_ACTION;
                     }
                     else if (keyPress.B) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = 0;
-                        entity->state       = 4;
+                        entity->backPressed = false;
+                        entity->state       = PLAYERSELECTSCREEN_STATE_EXIT;
                     }
                 }
             }
@@ -127,7 +121,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                 if (touches > 0) {
                     if (CheckTouchRect(-88.0, 24.0, 40.0, 40.0) < 0) {
                         if (entity->playerID == SAVESEL_SONIC)
-                            entity->playerID = 0;
+                            entity->playerID = SAVESEL_NONE;
                     }
                     else {
                         entity->playerID = SAVESEL_SONIC;
@@ -135,14 +129,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (saveGame->tailsUnlocked) {
                         if (CheckTouchRect(-84.0, -64.0, 16.0, 16.0) < 0) {
                             if (entity->playerID == SAVESEL_ST)
-                                entity->playerID = 0;
+                                entity->playerID = SAVESEL_SONIC;
                         }
                         else {
                             entity->playerID = SAVESEL_ST;
                         }
                         if (CheckTouchRect(0.0, -16.0, 40.0, 40.0) < 0) {
                             if (entity->playerID == SAVESEL_TAILS)
-                                entity->playerID = 0;
+                                entity->playerID = SAVESEL_NONE;
                         }
                         else {
                             entity->playerID = SAVESEL_TAILS;
@@ -151,14 +145,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (saveGame->knuxUnlocked) {
                         if (CheckTouchRect(88.0, 24.0, 40.0, 40.0) < 0) {
                             if (entity->playerID == SAVESEL_KNUX)
-                                entity->playerID = 0;
+                                entity->playerID = SAVESEL_NONE;
                         }
                         else {
                             entity->playerID = SAVESEL_KNUX;
                         }
                     }
                     entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
-                    if (entity->state == 1 && (keyDown.left || keyDown.right)) {
+                    if (entity->state == PLAYERSELECTSCREEN_STATE_MAIN && (keyDown.left || keyDown.right)) {
                         usePhysicalControls = true;
                         entity->playerID    = SAVESEL_SONIC;
                     }
@@ -167,14 +161,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (entity->playerID > 0) {
                         PlaySfxByName("Menu Select", false);
                         StopMusic(true);
-                        entity->state = 2;
+                        entity->state = PLAYERSELECTSCREEN_STATE_ACTION;
                     }
                     if (entity->backPressed || keyPress.B) {
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
-                        entity->state       = 4;
+                        entity->state       = PLAYERSELECTSCREEN_STATE_EXIT;
                     }
-                    else if (entity->state == 1 && (keyDown.left || keyDown.right)) {
+                    else if (entity->state == PLAYERSELECTSCREEN_STATE_MAIN && (keyDown.left || keyDown.right)) {
                         usePhysicalControls = true;
                         entity->playerID    = SAVESEL_SONIC;
                     }
@@ -182,40 +176,40 @@ void PlayerSelectScreen_Main(void *objPtr)
             }
             break;
         case 2:
-            SetRenderMatrix(&entity->matrix2);
+            SetRenderMatrix(&entity->matrixTemp);
 
-            entity->field_18 += Engine.deltaTime;
-            entity->field_14 += Engine.deltaTime;
-            if (entity->field_18 > 0.1) {
-                entity->field_18 -= 0.1;
+            entity->timer2 += Engine.deltaTime;
+            entity->timer += Engine.deltaTime;
+            if (entity->timer2 > 0.1) {
+                entity->timer2 -= 0.1;
             }
-            entity->flag = entity->field_18 > 0.05;
+            entity->flag = entity->timer2 > 0.05;
 
-            if (entity->field_14 > 1.0) {
-                entity->flag     = true;
-                entity->field_14 = 0.0;
-                entity->state    = 3;
-                if (saveSel->selectedSave <= 0) {
+            if (entity->timer > 1.0) {
+                entity->flag  = true;
+                entity->timer = 0.0;
+                entity->state = PLAYERSELECTSCREEN_STATE_IDLE;
+                if (saveSel->selectedButton <= 0) {
                     SetGlobalVariableByName("options.saveSlot", 0);
                     SetGlobalVariableByName("options.gameMode", 0);
                 }
                 else {
-                    SetGlobalVariableByName("options.saveSlot", saveSel->selectedSave - 1);
+                    SetGlobalVariableByName("options.saveSlot", saveSel->selectedButton - 1);
                     SetGlobalVariableByName("options.gameMode", 1);
 
                     switch (entity->playerID) {
-                        case SAVESEL_SONIC: saveGame->files[saveSel->selectedSave - 1].characterID = 0; break;
-                        case SAVESEL_TAILS: saveGame->files[saveSel->selectedSave - 1].characterID = 1; break;
-                        case SAVESEL_KNUX: saveGame->files[saveSel->selectedSave - 1].characterID = 2; break;
-                        case SAVESEL_ST: saveGame->files[saveSel->selectedSave - 1].characterID = 3; break;
+                        case SAVESEL_SONIC: saveGame->files[saveSel->selectedButton - 1].characterID = 0; break;
+                        case SAVESEL_TAILS: saveGame->files[saveSel->selectedButton - 1].characterID = 1; break;
+                        case SAVESEL_KNUX: saveGame->files[saveSel->selectedButton - 1].characterID = 2; break;
+                        case SAVESEL_ST: saveGame->files[saveSel->selectedButton - 1].characterID = 3; break;
                     }
 
-                    saveGame->files[saveSel->selectedSave - 1].lives          = 3;
-                    saveGame->files[saveSel->selectedSave - 1].score          = 0;
-                    saveGame->files[saveSel->selectedSave - 1].scoreBonus     = 500000;
-                    saveGame->files[saveSel->selectedSave - 1].stageID        = 1;
-                    saveGame->files[saveSel->selectedSave - 1].emeralds       = 0;
-                    saveGame->files[saveSel->selectedSave - 1].specialStageID = 0;
+                    saveGame->files[saveSel->selectedButton - 1].lives          = 3;
+                    saveGame->files[saveSel->selectedButton - 1].score          = 0;
+                    saveGame->files[saveSel->selectedButton - 1].scoreBonus     = 500000;
+                    saveGame->files[saveSel->selectedButton - 1].stageID        = 1;
+                    saveGame->files[saveSel->selectedButton - 1].emeralds       = 0;
+                    saveGame->files[saveSel->selectedButton - 1].specialStageID = 0;
                     WriteSaveRAMData();
                 }
                 SetGlobalVariableByName("player.lives", 3);
@@ -229,22 +223,22 @@ void PlayerSelectScreen_Main(void *objPtr)
                 SetGlobalVariableByName("starPostID", 0);
 
                 switch (entity->playerID) {
-                    case SAVESEL_SONIC: saveGame->files[saveSel->selectedSave - 1].characterID = 0; break;
-                    case SAVESEL_TAILS: saveGame->files[saveSel->selectedSave - 1].characterID = 1; break;
-                    case SAVESEL_KNUX: saveGame->files[saveSel->selectedSave - 1].characterID = 2; break;
-                    case SAVESEL_ST: saveGame->files[saveSel->selectedSave - 1].characterID = 3; break;
+                    case SAVESEL_SONIC: saveGame->files[saveSel->selectedButton - 1].characterID = 0; break;
+                    case SAVESEL_TAILS: saveGame->files[saveSel->selectedButton - 1].characterID = 1; break;
+                    case SAVESEL_KNUX: saveGame->files[saveSel->selectedButton - 1].characterID = 2; break;
+                    case SAVESEL_ST: saveGame->files[saveSel->selectedButton - 1].characterID = 3; break;
                 }
-                InitStartingStage(STAGELIST_PRESENTATION, 0, saveGame->files[saveSel->selectedSave - 1].characterID);
+                InitStartingStage(STAGELIST_PRESENTATION, 0, saveGame->files[saveSel->selectedButton - 1].characterID);
 
                 CREATE_ENTITY(FadeScreen);
             }
             break;
-        case 3: SetRenderMatrix(&entity->matrix2); break;
-        case 4:
+        case PLAYERSELECTSCREEN_STATE_IDLE: SetRenderMatrix(&entity->matrixTemp); break;
+        case PLAYERSELECTSCREEN_STATE_EXIT:
             if (entity->alpha > 0)
                 entity->alpha -= 8;
 
-            if (entity->field_14 >= 0.2)
+            if (entity->timer >= 0.2)
                 entity->scale += ((-1.0f - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
             else
                 entity->scale += ((1.5 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0));
@@ -253,14 +247,14 @@ void PlayerSelectScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->matrix1, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->matrix1, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->matrix1, &entity->matrixTemp);
             SetRenderMatrix(&entity->matrix1);
             label->renderMatrix = entity->matrix1;
 
-            entity->field_14 += Engine.deltaTime;
-            if (entity->field_14 > 0.5) {
-                saveSel->state = 7;
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 0.5) {
+                saveSel->state = SAVESELECT_STATE_EXITSUBMENU;
                 RemoveNativeObject(label);
                 RemoveNativeObject(entity);
                 return;

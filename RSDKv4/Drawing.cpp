@@ -305,7 +305,13 @@ int InitRenderDevice()
 #if RETRO_PLATFORM == RETRO_ANDROID
     Engine.startFullScreen = true;
 #endif
+#endif
 
+
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#else
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
 #endif
 
 #if RETRO_SOFTWARE_RENDER

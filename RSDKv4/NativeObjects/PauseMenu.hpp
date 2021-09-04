@@ -12,8 +12,24 @@ enum PauseMenuButtons {
     PMB_COUNT
 };
 
+enum PauseMenuStates {
+    PAUSEMENU_STATE_SETUP,
+    PAUSEMENU_STATE_ENTER,
+    PAUSEMENU_STATE_MAIN,
+    PAUSEMENU_STATE_CONTINUE,
+    PAUSEMENU_STATE_ACTION,
+    PAUSEMENU_STATE_ENTERSUBMENU,
+    PAUSEMENU_STATE_SUBMENU,
+    PAUSEMENU_STATE_EXITSUBMENU,
+    PAUSEMENU_STATE_RESTART,
+    PAUSEMENU_STATE_EXIT,
+#if !RETRO_USE_ORIGINAL_CODE
+    PAUSEMENU_STATE_DEVMENU,
+#endif
+};
+
 struct NativeEntity_PauseMenu : NativeEntityBase {
-    int state;
+    PauseMenuStates state;
     float timer;
     float float18;
     NativeEntity_RetroGameLoop *retroGameLoop;
@@ -22,7 +38,7 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
     float renderRot;
     float renderRotMax;
     float rotInc;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     MatrixF matrix;
     NativeEntity_SubMenuButton *buttons[PMB_COUNT];
     int buttonSelected;

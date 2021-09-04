@@ -1,6 +1,8 @@
 #ifndef NATIVE_PUSHBUTTON_H
 #define NATIVE_PUSHBUTTON_H
 
+enum PushButtonStates { PUSHBUTTON_STATE_UNSELECTED, PUSHBUTTON_STATE_SELECTED, PUSHBUTTON_STATE_FLASHING, PUSHBUTTON_STATE_SCALED };
+
 struct NativeEntity_PushButton : NativeEntityBase {
     float x;
     float y;

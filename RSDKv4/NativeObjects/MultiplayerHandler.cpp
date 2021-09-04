@@ -8,7 +8,7 @@ void MultiplayerHandler_Create(void *objPtr)
     entity->pingLabel->fontID = FONT_TEXT;
     entity->pingLabel->x      = SCREEN_XSIZE_F / 2 - 64.0f;
     entity->pingLabel->y      = -(SCREEN_YSIZE_F / 2) + 4.0f;
-    entity->pingLabel->alignPtr(entity->pingLabel, 0);
+    entity->pingLabel->alignPtr(entity->pingLabel, ALIGN_LEFT);
     entity->pingLabel->scale      = 0.175;
     entity->pingLabel->useColours = true;
     entity->pingLabel->r          = 0xFF;
@@ -26,8 +26,8 @@ void MultiplayerHandler_Main(void *objPtr)
                 break;
             }
             entity->timer += Engine.deltaTime;
-            if (entity->pingLabel->textWidth) {
-                entity->pingLabel->alignPtr(entity->pingLabel, 0);
+            if (entity->pingLabel->alignOffset) {
+                entity->pingLabel->alignPtr(entity->pingLabel, ALIGN_LEFT);
                 entity->pingLabel->x -= 28.0f;
             }
             if (entity->timer >= 1.0f && !waitingForPing) {
@@ -59,7 +59,7 @@ void MultiplayerHandler_Main(void *objPtr)
             else if (entity->timer >= 5.0f && waitingForPing) {
                 entity->pingLabel->g = 0xCF * (fmod(entity->timer, .5) >= .25) + 0x30;
                 entity->pingLabel->b = 0xCF * (fmod(entity->timer, .5) >= .25) + 0x30;
-                entity->pingLabel->alignPtr(entity->pingLabel, 1);
+                entity->pingLabel->alignPtr(entity->pingLabel, ALIGN_CENTER);
                 entity->pingLabel->x += 28.0f;
                 sprintf(buf, " !! %.2fs !!", 10 - entity->timer);
                 SetStringToFont8(entity->pingLabel->text, buf, FONT_TEXT);
@@ -104,7 +104,7 @@ void MultiplayerHandler_Main(void *objPtr)
             if (!entity->fade) {
                 // if (false && entity->errorPanel->selection) {
                 entity->fade        = CREATE_ENTITY(FadeScreen);
-                entity->fade->state = 1;
+                entity->fade->state = FADESCREEN_STATE_FADEOUT;
                 //}
             }
             else if (entity->fade->timer > entity->fade->timeLimit) {
