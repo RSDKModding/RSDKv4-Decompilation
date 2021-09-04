@@ -6,3 +6,5 @@ download the libogg .zip file and unzip it in "./libogg/", then build the librar
 
 libvorbis: https://xiph.org/downloads/ (libvorbis)
 download the libogg .zip file and unzip it in "./libvorbis/", then build the library as a framework, and include it in the xcode proj
+
+Glew: do `brew install glew` and copy the folder from usr/local/cellar to ./glew

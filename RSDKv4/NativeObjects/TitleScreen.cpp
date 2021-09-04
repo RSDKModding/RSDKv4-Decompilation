@@ -90,7 +90,6 @@ void TitleScreen_Create(void *objPtr)
     entity->labelPtr->alpha = 0;
     entity->labelPtr->state = -1;
 
-    ushort *str = NULL;
     if (Engine.gameDeviceType == RETRO_MOBILE)
         SetStringToFont(entity->labelPtr->text, strTouchToStart, FONT_HEADING);
     else

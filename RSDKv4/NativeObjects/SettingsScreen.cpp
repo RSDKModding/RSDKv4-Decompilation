@@ -296,7 +296,6 @@ void SettingsScreen_Main(void *objPtr)
                             break;
                         case 4:
                             if (keyPress.left || keyPress.right) {
-                                int boxRegion;
                                 if (keyPress.left) {
                                     PlaySfxByName("Menu Move", false);
                                     if (saveGame->boxRegion - 1 >= 0)
@@ -506,8 +505,8 @@ void SettingsScreen_Main(void *objPtr)
                     touchBuf = CheckTouchRect(4.0, -42.0, (entity->buttons[6]->textWidth + (entity->buttons[6]->scale * 64.0)) * 0.75, 12.0);
                     button   = entity->buttons[6];
                     if (touchBuf < 0) {
-                        button->state = 0,
-                        touchBuf = CheckTouchRect(52.0, -42.0, (entity->buttons[7]->textWidth + (entity->buttons[7]->scale * 64.0)) * 0.75, 12.0),
+                        button->state = 0;
+                        touchBuf = CheckTouchRect(52.0, -42.0, (entity->buttons[7]->textWidth + (entity->buttons[7]->scale * 64.0)) * 0.75, 12.0);
                         button   = entity->buttons[7];
                     }
                     if (touchBuf < 0) {
@@ -830,15 +829,15 @@ void SettingsScreen_Main(void *objPtr)
                     SetGlobalVariableByName("options.originalControls", true);
                     SetGlobalVariableByName("options.airSpeedCap", true);
                 }
-                int gameRegion = saveGame->boxRegion, newBoxTex;
-                if (Engine.globalBoxRegion != gameRegion) {
+                
+                if (Engine.globalBoxRegion != saveGame->boxRegion) {
                     int package = 0;
                     switch (Engine.globalBoxRegion) {
                         case REGION_JP: package = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA8888); break;
                         case REGION_US: package = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA8888); break;
                         case REGION_EU: package = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA8888); break;
                     }
-                    Engine.globalBoxRegion = gameRegion;
+                    Engine.globalBoxRegion = saveGame->boxRegion;
                     switch (Engine.globalBoxRegion) {
                         case REGION_JP: ReplaceTexture("Data/Game/Models/Package_JP.png", package); break;
                         case REGION_US: ReplaceTexture("Data/Game/Models/Package_US.png", package); break;

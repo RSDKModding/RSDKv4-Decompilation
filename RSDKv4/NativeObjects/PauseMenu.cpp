@@ -38,7 +38,7 @@ void PauseMenu_Create(void *objPtr)
         button->symbol    = 1;
         button->useMatrix = true;
     }
-    if (GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1 || !activeStageList
+    if ((GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1) || !activeStageList
         || GetGlobalVariableByName("options.attractMode") == 1 || GetGlobalVariableByName("options.vsMode") == 1) {
         entity->buttons[1]->r = 0x80;
         entity->buttons[1]->g = 0x80;

@@ -395,8 +395,8 @@ void InitNativeObjectSystem()
 NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {
     if (!nativeEntityCount) {
-        NativeEntity *entity = objectEntityBank;
-        memset(objectEntityBank, 0, sizeof(NativeEntityBase));
+        memset(objectEntityBank, 0, sizeof(objectEntityBank));
+        NativeEntity *entity = &objectEntityBank[0];
         entity->createPtr   = create;
         entity->mainPtr     = main;
         activeEntityList[0] = 0;

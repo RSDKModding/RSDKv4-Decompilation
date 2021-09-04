@@ -314,7 +314,7 @@ void MultiplayerScreen_Main(void *objPtr)
                             setRoomCode(entity->roomCode);
                             CodedData send;
                             send.header                 = 0;
-                            send.data.multiData.data[1] = strlen(networkGame);
+                            send.data.multiData.data[1] = (int)strlen(networkGame);
                             StrCopy((char *)&send.data.multiData.data[2], networkGame);
 
                             sendCodedData(send);
@@ -514,7 +514,6 @@ void MultiplayerScreen_Main(void *objPtr)
                         int n         = 7 - (entity->selectedButton - 5);
                         int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
-                        byte val = nybbles[n & 1];
                         if (keyPress.up) {
                             PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
@@ -640,7 +639,6 @@ void MultiplayerScreen_Main(void *objPtr)
                         int n         = 7 - id;
                         int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
-                        byte val = nybbles[n & 1];
                         if (entity->touchedUpID >= 0) {
                             PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
@@ -783,7 +781,7 @@ void MultiplayerScreen_Main(void *objPtr)
                 vsItemMode = 1;
             send.data.multiData.type    = 0x00000FF0;
             send.data.multiData.data[0] = (vsGameLength << 4) | (vsItemMode << 8);
-            send.data.multiData.data[1] = strlen(networkGame);
+            send.data.multiData.data[1] = (int)strlen(networkGame);
             StrCopy((char *)&send.data.multiData.data[2], networkGame);
 
             sendCodedData(send);

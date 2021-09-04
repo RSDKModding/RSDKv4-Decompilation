@@ -10,13 +10,10 @@ void InitPauseMenu()
 
 void RetroGameLoop_Create(void *objPtr)
 {
-    RSDK_THIS(RetroGameLoop);
     mixFiltersOnJekyll = Engine.useHighResAssets;
 }
 void RetroGameLoop_Main(void *objPtr)
 {
-    RSDK_THIS(RetroGameLoop);
-
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:
 #if RETRO_HARDWARE_RENDER

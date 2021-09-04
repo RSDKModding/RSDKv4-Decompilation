@@ -359,7 +359,7 @@ void RefreshEngine()
     saveMods();
 }
 
-void GetModCount() { scriptEng.checkResult = modList.size(); }
+void GetModCount() { scriptEng.checkResult = (int)modList.size(); }
 void GetModName(int *textMenu, int *highlight, uint *id, int *unused)
 {
     if (*id >= modList.size())

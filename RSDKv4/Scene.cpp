@@ -615,7 +615,7 @@ void LoadStageFiles(void)
 #if !RETRO_USE_ORIGINAL_CODE
             bool bytecodeExists = false;
             FileInfo bytecodeInfo;
-            GetFileInfo(&infoStore);
+            GetFileInfo(&bytecodeInfo);
             if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
                 bytecodeExists = true;
                 CloseFile();
@@ -713,7 +713,7 @@ void LoadStageFiles(void)
             }
             bool bytecodeExists = false;
             FileInfo bytecodeInfo;
-            GetFileInfo(&infoStore);
+            GetFileInfo(&bytecodeInfo);
             if (LoadFile(scriptPath, &info)) {
                 bytecodeExists = true;
                 CloseFile();

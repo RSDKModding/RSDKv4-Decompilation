@@ -455,7 +455,6 @@ void MenuControl_Main(void *objPtr)
 
             for (int i = 0; i < entity->buttonCount; ++i) {
                 if (entity->buttonID != i) {
-                    NativeEntity_AchievementsButton *button = entity->buttons[i];
                     if (entity->buttonID != i)
                         entity->buttons[i]->z += ((60.0 * Engine.deltaTime) * entity->field_70);
                 }
@@ -480,7 +479,6 @@ void MenuControl_Main(void *objPtr)
 
                 for (int i = 0; i < entity->buttonCount; ++i) {
                     if (entity->buttonID != i) {
-                        NativeEntity_AchievementsButton *button = entity->buttons[i];
                         if (entity->buttonID != i)
                             entity->buttons[i]->visible = false;
                     }
