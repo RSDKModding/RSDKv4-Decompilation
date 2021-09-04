@@ -76,11 +76,11 @@ endif
 
 objects/%.o: %
 	mkdir -p $(@D)
-	$(CXX) -MD $(CXXFLAGS_ALL) -std=c++17 $^ -o $@ -c
+	$(CXX) $(CXXFLAGS_ALL) -std=c++17 $^ -o $@ -c
 
 bin/RSDKv4: $(SOURCES:%=objects/%.o)
 	mkdir -p $(@D)
-	$(CXX) -MD $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $^ -o $@ $(LIBS_ALL)
+	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $^ -o $@ $(LIBS_ALL)
 
 install: bin/RSDKv4
 	install -Dp -m755 bin/RSDKv4 $(prefix)/bin/RSDKv4
