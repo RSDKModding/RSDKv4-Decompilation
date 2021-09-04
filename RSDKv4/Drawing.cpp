@@ -261,7 +261,7 @@ int InitRenderDevice()
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
     
-    //glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_DITHER);
