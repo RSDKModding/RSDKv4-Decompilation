@@ -1,4 +1,4 @@
-CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl1.2 sdl2 vorbisfile vorbis glew tinyxml2) $(CXXFLAGS) \
+CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl sdl1 sdl2 vorbisfile vorbis glew tinyxml2) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"' \
                -IRSDKv4/ \
                -IRSDKv4/NativeObjects/ \
@@ -7,7 +7,7 @@ CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl1.2 sdl2 vorbisfile vorbi
                -Idependencies/all/tinyxml2/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = $(shell pkg-config --libs --static sdl1.2 sdl2 vorbisfile vorbis glew tinyxml2) -pthread $(LIBS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl sdl1 sdl2 vorbisfile vorbis glew tinyxml2) -pthread $(LIBS)
 
 SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/Audio.cpp         \
