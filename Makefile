@@ -9,7 +9,9 @@ CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew 
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew ) -pthread $(LIBS)
 
-SOURCES = RSDKv4/Animation.cpp     \
+SOURCES = 
+  	  dependencies/all/tinyxml2/tinyxml2.cpp \
+	  RSDKv4/Animation.cpp     \
           RSDKv4/Audio.cpp         \
           RSDKv4/Collision.cpp     \
           RSDKv4/Debug.cpp         \
@@ -67,7 +69,6 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/VirtualDPad.cpp \
           RSDKv4/NativeObjects/VirtualDPadM.cpp \
           RSDKv4/NativeObjects/ZoneButton.cpp \
-  	  dependencies/all/tinyxml2/tinyxml2.cpp \
    
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
