@@ -117,7 +117,7 @@ void InitUserdata()
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = RETRO_DEFAULTSCALINGMODE);
+        ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = 0);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE);
         SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
@@ -263,7 +263,7 @@ void InitUserdata()
         if (!ini.GetBool("Window", "VSync", &Engine.vsync))
             Engine.vsync = false;
         if (!ini.GetInteger("Window", "ScalingMode", &Engine.scalingMode))
-            Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
+            Engine.scalingMode = 0;
         if (!ini.GetInteger("Window", "WindowScale", &Engine.windowScale))
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE_CONFIG))

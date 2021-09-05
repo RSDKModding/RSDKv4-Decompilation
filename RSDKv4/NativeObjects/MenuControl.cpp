@@ -58,9 +58,9 @@ void MenuControl_Create(void *objPtr)
     entity->segaIDButton->texX = 0.0;
     entity->segaIDButton->x    = SCREEN_CENTERX_F - 32.0;
 
-    entity->float28 = 0.15707964;
-    entity->float2C = 0.078539819;
-    entity->float30 = (entity->buttonCount * 0.15707964) * 0.5;
+    entity->float28 = 0.15707964f;    // this but less precise ---> M_PI / 2
+    entity->float2C = 0.078539819f; //this but less precise ---> M_PI / 4
+    entity->float30 = (entity->buttonCount * entity->float28) * 0.5;
 
     float offset = 0.0;
     for (int b = 0; b < entity->buttonCount; ++b) {
@@ -147,7 +147,7 @@ void MenuControl_Main(void *objPtr)
                         else {
                             entity->field_70 = 0.0;
                             entity->field_78 = (entity->field_6C - touchXF[0]) * -0.0007;
-                            if (entity->field_74 > 0.0 || entity->field_74 < 0.0) {
+                            if (abs(entity->field_74) > 0.0) {
                                 entity->field_70 = entity->field_78 - entity->field_74;
                                 entity->float18 += entity->field_70;
                             }
@@ -158,9 +158,9 @@ void MenuControl_Main(void *objPtr)
                     case MENUCONTROL_STATEINPUT_HANDLEMOVEMENT: {
                         entity->field_70 /= (1.125 * (60.0 * Engine.deltaTime));
                         entity->float18 += entity->field_70;
-                        float val = -(entity->float30 - entity->float2C);
+                        float max = -(entity->float30 - entity->float2C);
 
-                        if ((val - 0.05) > entity->float18 || entity->float18 > 0.05) {
+                        if (max - 0.05 > entity->float18 || entity->float18 > 0.05) {
                             entity->field_70 = 0.0;
                         }
 
@@ -170,30 +170,26 @@ void MenuControl_Main(void *objPtr)
                             }
 
                             if (entity->float18 <= entity->float20) {
-                                if ((floorf(entity->float18 / entity->float2C) * entity->float2C) > (entity->float20 - entity->float2C)) {
-                                    entity->float1C = entity->float20 - entity->float2C;
-                                }
-                                else {
-                                    entity->float1C = floorf(entity->float18 / entity->float2C) * entity->float2C;
-                                }
+                                entity->float1C = floorf(entity->float18 / entity->float2C) * entity->float2C;
 
-                                if (entity->float1C <= val)
-                                    entity->float1C = val;
+                                if (entity->float1C > entity->float20 - entity->float2C)
+                                    entity->float1C = entity->float20 - entity->float2C;
+
+                                if (entity->float1C < max)
+                                    entity->float1C = max;
                             }
                             else {
-                                if ((entity->float2C + entity->float20) > (ceilf(entity->float18 / entity->float2C) * entity->float2C)) {
+                                entity->float1C = ceilf(entity->float18 / entity->float2C) * entity->float2C;
+
+                                if (entity->float1C < entity->float2C + entity->float20)
                                     entity->float1C = entity->float2C + entity->float20;
-                                }
-                                else {
-                                    entity->float1C = ceilf(entity->float18 / entity->float2C) * entity->float2C;
-                                }
 
                                 if (entity->float1C > 0.0)
                                     entity->float1C = 0.0;
                             }
 
                             entity->stateInput = MENUCONTROL_STATEINPUT_MOVE;
-                            entity->float18 += ((entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0));
+                            entity->float18 += (entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0);
                         }
                         break;
                     }
@@ -204,7 +200,7 @@ void MenuControl_Main(void *objPtr)
                             entity->field_6C   = touchXF[0];
                         }
                         else {
-                            entity->float18 += ((entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 6.0));
+                            entity->float18 += (entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 6.0);
                             if (abs(entity->float1C - entity->float18) < 0.00025) {
                                 entity->float18    = entity->float1C;
                                 entity->stateInput = MENUCONTROL_STATEINPUT_CHECKTOUCH;
@@ -244,7 +240,7 @@ void MenuControl_Main(void *objPtr)
                 }
             }
             else {
-                if (entity->stateInput == 1) {
+                if (entity->stateInput == MENUCONTROL_STATEINPUT_HANDLEDRAG) {
                     entity->float18 += (((entity->float24 + entity->float1C) - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0));
 
                     if (abs(entity->float1C - entity->float18) < 0.001) {

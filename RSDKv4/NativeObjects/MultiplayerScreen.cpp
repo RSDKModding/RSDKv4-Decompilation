@@ -242,9 +242,8 @@ void MultiplayerScreen_Main(void *objPtr)
             else {
                 if (touches > 0) {
                     for (int i = 0; i < 2; ++i) {
-                        bool valid =
+                        entity->buttons[i]->state =
                             CheckTouchRect(0, 20 - (i * 40), ((64.0 * entity->buttons[i]->scale) + entity->buttons[i]->textWidth) * 0.75, 20.4) >= 0;
-                        entity->buttons[i]->state = valid;
                     }
                     entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
                     if (entity->state == MULTIPLAYERSCREEN_STATE_MAIN) {
@@ -298,7 +297,7 @@ void MultiplayerScreen_Main(void *objPtr)
             CheckKeyDown(&keyDown);
             SetRenderMatrix(&entity->renderMatrix);
 
-            if (entity->buttons[entity->selectedButton]->state) {
+            if (entity->buttons[entity->selectedButton]->state == PUSHBUTTON_STATE_UNSELECTED) {
                 entity->state = MULTIPLAYERSCREEN_STATE_MAIN;
                 switch (entity->selectedButton) {
                     default: break;
@@ -815,6 +814,8 @@ void MultiplayerScreen_Main(void *objPtr)
         case MULTIPLAYERSCREEN_STATEDRAW_JOIN: {
             for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) entity->buttons[i]->alpha = 0;
             entity->selectedButton = MULTIPLAYERSCREEN_BUTTON_COUNT;
+            entity->touchedUpID    = -1;
+            entity->touchedDownID  = -1;
 
             for (int i = 0; i < 3; ++i) entity->codeLabel[i]->alpha = 0;
 
