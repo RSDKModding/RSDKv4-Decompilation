@@ -7,7 +7,6 @@
 #include <thread>
 #include <chrono>
 #if RETRO_PLATFORM == RETRO_ANDROID
-// TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
 #define ASIO_NO_TYPEID
 #endif
 #include <asio.hpp>
@@ -168,6 +167,7 @@ private:
 
 std::shared_ptr<NetworkSession> session;
 asio::io_context io_context;
+std::thread loopThread, ioThread;
 
 void initNetwork()
 {
@@ -178,26 +178,26 @@ void initNetwork()
         session.reset();
         auto newsession = std::make_shared<NetworkSession>(io_context, endpoints);
         session.swap(newsession);
+        if (ioThread.joinable()) {
+            io_context.stop();
+            ioThread.join();
+        }
+        ioThread = std::thread([&]() { io_context.run(); });
     } catch (std::exception &e) {
         Engine.onlineActive = false;
         printLog("Failed to initialize networking: %s", e.what());
     }
 }
 
-std::thread t;
-
 void networkLoop()
 {
     try {
-        std::thread t([&]() { io_context.run(); });
-
         session->start();
         while (session->running)
             ;
 
         session->close();
         io_context.stop();
-        t.detach(); // let it handle itself i guess
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
@@ -205,11 +205,11 @@ void networkLoop()
 
 void runNetwork()
 {
-    if (t.joinable()) {
+    if (loopThread.joinable()) {
         disconnectNetwork();
         initNetwork();
     }
-    t = std::thread(networkLoop);
+    loopThread = std::thread(networkLoop);
 }
 
 void sendData()
@@ -228,10 +228,12 @@ void disconnectNetwork()
     send.header = 0xFF;
     session->write(send);
     session->running = false;
-    if (t.joinable()) {
-        t.join();
-    }
-    // Engine.devMenu = vsPlayerID;
+    if (loopThread.joinable())
+        loopThread.join();
+    if (ioThread.joinable())
+        if (!io_context.stopped())
+            io_context.stop();
+    ioThread.join();
 }
 
 void sendServerPacket(ServerPacket &send) { session->write(send); }

@@ -351,10 +351,6 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("timeAttack.result", 0);
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
-                        if (!Engine.onlineActive) {
-                            disconnectNetwork();
-                            initNetwork(); // let's see if we can turn it on
-                        }
                         if (Engine.onlineActive) {
 #if !RETRO_USE_ORIGINAL_CODE
                             BackupNativeObjects();
