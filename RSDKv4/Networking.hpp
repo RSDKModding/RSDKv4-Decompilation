@@ -34,7 +34,7 @@ void initNetwork();
 void runNetwork();
 void sendData();
 void disconnectNetwork();
-void sendCodedData(ServerPacket &send);
+void sendServerPacket(ServerPacket &send);
 int getRoomCode();
 void setRoomCode(int code);
 

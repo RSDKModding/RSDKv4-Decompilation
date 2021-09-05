@@ -2,23 +2,26 @@ package com.decomp.rsdkv4;
 
 import android.Manifest;
 import android.content.Context;
-import android.provider.MediaStore;
-import android.content.pm.PackageManager;
+import android.os.Environment;
+
+import java.io.File;
 
 import org.libsdl.app.*;
+
 
 public class RSDKv4 extends SDLActivity {
     @Override
     protected void onStart() {
         super.onStart();
         getBasePath();
-
     }
 
     public String getBasePath() {
         Context c = getApplicationContext();
         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL); //just force it if its not there
-        return getExternalFilesDir(null).getAbsolutePath().replace("/data/", "/media/").replace("/files", "/");
+        String p = Environment.getExternalStorageDirectory().getAbsolutePath() + "/RSDK/v4";
+        //getExternalStorageDirectory is deprecated. I do not care.
+        new File(p).mkdirs();
+        return p + "/";
     }
 }

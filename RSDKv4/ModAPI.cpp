@@ -23,11 +23,11 @@ int OpenModMenu()
     return 1;
 }
 
-//#if RETRO_PLATFORM == RETRO_ANDROID
-//namespace fs = std::__fs::filesystem;
-//#else
+#if RETRO_PLATFORM == RETRO_ANDROID
+namespace fs = std::__fs::filesystem; //this is so we can avoid using c++17, which causes a ton of warnings w asio and looks ugly
+#else
 namespace fs = std::filesystem;
-//#endif
+#endif
 
 void initMods()
 {

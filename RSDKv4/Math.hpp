@@ -7,11 +7,9 @@
 
 #undef M_PI_2
 #define M_PI_2 (M_PI * 2.0)
-//#endif
 
 #undef M_PI_H
 #define M_PI_H (M_PI * 0.5)
-//#endif
 
 #define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))

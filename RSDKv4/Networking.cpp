@@ -234,7 +234,7 @@ void disconnectNetwork()
     // Engine.devMenu = vsPlayerID;
 }
 
-void sendCodedData(ServerPacket &send) { session->write(send); }
+void sendServerPacket(ServerPacket &send) { session->write(send); }
 int getRoomCode() { return session->roomcode; }
 void setRoomCode(int code) { session->roomcode = code; }
 

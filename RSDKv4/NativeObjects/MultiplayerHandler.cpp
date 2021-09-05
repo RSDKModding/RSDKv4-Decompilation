@@ -33,15 +33,15 @@ void MultiplayerHandler_Main(void *objPtr)
             if (entity->timer >= 1.0f && !waitingForPing) {
                 waitingForPing = true;
                 entity->timer  = 0;
-                if (lastPing < 0.8f) {
+                if (lastPing < 800.0f) {
                     sprintf(buf, "Ping: %.1fms", lastPing);
                     entity->pingLabel->g = 0xFF;
                     entity->pingLabel->b = 0xFF;
                 }
-                else if (lastPing < 2.0f) {
+                else if (lastPing < 2000.0f) {
                     entity->pingLabel->g = 0xFF;
                     entity->pingLabel->b = 0x30;
-                    sprintf(buf, "Ping: %.2fs", lastPing);
+                    sprintf(buf, "Ping: %.2fs", lastPing / 1000);
                 }
                 else {
                     entity->pingLabel->g = 0x30;

@@ -59,7 +59,7 @@ LOCAL_MODULE := main
 
 SDL_PATH := ../SDL
 
-LOCAL_CFLAGS   := -fexceptions -std=c++17
+LOCAL_CFLAGS   := -fexceptions
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/RSDKv4 \
@@ -75,7 +75,7 @@ LOCAL_C_INCLUDES := \
 
 WILDCARD_SETUP := \
   $(wildcard $(LOCAL_PATH)/RSDKv4/*.cpp) \
-  $(wildcard $(LOCAL_PATH)/RSDKv4/NativeObjects/*.cpp) \
+  $(LOCAL_PATH)/RSDKv4/NativeObjects/All.cpp \
   $(wildcard $(LOCAL_PATH)/dependencies/all/stb-image/*.cpp) \
   $(wildcard $(LOCAL_PATH)/dependencies/all/tinyxml2/*.cpp)
 
