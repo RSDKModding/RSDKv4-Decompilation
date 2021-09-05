@@ -23,6 +23,8 @@ void TextLabel_Main(void *objPtr)
 #endif
 
     switch (entity->state) {
+        default: break;
+        case TEXTLABEL_STATE_NONE: break;
         case TEXTLABEL_STATE_IDLE:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderText(entity->text, entity->fontID, entity->x - entity->alignOffset, entity->y, entity->z, entity->scale, entity->alpha);

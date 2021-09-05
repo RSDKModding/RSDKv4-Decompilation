@@ -437,7 +437,7 @@ void TimeAttack_Main(void *objPtr)
                 }
             }
 
-            if (entity->menuControl->state == TIMEATTACK_STATE_PAGECHANGE) {
+            if (entity->menuControl->state == MENUCONTROL_STATE_EXITSUBMENU) {
                 entity->state = TIMEATTACK_STATE_EXIT;
             }
             break;

@@ -249,6 +249,10 @@ bool processEvents()
 
 void RetroEngine::Init()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    sleep(1); // wait to initialize the engine
+#endif
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
@@ -309,10 +313,6 @@ void RetroEngine::Init()
     bool skipStart = skipStartMenu;
 #endif
     SaveGame *saveGame = (SaveGame *)saveRAM;
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    sleep(1); //wait to initialize the render device
-#endif
 
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {

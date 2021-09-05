@@ -70,7 +70,7 @@ void OptionsMenu_Main(void *objPtr)
             break;
         }
         case OPTIONSMENU_STATE_MAIN: {
-            if (entity->menuControl->state == OPTIONSMENU_STATE_ENTERSUBMENU) {
+            if (entity->menuControl->state == MENUCONTROL_STATE_EXITSUBMENU) {
                 entity->state = OPTIONSMENU_STATE_EXIT;
             }
             else if (usePhysicalControls) {
