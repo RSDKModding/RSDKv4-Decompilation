@@ -362,8 +362,11 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
                 RemoveNativeObject(entity->label);
+                if (entity->dialog)
+                    RemoveNativeObject(entity->dialog);
                 for (int i = 0; i < 3; ++i) RemoveNativeObject(entity->codeLabel[i]);
                 for (int i = 0; i < 8; ++i) RemoveNativeObject(entity->enterCodeLabel[i]);
+                for (int i = 0; i < 2; ++i) RemoveNativeObject(entity->enterCodeSlider[i]);
                 for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity->bg);
                 RemoveNativeObject(entity);

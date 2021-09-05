@@ -174,6 +174,7 @@ void DialogPanel_Main(void *objPtr)
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
+                // TODO: is this conditional?
                 for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
                 return;
