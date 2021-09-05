@@ -75,7 +75,7 @@ LOCAL_C_INCLUDES := \
 
 WILDCARD_SETUP := \
   $(wildcard $(LOCAL_PATH)/RSDKv4/*.cpp) \
-  $(wildcard $(LOCAL_PATH)/RSDKv4/NativeObjects/*.cpp) \
+  $(LOCAL_PATH)/RSDKv4/NativeObjects/All.cpp \
   $(wildcard $(LOCAL_PATH)/dependencies/all/stb-image/*.cpp) \
   $(wildcard $(LOCAL_PATH)/dependencies/all/tinyxml2/*.cpp)
 
