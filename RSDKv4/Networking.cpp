@@ -24,7 +24,7 @@ uint64_t lastTime = 0;
 
 using asio::ip::tcp;
 
-typedef std::deque<CodedData> DataQueue;
+typedef std::deque<ServerPacket> DataQueue;
 
 class NetworkSession
 {
@@ -35,9 +35,9 @@ public:
         do_connect(endpoints);
     }
 
-    void write(const CodedData &msg, int forceroom = 0)
+    void write(const ServerPacket &msg, int forceroom = 0)
     {
-        CodedData sent(msg);
+        ServerPacket sent(msg);
         sent.code     = code;
         sent.roomcode = forceroom ? forceroom : roomcode;
         write_msgs_.push_back(sent);
@@ -81,7 +81,7 @@ private:
 
     void do_read()
     {
-        asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
+        asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(ServerPacket)), [this](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
             lastPing       = ((SDL_GetPerformanceCounter() - lastTime) * 1000.0 / SDL_GetPerformanceFrequency());
@@ -95,7 +95,7 @@ private:
                         roomcode = read_msg_.roomcode;
                         // prepare for takeoff :trollsmile:
                         wait = true;
-                        CodedData send;
+                        ServerPacket send;
                         send.header   = 0x01;
                         send.roomcode = roomcode;
                         write(send);
@@ -143,7 +143,7 @@ private:
             return;
         writing = true;
         asio::error_code ec;
-        socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(CodedData)), ec);
+        socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(ServerPacket)), ec);
         if (!ec && !write_msgs_.empty()) {
             lastTime = SDL_GetPerformanceCounter();
             write_msgs_.pop_front();
@@ -158,7 +158,7 @@ private:
 
     asio::io_context &io_context_;
     tcp::socket socket_;
-    CodedData read_msg_;
+    ServerPacket read_msg_;
     DataQueue write_msgs_;
 
     bool writing = false;
@@ -214,7 +214,7 @@ void runNetwork()
 
 void sendData()
 {
-    CodedData send;
+    ServerPacket send;
     send.header         = 0x10;
     send.data.multiData = multiplayerDataOUT;
     session->write(send);
@@ -224,7 +224,7 @@ void disconnectNetwork()
 {
     if (!session->running)
         return;
-    CodedData send;
+    ServerPacket send;
     send.header = 0xFF;
     session->write(send);
     session->running = false;
@@ -234,7 +234,7 @@ void disconnectNetwork()
     // Engine.devMenu = vsPlayerID;
 }
 
-void sendCodedData(CodedData &send) { session->write(send); }
+void sendCodedData(ServerPacket &send) { session->write(send); }
 int getRoomCode() { return session->roomcode; }
 void setRoomCode(int code) { session->roomcode = code; }
 

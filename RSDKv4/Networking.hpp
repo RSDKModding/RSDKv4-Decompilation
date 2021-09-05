@@ -16,7 +16,7 @@ struct MultiplayerData {
     int data[0x1FF];
 };
 
-struct CodedData {
+struct ServerPacket {
     byte header;
     uint64_t code;
     uint roomcode;
@@ -34,7 +34,7 @@ void initNetwork();
 void runNetwork();
 void sendData();
 void disconnectNetwork();
-void sendCodedData(CodedData &send);
+void sendCodedData(ServerPacket &send);
 int getRoomCode();
 void setRoomCode(int code);
 

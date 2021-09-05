@@ -5,6 +5,10 @@ bool usingCWD        = false;
 bool engineDebugMode = false;
 #endif
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+#include <unistd.h>
+#endif
+
 RetroEngine Engine = RetroEngine();
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -305,6 +309,10 @@ void RetroEngine::Init()
     bool skipStart = skipStartMenu;
 #endif
     SaveGame *saveGame = (SaveGame *)saveRAM;
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    sleep(1); //wait to initialize the render device
+#endif
 
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
