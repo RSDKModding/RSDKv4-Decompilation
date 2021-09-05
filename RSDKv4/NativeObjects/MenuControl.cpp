@@ -58,8 +58,8 @@ void MenuControl_Create(void *objPtr)
     entity->segaIDButton->texX = 0.0;
     entity->segaIDButton->x    = SCREEN_CENTERX_F - 32.0;
 
-    entity->float28 = 0.15707964f;    // this but less precise ---> M_PI / 2
-    entity->float2C = 0.078539819f; //this but less precise ---> M_PI / 4
+    entity->float28 = 0.15707964f;  // this but less precise ---> M_PI / 2
+    entity->float2C = 0.078539819f; // this but less precise ---> M_PI / 4
     entity->float30 = (entity->buttonCount * entity->float28) * 0.5;
 
     float offset = 0.0;
