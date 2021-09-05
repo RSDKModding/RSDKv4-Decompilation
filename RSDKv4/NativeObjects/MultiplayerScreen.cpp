@@ -315,7 +315,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     case MULTIPLAYERSCREEN_BUTTON_JOINROOM: {
                         if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == MULTIPLAYERSCREEN_STATE_ACTION) { /// hhhhhhack
                             setRoomCode(entity->roomCode);
-                            ServerPacket send;
+                            CodedData send;
                             send.header                 = 0;
                             send.data.multiData.data[1] = (int)strlen(networkGame);
                             StrCopy((char *)&send.data.multiData.data[2], networkGame);
@@ -794,7 +794,7 @@ void MultiplayerScreen_Main(void *objPtr)
             SetStringToFont8(entity->codeLabel[1]->text, "FETCHING...", entity->codeLabel[1]->fontID);
             entity->codeLabel[1]->alignPtr(entity->codeLabel[1], ALIGN_CENTER);
 
-            ServerPacket send;
+            CodedData send;
             send.header = 0;
             // send over a preferred roomcode style
             if (!vsGameLength)
