@@ -45,7 +45,7 @@ struct SaveGame {
     int vDPadY_Jump;
     int tailsUnlocked;
     int knuxUnlocked;
-    int totalScore;
+    int unlockedActs;
     int unused[18];
     int records[0x80];
 };

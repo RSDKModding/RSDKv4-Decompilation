@@ -383,7 +383,6 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
     memset(langName, 0, 0x8 * sizeof(ushort));
     memset(lineBuffer, 0, 0x200 * sizeof(ushort));
 
-    char strNameChar = *stringName;
     int strNamePos   = 0;
     while (stringName[strNamePos]) {
         strName[strNamePos] = stringName[strNamePos];

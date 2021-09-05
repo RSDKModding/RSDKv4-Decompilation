@@ -72,6 +72,7 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
 #else
+//#error "No Platform was defined"
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
@@ -80,8 +81,6 @@ typedef unsigned int uint;
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
-// set this to 1 (integer scale) for other platforms that don't support bilinear and don't have an even screen size
-#define RETRO_DEFAULTSCALINGMODE 2
 
 #ifndef BASE_PATH
 #define BASE_PATH ""
@@ -130,8 +129,9 @@ typedef unsigned int uint;
 #include <GLES/glext.h>
 
 #undef glGenFramebuffers
-#undef glBindFramebuffers
+#undef glBindFramebuffer
 #undef glFramebufferTexture2D
+#undef glDeleteFramebuffers
 
 #undef GL_FRAMEBUFFER
 #undef GL_COLOR_ATTACHMENT0
@@ -145,6 +145,30 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#elif RETRO_PLATFORM == RETRO_OSX
+#define GL_GLEXT_PROTOTYPES
+#define GL_SILENCE_DEPRECATION
+
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+
+#undef glGenFramebuffers
+#undef glBindFramebuffer
+#undef glFramebufferTexture2D
+#undef glDeleteFramebuffers
+
+#undef GL_FRAMEBUFFER
+#undef GL_COLOR_ATTACHMENT0
+#undef GL_FRAMEBUFFER_BINDING
+
+#define glGenFramebuffers      glGenFramebuffersEXT
+#define glBindFramebuffer      glBindFramebufferEXT
+#define glFramebufferTexture2D glFramebufferTexture2DEXT
+#define glDeleteFramebuffers   glDeleteFramebuffersEXT
+
+#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
+#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
+#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
 #else
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -364,7 +388,7 @@ public:
     bool startFullScreen  = false; // if should start as fullscreen
     bool borderless       = false;
     bool vsync            = false;
-    int scalingMode       = RETRO_DEFAULTSCALINGMODE;
+    int scalingMode       = 0;
     int windowScale       = 2;
     int refreshRate       = 60; // user-picked screen update rate
     int screenRefreshRate = 60; // hardware screen update rate

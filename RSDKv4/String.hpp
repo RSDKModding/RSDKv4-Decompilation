@@ -6,6 +6,8 @@
 
 #define CREDITS_LIST_SIZE (0x200)
 
+enum TextAlignments { ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT };
+
 #define USE_STDLIB
 
 extern ushort *strPressStart;
@@ -81,17 +83,13 @@ extern float creditsAdvanceY[CREDITS_LIST_SIZE];
 
 inline void StrCopy(char *dest, const char *src)
 {
-    #ifdef USE_STDLIB
+#ifdef USE_STDLIB
     strcpy(dest, src);
-
-    #else
+#else
     int i = 0;
-
     for (; src[i]; ++i) dest[i] = src[i];
-
     dest[i] = 0;
-
-    #endif
+#endif
 }
 
 inline void StrAdd(char *dest, const char *src)
@@ -139,7 +137,6 @@ inline int StrLength(const char *string)
     for (len = 0; string[len]; len++)
         ;
     return len;
-
 #endif
 }
 int FindStringToken(const char *string, const char *token, char stopID);
@@ -147,9 +144,7 @@ int FindStringToken(const char *string, const char *token, char stopID);
 inline void StrCopyW(ushort *dest, const ushort *src)
 {
     int i = 0;
-
     for (; src[i]; ++i) dest[i] = src[i];
-
     dest[i] = 0;
 }
 
@@ -170,9 +165,7 @@ inline void StrAddW(ushort *dest, const ushort *src)
 inline void StrCopyW(ushort *dest, const char *src)
 {
     int i = 0;
-
     for (; src[i]; ++i) dest[i] = src[i];
-
     dest[i] = 0;
 }
 

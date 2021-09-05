@@ -8,14 +8,14 @@ int SCREEN_XSIZE_CONFIG = 424;
 int SCREEN_XSIZE        = 424;
 int SCREEN_CENTERX      = 424 / 2;
 
-int SCREEN_XSIZE_F   = 424;
-int SCREEN_CENTERX_F = 424 / 2;
+float SCREEN_XSIZE_F   = 424;
+float SCREEN_CENTERX_F = 424 / 2;
 
-int SCREEN_YSIZE_F   = SCREEN_YSIZE;
-int SCREEN_CENTERY_F = SCREEN_YSIZE / 2;
+float SCREEN_YSIZE_F   = SCREEN_YSIZE;
+float SCREEN_CENTERY_F = SCREEN_YSIZE / 2;
 
-int touchWidth  = SCREEN_XSIZE;
-int touchHeight = SCREEN_YSIZE;
+int touchWidth     = SCREEN_XSIZE;
+int touchHeight    = SCREEN_YSIZE;
 float touchWidthF  = SCREEN_XSIZE;
 float touchHeightF = SCREEN_YSIZE;
 
@@ -31,7 +31,7 @@ bool mixFiltersOnJekyll = false;
 
 #if RETRO_USING_OPENGL
 GLint defaultFramebuffer = -1;
-GLuint framebufferHiRes = -1;
+GLuint framebufferHiRes  = -1;
 GLuint renderbufferHiRes = -1;
 #endif
 
@@ -118,19 +118,33 @@ int InitRenderDevice()
     byte flags = 0;
 #if RETRO_USING_OPENGL
     flags |= SDL_WINDOW_OPENGL;
+
+#if RETRO_PLATFORM != RETRO_OSX // dude idk either you just gotta trust that this works
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetSwapInterval(0);
+#endif
 #endif
 #if RETRO_DEVICETYPE == RETRO_MOBILE
     Engine.startFullScreen = true;
 
     SDL_DisplayMode dm;
     SDL_GetDesktopDisplayMode(0, &dm);
-    
+
     bool landscape = dm.h < dm.w;
-    int h = landscape ? dm.w : dm.h;
-    int w = landscape ? dm.h : dm.w;
+    int h          = landscape ? dm.w : dm.h;
+    int w          = landscape ? dm.h : dm.w;
 
     SCREEN_XSIZE = ((float)SCREEN_YSIZE * h / w);
-    if (SCREEN_XSIZE % 2) ++SCREEN_XSIZE;
+    if (SCREEN_XSIZE % 2)
+        ++SCREEN_XSIZE;
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
@@ -181,12 +195,6 @@ int InitRenderDevice()
     if (SDL_GetDisplayMode(0, 0, &disp) == 0) {
         Engine.screenRefreshRate = disp.refresh_rate;
     }
-
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#else
-    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
-#endif
 
 #endif
 
@@ -241,21 +249,10 @@ int InitRenderDevice()
 
 #if RETRO_USING_OPENGL
 
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#endif
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetSwapInterval(0);
-
     // Init GL
     Engine.glContext = SDL_GL_CreateContext(Engine.window);
 
-#if RETRO_PLATFORM != RETRO_ANDROID
+#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         printLog("glew init error:");
@@ -267,6 +264,7 @@ int InitRenderDevice()
     displaySettings.field_20 = 0;
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
+
     glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
@@ -277,6 +275,15 @@ int InitRenderDevice()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    Engine.windowScale     = 1;
+    displaySettings.width  = SCREEN_XSIZE;
+    displaySettings.height = SCREEN_YSIZE;
+#else
+    displaySettings.width  = SCREEN_XSIZE_CONFIG * Engine.windowScale;
+    displaySettings.height = SCREEN_YSIZE * Engine.windowScale;
+#endif
 
     textureList[0].id = -1;
     setupViewport();
@@ -303,7 +310,12 @@ int InitRenderDevice()
 #if RETRO_PLATFORM == RETRO_ANDROID
     Engine.startFullScreen = true;
 #endif
+#endif
 
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#else
+    SetScreenDimensions(SCREEN_XSIZE, SCREEN_YSIZE);
 #endif
 
 #if RETRO_SOFTWARE_RENDER
@@ -429,7 +441,7 @@ void FlipScreen()
             frameBufferPtr += GFX_LINESIZE;
             pixels += pitch / sizeof(ushort);
         }
-        //memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
+        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
         SDL_UnlockTexture(Engine.screenBuffer);
 
         SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
@@ -634,7 +646,7 @@ void FlipScreen()
 void ReleaseRenderDevice()
 {
     ClearMeshData();
-    ClearTextures();
+    ClearTextures(false);
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER
@@ -752,7 +764,7 @@ void SetScreenDimensions(int width, int height)
     touchWidthF              = width;
     displaySettings.field_10 = 16;
     touchHeightF             = height;
-    //displaySettings.maxWidth = 424;
+    // displaySettings.maxWidth = 424;
     double aspect    = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
     SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
     SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
@@ -763,7 +775,7 @@ void SetScreenDimensions(int width, int height)
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
     int displayWidth        = aspect * SCREEN_YSIZE;
-    //if (val > displaySettings.maxWidth)
+    // if (val > displaySettings.maxWidth)
     //    val = displaySettings.maxWidth;
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
 
@@ -779,7 +791,7 @@ void SetScreenDimensions(int width, int height)
         height2++;
         hBuf >>= 1;
     }
-    int texWidth = 1 << width2;
+    int texWidth  = 1 << width2;
     int texHeight = 1 << height2;
 
     textureList[0].widthN  = 1.0f / texWidth;
@@ -789,35 +801,35 @@ void SetScreenDimensions(int width, int height)
     float w2 = (GFX_LINESIZE * textureList[0].widthN);
     float h  = (SCREEN_YSIZE * textureList[0].heightN);
 
-    retroVertexList[0]     = -SCREEN_CENTERX_F;
-    retroVertexList[1]     = SCREEN_CENTERY_F;
-    retroVertexList[2]     = 160.0;
-    retroVertexList[6]     = 0.0;
-    retroVertexList[7]     = 0.0;
+    retroVertexList[0] = -SCREEN_CENTERX_F;
+    retroVertexList[1] = SCREEN_CENTERY_F;
+    retroVertexList[2] = 160.0;
+    retroVertexList[6] = 0.0;
+    retroVertexList[7] = 0.0;
 
-    retroVertexList[9]     = SCREEN_CENTERX_F;
-    retroVertexList[10]    = SCREEN_CENTERY_F;
-    retroVertexList[11]    = 160.0;
-    retroVertexList[15]    = w;
-    retroVertexList[16]    = 0.0;
+    retroVertexList[9]  = SCREEN_CENTERX_F;
+    retroVertexList[10] = SCREEN_CENTERY_F;
+    retroVertexList[11] = 160.0;
+    retroVertexList[15] = w;
+    retroVertexList[16] = 0.0;
 
-    retroVertexList[18]    = -SCREEN_CENTERX_F;
-    retroVertexList[19]    = -SCREEN_CENTERY_F;
-    retroVertexList[20]    = 160.0;
-    retroVertexList[24]    = 0.0;
-    retroVertexList[25]    = h;
+    retroVertexList[18] = -SCREEN_CENTERX_F;
+    retroVertexList[19] = -SCREEN_CENTERY_F;
+    retroVertexList[20] = 160.0;
+    retroVertexList[24] = 0.0;
+    retroVertexList[25] = h;
 
-    retroVertexList[27]    = SCREEN_CENTERX_F;
-    retroVertexList[28]    = -SCREEN_CENTERY_F;
-    retroVertexList[29]    = 160.0;
-    retroVertexList[33]    = w;
-    retroVertexList[34]    = h;
+    retroVertexList[27] = SCREEN_CENTERX_F;
+    retroVertexList[28] = -SCREEN_CENTERY_F;
+    retroVertexList[29] = 160.0;
+    retroVertexList[33] = w;
+    retroVertexList[34] = h;
 
-    screenBufferVertexList[0]  = -1.0;
-    screenBufferVertexList[1]  = 1.0;
-    screenBufferVertexList[2]  = 1.0;
-    screenBufferVertexList[6]  = 0.0;
-    screenBufferVertexList[7]  = h;
+    screenBufferVertexList[0] = -1.0;
+    screenBufferVertexList[1] = 1.0;
+    screenBufferVertexList[2] = 1.0;
+    screenBufferVertexList[6] = 0.0;
+    screenBufferVertexList[7] = h;
 
     screenBufferVertexList[9]  = 1.0;
     screenBufferVertexList[10] = 1.0;
@@ -1340,7 +1352,7 @@ void UpdateTextureBufferWithSprites()
 
 void setupViewport()
 {
-    double aspect     = displaySettings.width / (double)displaySettings.height;
+    double aspect    = displaySettings.width / (double)displaySettings.height;
     SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
     SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
 
@@ -1489,7 +1501,7 @@ void setFullScreen(bool fs)
 #if RETRO_USING_OPENGL
         SDL_DisplayMode mode;
         SDL_GetDesktopDisplayMode(0, &mode);
-        //SetScreenDimensions(mode.w, mode.h);
+        // SetScreenDimensions(mode.w, mode.h);
         setupViewport();
         int w = mode.w;
         int h = mode.h;
@@ -1503,9 +1515,8 @@ void setFullScreen(bool fs)
 #endif
     }
     else {
-#if RETRO_USING_SDL1 
-        Engine.windowSurface =
-            SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
+#if RETRO_USING_SDL1
+        Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
         SDL_ShowCursor(SDL_TRUE);
 #elif RETRO_USING_SDL2
         SDL_SetWindowFullscreen(Engine.window, false);
@@ -1514,7 +1525,7 @@ void setFullScreen(bool fs)
         SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_RestoreWindow(Engine.window);
 
-        //SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        // SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
         setupViewport();
 #if RETRO_USING_OPENGL
         glViewport(0, 0, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
@@ -4354,7 +4365,7 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
                 ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
                 ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
 
-                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
+                *frameBufferPtr = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
                                   | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
                                   | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
                 ++frameBufferPtr;

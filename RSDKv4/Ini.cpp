@@ -153,7 +153,7 @@ int IniParser::SetString(const char *section, const char *key, char *value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -175,7 +175,7 @@ int IniParser::SetInteger(const char *section, const char *key, int value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -197,7 +197,7 @@ int IniParser::SetFloat(const char *section, const char *key, float value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -219,7 +219,7 @@ int IniParser::SetBool(const char *section, const char *key, bool value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -241,7 +241,7 @@ int IniParser::SetComment(const char *section, const char *key, const char *comm
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 

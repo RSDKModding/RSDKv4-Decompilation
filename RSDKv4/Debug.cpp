@@ -454,7 +454,6 @@ void processStageSelect()
 
 void setTextMenu(int sm)
 {
-    ushort strBuffer[0x100];
     stageMode = sm;
     SetupTextMenu(&gameMenu[0], 0);
     SetupTextMenu(&gameMenu[1], 0);

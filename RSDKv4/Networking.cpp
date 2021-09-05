@@ -7,7 +7,6 @@
 #include <thread>
 #include <chrono>
 #if RETRO_PLATFORM == RETRO_ANDROID
-// TODO:: FIX????? WHAT THE HELL DOES "error: use of typeid requires -frtti" MEAN
 #define ASIO_NO_TYPEID
 #endif
 #include <asio.hpp>
@@ -24,7 +23,7 @@ uint64_t lastTime = 0;
 
 using asio::ip::tcp;
 
-typedef std::deque<CodedData> DataQueue;
+typedef std::deque<ServerPacket> DataQueue;
 
 class NetworkSession
 {
@@ -35,9 +34,9 @@ public:
         do_connect(endpoints);
     }
 
-    void write(const CodedData &msg, int forceroom = 0)
+    void write(const ServerPacket &msg, int forceroom = 0)
     {
-        CodedData sent(msg);
+        ServerPacket sent(msg);
         sent.code     = code;
         sent.roomcode = forceroom ? forceroom : roomcode;
         write_msgs_.push_back(sent);
@@ -81,7 +80,7 @@ private:
 
     void do_read()
     {
-        asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(CodedData)), [this](std::error_code ec, std::size_t /*length*/) {
+        asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(ServerPacket)), [this](std::error_code ec, std::size_t /*length*/) {
             if (ec)
                 return do_read();
             lastPing       = ((SDL_GetPerformanceCounter() - lastTime) * 1000.0 / SDL_GetPerformanceFrequency());
@@ -95,7 +94,7 @@ private:
                         roomcode = read_msg_.roomcode;
                         // prepare for takeoff :trollsmile:
                         wait = true;
-                        CodedData send;
+                        ServerPacket send;
                         send.header   = 0x01;
                         send.roomcode = roomcode;
                         write(send);
@@ -143,7 +142,7 @@ private:
             return;
         writing = true;
         asio::error_code ec;
-        socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(CodedData)), ec);
+        socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(ServerPacket)), ec);
         if (!ec && !write_msgs_.empty()) {
             lastTime = SDL_GetPerformanceCounter();
             write_msgs_.pop_front();
@@ -158,7 +157,7 @@ private:
 
     asio::io_context &io_context_;
     tcp::socket socket_;
-    CodedData read_msg_;
+    ServerPacket read_msg_;
     DataQueue write_msgs_;
 
     bool writing = false;
@@ -168,6 +167,7 @@ private:
 
 std::shared_ptr<NetworkSession> session;
 asio::io_context io_context;
+std::thread loopThread, ioThread;
 
 void initNetwork()
 {
@@ -178,26 +178,26 @@ void initNetwork()
         session.reset();
         auto newsession = std::make_shared<NetworkSession>(io_context, endpoints);
         session.swap(newsession);
+        if (ioThread.joinable()) {
+            io_context.stop();
+            ioThread.join();
+        }
+        ioThread = std::thread([&]() { io_context.run(); });
     } catch (std::exception &e) {
         Engine.onlineActive = false;
         printLog("Failed to initialize networking: %s", e.what());
     }
 }
 
-std::thread t;
-
 void networkLoop()
 {
     try {
-        std::thread t([&]() { io_context.run(); });
-
         session->start();
         while (session->running)
             ;
 
         session->close();
         io_context.stop();
-        t.detach(); // let it handle itself i guess
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
@@ -205,16 +205,16 @@ void networkLoop()
 
 void runNetwork()
 {
-    if (t.joinable()) {
+    if (loopThread.joinable()) {
         disconnectNetwork();
         initNetwork();
     }
-    t = std::thread(networkLoop);
+    loopThread = std::thread(networkLoop);
 }
 
 void sendData()
 {
-    CodedData send;
+    ServerPacket send;
     send.header         = 0x10;
     send.data.multiData = multiplayerDataOUT;
     session->write(send);
@@ -224,17 +224,19 @@ void disconnectNetwork()
 {
     if (!session->running)
         return;
-    CodedData send;
+    ServerPacket send;
     send.header = 0xFF;
     session->write(send);
     session->running = false;
-    if (t.joinable()) {
-        t.join();
-    }
-    // Engine.devMenu = vsPlayerID;
+    if (loopThread.joinable())
+        loopThread.join();
+    if (ioThread.joinable())
+        if (!io_context.stopped())
+            io_context.stop();
+    ioThread.join();
 }
 
-void sendCodedData(CodedData &send) { session->write(send); }
+void sendServerPacket(ServerPacket &send) { session->write(send); }
 int getRoomCode() { return session->roomcode; }
 void setRoomCode(int code) { session->roomcode = code; }
 

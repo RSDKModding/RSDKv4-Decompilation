@@ -5,6 +5,10 @@ bool usingCWD        = false;
 bool engineDebugMode = false;
 #endif
 
+#if RETRO_PLATFORM == RETRO_ANDROID
+#include <unistd.h>
+#endif
+
 RetroEngine Engine = RetroEngine();
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -101,32 +105,23 @@ bool processEvents()
 
 #if defined(RETRO_USING_TOUCH) && RETRO_USING_SDL2
             case SDL_FINGERMOTION:
-                touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId);
-                for (int i = 0; i < touches; i++) {
-                    SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
-                    if (finger) {
-                        touchDown[i] = true;
-                        touchX[i]    = finger->x * SCREEN_XSIZE;
-                        touchY[i]    = finger->y * SCREEN_YSIZE;
-                        touchXF[i]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
-                        touchYF[i]   = -((finger->y * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    }
-                }
-                break;
             case SDL_FINGERDOWN:
-                touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId);
-                for (int i = 0; i < touches; i++) {
+            case SDL_FINGERUP: {
+                int count = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId);
+                touches   = 0;
+                for (int i = 0; i < count; i++) {
                     SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
                     if (finger) {
-                        touchDown[i] = true;
-                        touchX[i]    = finger->x * SCREEN_XSIZE;
-                        touchY[i]    = finger->y * SCREEN_YSIZE;
-                        touchXF[i]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
-                        touchYF[i]   = -((finger->y * SCREEN_XSIZE_F) - SCREEN_CENTERX_F);
+                        touchDown[touches]  = true;
+                        touchX[touches]    = finger->x * SCREEN_XSIZE;
+                        touchY[touches]    = finger->y * SCREEN_YSIZE;
+                        touchXF[touches]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                        touchYF[touches]   = -((finger->y * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
+                        touches++;
                     }
                 }
                 break;
-            case SDL_FINGERUP: touches = SDL_GetNumTouchFingers(Engine.sdlEvents.tfinger.touchId); break;
+            }
 #endif //! RETRO_USING_SDL2
 
             case SDL_KEYDOWN:
@@ -245,6 +240,10 @@ bool processEvents()
 
 void RetroEngine::Init()
 {
+#if RETRO_PLATFORM == RETRO_ANDROID
+    sleep(1); // wait to initialize the engine
+#endif
+
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
@@ -447,6 +446,7 @@ void RetroEngine::Run()
         }
         frameEnd         = SDL_GetPerformanceCounter();
         Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
+        Engine.deltaTime = 0.016666668;
 #endif
 
         running = processEvents();

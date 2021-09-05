@@ -64,11 +64,11 @@ extern int SCREEN_XSIZE_CONFIG;
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
-extern int SCREEN_XSIZE_F;
-extern int SCREEN_CENTERX_F;
+extern float SCREEN_XSIZE_F;
+extern float SCREEN_CENTERX_F;
 
-extern int SCREEN_YSIZE_F;
-extern int SCREEN_CENTERY_F;
+extern float SCREEN_YSIZE_F;
+extern float SCREEN_CENTERY_F;
 
 extern int touchWidth;
 extern int touchHeight;

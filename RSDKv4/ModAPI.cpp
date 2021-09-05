@@ -24,7 +24,7 @@ int OpenModMenu()
 }
 
 #if RETRO_PLATFORM == RETRO_ANDROID
-namespace fs = std::__fs::filesystem;
+namespace fs = std::__fs::filesystem; //this is so we can avoid using c++17, which causes a ton of warnings w asio and looks ugly
 #else
 namespace fs = std::filesystem;
 #endif
@@ -143,7 +143,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(dataPath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -191,7 +191,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(scriptPath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -239,7 +239,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(bytecodePath) && fs::is_directory(bytecodePath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(bytecodePath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -334,6 +334,8 @@ void RefreshEngine()
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile ? "" : " (Using Data Folder)");
     SDL_WM_SetCaption(gameTitle, NULL);
 #endif
+    ClearMeshData();
+    ClearTextures(true);
 
     ReleaseStageSfx();
     ReleaseGlobalSfx();
@@ -359,7 +361,7 @@ void RefreshEngine()
     saveMods();
 }
 
-void GetModCount() { scriptEng.checkResult = modList.size(); }
+void GetModCount() { scriptEng.checkResult = (int)modList.size(); }
 void GetModName(int *textMenu, int *highlight, uint *id, int *unused)
 {
     if (*id >= modList.size())

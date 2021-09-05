@@ -376,7 +376,7 @@ void InitNativeObjectSystem()
             saveGame->tailsUnlocked = true;
             saveGame->knuxUnlocked  = true;
         }
-        saveGame->totalScore = 0;
+        saveGame->unlockedActs = 0;
         WriteSaveRAMData();
     }
     saveGame->musVolume = bgmVolume;
@@ -395,8 +395,8 @@ void InitNativeObjectSystem()
 NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {
     if (!nativeEntityCount) {
-        NativeEntity *entity = objectEntityBank;
-        memset(objectEntityBank, 0, sizeof(NativeEntityBase));
+        memset(objectEntityBank, 0, sizeof(objectEntityBank));
+        NativeEntity *entity = &objectEntityBank[0];
         entity->createPtr   = create;
         entity->mainPtr     = main;
         activeEntityList[0] = 0;
@@ -478,5 +478,5 @@ void RestoreNativeObjects()
     memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
     nativeEntityCount = nativeEntityCountBackup;
 
-    CREATE_ENTITY(FadeScreen)->state = 0;
+    CREATE_ENTITY(FadeScreen)->state = FADESCREEN_STATE_MENUFADEIN;
 }
