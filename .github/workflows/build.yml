@@ -158,6 +158,12 @@ jobs:
           Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-2.0.16.zip" -OutFile "SDL2.zip"
           Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/android/
           Rename-Item ./dependencies/android/SDL2-2.0.16 SDL
+      - name: Download Asio
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "Asio.zip"
+          Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
+          Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
+          Get-ChildItem -Path ./dependencies/all/
       - name: Move & Copy stuff
         run: |
           Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android\* -Destination ./dependencies/
