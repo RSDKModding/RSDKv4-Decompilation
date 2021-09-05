@@ -5,13 +5,13 @@
 #define M_PI 3.14159265358979323846264338327950288
 #endif
 
-#ifndef M_PI_2
+#undef M_PI_2
 #define M_PI_2 (M_PI * 2.0)
-#endif
+//#endif
 
-#ifndef M_PI_H
+#undef M_PI_H
 #define M_PI_H (M_PI * 0.5)
-#endif
+//#endif
 
 #define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))
