@@ -23,11 +23,11 @@ int OpenModMenu()
     return 1;
 }
 
-#if RETRO_PLATFORM == RETRO_ANDROID
-namespace fs = std::__fs::filesystem;
-#else
+//#if RETRO_PLATFORM == RETRO_ANDROID
+//namespace fs = std::__fs::filesystem;
+//#else
 namespace fs = std::filesystem;
-#endif
+//#endif
 
 void initMods()
 {
@@ -143,7 +143,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(dataPath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -191,7 +191,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(scriptPath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());
@@ -239,7 +239,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         if (fs::exists(bytecodePath) && fs::is_directory(bytecodePath)) {
             try {
                 auto data_rdi = fs::recursive_directory_iterator(bytecodePath);
-                for (auto data_de : data_rdi) {
+                for (auto &data_de : data_rdi) {
                     if (data_de.is_regular_file()) {
                         char modBuf[0x100];
                         StrCopy(modBuf, data_de.path().string().c_str());

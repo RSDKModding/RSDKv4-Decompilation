@@ -59,7 +59,7 @@ LOCAL_MODULE := main
 
 SDL_PATH := ../SDL
 
-LOCAL_CFLAGS   := -fexceptions
+LOCAL_CFLAGS   := -fexceptions -std=c++17
 
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/RSDKv4 \
