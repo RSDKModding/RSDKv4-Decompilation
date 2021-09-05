@@ -164,9 +164,8 @@ void RecordsScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->renderMatrix);
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            if (entity->actCount > 1) {
+            if (entity->actCount > 1)
                 memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            }
 
             entity->field_28 += Engine.deltaTime;
             if (entity->field_28 > 0.5) {
@@ -182,17 +181,17 @@ void RecordsScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->matrixTemp);
             if (!usePhysicalControls) {
                 if (touches <= 0) {
-                    if (entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == 1) {
+                    if (entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_SELECTED) {
                         entity->state = RECORDSSCREEN_STATE_LOADSTAGE;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = 2;
+                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_FLASHING;
                     }
-                    if (entity->actCount > 1 && entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == 1) {
+                    if (entity->actCount > 1 && entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
                         entity->state                                        = RECORDSSCREEN_STATE_FLIP;
                         entity->flipRight                                    = false;
                         entity->actID                                        = (entity->actID + 1) % entity->actCount;
-                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = 0;
+                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
                     }
                 }
                 else {
@@ -213,7 +212,7 @@ void RecordsScreen_Main(void *objPtr)
                                                * 0.8,
                                            12.0)
                             >= 0) {
-                            entity->buttons[1]->state = PUSHBUTTON_STATE_SELECTED;
+                            entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_SELECTED;
                         }
                     }
                 }
@@ -277,12 +276,12 @@ void RecordsScreen_Main(void *objPtr)
 
                 if (entity->state == RECORDSSCREEN_STATE_MAIN) {
                     if (keyDown.left) {
-                        entity->selectedButton = 1;
+                        entity->selectedButton = RECORDSSCREEN_BUTTON_NEXTACT;
                         usePhysicalControls    = true;
                     }
                     else {
                         if (keyDown.right) {
-                            entity->selectedButton = 0;
+                            entity->selectedButton = RECORDSSCREEN_BUTTON_PLAY;
                             usePhysicalControls    = true;
                         }
                         else if (keyPress.B) {
@@ -462,16 +461,14 @@ void RecordsScreen_Main(void *objPtr)
 
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            if (entity->actCount > 1) {
+            if (entity->actCount > 1)
                 memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            }
 
             entity->field_28 += Engine.deltaTime;
             if (entity->field_28 > 0.5) {
                 timeAttack->state = TIMEATTACK_STATE_EXITSUBMENU;
                 RemoveNativeObject(entity->buttons[RECORDSSCREEN_BUTTON_PLAY]);
-                if (entity->actCount > 1)
-                    RemoveNativeObject(entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]);
+                RemoveNativeObject(entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]);
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity);
                 return;
