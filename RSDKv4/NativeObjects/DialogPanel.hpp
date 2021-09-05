@@ -12,8 +12,17 @@ enum DialogPanelSelections {
     DLG_OK,
 };
 
+enum DialogPanelStates {
+    DIALOGPANEL_STATE_SETUP,
+    DIALOGPANEL_STATE_ENTER,
+    DIALOGPANEL_STATE_MAIN,
+    DIALOGPANEL_STATE_ACTION,
+    DIALOGPANEL_STATE_EXIT,
+    DIALOGPANEL_STATE_IDLE
+};
+
 struct NativeEntity_DialogPanel : NativeEntityBase {
-    int state;
+    DialogPanelStates state;
     int buttonCount;
     float stateTimer;
     int field_1C; //??

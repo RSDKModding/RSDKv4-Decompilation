@@ -7,7 +7,7 @@ struct NativeEntity_AchievementsMenu : NativeEntityBase {
     NativeEntity_AchievementDisplay *displays[5];
     MeshInfo *meshPanel;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     float scale;
     byte textureArrows;
     byte backPressed;

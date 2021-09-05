@@ -4,8 +4,8 @@ void SubMenuButton_Create(void *objPtr)
 {
     RSDK_THIS(SubMenuButton);
     entity->matZ           = 160.0;
-    entity->alpha          = 255;
-    entity->state          = 0;
+    entity->alpha          = 0xFF;
+    entity->state          = SUBMENUBUTTON_STATE_IDLE;
     entity->matXOff        = 0.0;
     entity->r              = 0xFF;
     entity->g              = 0xFF;
@@ -28,12 +28,13 @@ void SubMenuButton_Main(void *objPtr)
     SetRenderVertexColor(entity->r, entity->g, entity->b);
 
     switch (entity->state) {
-        case 0:
+        case SUBMENUBUTTON_STATE_IDLE: {
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderMesh(entity->meshButton, MESH_COLOURS, false);
             RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
             break;
-        case 1:
+        }
+        case SUBMENUBUTTON_STATE_FLASHING1: {
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 1.0)
                 entity->flashTimer -= 1.0;
@@ -43,7 +44,8 @@ void SubMenuButton_Main(void *objPtr)
             if (entity->flashTimer > 0.5)
                 RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
             break;
-        case 2:
+        }
+        case SUBMENUBUTTON_STATE_FLASHING2: {
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
@@ -55,10 +57,11 @@ void SubMenuButton_Main(void *objPtr)
             entity->afterFlashTimer += Engine.deltaTime;
             if (entity->afterFlashTimer > 0.5) {
                 entity->afterFlashTimer = 0.0;
-                entity->state           = 0;
+                entity->state           = SUBMENUBUTTON_STATE_IDLE;
             }
             break;
-        case 3:
+        }
+        case SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED: {
             entity->flashTimer += Engine.deltaTime;
             if (entity->flashTimer > 0.1)
                 entity->flashTimer -= 0.1;
@@ -67,10 +70,11 @@ void SubMenuButton_Main(void *objPtr)
             if (entity->afterFlashTimer > 0.5) {
                 entity->flashTimer      = 0.0;
                 entity->afterFlashTimer = 0.0;
-                entity->state           = 4;
+                entity->state           = SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED;
             }
             // FallThrough
-        case 4:
+        }
+        case SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED: {
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             if (entity->useMeshH)
                 RenderMesh(entity->meshButtonH, MESH_COLOURS, false);
@@ -89,55 +93,25 @@ void SubMenuButton_Main(void *objPtr)
                     break;
             }
 
-            if ((entity->flags & 1) != 0) {
-                SetRenderVertexColor(128, 128, 255);
-                RenderImage(-60.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(-60.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
-            }
-            if ((entity->flags & 2) != 0) {
-                SetRenderVertexColor(255, 255, 0);
-                RenderImage(-44.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(-44.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
-            }
-            if ((entity->flags & 4) != 0) {
-                SetRenderVertexColor(255, 96, 192);
-                RenderImage(-28.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(-28.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
-            }
-            if ((entity->flags & 8) != 0) {
-                SetRenderVertexColor(160, 255, 0);
-                RenderImage(-12.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(-12.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
-            }
-            if ((entity->flags & 0x10) != 0) {
-                SetRenderVertexColor(255, 64, 96);
-                RenderImage(4.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(4.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
-            }
-            if ((entity->flags & 0x20) != 0) {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(20.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
-            }
-            else {
-                SetRenderVertexColor(255, 255, 255);
-                RenderImage(20.0, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+            uint emeraldColours[] = {
+                0x8080FF, 0xFFFF00, 0xFF60C0, 0xA0FF00, 0xA0FF00, 0xFF4060, 0xFFFFFF,
+            };
+
+            float x = -60.0f;
+            for (int i = 0; i < 7; ++i) {
+                if (entity->flags & (1 << i)) {
+                    SetRenderVertexColor((emeraldColours[i] >> 16) & 0xFF, (emeraldColours[i] >> 8) & 0xFF, emeraldColours[i] & 0xFF);
+                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+                }
+                else {
+                    SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+                }
+
+                x += 16.0f;
             }
             break;
+        }
         default: break;
     }
 

@@ -17,8 +17,11 @@ struct NativeEntity_MultiplayerButton : NativeEntityBase {
     byte g;
     byte b;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     NativeEntity_TextLabel *labelPtr;
+#if RETRO_USE_NETWORKING
+    float connectTimer;
+#endif
 };
 
 void MultiplayerButton_Create(void *objPtr);

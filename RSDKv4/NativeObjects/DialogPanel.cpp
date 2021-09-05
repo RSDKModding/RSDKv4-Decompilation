@@ -14,7 +14,7 @@ void DialogPanel_Main(void *objPtr)
     NewRenderState();
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     switch (entity->state) {
-        case 0: {
+        case DIALOGPANEL_STATE_SETUP: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
             entity->buttons[0]                     = confirmButton;
             if (entity->buttonCount == DLGTYPE_OK) {
@@ -51,10 +51,10 @@ void DialogPanel_Main(void *objPtr)
                 entity->scale = 0.4;
             entity->textX = GetTextWidth(entity->text, FONT_TEXT, entity->scale) * -0.5;
             entity->textY = GetTextHeight(entity->text, FONT_TEXT, entity->scale) * 0.5;
-            entity->state = 1;
+            entity->state = DIALOGPANEL_STATE_ENTER;
         }
         // FallThrough
-        case 1: {
+        case DIALOGPANEL_STATE_ENTER: {
             entity->buttonScale += ((0.77 - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
             if (entity->buttonScale > 0.75)
                 entity->buttonScale = 0.75;
@@ -67,12 +67,12 @@ void DialogPanel_Main(void *objPtr)
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
-                entity->state      = 2;
+                entity->state      = DIALOGPANEL_STATE_MAIN;
                 entity->stateTimer = 0.0;
             }
             break;
         }
-        case 2: {
+        case DIALOGPANEL_STATE_MAIN: {
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->buttonMatrix);
@@ -80,13 +80,13 @@ void DialogPanel_Main(void *objPtr)
                 if (touches < 1) {
                     if (entity->buttons[0]->state == 1) {
                         entity->buttonSelected = 0;
-                        entity->state          = 3;
+                        entity->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
                         entity->buttons[0]->state = 2;
                     }
                     if (entity->buttonCount == DLGTYPE_YESNO && entity->buttons[1]->state == 1) {
                         entity->buttonSelected = 1;
-                        entity->state          = 3;
+                        entity->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
                         entity->buttons[1]->state = 2;
                     }
@@ -112,13 +112,13 @@ void DialogPanel_Main(void *objPtr)
                     entity->buttonSelected = 0;
                 }
             }
-            else if (touches >= 1) {
+            else if (touches > 0) {
                 usePhysicalControls = false;
             }
             else if (entity->buttonCount == DLGTYPE_OK) {
                 entity->buttonSelected = 0;
                 if (keyPress.start || keyPress.A) {
-                    entity->state = 3;
+                    entity->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
@@ -126,12 +126,12 @@ void DialogPanel_Main(void *objPtr)
             else {
                 if (keyPress.left) {
                     PlaySfxByName("Menu Move", false);
-                    if (entity->buttonSelected-- < 1)
+                    if (--entity->buttonSelected < 0)
                         entity->buttonSelected = 1;
                 }
                 if (keyPress.right) {
                     PlaySfxByName("Menu Move", false);
-                    if (entity->buttonSelected++ > 0)
+                    if (++entity->buttonSelected > 1)
                         entity->buttonSelected = 0;
                 }
                 entity->buttons[0]->state                      = 0;
@@ -139,7 +139,7 @@ void DialogPanel_Main(void *objPtr)
                 entity->buttons[entity->buttonSelected]->state = 1;
 
                 if (keyPress.start || keyPress.A) {
-                    entity->state = 3;
+                    entity->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
@@ -147,20 +147,20 @@ void DialogPanel_Main(void *objPtr)
             if (entity->state == 2 && keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->selection = DLG_NO;
-                entity->state     = 4;
+                entity->state     = DIALOGPANEL_STATE_EXIT;
             }
             break;
         }
-        case 3:
+        case DIALOGPANEL_STATE_ACTION:
             SetRenderMatrix(&entity->buttonMatrix);
             if (!entity->buttons[entity->buttonSelected]->state) {
                 entity->selection = entity->buttonSelected + 1;
-                entity->state     = 4;
+                entity->state     = DIALOGPANEL_STATE_EXIT;
                 if (entity->buttonCount == DLGTYPE_OK)
                     entity->selection = DLG_OK;
             }
             break;
-        case 4:
+        case DIALOGPANEL_STATE_EXIT:
             entity->buttonScale =
                 entity->buttonScale + ((((entity->stateTimer < 0.2) ? 1 : -1) - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
             if (entity->buttonScale < 0.0)
@@ -174,12 +174,13 @@ void DialogPanel_Main(void *objPtr)
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
+                // TODO: is this conditional?
                 for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
                 return;
             }
             break;
-        case 5: SetRenderMatrix(&entity->buttonMatrix); break;
+        case DIALOGPANEL_STATE_IDLE: SetRenderMatrix(&entity->buttonMatrix); break;
         default: break;
     }
     RenderMesh(entity->panelMesh, MESH_COLOURS, false);

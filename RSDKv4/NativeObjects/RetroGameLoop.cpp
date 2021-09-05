@@ -8,15 +8,9 @@ void InitPauseMenu()
     CREATE_ENTITY(PauseMenu);
 }
 
-void RetroGameLoop_Create(void *objPtr)
-{
-    RSDK_THIS(RetroGameLoop);
-    mixFiltersOnJekyll = Engine.useHighResAssets;
-}
+void RetroGameLoop_Create(void *objPtr) { mixFiltersOnJekyll = Engine.useHighResAssets; }
 void RetroGameLoop_Main(void *objPtr)
 {
-    RSDK_THIS(RetroGameLoop);
-
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:
 #if RETRO_HARDWARE_RENDER
@@ -81,14 +75,14 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_CONNECT2PVS: {
             CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
             NativeEntity_FadeScreen *fade        = CREATE_ENTITY(FadeScreen);
-            fade->state                          = 4;
+            fade->state                          = FADESCREEN_STATE_FADEIN;
             fade->timeLimit                      = 1.5;
             fade->fadeSpeed                      = 1.0;
             Engine.gameMode                      = ENGINE_WAIT2PVS;
             break;
         }
         case ENGINE_WAIT2PVS:
-            //wait for vs responce
+            // wait for vs responce
             break;
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:
@@ -110,7 +104,7 @@ void RetroGameLoop_Main(void *objPtr)
                 AddTextMenuEntry(&gameMenu[1], buffer);
             }
 
-            gameMenu[1].alignment      = 1;
+            gameMenu[1].alignment      = MENU_ALIGN_RIGHT;
             gameMenu[1].selectionCount = 3;
             gameMenu[1].selection1     = 0;
             if (gameMenu[1].rowCount > 18)
@@ -118,7 +112,7 @@ void RetroGameLoop_Main(void *objPtr)
             else
                 gameMenu[1].visibleRowCount = 0;
 
-            gameMenu[0].alignment        = 2;
+            gameMenu[0].alignment        = MENU_ALIGN_CENTER;
             gameMenu[0].selectionCount   = 1;
             gameMenu[1].timer            = 0;
             gameMenu[1].visibleRowOffset = 0;

@@ -18,7 +18,7 @@ struct NativeEntity_ModsButton : NativeEntityBase {
     byte g;
     byte b;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     NativeEntity_TextLabel *labelPtr;
     byte prevRegion;
 };

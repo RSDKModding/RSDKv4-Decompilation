@@ -1,8 +1,22 @@
 #ifndef NATIVE_INSTRUCTIONSSCREEN_H
 #define NATIVE_INSTRUCTIONSSCREEN_H
 
+enum InstructionsScreenStates {
+    INSTRUCTIONSCREEN_STATE_ENTER,
+    INSTRUCTIONSCREEN_STATE_MAIN,
+    INSTRUCTIONSCREEN_STATE_FLIP,
+    INSTRUCTIONSCREEN_STATE_FINISHFLIP,
+    INSTRUCTIONSCREEN_STATE_EXIT
+};
+enum InstructionsScreenInputStates {
+    INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS,
+    INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT,
+    INSTRUCTIONSCREEN_STATEINPUT_HANDLESCROLL,
+    INSTRUCTIONSCREEN_STATEINPUT_HANDLESWIPE
+};
+
 struct NativeEntity_InstructionsScreen : NativeEntityBase {
-    int state;
+    InstructionsScreenStates state;
     int pageID;
     int shownPage;
     float field_1C;
@@ -12,7 +26,7 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     NativeEntity_TextLabel *labelPtr;
     MeshInfo *meshPanel;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     byte textureArrows;
     byte textureHelp;
     byte textureDPad;
@@ -20,7 +34,7 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     byte touchedPrev;
     byte touchedNext;
     int arrowAlpha;
-    int stateInput;
+    InstructionsScreenInputStates stateInput;
     float textY;
     float textHeight;
     float field_CC;
@@ -29,7 +43,7 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     float field_D8;
     float lastTouchX;
     byte field_E0;
-    byte field_E1;
+    byte flipRight;
     ushort pageIDText[8];
 };
 

@@ -7,9 +7,12 @@ void TitleScreen_Create(void *objPtr)
     int labelTex = 0;
     int textTex  = 0;
 
-    entity->state          = 0;
+    entity->state          = TITLESCREEN_STATE_SETUP;
     entity->introRectAlpha = 320.0;
     entity->logoTextureID  = LoadTexture("Data/Game/Menu/SonicLogo.png", TEXFMT_RGBA8888);
+
+    //code has been moved to SegaSplash_Create due to the possibility of opening the dev menu before this loads :(
+#if RETRO_USE_ORIGINAL_CODE
     ResetBitmapFonts();
     if (Engine.useHighResAssets)
         heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
@@ -25,6 +28,7 @@ void TitleScreen_Create(void *objPtr)
 
     textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
     LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
+#endif
 
     entity->labelPtr         = CREATE_ENTITY(TextLabel);
     entity->labelPtr->fontID = FONT_HEADING;
@@ -32,8 +36,8 @@ void TitleScreen_Create(void *objPtr)
 
     switch (Engine.language) {
         case RETRO_ES: entity->labelPtr->scale = 0.125; break;
-        case RETRO_JP:
-            entity->labelPtr->scale = 0.1;
+        case RETRO_JP: entity->labelPtr->scale = 0.1;
+#if RETRO_USE_ORIGINAL_CODE
             heading                 = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
 
@@ -42,9 +46,10 @@ void TitleScreen_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
+#endif
             break;
-        case 7:
-            entity->labelPtr->scale = 0.08;
+        case RETRO_RU: entity->labelPtr->scale = 0.08;
+#if RETRO_USE_ORIGINAL_CODE
             if (Engine.useHighResAssets)
                 heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
             else
@@ -56,8 +61,10 @@ void TitleScreen_Create(void *objPtr)
             else
                 labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
+#endif
             break;
         case RETRO_KO:
+#if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
 
@@ -66,8 +73,10 @@ void TitleScreen_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
+#endif
             break;
         case RETRO_ZH:
+#if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
 
@@ -76,27 +85,29 @@ void TitleScreen_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
+#endif
             break;
         case RETRO_ZS:
+#if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
             labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
             textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
+#endif
             break;
         default: break;
     }
     entity->labelPtr->alpha = 0;
-    entity->labelPtr->state = -1;
+    entity->labelPtr->state = TEXTLABEL_STATE_NONE;
 
-    ushort *str = NULL;
     if (Engine.gameDeviceType == RETRO_MOBILE)
         SetStringToFont(entity->labelPtr->text, strTouchToStart, FONT_HEADING);
     else
         SetStringToFont(entity->labelPtr->text, strPressStart, FONT_HEADING);
 
-    entity->labelPtr->alignPtr(entity->labelPtr, 1);
+    entity->labelPtr->alignPtr(entity->labelPtr, ALIGN_CENTER);
 
     entity->labelPtr->x    = 64.0;
     entity->labelPtr->y    = -96.0;
@@ -147,14 +158,14 @@ void TitleScreen_Main(void *objPtr)
     RSDK_THIS(TitleScreen);
 
     switch (entity->state) {
-        case 0: {
+        case TITLESCREEN_STATE_SETUP: {
             PlayMusic(0, 0);
-            entity->state = 1;
+            entity->state = TITLESCREEN_STATE_ENTERINTRO;
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->introRectAlpha);
             break;
         }
-        case 1: {
+        case TITLESCREEN_STATE_ENTERINTRO: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             entity->meshAnimator.animationSpeed = 6.0 * Engine.deltaTime;
@@ -169,27 +180,13 @@ void TitleScreen_Main(void *objPtr)
                         entity->introTextureID);
             entity->introRectAlpha -= (300.0 * Engine.deltaTime);
             if (entity->introRectAlpha < -320.0)
-                entity->state = 2;
+                entity->state = TITLESCREEN_STATE_INTRO;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->introRectAlpha);
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
 
-            if (touches > 0 && entity->introRectAlpha > 0.0) {
-                if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0) {
-                    entity->state                 = 4;
-                    entity->x                     = -96.0;
-                    entity->meshScale             = 1.0;
-                    entity->field_38              = -48.0;
-                    entity->field_12C             = 256;
-                    entity->logoAlpha             = 256;
-                    entity->field_130             = 1;
-                    NativeEntity_TextLabel *label = entity->labelPtr;
-                    label->alpha                  = 256;
-                    label->state                  = 1;
-                }
-            }
-            else if (keyPress.start || keyPress.A) {
-                entity->state                 = 4;
+            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (keyPress.start || keyPress.A)) {
+                entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
                 entity->field_38              = -48.0;
@@ -198,11 +195,11 @@ void TitleScreen_Main(void *objPtr)
                 entity->field_130             = 1;
                 NativeEntity_TextLabel *label = entity->labelPtr;
                 label->alpha                  = 256;
-                label->state                  = 1;
+                label->state                  = TEXTLABEL_STATE_BLINK;
             }
             break;
         }
-        case 2: {
+        case TITLESCREEN_STATE_INTRO: {
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderBlendMode(RENDER_BLEND_NONE);
@@ -214,24 +211,10 @@ void TitleScreen_Main(void *objPtr)
             RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
                         entity->introTextureID);
             if (entity->meshAnimator.frameID > 26)
-                entity->state = 3;
+                entity->state = TITLESCREEN_STATE_ENTERBOX;
 
-            if (touches > 0) {
-                if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0) {
-                    entity->state                 = 4;
-                    entity->x                     = -96.0;
-                    entity->meshScale             = 1.0;
-                    entity->field_38              = -48.0;
-                    entity->field_12C             = 256;
-                    entity->logoAlpha             = 256;
-                    entity->field_130             = 1;
-                    NativeEntity_TextLabel *label = entity->labelPtr;
-                    label->alpha                  = 256;
-                    label->state                  = 1;
-                }
-            }
-            else if (keyPress.start || keyPress.A) {
-                entity->state                 = 4;
+            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (keyPress.start || keyPress.A)) {
+                entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
                 entity->field_38              = -48.0;
@@ -240,11 +223,11 @@ void TitleScreen_Main(void *objPtr)
                 entity->field_130             = 1;
                 NativeEntity_TextLabel *label = entity->labelPtr;
                 label->alpha                  = 256;
-                label->state                  = 1;
+                label->state                  = TEXTLABEL_STATE_BLINK;
             }
             break;
         }
-        case 3: {
+        case TITLESCREEN_STATE_ENTERBOX: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
 
@@ -275,16 +258,16 @@ void TitleScreen_Main(void *objPtr)
             }
             else {
                 NativeEntity_TextLabel *label = entity->labelPtr;
-                label->state                  = 1;
-                entity->state                 = 4;
+                label->state                  = TEXTLABEL_STATE_BLINK;
+                entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = 0.0;
             }
             entity->rotationY += Engine.deltaTime;
             matrixScaleXYZF(&entity->renderMatrix, entity->meshScale, entity->meshScale, entity->meshScale);
-            matrixRotateYF(&entity->matrix3, entity->rotationY);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
-            matrixTranslateXYZF(&entity->matrix3, 0.0, 0.0, 200.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            matrixRotateYF(&entity->matrixTemp, entity->rotationY);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, 0.0, 200.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, MESH_NORMALS, true);
             SetRenderMatrix(NULL);
@@ -293,15 +276,15 @@ void TitleScreen_Main(void *objPtr)
                         entity->introTextureID);
             break;
         }
-        case 4: {
+        case TITLESCREEN_STATE_TITLE: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
 
             entity->rotationY += Engine.deltaTime;
-            if (entity->rotationY > M_PI * 2)
-                entity->rotationY -= M_PI * 2;
+            if (entity->rotationY > M_PI_2)
+                entity->rotationY -= M_PI_2;
 
             if (entity->x <= -96.0) {
                 if (entity->logoAlpha > 255) {
@@ -311,9 +294,9 @@ void TitleScreen_Main(void *objPtr)
                         if (!entity->field_130) {
                             PlaySfxByName("Menu Select", false);
                             StopMusic(true);
-                            entity->labelPtr->state = 2;
+                            entity->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
                             entity->introRectAlpha  = 0.0;
-                            entity->state           = 5;
+                            entity->state           = TITLESCREEN_STATE_EXITTITLE;
                         }
                     }
                     else {
@@ -330,10 +313,10 @@ void TitleScreen_Main(void *objPtr)
             }
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->meshScale, entity->meshScale, entity->meshScale);
-            matrixRotateYF(&entity->matrix3, entity->rotationY);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
-            matrixTranslateXYZF(&entity->matrix3, entity->x, 0.0, 200.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            matrixRotateYF(&entity->matrixTemp, entity->rotationY);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
+            matrixTranslateXYZF(&entity->matrixTemp, entity->x, 0.0, 200.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, MESH_NORMALS, true);
             SetRenderMatrix(NULL);
@@ -352,7 +335,7 @@ void TitleScreen_Main(void *objPtr)
             }
             break;
         }
-        case 5: {
+        case TITLESCREEN_STATE_EXITTITLE: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
@@ -363,8 +346,8 @@ void TitleScreen_Main(void *objPtr)
             entity->rotationY /= div;
             NewRenderState();
             matrixRotateYF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrix3, entity->x, 0.0, 200.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            matrixTranslateXYZF(&entity->matrixTemp, entity->x, 0.0, 200.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, MESH_NORMALS, true);
             SetRenderMatrix(NULL);
@@ -375,7 +358,7 @@ void TitleScreen_Main(void *objPtr)
 
             entity->introRectAlpha += Engine.deltaTime;
             if (entity->introRectAlpha > 1.0) {
-                entity->state                 = 6;
+                entity->state                 = TITLESCREEN_STATE_EXIT;
                 NativeEntity_TextLabel *label = entity->labelPtr;
                 RemoveNativeObject(label);
                 SetMeshAnimation(entity->boxMesh, &entity->meshAnimator, 4, 16, 0.0);
@@ -388,7 +371,7 @@ void TitleScreen_Main(void *objPtr)
             RenderImage(64.0, 32.0, 160.0, 0.3, 0.31, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, entity->logoAlpha, entity->logoTextureID);
             break;
         }
-        case 6: {
+        case TITLESCREEN_STATE_EXIT: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_CENTERY_F - entity->field_38, 160, 192, 255, 255);
@@ -413,15 +396,15 @@ void TitleScreen_Main(void *objPtr)
             }
             NewRenderState();
             matrixRotateXF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrix3, entity->x, entity->field_4C, 200.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix3);
+            matrixTranslateXYZF(&entity->matrixTemp, entity->x, entity->field_4C, 200.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             RenderMesh(entity->boxMesh, MESH_NORMALS, true);
 
-            matrixRotateXYZF(&entity->matrix2, 0.0, 0.0, entity->rotationZ);
-            matrixTranslateXYZF(&entity->matrix3, 0.0, entity->matrixY, entity->matrixZ);
-            matrixMultiplyF(&entity->matrix2, &entity->matrix3);
-            SetRenderMatrix(&entity->matrix2);
+            matrixRotateXYZF(&entity->renderMatrix2, 0.0, 0.0, entity->rotationZ);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, entity->matrixY, entity->matrixZ);
+            matrixMultiplyF(&entity->renderMatrix2, &entity->matrixTemp);
+            SetRenderMatrix(&entity->renderMatrix2);
             RenderMesh(entity->cartMesh, MESH_NORMALS, true);
             SetRenderMatrix(NULL);
             if (entity->field_4C < -360.0) {

@@ -13,7 +13,7 @@ void VirtualDPadM_Create(void *objPtr)
     entity->pauseX   = SCREEN_CENTERX - 76.0f;
     entity->pauseX_S = SCREEN_CENTERX - 52.0f;
 
-    float dpadSize    = saveGame->vDPadSize * (1 / 256.0f); // 1 / 256
+    float dpadSize    = saveGame->vDPadSize * (1 / 256.0f);
     entity->moveSize  = dpadSize;
     entity->jumpSize  = entity->moveSize * 0.75;
     entity->textureID = LoadTexture("Data/Game/Menu/VirtualDPadM.png", 3);
@@ -21,12 +21,13 @@ void VirtualDPadM_Create(void *objPtr)
 void VirtualDPadM_Main(void *objPtr)
 {
     RSDK_THIS(VirtualDPadM);
-    SaveGame *saveGame = (SaveGame *)saveRAM;
+    SaveGame *saveGame   = (SaveGame *)saveRAM;
+    int physicalControls = GetGlobalVariableByName("options.physicalControls");
 
-    if (globalVariables[9]) {
+    if (physicalControls) {
         if (entity->alpha < saveGame->vDPadOpacity) {
             entity->alpha += 4;
-            if (entity->pauseAlpha <= 254) {
+            if (entity->pauseAlpha < 0xFF) {
                 entity->pauseAlpha = (entity->alpha << 8) / saveGame->vDPadOpacity;
             }
         }

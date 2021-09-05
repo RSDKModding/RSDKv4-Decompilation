@@ -14,7 +14,7 @@ void InstructionsScreen_Create(void *objPtr)
     entity->labelPtr->x               = -144.0;
     entity->labelPtr->y               = 100.0;
     entity->labelPtr->z               = 16.0;
-    entity->labelPtr->state           = 0;
+    entity->labelPtr->state           = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, strInstructions, FONT_HEADING);
     SetStringToFont8(entity->pageIDText, "1 / 5", FONT_TEXT);
     SetStringToFont(helpText, strHelpText1, FONT_TEXT);
@@ -22,7 +22,7 @@ void InstructionsScreen_Create(void *objPtr)
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
     entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
-    entity->touchedPrev   = 0;
+    entity->touchedPrev   = false;
     entity->textY         = 68.0;
     entity->textHeight    = (GetTextHeight(helpText, FONT_TEXT, 0.14) - 152.0) + 68.0;
     if (Engine.gameDeviceType == RETRO_STANDARD) {
@@ -45,7 +45,7 @@ void InstructionsScreen_Main(void *objPtr)
     RSDK_THIS(InstructionsScreen);
     NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)entity->optionsMenu;
     switch (entity->state) {
-        case 0: {
+        case INSTRUCTIONSCREEN_STATE_ENTER: {
             if (entity->arrowAlpha < 0x100)
                 entity->arrowAlpha += 8;
 
@@ -53,8 +53,8 @@ void InstructionsScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
@@ -63,14 +63,14 @@ void InstructionsScreen_Main(void *objPtr)
             if (entity->field_1C > 1.0) {
                 entity->arrowAlpha = 256;
                 entity->field_1C   = 0.0;
-                entity->state      = 1;
+                entity->state      = INSTRUCTIONSCREEN_STATE_MAIN;
             }
             break;
         }
-        case 1: {
+        case INSTRUCTIONSCREEN_STATE_MAIN: {
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
-            SetRenderMatrix(&entity->matrix2);
+            SetRenderMatrix(&entity->matrixTemp);
             if (usePhysicalControls) {
                 if (touches > 0) {
                     usePhysicalControls = false;
@@ -87,29 +87,29 @@ void InstructionsScreen_Main(void *objPtr)
                     }
                     if (keyDown.left) {
                         PlaySfxByName("Menu Move", false);
-                        entity->state       = 2;
-                        entity->stateInput  = 0;
+                        entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
+                        entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         entity->touchedPrev = false;
-                        entity->field_E1    = true;
+                        entity->flipRight   = true;
                         if (--entity->pageID < 0)
                             entity->pageID = 4;
                     }
                     else if (keyDown.right) {
                         PlaySfxByName("Menu Move", false);
-                        entity->state       = 2;
-                        entity->stateInput  = 0;
+                        entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
+                        entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         entity->touchedNext = false;
-                        entity->field_E1    = false;
+                        entity->flipRight   = false;
                         entity->pageID      = (entity->pageID + 1) % 5;
                     }
                 }
             }
             else {
                 switch (entity->stateInput) {
-                    case 0:
+                    case INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS:
                         if (touches > 0) {
                             if (CheckTouchRect(0.0, -8.0, 128.0, 96.0) >= 0 && entity->textHeight > 68.0) {
-                                entity->stateInput = 1;
+                                entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT;
                                 entity->field_D4   = 0.0;
                                 entity->field_CC   = touchYF[0];
                             }
@@ -120,7 +120,7 @@ void InstructionsScreen_Main(void *objPtr)
                         if (keyDown.up || keyDown.down)
                             usePhysicalControls = true;
                         break;
-                    case 1:
+                    case INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT:
                         if (touches > 0) {
                             entity->field_D8 = entity->field_CC - touchYF[0];
                             if (entity->field_D4 > 0.0 || entity->field_D4 < 0.0)
@@ -131,45 +131,45 @@ void InstructionsScreen_Main(void *objPtr)
                             entity->textY += entity->field_D0;
                         }
                         else {
-                            entity->stateInput = 2;
+                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLESCROLL;
                         }
                         break;
-                    case 2:
+                    case INSTRUCTIONSCREEN_STATEINPUT_HANDLESCROLL:
                         if (touches <= 0) {
                             float val = entity->field_D0 / ((60.0 * Engine.deltaTime) * 1.1);
                             entity->textY += val;
                             entity->field_D0 = val;
 
                             if (abs(entity->field_D0) < 0.0025)
-                                entity->stateInput = 0;
+                                entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
 
                             if (68.0 - abs(entity->field_D0 * 4.0) > entity->textY) {
                                 entity->field_D8   = 68.0;
-                                entity->stateInput = 3;
+                                entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLESWIPE;
                             }
 
                             if (entity->textY > (abs(entity->field_D0 * 4.0) + entity->textHeight)) {
                                 entity->field_D8   = entity->textHeight;
-                                entity->stateInput = 3;
+                                entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLESWIPE;
                             }
                         }
                         else if (CheckTouchRect(0.0, -8.0, 128.0, 96.0) >= 0) {
-                            entity->stateInput = 1;
+                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT;
                             entity->field_D4   = 0.0;
                             entity->field_CC   = touchYF[0];
                         }
                         break;
-                    case 3:
+                    case INSTRUCTIONSCREEN_STATEINPUT_HANDLESWIPE:
                         if (touches <= 0) {
                             entity->textY = ((entity->field_D8 - entity->textY) / ((60.0 * Engine.deltaTime) * 8.0)) + entity->textY;
 
                             if (abs(entity->field_D8 - entity->textY) < 0.025) {
                                 entity->textY      = entity->field_D8;
-                                entity->stateInput = 0;
+                                entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                             }
                         }
                         else if (CheckTouchRect(0.0, -8.0, 128.0, 96.0) >= 0) {
-                            entity->stateInput = 1;
+                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT;
                             entity->field_D4   = 0.0;
                             entity->field_CC   = touchYF[0];
                         }
@@ -181,23 +181,23 @@ void InstructionsScreen_Main(void *objPtr)
                 if (entity->touchedBack) {
                     PlaySfxByName("Menu Back", false);
                     entity->touchedBack = false;
-                    entity->state       = 4;
+                    entity->state       = INSTRUCTIONSCREEN_STATE_EXIT;
                 }
                 if (entity->touchedPrev) {
                     PlaySfxByName("Menu Move", false);
-                    entity->state       = 2;
-                    entity->stateInput  = 0;
+                    entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
+                    entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                     entity->touchedPrev = false;
-                    entity->field_E1    = true;
+                    entity->flipRight   = true;
                     if (--entity->pageID < 0)
                         entity->pageID = 4;
                 }
                 if (entity->touchedNext) {
                     PlaySfxByName("Menu Move", false);
-                    entity->state       = 2;
-                    entity->stateInput  = 0;
-                    entity->touchedNext = 0;
-                    entity->field_E1    = false;
+                    entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
+                    entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                    entity->touchedNext = false;
+                    entity->flipRight   = false;
                     entity->pageID      = (entity->pageID + 1) % 5;
                 }
             }
@@ -210,17 +210,17 @@ void InstructionsScreen_Main(void *objPtr)
                     if (entity->field_E0) {
                         if (entity->lastTouchX - touchXF[0] > 16.0f) {
                             PlaySfxByName("Menu Move", false);
-                            entity->state      = 2;
-                            entity->stateInput = 0;
-                            entity->field_E1   = false;
+                            entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
+                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                            entity->flipRight  = false;
                             entity->field_E0   = false;
                             entity->pageID     = (entity->pageID + 1) % 5;
                         }
                         else if (entity->lastTouchX - touchXF[0] < -16.0f) {
                             PlaySfxByName("Menu Move", false);
-                            entity->state      = 2;
-                            entity->stateInput = 0;
-                            entity->field_E1   = true;
+                            entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
+                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                            entity->flipRight  = true;
                             entity->field_E0   = false;
                             if (--entity->pageID < 0)
                                 entity->pageID = 4;
@@ -242,20 +242,20 @@ void InstructionsScreen_Main(void *objPtr)
             if (entity->state == 1 && keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->touchedBack = false;
-                entity->state       = 4;
+                entity->state       = INSTRUCTIONSCREEN_STATE_EXIT;
             }
             break;
         }
-        case 2: {
-            if (!entity->field_E1) {
+        case INSTRUCTIONSCREEN_STATE_FLIP: {
+            if (!entity->flipRight) {
                 entity->rotationY -= (10.0 * Engine.deltaTime);
             }
             else {
                 entity->rotationY += (10.0 * Engine.deltaTime);
             }
 
-            if (abs(entity->rotationY) > 1.5707964) {
-                entity->state     = 3;
+            if (abs(entity->rotationY) > (M_PI * 0.5)) {
+                entity->state     = INSTRUCTIONSCREEN_STATE_FINISHFLIP;
                 entity->rotationY = entity->rotationY < 0.0f ? -4.712389 : 4.712389;
                 switch (entity->pageID) {
                     case 0:
@@ -290,34 +290,34 @@ void InstructionsScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixRotateYF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             break;
         }
-        case 3: {
-            if (entity->field_E1) {
+        case INSTRUCTIONSCREEN_STATE_FINISHFLIP: {
+            if (entity->flipRight) {
                 entity->rotationY += (10.0 * Engine.deltaTime);
-                if (entity->rotationY > (M_PI * 2)) {
-                    entity->state     = 1;
+                if (entity->rotationY > (M_PI_2)) {
+                    entity->state     = INSTRUCTIONSCREEN_STATE_MAIN;
                     entity->rotationY = 0.0;
                 }
             }
             else {
                 entity->rotationY -= (10.0 * Engine.deltaTime);
-                if (entity->rotationY < -(M_PI * 2)) {
-                    entity->state     = 1;
+                if (entity->rotationY < -(M_PI_2)) {
+                    entity->state     = INSTRUCTIONSCREEN_STATE_MAIN;
                     entity->rotationY = 0.0;
                 }
             }
             NewRenderState();
             matrixRotateYF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
             break;
         }
-        case 4: {
+        case INSTRUCTIONSCREEN_STATE_EXIT: {
             if (entity->arrowAlpha > 0)
                 entity->arrowAlpha -= 8;
 
@@ -328,15 +328,15 @@ void InstructionsScreen_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
 
             entity->field_1C += Engine.deltaTime;
             if (entity->field_1C > 0.5) {
-                optionsMenu->state = 7;
+                optionsMenu->state = OPTIONSMENU_STATE_EXITSUBMENU;
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity);
                 return;

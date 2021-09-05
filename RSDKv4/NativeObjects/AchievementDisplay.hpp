@@ -2,6 +2,8 @@
 #define NATIVE_ACHIEVEMENTDISPLAY_H
 
 #if !RETRO_USE_ORIGINAL_CODE
+enum AchievementDisplayStates { ACHDISP_STATE_LOCKED, ACHDISP_STATE_UNLOCKED };
+
 struct NativeEntity_AchievementDisplay : NativeEntityBase {
     float x;
     float y;

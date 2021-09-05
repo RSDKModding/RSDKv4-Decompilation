@@ -19,7 +19,7 @@ struct NativeEntity_MenuBG : NativeEntityBase {
     byte fadeB;
     int alpha;
     MatrixF renderMatrix;
-    MatrixF matrix2;
+    MatrixF matrixTemp;
     MatrixF circle1;
     MatrixF circle2;
 };

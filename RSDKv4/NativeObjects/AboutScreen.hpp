@@ -16,8 +16,8 @@ struct NativeEntity_AboutScreen : NativeEntityBase {
     MeshInfo *meshBox;
     MeshAnimator animator;
     MatrixF renderMatrix;
-    MatrixF matrix2;
-    MatrixF matrix3;
+    MatrixF matrixTemp;
+    MatrixF renderMatrix2;
     byte textureArrows;
     byte backPressed;
     int arrowAlpha;

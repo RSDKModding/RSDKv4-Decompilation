@@ -1,6 +1,8 @@
 #ifndef NATIVE_ZONEBUTTON_H
 #define NATIVE_ZONEBUTTON_H
 
+enum ZoneButtonStates { ZONEBUTTON_STATE_UNSELECTED, ZONEBUTTON_STATE_SELECTED, ZONEBUTTON_STATE_FLASHING };
+
 struct NativeEntity_ZoneButton : NativeEntityBase {
     float x;
     float y;
@@ -8,16 +10,16 @@ struct NativeEntity_ZoneButton : NativeEntityBase {
     float texX;
     float texY;
     float angle;
-    float float28;
-    byte flag;
+    float angleSpeed;
+    byte unlocked;
     float textWidth;
-    int state;
+    ZoneButtonStates state;
     float float38;
-    float float3C;
-    uint colourWhite2;
-    uint colourYellow2;
-    uint colourWhite;
-    uint colourYellow;
+    float timer;
+    uint textColour;
+    uint textSelectedColour;
+    uint bgColour;
+    uint bgColourSelected;
     byte textureIntro;
     byte textureSymbols;
     ushort zoneText[32];

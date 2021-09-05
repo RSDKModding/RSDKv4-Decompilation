@@ -17,14 +17,22 @@ void MultiplayerButton_Create(void *objPtr)
     entity->labelPtr->fontID = FONT_HEADING;
     entity->labelPtr->scale  = 0.15;
     entity->labelPtr->alpha  = 0;
-    entity->labelPtr->state  = 0;
+    entity->labelPtr->state  = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, str2PlayerVS, FONT_HEADING);
-    entity->labelPtr->alignPtr(entity->labelPtr, 1);
+    entity->labelPtr->alignPtr(entity->labelPtr, ALIGN_CENTER);
 }
 void MultiplayerButton_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerButton);
 
+#if RETRO_USE_NETWORKING
+    if (entity->connectTimer) {
+        entity->connectTimer += Engine.deltaTime;
+        if (entity->connectTimer >= 0.7f) {
+            entity->connectTimer = 0;
+        }
+    }
+#endif
     if (entity->visible) {
         if (entity->scale < 0.2) {
             entity->scale += ((0.25 - entity->scale) / ((60.0 * Engine.deltaTime) * 16.0));
@@ -38,13 +46,13 @@ void MultiplayerButton_Main(void *objPtr)
         SetRenderBlendMode(RENDER_BLEND_NONE);
 
         entity->angle -= Engine.deltaTime;
-        if (entity->angle < -(M_PI * 2))
-            entity->angle += (M_PI * 2);
+        if (entity->angle < -M_PI_2)
+            entity->angle += M_PI_2;
 
         NewRenderState();
         matrixRotateXYZF(&entity->renderMatrix, 0.0, entity->angle, 0.0);
-        matrixTranslateXYZF(&entity->matrix2, entity->x, entity->y, entity->z - 8.0);
-        matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+        matrixTranslateXYZF(&entity->matrixTemp, entity->x, entity->y, entity->z - 8.0);
+        matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
         SetRenderMatrix(&entity->renderMatrix);
         RenderMesh(entity->meshVS, MESH_NORMALS, true);
         SetRenderMatrix(NULL);
@@ -61,5 +69,12 @@ void MultiplayerButton_Main(void *objPtr)
             if (label->alpha < 0x100)
                 label->alpha += 8;
         }
+#if RETRO_USE_NETWORKING
+        if (!Engine.onlineActive && entity->labelPtr->state == TEXTLABEL_STATE_BLINK_FAST && !entity->connectTimer) {
+            entity->connectTimer = 0.1f;
+            disconnectNetwork();
+            initNetwork(); // let's see if we can turn it on
+        }
+#endif
     }
 }

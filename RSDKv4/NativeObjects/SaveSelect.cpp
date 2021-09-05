@@ -14,9 +14,9 @@ void SaveSelect_Create(void *objPtr)
         entity->labelPtr->scale = 0.2;
     entity->labelPtr->alpha = 0;
     entity->labelPtr->z     = 0;
-    entity->labelPtr->state = 0;
+    entity->labelPtr->state = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, strSaveSelect, FONT_HEADING);
-    entity->labelPtr->textWidth = 512.0;
+    entity->labelPtr->alignOffset = 512.0;
 
     entity->deleteRotateY = DegreesToRad(22.5);
     matrixRotateYF(&entity->labelPtr->renderMatrix, entity->deleteRotateY);
@@ -35,28 +35,28 @@ void SaveSelect_Create(void *objPtr)
     entity->delButton->bgColour = 0x00A048;
     SetStringToFont(entity->delButton->text, strDelete, FONT_LABEL);
 
-    entity->saveButtons[0] = CREATE_ENTITY(SubMenuButton);
-    SetStringToFont(entity->saveButtons[0]->text, strNoSave, FONT_LABEL);
-    entity->saveButtons[0]->matXOff = 512.0;
-    entity->saveButtons[0]->textY   = -4.0;
-    entity->saveButtons[0]->matZ    = 0.0;
-    entity->saveButtons[0]->scale   = 0.1;
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE] = CREATE_ENTITY(SubMenuButton);
+    SetStringToFont(entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->text, strNoSave, FONT_LABEL);
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->matXOff = 512.0;
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->textY   = -4.0;
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->matZ    = 0.0;
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->scale   = 0.1;
 
-    entity->rotateY[0] = DegreesToRad(16.0);
-    matrixRotateYF(&entity->saveButtons[0]->matrix, entity->rotateY[0]);
+    entity->rotateY[SAVESELECT_BUTTON_NOSAVE] = DegreesToRad(16.0);
+    matrixRotateYF(&entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->matrix, entity->rotateY[0]);
     matrixTranslateXYZF(&entity->matrix1, -128.0, 48.0, 160.0);
-    matrixMultiplyF(&entity->saveButtons[0]->matrix, &entity->matrix1);
-    entity->saveButtons[0]->useMatrix = true;
+    matrixMultiplyF(&entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->matrix, &entity->matrix1);
+    entity->saveButtons[SAVESELECT_BUTTON_NOSAVE]->useMatrix = true;
     ReadSaveRAMData();
 
     float y = 18.0;
-    for (int i = 1; i <= 4; ++i) {
+    for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
         entity->saveButtons[i] = CREATE_ENTITY(SubMenuButton);
 
         int stagePos = saveGame->files[i - 1].stageID;
         if (stagePos >= 0x80) {
             SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[saveGame->files[i - 1].specialStageID + 19], FONT_LABEL);
-            entity->saveButtons[i]->state = 4;
+            entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED;
             entity->saveButtons[i]->textY = 2.0;
             entity->saveButtons[i]->scale = 0.08;
             entity->deleteEnabled         = true;
@@ -66,7 +66,7 @@ void SaveSelect_Create(void *objPtr)
                 SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[25], FONT_LABEL);
             else
                 SetStringToFont(entity->saveButtons[i]->text, strSaveStageList[stagePos - 1], FONT_LABEL);
-            entity->saveButtons[i]->state = 4;
+            entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED;
             entity->saveButtons[i]->textY = 2.0;
             entity->saveButtons[i]->scale = 0.08;
             entity->deleteEnabled         = true;
@@ -95,37 +95,33 @@ void SaveSelect_Main(void *objPtr)
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
     switch (entity->state) {
-        case 0: {
-            entity->field_14 += Engine.deltaTime;
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
-                entity->state    = 1;
+        case SAVESELECT_STATE_SETUP: {
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 1.0) {
+                entity->timer = 0.0;
+                entity->state = SAVESELECT_STATE_ENTER;
             }
             break;
         }
-        case 1: {
-            entity->labelPtr->textWidth = entity->labelPtr->textWidth / (1.125 * (60.0 * Engine.deltaTime));
+        case SAVESELECT_STATE_ENTER: {
+            entity->labelPtr->alignOffset = entity->labelPtr->alignOffset / (1.125 * (60.0 * Engine.deltaTime));
             if (entity->deleteEnabled)
                 entity->delButton->x = ((92.0 - entity->delButton->x) / (8.0 * (60.0 * Engine.deltaTime))) + entity->delButton->x;
 
-            float div                       = (60.0 * Engine.deltaTime) * 16.0;
-            entity->saveButtons[0]->matXOff = ((-176.0 - entity->saveButtons[0]->matXOff) / div) + entity->saveButtons[0]->matXOff;
-            entity->saveButtons[1]->matXOff = ((-176.0 - entity->saveButtons[1]->matXOff) / div) + entity->saveButtons[1]->matXOff;
-            entity->saveButtons[2]->matXOff = ((-176.0 - entity->saveButtons[2]->matXOff) / div) + entity->saveButtons[2]->matXOff;
-            entity->saveButtons[3]->matXOff = ((-176.0 - entity->saveButtons[3]->matXOff) / div) + entity->saveButtons[3]->matXOff;
-            entity->saveButtons[4]->matXOff = ((-176.0 - entity->saveButtons[4]->matXOff) / div) + entity->saveButtons[4]->matXOff;
+            float div = (60.0 * Engine.deltaTime) * 16.0;
+            for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->matXOff += ((-176.0 - entity->saveButtons[i]->matXOff) / div);
 
-            entity->field_14 += (Engine.deltaTime + Engine.deltaTime);
-            entity->labelPtr->alpha = (256.0 * entity->field_14);
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
-                entity->state    = 2;
-                keyPress.start   = false;
-                keyPress.A       = false;
+            entity->timer += (Engine.deltaTime + Engine.deltaTime);
+            entity->labelPtr->alpha = (256.0 * entity->timer);
+            if (entity->timer > 1.0) {
+                entity->timer  = 0.0;
+                entity->state  = SAVESELECT_STATE_MAIN;
+                keyPress.start = false;
+                keyPress.A     = false;
             }
             break;
         }
-        case 2: {
+        case SAVESELECT_STATE_MAIN: {
             if (!entity->deleteEnabled)
                 entity->delButton->x += ((512.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
             else
@@ -138,78 +134,76 @@ void SaveSelect_Main(void *objPtr)
                 else {
                     if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedSave--;
+                        entity->selectedButton--;
                         if (entity->deleteEnabled) {
-                            if (entity->selectedSave < 0)
-                                entity->selectedSave = 5;
+                            if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE)
+                                entity->selectedButton = SAVESELECT_BUTTON_COUNT;
                         }
-                        else if (entity->selectedSave < 0) {
-                            entity->selectedSave = 4;
+                        else if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
+                            entity->selectedButton = SAVESELECT_BUTTON_COUNT - 1;
                         }
                     }
                     else if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedSave++;
+                        entity->selectedButton++;
                         if (entity->deleteEnabled) {
-                            if (entity->selectedSave > 5) {
-                                entity->selectedSave = 0;
+                            if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
+                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                             }
                         }
-                        else if (entity->selectedSave > 4) {
-                            entity->selectedSave = 0;
+                        else if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT - 1) {
+                            entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                         }
                     }
-                    entity->saveButtons[0]->b = 0xFF;
-                    entity->saveButtons[1]->b = 0xFF;
-                    entity->saveButtons[2]->b = 0xFF;
-                    entity->saveButtons[3]->b = 0xFF;
-                    entity->saveButtons[4]->b = 0xFF;
+
+                    for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->b = 0xFF;
+
                     if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
-                        if (entity->selectedSave <= 4) {
-                            entity->selectedSave     = 5;
-                            entity->delButton->state = 1;
+                        if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
+                            entity->selectedButton   = SAVESELECT_BUTTON_COUNT;
+                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
                         else {
-                            entity->selectedSave                         = 0;
-                            entity->saveButtons[entity->selectedSave]->b = 0;
-                            entity->delButton->state                     = 0;
+                            entity->selectedButton                         = SAVESELECT_BUTTON_NOSAVE;
+                            entity->saveButtons[entity->selectedButton]->b = 0x00;
+                            entity->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
                     else {
-                        if (entity->selectedSave > 4) {
-                            entity->delButton->state = 1;
+                        if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
+                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
                         else {
-                            entity->saveButtons[entity->selectedSave]->b = 0;
-                            entity->delButton->state                     = 0;
+                            entity->saveButtons[entity->selectedButton]->b = 0x00;
+                            entity->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
 
                     if (keyPress.start || keyPress.A) {
-                        if (entity->selectedSave <= 4) {
+                        if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
                             PlaySfxByName("Menu Select", false);
-                            entity->saveButtons[entity->selectedSave]->state = 2;
-                            if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
+                            entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
+                            if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
                                 StopMusic(true);
-                                entity->saveButtons[entity->selectedSave]->state = 3;
+                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                             }
-                            entity->saveButtons[entity->selectedSave]->b = 0xFF;
-                            entity->state                                = 4;
+                            entity->saveButtons[entity->selectedButton]->b = 0xFF;
+                            entity->state                                  = SAVESELECT_STATE_LOADSAVE;
                         }
                         else {
                             if (Engine.gameType == GAME_SONIC1)
                                 PlaySfxByName("Lamp Post", false);
                             else
                                 PlaySfxByName("Star Post", false);
-                            entity->delButton->state = 2;
-                            entity->state            = 4;
+                            entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
+                            entity->state            = SAVESELECT_STATE_LOADSAVE;
                         }
                     }
                 }
             }
             else {
                 float y = 48.0;
-                for (int i = 0; i <= 4; ++i) {
+                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
                     if (touches > 0) {
                         if (CheckTouchRect(-64.0, y, 96.0, 12.0) < 0)
                             entity->saveButtons[i]->b = 0xFF;
@@ -217,41 +211,41 @@ void SaveSelect_Main(void *objPtr)
                             entity->saveButtons[i]->b = 0x00;
                     }
                     else if (!entity->saveButtons[i]->b) {
-                        entity->selectedSave = i;
+                        entity->selectedButton = i;
                         PlaySfxByName("Menu Select", false);
-                        entity->saveButtons[i]->state = 2;
-                        if (entity->selectedSave > 0 && saveGame->files[entity->selectedSave - 1].stageID > 0) {
+                        entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
+                        if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
                             StopMusic(true);
-                            entity->saveButtons[i]->state = 3;
+                            entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                         }
                         entity->saveButtons[i]->b = 0xFF;
-                        entity->state             = 4;
+                        entity->state             = SAVESELECT_STATE_LOADSAVE;
                         break;
                     }
                     y -= 30.0;
                 }
-                if (entity->state == 2) {
+                if (entity->state == SAVESELECT_STATE_MAIN) {
                     if (!entity->deleteEnabled) {
                         if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
-                            entity->selectedSave = 0;
-                            usePhysicalControls  = true;
+                            entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
+                            usePhysicalControls    = true;
                         }
                     }
                     else {
                         if (touches <= 0) {
-                            if (entity->delButton->state == 1) {
-                                entity->selectedSave = 5;
+                            if (entity->delButton->state == PUSHBUTTON_STATE_SELECTED) {
+                                entity->selectedButton = SAVESELECT_BUTTON_COUNT;
                                 if (Engine.gameType == GAME_SONIC1)
                                     PlaySfxByName("Lamp Post", false);
                                 else
                                     PlaySfxByName("Star Post", false);
-                                entity->delButton->state = 2;
-                                entity->state            = 4;
+                                entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
+                                entity->state            = SAVESELECT_STATE_LOADSAVE;
                             }
                             else {
                                 if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
-                                    entity->selectedSave = 0;
-                                    usePhysicalControls  = true;
+                                    entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
+                                    usePhysicalControls    = true;
                                 }
                             }
                         }
@@ -259,10 +253,10 @@ void SaveSelect_Main(void *objPtr)
                             entity->delButton->state = CheckTouchRect(entity->delButton->x, entity->delButton->y,
                                                                       (64.0 * entity->delButton->scale) + entity->delButton->textWidth, 12.0)
                                                        >= 0;
-                            if (entity->state == 2) {
+                            if (entity->state == SAVESELECT_STATE_MAIN) {
                                 if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
-                                    entity->selectedSave = 0;
-                                    usePhysicalControls  = true;
+                                    entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
+                                    usePhysicalControls    = true;
                                 }
                             }
                         }
@@ -270,43 +264,41 @@ void SaveSelect_Main(void *objPtr)
                 }
             }
 
-            if (entity->menuControl->state == 5)
-                entity->state = 3;
+            if (entity->menuControl->state == MENUCONTROL_STATE_EXITSUBMENU)
+                entity->state = SAVESELECT_STATE_EXIT;
             break;
         }
-        case 3: {
-            entity->labelPtr->textWidth += 10.0 * (60.0 * Engine.deltaTime);
+        case SAVESELECT_STATE_EXIT: {
+            entity->labelPtr->alignOffset += 10.0 * (60.0 * Engine.deltaTime);
             entity->delButton->x += 10.0 * (60.0 * Engine.deltaTime);
-            for (int i = 0; i <= 4; ++i) {
-                entity->saveButtons[i]->matXOff += (11.0 * (60.0 * Engine.deltaTime));
-            }
-            entity->field_14 += (Engine.deltaTime + Engine.deltaTime);
-            if (entity->field_14 > 1.0) {
-                entity->field_14 = 0.0;
+            for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->matXOff += (11.0 * (60.0 * Engine.deltaTime));
+            entity->timer += (Engine.deltaTime + Engine.deltaTime);
+            if (entity->timer > 1.0) {
+                entity->timer = 0.0;
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity->delButton);
-                for (int i = 0; i <= 4; ++i) RemoveNativeObject(entity->saveButtons[i]);
+                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) RemoveNativeObject(entity->saveButtons[i]);
                 RemoveNativeObject(entity);
             }
             break;
         }
-        case 4: {
-            entity->menuControl->state = 2;
-            if (!(entity->saveButtons[entity->selectedSave]->state & -5)) {
-                if (entity->selectedSave == 5) {
-                    entity->menuControl->state = 4;
-                    entity->state              = 8;
+        case SAVESELECT_STATE_LOADSAVE: {
+            entity->menuControl->state = MENUCONTROL_STATE_NONE;
+            if (!(entity->saveButtons[entity->selectedButton]->state & ~SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)) {
+                if (entity->selectedButton == SAVESELECT_BUTTON_COUNT) {
+                    entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
+                    entity->state              = SAVESELECT_STATE_MAIN2;
                     if (usePhysicalControls)
-                        entity->selectedSave = 1;
-                    for (int i = 1; i <= 4; ++i) {
-                        if (entity->saveButtons[i]->state == 4)
+                        entity->selectedButton = SAVESELECT_BUTTON_SAVE1;
+                    for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                        if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                             entity->saveButtons[i]->useMeshH = true;
                     }
                 }
-                else if (entity->selectedSave) {
-                    int saveSlot = entity->selectedSave - 1;
+                else if (entity->selectedButton) {
+                    int saveSlot = entity->selectedButton - 1;
                     if (saveGame->files[saveSlot].stageID) {
-                        entity->state = 6;
+                        entity->state = SAVESELECT_STATE_SUBMENU;
                         SetGlobalVariableByName("options.saveSlot", saveSlot);
                         SetGlobalVariableByName("options.gameMode", 1);
                         SetGlobalVariableByName("options.stageSelectFlag", 0);
@@ -329,35 +321,36 @@ void SaveSelect_Main(void *objPtr)
                         CREATE_ENTITY(FadeScreen);
                     }
                     else {
-                        entity->state    = 5;
+                        entity->state    = SAVESELECT_STATE_ENTERSUBMENU;
                         entity->field_30 = 0.0;
                         entity->field_2C = DegreesToRad(-90.0);
-                        for (int i = 0; i <= 4; ++i) entity->field_AC[i] = DegreesToRad(-90.0);
+                        for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->field_AC[i] = DegreesToRad(-90.0);
 
-                        entity->field_C0[0] = 0.02;
-                        entity->field_C0[1] = 0.04;
-                        entity->field_C0[2] = 0.06;
-                        entity->field_C0[3] = 0.08;
-                        entity->field_C0[4] = 0.1;
+                        float val = 0.02;
+                        for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                            entity->field_C0[i] = val;
+                            val += 0.02;
+                        }
                         SetGlobalVariableByName("options.stageSelectFlag", 0);
                         debugMode = false;
                     }
                 }
                 else {
-                    entity->state    = 5;
+                    entity->state    = SAVESELECT_STATE_ENTERSUBMENU;
                     entity->field_30 = 0.0;
                     entity->field_2C = DegreesToRad(-90.0);
-                    for (int i = 0; i <= 4; ++i) entity->field_AC[i] = DegreesToRad(-90.0);
-                    entity->field_C0[0] = 0.02;
-                    entity->field_C0[1] = 0.04;
-                    entity->field_C0[2] = 0.06;
-                    entity->field_C0[3] = 0.08;
-                    entity->field_C0[4] = 0.1;
+                    for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->field_AC[i] = DegreesToRad(-90.0);
+
+                    float val = 0.02;
+                    for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                        entity->field_C0[i] = val;
+                        val += 0.02;
+                    }
                 }
             }
             break;
         }
-        case 5: {
+        case SAVESELECT_STATE_ENTERSUBMENU: {
             if (entity->deleteRotateY > entity->field_2C) {
                 entity->field_30 -= 0.0025 * (Engine.deltaTime * 60.0);
                 entity->deleteRotateY += (Engine.deltaTime * 60.0) * entity->field_30;
@@ -368,7 +361,7 @@ void SaveSelect_Main(void *objPtr)
             }
 
             float y = 48.0;
-            for (int i = 0; i <= 4; ++i) {
+            for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
                 if (entity->rotateY[i] > entity->field_AC[i]) {
                     entity->field_C0[i] -= 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->field_C0[i] < 0.0)
@@ -381,16 +374,17 @@ void SaveSelect_Main(void *objPtr)
                 y -= 30.0;
             }
 
-            if (entity->field_AC[4] >= entity->rotateY[4]) {
-                entity->state    = 6;
+            if (entity->field_AC[SAVESELECT_BUTTON_COUNT - 1] >= entity->rotateY[SAVESELECT_BUTTON_COUNT - 1]) {
+                entity->state    = SAVESELECT_STATE_SUBMENU;
                 entity->field_30 = 0.0;
                 entity->field_2C = DegreesToRad(22.5);
-                for (int i = 0; i <= 4; ++i) entity->field_AC[i] = DegreesToRad(16.0);
-                entity->field_C0[0] = -0.02;
-                entity->field_C0[1] = -0.04;
-                entity->field_C0[2] = -0.06;
-                entity->field_C0[3] = -0.08;
-                entity->field_C0[4] = -0.1;
+                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->field_AC[i] = DegreesToRad(16.0);
+
+                float val = -0.02;
+                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                    entity->field_C0[i] = val;
+                    val -= 0.02;
+                }
 
                 entity->playerSelect                                               = CREATE_ENTITY(PlayerSelectScreen);
                 ((NativeEntity_PlayerSelectScreen *)entity->playerSelect)->saveSel = entity;
@@ -404,9 +398,9 @@ void SaveSelect_Main(void *objPtr)
             entity->delButton->x += ((512.0 - entity->delButton->x) / div);
             break;
         }
-        case 6: // player select idle
+        case SAVESELECT_STATE_SUBMENU: // player select idle
             break;
-        case 7: {
+        case SAVESELECT_STATE_EXITSUBMENU: {
             if (entity->field_2C > entity->deleteRotateY) {
                 entity->field_30 += 0.0025 * (Engine.deltaTime * 60.0);
                 entity->deleteRotateY += (Engine.deltaTime * 60.0) * entity->field_30;
@@ -419,7 +413,7 @@ void SaveSelect_Main(void *objPtr)
             }
 
             float y = 48.0;
-            for (int i = 0; i <= 4; ++i) {
+            for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
                 if (entity->field_AC[i] > entity->rotateY[i]) {
                     entity->field_C0[i] += 0.0025 * (60.0 * Engine.deltaTime);
                     if (entity->field_C0[i] > 0.0)
@@ -444,16 +438,15 @@ void SaveSelect_Main(void *objPtr)
 
             if (backButton->x < SCREEN_YSIZE) {
                 backButton->x              = SCREEN_YSIZE;
-                entity->state              = 2;
-                entity->menuControl->state = 4;
+                entity->state              = SAVESELECT_STATE_MAIN;
+                entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
             }
             break;
         }
-        case 8: {
+        case SAVESELECT_STATE_MAIN2: {
             if (!usePhysicalControls) {
                 float y = 48.0;
-                for (int i = 0; i <= 4; ++i) {
-
+                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
                     if (CheckTouchRect(-64.0, y, 96.0, 12.0) >= 0)
                         entity->saveButtons[i]->b = 0xFF;
                     else
@@ -461,52 +454,46 @@ void SaveSelect_Main(void *objPtr)
 
                     if (!entity->saveButtons[i]->b) {
                         entity->saveButtons[i]->b = 0xFF;
-                        if (entity->saveButtons[i]->state == 4) {
-                            entity->selectedSave = i;
+                        if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED) {
+                            entity->selectedButton = i;
                             if (Engine.gameType == GAME_SONIC1)
                                 PlaySfxByName("Lamp Post", false);
                             else
                                 PlaySfxByName("Star Post", false);
-                            entity->state                                       = 9;
-                            entity->saveButtons[1]->useMeshH                    = false;
-                            entity->saveButtons[2]->useMeshH                    = false;
-                            entity->saveButtons[3]->useMeshH                    = false;
-                            entity->saveButtons[4]->useMeshH                    = false;
-                            entity->saveButtons[entity->selectedSave]->useMeshH = true;
-                            entity->saveButtons[entity->selectedSave]->state    = 3;
+                            entity->state = SAVESELECT_STATE_DELSETUP;
+                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
+                            entity->saveButtons[entity->selectedButton]->useMeshH = true;
+                            entity->saveButtons[entity->selectedButton]->state    = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                         }
                         else {
-                            entity->state = 2;
+                            entity->state = SAVESELECT_STATE_MAIN;
                             PlaySfxByName("Menu Back", false);
-                            entity->saveButtons[1]->useMeshH = false;
-                            entity->saveButtons[2]->useMeshH = false;
-                            entity->saveButtons[3]->useMeshH = false;
-                            entity->saveButtons[4]->useMeshH = false;
+                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
                         }
                         break;
                     }
                     y -= 30.0;
                 }
 
-                if (entity->state == 8) {
+                if (entity->state == SAVESELECT_STATE_MAIN2) {
                     if (touches > 0) {
                         if (CheckTouchRect(entity->delButton->x, entity->delButton->y,
                                            (64.0 * entity->delButton->scale) + entity->delButton->textWidth, 12.0)
                             >= 0) {
-                            entity->delButton->state = 1;
+                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
                         else {
-                            entity->delButton->state = 0;
+                            entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
-                    else if (entity->delButton->state == 1) {
-                        entity->state = 2;
+                    else if (entity->delButton->state == PUSHBUTTON_STATE_SELECTED) {
+                        entity->state = SAVESELECT_STATE_MAIN;
                         PlaySfxByName("Menu Back", false);
-                        for (int i = 1; i <= 4; ++i) {
-                            if (entity->saveButtons[i]->state == 4)
+                        for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                            if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                                 entity->saveButtons[i]->useMeshH = false;
                         }
-                        entity->delButton->state = 0;
+                        entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
                     }
                 }
             }
@@ -517,124 +504,121 @@ void SaveSelect_Main(void *objPtr)
                 else {
                     if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedSave--;
+                        entity->selectedButton--;
                         if (entity->deleteEnabled) {
-                            if (entity->selectedSave < 0)
-                                entity->selectedSave = 5;
+                            if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE)
+                                entity->selectedButton = SAVESELECT_BUTTON_COUNT;
                         }
-                        else if (entity->selectedSave < 0) {
-                            entity->selectedSave = 4;
+                        else if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
+                            entity->selectedButton = SAVESELECT_BUTTON_COUNT - 1;
                         }
                     }
                     else if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedSave++;
+                        entity->selectedButton++;
                         if (entity->deleteEnabled) {
-                            if (entity->selectedSave > 5)
-                                entity->selectedSave = 0;
+                            if (entity->selectedButton > SAVESELECT_BUTTON_COUNT)
+                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                         }
-                        else if (entity->selectedSave > 4) {
-                            entity->selectedSave = 0;
+                        else if (entity->selectedButton > SAVESELECT_BUTTON_COUNT - 1) {
+                            entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                         }
 
-                        entity->saveButtons[0]->b = 0xFF;
-                        entity->saveButtons[1]->b = 0xFF;
-                        entity->saveButtons[2]->b = 0xFF;
-                        entity->saveButtons[3]->b = 0xFF;
-                        entity->saveButtons[4]->b = 0xFF;
+                        for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->b = 0xFF;
+
                         if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
-                            if (entity->selectedSave <= 4) {
-                                entity->selectedSave     = 5;
-                                entity->delButton->state = 1;
+                            if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
+                                entity->selectedButton   = SAVESELECT_BUTTON_COUNT;
+                                entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
                             }
                             else {
-                                entity->selectedSave = 0;
+                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                             }
                         }
-                        else if (entity->selectedSave > 4) {
-                            entity->delButton->state = 1;
+                        else if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
+                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
                         else {
-                            entity->saveButtons[entity->selectedSave]->b = 0x00;
-                            entity->delButton->state                     = 0;
+                            entity->saveButtons[entity->selectedButton]->b = 0x00;
+                            entity->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
 
                     if (keyPress.start && keyPress.A) {
-                        if (entity->selectedSave <= 4) {
-                            entity->saveButtons[entity->selectedSave]->b = 0xFF;
-                            if (entity->saveButtons[entity->selectedSave]->state == 4) {
+                        if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
+                            entity->saveButtons[entity->selectedButton]->b = 0xFF;
+                            if (entity->saveButtons[entity->selectedButton]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED) {
                                 if (Engine.gameType == GAME_SONIC1)
                                     PlaySfxByName("Lamp Post", false);
                                 else
                                     PlaySfxByName("Star Post", false);
-                                entity->saveButtons[entity->selectedSave]->state = 3;
-                                entity->state                                    = 9;
-                                for (int i = 1; i <= 4; ++i) entity->saveButtons[i]->useMeshH = false;
-                                entity->saveButtons[entity->selectedSave]->useMeshH = true;
+                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                                entity->state                                      = SAVESELECT_STATE_DELSETUP;
+                                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
+                                entity->saveButtons[entity->selectedButton]->useMeshH = true;
                             }
                             else {
-                                entity->state = 2;
+                                entity->state = SAVESELECT_STATE_MAIN;
                                 PlaySfxByName("Menu Back", false);
-                                for (int i = 1; i <= 4; ++i) entity->saveButtons[1]->useMeshH = false;
+                                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
                             }
                         }
                         else {
-                            entity->state = 2;
+                            entity->state = SAVESELECT_STATE_MAIN;
                             PlaySfxByName("Menu Back", false);
-                            for (int i = 1; i <= 4; ++i) {
-                                if (entity->saveButtons[i]->state == 4)
+                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                                if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                                     entity->saveButtons[i]->useMeshH = false;
                             }
-                            entity->delButton->state = 0;
+                            entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
                 }
             }
-            if (entity->menuControl->state == 5)
-                entity->state = 3;
+            if (entity->menuControl->state == MENUCONTROL_STATE_EXITSUBMENU)
+                entity->state = SAVESELECT_STATE_EXIT;
             break;
         }
-        case 9: {
-            entity->menuControl->state = 2;
-            if (entity->saveButtons[entity->selectedSave]->state == 4) {
+        case SAVESELECT_STATE_DELSETUP: {
+            entity->menuControl->state = MENUCONTROL_STATE_NONE;
+            if (entity->saveButtons[entity->selectedButton]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED) {
                 entity->dialog = CREATE_ENTITY(DialogPanel);
                 SetStringToFont(entity->dialog->text, strDeleteMessage, FONT_TEXT);
-                entity->state = 10;
+                entity->state = SAVESELECT_STATE_DIALOGWAIT;
             }
             break;
         }
-        case 10: {
+        case SAVESELECT_STATE_DIALOGWAIT: {
             if (entity->dialog->selection == DLG_YES) {
                 PlaySfxByName("Event", false);
-                entity->saveButtons[entity->selectedSave]->useMeshH = false;
-                entity->state                                       = 2;
-                entity->menuControl->state                          = 4;
-                SetStringToFont(entity->saveButtons[entity->selectedSave]->text, strNewGame, FONT_LABEL);
+                entity->saveButtons[entity->selectedButton]->useMeshH = false;
+                entity->state                                         = SAVESELECT_STATE_MAIN;
+                entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
+                SetStringToFont(entity->saveButtons[entity->selectedButton]->text, strNewGame, FONT_LABEL);
 
-                entity->saveButtons[entity->selectedSave]->state = 0;
-                entity->saveButtons[entity->selectedSave]->textY = -4.0;
-                entity->saveButtons[entity->selectedSave]->scale = 0.1;
+                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_IDLE;
+                entity->saveButtons[entity->selectedButton]->textY = -4.0;
+                entity->saveButtons[entity->selectedButton]->scale = 0.1;
 
-                saveGame->files[entity->selectedSave - 1].characterID    = 0;
-                saveGame->files[entity->selectedSave - 1].lives          = 3;
-                saveGame->files[entity->selectedSave - 1].score          = 0;
-                saveGame->files[entity->selectedSave - 1].scoreBonus     = 500000;
-                saveGame->files[entity->selectedSave - 1].stageID        = 0;
-                saveGame->files[entity->selectedSave - 1].emeralds       = 0;
-                saveGame->files[entity->selectedSave - 1].specialStageID = 0;
+                saveGame->files[entity->selectedButton - 1].characterID    = 0;
+                saveGame->files[entity->selectedButton - 1].lives          = 3;
+                saveGame->files[entity->selectedButton - 1].score          = 0;
+                saveGame->files[entity->selectedButton - 1].scoreBonus     = 500000;
+                saveGame->files[entity->selectedButton - 1].stageID        = 0;
+                saveGame->files[entity->selectedButton - 1].emeralds       = 0;
+                saveGame->files[entity->selectedButton - 1].specialStageID = 0;
                 WriteSaveRAMData();
 
-                entity->deleteEnabled = 0;
-                for (int i = 1; i <= 4; ++i) {
-                    if (entity->saveButtons[i]->state == 4)
+                entity->deleteEnabled = false;
+                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                    if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                         entity->deleteEnabled = true;
                 }
             }
             else if (entity->dialog->selection == DLG_NO) {
-                entity->saveButtons[entity->selectedSave]->useMeshH = false;
-                entity->state                                       = 2;
-                entity->menuControl->state                          = 4;
+                entity->saveButtons[entity->selectedButton]->useMeshH = false;
+                entity->state                                         = SAVESELECT_STATE_MAIN;
+                entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
             }
             break;
         }

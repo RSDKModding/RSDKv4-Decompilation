@@ -8,11 +8,11 @@ void StaffCredits_Create(void *objPtr)
     entity->labelPtr->useRenderMatrix = true;
     entity->labelPtr->fontID          = FONT_HEADING;
     entity->labelPtr->scale           = 0.2;
-    entity->labelPtr->alpha           = 256;
+    entity->labelPtr->alpha           = 0x100;
     entity->labelPtr->x               = -144.0;
     entity->labelPtr->y               = 100.0;
     entity->labelPtr->z               = 16.0;
-    entity->labelPtr->state           = 0;
+    entity->labelPtr->state           = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, strStaffCredits, FONT_HEADING);
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
@@ -20,29 +20,29 @@ void StaffCredits_Create(void *objPtr)
     entity->creditsTextID = 0;
 
     float offY = -128.0;
-    for (int i = 0; i < 0x10; ++i) {
+    for (int i = 0; i < StaffCredits_CreditsCount; ++i) {
         NativeEntity_CreditText *creditText = CREATE_ENTITY(CreditText);
         entity->creditText[i]               = creditText;
 
         switch (creditsType[entity->creditsTextID]) {
-            case 0:
+            case CREDITS_TYPE_TEXT1:
                 creditText->fontID = FONT_LABEL;
                 creditText->colour = 0xFFFFFF;
-                creditText->scaleX = 0.125;
+                creditText->scale  = 0.125;
                 break;
-            case 1:
+            case CREDITS_TYPE_TEXT2:
                 creditText->fontID = FONT_TEXT;
                 creditText->colour = 0xFF8000;
-                creditText->scaleX = 0.25;
+                creditText->scale  = 0.25;
                 break;
-            case 2:
+            case CREDITS_TYPE_TEXT3:
                 creditText->fontID = FONT_TEXT;
                 creditText->colour = 0xFFFFFF;
-                creditText->scaleX = 0.25;
+                creditText->scale  = 0.25;
                 break;
-            case 3:
+            case CREDITS_TYPE_LOGO:
                 creditText->fontID = FONT_TEXT;
-                creditText->state  = 4;
+                creditText->state  = CREDITTEXT_STATE_IMAGE;
                 break;
             default: break;
         }
@@ -64,7 +64,7 @@ void StaffCredits_Main(void *objPtr)
     NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)entity->optionsMenu;
 
     switch (entity->state) {
-        case 0: // fade in
+        case STAFFCREDITS_STATE_ENTER:
             if (entity->alpha < 0x100)
                 entity->alpha += 8;
 
@@ -77,26 +77,24 @@ void StaffCredits_Main(void *objPtr)
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < 16; ++i) {
-                memcpy(&entity->creditText[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            }
+            for (int i = 0; i < StaffCredits_CreditsCount; ++i) memcpy(&entity->creditText[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
 
-            entity->field_18 += Engine.deltaTime;
-            if (entity->field_18 > 0.5) {
-                entity->alpha    = 256;
-                entity->field_18 = 0.0;
-                entity->state    = 1;
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 0.5) {
+                entity->alpha = 256;
+                entity->timer = 0.0;
+                entity->state = STAFFCREDITS_STATE_SCROLL;
             }
             break;
-        case 1: // da credits
+        case STAFFCREDITS_STATE_SCROLL:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->renderMatrix);
             if (touches <= 0) {
                 if (entity->useRenderMatrix) {
                     PlaySfxByName("Menu Back", false);
-                    entity->useRenderMatrix = 0;
-                    entity->state           = 2;
+                    entity->useRenderMatrix = false;
+                    entity->state           = STAFFCREDITS_STATE_EXIT;
                 }
             }
             else {
@@ -105,14 +103,14 @@ void StaffCredits_Main(void *objPtr)
             if (keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->useRenderMatrix = false;
-                entity->state           = 2;
+                entity->state           = STAFFCREDITS_STATE_EXIT;
             }
             break;
-        case 2: // fade out
+        case STAFFCREDITS_STATE_EXIT:
             if (entity->alpha > 0)
                 entity->alpha -= 8;
 
-            if (entity->field_18 < 0.2)
+            if (entity->timer < 0.2)
                 entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
             else
                 entity->scale = fmaxf(entity->scale + ((-1.0f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
@@ -124,14 +122,14 @@ void StaffCredits_Main(void *objPtr)
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < 16; ++i) {
+            for (int i = 0; i < StaffCredits_CreditsCount; ++i) {
                 memcpy(&entity->creditText[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
             }
 
-            entity->field_18 += Engine.deltaTime;
-            if (entity->field_18 > 0.5) {
-                optionsMenu->state = 7;
-                for (int i = 15; i >= 0; --i) RemoveNativeObject(entity->creditText[i]);
+            entity->timer += Engine.deltaTime;
+            if (entity->timer > 0.5) {
+                optionsMenu->state = OPTIONSMENU_STATE_EXITSUBMENU;
+                for (int i = 0; i < StaffCredits_CreditsCount; ++i) RemoveNativeObject(entity->creditText[i]);
                 RemoveNativeObject(entity->labelPtr);
                 RemoveNativeObject(entity);
                 return;
@@ -139,7 +137,7 @@ void StaffCredits_Main(void *objPtr)
             break;
     }
 
-    for (int i = 0; i < 0x10; ++i) {
+    for (int i = 0; i < StaffCredits_CreditsCount; ++i) {
         NativeEntity_CreditText *creditText = entity->creditText[i];
 
         creditText->textY += 0.75;
@@ -148,30 +146,30 @@ void StaffCredits_Main(void *objPtr)
         }
 
         if (creditText->textY > SCREEN_CENTERY_F) {
-            creditText->textY = entity->creditText[entity->latestTextID & 0xF]->textY - creditsAdvanceY[entity->creditsTextID];
+            creditText->textY = entity->creditText[entity->latestTextID % StaffCredits_CreditsCount]->textY - creditsAdvanceY[entity->creditsTextID];
 
             switch (creditsType[entity->creditsTextID]) {
-                case 0:
+                case CREDITS_TYPE_TEXT1:
                     creditText->fontID = FONT_LABEL;
                     creditText->colour = 0xFFFFFF;
-                    creditText->scaleX = 0.125;
-                    creditText->state  = 3;
+                    creditText->scale  = 0.125;
+                    creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;
-                case 1:
+                case CREDITS_TYPE_TEXT2:
                     creditText->fontID = FONT_TEXT;
                     creditText->colour = 0xFF8000;
-                    creditText->scaleX = 0.25;
-                    creditText->state  = 3;
+                    creditText->scale  = 0.25;
+                    creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;
-                case 2:
+                case CREDITS_TYPE_TEXT3:
                     creditText->fontID = FONT_TEXT;
                     creditText->colour = 0xFFFFFF;
-                    creditText->scaleX = 0.25;
-                    creditText->state  = 3;
+                    creditText->scale  = 0.25;
+                    creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;
-                case 3:
+                case CREDITS_TYPE_LOGO:
                     creditText->fontID = FONT_TEXT;
-                    creditText->state  = 4;
+                    creditText->state  = CREDITTEXT_STATE_IMAGE;
                     break;
                 default: break;
             }

@@ -16,7 +16,7 @@ void SettingsScreen_Create(void *objPtr)
     label->x                      = -144.0;
     label->y                      = 100.0;
     label->z                      = 16.0;
-    label->state                  = 0;
+    label->state                  = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
     entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
     SetMeshVertexColors(entity->panelMesh, 0, 0, 0, 0xC0);
@@ -40,74 +40,74 @@ void SettingsScreen_Create(void *objPtr)
         SetStringToFont8(entity->buttons[i]->text, ((i % 2) ? "+" : "-"), FONT_LABEL);
     }
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[4]       = button;
-    button->x                = 32.0;
-    button->y                = -2.0;
-    button->z                = 0.0;
-    button->scale            = 0.175;
-    button->useRenderMatrix  = true;
-    button->bgColourSelected = 0x00C060;
-    button->bgColour         = saveGame->spindashEnabled ? 0x00A048 : 0x006020;
-    SetStringToFont(entity->buttons[4]->text, strOn, FONT_LABEL);
+    button                                   = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_SDON] = button;
+    button->x                                = 32.0;
+    button->y                                = -2.0;
+    button->z                                = 0.0;
+    button->scale                            = 0.175;
+    button->useRenderMatrix                  = true;
+    button->bgColourSelected                 = 0x00C060;
+    button->bgColour                         = saveGame->spindashEnabled ? 0x00A048 : 0x006020;
+    SetStringToFont(entity->buttons[SETTINGSSCREEN_BTN_SDON]->text, strOn, FONT_LABEL);
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[5]       = button;
-    button->x                = 96.0;
-    button->y                = -2.0;
-    button->z                = 0.0;
-    button->scale            = 0.175;
-    button->useRenderMatrix  = true;
-    button->bgColourSelected = 0x00A048;
-    button->bgColour         = !saveGame->spindashEnabled ? 0x00A048 : 0x006020;
-    SetStringToFont(entity->buttons[5]->text, strOff, FONT_LABEL);
+    button                                    = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_SDOFF] = button;
+    button->x                                 = 96.0;
+    button->y                                 = -2.0;
+    button->z                                 = 0.0;
+    button->scale                             = 0.175;
+    button->useRenderMatrix                   = true;
+    button->bgColourSelected                  = 0x00A048;
+    button->bgColour                          = !saveGame->spindashEnabled ? 0x00A048 : 0x006020;
+    SetStringToFont(entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->text, strOff, FONT_LABEL);
     if (Engine.gameType != GAME_SONIC1) {
-        entity->buttons[4]->alpha = 0;
-        entity->buttons[5]->alpha = 0;
+        entity->buttons[SETTINGSSCREEN_BTN_SDON]->alpha  = 0;
+        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->alpha = 0;
     }
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[6]       = button;
-    button->x                = 4.0;
-    button->y                = -34.0;
-    button->z                = 0.0;
-    button->scale            = 0.175;
-    button->useRenderMatrix  = true;
-    button->bgColourSelected = 0x00A048;
-    button->bgColour         = saveGame->boxRegion == REGION_JP ? 0x00A048 : 0x006020;
-    SetStringToFont8(entity->buttons[6]->text, "JP", FONT_LABEL);
+    button                                 = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_JP] = button;
+    button->x                              = 4.0;
+    button->y                              = -34.0;
+    button->z                              = 0.0;
+    button->scale                          = 0.175;
+    button->useRenderMatrix                = true;
+    button->bgColourSelected               = 0x00A048;
+    button->bgColour                       = saveGame->boxRegion == REGION_JP ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[SETTINGSSCREEN_BTN_JP]->text, "JP", FONT_LABEL);
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[7]       = button;
-    button->x                = 52.0;
-    button->y                = -34.0;
-    button->z                = 0.0;
-    button->scale            = 0.175;
-    button->useRenderMatrix  = true;
-    button->bgColourSelected = 0x00C060;
-    button->bgColour         = saveGame->boxRegion == REGION_US ? 0x00A048 : 0x006020;
-    SetStringToFont8(entity->buttons[7]->text, "US", FONT_LABEL);
+    button                                 = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_US] = button;
+    button->x                              = 52.0;
+    button->y                              = -34.0;
+    button->z                              = 0.0;
+    button->scale                          = 0.175;
+    button->useRenderMatrix                = true;
+    button->bgColourSelected               = 0x00C060;
+    button->bgColour                       = saveGame->boxRegion == REGION_US ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[SETTINGSSCREEN_BTN_US]->text, "US", FONT_LABEL);
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[8]       = button;
-    button->x                = 100.0;
-    button->y                = -34.0;
-    button->z                = 0.0;
-    button->scale            = 0.175;
-    button->useRenderMatrix  = true;
-    button->bgColourSelected = 0x00A048;
-    button->bgColour         = saveGame->boxRegion == REGION_EU ? 0x00A048 : 0x006020;
-    SetStringToFont8(entity->buttons[8]->text, "EU", FONT_LABEL);
+    button                                 = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_EU] = button;
+    button->x                              = 100.0;
+    button->y                              = -34.0;
+    button->z                              = 0.0;
+    button->scale                          = 0.175;
+    button->useRenderMatrix                = true;
+    button->bgColourSelected               = 0x00A048;
+    button->bgColour                       = saveGame->boxRegion == REGION_EU ? 0x00A048 : 0x006020;
+    SetStringToFont8(entity->buttons[SETTINGSSCREEN_BTN_EU]->text, "EU", FONT_LABEL);
 
-    button                   = CREATE_ENTITY(PushButton);
-    entity->buttons[9]       = button;
-    button->useRenderMatrix  = true;
-    button->x                = -52.0;
-    button->y                = -64.0;
-    button->z                = 0.0;
-    button->scale            = 0.13;
-    button->bgColour         = 0x00A048;
-    button->bgColourSelected = 0x00C060;
+    button                                    = CREATE_ENTITY(PushButton);
+    entity->buttons[SETTINGSSCREEN_BTN_CTRLS] = button;
+    button->useRenderMatrix                   = true;
+    button->x                                 = -52.0;
+    button->y                                 = -64.0;
+    button->z                                 = 0.0;
+    button->scale                             = 0.13;
+    button->bgColour                          = 0x00A048;
+    button->bgColourSelected                  = 0x00C060;
     SetStringToFont(button->text, strControls, FONT_LABEL);
 
     if (Engine.gameDeviceType == RETRO_MOBILE) {
@@ -140,7 +140,7 @@ void SettingsScreen_Main(void *objPtr)
     NativeEntity_OptionsMenu *optionsMenu = entity->optionsMenu;
 
     switch (entity->state) {
-        case 0:
+        case SETTINGSSCREEN_STATE_ENTER:
             if (entity->alpha <= 255)
                 entity->alpha += 8;
 
@@ -152,20 +152,20 @@ void SettingsScreen_Main(void *objPtr)
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
             if (entity->controlStyle == 1) {
-                entity->buttons[4]->y = -1000.0;
-                entity->buttons[5]->y = -1000.0;
+                entity->buttons[SETTINGSSCREEN_BTN_SDON]->y  = -1000.0;
+                entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->y = -1000.0;
             }
             entity->label->renderMatrix = entity->buttonMatrix;
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
                 entity->alpha    = 256;
                 entity->timer    = 0.0;
-                entity->state    = 1;
+                entity->state    = SETTINGSSCREEN_STATE_MAIN;
                 entity->selected = usePhysicalControls == true;
             }
             break;
-        case 1:
+        case SETTINGSSCREEN_STATE_MAIN:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
@@ -174,41 +174,36 @@ void SettingsScreen_Main(void *objPtr)
                     if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected--;
-                        if (Engine.gameType != GAME_SONIC1 && entity->selected == 3)
-                            entity->selected = 2;
-                        if (entity->controlStyle == 1 && entity->selected == 4)
-                            entity->selected = 2;
-                        if (entity->selected <= 0)
-                            entity->selected = 5;
+                        if (Engine.gameType != GAME_SONIC1 && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
+                            entity->selected = SETTINGSSCREEN_SEL_SFXVOL;
+                        if (entity->controlStyle == 1 && entity->selected == SETTINGSSCREEN_SEL_REGION)
+                            entity->selected = SETTINGSSCREEN_SEL_SFXVOL;
+                        if (entity->selected <= SETTINGSSCREEN_SEL_NONE)
+                            entity->selected = SETTINGSSCREEN_SEL_CONTROLS;
                     }
                     if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected++;
-                        if (Engine.gameType != GAME_SONIC1 && entity->selected == 3)
-                            entity->selected = 4;
-                        if (entity->controlStyle == 1 && entity->selected == 2)
-                            entity->selected = 4;
-                        if (entity->selected > 5)
-                            entity->selected = 1;
+                        if (Engine.gameType != GAME_SONIC1 && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
+                            entity->selected = SETTINGSSCREEN_SEL_REGION;
+                        if (entity->controlStyle == 1 && entity->selected == SETTINGSSCREEN_SEL_SFXVOL)
+                            entity->selected = SETTINGSSCREEN_SEL_REGION;
+                        if (entity->selected > SETTINGSSCREEN_SEL_CONTROLS)
+                            entity->selected = SETTINGSSCREEN_SEL_MUSVOL;
                     }
-                    for (int i = 4; i < 10; ++i) entity->buttons[i]->state = 0;
+                    for (int i = SETTINGSSCREEN_BTN_SDON; i < SETTINGSSCREEN_BTN_COUNT; ++i) entity->buttons[i]->state = PUSHBUTTON_STATE_UNSELECTED;
 
                     switch (entity->selected) {
-                        case 1:
-                            entity->buttons[0]->state = keyDown.left == 1;
-                            entity->buttons[1]->state = keyDown.right == 1;
-                            if (keyPress.left == 1) {
+                        case SETTINGSSCREEN_SEL_MUSVOL:
+                            entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state   = keyDown.left == true;
+                            entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = keyDown.right == true;
+                            if (keyPress.left) {
                                 PlaySfxByName("Menu Move", false);
                                 if (saveGame->musVolume > 0)
                                     saveGame->musVolume -= (MAX_VOLUME / 5);
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                                 if (!saveGame->musVolume)
-                                    musicEnabled = 0;
-                                if (entity->state == 1 && keyPress.B) {
-                                    PlaySfxByName("Menu Back", false);
-                                    entity->backPressed = 0;
-                                    entity->state       = 6;
-                                }
+                                    musicEnabled = false;
                             }
                             else if (keyPress.right) {
                                 PlaySfxByName("Menu Move", false);
@@ -219,84 +214,53 @@ void SettingsScreen_Main(void *objPtr)
                                     PlayMusic(0, 0);
                                 }
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-                                if (entity->state == 1 && keyPress.B) {
-                                    PlaySfxByName("Menu Back", false);
-                                    entity->backPressed = 0;
-                                    entity->state       = 6;
-                                }
-                            }
-                            else {
-                                if (entity->state == 1 && keyPress.B) {
-                                    PlaySfxByName("Menu Back", false);
-                                    entity->backPressed = 0;
-                                    entity->state       = 6;
-                                }
                             }
                             break;
-                        case 2:
-                            entity->buttons[2]->state = keyDown.left == true;
-                            entity->buttons[3]->state = keyDown.right == true;
+                        case SETTINGSSCREEN_SEL_SFXVOL:
+                            entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state   = keyDown.left == true;
+                            entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = keyDown.right == true;
                             if (keyPress.left) {
                                 PlaySfxByName("Menu Move", false);
                                 if (saveGame->sfxVolume > 0)
                                     saveGame->sfxVolume -= (MAX_VOLUME / 5);
+                                SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                             }
-                            else {
-                                if (keyPress.right) {
-                                    PlaySfxByName("Menu Move", false);
-                                    if (saveGame->sfxVolume < MAX_VOLUME)
-                                        saveGame->sfxVolume += (MAX_VOLUME / 5);
-                                }
-                                else {
-                                    if (entity->state == 1 && keyPress.B) {
-                                        PlaySfxByName("Menu Back", false);
-                                        entity->backPressed = 0;
-                                        entity->state       = 6;
-                                    }
-                                    break;
-                                }
-                            }
-                            SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-                            if (entity->state == 1 && keyPress.B) {
-                                PlaySfxByName("Menu Back", false);
-                                entity->backPressed = 0;
-                                entity->state       = 6;
+                            else if (keyPress.right) {
+                                PlaySfxByName("Menu Move", false);
+                                if (saveGame->sfxVolume < MAX_VOLUME)
+                                    saveGame->sfxVolume += (MAX_VOLUME / 5);
+                                SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                             }
                             break;
-                        case 3:
+                        case SETTINGSSCREEN_SEL_SPINDASH:
                             if (saveGame->spindashEnabled)
-                                entity->buttons[4]->state = 1;
+                                entity->buttons[SETTINGSSCREEN_BTN_SDON]->state = PUSHBUTTON_STATE_SELECTED;
                             else
-                                entity->buttons[5]->state = 1;
+                                entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->state = PUSHBUTTON_STATE_SELECTED;
                             if (keyPress.left || keyPress.right) {
                                 PlaySfxByName("Menu Move", false);
                                 if (saveGame->spindashEnabled) {
-                                    entity->buttons[4]->state            = 0;
-                                    entity->buttons[5]->state            = 1;
-                                    saveGame->spindashEnabled            = 0;
-                                    entity->buttons[4]->bgColour         = 0x006020;
-                                    entity->buttons[4]->bgColourSelected = 0x00C060;
-                                    entity->buttons[5]->bgColour         = 0x00A048;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_UNSELECTED;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_SELECTED;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColour          = 0x006020;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColourSelected  = 0x00C060;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColour         = 0x00A048;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColourSelected = 0x00C060;
+                                    saveGame->spindashEnabled                                   = false;
                                 }
                                 else {
-                                    entity->buttons[4]->state            = 1;
-                                    entity->buttons[5]->state            = 0;
-                                    saveGame->spindashEnabled            = 1;
-                                    entity->buttons[4]->bgColour         = 0x00A048;
-                                    entity->buttons[4]->bgColourSelected = 0x00C060;
-                                    entity->buttons[5]->bgColour         = 0x006020;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_SELECTED;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColour          = 0x00A048;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColourSelected  = 0x00C060;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColour         = 0x006020;
+                                    entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColourSelected = 0x00C060;
+                                    saveGame->spindashEnabled                                   = true;
                                 }
-                                entity->buttons[5]->bgColourSelected = 0x00C060;
-                            }
-                            if (entity->state == 1 && keyPress.B) {
-                                PlaySfxByName("Menu Back", false);
-                                entity->backPressed = 0;
-                                entity->state       = 6;
                             }
                             break;
-                        case 4:
+                        case SETTINGSSCREEN_SEL_REGION:
                             if (keyPress.left || keyPress.right) {
-                                int boxRegion;
                                 if (keyPress.left) {
                                     PlaySfxByName("Menu Move", false);
                                     if (saveGame->boxRegion - 1 >= 0)
@@ -308,57 +272,43 @@ void SettingsScreen_Main(void *objPtr)
                                         saveGame->boxRegion++;
                                 }
 
-                                entity->buttons[6]->bgColour                               = 0x006020;
-                                entity->buttons[6]->bgColourSelected                       = 0x00C060;
-                                entity->buttons[7]->bgColour                               = 0x006020;
-                                entity->buttons[7]->bgColourSelected                       = 0x00C060;
-                                entity->buttons[8]->bgColour                               = 0x006020;
-                                entity->buttons[8]->bgColourSelected                       = 0x00C060;
-                                entity->buttons[saveGame->boxRegion + 6]->bgColour         = 0x00A048;
-                                entity->buttons[saveGame->boxRegion + 6]->bgColourSelected = 0x00C060;
+                                entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColour                               = 0x006020;
+                                entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColourSelected                       = 0x00C060;
+                                entity->buttons[SETTINGSSCREEN_BTN_US]->bgColour                               = 0x006020;
+                                entity->buttons[SETTINGSSCREEN_BTN_US]->bgColourSelected                       = 0x00C060;
+                                entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColour                               = 0x006020;
+                                entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColourSelected                       = 0x00C060;
+                                entity->buttons[SETTINGSSCREEN_BTN_JP + saveGame->boxRegion]->bgColour         = 0x00A048;
+                                entity->buttons[SETTINGSSCREEN_BTN_JP + saveGame->boxRegion]->bgColourSelected = 0x00C060;
                             }
-                            entity->buttons[saveGame->boxRegion + 6]->state = 1;
-                            if (entity->state == 1 && keyPress.B) {
-                                PlaySfxByName("Menu Back", false);
-                                entity->backPressed = 0;
-                                entity->state       = 6;
-                            }
+                            entity->buttons[SETTINGSSCREEN_BTN_JP + saveGame->boxRegion]->state = PUSHBUTTON_STATE_SELECTED;
                             break;
-                        case 5:
-                            entity->buttons[9]->state = 1;
+                        case SETTINGSSCREEN_SEL_CONTROLS:
+                            entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_SELECTED;
                             if (keyPress.start || keyPress.A) {
                                 PlaySfxByName("Menu Select", false);
-                                entity->buttons[9]->state = 2;
-                                entity->state             = 2;
-                            }
-                            else {
-                                if (entity->state == 1 && keyPress.B) {
-                                    PlaySfxByName("Menu Back", false);
-                                    entity->backPressed = 0;
-                                    entity->state       = 6;
-                                }
-                                break;
+                                entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_FLASHING;
+                                entity->state                                    = SETTINGSSCREEN_STATE_ENTERCTRLS;
                             }
                             break;
-                        default:
-                            if (entity->state == 1 && keyPress.B) {
-                                PlaySfxByName("Menu Back", false);
-                                entity->backPressed = 0;
-                                entity->state       = 6;
-                            }
-                            break;
+                        default: break;
+                    }
+                    if (entity->state == SETTINGSSCREEN_STATE_MAIN && keyPress.B) {
+                        PlaySfxByName("Menu Back", false);
+                        entity->backPressed = false;
+                        entity->state       = SETTINGSSCREEN_STATE_EXIT;
                     }
                 }
                 else {
                     usePhysicalControls = false;
-                    entity->selected    = 0;
+                    entity->selected    = SETTINGSSCREEN_SEL_NONE;
                 }
             }
             else {
                 if (touches <= 0) {
-                    if (entity->buttons[0]->state == 1) {
+                    if (entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[0]->state = 0;
+                        entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_UNSELECTED;
                         if (saveGame->musVolume > 0) {
                             saveGame->musVolume -= (MAX_VOLUME / 5);
                         }
@@ -366,9 +316,10 @@ void SettingsScreen_Main(void *objPtr)
                         if (!saveGame->musVolume)
                             musicEnabled = false;
                     }
-                    if (entity->buttons[1]->state == 1) {
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[1]->state = 0;
+                        entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                         if (saveGame->musVolume < MAX_VOLUME) {
                             saveGame->musVolume += (MAX_VOLUME / 5);
                         }
@@ -378,201 +329,172 @@ void SettingsScreen_Main(void *objPtr)
                         }
                         SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                     }
-                    if (entity->buttons[2]->state == 1) {
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[2]->state = 0;
-                        sfxVolume                 = saveGame->sfxVolume;
+                        entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_UNSELECTED;
+                        sfxVolume                                        = saveGame->sfxVolume;
                         if (sfxVolume > 0) {
                             sfxVolume -= (MAX_VOLUME / 5);
                             saveGame->sfxVolume = sfxVolume;
                         }
                         SetGameVolumes(saveGame->musVolume, sfxVolume);
                     }
-                    if (entity->buttons[3]->state == 1) {
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[3]->state = 0;
-                        sfxVolume                 = saveGame->sfxVolume;
+                        entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
+                        sfxVolume                                          = saveGame->sfxVolume;
                         if (sfxVolume < MAX_VOLUME) {
                             sfxVolume += (MAX_VOLUME / 5);
                             saveGame->sfxVolume = sfxVolume;
                         }
                         SetGameVolumes(saveGame->musVolume, sfxVolume);
                     }
-                    if (entity->buttons[4]->state == 1) {
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_SDON]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[4]->state            = 0;
-                        saveGame->spindashEnabled            = true;
-                        entity->buttons[4]->bgColour         = 0x00A048;
-                        entity->buttons[4]->bgColourSelected = 0x00C060;
-                        entity->buttons[5]->bgColour         = 0x006020;
-                        entity->buttons[5]->bgColourSelected = 0x00C060;
-                    }
-                    if (entity->buttons[5]->state == 1) {
-                        PlaySfxByName("Menu Move", false);
-                        entity->buttons[5]->state            = 0;
-                        saveGame->spindashEnabled            = 0;
-                        entity->buttons[4]->bgColour         = 0x006020;
-                        entity->buttons[4]->bgColourSelected = 0x00C060;
-                        entity->buttons[5]->bgColour         = 0x00A048;
-                        entity->buttons[5]->bgColourSelected = 0x00C060;
-                    }
-                    if (entity->buttons[6]->state == 1) {
-                        PlaySfxByName("Menu Move", false);
-                        entity->buttons[6]->state            = 0;
-                        entity->buttons[6]->bgColour         = 0x00A048;
-                        entity->buttons[6]->bgColourSelected = 0x00C060;
-                        entity->buttons[7]->bgColour         = 0x006020;
-                        entity->buttons[7]->bgColourSelected = 0x00C060;
-                        entity->buttons[8]->bgColour         = 0x006020;
-                        entity->buttons[8]->bgColourSelected = 0x00C060;
-                        saveGame->boxRegion                  = REGION_JP;
+                        saveGame->spindashEnabled                                   = true;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_UNSELECTED;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColour          = 0x00A048;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColourSelected  = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColourSelected = 0x00C060;
                     }
 
-                    if (entity->buttons[7]->state == 1) {
+                    if (entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[7]->state            = 0;
-                        entity->buttons[6]->bgColour         = 0x006020;
-                        entity->buttons[6]->bgColourSelected = 0x00C060;
-                        entity->buttons[7]->bgColour         = 0x00A048;
-                        entity->buttons[7]->bgColourSelected = 0x00C060;
-                        entity->buttons[8]->bgColour         = 0x006020;
-                        entity->buttons[8]->bgColourSelected = 0x00C060;
-                        saveGame->boxRegion                  = REGION_US;
+                        saveGame->spindashEnabled                                   = false;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColour          = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColourSelected  = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColour         = 0x00A048;
+                        entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColourSelected = 0x00C060;
                     }
 
-                    if (entity->buttons[8]->state == 1) {
+                    if (entity->buttons[SETTINGSSCREEN_BTN_JP]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->buttons[8]->state            = 0;
-                        entity->buttons[6]->bgColour         = 0x006020;
-                        entity->buttons[6]->bgColourSelected = 0x00C060;
-                        entity->buttons[7]->bgColour         = 0x006020;
-                        entity->buttons[7]->bgColourSelected = 0x00C060;
-                        entity->buttons[8]->bgColour         = 0x00A048;
-                        entity->buttons[8]->bgColourSelected = 0x00C060;
-                        saveGame->boxRegion                  = REGION_EU;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColour         = 0x00A048;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColourSelected = 0x00C060;
+                        saveGame->boxRegion                                      = REGION_JP;
                     }
-                    if (entity->buttons[9]->state == 1) {
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_US]->state == PUSHBUTTON_STATE_SELECTED) {
+                        PlaySfxByName("Menu Move", false);
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColour         = 0x00A048;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColourSelected = 0x00C060;
+                        saveGame->boxRegion                                      = REGION_US;
+                    }
+
+                    if (entity->buttons[SETTINGSSCREEN_BTN_EU]->state == PUSHBUTTON_STATE_SELECTED) {
+                        PlaySfxByName("Menu Move", false);
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_JP]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColour         = 0x006020;
+                        entity->buttons[SETTINGSSCREEN_BTN_US]->bgColourSelected = 0x00C060;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColour         = 0x00A048;
+                        entity->buttons[SETTINGSSCREEN_BTN_EU]->bgColourSelected = 0x00C060;
+                        saveGame->boxRegion                                      = REGION_EU;
+                    }
+                    if (entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[9]->state = 2;
-                        entity->state             = 2;
+                        entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_FLASHING;
+                        entity->state                                    = SETTINGSSCREEN_STATE_ENTERCTRLS;
                     }
                     if (entity->backPressed || keyPress.B) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = 0;
-                        entity->state       = 6;
+                        entity->backPressed = false;
+                        entity->state       = SETTINGSSCREEN_STATE_EXIT;
                     }
-                    else if (entity->state == 1) {
+                    else if (entity->state == SETTINGSSCREEN_STATE_MAIN) {
                         if (keyDown.up) {
-                            entity->selected    = 5;
+                            entity->selected    = SETTINGSSCREEN_SEL_CONTROLS;
                             usePhysicalControls = true;
                         }
                         else if (keyDown.down) {
-                            entity->selected    = 1;
+                            entity->selected    = SETTINGSSCREEN_SEL_MUSVOL;
                             usePhysicalControls = true;
                         }
                     }
                 }
-                else { // pain inc.
-                    NativeEntity_PushButton *button = entity->buttons[0];
-                    int touchBuf                    = CheckTouchRect(32.0, 54.0, (button->textWidth + (button->scale * 64.0)) * 0.75, 12.0);
+                else {
+                    float touchX[] = { 32, 108, 32, 108, 32.0, 96, 4, 52, 100, entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->x };
+                    float touchY[] = { 54, 54, 22, 22, -10, -10, -42, -42, -42, entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->y };
 
-                    if (touchBuf < 0) {
-                        button->state = 0;
-                        touchBuf = CheckTouchRect(108.0, 54.0, (entity->buttons[1]->textWidth + (entity->buttons[1]->scale * 64.0)) * 0.75, 12.0);
-                        button   = entity->buttons[1];
-                    }
-                    button->state = touchBuf >= 0;
+                    for (int i = 0; i < SETTINGSSCREEN_BTN_COUNT; ++i) {
+                        NativeEntity_PushButton *button = entity->buttons[i];
 
-                    touchBuf      = CheckTouchRect(32.0, 22.0, (entity->buttons[2]->textWidth + (entity->buttons[2]->scale * 64.0)) * 0.75, 12.0);
-                    button        = entity->buttons[2];
-                    if (touchBuf < 0) {
-                        button->state = 0;
-                        touchBuf = CheckTouchRect(108.0, 22.0, (entity->buttons[3]->textWidth + (entity->buttons[3]->scale * 64.0)) * 0.75, 12.0);
-                        button   = entity->buttons[3];
-                    }
-                    button->state = touchBuf >= 0;
-
-                    if (!entity->controlStyle && Engine.gameType == GAME_SONIC1) {
-                        touchBuf = CheckTouchRect(32.0, -10.0, (entity->buttons[4]->textWidth + (entity->buttons[4]->scale * 64.0)) * 0.75, 12.0);
-                        button   = entity->buttons[4];
-                        if (touchBuf < 0) {
-                            button->state = 0;
-                            touchBuf = CheckTouchRect(96.0, -10.0, (entity->buttons[5]->textWidth + (entity->buttons[5]->scale * 64.0)) * 0.75, 12.0);
-                            button   = entity->buttons[5];
+                        if (i == 4 || i == 5) {
+                            if (!entity->controlStyle && Engine.gameType == GAME_SONIC1)
+                                button->state = CheckTouchRect(touchX[i], touchY[i], (button->textWidth + (button->scale * 64.0)) * 0.75, 12.0) >= 0;
                         }
-                        button->state = touchBuf >= 0;
+                        else {
+                            button->state = CheckTouchRect(touchX[i], touchY[i], (button->textWidth + (button->scale * 64.0)) * 0.75, 12.0) >= 0;
+                        }
                     }
-
-                    touchBuf = CheckTouchRect(4.0, -42.0, (entity->buttons[6]->textWidth + (entity->buttons[6]->scale * 64.0)) * 0.75, 12.0);
-                    button   = entity->buttons[6];
-                    if (touchBuf < 0) {
-                        button->state = 0,
-                        touchBuf = CheckTouchRect(52.0, -42.0, (entity->buttons[7]->textWidth + (entity->buttons[7]->scale * 64.0)) * 0.75, 12.0),
-                        button   = entity->buttons[7];
-                    }
-                    if (touchBuf < 0) {
-                        button->state = 0;
-                        touchBuf = CheckTouchRect(100.0, -42.0, (entity->buttons[8]->textWidth + (entity->buttons[8]->scale * 64.0)) * 0.75, 12.0);
-                        button   = entity->buttons[8];
-                    }
-                    button->state             = touchBuf >= 0;
-                    entity->buttons[9]->state = CheckTouchRect(entity->buttons[9]->x, entity->buttons[9]->y,
-                                                               (entity->buttons[9]->textWidth + (entity->buttons[9]->scale * 64.0)) * 0.75, 12.0)
-                                                >= 0;
 
                     entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
                 }
             }
             break;
-        case 2:
+        case SETTINGSSCREEN_STATE_ENTERCTRLS:
             SetRenderMatrix(&entity->buttonMatrix);
-            if (entity->buttons[9]->state)
-                break;
-            if (Engine.gameDeviceType == RETRO_STANDARD) {
-                entity->state = 7;
-                break;
+            if (entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state == PUSHBUTTON_STATE_UNSELECTED) {
+                if (Engine.gameDeviceType == RETRO_STANDARD)
+                    entity->state = SETTINGSSCREEN_STATE_FLIP_CTRLS;
+                else
+                    entity->state = (GetGlobalVariableByName("options.physicalControls") - 2) < 2 ? SETTINGSSCREEN_STATE_FLIP_CTRLS
+                                                                                                  : SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
             }
-            entity->state = (GetGlobalVariableByName("options.physicalControls") - 2) < 2 ? 7 : 3;
             break;
-        case 3:
+        case SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH:
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
             if (entity->buttonRotY < -(M_PI / 2)) {
-                entity->state      = 4;
+                entity->state      = SETTINGSSCREEN_STATE_FINISHFLIP_CTRLSTOUCH;
                 entity->buttonRotY = -(M_PI / 2 + M_PI);
-                if (entity->subState) {
-                    if (entity->subState == 1) {
-                        RestoreNativeObjectsSettings();
-                        entity->subState = 0;
-                        SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
-                        if (entity->controlStyle == 1)
-                            SetGlobalVariableByName("options.touchControls", true);
-                    }
+                if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_CONFIGDPAD) {
+                    RestoreNativeObjectsSettings();
+                    entity->stateDraw = SETTINGSSCREEN_STATEDRAW_MAIN;
+                    SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
+                    if (entity->controlStyle == 1)
+                        SetGlobalVariableByName("options.touchControls", true);
                 }
-                else {
-                    entity->subState = 1;
+                else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN) {
+                    entity->stateDraw = SETTINGSSCREEN_STATEDRAW_CONFIGDPAD;
                     SetStringToFont(entity->label->text, strCustomizeDPad, FONT_HEADING);
                     BackupNativeObjectsSettings();
                     if (Engine.language == RETRO_JP || Engine.language == RETRO_RU)
                         entity->label->scale = 0.15;
                     else
                         entity->label->scale = 0.2;
-                    for (int i = 4; i < 10; ++i) RemoveNativeObject(entity->buttons[i]);
-                    entity->buttons[2]->y                = entity->buttons[2]->y + 4.0;
-                    entity->buttons[3]->y                = entity->buttons[3]->y + 4.0;
-                    entity->buttons[4]                   = CREATE_ENTITY(PushButton);
-                    entity->buttons[4]->useRenderMatrix  = true;
-                    entity->buttons[4]->x                = 88.0;
-                    entity->buttons[4]->y                = 6.0;
-                    entity->buttons[4]->z                = 0.0;
-                    entity->buttons[4]->scale            = 0.175;
-                    entity->buttons[4]->bgColour         = 0x00A048;
-                    entity->buttons[4]->bgColourSelected = 0x00C060;
-                    SetStringToFont8(entity->buttons[4]->text, "RESET", FONT_LABEL);
+                    for (int i = SETTINGSSCREEN_BTN_SDON; i < SETTINGSSCREEN_BTN_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
+                    entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->y               = entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->y + 4.0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y             = entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y + 4.0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]                   = CREATE_ENTITY(PushButton);
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->useRenderMatrix  = true;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->x                = 88.0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->y                = 6.0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->z                = 0.0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->scale            = 0.175;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColour         = 0x00A048;
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->bgColourSelected = 0x00C060;
+                    SetStringToFont8(entity->buttons[SETTINGSSCREEN_BTN_SDON]->text, "RESET", FONT_LABEL);
                     SetStringToFont(entity->musicText, strDPadSize, FONT_LABEL);
                     SetStringToFont(entity->sfxText, strDPadOpacity, FONT_LABEL);
                     entity->virtualDPad           = CREATE_ENTITY(VirtualDPad);
                     entity->virtualDPad           = entity->virtualDPad;
-                    entity->virtualDPad->editMode = 1;
+                    entity->virtualDPad->editMode = true;
                     SetGlobalVariableByName("options.touchControls", true);
                 }
             }
@@ -581,18 +503,15 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
-        case 4:
+        case SETTINGSSCREEN_STATE_FINISHFLIP_CTRLSTOUCH:
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
-            if (entity->buttonRotY < -(2 * M_PI)) {
-                if (entity->subState) {
-                    if (entity->subState == 1)
-                        entity->state = 5;
-                }
-                else {
-                    entity->state = 1;
-                }
+            if (entity->buttonRotY < -M_PI_2) {
+                if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_CONFIGDPAD)
+                    entity->state = SETTINGSSCREEN_STATE_CTRLS_TOUCH;
+                else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN)
+                    entity->state = SETTINGSSCREEN_STATE_MAIN;
                 entity->buttonRotY = 0.0;
             }
             NewRenderState();
@@ -600,63 +519,87 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
-        case 5:
+        case SETTINGSSCREEN_STATE_CTRLS_TOUCH:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
             int touchCheck;
             if (touches > 0) {
-                touchCheck = CheckTouchRect(32.0, 54.0, ((64.0 * entity->buttons[0]->scale) + entity->buttons[0]->textWidth) * 0.75, 12.0) < 0;
+                touchCheck =
+                    CheckTouchRect(32.0, 54.0,
+                                   ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->scale) + entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->textWidth)
+                                       * 0.75,
+                                   12.0)
+                    < 0;
                 if (touchCheck) {
-                    entity->buttons[0]->state = 0;
-                    touchCheck = CheckTouchRect(108.0, 54.0, ((64.0 * entity->buttons[1]->scale) + entity->buttons[1]->textWidth) * 0.75, 12.0) < 0;
+                    entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_UNSELECTED;
+                    touchCheck                                       = CheckTouchRect(108.0, 54.0,
+                                                ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->scale)
+                                                 + entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->textWidth)
+                                                    * 0.75,
+                                                12.0)
+                                 < 0;
                     if (touchCheck) {
-                        entity->buttons[1]->state = 0;
+                        entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                     }
                     else {
-                        entity->buttons[1]->state = 1;
+                        entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_SELECTED;
                         if (saveGame->vDPadSize < 0x80)
                             saveGame->vDPadSize += 4;
                         entity->virtualDPad              = entity->virtualDPad;
                         entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
                         entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
-                        entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
+                        entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                     }
                 }
                 else {
-                    entity->buttons[0]->state = 1;
+                    entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_SELECTED;
                     if (saveGame->vDPadSize > 0x20)
                         saveGame->vDPadSize -= 4;
                     entity->virtualDPad              = entity->virtualDPad;
                     entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
                     entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
-                    entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
+                    entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                 }
 
-                touchCheck = CheckTouchRect(32.0, 26.0, ((64.0 * entity->buttons[2]->scale) + entity->buttons[2]->textWidth) * 0.75, 12.0) < 0;
+                touchCheck =
+                    CheckTouchRect(32.0, 26.0,
+                                   ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->scale) + entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->textWidth)
+                                       * 0.75,
+                                   12.0)
+                    < 0;
                 if (touchCheck) {
-                    entity->buttons[2]->state = 0;
-                    touchCheck = CheckTouchRect(108.0, 26.0, ((64.0 * entity->buttons[3]->scale) + entity->buttons[3]->textWidth) * 0.75, 12.0) < 0;
+                    entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_SELECTED;
+                    touchCheck                                       = CheckTouchRect(108.0, 26.0,
+                                                ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->scale)
+                                                 + entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->textWidth)
+                                                    * 0.75,
+                                                12.0)
+                                 < 0;
                     if (!touchCheck) {
-                        entity->buttons[3]->state = 1;
+                        entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_SELECTED;
                         if (saveGame->vDPadOpacity <= 255)
                             saveGame->vDPadOpacity += 4;
                     }
                     else
-                        entity->buttons[3]->state = 0;
+                        entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                 }
                 else {
-                    entity->buttons[2]->state = 1;
+                    entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_SELECTED;
                     if (saveGame->vDPadOpacity > 0) {
                         saveGame->vDPadOpacity -= 4;
                     }
                 }
                 entity->virtualDPad->alpha = saveGame->vDPadOpacity;
-                touchCheck = CheckTouchRect(88.0, -2.0, ((64.0 * entity->buttons[9]->scale) + entity->buttons[9]->textWidth) * 0.75, 12.0) < 0;
-                entity->buttons[4]->state = !touchCheck;
-                entity->virtualDPad       = entity->virtualDPad;
+
+                entity->buttons[SETTINGSSCREEN_BTN_SDON]->state =
+                    CheckTouchRect(
+                        88.0, -2.0,
+                        ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SDON]->scale) + entity->buttons[SETTINGSSCREEN_BTN_SDON]->textWidth) * 0.75, 12.0)
+                    >= 0;
+                entity->virtualDPad = entity->virtualDPad;
                 int moveTouch, jumpTouch;
                 float relativeX, relativeY, touchX, touchY, relTouchH, relTouchW;
                 if (entity->virtualDPad->moveFinger == -1)
@@ -739,25 +682,25 @@ void SettingsScreen_Main(void *objPtr)
                 entity->backPressed = CheckTouchRect(136.0, 88.0, 32.0, 16.0) >= 0;
             }
             else {
-                entity->virtualDPad             = entity->virtualDPad;
-                entity->virtualDPad->moveFinger = -1;
-                entity->virtualDPad->jumpFinger = -1;
-                entity->buttons[0]->state       = 0;
-                entity->buttons[1]->state       = 0;
-                entity->buttons[2]->state       = 0;
-                entity->buttons[3]->state       = 0;
+                entity->virtualDPad                                = entity->virtualDPad;
+                entity->virtualDPad->moveFinger                    = -1;
+                entity->virtualDPad->jumpFinger                    = -1;
+                entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state   = PUSHBUTTON_STATE_UNSELECTED;
+                entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
+                entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state   = PUSHBUTTON_STATE_UNSELECTED;
+                entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                 if (entity->backPressed) {
                     PlaySfxByName("Menu Back", false);
                     entity->backPressed = false;
-                    entity->state       = 3;
+                    entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
                     SetGlobalVariableByName("options.touchControls", 0);
                     saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
                     saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
                     saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;
                     saveGame->vDPadY_Jump = -(entity->virtualDPad->jumpY - SCREEN_CENTERY_F);
                 }
-                if (entity->buttons[4]->state == 1) {
-                    entity->buttons[4]->state = 0;
+                if (entity->buttons[SETTINGSSCREEN_BTN_SDON]->state == PUSHBUTTON_STATE_SELECTED) {
+                    entity->buttons[SETTINGSSCREEN_BTN_SDON]->state = PUSHBUTTON_STATE_UNSELECTED;
                     PlaySfxByName("Event", false);
                     saveGame->vDPadSize              = 64;
                     saveGame->vDPadX_Move            = 56;
@@ -774,14 +717,14 @@ void SettingsScreen_Main(void *objPtr)
                     entity->virtualDPad->jumpFinger  = -1;
                     entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
                     entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
-                    entity->virtualDPad->unknownSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
+                    entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                 }
             }
 
-            if (entity->state == 5 && keyPress.B) {
+            if (entity->state == SETTINGSSCREEN_STATE_CTRLS_TOUCH && keyPress.B) {
                 PlaySfxByName("Menu Back", false);
-                entity->backPressed = 0;
-                entity->state       = 3;
+                entity->backPressed = false;
+                entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
                 SetGlobalVariableByName("options.touchControls", 0);
                 saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
                 saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
@@ -789,7 +732,7 @@ void SettingsScreen_Main(void *objPtr)
                 saveGame->vDPadY_Jump = -(entity->virtualDPad->jumpY - SCREEN_CENTERY_F);
             }
             break;
-        case 6: {
+        case SETTINGSSCREEN_STATE_EXIT: {
             if (entity->alpha > 0)
                 entity->alpha -= 8;
 
@@ -804,21 +747,13 @@ void SettingsScreen_Main(void *objPtr)
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
             entity->label->renderMatrix = entity->buttonMatrix;
-            for (int l = 0; l != 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
 
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
-                optionsMenu->state = 7;
-                RemoveNativeObject(entity->buttons[9]);
-                RemoveNativeObject(entity->buttons[8]);
-                RemoveNativeObject(entity->buttons[7]);
-                RemoveNativeObject(entity->buttons[6]);
-                RemoveNativeObject(entity->buttons[5]);
-                RemoveNativeObject(entity->buttons[4]);
-                RemoveNativeObject(entity->buttons[3]);
-                RemoveNativeObject(entity->buttons[2]);
-                RemoveNativeObject(entity->buttons[1]);
-                RemoveNativeObject(entity->buttons[0]);
+                optionsMenu->state = OPTIONSMENU_STATE_EXITSUBMENU;
+                for (int i = 0; i < SETTINGSSCREEN_BTN_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
+
                 RemoveNativeObject(entity->label);
                 RemoveNativeObject(entity);
                 Engine.gameMode = ENGINE_MAINGAME;
@@ -830,15 +765,15 @@ void SettingsScreen_Main(void *objPtr)
                     SetGlobalVariableByName("options.originalControls", true);
                     SetGlobalVariableByName("options.airSpeedCap", true);
                 }
-                int gameRegion = saveGame->boxRegion, newBoxTex;
-                if (Engine.globalBoxRegion != gameRegion) {
+
+                if (Engine.globalBoxRegion != saveGame->boxRegion) {
                     int package = 0;
                     switch (Engine.globalBoxRegion) {
                         case REGION_JP: package = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA8888); break;
                         case REGION_US: package = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA8888); break;
                         case REGION_EU: package = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA8888); break;
                     }
-                    Engine.globalBoxRegion = gameRegion;
+                    Engine.globalBoxRegion = saveGame->boxRegion;
                     switch (Engine.globalBoxRegion) {
                         case REGION_JP: ReplaceTexture("Data/Game/Models/Package_JP.png", package); break;
                         case REGION_US: ReplaceTexture("Data/Game/Models/Package_US.png", package); break;
@@ -850,55 +785,46 @@ void SettingsScreen_Main(void *objPtr)
             }
             break;
         }
-        case 7: {
+        case SETTINGSSCREEN_STATE_FLIP_CTRLS: {
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
             if (entity->buttonRotY < -(M_PI / 2)) {
-                entity->state      = 8;
+                entity->state      = SETTINGSSCREEN_STATE_FINISHFLIP_CTRLS;
                 entity->buttonRotY = -(M_PI / 2 + M_PI);
-                if (entity->subState) {
-                    if (entity->subState == 2) {
-                        RestoreNativeObjectsSettings();
-                        entity->subState = 0;
-                        SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
-                        if (entity->controlStyle == 1)
-                            SetGlobalVariableByName("options.touchControls", true);
-                    }
+                if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_CONTROLLER) {
+                    RestoreNativeObjectsSettings();
+                    entity->stateDraw = SETTINGSSCREEN_STATEDRAW_MAIN;
+                    SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
+                    if (entity->controlStyle == 1)
+                        SetGlobalVariableByName("options.touchControls", true);
                 }
-                else {
-                    entity->subState = 2;
+                else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN) {
+                    entity->stateDraw = SETTINGSSCREEN_STATEDRAW_CONTROLLER;
                     BackupNativeObjectsSettings();
                     SetStringToFont(entity->label->text, strControls, FONT_HEADING);
-                    RemoveNativeObject(entity->buttons[9]);
-                    RemoveNativeObject(entity->buttons[8]);
-                    RemoveNativeObject(entity->buttons[7]);
-                    RemoveNativeObject(entity->buttons[6]);
-                    RemoveNativeObject(entity->buttons[5]);
-                    RemoveNativeObject(entity->buttons[4]);
-                    RemoveNativeObject(entity->buttons[3]);
-                    RemoveNativeObject(entity->buttons[2]);
-                    RemoveNativeObject(entity->buttons[1]);
-                    RemoveNativeObject(entity->buttons[0]);
-                    entity->buttons[2]->y = entity->buttons[2]->y + 4.0;
-                    entity->buttons[3]->y = entity->buttons[3]->y + 4.0;
+                    for (int i = 0; i < SETTINGSSCREEN_BTN_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
+
+                    //???
+                    // entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->y += 4.0;
+                    // entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y += 4.0;
                 }
             }
+
             NewRenderState();
             matrixRotateYF(&entity->buttonMatrix, entity->buttonRotY);
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
         }
-        case 8:
+        case SETTINGSSCREEN_STATE_FINISHFLIP_CTRLS:
             entity->buttonRotY -= (10.0 * Engine.deltaTime);
-            if (entity->buttonRotY < -(M_PI * 2)) {
-                if (entity->subState) {
-                    if (entity->subState == 2)
-                        entity->state = 9;
+            if (entity->buttonRotY < -(M_PI_2)) {
+                if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_CONTROLLER) {
+                    entity->state = SETTINGSSCREEN_STATE_CTRLS;
                 }
-                else {
-                    entity->state = 1;
+                else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN) {
+                    entity->state = SETTINGSSCREEN_STATE_MAIN;
                 }
                 entity->buttonRotY = 0.0;
             }
@@ -907,9 +833,9 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            for (int l = 0; l < 10; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
+            for (int l = 0; l < SETTINGSSCREEN_BTN_COUNT; ++l) entity->buttons[l]->renderMatrix = entity->buttonMatrix;
             break;
-        case 9:
+        case SETTINGSSCREEN_STATE_CTRLS:
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
@@ -917,7 +843,7 @@ void SettingsScreen_Main(void *objPtr)
                 if (entity->backPressed) {
                     PlaySfxByName("Menu Back", false);
                     entity->backPressed = false;
-                    entity->state       = 7;
+                    entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLS;
                     break;
                 }
             }
@@ -927,14 +853,15 @@ void SettingsScreen_Main(void *objPtr)
             if (keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->backPressed = false;
-                entity->state       = 7;
+                entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLS;
             }
             break;
         default: break;
     }
+
     RenderMesh(entity->panelMesh, MESH_COLOURS, false);
-    switch (entity->subState) {
-        case 1:
+    switch (entity->stateDraw) {
+        case SETTINGSSCREEN_STATEDRAW_CONFIGDPAD:
             if (Engine.language == RETRO_JP) {
                 RenderText(entity->musicText, FONT_LABEL, -128.0, 58.0, 0, 0.09, 255);
                 RenderText(entity->sfxText, FONT_LABEL, -128.0, 30.0, 0, 0.09, 255);
@@ -951,9 +878,11 @@ void SettingsScreen_Main(void *objPtr)
             if (entity->virtualDPad->jumpFinger >= 0)
                 RenderRect(0.0, 0.0, 0.0, SCREEN_CENTERX_F, SCREEN_CENTERY_F, 255, 0, 0, 64);
             break;
-        case 2: RenderImage(0.0, 0.0, 0.0, 0.275, 0.275, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, entity->controllerTex); break;
-        case 0:
-            if (entity->selected == 1)
+        case SETTINGSSCREEN_STATEDRAW_CONTROLLER:
+            RenderImage(0.0, 0.0, 0.0, 0.275, 0.275, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, entity->controllerTex);
+            break;
+        case SETTINGSSCREEN_STATEDRAW_MAIN:
+            if (entity->selected == SETTINGSSCREEN_SEL_MUSVOL)
                 SetRenderVertexColor(0xFF, 0xFF, 0x00);
             else
                 SetRenderVertexColor(0xFF, 0xFF, 0xFF);
@@ -967,7 +896,7 @@ void SettingsScreen_Main(void *objPtr)
                 RenderRect(55.0 + i * 6, 24.0 + i * 4, 0.0, 4.0, 4.0 + i * 4, v, v, v, 255);
             }
 
-            if (entity->selected == 2)
+            if (entity->selected == SETTINGSSCREEN_SEL_SFXVOL)
                 SetRenderVertexColor(0xFF, 0xFF, 0x00);
             else
                 SetRenderVertexColor(0xFF, 0xFF, 0xFF);
@@ -976,7 +905,7 @@ void SettingsScreen_Main(void *objPtr)
             else
                 RenderText(entity->sfxText, FONT_LABEL, -128.0, 26.0, 0, 0.125, 255);
 
-            if (entity->selected == 3)
+            if (entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
                 SetRenderVertexColor(0xFF, 0xFF, 0x00);
             else
                 SetRenderVertexColor(0xFF, 0xFF, 0xFF);
@@ -987,7 +916,7 @@ void SettingsScreen_Main(void *objPtr)
                     RenderText(entity->spindashText, FONT_LABEL, -128.0, -6.0, 0, 0.125, 255);
             }
 
-            if (entity->selected == 4)
+            if (entity->selected == SETTINGSSCREEN_SEL_REGION)
                 SetRenderVertexColor(0xFF, 0xFF, 0x00);
             else
                 SetRenderVertexColor(0xFF, 0xFF, 0xFF);
@@ -997,14 +926,16 @@ void SettingsScreen_Main(void *objPtr)
     }
     NewRenderState();
     SetRenderMatrix(NULL);
-    if (entity->subState) {
-        if (entity->subState >= 0 && entity->subState <= 2) {
+
+    switch (entity->stateDraw) {
+        case SETTINGSSCREEN_STATEDRAW_MAIN:
+            RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, entity->backPressed ? 128.0 : 0, entity->alpha,
+                        entity->arrowsTex);
+            break;
+        case SETTINGSSCREEN_STATEDRAW_CONFIGDPAD:
+        case SETTINGSSCREEN_STATEDRAW_CONTROLLER:
             RenderImage(136.0, 88.0, 160.0, 0.25, 0.25, 64.0, 64.0, 128.0, 128.0, 128.0, entity->backPressed ? 128.0 : 0, entity->alpha,
                         entity->arrowsTex);
-        }
-    }
-    else {
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, entity->backPressed ? 128.0 : 0, entity->alpha,
-                    entity->arrowsTex);
+            break;
     }
 }

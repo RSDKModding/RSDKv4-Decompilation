@@ -13,7 +13,7 @@ void AchievementsMenu_Create(void *objPtr)
     entity->label->x               = -144.0;
     entity->label->y               = 100.0;
     entity->label->z               = 16.0;
-    entity->label->state           = 0;
+    entity->label->state           = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->label->text, strAchievements, FONT_HEADING);
 
     entity->scale      = 0;
@@ -57,8 +57,8 @@ void AchievementsMenu_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, 0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, 0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
@@ -129,8 +129,8 @@ void AchievementsMenu_Main(void *objPtr)
 
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrix2, 0.0, 0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+            matrixTranslateXYZF(&entity->matrixTemp, 0.0, 0, 160.0);
+            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
             SetRenderMatrix(&entity->renderMatrix);
 
             memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));

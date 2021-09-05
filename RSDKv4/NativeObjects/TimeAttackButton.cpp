@@ -19,9 +19,9 @@ void TimeAttackButton_Create(void *objPtr)
     entity->labelPtr->fontID       = FONT_HEADING;
     entity->labelPtr->scale        = 0.15;
     entity->labelPtr->alpha        = 0;
-    entity->labelPtr->state        = 0;
+    entity->labelPtr->state        = TEXTLABEL_STATE_IDLE;
     SetStringToFont(entity->labelPtr->text, strTimeAttack, FONT_HEADING);
-    entity->labelPtr->alignPtr(entity->labelPtr, 1);
+    entity->labelPtr->alignPtr(entity->labelPtr, ALIGN_CENTER);
 }
 void TimeAttackButton_Main(void *objPtr)
 {
@@ -40,16 +40,16 @@ void TimeAttackButton_Main(void *objPtr)
         SetRenderBlendMode(RENDER_BLEND_NONE);
 
         entity->angle -= Engine.deltaTime;
-        if (entity->angle < -(M_PI * 2))
-            entity->angle += (M_PI * 2);
+        if (entity->angle < -M_PI_2)
+            entity->angle += M_PI_2;
 
         entity->animator.animationSpeed = Engine.deltaTime * 16.0;
         AnimateMesh(entity->meshTimeAttack, &entity->animator);
 
         NewRenderState();
         matrixRotateXYZF(&entity->renderMatrix, 0.0, sinf(entity->angle) * 0.5, 0.0);
-        matrixTranslateXYZF(&entity->matrix2, entity->x, entity->y, entity->z - 8.0);
-        matrixMultiplyF(&entity->renderMatrix, &entity->matrix2);
+        matrixTranslateXYZF(&entity->matrixTemp, entity->x, entity->y, entity->z - 8.0);
+        matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
         SetRenderMatrix(&entity->renderMatrix);
         RenderMesh(entity->meshTimeAttack, MESH_NORMALS, true);
         SetRenderMatrix(NULL);
@@ -62,9 +62,7 @@ void TimeAttackButton_Main(void *objPtr)
             if (label->alpha > 0)
                 label->alpha -= 8;
         }
-        else {
-            if (label->alpha < 0x100)
-                label->alpha += 8;
-        }
+        else if (label->alpha < 0x100)
+            label->alpha += 8;
     }
 }
