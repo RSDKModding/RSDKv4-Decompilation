@@ -312,7 +312,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         entity->nextStateDraw = MULTIPLAYERSCREEN_STATEDRAW_JOIN;
                         break;
                     case MULTIPLAYERSCREEN_BUTTON_JOINROOM: {
-                        if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == MULTIPLAYERSCREEN_STATE_ACTION) { /// hhhhhhack
+                        if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_UNSELECTED) { /// hhhhhhack
                             setRoomCode(entity->roomCode);
                             ServerPacket send;
                             send.header                 = 0;
@@ -454,7 +454,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (keyPress.B) {
                         entity->dialog = CREATE_ENTITY(DialogPanel);
                         SetStringToFont8(entity->dialog->text,
-                                         "Are you sure you want to exit?\rThis will close the room, and you will return to the title screen.", 2);
+                                         "Are you sure you want to exit?\rThis will close the room,\rand you will return to the main menu.", 2);
                         entity->state = MULTIPLAYERSCREEN_STATE_DIALOGWAIT;
                         PlaySfxByName("Resume", false);
                     }
@@ -486,7 +486,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (keyPress.B || entity->backPressed) {
                         entity->dialog = CREATE_ENTITY(DialogPanel);
                         SetStringToFont8(entity->dialog->text,
-                                         "Are you sure you want to exit?\rThis will close the room, and you will return to the title screen.",
+                                         "Are you sure you want to exit?\rThis will close the room,\rand you will return to the main menu.",
                                          FONT_TEXT);
                         entity->state = MULTIPLAYERSCREEN_STATE_DIALOGWAIT;
                         PlaySfxByName("Resume", false);
