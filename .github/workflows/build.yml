@@ -148,6 +148,11 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip" -OutFile "tinyxml2.zip"
           Expand-Archive -Path tinyxml2.zip -DestinationPath ./dependencies/all/
           Rename-Item ./dependencies/all/tinyxml2-master tinyxml2
+      - name: Download stb-image
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
+          Expand-Archive -Path stb-image.zip -DestinationPath ./dependencies/all/
+          Rename-Item ./dependencies/all/stb-master stb-image
       - name: Download GLEW
         run: |
           Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
