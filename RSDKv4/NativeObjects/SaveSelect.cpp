@@ -121,11 +121,14 @@ void SaveSelect_Main(void *objPtr)
             }
             break;
         }
-        case SAVESELECT_STATE_MAIN: {
-            if (!entity->deleteEnabled)
-                entity->delButton->x += ((512.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
-            else
-                entity->delButton->x += ((92.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
+        case SAVESELECT_STATE_MAIN:
+        case SAVESELECT_STATE_MAIN_DELETING: {
+            if (entity->state != SAVESELECT_STATE_MAIN_DELETING) {
+                if (!entity->deleteEnabled)
+                    entity->delButton->x += ((512.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
+                else
+                    entity->delButton->x += ((92.0 - entity->delButton->x) / ((60.0 * Engine.deltaTime) * 16.0));
+            }
 
             if (usePhysicalControls) {
                 if (touches > 0) {
@@ -135,9 +138,8 @@ void SaveSelect_Main(void *objPtr)
                     if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
-                        if (entity->deleteEnabled) {
-                            if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE)
-                                entity->selectedButton = SAVESELECT_BUTTON_COUNT;
+                        if (entity->deleteEnabled && entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
+                            entity->selectedButton = SAVESELECT_BUTTON_COUNT;
                         }
                         else if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
                             entity->selectedButton = SAVESELECT_BUTTON_COUNT - 1;
@@ -146,12 +148,10 @@ void SaveSelect_Main(void *objPtr)
                     else if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
-                        if (entity->deleteEnabled) {
-                            if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
-                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                            }
+                        if (entity->deleteEnabled && entity->selectedButton > SAVESELECT_BUTTON_COUNT) {
+                            entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                         }
-                        else if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT - 1) {
+                        else if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
                             entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                         }
                     }
@@ -188,7 +188,10 @@ void SaveSelect_Main(void *objPtr)
                                 entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                             }
                             entity->saveButtons[entity->selectedButton]->b = 0xFF;
-                            entity->state                                  = SAVESELECT_STATE_LOADSAVE;
+                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
+                                entity->state = SAVESELECT_STATE_DELSETUP;
+                            else
+                                entity->state = SAVESELECT_STATE_LOADSAVE;
                         }
                         else {
                             if (Engine.gameType == GAME_SONIC1)
@@ -196,7 +199,10 @@ void SaveSelect_Main(void *objPtr)
                             else
                                 PlaySfxByName("Star Post", false);
                             entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
-                            entity->state            = SAVESELECT_STATE_LOADSAVE;
+                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
+                                entity->state = SAVESELECT_STATE_DELSETUP;
+                            else
+                                entity->state = SAVESELECT_STATE_LOADSAVE;
                         }
                     }
                 }
@@ -219,7 +225,10 @@ void SaveSelect_Main(void *objPtr)
                             entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                         }
                         entity->saveButtons[i]->b = 0xFF;
-                        entity->state             = SAVESELECT_STATE_LOADSAVE;
+                        if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
+                            entity->state = SAVESELECT_STATE_DELSETUP;
+                        else
+                            entity->state = SAVESELECT_STATE_LOADSAVE;
                         break;
                     }
                     y -= 30.0;
@@ -240,7 +249,10 @@ void SaveSelect_Main(void *objPtr)
                                 else
                                     PlaySfxByName("Star Post", false);
                                 entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
-                                entity->state            = SAVESELECT_STATE_LOADSAVE;
+                                if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
+                                    entity->state = SAVESELECT_STATE_DELSETUP;
+                                else
+                                    entity->state = SAVESELECT_STATE_LOADSAVE;
                             }
                             else {
                                 if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
@@ -260,6 +272,27 @@ void SaveSelect_Main(void *objPtr)
                                 }
                             }
                         }
+                    }
+                }
+                else if (entity->state == SAVESELECT_STATE_MAIN_DELETING) {
+                    if (touches > 0) {
+                        if (CheckTouchRect(entity->delButton->x, entity->delButton->y,
+                                           (64.0 * entity->delButton->scale) + entity->delButton->textWidth, 12.0)
+                            >= 0) {
+                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
+                        }
+                        else {
+                            entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
+                        }
+                    }
+                    else if (entity->delButton->state == PUSHBUTTON_STATE_SELECTED) {
+                        entity->state = SAVESELECT_STATE_MAIN;
+                        PlaySfxByName("Menu Back", false);
+                        for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                            if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
+                                entity->saveButtons[i]->useMeshH = false;
+                        }
+                        entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
                     }
                 }
             }
@@ -287,7 +320,7 @@ void SaveSelect_Main(void *objPtr)
             if (!(entity->saveButtons[entity->selectedButton]->state & ~SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)) {
                 if (entity->selectedButton == SAVESELECT_BUTTON_COUNT) {
                     entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
-                    entity->state              = SAVESELECT_STATE_MAIN2;
+                    entity->state              = SAVESELECT_STATE_MAIN_DELETING;
                     if (usePhysicalControls)
                         entity->selectedButton = SAVESELECT_BUTTON_SAVE1;
                     for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
@@ -441,142 +474,6 @@ void SaveSelect_Main(void *objPtr)
                 entity->state              = SAVESELECT_STATE_MAIN;
                 entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
             }
-            break;
-        }
-        case SAVESELECT_STATE_MAIN2: {
-            if (!usePhysicalControls) {
-                float y = 48.0;
-                for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) {
-                    if (CheckTouchRect(-64.0, y, 96.0, 12.0) >= 0)
-                        entity->saveButtons[i]->b = 0xFF;
-                    else
-                        entity->saveButtons[i]->b = 0;
-
-                    if (!entity->saveButtons[i]->b) {
-                        entity->saveButtons[i]->b = 0xFF;
-                        if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED) {
-                            entity->selectedButton = i;
-                            if (Engine.gameType == GAME_SONIC1)
-                                PlaySfxByName("Lamp Post", false);
-                            else
-                                PlaySfxByName("Star Post", false);
-                            entity->state = SAVESELECT_STATE_DELSETUP;
-                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
-                            entity->saveButtons[entity->selectedButton]->useMeshH = true;
-                            entity->saveButtons[entity->selectedButton]->state    = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
-                        }
-                        else {
-                            entity->state = SAVESELECT_STATE_MAIN;
-                            PlaySfxByName("Menu Back", false);
-                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
-                        }
-                        break;
-                    }
-                    y -= 30.0;
-                }
-
-                if (entity->state == SAVESELECT_STATE_MAIN2) {
-                    if (touches > 0) {
-                        if (CheckTouchRect(entity->delButton->x, entity->delButton->y,
-                                           (64.0 * entity->delButton->scale) + entity->delButton->textWidth, 12.0)
-                            >= 0) {
-                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
-                        }
-                        else {
-                            entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
-                        }
-                    }
-                    else if (entity->delButton->state == PUSHBUTTON_STATE_SELECTED) {
-                        entity->state = SAVESELECT_STATE_MAIN;
-                        PlaySfxByName("Menu Back", false);
-                        for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
-                            if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
-                                entity->saveButtons[i]->useMeshH = false;
-                        }
-                        entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
-                    }
-                }
-            }
-            else {
-                if (touches > 0) {
-                    usePhysicalControls = false;
-                }
-                else {
-                    if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
-                        entity->selectedButton--;
-                        if (entity->deleteEnabled) {
-                            if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE)
-                                entity->selectedButton = SAVESELECT_BUTTON_COUNT;
-                        }
-                        else if (entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
-                            entity->selectedButton = SAVESELECT_BUTTON_COUNT - 1;
-                        }
-                    }
-                    else if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
-                        entity->selectedButton++;
-                        if (entity->deleteEnabled) {
-                            if (entity->selectedButton > SAVESELECT_BUTTON_COUNT)
-                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                        }
-                        else if (entity->selectedButton > SAVESELECT_BUTTON_COUNT - 1) {
-                            entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                        }
-
-                        for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->b = 0xFF;
-
-                        if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
-                            if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
-                                entity->selectedButton   = SAVESELECT_BUTTON_COUNT;
-                                entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
-                            }
-                            else {
-                                entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                            }
-                        }
-                        else if (entity->selectedButton >= SAVESELECT_BUTTON_COUNT) {
-                            entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
-                        }
-                        else {
-                            entity->saveButtons[entity->selectedButton]->b = 0x00;
-                            entity->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
-                        }
-                    }
-
-                    if (keyPress.start && keyPress.A) {
-                        if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
-                            entity->saveButtons[entity->selectedButton]->b = 0xFF;
-                            if (entity->saveButtons[entity->selectedButton]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED) {
-                                if (Engine.gameType == GAME_SONIC1)
-                                    PlaySfxByName("Lamp Post", false);
-                                else
-                                    PlaySfxByName("Star Post", false);
-                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
-                                entity->state                                      = SAVESELECT_STATE_DELSETUP;
-                                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
-                                entity->saveButtons[entity->selectedButton]->useMeshH = true;
-                            }
-                            else {
-                                entity->state = SAVESELECT_STATE_MAIN;
-                                PlaySfxByName("Menu Back", false);
-                                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->useMeshH = false;
-                            }
-                        }
-                        else {
-                            entity->state = SAVESELECT_STATE_MAIN;
-                            PlaySfxByName("Menu Back", false);
-                            for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
-                                if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
-                                    entity->saveButtons[i]->useMeshH = false;
-                            }
-                            entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
-                        }
-                    }
-                }
-            }
-            if (entity->menuControl->state == MENUCONTROL_STATE_EXITSUBMENU)
-                entity->state = SAVESELECT_STATE_EXIT;
             break;
         }
         case SAVESELECT_STATE_DELSETUP: {

@@ -36,7 +36,14 @@ void OptionsMenu_Create(void *objPtr)
         entity->buttons[i]->useMatrix = true;
         y -= 30.0;
     }
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!Engine.devMenu)
+        SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_INSTRUCTIONS]->text, strInstructions, FONT_LABEL);
+    else
+        SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_INSTRUCTIONS]->text, strDevMenu, FONT_LABEL);
+#else
     SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_INSTRUCTIONS]->text, strInstructions, FONT_LABEL);
+#endif
     SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_SETTINGS]->text, strSettings, FONT_LABEL);
     SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_ABOUT]->text, strAbout, FONT_LABEL);
     SetStringToFont(entity->buttons[OPTIONSMENU_BUTTON_CREDITS]->text, strStaffCredits, FONT_LABEL);
@@ -196,8 +203,20 @@ void OptionsMenu_Main(void *objPtr)
                 switch (entity->selectedButton) {
                     default: break;
                     case OPTIONSMENU_BUTTON_INSTRUCTIONS:
+#if !RETRO_USE_ORIGINAL_CODE
+                        if (!Engine.devMenu) {
+                            entity->instructionsScreen              = CREATE_ENTITY(InstructionsScreen);
+                            entity->instructionsScreen->optionsMenu = entity;
+                        }
+                        else {
+                            CREATE_ENTITY(FadeScreen);
+                            FADESCREEN_STATE_GAMEFADEOUT;
+                            Engine.gameMode = ENGINE_INITDEVMENU;
+                        }
+#else
                         entity->instructionsScreen              = CREATE_ENTITY(InstructionsScreen);
                         entity->instructionsScreen->optionsMenu = entity;
+#endif
                         break;
                     case OPTIONSMENU_BUTTON_SETTINGS:
                         entity->settingsScreen              = CREATE_ENTITY(SettingsScreen);

@@ -93,14 +93,20 @@ void SubMenuButton_Main(void *objPtr)
                     break;
             }
 
-            uint emeraldColours[] = {
-                0x8080FF, 0xFFFF00, 0xFF60C0, 0xA0FF00, 0xA0FF00, 0xFF4060, 0xFFFFFF,
+            uint emeraldColoursS1[] = {
+                0x8080FF, 0xFFFF00, 0xFF60C0, 0xA0FF00, 0xFF4060, 0xFFFFFF,
+            };
+            uint emeraldColoursS2[] = {
+                0x00C0FF, 0x8000C0, 0xFF0000, 0xFF60FF, 0xFFC000, 0x60C000, 0xFFFFFF,
             };
 
             float x = -60.0f;
-            for (int i = 0; i < 7; ++i) {
+            for (int i = 0; i < (Engine.gameType == GAME_SONIC1 ? 6 : 7); ++i) {
                 if (entity->flags & (1 << i)) {
-                    SetRenderVertexColor((emeraldColours[i] >> 16) & 0xFF, (emeraldColours[i] >> 8) & 0xFF, emeraldColours[i] & 0xFF);
+                    if (Engine.gameType == GAME_SONIC1)
+                        SetRenderVertexColor((emeraldColoursS1[i] >> 16) & 0xFF, (emeraldColoursS1[i] >> 8) & 0xFF, emeraldColoursS1[i] & 0xFF);
+                    else
+                        SetRenderVertexColor((emeraldColoursS2[i] >> 16) & 0xFF, (emeraldColoursS2[i] >> 8) & 0xFF, emeraldColoursS2[i] & 0xFF);
                     RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
                 }
                 else {

@@ -18,6 +18,7 @@ void SegaSplash_Create(void *objPtr)
         else
             entity->textureID = LoadTexture("Data/Game/Menu/Sega.png", TEXFMT_RGBA5551);
     }
+
     // code has been here from TitleScreen_Create due to the possibility of opening the dev menu before this loads :(
 #if !RETRO_USE_ORIGINAL_CODE
     ResetBitmapFonts();
@@ -37,11 +38,9 @@ void SegaSplash_Create(void *objPtr)
 
     textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
     LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
-#endif
 
     switch (Engine.language) {
         case RETRO_JP:
-#if !RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
 
@@ -50,10 +49,8 @@ void SegaSplash_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
-#endif
             break;
         case RETRO_RU: 
-#if !RETRO_USE_ORIGINAL_CODE
             if (Engine.useHighResAssets)
                 heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
             else
@@ -65,10 +62,8 @@ void SegaSplash_Create(void *objPtr)
             else
                 labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
-#endif
             break;
         case RETRO_KO:
-#if !RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
 
@@ -77,10 +72,8 @@ void SegaSplash_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
-#endif
             break;
         case RETRO_ZH:
-#if !RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
 
@@ -89,20 +82,18 @@ void SegaSplash_Create(void *objPtr)
 
             textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
-#endif
             break;
         case RETRO_ZS:
-#if !RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
             labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
             textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
-#endif
             break;
         default: break;
     }
+#endif
 }
 void SegaSplash_Main(void *objPtr)
 {

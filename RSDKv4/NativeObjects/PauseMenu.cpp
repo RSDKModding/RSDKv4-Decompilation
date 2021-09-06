@@ -64,6 +64,118 @@ void PauseMenu_Create(void *objPtr)
     entity->miniPauseDisabled = true;
     entity->dpadX             = SCREEN_CENTERX_F - 76.0;
     entity->dpadXSpecial      = SCREEN_CENTERX_F - 52.0;
+
+    
+
+    // code has been here from TitleScreen_Create due to the possibility of opening the dev menu before this loads :(
+#if !RETRO_USE_ORIGINAL_CODE
+    int heading = -1, labelTex = -1, textTex = -1;
+
+    if (fontList[FONT_HEADING].count == 2) {
+        if (Engine.useHighResAssets)
+            heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
+        else
+            heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
+        LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
+    }
+
+    if (fontList[FONT_LABEL].count == 2) {
+        if (Engine.useHighResAssets)
+            labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
+        else
+            labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
+        LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
+    }
+
+    if (fontList[FONT_TEXT].count == 2) {
+        textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
+        LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
+    }
+
+    switch (Engine.language) {
+        case RETRO_JP:
+            if (heading >= 0) {
+                heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
+            }
+
+            if (labelTex >= 0) {
+                labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
+            }
+
+            if (textTex >= 0) {
+                textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
+            }
+            break;
+        case RETRO_RU:
+            if (heading >= 0) {
+                if (Engine.useHighResAssets)
+                    heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
+                else
+                    heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
+            }
+
+            if (labelTex >= 0) {
+                if (Engine.useHighResAssets)
+                    labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
+                else
+                    labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
+            }
+            break;
+        case RETRO_KO:
+            if (heading >= 0) {
+                heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
+            }
+
+            if (labelTex >= 0) {
+                labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
+            }
+
+            if (textTex >= 0) {
+                textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
+            }
+            break;
+        case RETRO_ZH:
+            if (heading >= 0) {
+                heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
+            }
+
+            if (labelTex >= 0) {
+                labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
+            }
+
+            if (textTex >= 0) {
+                textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
+            }
+            break;
+        case RETRO_ZS:
+            if (heading >= 0) {
+                heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
+            }
+
+            if (labelTex >= 0) {
+                labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
+            }
+
+            if (textTex >= 0) {
+                textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
+                LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
+            }
+            break;
+        default: break;
+    }
+#endif
 }
 void PauseMenu_Main(void *objPtr)
 {
@@ -343,7 +455,7 @@ void PauseMenu_Main(void *objPtr)
             if (entity->timer > 0.5) {
                 if (!entity->devMenuFade) {
                     entity->devMenuFade        = CREATE_ENTITY(FadeScreen);
-                    entity->devMenuFade->state = FADESCREEN_STATE_GAMEFADEOUT;
+                    entity->devMenuFade->state = FADESCREEN_STATE_FADEOUT;
                 }
                 if (!entity->devMenuFade->timeLimit || entity->devMenuFade->timer >= entity->devMenuFade->timeLimit) {
                     ClearNativeObjects();

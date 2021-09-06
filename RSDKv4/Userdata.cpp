@@ -940,14 +940,9 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(MultiplayerHandler);
 }
 
-int ShowPromoPopup(int *id, const char *popupName)
+void ShowPromoPopup(int *id, const char *popupName)
 {
     printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0);
-    if (Engine.onlineActive) {
-        // Do online code
-        return 1;
-    }
-    return 0;
 }
 void ShowWebsite(int websiteID)
 {
@@ -958,10 +953,9 @@ void ShowWebsite(int websiteID)
     }
 }
 
-int ExitGame()
+void ExitGame()
 {
     Engine.running = false;
-    return 1;
 }
 
 void SetScreenWidth(int *width, int *unused)

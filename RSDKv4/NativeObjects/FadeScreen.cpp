@@ -31,8 +31,9 @@ void FadeScreen_Main(void *objPtr)
             entity->fadeA = entity->timer * 256.0;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit)
+            if (entity->timer > entity->timeLimit) {
                 RemoveNativeObject(entity);
+            }
             break;
         case FADESCREEN_STATE_GAMEFADEOUT:
             SetMusicVolume(bgmVolume - 2);
@@ -52,8 +53,10 @@ void FadeScreen_Main(void *objPtr)
             entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit)
+            if (entity->timer > entity->timeLimit) {
                 RemoveNativeObject(entity);
+                Engine.nativeMenuFadeIn = false;
+            }
             break;
         case FADESCREEN_STATE_FADEIN_CLEAR:
             entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
@@ -62,6 +65,7 @@ void FadeScreen_Main(void *objPtr)
             if (entity->timer > entity->timeLimit) {
                 ClearNativeObjects();
                 RestoreNativeObjects();
+                Engine.nativeMenuFadeIn = false;
             }
             break;
 #endif

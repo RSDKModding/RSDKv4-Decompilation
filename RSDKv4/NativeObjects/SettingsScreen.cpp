@@ -174,9 +174,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected--;
-                        if (Engine.gameType != GAME_SONIC1 && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
-                            entity->selected = SETTINGSSCREEN_SEL_SFXVOL;
-                        if (entity->controlStyle == 1 && entity->selected == SETTINGSSCREEN_SEL_REGION)
+                        if ((Engine.gameType != GAME_SONIC1 || entity->controlStyle == 1) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             entity->selected = SETTINGSSCREEN_SEL_SFXVOL;
                         if (entity->selected <= SETTINGSSCREEN_SEL_NONE)
                             entity->selected = SETTINGSSCREEN_SEL_CONTROLS;
@@ -184,9 +182,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected++;
-                        if (Engine.gameType != GAME_SONIC1 && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
-                            entity->selected = SETTINGSSCREEN_SEL_REGION;
-                        if (entity->controlStyle == 1 && entity->selected == SETTINGSSCREEN_SEL_SFXVOL)
+                        if ((Engine.gameType != GAME_SONIC1 || entity->controlStyle == 1) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             entity->selected = SETTINGSSCREEN_SEL_REGION;
                         if (entity->selected > SETTINGSSCREEN_SEL_CONTROLS)
                             entity->selected = SETTINGSSCREEN_SEL_MUSVOL;
