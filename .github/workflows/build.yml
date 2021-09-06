@@ -182,7 +182,7 @@ jobs:
       - name: Build RSDK v4 Android
         working-directory: ./android
         run: |
-          ./gradlew.bat Build --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
+          ./gradlew.bat Build --no-daemon -PABIFILTERS="arm64-v8a"
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
