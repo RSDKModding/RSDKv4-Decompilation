@@ -355,9 +355,8 @@ void InitNativeObjectSystem()
     ReadSaveRAMData();
 
     SaveGame *saveGame = (SaveGame *)saveRAM;
-    if (!saveGame->saveInitialized) // if new save
-    {
-        saveGame->saveInitialized = true; // Not new save
+    if (!saveGame->saveInitialized) {
+        saveGame->saveInitialized = true;
         saveGame->musVolume       = MAX_VOLUME;
         saveGame->sfxVolume       = MAX_VOLUME;
         saveGame->spindashEnabled = true;
@@ -368,15 +367,9 @@ void InitNativeObjectSystem()
         saveGame->vDPadY_Move     = 184;
         saveGame->vDPadX_Jump     = -56;
         saveGame->vDPadY_Jump     = 188;
-        if (Engine.gameType == GAME_SONIC1) {
-            saveGame->tailsUnlocked = false;
-            saveGame->knuxUnlocked  = false;
-        }
-        else {
-            saveGame->tailsUnlocked = true;
-            saveGame->knuxUnlocked  = true;
-        }
-        saveGame->unlockedActs = 0;
+        saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1;
+        saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1;
+        saveGame->unlockedActs    = 0;
         WriteSaveRAMData();
     }
     saveGame->musVolume = bgmVolume;

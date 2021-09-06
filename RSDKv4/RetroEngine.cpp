@@ -62,9 +62,8 @@ bool processEvents()
             case SDL_APP_TERMINATING: return false;
 #endif
 
-#ifdef RETRO_USING_MOUSE
+#if RETRO_USING_SDL2 && defined(RETRO_USING_MOUSE)
             case SDL_MOUSEMOTION:
-#if RETRO_USING_SDL2
                 if (touches <= 1) { // Touch always takes priority over mouse
                     SDL_GetMouseState(&touchX[0], &touchY[0]);
 
@@ -75,31 +74,22 @@ bool processEvents()
                     touchX[0]  = (touchX[0] / (float)width) * SCREEN_XSIZE;
                     touchY[0]  = (touchY[0] / (float)height) * SCREEN_YSIZE;
                 }
-#endif
                 break;
             case SDL_MOUSEBUTTONDOWN:
-#if RETRO_USING_SDL2
                 if (touches <= 0) { // Touch always takes priority over mouse
-#endif
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = true; break;
                     }
                     touches = 1;
-#if RETRO_USING_SDL2
                 }
-#endif
                 break;
             case SDL_MOUSEBUTTONUP:
-#if RETRO_USING_SDL2
                 if (touches <= 1) { // Touch always takes priority over mouse
-#endif
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = false; break;
                     }
                     touches = 0;
-#if RETRO_USING_SDL2
                 }
-#endif
                 break;
 #endif
 
@@ -384,6 +374,13 @@ void RetroEngine::Init()
         }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
+    gameType = GAME_SONIC2;
+    if (strstr(gameWindowText, "Sonic 1")) {
+        gameType = GAME_SONIC1;
+    }
+#endif
+
     InitNativeObjectSystem();
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -391,11 +388,6 @@ void RetroEngine::Init()
     int lower        = getLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
     skipFrameIndex   = refreshRate / lower;
-
-    gameType = GAME_SONIC2;
-    if (strstr(gameWindowText, "Sonic 1")) {
-        gameType = GAME_SONIC1;
-    }
 
     ReadSaveRAMData();
 

@@ -197,7 +197,11 @@ void processStageSelect()
                 }
 #endif
                 else {
+#if RETRO_USE_MOD_LOADER
+                    ExitGame();
+#else
                     Engine.running = false;
+#endif
                 }
             }
             else if (keyPress.B) {

@@ -239,10 +239,10 @@ void TransmitGlobal(int *globalValue, const char *globalName);
 void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
-int ShowPromoPopup(int *id, const char *popupName);
+void ShowPromoPopup(int *id, const char *popupName);
 void ShowWebsite(int websiteID);
 
-int ExitGame();
+void ExitGame();
 
 #if RETRO_USE_MOD_LOADER
 void SetScreenWidth(int *width, int *unused);
