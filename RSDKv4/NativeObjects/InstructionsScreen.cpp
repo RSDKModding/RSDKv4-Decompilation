@@ -409,52 +409,60 @@ void InstructionsScreen_Main(void *objPtr)
         case 4:
             RenderImageClipped(0.0, entity->textY - 56.0, 8.0, 0.5, 0.5, 162.0, 96.0, 324.0, 192.0, 152.0, 104.0, 255, entity->textureHelp);
 
-            switch (Engine.language) {
-                default:
-                    RenderImageClipped(0.0, entity->textY - 188.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, entity->textureHelp);
-                    break;
-                case RETRO_JP:
-                    RenderImageClipped(0.0, (entity->textY - 188.0) - 32.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 240.0) - 26.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 288.0) - 32.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 336.0) - 32.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 380.0) - 42.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
-                                       entity->textureHelp);
-                    break;
-                case RETRO_RU:
-                    RenderImageClipped(0.0, entity->textY - 204.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 256.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 304.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 352.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 396.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, entity->textureHelp);
-                    break;
-                case RETRO_ZH:
-                    RenderImageClipped(0.0, (entity->textY - 188.0) - 22.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 240.0) - 20.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 288.0) - 22.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 336.0) - 22.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255,
-                                       entity->textureHelp);
-                    RenderImageClipped(0.0, (entity->textY - 380.0) - 22.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
-                                       entity->textureHelp);
-                    break;
-                case RETRO_ZS:
-                    RenderImageClipped(0.0, entity->textY - 196.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
-                    RenderImageClipped(0.0, entity->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, entity->textureHelp);
-                    break;
+            if (Engine.gameType == GAME_SONIC1) {
+                switch (Engine.language) {
+                    default:
+                        RenderImageClipped(0.0, entity->textY - 188.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_JP:
+                        RenderImageClipped(0.0, (entity->textY - 188.0) - 32.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 240.0) - 26.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 288.0) - 32.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 336.0) - 32.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 380.0) - 42.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_RU:
+                        RenderImageClipped(0.0, entity->textY - 204.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 256.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 304.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 352.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 396.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_ZH:
+                        RenderImageClipped(0.0, (entity->textY - 188.0) - 22.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 240.0) - 20.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 288.0) - 22.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 336.0) - 22.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, (entity->textY - 380.0) - 22.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_ZS:
+                        RenderImageClipped(0.0, entity->textY - 196.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
+                                           entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, entity->textureHelp);
+                        RenderImageClipped(0.0, entity->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
+                                           entity->textureHelp);
+                        break;
+                }
             }
             break;
     }

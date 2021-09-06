@@ -22,7 +22,7 @@ struct NativeEntity_TitleScreen : NativeEntityBase {
     MeshInfo *boxMesh;
     MeshInfo *cartMesh;
     MeshAnimator meshAnimator;
-    float field_38;
+    float rectY;
     float field_3C;
     float meshScale;
     float rotationY;
@@ -38,7 +38,7 @@ struct NativeEntity_TitleScreen : NativeEntityBase {
     byte logoTextureID;
     byte introTextureID;
     int logoAlpha;
-    int introAlpha;
+    int skipButtonAlpha;
     int field_12C;
     byte field_130;
 };

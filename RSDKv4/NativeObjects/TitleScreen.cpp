@@ -138,7 +138,7 @@ void TitleScreen_Create(void *objPtr)
     SetMeshAnimation(entity->boxMesh, &entity->meshAnimator, 16, 16, 0.0);
     AnimateMesh(entity->boxMesh, &entity->meshAnimator);
     SetMeshAnimation(entity->introMesh, &entity->meshAnimator, 0, 36, 0.09);
-    entity->field_38  = 160.0;
+    entity->rectY  = 160.0;
     entity->meshScale = 0.0;
     entity->rotationY = 0.0;
     SetMusicTrack("MenuIntro.ogg", 0, false, 0);
@@ -173,10 +173,10 @@ void TitleScreen_Main(void *objPtr)
             RenderMesh(entity->introMesh, MESH_COLOURS, true);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
-            if (Engine.gameDeviceType == RETRO_MOBILE && entity->introAlpha < 0x100 && entity->introRectAlpha < 0.0) {
-                entity->introAlpha += 8;
+            if (Engine.gameDeviceType == RETRO_MOBILE && entity->skipButtonAlpha < 0x100 && entity->introRectAlpha < 0.0) {
+                entity->skipButtonAlpha += 8;
             }
-            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
+            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->skipButtonAlpha,
                         entity->introTextureID);
             entity->introRectAlpha -= (300.0 * Engine.deltaTime);
             if (entity->introRectAlpha < -320.0)
@@ -189,7 +189,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
-                entity->field_38              = -48.0;
+                entity->rectY              = -48.0;
                 entity->field_12C             = 256;
                 entity->logoAlpha             = 256;
                 entity->field_130             = 1;
@@ -208,7 +208,7 @@ void TitleScreen_Main(void *objPtr)
             AnimateMesh(entity->introMesh, &entity->meshAnimator);
             RenderMesh(entity->introMesh, MESH_COLOURS, true);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
+            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->skipButtonAlpha,
                         entity->introTextureID);
             if (entity->meshAnimator.frameID > 26)
                 entity->state = TITLESCREEN_STATE_ENTERBOX;
@@ -217,7 +217,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
-                entity->field_38              = -48.0;
+                entity->rectY              = -48.0;
                 entity->field_12C             = 256;
                 entity->logoAlpha             = 256;
                 entity->field_130             = 1;
@@ -232,21 +232,21 @@ void TitleScreen_Main(void *objPtr)
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
 
             float y = 0;
-            if (entity->field_38 > -48.0) {
-                entity->field_38 -= (300.0 * Engine.deltaTime);
-                if (entity->field_38 >= -48.0) {
-                    y = entity->field_38 + 240.0;
+            if (entity->rectY > -48.0) {
+                entity->rectY -= (300.0 * Engine.deltaTime);
+                if (entity->rectY >= -48.0) {
+                    y = entity->rectY + 240.0;
                 }
                 else {
-                    entity->field_38 = -48.0;
+                    entity->rectY = -48.0;
                     y                = 192.0;
                 }
             }
             else {
-                y = entity->field_38 + 240.0;
+                y = entity->rectY + 240.0;
             }
             RenderRect(-SCREEN_CENTERX_F, y, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
             entity->meshAnimator.animationSpeed = 6.0 * Engine.deltaTime;
             AnimateMesh(entity->introMesh, &entity->meshAnimator);
             RenderMesh(entity->introMesh, MESH_COLOURS, true);
@@ -272,15 +272,15 @@ void TitleScreen_Main(void *objPtr)
             RenderMesh(entity->boxMesh, MESH_NORMALS, true);
             SetRenderMatrix(NULL);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
+            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->skipButtonAlpha,
                         entity->introTextureID);
             break;
         }
         case TITLESCREEN_STATE_TITLE: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
 
             entity->rotationY += Engine.deltaTime;
             if (entity->rotationY > M_PI_2)
@@ -322,10 +322,10 @@ void TitleScreen_Main(void *objPtr)
             SetRenderMatrix(NULL);
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
-            if (entity->introAlpha > 0) {
-                entity->introAlpha -= 8;
+            if (entity->skipButtonAlpha > 0) {
+                entity->skipButtonAlpha -= 8;
             }
-            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->introAlpha,
+            RenderImage(SCREEN_CENTERX_F - 32.0, 104.0, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 704.0, 544.0, entity->skipButtonAlpha,
                         entity->introTextureID);
             RenderImage(64.0, 32.0, 160.0, 0.3, 0.3, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, entity->logoAlpha, entity->logoTextureID);
 
@@ -338,8 +338,8 @@ void TitleScreen_Main(void *objPtr)
         case TITLESCREEN_STATE_EXITTITLE: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38 + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY + 240.0, 160.0, SCREEN_XSIZE_F, 256.0, 160, 192, 255, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
 
             float div = (60.0 * Engine.deltaTime) * 1.125;
             entity->x /= div;
@@ -374,8 +374,8 @@ void TitleScreen_Main(void *objPtr)
         case TITLESCREEN_STATE_EXIT: {
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_CENTERY_F - entity->field_38, 160, 192, 255, 255);
-            RenderRect(-SCREEN_CENTERX_F, entity->field_38, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
+            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_CENTERY_F - entity->rectY, 160, 192, 255, 255);
+            RenderRect(-SCREEN_CENTERX_F, entity->rectY, 160.0, SCREEN_XSIZE_F, 16.0, 0, 0, 0, 255);
             entity->meshAnimator.animationSpeed = -16.0 * Engine.deltaTime;
             AnimateMesh(entity->boxMesh, &entity->meshAnimator);
 
@@ -383,7 +383,7 @@ void TitleScreen_Main(void *objPtr)
             float val2 = 0.125 * val;
 
             entity->field_3C = (entity->field_3C - val2) - val2;
-            entity->field_38 += (val * (entity->field_3C - val2));
+            entity->rectY += (val * (entity->field_3C - val2));
             if (entity->meshAnimator.frameID <= 7) {
                 if (entity->rotationY < 1.0)
                     entity->rotationY += Engine.deltaTime;
