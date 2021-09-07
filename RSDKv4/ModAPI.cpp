@@ -382,6 +382,16 @@ void GetModDescription(int *textMenu, int *highlight, uint *id, int *unused)
     AddTextMenuEntry(menu, modList[*id].desc.c_str());
 }
 
+void GetModAuthor(int *textMenu, int *highlight, uint *id, int *unused)
+{
+    if (*id >= modList.size())
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = *highlight;
+    AddTextMenuEntry(menu, modList[*id].author.c_str());
+}
+
 void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused)
 {
     if (*id >= modList.size())

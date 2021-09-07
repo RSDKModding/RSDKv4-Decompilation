@@ -1654,7 +1654,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL 1]
+            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -2273,6 +2273,12 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                  && FindStringToken(scriptText, Engine.gameRenderType, 1) == -1
 #if RETRO_USE_HAPTICS
                                  && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
+#endif
+#if RETRO_USE_NETWORKING
+                                 && FindStringToken(scriptText, "USE_NETWORKING", 1) == -1
+#endif
+#if RETRO_USE_MOD_LOADER
+                                 && FindStringToken(scriptText, "USE_MOD_LOADER", 1) == -1
 #endif
                         ) {
                             parseMode = PARSEMODE_PLATFORMSKIP;
