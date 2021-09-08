@@ -154,6 +154,7 @@ void processStageSelect()
                 }
                 else if (gameMenu[0].selection2 == 13) {
                     ClearNativeObjects();
+                    Engine.gameMode = ENGINE_WAIT;
                     if (skipStartMenu) {
                         ClearGraphicsData();
                         ClearAnimationData();

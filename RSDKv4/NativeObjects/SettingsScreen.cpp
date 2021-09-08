@@ -113,13 +113,13 @@ void SettingsScreen_Create(void *objPtr)
     if (Engine.gameDeviceType == RETRO_MOBILE) {
         switch (GetGlobalVariableByName("options.physicalControls")) {
             default: break;
-            case 2:
+            case CTRLS_MOGA:
                 if (timeAttackTex)
                     ReplaceTexture("Data/Game/Menu/Moga.png", timeAttackTex);
                 else
                     entity->controllerTex = LoadTexture("Data/Game/Menu/Moga.png", TEXFMT_RGBA5551);
                 break;
-            case 3:
+            case CTRLS_MOGAPRO:
                 if (timeAttackTex)
                     ReplaceTexture("Data/Game/Menu/MogaPro.png", timeAttackTex);
                 else
@@ -447,11 +447,12 @@ void SettingsScreen_Main(void *objPtr)
         case SETTINGSSCREEN_STATE_ENTERCTRLS:
             SetRenderMatrix(&entity->buttonMatrix);
             if (entity->buttons[SETTINGSSCREEN_BTN_CTRLS]->state == PUSHBUTTON_STATE_UNSELECTED) {
+                byte physicalControls = GetGlobalVariableByName("options.physicalControls");
                 if (Engine.gameDeviceType == RETRO_STANDARD)
                     entity->state = SETTINGSSCREEN_STATE_FLIP_CTRLS;
                 else
-                    entity->state = (GetGlobalVariableByName("options.physicalControls") - 2) < 2 ? SETTINGSSCREEN_STATE_FLIP_CTRLS
-                                                                                                  : SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
+                    entity->state = (physicalControls == CTRLS_MOGA || physicalControls == CTRLS_MOGAPRO) ? SETTINGSSCREEN_STATE_FLIP_CTRLS
+                                                                                                          : SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
             }
             break;
         case SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH:
@@ -523,35 +524,11 @@ void SettingsScreen_Main(void *objPtr)
             SetRenderMatrix(&entity->tempMatrix);
             int touchCheck;
             if (touches > 0) {
-                touchCheck =
-                    CheckTouchRect(32.0, 54.0,
-                                   ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->scale) + entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->textWidth)
-                                       * 0.75,
-                                   12.0)
-                    < 0;
-                if (touchCheck) {
-                    entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    touchCheck                                       = CheckTouchRect(108.0, 54.0,
-                                                ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->scale)
-                                                 + entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->textWidth)
-                                                    * 0.75,
-                                                12.0)
-                                 < 0;
-                    if (touchCheck) {
-                        entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    }
-                    else {
-                        entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_SELECTED;
-                        if (saveGame->vDPadSize < 0x80)
-                            saveGame->vDPadSize += 4;
-                        entity->virtualDPad              = entity->virtualDPad;
-                        entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
-                        entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
-                        entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
-                    }
-                }
-                else {
-                    entity->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_SELECTED;
+
+                //Size -
+                NativeEntity_PushButton *buttonDec = entity->buttons[SETTINGSSCREEN_BTN_MUSUP];
+                if (CheckTouchRect(32.0, 54.0, ((64.0 * buttonDec->scale) + buttonDec->textWidth) * 0.75, 12.0) >= 0) {
+                    buttonDec->state = PUSHBUTTON_STATE_SELECTED;
                     if (saveGame->vDPadSize > 0x20)
                         saveGame->vDPadSize -= 4;
                     entity->virtualDPad              = entity->virtualDPad;
@@ -559,119 +536,110 @@ void SettingsScreen_Main(void *objPtr)
                     entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
                     entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                 }
+                else {
+                    buttonDec->state = PUSHBUTTON_STATE_UNSELECTED;
+                }
 
-                touchCheck =
-                    CheckTouchRect(32.0, 26.0,
-                                   ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->scale) + entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->textWidth)
-                                       * 0.75,
-                                   12.0)
-                    < 0;
-                if (touchCheck) {
-                    entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_SELECTED;
-                    touchCheck                                       = CheckTouchRect(108.0, 26.0,
-                                                ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->scale)
-                                                 + entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->textWidth)
-                                                    * 0.75,
-                                                12.0)
-                                 < 0;
-                    if (!touchCheck) {
-                        entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_SELECTED;
-                        if (saveGame->vDPadOpacity <= 255)
-                            saveGame->vDPadOpacity += 4;
-                    }
-                    else
-                        entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
+                //Size +
+                NativeEntity_PushButton *buttonInc = entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN];
+                if (CheckTouchRect(108.0, 54.0, ((64.0 * buttonInc->scale) + buttonInc->textWidth) * 0.75, 12.0) >= 0) {
+                    buttonInc->state = PUSHBUTTON_STATE_SELECTED;
+                    if (saveGame->vDPadSize < 0x80)
+                        saveGame->vDPadSize += 4;
+                    entity->virtualDPad              = entity->virtualDPad;
+                    entity->virtualDPad->moveSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->jumpSize    = saveGame->vDPadSize * (1.0f / 256);
+                    entity->virtualDPad->pressedSize = saveGame->vDPadSize * (1.0f / 256) * 0.85;
                 }
                 else {
-                    entity->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_SELECTED;
+                    entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
+                }
+
+                //Opacity -
+                buttonDec = entity->buttons[SETTINGSSCREEN_BTN_SFXUP];
+                if (CheckTouchRect(32.0, 26.0, ((64.0 * buttonDec->scale) + buttonDec->textWidth) * 0.75, 12.0) >= 0) {
+                    buttonDec->state = PUSHBUTTON_STATE_SELECTED;
                     if (saveGame->vDPadOpacity > 0) {
                         saveGame->vDPadOpacity -= 4;
                     }
                 }
+                else {
+                    buttonDec->state = PUSHBUTTON_STATE_UNSELECTED;
+                }
+
+                //Opacity +
+                buttonInc = entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN];
+                if (CheckTouchRect(108.0, 26.0, ((64.0 * buttonInc->scale) + buttonInc->textWidth) * 0.75, 12.0) >= 0) {
+                    buttonInc->state = PUSHBUTTON_STATE_SELECTED;
+                    if (saveGame->vDPadOpacity < 0x100) {
+                        saveGame->vDPadOpacity += 4;
+                    }
+                }
+                else {
+                    buttonInc->state = PUSHBUTTON_STATE_UNSELECTED;
+                }
+
                 entity->virtualDPad->alpha = saveGame->vDPadOpacity;
 
-                entity->buttons[SETTINGSSCREEN_BTN_SDON]->state =
-                    CheckTouchRect(
-                        88.0, -2.0,
-                        ((64.0 * entity->buttons[SETTINGSSCREEN_BTN_SDON]->scale) + entity->buttons[SETTINGSSCREEN_BTN_SDON]->textWidth) * 0.75, 12.0)
-                    >= 0;
-                entity->virtualDPad = entity->virtualDPad;
+                NativeEntity_PushButton *button = entity->buttons[SETTINGSSCREEN_BTN_SDON];
+                button->state                   = CheckTouchRect(88.0, -2.0, ((64.0 * button->scale) + button->textWidth) * 0.75, 12.0) >= 0;
+
                 int moveTouch, jumpTouch;
-                float relativeX, relativeY, touchX, touchY, relTouchH, relTouchW;
+
                 if (entity->virtualDPad->moveFinger == -1)
                     moveTouch = CheckTouchRect(entity->virtualDPad->moveX, entity->virtualDPad->moveY, 128.0 * entity->virtualDPad->moveSize,
                                                128.0 * entity->virtualDPad->moveSize);
                 else
                     moveTouch = CheckTouchRect(-0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * -0.5, 0.5 * SCREEN_CENTERX_F, SCREEN_CENTERY_F * 0.5);
-                entity->virtualDPad = entity->virtualDPad;
+
                 if (moveTouch >= 0) {
-                    touchX = touchXF[moveTouch];
-                    touchY = touchYF[moveTouch];
                     if (entity->virtualDPad->moveFinger == -1) {
-                        relativeX                       = entity->virtualDPad->moveX - touchX;
-                        relativeY                       = entity->virtualDPad->moveY - touchY;
                         entity->virtualDPad->moveFinger = moveTouch;
-                        entity->virtualDPad->relativeX  = relativeX;
-                        entity->virtualDPad->relativeY  = relativeY;
+                        entity->virtualDPad->relativeX  = entity->virtualDPad->moveX - touchXF[moveTouch];
+                        entity->virtualDPad->relativeY  = entity->virtualDPad->moveY - touchYF[moveTouch];
                     }
-                    else {
-                        relativeX = entity->virtualDPad->relativeX;
-                        relativeY = entity->virtualDPad->relativeY;
-                    }
-                    relTouchH                  = touchY + relativeY;
-                    relTouchW                  = relativeX + touchX;
+
                     float moveSizeScale        = 128.0 * entity->virtualDPad->moveSize;
-                    entity->virtualDPad->moveY = relTouchH;
-                    entity->virtualDPad->moveX = relTouchW;
-                    if (-SCREEN_CENTERX_F > (relTouchW - moveSizeScale)) {
-                        relTouchW                  = moveSizeScale - SCREEN_CENTERX_F;
+                    entity->virtualDPad->moveX = touchXF[moveTouch] + entity->virtualDPad->relativeX;
+                    entity->virtualDPad->moveY = touchYF[moveTouch] + entity->virtualDPad->relativeY;
+                    if (-SCREEN_CENTERX_F > (entity->virtualDPad->moveX - moveSizeScale)) 
                         entity->virtualDPad->moveX = moveSizeScale - SCREEN_CENTERX_F;
-                    }
-                    if ((relTouchW + moveSizeScale) > 0.0)
+                    if (entity->virtualDPad->moveX + moveSizeScale > 0.0f)
                         entity->virtualDPad->moveX = -moveSizeScale;
-                    if ((relTouchH + moveSizeScale) > -8.0) {
-                        relTouchH                  = -8.0 - moveSizeScale;
-                        entity->virtualDPad->moveY = -8.0 - moveSizeScale;
-                    }
-                    if (-SCREEN_CENTERY_F > (relTouchH - moveSizeScale))
+
+                    if (entity->virtualDPad->moveY + moveSizeScale > -8.0f)
+                        entity->virtualDPad->moveY = -8.0f - moveSizeScale;
+
+                    if (-SCREEN_CENTERY_F > entity->virtualDPad->moveY - moveSizeScale)
                         entity->virtualDPad->moveY = moveSizeScale - SCREEN_CENTERY_F;
                 }
                 if (entity->virtualDPad->moveFinger == -1) {
-                    jumpTouch = entity->virtualDPad->jumpFinger == -1
-                                    ? CheckTouchRect(entity->virtualDPad->jumpX, entity->virtualDPad->jumpY, 128.0 * entity->virtualDPad->jumpSize,
-                                                     128.0 * entity->virtualDPad->jumpSize)
-                                    : CheckTouchRect(SCREEN_CENTERX_F * 0.5, SCREEN_CENTERY_F * -0.5, SCREEN_CENTERX_F * 0.5, 0.5 * SCREEN_CENTERY_F);
+                    if (entity->virtualDPad->jumpFinger == -1)
+                        jumpTouch = CheckTouchRect(entity->virtualDPad->jumpX, entity->virtualDPad->jumpY, 128.0 * entity->virtualDPad->jumpSize,
+                                                   128.0 * entity->virtualDPad->jumpSize);
+                    else
+                        jumpTouch = CheckTouchRect(SCREEN_CENTERX_F * 0.5, SCREEN_CENTERY_F * -0.5, SCREEN_CENTERX_F * 0.5, 0.5 * SCREEN_CENTERY_F);
+
                     if (jumpTouch >= 0) {
                         entity->virtualDPad = entity->virtualDPad;
-                        touchX              = touchXF[jumpTouch];
-                        touchY              = touchYF[jumpTouch];
                         if (entity->virtualDPad->jumpFinger == -1) {
-                            relativeX                       = entity->virtualDPad->jumpX - touchX;
-                            relativeY                       = entity->virtualDPad->jumpY - touchY;
                             entity->virtualDPad->jumpFinger = jumpTouch;
-                            entity->virtualDPad->relativeX  = relativeX;
-                            entity->virtualDPad->relativeY  = relativeY;
+                            entity->virtualDPad->relativeX  = entity->virtualDPad->jumpX - touchXF[jumpTouch];
+                            entity->virtualDPad->relativeY  = entity->virtualDPad->jumpY - touchYF[jumpTouch];
                         }
-                        else {
-                            relativeX = entity->virtualDPad->relativeX;
-                            relativeY = entity->virtualDPad->relativeY;
-                        }
-                        relTouchH                  = touchY + relativeY;
-                        relTouchW                  = relativeX + touchX;
+
                         float jumpScaleSize        = 128.0 * entity->virtualDPad->jumpSize;
-                        entity->virtualDPad->jumpY = relTouchH;
-                        entity->virtualDPad->jumpX = relTouchW;
-                        if ((relTouchW - jumpScaleSize) < 0.0) {
+                        entity->virtualDPad->jumpX = touchXF[jumpTouch] + entity->virtualDPad->relativeX;
+                        entity->virtualDPad->jumpY = touchYF[jumpTouch] + entity->virtualDPad->relativeY;
+
+                        if (entity->virtualDPad->jumpX - jumpScaleSize < 0.0f)
                             entity->virtualDPad->jumpX = jumpScaleSize;
-                            relTouchW                  = jumpScaleSize;
-                        }
-                        if ((relTouchW + jumpScaleSize) > SCREEN_CENTERX_F)
+                        if (entity->virtualDPad->jumpX + jumpScaleSize > SCREEN_CENTERX_F)
                             entity->virtualDPad->jumpX = SCREEN_CENTERX_F - jumpScaleSize;
-                        if ((relTouchH + jumpScaleSize) > -8.0) {
-                            relTouchH                  = -8.0 - jumpScaleSize;
+
+                        if (entity->virtualDPad->jumpY + jumpScaleSize > -8.0f)
                             entity->virtualDPad->jumpY = -8.0 - jumpScaleSize;
-                        }
-                        if (-SCREEN_CENTERY_F > (relTouchH - jumpScaleSize))
+                        if (-SCREEN_CENTERY_F > entity->virtualDPad->jumpY - jumpScaleSize)
                             entity->virtualDPad->jumpY = jumpScaleSize - SCREEN_CENTERY_F;
                     }
                 }
@@ -689,7 +657,7 @@ void SettingsScreen_Main(void *objPtr)
                     PlaySfxByName("Menu Back", false);
                     entity->backPressed = false;
                     entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
-                    SetGlobalVariableByName("options.touchControls", 0);
+                    SetGlobalVariableByName("options.touchControls", false);
                     saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
                     saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
                     saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;
@@ -721,7 +689,7 @@ void SettingsScreen_Main(void *objPtr)
                 PlaySfxByName("Menu Back", false);
                 entity->backPressed = false;
                 entity->state       = SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
-                SetGlobalVariableByName("options.touchControls", 0);
+                SetGlobalVariableByName("options.touchControls", false);
                 saveGame->vDPadX_Move = (entity->virtualDPad->moveX + SCREEN_CENTERX_F);
                 saveGame->vDPadY_Move = -(entity->virtualDPad->moveY - SCREEN_CENTERY_F);
                 saveGame->vDPadX_Jump = entity->virtualDPad->jumpX - SCREEN_CENTERX_F;

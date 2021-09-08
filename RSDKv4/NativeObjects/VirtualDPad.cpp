@@ -24,7 +24,7 @@ void VirtualDPad_Create(void *objPtr)
     entity->useTouchControls    = GetGlobalVariableID("options.touchControls");
     entity->usePhysicalControls = GetGlobalVariableID("options.physicalControls");
     entity->vsMode              = GetGlobalVariableID("options.vsMode");
-    entity->textureID           = LoadTexture("Data/Game/Menu/VirtualDPad.png", 3);
+    entity->textureID           = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
 }
 void VirtualDPad_Main(void *objPtr)
 {

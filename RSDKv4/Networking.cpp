@@ -222,18 +222,19 @@ void sendData()
 
 void disconnectNetwork()
 {
-    if (!session->running)
-        return;
-    ServerPacket send;
-    send.header = 0xFF;
-    session->write(send);
-    session->running = false;
+    if (session->running) {
+        ServerPacket send;
+        send.header = 0xFF;
+        session->write(send);
+        session->running = false;
+    }
     if (loopThread.joinable())
         loopThread.join();
-    if (ioThread.joinable())
+    if (ioThread.joinable()) {
         if (!io_context.stopped())
             io_context.stop();
-    ioThread.join();
+        ioThread.join();
+    }
 }
 
 void sendServerPacket(ServerPacket &send) { session->write(send); }

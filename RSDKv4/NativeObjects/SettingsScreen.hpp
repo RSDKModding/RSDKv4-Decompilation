@@ -45,6 +45,13 @@ enum SettingsScreenSelections {
     SETTINGSSCREEN_SEL_CONTROLS,
 };
 
+enum SettingScreenControlModes {
+    CTRLS_PHYSICAL,
+    CTRLS_TOUCH,
+    CTRLS_MOGA,
+    CTRLS_MOGAPRO,
+};
+
 struct NativeEntity_SettingsScreen : NativeEntityBase {
     SettingsScreenStates state;
     SettingsScreenDrawStates stateDraw;

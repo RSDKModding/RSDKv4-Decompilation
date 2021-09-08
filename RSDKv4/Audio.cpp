@@ -764,7 +764,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 buf += read;
             }
 
-            ov_clear(&vf);
+            ov_clear(&vf); //clears & closes vorbis file
 
             /* Don't return a buffer that isn't a multiple of samplesize */
             samplesize = ((spec.format & 0xFF) / 8) * spec.channels;

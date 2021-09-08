@@ -226,7 +226,7 @@ void PauseMenu_Main(void *objPtr)
                         if (entity->buttonSelected >= pauseMenuButtonCount)
                             entity->buttonSelected = PMB_CONTINUE;
                     }
-                    for (int i = 0; i < pauseMenuButtonCount; ++i) entity->buttons[i]->b = 0xFF;
+                    for (int i = 0; i < pauseMenuButtonCount; ++i) entity->buttons[i]->b = entity->buttons[i]->r;
                     entity->buttons[entity->buttonSelected]->b = 0;
                     if (entity->buttons[entity->buttonSelected]->g > 0x80 && (keyPress.start || keyPress.A)) {
                         PlaySfxByName("Menu Select", false);

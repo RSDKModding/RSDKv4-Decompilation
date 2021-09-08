@@ -419,6 +419,11 @@ void RetroEngine::Init()
         AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack moed in under 7\rminutes");
         AddAchievement("Beat the Clock","Complete the Time Attack\rmode in less than 45\rminutes");
     }
+
+    if (skipStartMenu)
+        Engine.gameMode = ENGINE_MAINGAME;
+    else
+        Engine.gameMode = ENGINE_WAIT;
 #endif
 }
 
