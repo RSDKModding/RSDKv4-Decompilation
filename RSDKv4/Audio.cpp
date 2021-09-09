@@ -468,7 +468,7 @@ void LoadMusic(void *userdata)
         callbacks.tell_func  = tellVorbis;
         callbacks.close_func = closeVorbis;
 
-        int error = ov_open_callbacks(musFile, &strmInfo[currentStreamIndex].vorbisFile, NULL, 0, callbacks);
+        int error = ov_open_callbacks(musFile, &strmInfo->vorbisFile, NULL, 0, callbacks);
         if (error == 0) {
             strmInfo->vorbBitstream = -1;
             strmInfo->vorbisFile.vi = ov_info(&strmInfo->vorbisFile, -1);
@@ -489,7 +489,7 @@ void LoadMusic(void *userdata)
 #endif
 
             if (musicStartPos) {
-                uint oldPos = (uint)ov_pcm_tell(&strmInfo[oldStreamID].vorbisFile);
+                uint oldPos = (uint)ov_pcm_tell(&streamInfo[oldStreamID].vorbisFile);
 
                 float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
                 musicStartPos = fmod(newPos, samples);
