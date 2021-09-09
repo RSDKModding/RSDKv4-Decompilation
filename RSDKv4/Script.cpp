@@ -2104,7 +2104,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 FileRead(&curChar, 1);
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
+                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
                         }
@@ -2124,7 +2124,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;
                     }
