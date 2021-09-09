@@ -940,9 +940,14 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(MultiplayerHandler);
 }
 
-void ShowPromoPopup(int *id, const char *popupName)
+void ShowPromoPopup(int *id, const char *popupName) { printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
+void ShowSegaIDPopup()
 {
-    printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0);
+    // nothing here, its just all to a java method of the same name
+}
+void ShowOnlineSignIn()
+{
+    // nothing here, its just all to a java method of the same name
 }
 void ShowWebsite(int websiteID)
 {

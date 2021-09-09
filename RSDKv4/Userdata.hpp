@@ -240,6 +240,8 @@ void receive2PVSData(MultiplayerData *data);
 void receive2PVSMatchCode(int code);
 
 void ShowPromoPopup(int *id, const char *popupName);
+void ShowSegaIDPopup();
+void ShowOnlineSignIn();
 void ShowWebsite(int websiteID);
 
 void ExitGame();
