@@ -637,6 +637,9 @@ void RetroEngine::LoadXMLObjects()
                     }
                 }
             }
+            else {
+                printLog("Failed to parse Game.xml File!");
+            }
 
             delete[] xmlData;
             delete doc;
@@ -691,6 +694,9 @@ void RetroEngine::LoadXMLSoundFX()
                     }
                 }
             }
+            else {
+                printLog("Failed to parse Game.xml File!");
+            }
 
             delete[] xmlData;
             delete doc;
@@ -722,12 +728,12 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *objectsElement = firstXMLChildElement(doc, nullptr, "players");
-                if (objectsElement) {
-                    const tinyxml2::XMLElement *objElement = firstXMLChildElement(doc, objectsElement, "player");
-                    if (objElement) {
+                const tinyxml2::XMLElement *playersElement = firstXMLChildElement(doc, nullptr, "players");
+                if (playersElement) {
+                    const tinyxml2::XMLElement *plrElement = firstXMLChildElement(doc, playersElement, "player");
+                    if (plrElement) {
                         do {
-                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(objElement, "name");
+                            const tinyxml2::XMLAttribute *nameAttr = findXMLAttribute(plrElement, "name");
                             const char *plrName                    = "unknownPlayer";
                             if (nameAttr)
                                 plrName = getXMLAttributeValueString(nameAttr);
@@ -737,9 +743,12 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
                             else
                                 StrCopy(playerNames[playerCount++], plrName);
 
-                        } while ((objElement = nextXMLSiblingElement(doc, objElement, "player")));
+                        } while ((plrElement = nextXMLSiblingElement(doc, plrElement, "player")));
                     }
                 }
+            }
+            else {
+                printLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -822,6 +831,9 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                         }
                     }
                 }
+            }
+            else {
+                printLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
