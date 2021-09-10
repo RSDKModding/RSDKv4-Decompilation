@@ -797,8 +797,8 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                                     stgHighlighted = getXMLAttributeValueBool(highlightAttr);
 
                                 if (menu) {
-                                    if (listNo == 2 || listNo == 3) {
-                                        if (listNo == ((l + 1) ^ 1)) {
+                                    if (listNo == 3 || listNo == 4) {
+                                        if ((listNo == 4 && l == 2) || (listNo == 3 && l == 3)) {
                                             AddTextMenuEntry(menu, stgName);
                                             menu->entryHighlight[menu->rowCount - 1] = stgHighlighted;
                                         }
