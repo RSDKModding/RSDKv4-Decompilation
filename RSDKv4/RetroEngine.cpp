@@ -706,9 +706,6 @@ void RetroEngine::LoadXMLSoundFX()
 }
 void RetroEngine::LoadXMLPlayers(TextMenu *menu)
 {
-    if (!menu)
-        return;
-
     FileInfo info;
 
     for (int m = 0; m < (int)modList.size(); ++m) {
