@@ -626,12 +626,10 @@ void RetroEngine::LoadXMLObjects()
 
                             flags |= (objForceLoad & 1);
 
-                            if (objForceLoad) {
-                                StrCopy(modTypeNames[modObjCount], objName);
-                                StrCopy(modScriptPaths[modObjCount], objScript);
-                                modScriptFlags[modObjCount] = flags;
-                                modObjCount++;
-                            }
+                            StrCopy(modTypeNames[modObjCount], objName);
+                            StrCopy(modScriptPaths[modObjCount], objScript);
+                            modScriptFlags[modObjCount] = flags;
+                            modObjCount++;
 
                         } while ((objElement = nextXMLSiblingElement(doc, objElement, "object")));
                     }

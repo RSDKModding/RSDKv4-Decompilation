@@ -5,73 +5,12 @@ int pauseMenuButtonCount;
 void PauseMenu_Create(void *objPtr)
 {
     RSDK_THIS(PauseMenu);
-    pauseMenuButtonCount = PMB_COUNT;
-    if (PMB_COUNT == 5 && !Engine.devMenu)
-        pauseMenuButtonCount--;
-
-    entity->retroGameLoop = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
-    entity->label         = CREATE_ENTITY(TextLabel);
-    entity->label->state  = TEXTLABEL_STATE_IDLE;
-    entity->label->z      = 0.0;
-    entity->label->scale  = 0.2;
-    entity->label->alpha  = 0;
-    entity->label->fontID = FONT_HEADING;
-    SetStringToFont(entity->label->text, strPause, FONT_HEADING);
-    entity->label->alignOffset = 512.0;
-    entity->renderRot          = DegreesToRad(22.5);
-    matrixRotateYF(&entity->label->renderMatrix, DegreesToRad(22.5));
-    matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
-    matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
-    entity->label->useRenderMatrix = true;
-    entity->buttonX                = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
-    for (int i = 0; i < pauseMenuButtonCount; ++i) {
-        NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
-        entity->buttons[i]                 = button;
-        button->scale                      = 0.1;
-        button->matZ                       = 0.0;
-        button->matXOff                    = 512.0;
-        button->textY                      = -4.0;
-        entity->buttonRot[i]               = DegreesToRad(16.0);
-        matrixRotateYF(&button->matrix, DegreesToRad(16.0));
-        matrixTranslateXYZF(&entity->matrix, entity->buttonX, 48.0 - i * 30, 160.0);
-        matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix);
-        button->symbol    = 1;
-        button->useMatrix = true;
-    }
-    if ((GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1) || !activeStageList
-        || GetGlobalVariableByName("options.attractMode") == 1 || GetGlobalVariableByName("options.vsMode") == 1) {
-        entity->buttons[PMB_RESTART]->r = 0x80;
-        entity->buttons[PMB_RESTART]->g = 0x80;
-        entity->buttons[PMB_RESTART]->b = 0x80;
-    }
-    SetStringToFont(entity->buttons[PMB_CONTINUE]->text, strContinue, FONT_LABEL);
-    SetStringToFont(entity->buttons[PMB_RESTART]->text, strRestart, FONT_LABEL);
-    SetStringToFont(entity->buttons[PMB_SETTINGS]->text, strSettings, FONT_LABEL);
-    SetStringToFont(entity->buttons[PMB_EXIT]->text, strExit, FONT_LABEL);
-    if (pauseMenuButtonCount == 5)
-        SetStringToFont(entity->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
-    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
-    entity->rotationY     = 0.0;
-    entity->rotYOff       = DegreesToRad(-16.0);
-    entity->matrixX       = 0.0;
-    entity->matrixY       = 0.0;
-    entity->matrixZ       = 160.0;
-    entity->width         = (1.75 * SCREEN_CENTERX_F) - ((SCREEN_CENTERX_F - 160) * 2);
-    if (Engine.gameDeviceType == RETRO_MOBILE)
-        entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
-    entity->dpadY             = 104.0;
-    entity->state             = PAUSEMENU_STATE_ENTER;
-    entity->miniPauseDisabled = true;
-    entity->dpadX             = SCREEN_CENTERX_F - 76.0;
-    entity->dpadXSpecial      = SCREEN_CENTERX_F - 52.0;
-
-    
 
     // code has been here from TitleScreen_Create due to the possibility of opening the dev menu before this loads :(
 #if !RETRO_USE_ORIGINAL_CODE
     int heading = -1, labelTex = -1, textTex = -1;
 
-    if (fontList[FONT_HEADING].count == 2) {
+    if (fontList[FONT_HEADING].count <= 2) {
         if (Engine.useHighResAssets)
             heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
         else
@@ -79,7 +18,7 @@ void PauseMenu_Create(void *objPtr)
         LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
     }
 
-    if (fontList[FONT_LABEL].count == 2) {
+    if (fontList[FONT_LABEL].count <= 2) {
         if (Engine.useHighResAssets)
             labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
         else
@@ -87,7 +26,7 @@ void PauseMenu_Create(void *objPtr)
         LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
     }
 
-    if (fontList[FONT_TEXT].count == 2) {
+    if (fontList[FONT_TEXT].count <= 2) {
         textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
         LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
     }
@@ -176,6 +115,65 @@ void PauseMenu_Create(void *objPtr)
         default: break;
     }
 #endif
+    pauseMenuButtonCount = PMB_COUNT;
+    if (PMB_COUNT == 5 && !Engine.devMenu)
+        pauseMenuButtonCount--;
+
+    entity->retroGameLoop = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
+    entity->label         = CREATE_ENTITY(TextLabel);
+    entity->label->state  = TEXTLABEL_STATE_IDLE;
+    entity->label->z      = 0.0;
+    entity->label->scale  = 0.2;
+    entity->label->alpha  = 0;
+    entity->label->fontID = FONT_HEADING;
+    SetStringToFont(entity->label->text, strPause, FONT_HEADING);
+    entity->label->alignOffset = 512.0;
+    entity->renderRot          = DegreesToRad(22.5);
+    matrixRotateYF(&entity->label->renderMatrix, DegreesToRad(22.5));
+    matrixTranslateXYZF(&entity->matrix, -128.0, 80.0, 160.0);
+    matrixMultiplyF(&entity->label->renderMatrix, &entity->matrix);
+    entity->label->useRenderMatrix = true;
+    entity->buttonX                = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
+    for (int i = 0; i < pauseMenuButtonCount; ++i) {
+        NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
+        entity->buttons[i]                 = button;
+        button->scale                      = 0.1;
+        button->matZ                       = 0.0;
+        button->matXOff                    = 512.0;
+        button->textY                      = -4.0;
+        entity->buttonRot[i]               = DegreesToRad(16.0);
+        matrixRotateYF(&button->matrix, DegreesToRad(16.0));
+        matrixTranslateXYZF(&entity->matrix, entity->buttonX, 48.0 - i * 30, 160.0);
+        matrixMultiplyF(&entity->buttons[i]->matrix, &entity->matrix);
+        button->symbol    = 1;
+        button->useMatrix = true;
+    }
+    if ((GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1) || !activeStageList
+        || GetGlobalVariableByName("options.attractMode") == 1 || GetGlobalVariableByName("options.vsMode") == 1) {
+        entity->buttons[PMB_RESTART]->r = 0x80;
+        entity->buttons[PMB_RESTART]->g = 0x80;
+        entity->buttons[PMB_RESTART]->b = 0x80;
+    }
+    SetStringToFont(entity->buttons[PMB_CONTINUE]->text, strContinue, FONT_LABEL);
+    SetStringToFont(entity->buttons[PMB_RESTART]->text, strRestart, FONT_LABEL);
+    SetStringToFont(entity->buttons[PMB_SETTINGS]->text, strSettings, FONT_LABEL);
+    SetStringToFont(entity->buttons[PMB_EXIT]->text, strExit, FONT_LABEL);
+    if (pauseMenuButtonCount == 5)
+        SetStringToFont(entity->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
+    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
+    entity->rotationY     = 0.0;
+    entity->rotYOff       = DegreesToRad(-16.0);
+    entity->matrixX       = 0.0;
+    entity->matrixY       = 0.0;
+    entity->matrixZ       = 160.0;
+    entity->width         = (1.75 * SCREEN_CENTERX_F) - ((SCREEN_CENTERX_F - 160) * 2);
+    if (Engine.gameDeviceType == RETRO_MOBILE)
+        entity->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
+    entity->dpadY             = 104.0;
+    entity->state             = PAUSEMENU_STATE_ENTER;
+    entity->miniPauseDisabled = true;
+    entity->dpadX             = SCREEN_CENTERX_F - 76.0;
+    entity->dpadXSpecial      = SCREEN_CENTERX_F - 52.0;
 }
 void PauseMenu_Main(void *objPtr)
 {

@@ -850,6 +850,12 @@ void LoadActLayout()
         FileRead(&fileBuffer[0], 2);
         int objectCount = fileBuffer[0] + (fileBuffer[1] << 8);
 
+#if RETRO_USE_MOD_LOADER
+        int offsetCount = 0;
+        for (int m = 0; m < modObjCount; ++m)
+            if (modScriptFlags[m])
+                ++offsetCount;
+#endif
         Entity *object = &objectEntityList[32];
         for (int i = 0; i < objectCount; ++i) {
             FileRead(fileBuffer, 2);
@@ -859,8 +865,8 @@ void LoadActLayout()
             object->type = fileBuffer[0];
 
 #if RETRO_USE_MOD_LOADER
-            if (loadGlobalScripts && modObjCount && object->type >= globalObjCount)
-                object->type += modObjCount; //offset it by our mod count
+            if (loadGlobalScripts && offsetCount && object->type >= globalObjCount)
+                object->type += offsetCount; // offset it by our mod count
 #endif
 
             FileRead(fileBuffer, 1);
