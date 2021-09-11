@@ -6,6 +6,7 @@ on:
       - main
       - win-actions
       - linux-actions
+      - MainMenuRewrite
 
 jobs:
   v4-windows:
