@@ -9,7 +9,9 @@ CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew)
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
 
-SOURCES = RSDKv4/Animation.cpp     \
+SOURCES = \
+          dependencies/all/tinyxml2/tinyxml2.cpp \
+	  RSDKv4/Animation.cpp     \
           RSDKv4/Audio.cpp         \
           RSDKv4/Collision.cpp     \
           RSDKv4/Debug.cpp         \
@@ -18,9 +20,12 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/Input.cpp         \
           RSDKv4/main.cpp          \
           RSDKv4/Math.cpp          \
+	  RSDKv4/ModAPI.cpp        \
+	  RSDKv4/Networking.cpp	   \
           RSDKv4/Object.cpp        \
           RSDKv4/Palette.cpp       \
           RSDKv4/Reader.cpp        \
+          RSDKv4/Renderer.cpp      \
           RSDKv4/RetroEngine.cpp   \
           RSDKv4/Scene.cpp         \
           RSDKv4/Scene3D.cpp       \
@@ -34,8 +39,8 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/AchievementsButton.cpp \
           RSDKv4/NativeObjects/AchievementsMenu.cpp \
           RSDKv4/NativeObjects/BackButton.cpp \
-          RSDKv4/NativeObjects/CreditText.cpp \
           RSDKv4/NativeObjects/CWSplash.cpp \
+          RSDKv4/NativeObjects/CreditText.cpp \
           RSDKv4/NativeObjects/DialogPanel.cpp \
           RSDKv4/NativeObjects/FadeScreen.cpp \
           RSDKv4/NativeObjects/InstructionsScreen.cpp \
@@ -46,6 +51,8 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/ModsButton.cpp \
           RSDKv4/NativeObjects/ModsMenu.cpp \
           RSDKv4/NativeObjects/MultiplayerButton.cpp \
+          RSDKv4/NativeObjects/MultiplayerHandler.cpp \
+          RSDKv4/NativeObjects/MultiplayerScreen.cpp \
           RSDKv4/NativeObjects/OptionsButton.cpp \
           RSDKv4/NativeObjects/OptionsMenu.cpp \
           RSDKv4/NativeObjects/PauseMenu.cpp \
@@ -67,7 +74,6 @@ SOURCES = RSDKv4/Animation.cpp     \
           RSDKv4/NativeObjects/VirtualDPad.cpp \
           RSDKv4/NativeObjects/VirtualDPadM.cpp \
           RSDKv4/NativeObjects/ZoneButton.cpp \
-          dependencies/all/tinyxml2/tinyxml2.cpp \
    
 ifneq ($(FORCE_CASE_INSENSITIVE),)
 	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
