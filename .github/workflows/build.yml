@@ -23,6 +23,12 @@ jobs:
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
           Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/windows/
           Rename-Item ./dependencies/windows/libvorbis-1.3.7 libvorbis
+      - name: Download Asio
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "Asio.zip"
+          Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
+          Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
+          Get-ChildItem -Path ./dependencies/all/
       - name: Download stb-image
         run: |
           Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
@@ -45,7 +51,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x86-windows-static libvorbis:x86-windows-static
+          vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
@@ -75,6 +81,12 @@ jobs:
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
           Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/windows/
           Rename-Item ./dependencies/windows/libvorbis-1.3.7 libvorbis
+      - name: Download Asio
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "Asio.zip"
+          Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
+          Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
+          Get-ChildItem -Path ./dependencies/all/
       - name: Download stb-image
         run: |
           Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
@@ -97,7 +109,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x64-windows-static libvorbis:x64-windows-static
+          vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
@@ -111,7 +123,71 @@ jobs:
         uses: actions/upload-artifact@v1.0.0  
         with:
           name: v4-windows-x64 
-          path: artifacts      
+          path: artifacts  
+          
+  v4-android:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository Android
+        uses: actions/checkout@v2      
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Download libogg, libvorbis, and libtheora for easier includes
+        run : |
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
+          Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/libvorbis-1.3.7 libvorbis
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/ogg/libogg-1.3.5.zip" -OutFile "libogg.zip"
+          Expand-Archive -Path libogg.zip -DestinationPath ./dependencies/android/app/jni/src/dependencies/android/
+          Rename-Item ./dependencies/android/app/jni/src/dependencies/android/libogg-1.3.5 libogg
+          Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
+          Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/android/app/jni/src/dependencies/android/
+          Rename-Item ./dependencies/android/app/jni/src/dependencies/android/libvorbis-1.3.7 libvorbis
+      - name: Download tinyxml2
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip" -OutFile "tinyxml2.zip"
+          Expand-Archive -Path tinyxml2.zip -DestinationPath ./dependencies/all/
+          Rename-Item ./dependencies/all/tinyxml2-master tinyxml2
+      - name: Download stb-image
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
+          Expand-Archive -Path stb-image.zip -DestinationPath ./dependencies/all/
+          Rename-Item ./dependencies/all/stb-master stb-image
+      - name: Download GLEW
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
+          Expand-Archive -Path GLEW.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/glew-2.2.0 glew
+      - name: Download SDL2
+        run: |
+          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-2.0.16.zip" -OutFile "SDL2.zip"
+          Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/android/
+          Rename-Item ./dependencies/android/SDL2-2.0.16 SDL
+      - name: Download Asio
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/chriskohlhoff/asio/archive/refs/heads/master.zip" -OutFile "Asio.zip"
+          Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
+          Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
+          Get-ChildItem -Path ./dependencies/all/
+      - name: Move & Copy stuff
+        run: |
+          Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android\* -Destination ./dependencies/
+          Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android/libogg/ -Destination ./dependencies/android/ -recurse
+          Copy-Item -Path ./dependencies/android/config_types.h -Destination ./dependencies/android/libogg/include/ogg/
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+      - name: Build RSDK v4 Android
+        working-directory: ./android
+        run: |
+          ./gradlew.bat Build --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
+      - name: Upload artifact Android
+        uses: actions/upload-artifact@v2
+        with:
+          name: RSDK-v4-Android
+          path: ./android/app/build/outputs/apk
   v4-linux:
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +196,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev libasio-dev
+          sudo wget --no-check-certificate --content-disposition https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip -P ./dependencies/all/
+          sudo unzip ./dependencies/all/tinyxml2-master.zip -d ./dependencies/all
+          sudo mv ./dependencies/all/tinyxml2-master ./dependencies/all/tinyxml2
+          sudo wget --no-check-certificate --content-disposition https://github.com/nothings/stb/archive/refs/heads/master.zip -P ./dependencies/all/
+          sudo unzip ./dependencies/all/stb-master.zip -d ./dependencies/all
+          sudo mv ./dependencies/all/stb-master ./dependencies/all/stb-image
+          ls ./dependencies/all
       - name: Build RSDKv4
         run: make
       - name: Upload artifact
