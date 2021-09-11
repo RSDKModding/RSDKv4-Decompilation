@@ -501,12 +501,12 @@ void LoadMusic(void *userdata)
             musicStatus         = MUSIC_PLAYING;
             masterVolume        = MAX_VOLUME;
             trackID             = currentMusicTrack;
-            currentMusicTrack   = -1;
             strmInfo->trackLoop = musicTracks[currentMusicTrack].trackLoop;
             strmInfo->loopPoint = musicTracks[currentMusicTrack].loopPoint;
             strmInfo->loaded    = true;
             streamFilePtr       = &streamFile[currentStreamIndex];
             streamInfoPtr       = &streamInfo[currentStreamIndex];
+            currentMusicTrack   = -1;
         }
         else {
             musicStatus = MUSIC_STOPPED;

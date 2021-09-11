@@ -459,6 +459,8 @@ void PauseMenu_Main(void *objPtr)
                     ClearNativeObjects();
                     RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                     CREATE_ENTITY(RetroGameLoop);
+                    if (Engine.gameDeviceType == RETRO_MOBILE)
+                        CREATE_ENTITY(VirtualDPad);
                     Engine.gameMode = ENGINE_INITDEVMENU;
                     return;
                 }

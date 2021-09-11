@@ -167,6 +167,8 @@ void processStageSelect()
                         Engine.gameMode   = ENGINE_MAINGAME;
                         stageListPosition = 0;
                         CREATE_ENTITY(RetroGameLoop);
+                        if (Engine.gameDeviceType == RETRO_MOBILE)
+                            CREATE_ENTITY(VirtualDPad);
                     }
                     else
                         CREATE_ENTITY(SegaSplash);
@@ -450,6 +452,11 @@ void processStageSelect()
             if (keyPress.B) {
                 RefreshEngine();
                 setTextMenu(DEVMENU_MAIN);
+
+                SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
+                SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
+                SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
+                SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);

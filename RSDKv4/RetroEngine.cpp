@@ -126,6 +126,8 @@ bool processEvents()
 #endif
                             ClearNativeObjects();
                             CREATE_ENTITY(RetroGameLoop);
+                            if (Engine.gameDeviceType == RETRO_MOBILE)
+                                CREATE_ENTITY(VirtualDPad);
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
                         break;
