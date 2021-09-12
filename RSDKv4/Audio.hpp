@@ -11,8 +11,8 @@
 
 #define MAX_VOLUME (100)
 
-#define MUSBUFFER_SIZE (0x200000)
-#define STREAMFILE_COUNT  (2)
+#define MUSBUFFER_SIZE   (0x200000)
+#define STREAMFILE_COUNT (2)
 
 #define MIX_BUFFER_SAMPLES (256)
 
@@ -57,7 +57,6 @@ struct StreamFile {
     int fileSize;
     int filePos;
 };
-
 
 enum MusicStatuses {
     MUSIC_STOPPED = 0,
