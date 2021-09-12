@@ -129,7 +129,7 @@ int InitRenderDevice()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(Engine.vsync ? 1 : 0);
 #endif
 #endif
 #if RETRO_DEVICETYPE == RETRO_MOBILE
