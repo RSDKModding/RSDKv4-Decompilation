@@ -117,6 +117,7 @@ inline void freeMusInfo()
 #if RETRO_USING_SDL2
     if (streamInfo[currentStreamIndex].stream)
         SDL_FreeAudioStream(streamInfo[currentStreamIndex].stream);
+    streamInfo[currentStreamIndex].stream = NULL;
 #endif
     ov_clear(&streamInfo[currentStreamIndex].vorbisFile);
 #if RETRO_USING_SDL2

@@ -214,7 +214,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
         case MUSIC_READY:
         case MUSIC_PLAYING: {
 #if RETRO_USING_SDL2
-            while (SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
+            while (streamInfoPtr->stream && SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
                 // We need more samples: get some
                 long bytes_read = ov_read(&streamInfoPtr->vorbisFile, (char *)streamInfoPtr->buffer, sizeof(streamInfoPtr->buffer), 0, 2, 1,
                                           &streamInfoPtr->vorbBitstream);
@@ -231,7 +231,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                     }
                 }
 
-                if (SDL_AudioStreamPut(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_read) == -1)
+                if (streamInfoPtr->stream && SDL_AudioStreamPut(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_read) == -1)
                     return;
             }
 
@@ -453,8 +453,8 @@ void LoadMusic(void *userdata)
 
         StreamFile *musFile = &streamFile[currentStreamIndex];
         musFile->filePos    = 0;
-        musFile->fileSize   = info.fileSize;
-        if (info.fileSize > MUSBUFFER_SIZE)
+        musFile->fileSize   = info.vfileSize;
+        if (info.vfileSize > MUSBUFFER_SIZE)
             musFile->fileSize = MUSBUFFER_SIZE;
 
         FileRead(streamFile[currentStreamIndex].buffer, musFile->fileSize);
@@ -682,12 +682,10 @@ void LoadSfx(char *filePath, byte sfxID)
             currentStreamIndex++;
             currentStreamIndex %= STREAMFILE_COUNT;
 
-            StreamInfo *playbackInfo = &streamInfo[currentStreamIndex];
-
             StreamFile *sfxFile = &streamFile[currentStreamIndex];
             sfxFile->filePos    = 0;
-            sfxFile->fileSize   = info.fileSize;
-            if (info.fileSize > MUSBUFFER_SIZE)
+            sfxFile->fileSize   = info.vfileSize;
+            if (info.vfileSize > MUSBUFFER_SIZE)
                 sfxFile->fileSize = MUSBUFFER_SIZE;
 
             FileRead(streamFile[currentStreamIndex].buffer, sfxFile->fileSize);
