@@ -332,6 +332,16 @@ void NewRenderState()
 }
 void RenderScene()
 {
+#if RETRO_USING_OPENGL
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
+    if (renderStateCount == -1)
+        return;
 
 #if !RETRO_USE_ORIGINAL_CODE
     if (Engine.dimTimer < Engine.dimLimit) {
@@ -347,20 +357,12 @@ void RenderScene()
 
     float dimAmount = Engine.dimMax * Engine.dimPercent;
 
-    if (dimAmount < 1.0)
+    if (dimAmount < 1.0) {
+        SetRenderBlendMode(RENDER_BLEND_ALPHA);
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
+        SetRenderBlendMode(RENDER_BLEND_NONE);
+    }
 #endif
-
-#if RETRO_USING_OPENGL
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_BLEND);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif
-    if (renderStateCount == -1)
-        return;
 
 #if RETRO_USING_OPENGL
     glEnableClientState(GL_VERTEX_ARRAY);
