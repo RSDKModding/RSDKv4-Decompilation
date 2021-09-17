@@ -161,6 +161,9 @@ void ProcessStage(void)
             setIdentityMatrix(&matWorld);
             setIdentityMatrix(&matView);
 
+#if RETRO_USE_MOD_LOADER
+            for (int m = 0; m < modList.size(); ++m) scanModFolder(&modList[m]);
+#endif
             ResetBackgroundSettings();
             LoadStageFiles();
 

@@ -24,7 +24,7 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define COMMONALIAS_COUNT (0x4E)
+#define COMMONALIAS_COUNT (0x4F)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -597,7 +597,9 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("TILELAYER_HSCROLL", "1"),
                                          AliasInfo("TILELAYER_VSCROLL", "2"),
                                          AliasInfo("TILELAYER_3DFLOOR", "3"),
-                                         AliasInfo("TILELAYER_3DSKY", "4") };
+                                         AliasInfo("TILELAYER_3DSKY", "4"),
+                                         AliasInfo("GROUP_ALL", "0")
+};
 AliasInfo privateAliases[ALIAS_COUNT_TRIM];
 int publicAliasCount  = 0;
 int privateAliasCount = 0;
@@ -1034,6 +1036,7 @@ enum ScrFunc {
 
 void CheckAliasText(char *text)
 {
+    sizeof(publicTables);
     if (FindStringToken(text, "publicalias", 1) && FindStringToken(text, "privatealias", 1))
         return;
     int textPos     = 11;
@@ -2104,6 +2107,19 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 FileRead(&curChar, 1);
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
+                        if (curChar == '\r') {
+                            size_t pos = GetFilePosition();
+                            char chr   = 0;
+                            FileRead(&chr, 1);
+                            if (chr != '\n') {
+                                SetFilePosition(pos);
+                            }
+                            else {
+                                curChar  = '\n';
+                                prevChar = '\r';
+                            }
+                        }
+
                         if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
@@ -2124,6 +2140,19 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
+                    if (curChar == '\r') {
+                        size_t pos = GetFilePosition();
+                        char chr = 0;
+                        FileRead(&chr, 1);
+                        if (chr != '\n') {
+                            SetFilePosition(pos);
+                        }
+                        else {
+                            curChar = '\n';
+                            prevChar = '\r';
+                        }
+                    }
+
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;

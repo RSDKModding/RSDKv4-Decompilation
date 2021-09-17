@@ -137,149 +137,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
 
         info->active = active;
 
-        // Check for Data/ replacements
-        fs::path dataPath(modDir + "/Data");
-
-        if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
-            try {
-                auto data_rdi = fs::recursive_directory_iterator(dataPath);
-                for (auto &data_de : data_rdi) {
-                    if (data_de.is_regular_file()) {
-                        char modBuf[0x100];
-                        StrCopy(modBuf, data_de.path().string().c_str());
-                        char folderTest[4][0x10] = {
-                            "Data/",
-                            "Data\\",
-                            "data/",
-                            "data\\",
-                        };
-                        int tokenPos = -1;
-                        for (int i = 0; i < 4; ++i) {
-                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                            if (tokenPos >= 0)
-                                break;
-                        }
-
-                        if (tokenPos >= 0) {
-                            char buffer[0x80];
-                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                            }
-
-                            // printLog(modBuf);
-                            std::string path(buffer);
-                            std::string modPath(modBuf);
-                            char pathLower[0x100];
-                            memset(pathLower, 0, sizeof(char) * 0x100);
-                            for (int c = 0; c < path.size(); ++c) {
-                                pathLower[c] = tolower(path.c_str()[c]);
-                            }
-
-                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                        }
-                    }
-                }
-            } catch (fs::filesystem_error fe) {
-                printLog("Data Folder Scanning Error: ");
-                printLog(fe.what());
-            }
-        }
-
-        // Check for Scripts/ replacements
-        fs::path scriptPath(modDir + "/Scripts");
-
-        if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
-            try {
-                auto data_rdi = fs::recursive_directory_iterator(scriptPath);
-                for (auto &data_de : data_rdi) {
-                    if (data_de.is_regular_file()) {
-                        char modBuf[0x100];
-                        StrCopy(modBuf, data_de.path().string().c_str());
-                        char folderTest[4][0x10] = {
-                            "Scripts/",
-                            "Scripts\\",
-                            "scripts/",
-                            "scripts\\",
-                        };
-                        int tokenPos = -1;
-                        for (int i = 0; i < 4; ++i) {
-                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                            if (tokenPos >= 0)
-                                break;
-                        }
-
-                        if (tokenPos >= 0) {
-                            char buffer[0x80];
-                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                            }
-
-                            // printLog(modBuf);
-                            std::string path(buffer);
-                            std::string modPath(modBuf);
-                            char pathLower[0x100];
-                            memset(pathLower, 0, sizeof(char) * 0x100);
-                            for (int c = 0; c < path.size(); ++c) {
-                                pathLower[c] = tolower(path.c_str()[c]);
-                            }
-
-                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                        }
-                    }
-                }
-            } catch (fs::filesystem_error fe) {
-                printLog("Script Folder Scanning Error: ");
-                printLog(fe.what());
-            }
-        }
-
-        // Check for Bytecode/ replacements
-        fs::path bytecodePath(modDir + "/Bytecode");
-
-        if (fs::exists(bytecodePath) && fs::is_directory(bytecodePath)) {
-            try {
-                auto data_rdi = fs::recursive_directory_iterator(bytecodePath);
-                for (auto &data_de : data_rdi) {
-                    if (data_de.is_regular_file()) {
-                        char modBuf[0x100];
-                        StrCopy(modBuf, data_de.path().string().c_str());
-                        char folderTest[4][0x10] = {
-                            "Bytecode/",
-                            "Bytecode\\",
-                            "bytecode/",
-                            "bytecode\\",
-                        };
-                        int tokenPos = -1;
-                        for (int i = 0; i < 4; ++i) {
-                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                            if (tokenPos >= 0)
-                                break;
-                        }
-
-                        if (tokenPos >= 0) {
-                            char buffer[0x80];
-                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                            }
-
-                            // printLog(modBuf);
-                            std::string path(buffer);
-                            std::string modPath(modBuf);
-                            char pathLower[0x100];
-                            memset(pathLower, 0, sizeof(char) * 0x100);
-                            for (int c = 0; c < path.size(); ++c) {
-                                pathLower[c] = tolower(path.c_str()[c]);
-                            }
-
-                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                        }
-                    }
-                }
-            } catch (fs::filesystem_error fe) {
-                printLog("Bytecode Folder Scanning Error: ");
-                printLog(fe.what());
-            }
-        }
+        scanModFolder(info);
 
         info->useScripts = false;
         modSettings.GetBool("", "TxtScripts", &info->useScripts);
@@ -297,6 +155,164 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         return true;
     }
     return false;
+}
+
+void scanModFolder(ModInfo* info) {
+    if (!info)
+        return;
+
+    char modBuf[0x100];
+    sprintf(modBuf, "%smods/", modsPath);
+
+    fs::path modPath(modBuf);
+
+    const std::string modDir = modPath.string() + "/" + info->folder;
+
+    info->fileMap.clear();
+
+    // Check for Data/ replacements
+    fs::path dataPath(modDir + "/Data");
+
+    if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
+        try {
+            auto data_rdi = fs::recursive_directory_iterator(dataPath);
+            for (auto &data_de : data_rdi) {
+                if (data_de.is_regular_file()) {
+                    char modBuf[0x100];
+                    StrCopy(modBuf, data_de.path().string().c_str());
+                    char folderTest[4][0x10] = {
+                        "Data/",
+                        "Data\\",
+                        "data/",
+                        "data\\",
+                    };
+                    int tokenPos = -1;
+                    for (int i = 0; i < 4; ++i) {
+                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                        if (tokenPos >= 0)
+                            break;
+                    }
+
+                    if (tokenPos >= 0) {
+                        char buffer[0x80];
+                        for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                            buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                        }
+
+                        // printLog(modBuf);
+                        std::string path(buffer);
+                        std::string modPath(modBuf);
+                        char pathLower[0x100];
+                        memset(pathLower, 0, sizeof(char) * 0x100);
+                        for (int c = 0; c < path.size(); ++c) {
+                            pathLower[c] = tolower(path.c_str()[c]);
+                        }
+
+                        info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
+                    }
+                }
+            }
+        } catch (fs::filesystem_error fe) {
+            printLog("Data Folder Scanning Error: ");
+            printLog(fe.what());
+        }
+    }
+
+    // Check for Scripts/ replacements
+    fs::path scriptPath(modDir + "/Scripts");
+
+    if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
+        try {
+            auto data_rdi = fs::recursive_directory_iterator(scriptPath);
+            for (auto &data_de : data_rdi) {
+                if (data_de.is_regular_file()) {
+                    char modBuf[0x100];
+                    StrCopy(modBuf, data_de.path().string().c_str());
+                    char folderTest[4][0x10] = {
+                        "Scripts/",
+                        "Scripts\\",
+                        "scripts/",
+                        "scripts\\",
+                    };
+                    int tokenPos = -1;
+                    for (int i = 0; i < 4; ++i) {
+                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                        if (tokenPos >= 0)
+                            break;
+                    }
+
+                    if (tokenPos >= 0) {
+                        char buffer[0x80];
+                        for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                            buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                        }
+
+                        // printLog(modBuf);
+                        std::string path(buffer);
+                        std::string modPath(modBuf);
+                        char pathLower[0x100];
+                        memset(pathLower, 0, sizeof(char) * 0x100);
+                        for (int c = 0; c < path.size(); ++c) {
+                            pathLower[c] = tolower(path.c_str()[c]);
+                        }
+
+                        info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
+                    }
+                }
+            }
+        } catch (fs::filesystem_error fe) {
+            printLog("Script Folder Scanning Error: ");
+            printLog(fe.what());
+        }
+    }
+
+    // Check for Bytecode/ replacements
+    fs::path bytecodePath(modDir + "/Bytecode");
+
+    if (fs::exists(bytecodePath) && fs::is_directory(bytecodePath)) {
+        try {
+            auto data_rdi = fs::recursive_directory_iterator(bytecodePath);
+            for (auto &data_de : data_rdi) {
+                if (data_de.is_regular_file()) {
+                    char modBuf[0x100];
+                    StrCopy(modBuf, data_de.path().string().c_str());
+                    char folderTest[4][0x10] = {
+                        "Bytecode/",
+                        "Bytecode\\",
+                        "bytecode/",
+                        "bytecode\\",
+                    };
+                    int tokenPos = -1;
+                    for (int i = 0; i < 4; ++i) {
+                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                        if (tokenPos >= 0)
+                            break;
+                    }
+
+                    if (tokenPos >= 0) {
+                        char buffer[0x80];
+                        for (int i = StrLength(modBuf); i >= tokenPos; --i) {
+                            buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
+                        }
+
+                        // printLog(modBuf);
+                        std::string path(buffer);
+                        std::string modPath(modBuf);
+                        char pathLower[0x100];
+                        memset(pathLower, 0, sizeof(char) * 0x100);
+                        for (int c = 0; c < path.size(); ++c) {
+                            pathLower[c] = tolower(path.c_str()[c]);
+                        }
+
+                        info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
+                    }
+                }
+            }
+        } catch (fs::filesystem_error fe) {
+            printLog("Bytecode Folder Scanning Error: ");
+            printLog(fe.what());
+        }
+    }
 }
 
 void saveMods()

@@ -210,7 +210,6 @@ void OptionsMenu_Main(void *objPtr)
                         }
                         else {
                             CREATE_ENTITY(FadeScreen);
-                            FADESCREEN_STATE_GAMEFADEOUT;
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
 #else

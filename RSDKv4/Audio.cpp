@@ -522,6 +522,9 @@ void LoadMusic(void *userdata)
             }
         }
     }
+    else {
+        musicStatus = MUSIC_STOPPED;
+    }
     UnlockAudioDevice();
 }
 

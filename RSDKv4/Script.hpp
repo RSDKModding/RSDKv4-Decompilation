@@ -56,6 +56,22 @@ struct StaticInfo {
     int dataPos;
 };
 
+struct TableValue {
+    TableValue()
+    {
+        value   = 0;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+    TableValue(const char *aliasName, int val)
+    {
+        value   = val;
+        dataPos = SCRIPTDATA_COUNT - 1;
+    }
+
+    int value;
+    int dataPos;
+};
+
 struct TableInfo {
     TableInfo()
     {
@@ -72,7 +88,7 @@ struct TableInfo {
 
     char name[0x20];
     int valueCount;
-    StaticInfo values[TABLE_ENTRY_COUNT];
+    TableValue values[TABLE_ENTRY_COUNT];
     int dataPos;
 };
 
