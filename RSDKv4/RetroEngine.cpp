@@ -433,22 +433,33 @@ void RetroEngine::Run()
 {
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
+    Uint64 frameStartBlunt = SDL_GetTicks(), frameEndBlunt = SDL_GetTicks();
     float frameDelta = 0.0f;
-    Engine.deltaTime = 0.0f;
-
+    float frameDeltaBlunt = 0.0f;
+	Engine.deltaTime = 0.0f;
+    
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
+        frameStartBlunt = SDL_GetTicks();
+        frameDeltaBlunt = frameStartBlunt - frameEndBlunt;
+        ++frameDeltaBlunt;
+        if (frameDeltaBlunt < 1000.0f / (float)refreshRate) {
+            SDL_Delay(1000.0f / (float)refreshRate - frameDeltaBlunt);
+            continue;
+        }        
+        
         frameStart = SDL_GetPerformanceCounter();
         frameDelta = frameStart - frameEnd;
         if (frameDelta < frequency / (float)refreshRate) {
             continue;
         }
-        frameEnd         = SDL_GetPerformanceCounter();
-        Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
+        frameEnd = SDL_GetPerformanceCounter();
+        frameEndBlunt = SDL_GetTicks();
+		Engine.deltaTime = (frameDelta * 1000.0 / SDL_GetPerformanceFrequency()) / 1000.0;
         Engine.deltaTime = 0.016666668;
 #endif
-
         running = processEvents();
+		
 #if !RETRO_USE_ORIGINAL_CODE
         for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
