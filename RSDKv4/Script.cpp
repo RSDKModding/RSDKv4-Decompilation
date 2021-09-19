@@ -24,7 +24,7 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define COMMONALIAS_COUNT (0x4F)
+#define COMMONALIAS_COUNT (0x51)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -541,8 +541,10 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("FLIP_X", "1"),
                                          AliasInfo("FLIP_Y", "2"),
                                          AliasInfo("FLIP_XY", "3"),
-                                         AliasInfo("STAGE_PAUSED", "2"),
                                          AliasInfo("STAGE_RUNNING", "1"),
+                                         AliasInfo("STAGE_PAUSED", "2"),
+                                         AliasInfo("STAGE_FROZEN", "3"),
+                                         AliasInfo("STAGE_2P", "3"),
                                          AliasInfo("RESET_GAME", "2"),
                                          AliasInfo("RETRO_STANDARD", "0"),
                                          AliasInfo("RETRO_MOBILE", "1"),
@@ -1122,6 +1124,8 @@ void CheckStaticText(char *text)
     }
     MEM_ZEROP(var);
 
+    var->dataPos = -1;
+
     while (staticMatch < 2) {
         if (staticMatch == 1) {
             if (text[staticStrPos] != ';' && text[textPos]) {
@@ -1129,7 +1133,28 @@ void CheckStaticText(char *text)
             }
             else {
                 strBuffer[staticStrPos] = 0;
-                ConvertStringToInteger(strBuffer, &var->value);
+                
+                if (!ConvertStringToInteger(strBuffer, &var->value)) {
+                    bool flag = false;
+                    for (int a = 0; a < privateAliasCount; ++a) {
+                        if (StrComp(privateAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, privateAliases[a].value);
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+                        if (StrComp(publicAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, publicAliases[a].value);
+                            break;
+                        }
+                    }
+
+                    if (!ConvertStringToInteger(strBuffer, &var->value)) {
+                        printLog("WARNING: unable to convert static var value \"%s\" to int, on line %d", strBuffer, lineID);
+                    }
+                }
 
                 var->dataPos                = scriptDataPos;
                 scriptData[scriptDataPos++] = var->value;
@@ -1142,10 +1167,20 @@ void CheckStaticText(char *text)
             staticStrPos            = 0;
             staticMatch             = 1;
         }
+        else if (!text[textPos]) {
+            break;
+        }
         else {
             var->name[staticStrPos++] = text[textPos];
         }
         ++textPos;
+    }
+
+    //no assigned value, default to 0
+    if (var->dataPos == -1) {
+        var->dataPos                = scriptDataPos;
+        var->value                  = 0;
+        scriptData[scriptDataPos++] = var->value;
     }
 
     for (int v = 0; v < *cnt; ++v) {
@@ -1569,7 +1604,7 @@ void ConvertFunctionText(char *text)
 
                 if (o == OBJECT_COUNT) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown typename \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
@@ -1589,7 +1624,7 @@ void ConvertFunctionText(char *text)
 
                 if (s == SFX_COUNT) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown sfxName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
@@ -1621,7 +1656,7 @@ void ConvertFunctionText(char *text)
 
                 if (a == achievementCount) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
@@ -1652,7 +1687,7 @@ void ConvertFunctionText(char *text)
 
                 if (p == PLAYER_MAX) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
@@ -1665,7 +1700,7 @@ void ConvertFunctionText(char *text)
 
                 if (s == -1) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown StageName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
                 funcName[0] = 0;
@@ -1785,46 +1820,50 @@ void CheckCaseNumber(char *text)
     if (FindStringToken(text, "case", 1))
         return;
 
-    char dest[128];
-    int destStrPos = 0;
+    char caseString[128];
+    int caseStrPos = 0;
     char caseChar  = text[4];
     if (text[4]) {
         int textPos = 5;
         do {
             if (caseChar != ':')
-                dest[destStrPos++] = caseChar;
+                caseString[caseStrPos++] = caseChar;
             caseChar = text[textPos++];
         } while (caseChar);
     }
     else {
-        destStrPos = 0;
+        caseStrPos = 0;
     }
-    dest[destStrPos] = 0;
+    caseString[caseStrPos] = 0;
 
+    bool flag = false;
     for (int a = 0; a < privateAliasCount; ++a) {
-        if (StrComp(privateAliases[a].name, dest)) {
-            StrCopy(dest, privateAliases[a].value);
-            goto CONV_VAL;
+        if (StrComp(privateAliases[a].name, caseString)) {
+            StrCopy(caseString, privateAliases[a].value);
+            flag = true;
+            break;
         }
     }
 
-    for (int a = 0; a < publicAliasCount; ++a) {
-        if (StrComp(publicAliases[a].name, dest)) {
-            StrCopy(dest, publicAliases[a].value);
-            goto CONV_VAL;
+    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+        if (StrComp(publicAliases[a].name, caseString)) {
+            StrCopy(caseString, publicAliases[a].value);
+            break;
         }
     }
 
-CONV_VAL:
-    int aliasVarID = 0;
-    if (ConvertStringToInteger(dest, &aliasVarID) != 1)
-        return;
-    int stackValue = jumpTableStack[jumpTableStackPos];
-    if (aliasVarID < jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
-    stackValue++;
-    if (aliasVarID > jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
+    int caseID = 0;
+    if (ConvertStringToInteger(caseString, &caseID)) {
+        int stackValue = jumpTableStack[jumpTableStackPos];
+        if (caseID < jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+        stackValue++;
+        if (caseID > jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+    }
+    else {
+        printLog("WARNING: unable to convert case string \"%s\" to int, on line %d", caseString, lineID);
+    }
 }
 bool ReadSwitchCase(char *text)
 {
@@ -1855,9 +1894,21 @@ bool ReadSwitchCase(char *text)
             ++textPos;
         }
         caseText[caseStringPos] = 0;
-        for (int a = 0; a < publicAliasCount; ++a) {
-            if (StrComp(caseText, publicAliases[a].name))
+
+        bool flag = false;
+        for (int a = 0; a < privateAliasCount; ++a) {
+            if (StrComp(caseText, privateAliases[a].name)) {
+                StrCopy(caseText, privateAliases[a].value);
+                flag = true;
+                break;
+            }
+        }
+
+        for (int a = 0; a < publicAliasCount && !flag; ++a) {
+            if (StrComp(caseText, publicAliases[a].name)) {
                 StrCopy(caseText, publicAliases[a].value);
+                break;
+            }
         }
 
         int val = 0;
@@ -1866,6 +1917,8 @@ bool ReadSwitchCase(char *text)
         int jOffset = jPos + 4;
         if (ConvertStringToInteger(caseText, &val))
             jumpTableData[val - jumpTableData[jPos] + jOffset] = scriptDataPos - scriptDataOffset;
+        else
+            printLog("WARNING: unable to read case string \"%s\" as an int, on line %d", caseText, lineID);
         return true;
     }
     return false;
@@ -1878,10 +1931,32 @@ void ReadTableValues(char *text)
     while (true) {
         if (text[textPos] == ',' || !text[textPos]) {
             strBuffer[strPos] = 0;
+            if (strBuffer[0]) { //only try if something exists
+                int cnt = currentTable->valueCount;
 
-            int cnt = currentTable->valueCount;
-            ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value);
-            currentTable->valueCount++;
+                if (!ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
+                    bool flag = false;
+                    for (int a = 0; a < privateAliasCount; ++a) {
+                        if (StrComp(privateAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, privateAliases[a].value);
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+                        if (StrComp(publicAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, publicAliases[a].value);
+                            break;
+                        }
+                    }
+
+                    if (!ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
+                        printLog("WARNING: unable to convert table var %d value \"%s\" to int, on line %d", cnt, strBuffer, lineID);
+                    }
+                }
+                currentTable->valueCount++;
+            }
 
             strPos = 0;
 
@@ -1977,15 +2052,31 @@ bool ConvertStringToInteger(const char *text, int *value)
     }
 
     if (text[charID] == '0') {
-        if (text[charID + 1] == 'x' || text[charID + 1] == 'X') {
+        if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
+            base = 0x10;
+        else if (text[charID + 1] == 'b' || text[charID + 1] == 'B') 
+            base = 0b10;
+        else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
+            base = 0010; //base 8
+
+        if (base != 10) {
             charID += 2;
             strLength -= 2;
-            base = 0x10;
         }
     }
 
     while (strLength > -1) {
-        if (text[charID] < '0' || text[charID] > (base == 10 ? '9' : (base == 0x10 ? 'F' : '1'))) {
+        bool flag = text[charID] < '0';
+        if (!flag) {
+            if (base == 0x10 && text[charID] > 'f')
+                flag = true;
+            if (base == 0010 && text[charID] > '7')
+                flag = true;
+            if (base == 0b10 && text[charID] > '1')
+                flag = true;
+        }
+
+        if (flag) {
             return 0;
         }
         if (strLength <= 0) {
