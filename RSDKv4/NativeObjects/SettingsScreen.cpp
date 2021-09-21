@@ -522,7 +522,7 @@ void SettingsScreen_Main(void *objPtr)
             CheckKeyDown(&keyDown);
             CheckKeyPress(&keyPress);
             SetRenderMatrix(&entity->tempMatrix);
-            int touchCheck;
+            
             if (touches > 0) {
 
                 //Size -
