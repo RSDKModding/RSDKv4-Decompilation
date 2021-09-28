@@ -840,7 +840,7 @@ void LoadActLayout()
         memset(stageLayouts[0].lineScroll, 0, 0x7FFF);
 
         for (int y = 0; y < stageLayouts[0].height; ++y) {
-            ushort *tiles = &stageLayouts[0].tiles[(y * 0x100)];
+            ushort *tiles = &stageLayouts[0].tiles[(y * TILELAYER_CHUNK_H)];
             for (int x = 0; x < stageLayouts[0].width; ++x) {
                 FileRead(&fileBuffer[0], 1);
                 tiles[x] = fileBuffer[0];
@@ -852,6 +852,10 @@ void LoadActLayout()
         // READ OBJECTS
         FileRead(&fileBuffer[0], 2);
         int objectCount = fileBuffer[0] + (fileBuffer[1] << 8);
+#if !RETRO_USE_ORIGINAL_CODE
+        if (objectCount > 0x400)
+            printLog("WARNING: object count %d exceeds the object limit", objectCount);
+#endif
 
 #if RETRO_USE_MOD_LOADER
         int offsetCount = 0;
@@ -970,7 +974,7 @@ void LoadStageBackground()
             FileRead(&fileBuffer, 1);
             hParallax.parallaxFactor[i] = fileBuffer;
             FileRead(&fileBuffer, 1);
-            hParallax.parallaxFactor[i] += fileBuffer << 8;
+            hParallax.parallaxFactor[i] |= fileBuffer << 8;
 
             FileRead(&fileBuffer, 1);
             hParallax.scrollSpeed[i] = fileBuffer << 10;
@@ -985,7 +989,7 @@ void LoadStageBackground()
             FileRead(&fileBuffer, 1);
             vParallax.parallaxFactor[i] = fileBuffer;
             FileRead(&fileBuffer, 1);
-            vParallax.parallaxFactor[i] += fileBuffer << 8;
+            vParallax.parallaxFactor[i] |= fileBuffer << 8;
 
             FileRead(&fileBuffer, 1);
             vParallax.scrollSpeed[i] = fileBuffer << 10;
@@ -1007,7 +1011,7 @@ void LoadStageBackground()
             FileRead(&fileBuffer, 1);
             stageLayouts[i].parallaxFactor = fileBuffer;
             FileRead(&fileBuffer, 1);
-            stageLayouts[i].parallaxFactor += fileBuffer << 8;
+            stageLayouts[i].parallaxFactor |= fileBuffer << 8;
             FileRead(&fileBuffer, 1);
             stageLayouts[i].scrollSpeed = fileBuffer << 10;
             stageLayouts[i].scrollPos   = 0;
@@ -1039,12 +1043,12 @@ void LoadStageBackground()
 
             // Read Layout
             for (int y = 0; y < stageLayouts[i].height; ++y) {
-                ushort *chunks = &stageLayouts[i].tiles[y * 0x100];
+                ushort *chunks = &stageLayouts[i].tiles[y * TILELAYER_CHUNK_H];
                 for (int x = 0; x < stageLayouts[i].width; ++x) {
                     FileRead(&fileBuffer, 1);
                     *chunks = fileBuffer;
                     FileRead(&fileBuffer, 1);
-                    *chunks += fileBuffer << 8;
+                    *chunks |= fileBuffer << 8;
                     ++chunks;
                 }
             }
@@ -1098,11 +1102,11 @@ void LoadStageCollisions()
                 FileRead(&fileBuffer, 1);
                 collisionMasks[p].angles[t] = fileBuffer;
                 FileRead(&fileBuffer, 1);
-                collisionMasks[p].angles[t] += fileBuffer << 8;
+                collisionMasks[p].angles[t] |= fileBuffer << 8;
                 FileRead(&fileBuffer, 1);
-                collisionMasks[p].angles[t] += fileBuffer << 16;
+                collisionMasks[p].angles[t] |= fileBuffer << 16;
                 FileRead(&fileBuffer, 1);
-                collisionMasks[p].angles[t] += fileBuffer << 24;
+                collisionMasks[p].angles[t] |= fileBuffer << 24;
 
                 if (isCeiling) // Ceiling Tile
                 {
@@ -1263,11 +1267,11 @@ void LoadStageGIFFile(int stageID)
         FileRead(&fileBuffer, 1);
         int width = fileBuffer;
         FileRead(&fileBuffer, 1);
-        width += (fileBuffer << 8);
+        width |= (fileBuffer << 8);
         FileRead(&fileBuffer, 1);
         int height = fileBuffer;
         FileRead(&fileBuffer, 1);
-        height += (fileBuffer << 8);
+        height |= (fileBuffer << 8);
 
         FileRead(&fileBuffer, 1); // Palette Size (thrown away) :/
         FileRead(&fileBuffer, 1); // BG Colour index (thrown away)

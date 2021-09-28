@@ -153,7 +153,7 @@ void ProcessObjectAnimation(void *objScr, void *ent)
         entity->animationTimer = 0;
         entity->animationSpeed = 0;
     }
-    if (entity->animationTimer > 0xEF) {
+    if (entity->animationTimer >= 0xF0) {
         entity->animationTimer -= 0xF0;
         ++entity->frame;
     }

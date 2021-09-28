@@ -266,20 +266,20 @@ int LoadBMPFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         surface->width = fileBuffer;
         FileRead(&fileBuffer, 1);
-        surface->width += fileBuffer << 8;
+        surface->width |= fileBuffer << 8;
         FileRead(&fileBuffer, 1);
-        surface->width += fileBuffer << 16;
+        surface->width |= fileBuffer << 16;
         FileRead(&fileBuffer, 1);
-        surface->width += fileBuffer << 24;
+        surface->width |= fileBuffer << 24;
 
         FileRead(&fileBuffer, 1);
         surface->height = fileBuffer;
         FileRead(&fileBuffer, 1);
-        surface->height += fileBuffer << 8;
+        surface->height |= fileBuffer << 8;
         FileRead(&fileBuffer, 1);
-        surface->height += fileBuffer << 16;
+        surface->height |= fileBuffer << 16;
         FileRead(&fileBuffer, 1);
-        surface->height += fileBuffer << 24;
+        surface->height |= fileBuffer << 24;
 
         SetFilePosition(info.vfileSize - surface->height * surface->width);
         surface->dataPosition = gfxDataPosition;
@@ -325,11 +325,11 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         surface->width = fileBuffer;
         FileRead(&fileBuffer, 1);
-        surface->width += (fileBuffer << 8);
+        surface->width |= fileBuffer << 8;
         FileRead(&fileBuffer, 1);
         surface->height = fileBuffer;
         FileRead(&fileBuffer, 1);
-        surface->height += (fileBuffer << 8);
+        surface->height |= fileBuffer << 8;
 
         FileRead(&fileBuffer, 1); // Palette Size 
         //int has_pallete  = (fileBuffer & 0x80) >> 7;
@@ -404,7 +404,7 @@ int LoadPVRFile(const char *filePath, byte sheetID)
         FileRead(fileBuffer, 1);
         int width = fileBuffer[0];
         FileRead(fileBuffer, 1);
-        width += fileBuffer[0] << 8;
+        width |= fileBuffer[0] << 8;
         FileRead(fileBuffer, 1);
         int height = fileBuffer[0];
         FileRead(fileBuffer, 1);
