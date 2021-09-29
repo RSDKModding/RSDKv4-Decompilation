@@ -366,6 +366,7 @@ void RefreshEngine()
     forceUseScripts   = false;
     skipStartMenu     = skipStartMenu_Config;
     disableFocusPause = disableFocusPause_Config;
+    forceUseScripts   = forceUseScripts_Config;
     for (int m = 0; m < modList.size(); ++m) {
         if (modList[m].useScripts && modList[m].active)
             forceUseScripts = true;
@@ -373,6 +374,8 @@ void RefreshEngine()
             skipStartMenu = true;
         if (modList[m].disableFocusPause && modList[m].active)
             disableFocusPause = true;
+        if (modList[m].useScripts && modList[m].active)
+            forceUseScripts = true;
     }
     saveMods();
 }

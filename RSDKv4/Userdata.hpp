@@ -101,6 +101,7 @@ extern int sendCounter;
 
 #if !RETRO_USE_ORIGINAL_CODE
 extern bool forceUseScripts;
+extern bool forceUseScripts_Config;
 extern bool skipStartMenu;
 extern bool skipStartMenu_Config;
 extern bool disableFocusPause;
