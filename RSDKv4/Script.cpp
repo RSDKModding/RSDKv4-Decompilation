@@ -600,8 +600,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("TILELAYER_VSCROLL", "2"),
                                          AliasInfo("TILELAYER_3DFLOOR", "3"),
                                          AliasInfo("TILELAYER_3DSKY", "4"),
-                                         AliasInfo("GROUP_ALL", "0")
-};
+                                         AliasInfo("GROUP_ALL", "0") };
 AliasInfo privateAliases[ALIAS_COUNT_TRIM];
 int publicAliasCount  = 0;
 int privateAliasCount = 0;
@@ -1133,7 +1132,7 @@ void CheckStaticText(char *text)
             }
             else {
                 strBuffer[staticStrPos] = 0;
-                
+
                 if (!ConvertStringToInteger(strBuffer, &var->value)) {
                     bool flag = false;
                     for (int a = 0; a < privateAliasCount; ++a) {
@@ -1176,7 +1175,7 @@ void CheckStaticText(char *text)
         ++textPos;
     }
 
-    //no assigned value, default to 0
+    // no assigned value, default to 0
     if (var->dataPos == -1) {
         var->dataPos                = scriptDataPos;
         var->value                  = 0;
@@ -1461,27 +1460,50 @@ void ConvertFunctionText(char *text)
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int funcNamePos      = 0;
-            int value            = 0;
-            int scriptTextByteID = 0;
-            while (text[textPos] != ',' && text[textPos] != ')' && text[textPos]) {
-                if (value) {
-                    if (text[textPos] == ']')
-                        value = 0;
-                    else
-                        arrayStr[scriptTextByteID++] = text[textPos];
-                    ++textPos;
-                }
-                else {
-                    if (text[textPos] == '[')
-                        value = 1;
-                    else
-                        funcName[funcNamePos++] = text[textPos];
-                    ++textPos;
+            int funcNamePos = 0;
+            int mode        = 0;
+            int prevMode    = 0;
+            int arrayStrPos = 0;
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2) && text[textPos]) {
+                switch (mode) {
+                    case 0: // normal
+                        if (text[textPos] == '[')
+                            mode = 1;
+                        else if (text[textPos] == '"') {
+                            prevMode                = mode;
+                            mode                    = 2;
+                            funcName[funcNamePos++] = '"';
+                        }
+                        else
+                            funcName[funcNamePos++] = text[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (text[textPos] == ']')
+                            mode = 0;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                        }
+                        else
+                            arrayStr[arrayStrPos++] = text[textPos];
+                        ++textPos;
+                        break;
+                    case 2: // string
+                        if (text[textPos] == '"') {
+                            mode                    = prevMode;
+                            funcName[funcNamePos++] = '"';
+                        }
+                        else
+                            funcName[funcNamePos++] = text[textPos];
+                        ++textPos;
+                        break;
                 }
             }
-            funcName[funcNamePos]      = 0;
-            arrayStr[scriptTextByteID] = 0;
+            funcName[funcNamePos] = 0;
+            arrayStr[arrayStrPos] = 0;
+
+            int value = 0;
             // Eg: TempValue0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
@@ -1717,29 +1739,29 @@ void ConvertFunctionText(char *text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
                 scriptData[scriptDataPos++] = StrLength(funcName) - 2;
                 int scriptTextPos           = 1;
-                scriptTextByteID            = 0;
+                arrayStrPos                 = 0;
                 while (scriptTextPos > -1) {
-                    switch (scriptTextByteID) {
+                    switch (arrayStrPos) {
                         case 0:
                             scriptData[scriptDataPos] = funcName[scriptTextPos] << 24;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 1:
                             scriptData[scriptDataPos] += funcName[scriptTextPos] << 16;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 2:
                             scriptData[scriptDataPos] += funcName[scriptTextPos] << 8;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 3:
                             scriptData[scriptDataPos++] += funcName[scriptTextPos];
-                            scriptTextByteID = 0;
+                            arrayStrPos = 0;
                             break;
                         default: break;
                     }
                     if (funcName[scriptTextPos] == '"') {
-                        if (scriptTextByteID > 0)
+                        if (arrayStrPos > 0)
                             ++scriptDataPos;
                         scriptTextPos = -1;
                     }
@@ -1837,7 +1859,165 @@ void CheckCaseNumber(char *text)
     caseString[caseStrPos] = 0;
 
     bool flag = false;
-    for (int a = 0; a < privateAliasCount; ++a) {
+
+    if (FindStringToken(caseString, "[", 1) >= 0) {
+        char caseValue[0x80];
+        char arrayStr[0x80];
+
+        int textPos     = 0;
+        int funcNamePos = 0;
+        int mode        = 0;
+        int arrayStrPos = 0;
+        while (caseString[textPos] != ':' && caseString[textPos]) {
+            if (mode) {
+                if (caseString[textPos] == ']')
+                    mode = 0;
+                else
+                    arrayStr[arrayStrPos++] = caseString[textPos];
+                ++textPos;
+            }
+            else {
+                if (caseString[textPos] == '[')
+                    mode = 1;
+                else
+                    caseValue[funcNamePos++] = caseString[textPos];
+                ++textPos;
+            }
+        }
+        caseValue[funcNamePos] = 0;
+        arrayStr[arrayStrPos]  = 0;
+
+        char arrStrBuf[0x80];
+        int arrPos = 0;
+        int bufPos = 0;
+        if (arrayStr[0] == '+' || arrayStr[0] == '-')
+            ++arrPos;
+        while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+        arrStrBuf[bufPos] = 0;
+
+        // Eg: TempValue0 = TypeName[PlayerObject]
+        if (StrComp(caseValue, "TypeName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int o = 0;
+            for (; o < OBJECT_COUNT; ++o) {
+                if (StrComp(arrayStr, typeNames[o])) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, o);
+                    break;
+                }
+            }
+
+            if (o == OBJECT_COUNT) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: TempValue0 = SfxName[Jump]
+        if (StrComp(caseValue, "SfxName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int s = 0;
+            for (; s < SFX_COUNT; ++s) {
+                if (StrComp(arrayStr, sfxNames[s])) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, s);
+                    break;
+                }
+            }
+
+            if (s == SFX_COUNT) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+#if RETRO_USE_MOD_LOADER
+        // Eg: TempValue0 = AchievementName[Ring King]
+        if (StrComp(caseValue, "AchievementName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int a = 0;
+            for (; a < achievementCount; ++a) {
+                char buf[0x40];
+                char *str = achievements[a].name;
+                int pos   = 0;
+
+                while (*str) {
+                    if (*str != ' ')
+                        buf[pos++] = *str;
+                    str++;
+                }
+                buf[pos] = 0;
+
+                if (StrComp(arrayStr, buf)) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, a);
+                    break;
+                }
+            }
+
+            if (a == achievementCount) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: TempValue0 = PlayerName[SONIC]
+        if (StrComp(caseValue, "PlayerName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int p = 0;
+            for (; p < PLAYER_MAX; ++p) {
+                char buf[0x40];
+                char *str = playerNames[p];
+                int pos   = 0;
+
+                while (*str) {
+                    if (*str != ' ')
+                        buf[pos++] = *str;
+                    str++;
+                }
+                buf[pos] = 0;
+
+                if (StrComp(arrayStr, buf)) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, p);
+                    break;
+                }
+            }
+
+            if (p == PLAYER_MAX) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+        if (StrComp(caseValue, "StageName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int s = GetSceneID(activeStageList, arrayStr);
+
+            if (s == -1) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, s);
+        }
+#endif
+        StrCopy(caseString, caseValue);
+        flag = true;
+    }
+
+    for (int a = 0; a < privateAliasCount && !flag; ++a) {
         if (StrComp(privateAliases[a].name, caseString)) {
             StrCopy(caseString, privateAliases[a].value);
             flag = true;
@@ -1896,7 +2076,164 @@ bool ReadSwitchCase(char *text)
         caseText[caseStringPos] = 0;
 
         bool flag = false;
-        for (int a = 0; a < privateAliasCount; ++a) {
+        if (FindStringToken(caseText, "[", 1) >= 0) {
+            char caseValue[0x80];
+            char arrayStr[0x80];
+
+            int textPos     = 0;
+            int funcNamePos = 0;
+            int mode        = 0;
+            int arrayStrPos = 0;
+            while (caseText[textPos] != ':' && caseText[textPos]) {
+                if (mode) {
+                    if (caseText[textPos] == ']')
+                        mode = 0;
+                    else
+                        arrayStr[arrayStrPos++] = caseText[textPos];
+                    ++textPos;
+                }
+                else {
+                    if (caseText[textPos] == '[')
+                        mode = 1;
+                    else
+                        caseValue[funcNamePos++] = caseText[textPos];
+                    ++textPos;
+                }
+            }
+            caseValue[funcNamePos] = 0;
+            arrayStr[arrayStrPos]  = 0;
+
+            char arrStrBuf[0x80];
+            int arrPos = 0;
+            int bufPos = 0;
+            if (arrayStr[0] == '+' || arrayStr[0] == '-')
+                ++arrPos;
+            while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+            arrStrBuf[bufPos] = 0;
+
+            // Eg: TempValue0 = TypeName[PlayerObject]
+            if (StrComp(caseValue, "TypeName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int o = 0;
+                for (; o < OBJECT_COUNT; ++o) {
+                    if (StrComp(arrayStr, typeNames[o])) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, o);
+                        break;
+                    }
+                }
+
+                if (o == OBJECT_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = SfxName[Jump]
+            if (StrComp(caseValue, "SfxName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int s = 0;
+                for (; s < SFX_COUNT; ++s) {
+                    if (StrComp(arrayStr, sfxNames[s])) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, s);
+                        break;
+                    }
+                }
+
+                if (s == SFX_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+#if RETRO_USE_MOD_LOADER
+            // Eg: TempValue0 = AchievementName[Ring King]
+            if (StrComp(caseValue, "AchievementName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int a = 0;
+                for (; a < achievementCount; ++a) {
+                    char buf[0x40];
+                    char *str = achievements[a].name;
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, a);
+                        break;
+                    }
+                }
+
+                if (a == achievementCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = PlayerName[SONIC]
+            if (StrComp(caseValue, "PlayerName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int p = 0;
+                for (; p < PLAYER_MAX; ++p) {
+                    char buf[0x40];
+                    char *str = playerNames[p];
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, p);
+                        break;
+                    }
+                }
+
+                if (p == PLAYER_MAX) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            if (StrComp(caseValue, "StageName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int s = GetSceneID(activeStageList, arrayStr);
+
+                if (s == -1) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, s);
+            }
+#endif
+            StrCopy(caseText, caseValue);
+            flag = true;
+        }
+
+        for (int a = 0; a < privateAliasCount && !flag; ++a) {
             if (StrComp(caseText, privateAliases[a].name)) {
                 StrCopy(caseText, privateAliases[a].value);
                 flag = true;
@@ -1931,7 +2268,7 @@ void ReadTableValues(char *text)
     while (true) {
         if (text[textPos] == ',' || !text[textPos]) {
             strBuffer[strPos] = 0;
-            if (strBuffer[0]) { //only try if something exists
+            if (strBuffer[0]) { // only try if something exists
                 int cnt = currentTable->valueCount;
 
                 if (!ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
@@ -2054,10 +2391,10 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (text[charID] == '0') {
         if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
             base = 0x10;
-        else if (text[charID + 1] == 'b' || text[charID + 1] == 'B') 
+        else if (text[charID + 1] == 'b' || text[charID + 1] == 'B')
             base = 0b10;
         else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
-            base = 0010; //base 8
+            base = 0010; // base 8
 
         if (base != 10) {
             charID += 2;
@@ -2190,28 +2527,17 @@ void ParseScriptFile(char *scriptName, int scriptID)
         char prevChar  = 0;
         char curChar   = 0;
         int switchDeep = 0;
+
         while (readMode < READMODE_EOF) {
-            int textPos = 0;
-            readMode    = READMODE_NORMAL;
+            int textPos   = 0;
+            readMode      = READMODE_NORMAL;
+            bool semiFlag = false;
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 FileRead(&curChar, 1);
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                        if (curChar == '\r') {
-                            size_t pos = GetFilePosition();
-                            char chr   = 0;
-                            FileRead(&chr, 1);
-                            if (chr != '\n') {
-                                SetFilePosition(pos);
-                            }
-                            else {
-                                curChar  = '\n';
-                                prevChar = '\r';
-                            }
-                        }
-
-                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
+                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
                         }
@@ -2231,22 +2557,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
-                    if (curChar == '\r') {
-                        size_t pos = GetFilePosition();
-                        char chr = 0;
-                        FileRead(&chr, 1);
-                        if (chr != '\n') {
-                            SetFilePosition(pos);
-                        }
-                        else {
-                            curChar = '\n';
-                            prevChar = '\r';
-                        }
-                    }
-
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;
+                        if (curChar == ';')
+                            semiFlag = true;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
@@ -2269,7 +2584,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
 
             switch (parseMode) {
                 case PARSEMODE_SCOPELESS:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     CheckAliasText(scriptText);
                     CheckStaticText(scriptText);
 
@@ -2353,12 +2669,14 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (!FindStringToken(scriptText, "#endplatform", 1))
                         parseMode = PARSEMODE_FUNCTION;
                     break;
                 case PARSEMODE_FUNCTION:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (scriptText[0]) {
                         if (StrComp(scriptText, "endevent")) {
                             scriptData[scriptDataPos++] = FUNC_END;
@@ -2395,7 +2713,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                  && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
-                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 //general flag for decomp-only stuff
+                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
 #endif
 #if RETRO_USE_NETWORKING
                                  && FindStringToken(scriptText, "USE_NETWORKING", 1) == -1
@@ -2427,6 +2745,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     break;
                 case PARSEMODE_TABLEREAD:
+                    if (!semiFlag)
+                        ++lineID;
                     if (FindStringToken(scriptText, "endtable", 1)) {
                         ReadTableValues(scriptText);
                     }
