@@ -144,6 +144,7 @@ inline void StopMusic(bool setStatus)
 {
     if (setStatus)
         musicStatus = MUSIC_STOPPED;
+    musicPosition = 0;
 #if !RETRO_USE_ORIGINAL_CODE
     SDL_LockAudio();
     freeMusInfo();

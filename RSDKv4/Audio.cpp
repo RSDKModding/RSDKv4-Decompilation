@@ -510,6 +510,7 @@ void LoadMusic(void *userdata)
             streamFilePtr       = &streamFile[currentStreamIndex];
             streamInfoPtr       = &streamInfo[currentStreamIndex];
             currentMusicTrack   = -1;
+            musicPosition       = 0;
         }
         else {
             musicStatus = MUSIC_STOPPED;
