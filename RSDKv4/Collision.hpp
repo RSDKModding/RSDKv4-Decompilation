@@ -31,8 +31,8 @@ enum ObjectCollisionTypes {
 };
 
 struct CollisionSensor {
-    int XPos;
-    int YPos;
+    int xpos;
+    int ypos;
     int angle;
     bool collided;
 };
