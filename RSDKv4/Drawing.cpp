@@ -1818,8 +1818,8 @@ void DrawHLineScrollLayer(int layerID)
 #if RETRO_SOFTWARE_RENDER
     TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
     int screenwidth16  = (GFX_LINESIZE >> 4) - 1;
-    int layerwidth     = layer->width;
-    int layerheight    = layer->height;
+    int layerwidth     = layer->xsize;
+    int layerheight    = layer->ysize;
     bool aboveMidPoint = layerID >= tLayerMidPoint;
 
     byte *lineScroll;
@@ -1840,7 +1840,7 @@ void DrawHLineScrollLayer(int layerID)
         deformationDataW = &bgDeformationData3[(byte)(yscrollOffset + waterDrawPos + layer->deformationOffsetW)];
     }
     else { // FG Layer
-        lastXSize     = layer->width;
+        lastXSize     = layer->xsize;
         yscrollOffset = yScrollOffset;
         lineScroll    = layer->lineScroll;
         for (int i = 0; i < PARALLAX_COUNT; ++i) hParallax.linePos[i] = xScrollOffset;
@@ -3164,8 +3164,8 @@ void DrawVLineScrollLayer(int layerID)
 {
 #if RETRO_SOFTWARE_RENDER
     TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
-    int layerwidth     = layer->width;
-    int layerheight    = layer->height;
+    int layerwidth     = layer->xsize;
+    int layerheight    = layer->ysize;
     bool aboveMidPoint = layerID >= tLayerMidPoint;
 
     byte *lineScroll;
@@ -3184,7 +3184,7 @@ void DrawVLineScrollLayer(int layerID)
         deformationData = &bgDeformationData2[(byte)(xscrollOffset + layer->deformationOffset)];
     }
     else { // FG Layer
-        lastYSize            = layer->height;
+        lastYSize            = layer->ysize;
         xscrollOffset        = xScrollOffset;
         lineScroll           = layer->lineScroll;
         vParallax.linePos[0] = yScrollOffset;
@@ -3670,15 +3670,15 @@ void Draw3DFloorLayer(int layerID)
 {
 #if RETRO_SOFTWARE_RENDER
     TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
-    int layerWidth         = layer->width << 7;
-    int layerHeight        = layer->height << 7;
-    int layerYPos          = layer->YPos;
-    int layerZPos          = layer->ZPos;
+    int layerWidth         = layer->xsize << 7;
+    int layerHeight        = layer->ysize << 7;
+    int layerYPos          = layer->ypos;
+    int layerZPos          = layer->zpos;
     int sinValue           = sinValM7[layer->angle];
     int cosValue           = cosValM7[layer->angle];
     byte *linePtr          = gfxLineBuffer;
     ushort *frameBufferPtr = &Engine.frameBuffer[132 * GFX_LINESIZE];
-    int layerXPos          = layer->XPos >> 4;
+    int layerXPos          = layer->xpos >> 4;
     int ZBuffer            = layerZPos >> 4;
     for (int i = 4; i < 112; ++i) {
         if (!(i & 1)) {
@@ -4237,9 +4237,9 @@ void Draw3DFloorLayer(int layerID)
             cosValue512 -= 16;
         }
     }
-    floor3DXPos     = (layer->XPos >> 8) * -0.00390625f;
-    floor3DYPos     = (layer->YPos >> 8) * 0.00390625f;
-    floor3DZPos     = (layer->ZPos >> 8) * -0.00390625f;
+    floor3DXPos     = (layer->xpos >> 8) * -0.00390625f;
+    floor3DYPos     = (layer->ypos >> 8) * 0.00390625f;
+    floor3DZPos     = (layer->zpos >> 8) * -0.00390625f;
     floor3DAngle    = layer->angle / 512.0f * -360.0f;
     render3DEnabled = true;
 #endif
@@ -4248,9 +4248,9 @@ void Draw3DSkyLayer(int layerID)
 {
 #if RETRO_SOFTWARE_RENDER
     TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
-    int layerWidth         = layer->width << 7;
-    int layerHeight        = layer->height << 7;
-    int layerYPos          = layer->YPos;
+    int layerWidth         = layer->xsize << 7;
+    int layerHeight        = layer->ysize << 7;
+    int layerYPos          = layer->ypos;
     int sinValue           = sinValM7[layer->angle & 0x1FF];
     int cosValue           = cosValM7[layer->angle & 0x1FF];
     ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
@@ -4258,8 +4258,8 @@ void Draw3DSkyLayer(int layerID)
     if (!drawStageGFXHQ)
         bufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     byte *linePtr = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12)];
-    int layerXPos = layer->XPos >> 4;
-    int layerZPos = layer->ZPos >> 4;
+    int layerXPos = layer->xpos >> 4;
+    int layerZPos = layer->zpos >> 4;
     for (int i = TILE_SIZE / 2; i < SCREEN_YSIZE - TILE_SIZE; ++i) {
         if (!(i & 1)) {
             activePalette   = fullPalette[*linePtr];

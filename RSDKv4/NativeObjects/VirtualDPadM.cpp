@@ -45,19 +45,19 @@ void VirtualDPadM_Main(void *objPtr)
                     entity->textureID);
 
         if (entity->alpha == saveGame->vDPadOpacity) {
-            if (keyDown.up) {
+            if (inputDown.up) {
                 RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 25.0, 30.0, 50.0, 55.0, 24.0, 282.0,
                             entity->alpha, entity->textureID);
             }
-            else if (keyDown.down) {
+            else if (inputDown.down) {
                 RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 26.0, 0.0, 52.0, 128.0, 102.0, 384.0,
                             entity->alpha, entity->textureID);
             }
-            else if (keyDown.left) {
+            else if (inputDown.left) {
                 RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 29.0, 128.0, 59.0, 0.0, 355.0,
                             entity->alpha, entity->textureID);
             }
-            else if (keyDown.right) {
+            else if (inputDown.right) {
                 RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 0.0, 29.0, 128.0, 59.0, 128.0, 355.0,
                             entity->alpha, entity->textureID);
             }
@@ -65,7 +65,7 @@ void VirtualDPadM_Main(void *objPtr)
 
         int alpha  = 0xFF;
         float sprY = 0;
-        if (keyDown.A && entity->alpha == saveGame->vDPadOpacity) {
+        if (inputDown.A && entity->alpha == saveGame->vDPadOpacity) {
             alpha = 255;
             sprY  = 256.0;
         }

@@ -306,6 +306,8 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
             if (bytes_wanted > 0)
                 free(buffer);
 #endif
+
+            musicPosition = ov_pcm_tell(&streamInfoPtr->vorbisFile);
             break;
         }
         case MUSIC_STOPPED:

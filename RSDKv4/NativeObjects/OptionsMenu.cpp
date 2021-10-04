@@ -71,8 +71,8 @@ void OptionsMenu_Main(void *objPtr)
             if (entity->timer > 1.0) {
                 entity->timer  = 0.0;
                 entity->state  = OPTIONSMENU_STATE_MAIN;
-                keyPress.start = false;
-                keyPress.A     = false;
+                inputPress.start = false;
+                inputPress.A     = false;
             }
             break;
         }
@@ -85,13 +85,13 @@ void OptionsMenu_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (keyPress.up) {
+                    if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->selectedButton < 0)
                             entity->selectedButton = OPTIONSMENU_BUTTON_COUNT - 1;
                     }
-                    else if (keyPress.down) {
+                    else if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->selectedButton >= OPTIONSMENU_BUTTON_COUNT)
@@ -100,7 +100,7 @@ void OptionsMenu_Main(void *objPtr)
                     for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) entity->buttons[i]->b = 0xFF;
                     entity->buttons[entity->selectedButton]->b = 0x00;
 
-                    if (entity->buttons[entity->selectedButton]->g > 0x80 && (keyPress.start || keyPress.A)) {
+                    if (entity->buttons[entity->selectedButton]->g > 0x80 && (inputPress.start || inputPress.A)) {
                         PlaySfxByName("Menu Select", false);
                         entity->buttons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         entity->buttons[entity->selectedButton]->b     = 0xFF;
@@ -128,7 +128,7 @@ void OptionsMenu_Main(void *objPtr)
                     y -= 30.0;
                 }
 
-                if (entity->state == OPTIONSMENU_STATE_MAIN && (keyDown.up || keyDown.down)) {
+                if (entity->state == OPTIONSMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
                     entity->selectedButton = 0;
                     usePhysicalControls    = true;
                 }

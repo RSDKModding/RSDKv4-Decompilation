@@ -101,8 +101,8 @@ void AboutScreen_Main(void *objPtr)
             break;
         }
         case ABOUT_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             SetRenderMatrix(&entity->renderMatrix);
 
             if (usePhysicalControls) {
@@ -110,13 +110,13 @@ void AboutScreen_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (keyPress.up) {
+                    if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->selectedButton < 0)
                             entity->selectedButton = 1;
                     }
-                    else if (keyPress.down) {
+                    else if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->selectedButton >= 2)
@@ -126,12 +126,12 @@ void AboutScreen_Main(void *objPtr)
                     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) entity->buttons[i]->state = 0;
                     entity->buttons[entity->selectedButton]->state = 1;
 
-                    if (keyPress.start || keyPress.A) {
+                    if (inputPress.start || inputPress.A) {
                         PlaySfxByName("Menu Select", false);
                         entity->buttons[entity->selectedButton]->state = 2;
                         entity->state                                  = ABOUT_STATE_ACTION;
                     }
-                    else if (keyPress.B) {
+                    else if (inputPress.B) {
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
                         entity->state       = ABOUT_STATE_EXIT;
@@ -149,11 +149,11 @@ void AboutScreen_Main(void *objPtr)
                     }
                     entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
                     if (entity->state == ABOUT_STATE_MAIN) {
-                        if (keyDown.up) {
+                        if (inputDown.up) {
                             entity->selectedButton = 1;
                             usePhysicalControls    = true;
                         }
-                        if (keyDown.down) {
+                        if (inputDown.down) {
                             entity->selectedButton = 0;
                             usePhysicalControls    = true;
                         }
@@ -170,18 +170,18 @@ void AboutScreen_Main(void *objPtr)
                         }
                     }
 
-                    if (keyPress.B || entity->backPressed) {
+                    if (inputPress.B || entity->backPressed) {
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed = false;
                         entity->state       = ABOUT_STATE_EXIT;
                     }
                     else {
                         if (entity->state == ABOUT_STATE_MAIN) {
-                            if (keyDown.up) {
+                            if (inputDown.up) {
                                 entity->selectedButton = 1;
                                 usePhysicalControls    = true;
                             }
-                            if (keyDown.down) {
+                            if (inputDown.down) {
                                 entity->selectedButton = 0;
                                 usePhysicalControls    = true;
                             }
@@ -192,7 +192,7 @@ void AboutScreen_Main(void *objPtr)
             break;
         }
         case ABOUT_STATE_ACTION: {
-            CheckKeyDown(&keyDown);
+            CheckKeyDown(&inputDown);
             SetRenderMatrix(&entity->renderMatrix);
 
             if (entity->buttons[entity->selectedButton]->state) {

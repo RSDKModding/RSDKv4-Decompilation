@@ -75,8 +75,8 @@ void ProcessObjects()
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos >> 16;
-        y              = entity->YPos >> 16;
+        x              = entity->xpos >> 16;
+        y              = entity->ypos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
@@ -119,16 +119,16 @@ void ProcessObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
+            if (entity->groupID < OBJECT_COUNT) {
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
+            TypeGroupList *list                = &objectTypeGroupList[GROUP_ALL];
             list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
@@ -158,8 +158,8 @@ void ProcessFrozenObjects()
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos >> 16;
-        y              = entity->YPos >> 16;
+        x              = entity->xpos >> 16;
+        y              = entity->ypos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
@@ -202,16 +202,16 @@ void ProcessFrozenObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
+            if (entity->groupID < OBJECT_COUNT) {
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
+            TypeGroupList *list                = &objectTypeGroupList[GROUP_ALL];
             list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
@@ -221,19 +221,19 @@ void Process2PObjects()
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
     Entity *entityP1 = &objectEntityList[0];
-    int XPosP1       = entityP1->XPos;
-    int YPosP1       = entityP1->YPos;
+    int XPosP1       = entityP1->xpos;
+    int YPosP1       = entityP1->ypos;
     Entity *entityP2 = &objectEntityList[1];
-    int XPosP2       = entityP2->XPos;
-    int YPosP2       = entityP2->YPos;
+    int XPosP2       = entityP2->xpos;
+    int YPosP2       = entityP2->ypos;
 
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
 
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos;
-        y              = entity->YPos;
+        x              = entity->xpos;
+        y              = entity->ypos;
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
                 processObjectFlag[objectEntityPos] =
@@ -289,16 +289,16 @@ void Process2PObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
+            if (entity->groupID < OBJECT_COUNT) {
                 TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
+                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
                 list->entityRefs[list->listSize++] = objectEntityPos;
             }
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
+            TypeGroupList *list                = &objectTypeGroupList[GROUP_ALL];
             list->entityRefs[list->listSize++] = objectEntityPos;
         }
     }
@@ -320,18 +320,18 @@ void SetObjectTypeName(const char *objectName, int objectID)
 void ProcessPlayerControl(Entity *player)
 {
     if (!player->controlMode) {
-        player->up   = keyDown.up;
-        player->down = keyDown.down;
-        if (!keyDown.left || !keyDown.right) {
-            player->left  = keyDown.left;
-            player->right = keyDown.right;
+        player->up   = inputDown.up;
+        player->down = inputDown.down;
+        if (!inputDown.left || !inputDown.right) {
+            player->left  = inputDown.left;
+            player->right = inputDown.right;
         }
         else {
             player->left  = false;
             player->right = false;
         }
-        player->jumpHold  = keyDown.C || keyDown.B || keyDown.A;
-        player->jumpPress = keyPress.C || keyPress.B || keyPress.A;
+        player->jumpHold  = inputDown.C || inputDown.B || inputDown.A;
+        player->jumpPress = inputPress.C || inputPress.B || inputPress.A;
     }
 }
 

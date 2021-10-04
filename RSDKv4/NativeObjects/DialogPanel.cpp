@@ -73,8 +73,8 @@ void DialogPanel_Main(void *objPtr)
             break;
         }
         case DIALOGPANEL_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             SetRenderMatrix(&entity->buttonMatrix);
             if (!usePhysicalControls) {
                 if (touches < 1) {
@@ -103,11 +103,11 @@ void DialogPanel_Main(void *objPtr)
                             CheckTouchRect(36.0, -30.0, (entity->buttons[1]->textWidth + (entity->buttons[1]->scale * 64.0)) * 0.75, 12.0) >= 0;
                     }
                 }
-                if (keyDown.left) {
+                if (inputDown.left) {
                     usePhysicalControls    = true;
                     entity->buttonSelected = 1;
                 }
-                else if (keyDown.right) {
+                else if (inputDown.right) {
                     usePhysicalControls    = true;
                     entity->buttonSelected = 0;
                 }
@@ -117,19 +117,19 @@ void DialogPanel_Main(void *objPtr)
             }
             else if (entity->buttonCount == DLGTYPE_OK) {
                 entity->buttonSelected = 0;
-                if (keyPress.start || keyPress.A) {
+                if (inputPress.start || inputPress.A) {
                     entity->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
             }
             else {
-                if (keyPress.left) {
+                if (inputPress.left) {
                     PlaySfxByName("Menu Move", false);
                     if (--entity->buttonSelected < 0)
                         entity->buttonSelected = 1;
                 }
-                if (keyPress.right) {
+                if (inputPress.right) {
                     PlaySfxByName("Menu Move", false);
                     if (++entity->buttonSelected > 1)
                         entity->buttonSelected = 0;
@@ -138,13 +138,13 @@ void DialogPanel_Main(void *objPtr)
                 entity->buttons[1]->state                      = 0;
                 entity->buttons[entity->buttonSelected]->state = 1;
 
-                if (keyPress.start || keyPress.A) {
+                if (inputPress.start || inputPress.A) {
                     entity->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
                     entity->buttons[entity->buttonSelected]->state = 2;
                 }
             }
-            if (entity->state == 2 && keyPress.B) {
+            if (entity->state == 2 && inputPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->selection = DLG_NO;
                 entity->state     = DIALOGPANEL_STATE_EXIT;

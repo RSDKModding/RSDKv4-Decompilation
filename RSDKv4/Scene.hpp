@@ -92,14 +92,14 @@ struct TileLayer {
     int scrollSpeed;
     int scrollPos;
     int angle;
-    int XPos;
-    int YPos;
-    int ZPos;
+    int xpos;
+    int ypos;
+    int zpos;
     int deformationOffset;
     int deformationOffsetW;
     byte type;
-    byte width;
-    byte height;
+    byte xsize;
+    byte ysize;
 };
 
 struct LineScroll {

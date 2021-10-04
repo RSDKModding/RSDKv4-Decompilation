@@ -116,8 +116,8 @@ void SaveSelect_Main(void *objPtr)
             if (entity->timer > 1.0) {
                 entity->timer  = 0.0;
                 entity->state  = SAVESELECT_STATE_MAIN;
-                keyPress.start = false;
-                keyPress.A     = false;
+                inputPress.start = false;
+                inputPress.A     = false;
             }
             break;
         }
@@ -135,7 +135,7 @@ void SaveSelect_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (keyPress.up) {
+                    if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton--;
                         if (entity->deleteEnabled && entity->selectedButton < SAVESELECT_BUTTON_NOSAVE) {
@@ -145,7 +145,7 @@ void SaveSelect_Main(void *objPtr)
                             entity->selectedButton = SAVESELECT_BUTTON_COUNT - 1;
                         }
                     }
-                    else if (keyPress.down) {
+                    else if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selectedButton++;
                         if (entity->deleteEnabled && entity->selectedButton > SAVESELECT_BUTTON_COUNT) {
@@ -158,7 +158,7 @@ void SaveSelect_Main(void *objPtr)
 
                     for (int i = 0; i < SAVESELECT_BUTTON_COUNT; ++i) entity->saveButtons[i]->b = 0xFF;
 
-                    if (entity->deleteEnabled && (keyPress.left || keyPress.right)) {
+                    if (entity->deleteEnabled && (inputPress.left || inputPress.right)) {
                         if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
                             entity->selectedButton   = SAVESELECT_BUTTON_COUNT;
                             entity->delButton->state = PUSHBUTTON_STATE_SELECTED;
@@ -179,7 +179,7 @@ void SaveSelect_Main(void *objPtr)
                         }
                     }
 
-                    if (keyPress.start || keyPress.A) {
+                    if (inputPress.start || inputPress.A) {
                         if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
                             PlaySfxByName("Menu Select", false);
                             entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
@@ -235,7 +235,7 @@ void SaveSelect_Main(void *objPtr)
                 }
                 if (entity->state == SAVESELECT_STATE_MAIN) {
                     if (!entity->deleteEnabled) {
-                        if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
+                        if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                             entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                             usePhysicalControls    = true;
                         }
@@ -255,7 +255,7 @@ void SaveSelect_Main(void *objPtr)
                                     entity->state = SAVESELECT_STATE_LOADSAVE;
                             }
                             else {
-                                if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
+                                if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                                     entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                                     usePhysicalControls    = true;
                                 }
@@ -266,7 +266,7 @@ void SaveSelect_Main(void *objPtr)
                                                                       (64.0 * entity->delButton->scale) + entity->delButton->textWidth, 12.0)
                                                        >= 0;
                             if (entity->state == SAVESELECT_STATE_MAIN) {
-                                if (keyDown.up || keyDown.down || keyDown.left || keyDown.right) {
+                                if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                                     entity->selectedButton = SAVESELECT_BUTTON_NOSAVE;
                                     usePhysicalControls    = true;
                                 }

@@ -55,28 +55,28 @@ void VirtualDPad_Main(void *objPtr)
             entity->offsetX = 0.0;
             entity->offsetY = 0.0;
         }
-        else if (keyDown.up) {
+        else if (inputDown.up) {
             RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 128.0, 256.0, 120.0, 256.0, 256.0,
                         entity->alpha, entity->textureID);
 
             entity->offsetX = 0.0;
             entity->offsetY = 20.0;
         }
-        else if (keyDown.down) {
+        else if (inputDown.down) {
             RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, -8.0, 256.0, 120.0, 256.0, 392.0,
                         entity->alpha, entity->textureID);
 
             entity->offsetX = 0.0;
             entity->offsetY = -20.0;
         }
-        else if (keyDown.left) {
+        else if (inputDown.left) {
             RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, 128.0, 128.0, 120.0, 256.0, 256.0, 256.0,
                         entity->alpha, entity->textureID);
 
             entity->offsetX = 20.0;
             entity->offsetY = 0.0;
         }
-        else if (keyDown.right) {
+        else if (inputDown.right) {
             RenderImage(entity->moveX, entity->moveY, 160.0, entity->moveSize, entity->moveSize, -8.0, 128.0, 120.0, 256.0, 392.0, 256.0,
                         entity->alpha, entity->textureID);
 
@@ -96,7 +96,7 @@ void VirtualDPad_Main(void *objPtr)
                     entity->alpha, entity->textureID);
 
         float size = 0.0f;
-        if (entity->alpha == saveGame->vDPadOpacity && (keyDown.C || keyDown.A || keyDown.B))
+        if (entity->alpha == saveGame->vDPadOpacity && (inputDown.C || inputDown.A || inputDown.B))
             size = entity->pressedSize;
         else
             size = entity->jumpSize;

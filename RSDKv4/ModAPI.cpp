@@ -32,7 +32,7 @@ namespace fs = std::filesystem;
 void initMods()
 {
     modList.clear();
-    forceUseScripts = false;
+    forceUseScripts = forceUseScripts_Config;
 
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);

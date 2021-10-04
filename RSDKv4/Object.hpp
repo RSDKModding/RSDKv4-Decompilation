@@ -14,10 +14,10 @@ struct TypeGroupList {
 };
 
 struct Entity {
-    int XPos;
-    int YPos;
-    int XVelocity;
-    int YVelocity;
+    int xpos;
+    int ypos;
+    int xvel;
+    int yvel;
     int speed;
     int values[48];
     int state;
@@ -29,7 +29,7 @@ struct Entity {
     int animationSpeed;
     int lookPosX;
     int lookPosY;
-    ushort typeGroup;
+    ushort groupID;
     byte type;
     byte propertyValue;
     byte priority;
@@ -54,8 +54,8 @@ struct Entity {
     byte down;
     byte jumpPress;
     byte jumpHold;
-    byte trackScroll;
-    byte flailing[5];
+    byte scrollTracking;
+    byte floorSensors[5];
 };
 
 struct NativeEntityBase {
@@ -75,6 +75,10 @@ struct NativeEntity {
 
 enum ObjectTypes {
     OBJ_TYPE_BLANKOBJECT = 0 //0 is always blank obj
+};
+
+enum ObjectGroups {
+    GROUP_ALL = 0 // 0 is always "all"
 };
 
 enum ObjectPriority {

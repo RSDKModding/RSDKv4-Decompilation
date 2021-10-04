@@ -216,9 +216,9 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (pauseEnabled && keyPress.start) {
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
+            if (pauseEnabled && inputPress.start) {
                 // stageMode = STAGEMODE_STEPOVER;
                 // PauseSound();
             }
@@ -267,10 +267,10 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
 
-            if (pauseEnabled && keyPress.start) {
+            if (pauseEnabled && inputPress.start) {
                 // stageMode = STAGEMODE_PAUSED_STEPOVER;
                 // stageMode = STAGEMODE_NORMAL;
                 // ResumeSound();
@@ -301,9 +301,9 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (pauseEnabled && keyPress.start) {
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_STEPOVER;
                 PauseSound();
             }
@@ -336,9 +336,9 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (pauseEnabled && keyPress.start) {
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_2P_PAUSED;
                 PauseSound();
             }
@@ -387,11 +387,11 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
 
-            if (keyPress.C) {
-                keyPress.C = false;
+            if (inputPress.C) {
+                inputPress.C = false;
 
                 if (timeEnabled) {
                     if (++frameCounter == 60) {
@@ -427,7 +427,7 @@ void ProcessStage(void)
                 }
             }
 
-            if (pauseEnabled && keyPress.start) {
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_NORMAL;
                 ResumeSound();
             }
@@ -439,10 +439,10 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
 
-            if (keyPress.C) {
+            if (inputPress.C) {
 #if RETRO_HARDWARE_RENDER
                 gfxIndexSize        = 0;
                 gfxVertexSize       = 0;
@@ -450,7 +450,7 @@ void ProcessStage(void)
                 gfxVertexSizeOpaque = 0;
 #endif
 
-                keyPress.C = false;
+                inputPress.C = false;
                 ProcessPausedObjects();
                 DrawObjectList(0);
                 DrawObjectList(1);
@@ -461,7 +461,7 @@ void ProcessStage(void)
                 DrawObjectList(6);
             }
 
-            if (pauseEnabled && keyPress.start) {
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_2P;
                 ResumeSound();
             }
@@ -473,9 +473,9 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (pauseEnabled && keyPress.start) {
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_FROZEN;
                 PauseSound();
             }
@@ -508,9 +508,9 @@ void ProcessStage(void)
 
             lastXSize = -1;
             lastYSize = -1;
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (pauseEnabled && keyPress.start) {
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
+            if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_2P;
                 PauseSound();
             }
@@ -821,27 +821,27 @@ void LoadActLayout()
         FileRead(activeTileLayers, 4);
         FileRead(&tLayerMidPoint, 1);
 
-        FileRead(&stageLayouts[0].width, 1);
+        FileRead(&stageLayouts[0].xsize, 1);
         FileRead(fileBuffer, 1); // Unused
 
-        FileRead(&stageLayouts[0].height, 1);
+        FileRead(&stageLayouts[0].ysize, 1);
         FileRead(fileBuffer, 1); // Unused
         curXBoundary1 = 0;
         newXBoundary1 = 0;
         curYBoundary1 = 0;
         newYBoundary1 = 0;
-        curXBoundary2 = stageLayouts[0].width << 7;
-        curYBoundary2 = stageLayouts[0].height << 7;
+        curXBoundary2 = stageLayouts[0].xsize << 7;
+        curYBoundary2 = stageLayouts[0].ysize << 7;
         waterLevel    = curYBoundary2 + 128;
-        newXBoundary2 = stageLayouts[0].width << 7;
-        newYBoundary2 = stageLayouts[0].height << 7;
+        newXBoundary2 = stageLayouts[0].xsize << 7;
+        newYBoundary2 = stageLayouts[0].ysize << 7;
 
         memset(stageLayouts[0].tiles, 0, TILELAYER_CHUNK_MAX * sizeof(ushort));
         memset(stageLayouts[0].lineScroll, 0, 0x7FFF);
 
-        for (int y = 0; y < stageLayouts[0].height; ++y) {
+        for (int y = 0; y < stageLayouts[0].ysize; ++y) {
             ushort *tiles = &stageLayouts[0].tiles[(y * TILELAYER_CHUNK_H)];
-            for (int x = 0; x < stageLayouts[0].width; ++x) {
+            for (int x = 0; x < stageLayouts[0].xsize; ++x) {
                 FileRead(&fileBuffer[0], 1);
                 tiles[x] = fileBuffer[0];
                 FileRead(&fileBuffer[0], 1);
@@ -880,10 +880,10 @@ void LoadActLayout()
             object->propertyValue = fileBuffer[0];
 
             FileRead(&fileBuffer, 4);
-            object->XPos = (fileBuffer[3] << 24) + (fileBuffer[2] << 16) + (fileBuffer[1] << 8) + fileBuffer[0];
+            object->xpos = (fileBuffer[3] << 24) + (fileBuffer[2] << 16) + (fileBuffer[1] << 8) + fileBuffer[0];
 
             FileRead(&fileBuffer, 4);
-            object->YPos = (fileBuffer[3] << 24) + (fileBuffer[2] << 16) + (fileBuffer[1] << 8) + fileBuffer[0];
+            object->ypos = (fileBuffer[3] << 24) + (fileBuffer[2] << 16) + (fileBuffer[1] << 8) + fileBuffer[0];
 
             if (attribs & 0x1) {
                 FileRead(&fileBuffer, 4);
@@ -1001,10 +1001,10 @@ void LoadStageBackground()
 
         for (byte i = 1; i < layerCount + 1; ++i) {
             FileRead(&fileBuffer, 1);
-            stageLayouts[i].width = fileBuffer;
+            stageLayouts[i].xsize = fileBuffer;
             FileRead(&fileBuffer, 1); // Unused (???)
             FileRead(&fileBuffer, 1);
-            stageLayouts[i].height = fileBuffer;
+            stageLayouts[i].ysize = fileBuffer;
             FileRead(&fileBuffer, 1); // Unused (???)
             FileRead(&fileBuffer, 1);
             stageLayouts[i].type = fileBuffer;
@@ -1042,9 +1042,9 @@ void LoadStageBackground()
             }
 
             // Read Layout
-            for (int y = 0; y < stageLayouts[i].height; ++y) {
+            for (int y = 0; y < stageLayouts[i].ysize; ++y) {
                 ushort *chunks = &stageLayouts[i].tiles[y * TILELAYER_CHUNK_H];
-                for (int x = 0; x < stageLayouts[i].width; ++x) {
+                for (int x = 0; x < stageLayouts[i].xsize; ++x) {
                     FileRead(&fileBuffer, 1);
                     *chunks = fileBuffer;
                     FileRead(&fileBuffer, 1);
@@ -1393,8 +1393,8 @@ void SetLayerDeformation(int selectedDef, int waveLength, int waveWidth, int wav
 
 void SetPlayerScreenPosition(Entity *target)
 {
-    int targetX = target->XPos >> 16;
-    int targetY = cameraAdjustY + (target->YPos >> 16);
+    int targetX = target->xpos >> 16;
+    int targetY = cameraAdjustY + (target->ypos >> 16);
     if (newYBoundary1 > curYBoundary1) {
         if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
@@ -1416,13 +1416,13 @@ void SetPlayerScreenPosition(Entity *target)
     if (newYBoundary2 > curYBoundary2) {
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
-            if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + (target->YVelocity >> 16);
+            if (target->yvel > 0) {
+                int buf = curYBoundary2 + (target->yvel >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
                 else {
-                    curYBoundary2 += target->YVelocity >> 16;
+                    curYBoundary2 += target->yvel >> 16;
                 }
             }
         }
@@ -1438,8 +1438,8 @@ void SetPlayerScreenPosition(Entity *target)
     if (newXBoundary1 < curXBoundary1) {
         if (xScrollOffset <= curXBoundary1) {
             --curXBoundary1;
-            if (target->XVelocity < 0) {
-                curXBoundary1 += target->XVelocity >> 16;
+            if (target->xvel < 0) {
+                curXBoundary1 += target->xvel >> 16;
                 if (curXBoundary1 < newXBoundary1)
                     curXBoundary1 = newXBoundary1;
             }
@@ -1457,8 +1457,8 @@ void SetPlayerScreenPosition(Entity *target)
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
             ++curXBoundary2;
-            if (target->XVelocity > 0) {
-                curXBoundary2 += target->XVelocity >> 16;
+            if (target->xvel > 0) {
+                curXBoundary2 += target->xvel >> 16;
                 if (curXBoundary2 > newXBoundary2)
                     curXBoundary2 = newXBoundary2;
             }
@@ -1503,7 +1503,7 @@ void SetPlayerScreenPosition(Entity *target)
     }
 
     int yPosDif = 0;
-    if (target->trackScroll) {
+    if (target->scrollTracking) {
         if (targetY <= cameraYPos) {
             yPosDif = (targetY - cameraYPos) + 32;
             if (yPosDif <= 0) {
@@ -1527,7 +1527,7 @@ void SetPlayerScreenPosition(Entity *target)
     else if (targetY <= cameraYPos) {
         yPosDif = targetY - cameraYPos;
         if (targetY - cameraYPos <= 0) {
-            if (yPosDif >= -32 && abs(target->YVelocity) <= 0x60000) {
+            if (yPosDif >= -32 && abs(target->yvel) <= 0x60000) {
                 if (yPosDif < -6) {
                     yPosDif = -6;
                 }
@@ -1547,7 +1547,7 @@ void SetPlayerScreenPosition(Entity *target)
             yPosDif       = 0;
             cameraLockedY = true;
         }
-        else if (yPosDif > 32 || abs(target->YVelocity) > 0x60000) {
+        else if (yPosDif > 32 || abs(target->yvel) > 0x60000) {
             if (yPosDif > 16) {
                 yPosDif = 16;
             }
@@ -1608,8 +1608,8 @@ void SetPlayerScreenPosition(Entity *target)
 }
 void SetPlayerScreenPositionCDStyle(Entity *target)
 {
-    int targetX = target->XPos >> 16;
-    int targetY = cameraAdjustY + (target->YPos >> 16);
+    int targetX = target->xpos >> 16;
+    int targetY = cameraAdjustY + (target->ypos >> 16);
     if (newYBoundary1 > curYBoundary1) {
         if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
@@ -1631,13 +1631,13 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     if (newYBoundary2 > curYBoundary2) {
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
-            if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + (target->YVelocity >> 16);
+            if (target->yvel > 0) {
+                int buf = curYBoundary2 + (target->yvel >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
                 else {
-                    curYBoundary2 += target->YVelocity >> 16;
+                    curYBoundary2 += target->yvel >> 16;
                 }
             }
         }
@@ -1653,8 +1653,8 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     if (newXBoundary1 < curXBoundary1) {
         if (xScrollOffset <= curXBoundary1) {
             --curXBoundary1;
-            if (target->XVelocity < 0) {
-                curXBoundary1 += target->XVelocity >> 16;
+            if (target->xvel < 0) {
+                curXBoundary1 += target->xvel >> 16;
                 if (curXBoundary1 < newXBoundary1)
                     curXBoundary1 = newXBoundary1;
             }
@@ -1672,8 +1672,8 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
             ++curXBoundary2;
-            if (target->XVelocity > 0) {
-                curXBoundary2 += target->XVelocity >> 16;
+            if (target->xvel > 0) {
+                curXBoundary2 += target->xvel >> 16;
                 if (curXBoundary2 > newXBoundary2)
                     curXBoundary2 = newXBoundary2;
             }
@@ -1743,7 +1743,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
     }
     cameraXPos = targetX - target->lookPosX;
 
-    if (!target->trackScroll) {
+    if (!target->scrollTracking) {
         if (cameraLockedY) {
             cameraYPos = targetY;
             if (cameraYPos < curYBoundary1 + SCREEN_SCROLL_UP) {
@@ -1759,7 +1759,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
                 }
             }
             else {
-                if (dif > 32 || abs(target->YVelocity) > 0x60000) {
+                if (dif > 32 || abs(target->yvel) > 0x60000) {
                     if (dif > 16) {
                         dif = 16;
                         if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
@@ -1802,7 +1802,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
         else {
             int dif = targetY - cameraYPos;
             if (targetY - cameraYPos <= 0) {
-                if (dif < -32 || abs(target->YVelocity) > 0x60000) {
+                if (dif < -32 || abs(target->yvel) > 0x60000) {
                     if (dif < -16) {
                         dif = -16;
                         if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
@@ -1834,7 +1834,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
             }
             else {
                 dif = 0;
-                if (abs(target->YVelocity) > 0x60000) {
+                if (abs(target->yvel) > 0x60000) {
                     cameraLockedY = true;
                     if (cameraYPos + dif >= curYBoundary1 + SCREEN_SCROLL_UP) {
                         cameraYPos += dif;
@@ -1962,7 +1962,7 @@ void SetPlayerScreenPositionCDStyle(Entity *target)
 }
 void SetPlayerHLockedScreenPosition(Entity *target)
 {
-    int targetY = cameraAdjustY + (target->YPos >> 16);
+    int targetY = cameraAdjustY + (target->ypos >> 16);
 
     if (newYBoundary1 <= curYBoundary1) {
         if (curYBoundary1 > yScrollOffset)
@@ -1986,12 +1986,12 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     if (newYBoundary2 > curYBoundary2) {
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
-            if (target->YVelocity > 0) {
-                if (newYBoundary2 < curYBoundary2 + (target->YVelocity >> 16)) {
+            if (target->yvel > 0) {
+                if (newYBoundary2 < curYBoundary2 + (target->yvel >> 16)) {
                     curYBoundary2 = newYBoundary2;
                 }
                 else {
-                    curYBoundary2 += target->YVelocity >> 16;
+                    curYBoundary2 += target->yvel >> 16;
                 }
             }
         }
@@ -2008,8 +2008,8 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     if (newXBoundary1 < curXBoundary1) {
         if (xScrollOffset <= curXBoundary1) {
             --curXBoundary1;
-            if (target->XVelocity < 0) {
-                curXBoundary1 += target->XVelocity >> 16;
+            if (target->xvel < 0) {
+                curXBoundary1 += target->xvel >> 16;
                 if (curXBoundary1 < newXBoundary1)
                     curXBoundary1 = newXBoundary1;
             }
@@ -2027,8 +2027,8 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
             ++curXBoundary2;
-            if (target->XVelocity > 0) {
-                curXBoundary2 += target->XVelocity >> 16;
+            if (target->xvel > 0) {
+                curXBoundary2 += target->xvel >> 16;
                 if (curXBoundary2 > newXBoundary2)
                     curXBoundary2 = newXBoundary2;
             }
@@ -2039,7 +2039,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     }
 
     int camScroll = 0;
-    if (target->trackScroll) {
+    if (target->scrollTracking) {
         if (targetY <= cameraYPos) {
             camScroll = targetY - cameraYPos + 32;
             if (camScroll <= 0) {
@@ -2066,7 +2066,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
     else if (targetY > cameraYPos) {
         camScroll = targetY - cameraYPos;
         if (camScroll >= 0) {
-            if (camScroll > 32 || abs(target->YVelocity) > 0x60000) {
+            if (camScroll > 32 || abs(target->yvel) > 0x60000) {
                 if (camScroll > 16) {
                     camScroll = 16;
                 }
@@ -2092,7 +2092,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
             camScroll     = 0;
             cameraLockedY = true;
         }
-        else if (camScroll < -32 || abs(target->YVelocity) > 0x60000) {
+        else if (camScroll < -32 || abs(target->yvel) > 0x60000) {
             if (camScroll < -16) {
                 camScroll = -16;
             }
@@ -2185,8 +2185,8 @@ void SetPlayerLockedScreenPosition(Entity *target)
     if (newXBoundary1 < curXBoundary1) {
         if (xScrollOffset <= curXBoundary1) {
             --curXBoundary1;
-            if (target->XVelocity < 0) {
-                curXBoundary1 += target->XVelocity >> 16;
+            if (target->xvel < 0) {
+                curXBoundary1 += target->xvel >> 16;
                 if (curXBoundary1 < newXBoundary1)
                     curXBoundary1 = newXBoundary1;
             }
@@ -2204,8 +2204,8 @@ void SetPlayerLockedScreenPosition(Entity *target)
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
             ++curXBoundary2;
-            if (target->XVelocity > 0) {
-                curXBoundary2 += target->XVelocity >> 16;
+            if (target->xvel > 0) {
+                curXBoundary2 += target->xvel >> 16;
                 if (curXBoundary2 > newXBoundary2)
                     curXBoundary2 = newXBoundary2;
             }
@@ -2236,8 +2236,8 @@ void SetPlayerLockedScreenPosition(Entity *target)
 // Completely unused in both Sonic 1 & Sonic 2
 void SetPlayerScreenPositionFixed(Entity *target)
 {
-    int targetX = target->XPos >> 16;
-    int targetY = cameraAdjustY + (target->YPos >> 16);
+    int targetX = target->xpos >> 16;
+    int targetY = cameraAdjustY + (target->ypos >> 16);
     if (newYBoundary1 > curYBoundary1) {
         if (newYBoundary1 >= yScrollOffset)
             curYBoundary1 = yScrollOffset;
@@ -2259,13 +2259,13 @@ void SetPlayerScreenPositionFixed(Entity *target)
     if (newYBoundary2 > curYBoundary2) {
         if (yScrollOffset + SCREEN_YSIZE >= curYBoundary2) {
             ++curYBoundary2;
-            if (target->YVelocity > 0) {
-                int buf = curYBoundary2 + (target->YVelocity >> 16);
+            if (target->yvel > 0) {
+                int buf = curYBoundary2 + (target->yvel >> 16);
                 if (newYBoundary2 < buf) {
                     curYBoundary2 = newYBoundary2;
                 }
                 else {
-                    curYBoundary2 += target->YVelocity >> 16;
+                    curYBoundary2 += target->yvel >> 16;
                 }
             }
         }
@@ -2281,8 +2281,8 @@ void SetPlayerScreenPositionFixed(Entity *target)
     if (newXBoundary1 < curXBoundary1) {
         if (xScrollOffset <= curXBoundary1) {
             --curXBoundary1;
-            if (target->XVelocity < 0) {
-                curXBoundary1 += target->XVelocity >> 16;
+            if (target->xvel < 0) {
+                curXBoundary1 += target->xvel >> 16;
                 if (curXBoundary1 < newXBoundary1)
                     curXBoundary1 = newXBoundary1;
             }
@@ -2300,8 +2300,8 @@ void SetPlayerScreenPositionFixed(Entity *target)
     if (newXBoundary2 > curXBoundary2) {
         if (SCREEN_XSIZE + xScrollOffset >= curXBoundary2) {
             ++curXBoundary2;
-            if (target->XVelocity > 0) {
-                curXBoundary2 += target->XVelocity >> 16;
+            if (target->xvel > 0) {
+                curXBoundary2 += target->xvel >> 16;
                 if (curXBoundary2 > newXBoundary2)
                     curXBoundary2 = newXBoundary2;
             }

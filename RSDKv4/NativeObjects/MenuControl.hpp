@@ -7,10 +7,7 @@ enum MenuButtonIDs {
     BUTTON_MULTIPLAYER,
     BUTTON_ACHIEVEMENTS,
     BUTTON_LEADERBOARDS,
-    BUTTON_OPTIONS,
-#if RETRO_USE_MOD_LOADER
-    BUTTON_MODS,
-#endif
+    BUTTON_OPTIONS
 };
 
 enum MenuControlStates {

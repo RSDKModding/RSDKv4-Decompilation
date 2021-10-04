@@ -26,7 +26,7 @@ struct ObjectScript {
 
 struct ScriptEngine {
     int operands[0x10];
-    int tempValue[8];
+    int temp[8];
     int arrayPosition[9];
     // int currentPlayer;   // ArrayPos[6]
     // int playerCount;     // ArrayPos[7]

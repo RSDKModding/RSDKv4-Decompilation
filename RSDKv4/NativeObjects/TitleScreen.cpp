@@ -182,10 +182,10 @@ void TitleScreen_Main(void *objPtr)
             if (entity->introRectAlpha < -320.0)
                 entity->state = TITLESCREEN_STATE_INTRO;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, entity->introRectAlpha);
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
 
-            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (keyPress.start || keyPress.A)) {
+            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (inputPress.start || inputPress.A)) {
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
@@ -200,8 +200,8 @@ void TitleScreen_Main(void *objPtr)
             break;
         }
         case TITLESCREEN_STATE_INTRO: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             SetRenderBlendMode(RENDER_BLEND_NONE);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 255, 255, 255, 255);
             entity->meshAnimator.animationSpeed = 6.0 * Engine.deltaTime;
@@ -213,7 +213,7 @@ void TitleScreen_Main(void *objPtr)
             if (entity->meshAnimator.frameID > 26)
                 entity->state = TITLESCREEN_STATE_ENTERBOX;
 
-            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (keyPress.start || keyPress.A)) {
+            if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (inputPress.start || inputPress.A)) {
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
@@ -288,9 +288,9 @@ void TitleScreen_Main(void *objPtr)
 
             if (entity->x <= -96.0) {
                 if (entity->logoAlpha > 255) {
-                    CheckKeyDown(&keyDown);
-                    CheckKeyPress(&keyPress);
-                    if (keyPress.start || touches > 0 || keyPress.A) {
+                    CheckKeyDown(&inputDown);
+                    CheckKeyPress(&inputPress);
+                    if (inputPress.start || touches > 0 || inputPress.A) {
                         if (!entity->field_130) {
                             PlaySfxByName("Menu Select", false);
                             StopMusic(true);

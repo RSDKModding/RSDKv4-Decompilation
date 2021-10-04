@@ -1,7 +1,7 @@
 #include "RetroEngine.hpp"
 
-InputData keyPress = InputData();
-InputData keyDown  = InputData();
+InputData inputPress = InputData();
+InputData inputDown  = InputData();
 
 int touchDown[8];
 int touchX[8];

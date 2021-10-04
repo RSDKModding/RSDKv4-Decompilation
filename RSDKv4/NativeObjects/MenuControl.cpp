@@ -27,12 +27,6 @@ void MenuControl_Create(void *objPtr)
         entity->buttonCount++;
     }
 
-#if RETRO_USE_MOD_LOADER
-    entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(ModsButton);
-    entity->buttonFlags[entity->buttonCount] = BUTTON_MODS;
-    entity->buttonCount++;
-#endif
-
     if (Engine.onlineActive) {
         entity->buttons[entity->buttonCount]     = CREATE_ENTITY(AchievementsButton);
         entity->buttonFlags[entity->buttonCount] = BUTTON_ACHIEVEMENTS;
@@ -87,8 +81,8 @@ void MenuControl_Main(void *objPtr)
 
     switch (entity->state) {
         case MENUCONTROL_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
 
             if (segaIDButton->alpha < 0x100 && Engine.language != RETRO_JP && !(Engine.language == RETRO_ZH || Engine.language == RETRO_ZS)
                 && Engine.gameDeviceType == RETRO_MOBILE)
@@ -98,7 +92,7 @@ void MenuControl_Main(void *objPtr)
                 switch (entity->stateInput) {
                     case MENUCONTROL_STATEINPUT_CHECKTOUCH: {
                         if (touches > 0) {
-                            if (!keyDown.left && !keyDown.right) {
+                            if (!inputDown.left && !inputDown.right) {
                                 segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                                 if (CheckTouchRect(0.0, 16.0, 56.0, 56.0) >= 0) {
                                     BackupNativeObjects();
@@ -132,7 +126,7 @@ void MenuControl_Main(void *objPtr)
                             PlaySfxByName("Menu Select", false);
                             ShowPromoPopup(0, "MoreGames");
                         }
-                        else if (keyDown.left || keyDown.right) {
+                        else if (inputDown.left || inputDown.right) {
                             segaIDButton->state                  = SEGAIDBUTTON_STATE_IDLE;
                             usePhysicalControls                  = true;
                             entity->buttonID                     = ceilf(entity->float18 / -entity->float2C);
@@ -250,7 +244,7 @@ void MenuControl_Main(void *objPtr)
                 }
                 else {
                     if (touches <= 0) {
-                        if (keyPress.right && entity->float18 > -(entity->float30 - entity->float2C)) {
+                        if (inputPress.right && entity->float18 > -(entity->float30 - entity->float2C)) {
                             entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             entity->float1C -= entity->float2C;
                             PlaySfxByName("Menu Move", false);
@@ -259,7 +253,7 @@ void MenuControl_Main(void *objPtr)
                             if (entity->buttonID >= entity->buttonCount)
                                 entity->buttonID = entity->buttonCount - 1;
                         }
-                        else if (keyPress.left && entity->float18 < 0.0) {
+                        else if (inputPress.left && entity->float18 < 0.0) {
                             entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             entity->float1C += entity->float2C;
                             PlaySfxByName("Menu Move", false);
@@ -268,7 +262,7 @@ void MenuControl_Main(void *objPtr)
                             if (entity->buttonID > entity->buttonCount)
                                 entity->buttonID = 0;
                         }
-                        else if ((keyPress.start || keyPress.A) && !Engine.nativeMenuFadeIn) {
+                        else if ((inputPress.start || inputPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
                             entity->buttons[entity->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
                             entity->timer                                      = 0.0;
@@ -304,7 +298,7 @@ void MenuControl_Main(void *objPtr)
                 if (entity->dialogTimer) {
                     entity->dialogTimer--;
                 }
-                else if (keyPress.B) {
+                else if (inputPress.B) {
                     entity->dialog = CREATE_ENTITY(DialogPanel);
                     SetStringToFont(entity->dialog->text, strExitGame, FONT_TEXT);
                     entity->state = MENUCONTROL_STATE_DIALOGWAIT;
@@ -371,12 +365,7 @@ void MenuControl_Main(void *objPtr)
                         }
                         break;
                     case BUTTON_ACHIEVEMENTS:
-                        if (Engine.onlineActive) {
-                            entity->state               = MENUCONTROL_STATE_ENTERSUBMENU;
-                            entity->field_70            = 0.0;
-                            button->g                   = 0xFF;
-                            button->labelPtr->state     = TEXTLABEL_STATE_NONE;
-                            entity->backButton->visible = true;
+                        if (Engine.onlineActive && false) {
                             ShowAchievementsScreen();
                         }
                         else {
@@ -385,12 +374,12 @@ void MenuControl_Main(void *objPtr)
                             entity->dialog->buttonCount = DLGTYPE_OK;
                             SetStringToFont(entity->dialog->text, strNetworkMessage, FONT_TEXT);
                             entity->state           = MENUCONTROL_STATE_DIALOGWAIT;
-                            button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         }
+                        button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;
                     case BUTTON_LEADERBOARDS:
                         entity->state = MENUCONTROL_STATE_MAIN;
-                        if (Engine.onlineActive) {
+                        if (Engine.onlineActive && false) {
                             ShowLeaderboardsScreen();
                         }
                         else {
@@ -409,16 +398,6 @@ void MenuControl_Main(void *objPtr)
                         entity->backButton->visible = true;
                         CREATE_ENTITY(OptionsMenu);
                         break;
-#if RETRO_USE_MOD_LOADER
-                    case BUTTON_MODS:
-                        entity->state               = MENUCONTROL_STATE_ENTERSUBMENU;
-                        entity->field_70            = 0.0;
-                        button->g                   = 0xFF;
-                        button->labelPtr->state     = TEXTLABEL_STATE_NONE;
-                        entity->backButton->visible = true;
-                        CREATE_ENTITY(ModsMenu);
-                        break;
-#endif
                     default:
                         entity->state           = MENUCONTROL_STATE_MAIN;
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
@@ -468,8 +447,8 @@ void MenuControl_Main(void *objPtr)
             break;
         }
         case MENUCONTROL_STATE_SUBMENU: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             if (touches <= 0) {
                 if (entity->backButton->g == 0xC0) {
                     PlaySfxByName("Menu Back", false);
@@ -484,7 +463,7 @@ void MenuControl_Main(void *objPtr)
                 else
                     backButton->g = 0xC0;
             }
-            if (keyPress.B) {
+            if (inputPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->backButton->g = 0xFF;
                 entity->state         = MENUCONTROL_STATE_EXITSUBMENU;

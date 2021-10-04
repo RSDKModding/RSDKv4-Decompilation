@@ -205,20 +205,20 @@ void PauseMenu_Main(void *objPtr)
             break;
         }
         case PAUSEMENU_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             if (usePhysicalControls) {
                 if (touches > 0) {
                     usePhysicalControls = false;
                 }
                 else {
-                    if (keyPress.up) {
+                    if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->buttonSelected--;
                         if (entity->buttonSelected < PMB_CONTINUE)
                             entity->buttonSelected = pauseMenuButtonCount - 1;
                     }
-                    else if (keyPress.down) {
+                    else if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->buttonSelected++;
                         if (entity->buttonSelected >= pauseMenuButtonCount)
@@ -226,7 +226,7 @@ void PauseMenu_Main(void *objPtr)
                     }
                     for (int i = 0; i < pauseMenuButtonCount; ++i) entity->buttons[i]->b = entity->buttons[i]->r;
                     entity->buttons[entity->buttonSelected]->b = 0;
-                    if (entity->buttons[entity->buttonSelected]->g > 0x80 && (keyPress.start || keyPress.A)) {
+                    if (entity->buttons[entity->buttonSelected]->g > 0x80 && (inputPress.start || inputPress.A)) {
                         PlaySfxByName("Menu Select", false);
                         entity->buttons[entity->buttonSelected]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         entity->buttons[entity->buttonSelected]->b     = 0xFF;
@@ -250,7 +250,7 @@ void PauseMenu_Main(void *objPtr)
                     }
                 }
 
-                if (entity->state == PAUSEMENU_STATE_MAIN && (keyDown.up || keyDown.down)) {
+                if (entity->state == PAUSEMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
                     entity->buttonSelected = PMB_CONTINUE;
                     usePhysicalControls    = true;
                 }

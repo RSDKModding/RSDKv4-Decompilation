@@ -68,8 +68,8 @@ void InstructionsScreen_Main(void *objPtr)
             break;
         }
         case INSTRUCTIONSCREEN_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
+            CheckKeyDown(&inputDown);
+            CheckKeyPress(&inputPress);
             SetRenderMatrix(&entity->matrixTemp);
             if (usePhysicalControls) {
                 if (touches > 0) {
@@ -80,12 +80,12 @@ void InstructionsScreen_Main(void *objPtr)
                     entity->touchedNext = false;
                     entity->touchedBack = false;
                     if (entity->textHeight > 68.0) {
-                        if (keyDown.up)
+                        if (inputDown.up)
                             entity->textY = fmaxf(68.0, entity->textY - 2.0);
-                        if (keyDown.down)
+                        if (inputDown.down)
                             entity->textY = fminf(entity->textHeight, entity->textY + 2.0);
                     }
-                    if (keyDown.left) {
+                    if (inputDown.left) {
                         PlaySfxByName("Menu Move", false);
                         entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                         entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
@@ -94,7 +94,7 @@ void InstructionsScreen_Main(void *objPtr)
                         if (--entity->pageID < 0)
                             entity->pageID = 4;
                     }
-                    else if (keyDown.right) {
+                    else if (inputDown.right) {
                         PlaySfxByName("Menu Move", false);
                         entity->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                         entity->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
@@ -117,7 +117,7 @@ void InstructionsScreen_Main(void *objPtr)
                         else {
                             entity->field_E0 = 0;
                         }
-                        if (keyDown.up || keyDown.down)
+                        if (inputDown.up || inputDown.down)
                             usePhysicalControls = true;
                         break;
                     case INSTRUCTIONSCREEN_STATEINPUT_HANDLEMOVEMENT:
@@ -231,7 +231,7 @@ void InstructionsScreen_Main(void *objPtr)
                     }
                     entity->lastTouchX = touchXF[0];
 
-                    if (keyDown.up || keyDown.down || keyDown.left || keyDown.right)
+                    if (inputDown.up || inputDown.down || inputDown.left || inputDown.right)
                         usePhysicalControls = true;
                 }
                 else {
@@ -239,7 +239,7 @@ void InstructionsScreen_Main(void *objPtr)
                 }
             }
 
-            if (entity->state == 1 && keyPress.B) {
+            if (entity->state == 1 && inputPress.B) {
                 PlaySfxByName("Menu Back", false);
                 entity->touchedBack = false;
                 entity->state       = INSTRUCTIONSCREEN_STATE_EXIT;
