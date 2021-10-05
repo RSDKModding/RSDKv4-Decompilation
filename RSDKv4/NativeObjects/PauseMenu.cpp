@@ -239,6 +239,8 @@ void PauseMenu_Main(void *objPtr)
                     if (touches > 0) {
                         if (entity->buttons[i]->g > 0x80)
                             entity->buttons[i]->b = (CheckTouchRect(-80.0, 48.0 - i * 30, 112.0, 12.0) < 0) * 0xFF;
+                        else
+                            entity->buttons[i]->b = 0x80;
                     }
                     else if (!entity->buttons[i]->b) {
                         entity->buttonSelected = i;

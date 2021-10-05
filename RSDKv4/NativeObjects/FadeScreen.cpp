@@ -36,7 +36,7 @@ void FadeScreen_Main(void *objPtr)
             }
             break;
         case FADESCREEN_STATE_GAMEFADEOUT:
-            SetMusicVolume(bgmVolume - 2);
+            SetMusicVolume(masterVolume - 2);
 
             entity->fadeA = 256.0f * entity->timer;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
