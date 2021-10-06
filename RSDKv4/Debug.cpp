@@ -1,7 +1,7 @@
 #include "RetroEngine.hpp"
 
 bool endLine   = true;
-int touchTimer = 0;
+int touchFlags = 0;
 
 int taListStore = 0;
 
@@ -30,7 +30,6 @@ void initDevMenu()
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     setTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ           = false;
-    touchTimer     = 0;
 #if !RETRO_USE_ORIGINAL_CODE
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
 #endif
@@ -65,7 +64,6 @@ void initErrorMessage()
     gameMenu[1].visibleRowOffset = 0;
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
-    touchTimer                   = 0;
 #if !RETRO_USE_ORIGINAL_CODE
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
 #endif
@@ -88,37 +86,47 @@ void processStageSelect()
 #endif
 
     if (!inputDown.start && !inputDown.up && !inputDown.down) {
-        if (touches > 0) {
-            if (touchDown[0] && !(touchTimer % 8)) {
-                if (touchX[0] < SCREEN_CENTERX) {
-                    if (touchY[0] >= SCREEN_CENTERY) {
-                        if (!inputDown.down)
+        int tFlags = touchFlags;
+        touchFlags = 0;
+
+        for (int t = 0; t < touches; ++t) {
+            if (touchDown[t]) {
+                if (touchX[t] < SCREEN_CENTERX) {
+                    if (touchY[t] >= SCREEN_CENTERY) {
+                        if (!(tFlags & 2))
                             inputPress.down = true;
-                        inputDown.down = true;
+                        else
+                            touchFlags |= 1 << 1;
                     }
                     else {
-                        if (!inputDown.up)
+                        if (!(tFlags & 1))
                             inputPress.up = true;
-                        inputDown.up = true;
+                        else
+                            touchFlags |= 1 << 0;
                     }
                 }
-                else if (touchX[0] > SCREEN_CENTERX) {
-                    if (touchY[0] > SCREEN_CENTERY) {
-                        if (!inputDown.start)
+                else if (touchX[t] > SCREEN_CENTERX) {
+                    if (touchY[t] > SCREEN_CENTERY) {
+                        if (!(tFlags & 4))
                             inputPress.start = true;
-                        inputDown.start = true;
+                        else
+                            touchFlags |= 1 << 2;
                     }
                     else {
-                        if (!inputDown.B)
+                        if (!(tFlags & 8))
                             inputPress.B = true;
-                        inputDown.B = true;
+                        else
+                            touchFlags |= 1 << 3;
                     }
                 }
             }
         }
-    }
 
-    touchTimer++;
+        touchFlags |= (int)inputPress.up << 0;
+        touchFlags |= (int)inputPress.down << 1;
+        touchFlags |= (int)inputPress.start << 2;
+        touchFlags |= (int)inputPress.B << 3;
+    }
 
     switch (stageMode) {
         case DEVMENU_MAIN: // Main Menu
@@ -161,7 +169,8 @@ void processStageSelect()
                 }
                 else if (gameMenu[0].selection2 == 13) {
                     ClearNativeObjects();
-                    Engine.gameMode = ENGINE_WAIT;
+                    Engine.gameMode         = ENGINE_WAIT;
+                    Engine.nativeMenuFadeIn = false;
                     if (skipStartMenu) {
                         ClearGraphicsData();
                         ClearAnimationData();
@@ -433,20 +442,20 @@ void processStageSelect()
             gameMenu[1].selection2 = gameMenu[1].selection1; //its a bug fix LOL
 
             char buffer[0x100];
-            if (inputPress.A || inputPress.start || inputPress.left || inputPress.right) {
+            if (inputDown.C && gameMenu[1].selection1 != preOption) {
+                int option         = gameMenu[1].selection1;
+                ModInfo swap       = modList[preOption];
+                modList[preOption] = modList[option];
+                modList[option]    = swap;
+                setTextMenu(DEVMENU_MODMENU);
+                gameMenu[1].selection1 = option;
+            }
+            else if (gameMenu[1].selection1 < modList.size() && (inputDown.A || inputDown.start || inputDown.left || inputDown.right)) {
                 modList[gameMenu[1].selection1].active ^= 1;
                 StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
                 StrAdd(buffer, ": ");
                 StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
                 EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
-            }
-            else if (inputDown.C && gameMenu[1].selection1 != preOption) {
-                int option                      = gameMenu[1].selection1;
-                ModInfo swap            = modList[preOption];
-                modList[preOption]              = modList[option];
-                modList[option]                 = swap;
-                setTextMenu(DEVMENU_MODMENU);
-                gameMenu[1].selection1 = option;
             }
             else if (inputPress.B) {
                 RefreshEngine();

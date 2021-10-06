@@ -65,18 +65,21 @@ bool processEvents()
 #if RETRO_USING_SDL2 && defined(RETRO_USING_MOUSE)
             case SDL_MOUSEMOTION:
                 if (touches <= 1) { // Touch always takes priority over mouse
-                    SDL_GetMouseState(&touchX[0], &touchY[0]);
+                    uint state = SDL_GetMouseState(&touchX[0], &touchY[0]);
 
                     int width = 0, height = 0;
                     SDL_GetWindowSize(Engine.window, &width, &height);
-                    touchXF[0] = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
-                    touchYF[0] = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    touchX[0]  = (touchX[0] / (float)width) * SCREEN_XSIZE;
-                    touchY[0]  = (touchY[0] / (float)height) * SCREEN_YSIZE;
+                    touchXF[0]   = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                    touchYF[0]   = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
+                    touchX[0]    = (touchX[0] / (float)width) * SCREEN_XSIZE;
+                    touchY[0]    = (touchY[0] / (float)height) * SCREEN_YSIZE;
+                    
+                    touchDown[0] = state & SDL_BUTTON_LMASK;
+                    touches      = 1;
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                if (touches <= 0) { // Touch always takes priority over mouse
+                if (touches <= 1) { // Touch always takes priority over mouse
                     switch (Engine.sdlEvents.button.button) {
                         case SDL_BUTTON_LEFT: touchDown[0] = true; break;
                     }

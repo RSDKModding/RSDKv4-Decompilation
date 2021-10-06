@@ -184,7 +184,8 @@ void SaveSelect_Main(void *objPtr)
                             PlaySfxByName("Menu Select", false);
                             entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                             if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
-                                StopMusic(true);
+                                if (entity->state != SAVESELECT_STATE_MAIN_DELETING)
+                                    StopMusic(true);
                                 entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                             }
                             entity->saveButtons[entity->selectedButton]->b = 0xFF;
@@ -221,7 +222,8 @@ void SaveSelect_Main(void *objPtr)
                         PlaySfxByName("Menu Select", false);
                         entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
-                            StopMusic(true);
+                            if (entity->state != SAVESELECT_STATE_MAIN_DELETING)
+                                StopMusic(true);
                             entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                         }
                         entity->saveButtons[i]->b = 0xFF;
