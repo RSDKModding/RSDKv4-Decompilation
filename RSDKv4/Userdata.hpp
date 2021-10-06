@@ -142,9 +142,11 @@ inline int GetGlobalVariableID(const char *name)
         nativeFunction[nativeFunctionCount++] = (void *)funcPtr;                                                                                     \
     }
 
+extern bool useSGame;
 inline bool ReadSaveRAMData()
 {
-    char buffer[0x100];
+    useSGame = false;
+    char buffer[0x180];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/SData.bin", getResourcesPath());
@@ -170,28 +172,29 @@ inline bool ReadSaveRAMData()
         saveFile = fOpen(buffer, "wb");
         if (!saveFile)
             return false;
+        useSGame = true;
     }
-    fRead(saveRAM, 4u, SAVEDATA_MAX, saveFile);
+    fRead(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
     fClose(saveFile);
     return true;
 }
 
 inline bool WriteSaveRAMData()
 {
-    char buffer[0x100];
+    char buffer[0x180];
+    if (!useSGame) {
 #if RETRO_PLATFORM == RETRO_UWP
-    if (!usingCWD)
-        sprintf(buffer, "%s/SData.bin", getResourcesPath());
-    else
-        sprintf(buffer, "%sSData.bin", gamePath);
+        if (!usingCWD)
+            sprintf(buffer, "%s/SData.bin", getResourcesPath());
+        else
+            sprintf(buffer, "%sSData.bin", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/SData.bin", gamePath);
+        sprintf(buffer, "%s/SData.bin", gamePath);
 #else
-    sprintf(buffer, "%sSData.bin", gamePath);
+        sprintf(buffer, "%sSData.bin", gamePath);
 #endif
-
-    FileIO *saveFile = fOpen(buffer, "wb");
-    if (!saveFile) {
+    }
+    else {
 #if RETRO_PLATFORM == RETRO_UWP
         if (!usingCWD)
             sprintf(buffer, "%s/sSGame.bin", getResourcesPath());
@@ -202,11 +205,12 @@ inline bool WriteSaveRAMData()
 #else
         sprintf(buffer, "%sSGame.bin", gamePath);
 #endif
-        saveFile = fOpen(buffer, "wb");
-        if (!saveFile)
-            return false;
     }
-    fWrite(saveRAM, 4u, SAVEDATA_MAX, saveFile);
+
+    FileIO *saveFile = fOpen(buffer, "wb");
+    if (!saveFile)
+        return false;
+    fWrite(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
     fClose(saveFile);
     return true;
 }

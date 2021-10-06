@@ -40,6 +40,8 @@ bool skipStartMenu_Config     = false;
 bool disableFocusPause        = false;
 bool disableFocusPause_Config = false;
 
+bool useSGame = false;
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
