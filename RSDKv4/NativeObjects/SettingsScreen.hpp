@@ -59,7 +59,7 @@ struct NativeEntity_SettingsScreen : NativeEntityBase {
     float buttonRotY;
     float buttonMatScale;
     NativeEntity_OptionsMenu *optionsMenu;
-    byte controlStyle;
+    byte isPauseMenu;
     NativeEntity_TextLabel *label;
     MeshInfo *panelMesh;
     MatrixF buttonMatrix;

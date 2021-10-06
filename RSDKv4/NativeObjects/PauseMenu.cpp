@@ -377,7 +377,7 @@ void PauseMenu_Main(void *objPtr)
                 if (entity->buttonSelected == 2) {
                     entity->settingsScreen               = CREATE_ENTITY(SettingsScreen);
                     entity->settingsScreen->optionsMenu  = (NativeEntity_OptionsMenu *)entity;
-                    entity->settingsScreen->controlStyle = 1;
+                    entity->settingsScreen->isPauseMenu = 1;
                 }
             }
             entity->matrixX += ((1024.0 - entity->matrixX) / ((60.0 * Engine.deltaTime) * 16.0));
@@ -427,6 +427,7 @@ void PauseMenu_Main(void *objPtr)
                 SetGlobalVariableByName("lampPostID", 0);
                 SetGlobalVariableByName("starPostID", 0);
                 entity->dialog->state = DIALOGPANEL_STATE_IDLE;
+                StopMusic(true);
                 CREATE_ENTITY(FadeScreen);
                 break;
             }

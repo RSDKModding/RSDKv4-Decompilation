@@ -151,7 +151,7 @@ void SettingsScreen_Main(void *objPtr)
             matrixTranslateXYZF(&entity->tempMatrix, 0.0, -8.0, 160.0);
             matrixMultiplyF(&entity->buttonMatrix, &entity->tempMatrix);
             SetRenderMatrix(&entity->buttonMatrix);
-            if (entity->controlStyle == 1) {
+            if (entity->isPauseMenu) {
                 entity->buttons[SETTINGSSCREEN_BTN_SDON]->y  = -1000.0;
                 entity->buttons[SETTINGSSCREEN_BTN_SDOFF]->y = -1000.0;
             }
@@ -174,7 +174,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected--;
-                        if ((Engine.gameType != GAME_SONIC1 || entity->controlStyle == 1) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
+                        if ((Engine.gameType != GAME_SONIC1 || entity->isPauseMenu) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             entity->selected = SETTINGSSCREEN_SEL_SFXVOL;
                         if (entity->selected <= SETTINGSSCREEN_SEL_NONE)
                             entity->selected = SETTINGSSCREEN_SEL_CONTROLS;
@@ -182,7 +182,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
                         entity->selected++;
-                        if ((Engine.gameType != GAME_SONIC1 || entity->controlStyle == 1) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
+                        if ((Engine.gameType != GAME_SONIC1 || entity->isPauseMenu) && entity->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             entity->selected = SETTINGSSCREEN_SEL_REGION;
                         if (entity->selected > SETTINGSSCREEN_SEL_CONTROLS)
                             entity->selected = SETTINGSSCREEN_SEL_MUSVOL;
@@ -207,7 +207,8 @@ void SettingsScreen_Main(void *objPtr)
                                     saveGame->musVolume += (MAX_VOLUME / 5);
                                 if (!musicEnabled) {
                                     musicEnabled = true;
-                                    PlayMusic(0, 0);
+                                    if (!entity->isPauseMenu)
+                                        PlayMusic(0, 0);
                                 }
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                             }
@@ -432,7 +433,7 @@ void SettingsScreen_Main(void *objPtr)
                         NativeEntity_PushButton *button = entity->buttons[i];
 
                         if (i == 4 || i == 5) {
-                            if (!entity->controlStyle && Engine.gameType == GAME_SONIC1)
+                            if (!entity->isPauseMenu && Engine.gameType == GAME_SONIC1)
                                 button->state = CheckTouchRect(touchX[i], touchY[i], (button->textWidth + (button->scale * 64.0)) * 0.75, 12.0) >= 0;
                         }
                         else {
@@ -464,7 +465,7 @@ void SettingsScreen_Main(void *objPtr)
                     RestoreNativeObjectsSettings();
                     entity->stateDraw = SETTINGSSCREEN_STATEDRAW_MAIN;
                     SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
-                    if (entity->controlStyle == 1)
+                    if (entity->isPauseMenu)
                         SetGlobalVariableByName("options.touchControls", true);
                 }
                 else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN) {
@@ -758,7 +759,7 @@ void SettingsScreen_Main(void *objPtr)
                     RestoreNativeObjectsSettings();
                     entity->stateDraw = SETTINGSSCREEN_STATEDRAW_MAIN;
                     SetStringToFont(entity->label->text, strSettings, FONT_HEADING);
-                    if (entity->controlStyle == 1)
+                    if (entity->isPauseMenu)
                         SetGlobalVariableByName("options.touchControls", true);
                 }
                 else if (entity->stateDraw == SETTINGSSCREEN_STATEDRAW_MAIN) {
@@ -873,7 +874,7 @@ void SettingsScreen_Main(void *objPtr)
                 SetRenderVertexColor(0xFF, 0xFF, 0x00);
             else
                 SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-            if (!entity->controlStyle && Engine.gameType == GAME_SONIC1) {
+            if (!entity->isPauseMenu && Engine.gameType == GAME_SONIC1) {
                 if ((Engine.language - 1) <= 6 && ((1 << (Engine.language - 1)) & 0x43))
                     RenderText(entity->spindashText, FONT_LABEL, -128.0, -6.0, 0, 0.09, 255);
                 else
