@@ -107,7 +107,7 @@ void MultiplayerHandler_Main(void *objPtr)
                 entity->fade->state = FADESCREEN_STATE_FADEOUT;
                 //}
             }
-            else if (entity->fade->timer > entity->fade->timeLimit) {
+            else if (entity->fade->timer > entity->fade->delay) {
                 ClearNativeObjects();
                 CREATE_ENTITY(SegaSplash);
                 RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0);

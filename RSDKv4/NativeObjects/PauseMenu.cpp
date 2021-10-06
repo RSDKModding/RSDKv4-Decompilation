@@ -457,7 +457,7 @@ void PauseMenu_Main(void *objPtr)
                     entity->devMenuFade        = CREATE_ENTITY(FadeScreen);
                     entity->devMenuFade->state = FADESCREEN_STATE_FADEOUT;
                 }
-                if (!entity->devMenuFade->timeLimit || entity->devMenuFade->timer >= entity->devMenuFade->timeLimit) {
+                if (!entity->devMenuFade->delay || entity->devMenuFade->timer >= entity->devMenuFade->delay) {
                     ClearNativeObjects();
                     RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                     CREATE_ENTITY(RetroGameLoop);

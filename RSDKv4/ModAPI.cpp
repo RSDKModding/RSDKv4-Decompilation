@@ -353,10 +353,19 @@ void RefreshEngine()
     ClearMeshData();
     ClearTextures(true);
 
+    for (int i = 0; i < FONTLIST_COUNT; ++i) {
+        fontList[i].count = 2;
+    }
+
     ReleaseStageSfx();
     ReleaseGlobalSfx();
     LoadGlobalSfx();
     InitLocalizedStrings();
+
+    for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
+        NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
+        entity->createPtr(entity);
+    }
 
     Engine.gameType = GAME_SONIC2;
     if (strstr(Engine.gameWindowText, "Sonic 1")) {

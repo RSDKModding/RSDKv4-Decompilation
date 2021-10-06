@@ -15,7 +15,7 @@ struct NativeEntity_FadeScreen : NativeEntityBase {
     FadeScreenStates state;
     float timer;
     float fadeSpeed;
-    float timeLimit;
+    float delay;
     byte fadeR;
     byte fadeG;
     byte fadeB;

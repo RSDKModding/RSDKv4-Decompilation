@@ -274,7 +274,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen); // fade back to menu
                         fade->fadeSpeed               = 1.0;
-                        fade->timeLimit               = 0.5;
+                        fade->delay                   = 0.5;
                         fade->state                   = FADESCREEN_STATE_FADEIN_CLEAR;
                     }
                     else {
@@ -326,7 +326,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen); // TODO: get rdc to figure out what's going on here
                         fade->state                   = FADESCREEN_STATE_GAMEFADEOUT;
                         fade->fadeSpeed               = 1.0f;
-                        fade->timeLimit               = 0.5f;
+                        fade->delay                   = 0.5f;
                         break;
                     }
                 }

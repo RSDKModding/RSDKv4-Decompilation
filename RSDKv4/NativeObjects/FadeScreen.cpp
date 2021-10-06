@@ -4,7 +4,7 @@ void FadeScreen_Create(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
     entity->timer           = 0.0;
-    entity->timeLimit       = 1.5;
+    entity->delay       = 1.5;
     entity->fadeSpeed       = 2.0;
     entity->state           = FADESCREEN_STATE_GAMEFADEOUT;
     Engine.nativeMenuFadeIn = true;
@@ -17,10 +17,10 @@ void FadeScreen_Main(void *objPtr)
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
     switch (entity->state) {
         case FADESCREEN_STATE_MENUFADEIN:
-            entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
+            entity->fadeA = ((entity->delay - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit) {
+            if (entity->timer > entity->delay) {
                 RemoveNativeObject(entity);
                 Engine.nativeMenuFadeIn = false;
                 SetMusicTrack("MainMenu.ogg", 0, true, 106596);
@@ -31,17 +31,16 @@ void FadeScreen_Main(void *objPtr)
             entity->fadeA = entity->timer * 256.0;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit) {
+            if (entity->timer > entity->delay)
                 RemoveNativeObject(entity);
-            }
             break;
         case FADESCREEN_STATE_GAMEFADEOUT:
             SetMusicVolume(masterVolume - 2);
 
-            entity->fadeA = 256.0f * entity->timer;
+            entity->fadeA = 256.0 * entity->timer;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit) {
+            if (entity->timer > entity->delay) {
                 ClearNativeObjects();
                 CREATE_ENTITY(RetroGameLoop);
                 if (Engine.gameDeviceType == RETRO_MOBILE)
@@ -50,19 +49,19 @@ void FadeScreen_Main(void *objPtr)
             break;
 #if !RETRO_USE_ORIGINAL_CODE
         case FADESCREEN_STATE_FADEIN:
-            entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
+            entity->fadeA = ((entity->delay - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit) {
+            if (entity->timer > entity->delay) {
                 RemoveNativeObject(entity);
                 Engine.nativeMenuFadeIn = false;
             }
             break;
         case FADESCREEN_STATE_FADEIN_CLEAR:
-            entity->fadeA = ((entity->timeLimit - entity->timer) * 256.0f);
+            entity->fadeA = ((entity->delay - entity->timer) * 256.0f);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
-            if (entity->timer > entity->timeLimit) {
+            if (entity->timer > entity->delay) {
                 ClearNativeObjects();
                 RestoreNativeObjects();
                 Engine.nativeMenuFadeIn = false;

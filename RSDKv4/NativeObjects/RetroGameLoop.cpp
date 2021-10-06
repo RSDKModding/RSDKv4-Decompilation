@@ -76,7 +76,7 @@ void RetroGameLoop_Main(void *objPtr)
             CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
             NativeEntity_FadeScreen *fade        = CREATE_ENTITY(FadeScreen);
             fade->state                          = FADESCREEN_STATE_FADEIN;
-            fade->timeLimit                      = 1.5;
+            fade->delay                          = 1.5;
             fade->fadeSpeed                      = 1.0;
             Engine.gameMode                      = ENGINE_WAIT2PVS;
             break;
