@@ -24,7 +24,7 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define COMMONALIAS_COUNT (0x51)
+#define COMMONALIAS_COUNT (0x56)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -561,6 +561,11 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("CMODE_LWALL", "1"),
                                          AliasInfo("CMODE_ROOF", "2"),
                                          AliasInfo("CMODE_RWALL", "3"),
+                                         AliasInfo("COL_NONE", "0"),
+                                         AliasInfo("COL_TOP", "1"),
+                                         AliasInfo("COL_LEFT", "2"),
+                                         AliasInfo("COL_RIGHT", "3"),
+                                         AliasInfo("COL_BOTTOM", "4"),
                                          AliasInfo("PATH_A", "0"),
                                          AliasInfo("PATH_B", "1"),
                                          AliasInfo("GRAVITY_GROUND", "0"),
