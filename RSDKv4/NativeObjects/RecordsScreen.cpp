@@ -142,7 +142,8 @@ void RecordsScreen_Main(void *objPtr)
             }
             pos *= 3;
 
-            SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset], 0);
+            int nameID = entity->recordOffset == (timeAttack_ActCount * 8) + 1 ? entity->recordOffset + 1 : entity->recordOffset;
+            SetStringToFont(entity->labelPtr->text, strSaveStageList[nameID], 0);
             SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
             AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
             SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
@@ -406,7 +407,8 @@ void RecordsScreen_Main(void *objPtr)
                     entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
                     entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
                 }
-                SetStringToFont(entity->labelPtr->text, strSaveStageList[entity->recordOffset + entity->actID], FONT_HEADING);
+                int nameID = entity->recordOffset == (timeAttack_ActCount * 8) + 1 ? entity->recordOffset + 1 : entity->recordOffset;
+                SetStringToFont(entity->labelPtr->text, strSaveStageList[nameID + entity->actID], FONT_HEADING);
                 SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
                 AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
                 SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
@@ -535,10 +537,10 @@ void RecordsScreen_Main(void *objPtr)
             pos *= 3;
 
             SetRenderMatrix(&entity->matrixTemp);
+            entity->state = RECORDSSCREEN_STATE_MAIN;
+            SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
             if (globalVariables[entity->taResultID] > 0) {
                 int *records  = &saveGame->records[pos + (3 * entity->actID)];
-                entity->state = RECORDSSCREEN_STATE_MAIN;
-                SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
                 int time = globalVariables[entity->taResultID];
 
                 for (int r = 0; r < 3; ++r) {

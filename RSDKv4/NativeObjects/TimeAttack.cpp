@@ -194,10 +194,10 @@ void TimeAttack_Create(void *objPtr)
                 }
             }
             else {
-                // entity->zoneButtons[i + 1]->flag = false;
-                // if (zone > (timeAttack_ActCount * (i + 1)) + 1) {
-                //    entity->zoneButtons[i + 1]->flag = true;
-                //}
+                if (i == 11)
+                    entity->zoneButtons[i]->unlocked = entity->zoneButtons[i - 1]->unlocked;
+                if (i == 10)
+                    entity->zoneButtons[i]->unlocked = saveGame->unlockedHPZ;
             }
         }
     }

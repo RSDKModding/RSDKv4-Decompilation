@@ -75,7 +75,8 @@ bool processEvents()
                     touchY[0]    = (touchY[0] / (float)height) * SCREEN_YSIZE;
                     
                     touchDown[0] = state & SDL_BUTTON_LMASK;
-                    touches      = 1;
+                    if (touchDown[0])
+                        touches = 1;
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:

@@ -46,6 +46,7 @@ struct SaveGame {
     int tailsUnlocked;
     int knuxUnlocked;
     int unlockedActs;
+    int unlockedHPZ;
     int unused[18];
     int records[0x80];
 };
