@@ -156,8 +156,21 @@ inline bool ReadSaveRAMData()
     sprintf(buffer, "%sSData.bin", gamePath);
 #endif
     FileIO *saveFile = fOpen(buffer, "rb");
-    if (!saveFile)
-        return false;
+    if (!saveFile) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/sSGame.bin", getResourcesPath());
+        else
+            sprintf(buffer, "%sSGame.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/sSGame.bin", gamePath);
+#else
+        sprintf(buffer, "%sSGame.bin", gamePath);
+#endif
+        saveFile = fOpen(buffer, "wb");
+        if (!saveFile)
+            return false;
+    }
     fRead(saveRAM, 4u, SAVEDATA_MAX, saveFile);
     fClose(saveFile);
     return true;
@@ -178,8 +191,21 @@ inline bool WriteSaveRAMData()
 #endif
 
     FileIO *saveFile = fOpen(buffer, "wb");
-    if (!saveFile)
-        return false;
+    if (!saveFile) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/sSGame.bin", getResourcesPath());
+        else
+            sprintf(buffer, "%sSGame.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/sSGame.bin", gamePath);
+#else
+        sprintf(buffer, "%sSGame.bin", gamePath);
+#endif
+        saveFile = fOpen(buffer, "wb");
+        if (!saveFile)
+            return false;
+    }
     fWrite(saveRAM, 4u, SAVEDATA_MAX, saveFile);
     fClose(saveFile);
     return true;
