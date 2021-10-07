@@ -1502,7 +1502,7 @@ void setFullScreen(bool fs)
 #if RETRO_USING_OPENGL
         SDL_DisplayMode mode;
         SDL_GetDesktopDisplayMode(0, &mode);
-        // SetScreenDimensions(mode.w, mode.h);
+        SetScreenDimensions(mode.w, mode.h);
         setupViewport();
         int w = mode.w;
         int h = mode.h;
@@ -1526,7 +1526,7 @@ void setFullScreen(bool fs)
         SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_RestoreWindow(Engine.window);
 
-        // SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
         setupViewport();
 #if RETRO_USING_OPENGL
         glViewport(0, 0, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
