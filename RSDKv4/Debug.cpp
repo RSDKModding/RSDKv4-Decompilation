@@ -442,20 +442,20 @@ void processStageSelect()
             gameMenu[1].selection2 = gameMenu[1].selection1; //its a bug fix LOL
 
             char buffer[0x100];
-            if (inputDown.C && gameMenu[1].selection1 != preOption) {
+            if (gameMenu[1].selection1 < modList.size() && (inputPress.A || inputPress.start || inputPress.left || inputPress.right)) {
+                modList[gameMenu[1].selection1].active ^= 1;
+                StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
+                StrAdd(buffer, ": ");
+                StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
+                EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
+            }
+            else if (inputDown.C && gameMenu[1].selection1 != preOption) {
                 int option         = gameMenu[1].selection1;
                 ModInfo swap       = modList[preOption];
                 modList[preOption] = modList[option];
                 modList[option]    = swap;
                 setTextMenu(DEVMENU_MODMENU);
                 gameMenu[1].selection1 = option;
-            }
-            else if (gameMenu[1].selection1 < modList.size() && (inputDown.A || inputDown.start || inputDown.left || inputDown.right)) {
-                modList[gameMenu[1].selection1].active ^= 1;
-                StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
-                StrAdd(buffer, ": ");
-                StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
-                EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
             }
             else if (inputPress.B) {
                 RefreshEngine();

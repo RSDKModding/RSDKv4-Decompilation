@@ -60,7 +60,7 @@ void SetPathGripSensors(Entity *player);
 void ProcessPathGrip(Entity *player);
 void ProcessAirCollision(Entity *player);
 
-void ProcessPlayerTileCollisions(Entity *player);
+void ProcessTileCollisions(Entity *player);
 
 void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                     int otherRight, int otherBottom);

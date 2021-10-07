@@ -4549,7 +4549,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_PROCESSOBJECTMOVEMENT:
                 opcodeSize = 0;
                 if (entity->tileCollisions) {
-                    ProcessPlayerTileCollisions(entity);
+                    ProcessTileCollisions(entity);
                 }
                 else {
                     entity->xpos += entity->xvel;
@@ -4558,7 +4558,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             case FUNC_PROCESSOBJECTCONTROL:
                 opcodeSize = 0;
-                ProcessPlayerControl(entity);
+                ProcessObjectControl(entity);
                 break;
             case FUNC_PROCESSANIMATION:
                 opcodeSize = 0;

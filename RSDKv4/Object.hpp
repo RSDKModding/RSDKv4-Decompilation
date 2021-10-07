@@ -136,7 +136,7 @@ void SetObjectTypeName(const char *objectName, int objectID);
 
 extern int playerListPos;
 
-void ProcessPlayerControl(Entity *player);
+void ProcessObjectControl(Entity *player);
 
 void InitNativeObjectSystem();
 NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
@@ -157,18 +157,8 @@ inline void BackupNativeObjectsSettings() {
     nativeEntityCountBackupS = nativeEntityCount;
 }
 void RestoreNativeObjects();
-inline void RestoreNativeObjectsNoFade()
-{
-    memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
-    memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
-    nativeEntityCount = nativeEntityCountBackup;
-}
-inline void RestoreNativeObjectsSettings()
-{
-    memcpy(activeEntityList, backupEntityListS, sizeof(activeEntityList));
-    memcpy(objectEntityBank, objectEntityBackupS, sizeof(objectEntityBank));
-    nativeEntityCount = nativeEntityCountBackupS;
-}
+void RestoreNativeObjectsNoFade();
+void RestoreNativeObjectsSettings();
 inline NativeEntity *GetNativeObject(uint objID)
 {
     if (objID >= NATIVEENTITY_COUNT)

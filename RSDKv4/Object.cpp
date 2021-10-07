@@ -317,7 +317,7 @@ void SetObjectTypeName(const char *objectName, int objectID)
     printLog("Set Object (%d) name to: %s", objectID, objectName);
 }
 
-void ProcessPlayerControl(Entity *player)
+void ProcessObjectControl(Entity *player)
 {
     if (!player->controlMode) {
         player->up   = inputDown.up;
@@ -475,4 +475,29 @@ void RestoreNativeObjects()
     nativeEntityCount = nativeEntityCountBackup;
 
     CREATE_ENTITY(FadeScreen)->state = FADESCREEN_STATE_MENUFADEIN;
+}
+
+void RestoreNativeObjectsNoFade()
+{
+    memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!nativeEntityCountBackup) {
+        CREATE_ENTITY(SegaSplash);
+        nativeEntityCountBackup = 1;
+    }
+#endif
+    nativeEntityCount = nativeEntityCountBackup;
+}
+void RestoreNativeObjectsSettings()
+{
+    memcpy(activeEntityList, backupEntityListS, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackupS, sizeof(objectEntityBank));
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!nativeEntityCountBackupS) {
+        CREATE_ENTITY(SegaSplash);
+        nativeEntityCountBackupS = 1;
+    }
+#endif
+    nativeEntityCount = nativeEntityCountBackupS;
 }

@@ -185,7 +185,7 @@ void RecordsScreen_Main(void *objPtr)
                     if (entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_SELECTED) {
                         entity->state = RECORDSSCREEN_STATE_LOADSTAGE;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_FLASHING;
+                        entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                     }
                     if (entity->actCount > 1 && entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
@@ -198,21 +198,13 @@ void RecordsScreen_Main(void *objPtr)
                 else {
                     entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state    = PUSHBUTTON_STATE_UNSELECTED;
                     entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    if (CheckTouchRect(
-                            -64.0, -58.0,
-                            ((64.0 * entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->scale) + entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->textWidth)
-                                * 0.8,
-                            12.0)
-                        >= 0) {
+                    NativeEntity_PushButton *button                      = entity->buttons[RECORDSSCREEN_BUTTON_PLAY];
+                    if (CheckTouchRect(-64.0, -58.0, ((64.0 * button->scale) + button->textWidth) * 0.8, 12.0) >= 0) {
                         entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_SELECTED;
                     }
                     else if (entity->actCount > 1) {
-                        if (CheckTouchRect(64.0, -58.0,
-                                           ((64.0 * entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->scale)
-                                            + entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->textWidth)
-                                               * 0.8,
-                                           12.0)
-                            >= 0) {
+                        button = entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT];
+                        if (CheckTouchRect(64.0, -58.0, ((64.0 * button->scale) + button->textWidth) * 0.8, 12.0) >= 0) {
                             entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_SELECTED;
                         }
                     }

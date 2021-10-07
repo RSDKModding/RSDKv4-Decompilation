@@ -353,6 +353,15 @@ void RefreshEngine()
     ClearMeshData();
     ClearTextures(true);
 
+    nativeEntityCountBackup = 0;
+    memset(backupEntityList, 0, sizeof(backupEntityList));
+    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
+
+    nativeEntityCountBackupS = 0;
+    memset(backupEntityListS, 0, sizeof(backupEntityListS));
+    memset(objectEntityBackupS, 0, sizeof(objectEntityBackupS));
+
+
     for (int i = 0; i < FONTLIST_COUNT; ++i) {
         fontList[i].count = 2;
     }

@@ -1559,13 +1559,13 @@ void SetPathGripSensors(Entity *player)
     }
 }
 
-void ProcessPlayerTileCollisions(Entity *player)
+void ProcessTileCollisions(Entity *player)
 {
-    player->floorSensors[0] = 0;
-    player->floorSensors[1] = 0;
-    player->floorSensors[2] = 0;
-    player->floorSensors[3] = 0;
-    player->floorSensors[4] = 0;
+    player->floorSensors[0] = false;
+    player->floorSensors[1] = false;
+    player->floorSensors[2] = false;
+    player->floorSensors[3] = false;
+    player->floorSensors[4] = false;
     scriptEng.checkResult   = false;
 
     collisionTolerance = 15;
