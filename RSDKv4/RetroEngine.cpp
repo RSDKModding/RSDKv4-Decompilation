@@ -182,6 +182,10 @@ bool processEvents()
                             SetGlobalVariableByName("starPostID", 0); // For S2
                         }
                         break;
+                    case SDLK_F9:
+                        if (Engine.devMenu)
+                            showHitboxes ^= 1;
+                        break;
                     case SDLK_F10:
                         if (Engine.devMenu)
                             Engine.showPaletteOverlay ^= 1;

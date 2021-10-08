@@ -37,6 +37,30 @@ struct CollisionSensor {
     bool collided;
 };
 
+#if !RETRO_USE_ORIGINAL_CODE
+#define DEBUG_HITBOX_MAX (0x400)
+
+struct DebugHitboxInfo {
+    byte type;
+    byte collision;
+    short left;
+    short top;
+    short right;
+    short bottom;
+    int xpos;
+    int ypos;
+    Entity *entity;
+};
+
+enum DebugHitboxTypes { H_TYPE_TOUCH, H_TYPE_BOX, H_TYPE_PLAT };
+
+extern bool showHitboxes;
+extern int debugHitboxCount;
+extern DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_MAX];
+
+int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom);
+#endif
+
 extern int collisionLeft;
 extern int collisionTop;
 extern int collisionRight;

@@ -125,6 +125,10 @@ void InitStartingStage(int list, int stage, int player)
 
 void ProcessStage(void)
 {
+#if !RETRO_USE_ORIGINAL_CODE
+    debugHitboxCount = 0;
+#endif
+
     switch (stageMode) {
         case STAGEMODE_LOAD: // Startup
             fadeMode = 0;

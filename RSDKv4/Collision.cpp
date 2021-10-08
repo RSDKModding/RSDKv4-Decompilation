@@ -9,6 +9,43 @@ int collisionTolerance = 0;
 
 CollisionSensor sensors[7];
 
+#if !RETRO_USE_ORIGINAL_CODE
+bool showHitboxes = false;
+
+int debugHitboxCount = 0;
+DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_MAX];
+
+int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom)
+{
+    int i = 0;
+    for (; i < debugHitboxCount; ++i) {
+        if (debugHitboxList[i].left == left && debugHitboxList[i].top == top && debugHitboxList[i].right == right
+            && debugHitboxList[i].bottom == bottom && debugHitboxList[i].xpos == entity->xpos && debugHitboxList[i].ypos == entity->ypos
+            && debugHitboxList[i].entity == entity) {
+            return i;
+        }
+    }
+
+    if (i < DEBUG_HITBOX_MAX) {
+        debugHitboxList[i].type      = type;
+        debugHitboxList[i].entity    = entity;
+        debugHitboxList[i].collision = 0;
+        debugHitboxList[i].left      = left;
+        debugHitboxList[i].top       = top;
+        debugHitboxList[i].right     = right;
+        debugHitboxList[i].bottom    = bottom;
+        debugHitboxList[i].xpos      = entity->xpos;
+        debugHitboxList[i].ypos      = entity->ypos;
+
+        int id = debugHitboxCount;
+        debugHitboxCount++;
+        return id;
+    }
+
+    return -1;
+}
+#endif
+
 inline Hitbox *getHitbox(Entity *entity)
 {
     AnimationFile *thisAnim = objectScriptList[entity->type].animFile;
@@ -2113,11 +2150,6 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
 
-    thisLeft += thisEntity->xpos >> 16;
-    thisTop += thisEntity->ypos >> 16;
-    thisRight += thisEntity->xpos >> 16;
-    thisBottom += thisEntity->ypos >> 16;
-
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
 
@@ -2130,12 +2162,35 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
 
+#if !RETRO_USE_ORIGINAL_CODE
+    int thisHitboxID  = 0;
+    int otherHitboxID = 0;
+    if (showHitboxes) {
+        thisHitboxID  = addDebugHitbox(H_TYPE_TOUCH, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = addDebugHitbox(H_TYPE_TOUCH, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+    }
+#endif
+
+    thisLeft += thisEntity->xpos >> 16;
+    thisTop += thisEntity->ypos >> 16;
+    thisRight += thisEntity->xpos >> 16;
+    thisBottom += thisEntity->ypos >> 16;
+
     otherLeft += otherEntity->xpos >> 16;
     otherTop += otherEntity->ypos >> 16;
     otherRight += otherEntity->xpos >> 16;
     otherBottom += otherEntity->ypos >> 16;
 
     scriptEng.checkResult = otherRight > thisLeft && otherLeft < thisRight && otherBottom > thisTop && otherTop < thisBottom;
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (showHitboxes) {
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1;
+        if (otherHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[otherHitboxID].collision |= 1;
+    }
+#endif
 }
 void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                   int otherRight, int otherBottom)
@@ -2155,16 +2210,6 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
 
-    thisLeft += thisEntity->xpos >> 16;
-    thisTop += thisEntity->ypos >> 16;
-    thisRight += thisEntity->xpos >> 16;
-    thisBottom += thisEntity->ypos >> 16;
-
-    thisLeft <<= 16;
-    thisTop <<= 16;
-    thisRight <<= 16;
-    thisBottom <<= 16;
-
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
 
@@ -2176,6 +2221,26 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
 
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
+
+#if !RETRO_USE_ORIGINAL_CODE
+    int thisHitboxID  = 0;
+    int otherHitboxID = 0;
+    if (showHitboxes) {
+        thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = addDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+    }
+#endif
+
+
+    thisLeft += thisEntity->xpos >> 16;
+    thisTop += thisEntity->ypos >> 16;
+    thisRight += thisEntity->xpos >> 16;
+    thisBottom += thisEntity->ypos >> 16;
+
+    thisLeft <<= 16;
+    thisTop <<= 16;
+    thisRight <<= 16;
+    thisBottom <<= 16;
 
     otherLeft <<= 16;
     otherTop <<= 16;
@@ -2436,6 +2501,15 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
             }
         }
     }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (showHitboxes) {
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
+        if (otherHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
+    }
+#endif
 }
 void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                    int otherRight, int otherBottom)
@@ -2455,16 +2529,6 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
 
-    thisLeft += thisEntity->xpos >> 16;
-    thisTop += thisEntity->ypos >> 16;
-    thisRight += thisEntity->xpos >> 16;
-    thisBottom += thisEntity->ypos >> 16;
-
-    thisLeft <<= 16;
-    thisTop <<= 16;
-    thisRight <<= 16;
-    thisBottom <<= 16;
-
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
 
@@ -2476,6 +2540,25 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
 
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
+
+#if !RETRO_USE_ORIGINAL_CODE
+    int thisHitboxID  = 0;
+    int otherHitboxID = 0;
+    if (showHitboxes) {
+        thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = addDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+    }
+#endif
+
+    thisLeft += thisEntity->xpos >> 16;
+    thisTop += thisEntity->ypos >> 16;
+    thisRight += thisEntity->xpos >> 16;
+    thisBottom += thisEntity->ypos >> 16;
+
+    thisLeft <<= 16;
+    thisTop <<= 16;
+    thisRight <<= 16;
+    thisBottom <<= 16;
 
     otherLeft <<= 16;
     otherTop <<= 16;
@@ -2721,6 +2804,15 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
             }
         }
     }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (showHitboxes) {
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << (scriptEng.checkResult - 1);
+        if (otherHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[otherHitboxID].collision |= 1 << (4 - scriptEng.checkResult);
+    }
+#endif
 }
 void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                        int otherRight, int otherBottom)
@@ -2741,15 +2833,6 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
 
     if (thisBottom == 0x10000)
         thisBottom = thisHitbox->bottom[0];
-    thisLeft += thisEntity->xpos >> 16;
-    thisTop += thisEntity->ypos >> 16;
-    thisRight += thisEntity->xpos >> 16;
-    thisBottom += thisEntity->ypos >> 16;
-
-    thisLeft <<= 16;
-    thisTop <<= 16;
-    thisRight <<= 16;
-    thisBottom <<= 16;
 
     if (otherLeft == 0x10000)
         otherLeft = otherHitbox->left[0];
@@ -2762,6 +2845,25 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
 
     if (otherBottom == 0x10000)
         otherBottom = otherHitbox->bottom[0];
+
+#if !RETRO_USE_ORIGINAL_CODE
+    int thisHitboxID  = 0;
+    int otherHitboxID = 0;
+    if (showHitboxes) {
+        thisHitboxID  = addDebugHitbox(H_TYPE_PLAT, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = addDebugHitbox(H_TYPE_PLAT, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+    }
+#endif
+
+    thisLeft += thisEntity->xpos >> 16;
+    thisTop += thisEntity->ypos >> 16;
+    thisRight += thisEntity->xpos >> 16;
+    thisBottom += thisEntity->ypos >> 16;
+
+    thisLeft <<= 16;
+    thisTop <<= 16;
+    thisRight <<= 16;
+    thisBottom <<= 16;
 
     sensors[0].collided = false;
     sensors[1].collided = false;
@@ -2799,4 +2901,13 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
         otherEntity->controlLock = 0;
         scriptEng.checkResult    = true;
     }
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (showHitboxes) {
+        if (thisHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[thisHitboxID].collision |= 1 << 0;
+        if (otherHitboxID >= 0 && scriptEng.checkResult)
+            debugHitboxList[otherHitboxID].collision |= 1 << 3;
+    }
+#endif
 }
