@@ -169,7 +169,7 @@ inline bool ReadSaveRAMData()
 #else
         sprintf(buffer, "%sSGame.bin", gamePath);
 #endif
-        saveFile = fOpen(buffer, "wb");
+        saveFile = fOpen(buffer, "rb");
         if (!saveFile)
             return false;
         useSGame = true;
