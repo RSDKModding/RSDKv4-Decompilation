@@ -32,16 +32,19 @@ void setIdentityMatrix(Matrix *matrix)
     matrix->values[0][1] = 0;
     matrix->values[0][2] = 0;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = 0x100;
     matrix->values[1][2] = 0;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = 0;
     matrix->values[2][1] = 0;
     matrix->values[2][2] = 0x100;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
-    matrix->values[3][0] = 0;
+    matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
@@ -67,14 +70,17 @@ void matrixTranslateXYZ(Matrix *matrix, int XPos, int YPos, int ZPos)
     matrix->values[0][1] = 0;
     matrix->values[0][2] = 0;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = 0x100;
     matrix->values[1][2] = 0;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = 0;
     matrix->values[2][1] = 0;
     matrix->values[2][2] = 0x100;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = XPos;
     matrix->values[3][1] = YPos;
     matrix->values[3][2] = ZPos;
@@ -86,14 +92,17 @@ void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
     matrix->values[0][1] = 0;
     matrix->values[0][2] = 0;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = scaleY;
     matrix->values[1][2] = 0;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = 0;
     matrix->values[2][1] = 0;
     matrix->values[2][2] = scaleZ;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
@@ -103,18 +112,22 @@ void matrixRotateX(Matrix *matrix, int rotationX)
 {
     int sine             = sinVal512[rotationX & 0x1FF] >> 1;
     int cosine           = cosVal512[rotationX & 0x1FF] >> 1;
+
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = 0;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = cosine;
     matrix->values[1][2] = sine;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = 0;
     matrix->values[2][1] = -sine;
     matrix->values[2][2] = cosine;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
@@ -124,18 +137,22 @@ void matrixRotateY(Matrix *matrix, int rotationY)
 {
     int sine             = sinVal512[rotationY & 0x1FF] >> 1;
     int cosine           = cosVal512[rotationY & 0x1FF] >> 1;
+
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = 0x100;
     matrix->values[1][2] = 0;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = -sine;
     matrix->values[2][1] = 0;
     matrix->values[2][2] = cosine;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
@@ -149,14 +166,17 @@ void matrixRotateZ(Matrix *matrix, int rotationZ)
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = 0;
     matrix->values[1][1] = 0x100;
     matrix->values[1][2] = 0;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = -sine;
     matrix->values[2][1] = 0;
     matrix->values[2][2] = cosine;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
@@ -175,14 +195,17 @@ void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rot
     matrix->values[0][1] = (sinZ * cosY >> 8) - (cosZ * (sinY * sinX >> 8) >> 8);
     matrix->values[0][2] = sinY * cosX >> 8;
     matrix->values[0][3] = 0;
+
     matrix->values[1][0] = sinZ * -cosX >> 8;
     matrix->values[1][1] = cosZ * cosX >> 8;
     matrix->values[1][2] = sinX;
     matrix->values[1][3] = 0;
+
     matrix->values[2][0] = (sinZ * (cosY * sinX >> 8) >> 8) - (cosZ * sinY >> 8);
     matrix->values[2][1] = (sinZ * -sinY >> 8) - (cosZ * (cosY * sinX >> 8) >> 8);
     matrix->values[2][2] = cosY * cosX >> 8;
     matrix->values[2][3] = 0;
+
     matrix->values[3][0] = 0;
     matrix->values[3][1] = 0;
     matrix->values[3][2] = 0;
@@ -246,14 +269,17 @@ void transformVertexBuffer()
     matFinal.values[0][1] = matWorld.values[0][1];
     matFinal.values[0][2] = matWorld.values[0][2];
     matFinal.values[0][3] = matWorld.values[0][3];
+
     matFinal.values[1][0] = matWorld.values[1][0];
     matFinal.values[1][1] = matWorld.values[1][1];
     matFinal.values[1][2] = matWorld.values[1][2];
     matFinal.values[1][3] = matWorld.values[1][3];
+
     matFinal.values[2][0] = matWorld.values[2][0];
     matFinal.values[2][1] = matWorld.values[2][1];
     matFinal.values[2][2] = matWorld.values[2][2];
     matFinal.values[2][3] = matWorld.values[2][3];
+
     matFinal.values[3][0] = matWorld.values[3][0];
     matFinal.values[3][1] = matWorld.values[3][1];
     matFinal.values[3][2] = matWorld.values[3][2];

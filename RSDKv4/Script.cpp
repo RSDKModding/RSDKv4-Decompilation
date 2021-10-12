@@ -24,6 +24,7 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
+#if RETRO_USE_COMPILER
 #define COMMONALIAS_COUNT (0x56)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
@@ -46,6 +47,7 @@ struct AliasInfo {
 };
 
 #define STATICVAR_COUNT (0x200)
+#endif
 
 struct FunctionInfo {
     FunctionInfo()
@@ -63,6 +65,7 @@ struct FunctionInfo {
     int opcodeSize;
 };
 
+#if RETRO_USE_COMPILER
 const char variableNames[][0x20] = {
     // Internal Script Values
     "temp0",
@@ -331,6 +334,7 @@ const char variableNames[][0x20] = {
     "engine.trialMode",
     "engine.deviceType",
 };
+#endif
 
 const FunctionInfo functions[] = {
     FunctionInfo("End", 0),      // End of Script
@@ -515,6 +519,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("Print", 3),
 };
 
+#if RETRO_USE_COMPILER
 AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("false", "0"),
                                          AliasInfo("FX_SCALE", "0"),
@@ -638,6 +643,7 @@ enum ScriptParseModes {
     PARSEMODE_TABLEREAD    = 4,
     PARSEMODE_ERROR        = 0xFF
 };
+#endif
 
 enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCONST = 3 };
 enum ScriptVarArrTypes { VARARR_NONE = 0, VARARR_ARRAY = 1, VARARR_ENTNOPLUS1 = 2, VARARR_ENTNOMINUS1 = 3 };
@@ -1040,6 +1046,7 @@ enum ScrFunc {
     FUNC_MAX_CNT
 };
 
+#if RETRO_USE_COMPILER
 void CheckAliasText(char *text)
 {
     sizeof(publicTables);
@@ -2373,6 +2380,8 @@ void AppendIntegerToStringW(ushort *text, int value)
         text[textPos++] = '0';
     text[textPos] = 0;
 }
+#endif
+
 bool ConvertStringToInteger(const char *text, int *value)
 {
     int charID    = 0;
@@ -2461,6 +2470,8 @@ bool ConvertStringToInteger(const char *text, int *value)
         *value = -*value;
     return true;
 }
+
+#if RETRO_USE_COMPILER
 void CopyAliasStr(char *dest, char *text, bool arrayIndex)
 {
     int textPos     = 0;
@@ -2799,6 +2810,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
         CloseFile();
     }
 }
+#endif
+
 void LoadBytecode(int stageListID, int scriptID)
 {
     char scriptPath[0x40];
@@ -3019,6 +3032,7 @@ void ClearScriptData()
     jumpTableDataPos    = 0;
     jumpTableDataOffset = 0;
 
+#if RETRO_USE_COMPILER
     scriptFunctionCount = 0;
 
     lineID = 0;
@@ -3042,11 +3056,12 @@ void ClearScriptData()
         StrCopy(privateAliases[i].value, "");
     }
 
-    memset(publicStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
-    memset(privateStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+    memset(publicStaticVariables, 0, sizeof(publicStaticVariables));
+    memset(privateStaticVariables, 0, sizeof(privateStaticVariables));
 
-    memset(publicTables, 0, TABLE_COUNT * sizeof(TableInfo));
-    memset(privateTables, 0, TABLE_COUNT * sizeof(TableInfo));
+    memset(publicTables, 0, sizeof(publicTables));
+    memset(privateTables, 0, sizeof(privateTables));
+#endif
 
     ClearGraphicsData();
     ClearAnimationData();

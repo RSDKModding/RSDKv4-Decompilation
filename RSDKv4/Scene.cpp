@@ -161,10 +161,6 @@ void ProcessStage(void)
             stageMinutes      = 0;
             stageMode         = STAGEMODE_NORMAL;
 
-            setIdentityMatrix(&matTemp);
-            setIdentityMatrix(&matWorld);
-            setIdentityMatrix(&matView);
-
 #if RETRO_USE_MOD_LOADER
             for (int m = 0; m < modList.size(); ++m) scanModFolder(&modList[m]);
 #endif
@@ -613,12 +609,13 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
-#if RETRO_USE_MOD_LOADER
+#if RETRO_USE_MOD_LOADER && RETRO_USE_COMPILER
             for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], globalObjectCount + i + 1);
             }
 #endif
 
+#if RETRO_USE_COMPILER
 #if !RETRO_USE_ORIGINAL_CODE
             bool bytecodeExists = false;
             FileInfo bytecodeInfo;
@@ -652,9 +649,16 @@ void LoadStageFiles(void)
                         return;
                 }
             }
+#else
+            GetFileInfo(&infoStore);
+            CloseFile();
+            LoadBytecode(4, scriptID);
+            scriptID += globalObjectCount;
+            SetFileInfo(&infoStore);
+#endif
             CloseFile();
 
-#if RETRO_USE_MOD_LOADER
+#if RETRO_USE_MOD_LOADER && RETRO_USE_COMPILER
             globalObjCount = globalObjectCount;
             for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {
                 SetObjectTypeName(modTypeNames[i], scriptID);
@@ -705,6 +709,7 @@ void LoadStageFiles(void)
                 SetObjectTypeName(strBuffer, scriptID + i);
             }
 
+#if RETRO_USE_COMPILER
 #if !RETRO_USE_ORIGINAL_CODE
             char scriptPath[0x40];
             switch (activeStageList) {
@@ -754,6 +759,17 @@ void LoadStageFiles(void)
                         return;
                 }
             }
+#else
+            for (byte i = 0; i < stageObjectCount; ++i) {
+                FileRead(&fileBuffer2, 1);
+                FileRead(strBuffer, fileBuffer2);
+                strBuffer[fileBuffer2] = 0;
+            }
+            GetFileInfo(&infoStore);
+            CloseFile();
+            LoadBytecode(activeStageList, scriptID);
+            SetFileInfo(&infoStore);
+#endif
             CloseFile();
         }
 

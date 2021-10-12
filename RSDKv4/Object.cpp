@@ -48,8 +48,8 @@ void ProcessStartupObjects()
     OBJECT_BORDER_X4           = SCREEN_XSIZE + 0x20;
     Entity *entity             = &objectEntityList[TEMPENTITY_START];
 
-    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
-    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
+    memset(foreachStack, -1, sizeof(foreachStack));
+    memset(jumpTableStack, 0, sizeof(jumpTableStack));
 
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];

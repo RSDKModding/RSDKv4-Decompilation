@@ -73,7 +73,7 @@ void PushButton_Main(void *objPtr)
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
                 entity->stateTimer = 0.0;
-                entity->state      = 0;
+                entity->state      = PUSHBUTTON_STATE_UNSELECTED;
             }
             break;
         }

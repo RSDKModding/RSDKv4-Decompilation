@@ -3,11 +3,13 @@
 
 #define SCRIPTDATA_COUNT (0x100000)
 #define JUMPTABLE_COUNT  (0x10000)
-#define FUNCTION_COUNT   (0x200)
+#define FUNCTION_COUNT   (0x400)
 
 #define JUMPSTACK_COUNT (0x400)
 #define FUNCSTACK_COUNT (0x400)
 #define FORSTACK_COUNT  (0x400)
+
+#define RETRO_USE_COMPILER (1)
 
 struct ScriptPtr {
     int scriptCodePtr;
@@ -28,12 +30,10 @@ struct ScriptEngine {
     int operands[0x10];
     int temp[8];
     int arrayPosition[9];
-    // int currentPlayer;   // ArrayPos[6]
-    // int playerCount;     // ArrayPos[7]
-    // int tempObjectPos;   // ArrayPos[8]
     int checkResult;
 };
 
+#if RETRO_USE_COMPILER
 #define TABLE_COUNT       (0x200)
 #define TABLE_ENTRY_COUNT (0x400)
 
@@ -91,6 +91,7 @@ struct TableInfo {
     TableValue values[TABLE_ENTRY_COUNT];
     int dataPos;
 };
+#endif
 
 enum ScriptSubs { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_SETUP = 2 };
 
@@ -118,6 +119,9 @@ extern int scriptDataOffset;
 extern int jumpTableDataPos;
 extern int jumpTableDataOffset;
 
+bool ConvertStringToInteger(const char *text, int *value);
+
+#if RETRO_USE_COMPILER
 extern int scriptFunctionCount;
 extern char scriptFunctionNames[FUNCTION_COUNT][0x40];
 
@@ -136,11 +140,11 @@ bool ReadSwitchCase(char *text);
 void ReadTableValues(char *text);
 void AppendIntegerToString(char *text, int value);
 void AppendIntegerToStringW(ushort *text, int value);
-bool ConvertStringToInteger(const char *text, int *value);
 void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 bool CheckOpcodeType(char *text); // Never actually used
 
 void ParseScriptFile(char *scriptName, int scriptID);
+#endif
 void LoadBytecode(int stageListID, int scriptID);
 
 void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);

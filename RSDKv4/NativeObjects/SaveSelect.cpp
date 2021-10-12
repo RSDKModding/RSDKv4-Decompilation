@@ -200,8 +200,15 @@ void SaveSelect_Main(void *objPtr)
                             else
                                 PlaySfxByName("Star Post", false);
                             entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
-                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
-                                entity->state = SAVESELECT_STATE_DELSETUP;
+                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING) {
+                                entity->state = SAVESELECT_STATE_MAIN;
+                                PlaySfxByName("Menu Back", false);
+                                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                                    if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
+                                        entity->saveButtons[i]->useMeshH = false;
+                                }
+                                entity->delButton->state = PUSHBUTTON_STATE_UNSELECTED;
+                            }
                             else
                                 entity->state = SAVESELECT_STATE_LOADSAVE;
                         }
@@ -231,10 +238,12 @@ void SaveSelect_Main(void *objPtr)
                             entity->state = SAVESELECT_STATE_DELSETUP;
                         else
                             entity->state = SAVESELECT_STATE_LOADSAVE;
+
                         break;
                     }
                     y -= 30.0;
                 }
+
                 if (entity->state == SAVESELECT_STATE_MAIN) {
                     if (!entity->deleteEnabled) {
                         if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
@@ -251,10 +260,7 @@ void SaveSelect_Main(void *objPtr)
                                 else
                                     PlaySfxByName("Star Post", false);
                                 entity->delButton->state = PUSHBUTTON_STATE_FLASHING;
-                                if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
-                                    entity->state = SAVESELECT_STATE_DELSETUP;
-                                else
-                                    entity->state = SAVESELECT_STATE_LOADSAVE;
+                                entity->state            = SAVESELECT_STATE_LOADSAVE;
                             }
                             else {
                                 if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {

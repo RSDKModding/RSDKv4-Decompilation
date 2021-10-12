@@ -838,7 +838,6 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                                     }
                                 }
                                 else {
-
                                     StrCopy(stageList[l][stageListCount[l]].name, stgName);
                                     StrCopy(stageList[l][stageListCount[l]].folder, stgFolder);
                                     StrCopy(stageList[l][stageListCount[l]].id, stgID);
