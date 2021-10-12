@@ -298,7 +298,7 @@ void MenuControl_Main(void *objPtr)
                 if (entity->dialogTimer) {
                     entity->dialogTimer--;
                 }
-                else if (inputPress.B) {
+                else if (inputPress.B && !Engine.nativeMenuFadeIn) {
                     entity->dialog = CREATE_ENTITY(DialogPanel);
                     SetStringToFont(entity->dialog->text, strExitGame, FONT_TEXT);
                     entity->state = MENUCONTROL_STATE_DIALOGWAIT;

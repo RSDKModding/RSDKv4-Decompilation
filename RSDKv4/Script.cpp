@@ -3397,13 +3397,81 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
-                        int pos = objectEntityList[arrayVal].xpos >> 16;
-                        if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= xScrollOffset + OBJECT_BORDER_X2) {
-                            scriptEng.operands[i] = 1;
+                        int boundX1_2P = -(0x200 << 16);
+                        int boundX2_2P = (0x200 << 16);
+                        int boundX3_2P = -(0x180 << 16);
+                        int boundX4_2P = (0x180 << 16);
+
+                        int boundY1_2P   = -(0x180 << 16);
+                        int boundY2_2P   = (0x180 << 16);
+                        int boundY3_2P   = -(0x100 << 16);
+                        int boundY4_2P   = (0x100 << 16);
+
+                        int P1Bound_L = objectEntityList[0].xpos - 0x1FFFFFF;
+                        int P1Bound_R = objectEntityList[0].xpos + 0x1FFFFFF;
+                        int P1Bound_T = objectEntityList[0].ypos - 0x1800000;
+                        int P1Bound_B = objectEntityList[0].ypos + 0x1800000;
+
+                        int P2Bound_L = objectEntityList[1].xpos - 0x1FFFFFF;
+                        int P2Bound_R = objectEntityList[1].xpos + 0x1FFFFFF;
+                        int P2Bound_T = objectEntityList[1].ypos - 0x17FFFFF;
+                        int P2Bound_B = objectEntityList[1].ypos + 0x17FFFFF;
+
+                        Entity *entPtr = &objectEntityList[arrayVal];
+                        int x          = entPtr->xpos >> 16;
+                        int y          = entPtr->ypos >> 16;
+
+                        if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_2P_UNKNOWN) {
+                            if (stageMode == STAGEMODE_2P) {
+                                int boundL_P1 = objectEntityList[0].xpos + boundX3_2P;
+                                int boundR_P1 = objectEntityList[0].xpos + boundX4_2P;
+                                int boundT_P1 = objectEntityList[0].ypos + boundY3_2P;
+                                int boundB_P1 = objectEntityList[0].ypos + boundY4_2P;
+
+                                int boundL_P2 = objectEntityList[1].xpos + boundX3_2P;
+                                int boundR_P2 = objectEntityList[1].xpos + boundX4_2P;
+                                int boundT_P2 = objectEntityList[1].ypos + boundY3_2P;
+                                int boundB_P2 = objectEntityList[1].ypos + boundY4_2P;
+
+                                bool oobP1 = scriptEng.operands[i] = x <= boundL_P1 || x >= boundR_P1 || y <= boundT_P1 || y >= boundB_P1;
+                                bool oobP2 = scriptEng.operands[i] = x <= boundL_P2 || x >= boundR_P2 || y <= boundT_P2 || y >= boundB_P2;
+
+                                scriptEng.operands[i] = oobP1 && oobP2;
+                            }
+                            else {
+                                int boundL = xScrollOffset - OBJECT_BORDER_X3;
+                                int boundR = xScrollOffset + OBJECT_BORDER_X4;
+                                int boundT = yScrollOffset - OBJECT_BORDER_Y3;
+                                int boundB = yScrollOffset + OBJECT_BORDER_Y4;
+
+                                scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
+                            }
                         }
                         else {
-                            pos                   = objectEntityList[arrayVal].ypos >> 16;
-                            scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >= yScrollOffset + OBJECT_BORDER_Y2;
+                            if (stageMode == STAGEMODE_2P) {
+                                int boundL_P1 = objectEntityList[0].xpos + boundX1_2P;
+                                int boundR_P1 = objectEntityList[0].xpos + boundX2_2P;
+                                int boundT_P1 = objectEntityList[0].ypos + boundY1_2P;
+                                int boundB_P1 = objectEntityList[0].ypos + boundY2_2P;
+
+                                int boundL_P2 = objectEntityList[1].xpos + boundX1_2P;
+                                int boundR_P2 = objectEntityList[1].xpos + boundX2_2P;
+                                int boundT_P2 = objectEntityList[1].ypos + boundY1_2P;
+                                int boundB_P2 = objectEntityList[1].ypos + boundY2_2P;
+
+                                bool oobP1 = scriptEng.operands[i] = x <= boundL_P1 || x >= boundR_P1 || y <= boundT_P1 || y >= boundB_P1;
+                                bool oobP2 = scriptEng.operands[i] = x <= boundL_P2 || x >= boundR_P2 || y <= boundT_P2 || y >= boundB_P2;
+
+                                scriptEng.operands[i] = oobP1 && oobP2;
+                            }
+                            else {
+                                int boundL = xScrollOffset - OBJECT_BORDER_X1;
+                                int boundR = xScrollOffset + OBJECT_BORDER_X2;
+                                int boundT = yScrollOffset - OBJECT_BORDER_Y1;
+                                int boundB = yScrollOffset + OBJECT_BORDER_Y2;
+
+                                scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
+                            }
                         }
                         break;
                     }
