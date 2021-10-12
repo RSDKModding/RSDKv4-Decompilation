@@ -424,8 +424,10 @@ void PauseMenu_Main(void *objPtr)
                 if (GetGlobalVariableByName("options.gameMode") <= 1) {
                     SetGlobalVariableByName("player.lives", GetGlobalVariableByName("player.lives") - 1);
                 }
-                SetGlobalVariableByName("lampPostID", 0);
-                SetGlobalVariableByName("starPostID", 0);
+                if (activeStageList != STAGELIST_SPECIAL) {
+                    SetGlobalVariableByName("lampPostID", 0);
+                    SetGlobalVariableByName("starPostID", 0);
+                }
                 entity->dialog->state = DIALOGPANEL_STATE_IDLE;
                 StopMusic(true);
                 CREATE_ENTITY(FadeScreen);
