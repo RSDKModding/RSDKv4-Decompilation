@@ -181,18 +181,24 @@ void SaveSelect_Main(void *objPtr)
 
                     if (inputPress.start || inputPress.A) {
                         if (entity->selectedButton < SAVESELECT_BUTTON_COUNT) {
-                            PlaySfxByName("Menu Select", false);
-                            entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
-                            if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
-                                if (entity->state != SAVESELECT_STATE_MAIN_DELETING)
-                                    StopMusic(true);
-                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING) {
+                                if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
+                                    PlaySfxByName("Menu Select", false);
+                                    entity->state                                      = SAVESELECT_STATE_DELSETUP;
+                                    entity->saveButtons[entity->selectedButton]->b     = 0xFF;
+                                    entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                                }
                             }
-                            entity->saveButtons[entity->selectedButton]->b = 0xFF;
-                            if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
-                                entity->state = SAVESELECT_STATE_DELSETUP;
-                            else
-                                entity->state = SAVESELECT_STATE_LOADSAVE;
+                            else {
+                                PlaySfxByName("Menu Select", false);
+                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
+                                if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
+                                    StopMusic(true);
+                                    entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                                }
+                                entity->saveButtons[entity->selectedButton]->b = 0xFF;
+                                entity->state                                  = SAVESELECT_STATE_LOADSAVE;
+                            }
                         }
                         else {
                             if (Engine.gameType == GAME_SONIC1)
@@ -226,18 +232,24 @@ void SaveSelect_Main(void *objPtr)
                     }
                     else if (!entity->saveButtons[i]->b) {
                         entity->selectedButton = i;
-                        PlaySfxByName("Menu Select", false);
-                        entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
-                        if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
-                            if (entity->state != SAVESELECT_STATE_MAIN_DELETING)
-                                StopMusic(true);
-                            entity->saveButtons[i]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                        if (entity->state == SAVESELECT_STATE_MAIN_DELETING) {
+                            if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
+                                PlaySfxByName("Menu Select", false);
+                                entity->state                                      = SAVESELECT_STATE_DELSETUP;
+                                entity->saveButtons[entity->selectedButton]->b     = 0xFF;
+                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                            }
                         }
-                        entity->saveButtons[i]->b = 0xFF;
-                        if (entity->state == SAVESELECT_STATE_MAIN_DELETING)
-                            entity->state = SAVESELECT_STATE_DELSETUP;
-                        else
-                            entity->state = SAVESELECT_STATE_LOADSAVE;
+                        else {
+                            PlaySfxByName("Menu Select", false);
+                            entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
+                            if (entity->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[entity->selectedButton - 1].stageID > 0) {
+                                StopMusic(true);
+                                entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
+                            }
+                            entity->saveButtons[entity->selectedButton]->b = 0xFF;
+                            entity->state                                  = SAVESELECT_STATE_LOADSAVE;
+                        }
 
                         break;
                     }
