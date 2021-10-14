@@ -1516,7 +1516,7 @@ void ConvertFunctionText(char *text)
             arrayStr[arrayStrPos] = 0;
 
             int value = 0;
-            // Eg: TempValue0 = FX_SCALE
+            // Eg: temp0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
                 if (StrComp(funcName, privateAliases[a].name)) {
@@ -1571,7 +1571,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = value0
+            // Eg: temp0 = value0
             // Private (this script only)
             for (int s = 0; s < privateStaticVarCount; ++s) {
                 if (StrComp(funcName, privateStaticVariables[s].name)) {
@@ -1589,7 +1589,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: GetTableValue(TempValue0, 1, array0)
+            // Eg: GetTableValue(temp0, 1, arrayPos0)
             // Private (this script only)
             for (int a = 0; a < privateTableCount; ++a) {
                 if (StrComp(funcName, privateTables[a].name)) {
@@ -1607,7 +1607,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = Game.Variable
+            // Eg: temp0 = game.variable
             for (int v = 0; v < globalVariablesCount; ++v) {
                 if (StrComp(funcName, globalVariableNames[v])) {
                     StrCopy(funcName, "global");
@@ -1615,7 +1615,7 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(arrayStr, v);
                 }
             }
-            // Eg: TempValue0 = Function1
+            // Eg: temp0 = Function1
             for (int f = 0; f < scriptFunctionCount; ++f) {
                 if (StrComp(funcName, scriptFunctionNames[f])) {
                     funcName[0] = 0;
@@ -1623,7 +1623,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = TypeName[PlayerObject]
+            // Eg: temp0 = TypeName[Player Object]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1643,7 +1643,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = SfxName[Jump]
+            // Eg: temp0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1664,7 +1664,7 @@ void ConvertFunctionText(char *text)
             }
 
 #if RETRO_USE_MOD_LOADER
-            // Eg: TempValue0 = AchievementName[Ring King]
+            // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1695,7 +1695,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = PlayerName[SONIC]
+            // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1726,7 +1726,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            // Eg: temp0 = StageName[GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1907,7 +1907,7 @@ void CheckCaseNumber(char *text)
         while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
         arrStrBuf[bufPos] = 0;
 
-        // Eg: TempValue0 = TypeName[PlayerObject]
+        // Eg: temp0 = TypeName[Player Object]
         if (StrComp(caseValue, "TypeName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
@@ -1927,7 +1927,7 @@ void CheckCaseNumber(char *text)
             }
         }
 
-        // Eg: TempValue0 = SfxName[Jump]
+        // Eg: temp0 = SfxName[Jump]
         if (StrComp(caseValue, "SfxName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
@@ -1948,7 +1948,7 @@ void CheckCaseNumber(char *text)
         }
 
 #if RETRO_USE_MOD_LOADER
-        // Eg: TempValue0 = AchievementName[Ring King]
+        // Eg: temp0 = AchievementName[Ring King]
         if (StrComp(caseValue, "AchievementName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
@@ -1979,7 +1979,7 @@ void CheckCaseNumber(char *text)
             }
         }
 
-        // Eg: TempValue0 = PlayerName[SONIC]
+        // Eg: temp0 = PlayerName[SONIC]
         if (StrComp(caseValue, "PlayerName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
@@ -2010,7 +2010,7 @@ void CheckCaseNumber(char *text)
             }
         }
 
-        // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+        // Eg: temp0 = StageName[GREEN HILL ZONE 1]
         if (StrComp(caseValue, "StageName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
@@ -2123,7 +2123,7 @@ bool ReadSwitchCase(char *text)
             while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
             arrStrBuf[bufPos] = 0;
 
-            // Eg: TempValue0 = TypeName[PlayerObject]
+            // Eg: temp0 = TypeName[Player Object]
             if (StrComp(caseValue, "TypeName")) {
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, 0);
@@ -2143,7 +2143,7 @@ bool ReadSwitchCase(char *text)
                 }
             }
 
-            // Eg: TempValue0 = SfxName[Jump]
+            // Eg: temp0 = SfxName[Jump]
             if (StrComp(caseValue, "SfxName")) {
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, 0);
@@ -2164,7 +2164,7 @@ bool ReadSwitchCase(char *text)
             }
 
 #if RETRO_USE_MOD_LOADER
-            // Eg: TempValue0 = AchievementName[Ring King]
+            // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(caseValue, "AchievementName")) {
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, 0);
@@ -2195,7 +2195,7 @@ bool ReadSwitchCase(char *text)
                 }
             }
 
-            // Eg: TempValue0 = PlayerName[SONIC]
+            // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(caseValue, "PlayerName")) {
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, 0);
@@ -2226,7 +2226,7 @@ bool ReadSwitchCase(char *text)
                 }
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            // Eg: temp0 = StageName[GREEN HILL ZONE 1]
             if (StrComp(caseValue, "StageName")) {
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, 0);
