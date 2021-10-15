@@ -187,7 +187,7 @@ jobs:
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
-          name: RSDK-v4-Android
+          name: v4-Android
           path: ./android/app/build/outputs/apk
   v4-linux:
     runs-on: ubuntu-latest
