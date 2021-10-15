@@ -42,6 +42,88 @@ bool disableFocusPause_Config = false;
 
 bool useSGame = false;
 
+bool ReadSaveRAMData()
+{
+    useSGame = false;
+    char buffer[0x180];
+#if RETRO_PLATFORM == RETRO_UWP
+    if (!usingCWD)
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+    else
+        sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+    sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+
+    FileIO *saveFile = fOpen(buffer, "rb");
+    if (!saveFile) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+
+        saveFile = fOpen(buffer, "rb");
+        if (!saveFile)
+            return false;
+        useSGame = true;
+    }
+    fRead(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fClose(saveFile);
+    return true;
+}
+
+bool WriteSaveRAMData()
+{
+    char buffer[0x180];
+    if (!useSGame) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+    }
+    else {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+    }
+
+    FileIO *saveFile = fOpen(buffer, "wb");
+    if (!saveFile)
+        return false;
+    fWrite(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fClose(saveFile);
+    return true;
+}
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -641,13 +723,15 @@ void ReadUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
-        sprintf(buffer, "%s/UData.bin", getResourcesPath());
+        sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
     else
-        sprintf(buffer, "%sUData.bin", gamePath);
+        sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/UData.bin", gamePath);
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
 #else
-    sprintf(buffer, "%sUData.bin", gamePath);
+    sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
     FileIO *userFile = fOpen(buffer, "rb");
     if (!userFile)
@@ -677,13 +761,15 @@ void WriteUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
-        sprintf(buffer, "%s/UData.bin", getResourcesPath());
+        sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
     else
-        sprintf(buffer, "%sUData.bin", gamePath);
+        sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/UData.bin", gamePath);
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
 #else
-    sprintf(buffer, "%sUData.bin", gamePath);
+    sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
     FileIO *userFile = fOpen(buffer, "wb");
     if (!userFile)

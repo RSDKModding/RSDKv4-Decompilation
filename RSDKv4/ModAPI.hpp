@@ -19,6 +19,8 @@ struct ModInfo {
     bool useScripts;
     bool skipStartMenu;
     bool disableFocusPause;
+    bool redirectSave;
+    std::string savePath;
     bool active;
 };
 
@@ -26,6 +28,9 @@ extern std::vector<ModInfo> modList;
 extern int activeMod;
 
 extern char modsPath[0x100];
+
+extern bool redirectSave;
+extern char savePath[0x100];
 
 extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];

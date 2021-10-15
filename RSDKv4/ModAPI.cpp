@@ -6,6 +6,9 @@ int activeMod = -1;
 
 char modsPath[0x100];
 
+bool redirectSave = false;
+char savePath[0x100];
+
 char modTypeNames[OBJECT_COUNT][0x40];
 char modScriptPaths[OBJECT_COUNT][0x40];
 byte modScriptFlags[OBJECT_COUNT];
@@ -32,7 +35,10 @@ namespace fs = std::filesystem;
 void initMods()
 {
     modList.clear();
-    forceUseScripts = forceUseScripts_Config;
+    forceUseScripts   = forceUseScripts_Config;
+    disableFocusPause = disableFocusPause_Config;
+    redirectSave      = false;
+    sprintf(savePath, "");
 
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
@@ -86,6 +92,30 @@ void initMods()
             printLog(fe.what());
         }
     }
+
+    forceUseScripts   = false;
+    skipStartMenu     = skipStartMenu_Config;
+    disableFocusPause = disableFocusPause_Config;
+    forceUseScripts   = forceUseScripts_Config;
+    sprintf(savePath, "");
+    redirectSave = false;
+    for (int m = 0; m < modList.size(); ++m) {
+        if (modList[m].useScripts && modList[m].active)
+            forceUseScripts = true;
+        if (modList[m].skipStartMenu && modList[m].active)
+            skipStartMenu = true;
+        if (modList[m].disableFocusPause && modList[m].active)
+            disableFocusPause = true;
+        if (modList[m].useScripts && modList[m].active)
+            forceUseScripts = true;
+        if (modList[m].redirectSave && modList[m].active) {
+            sprintf(savePath, "%s", modList[m].savePath.c_str());
+            redirectSave = true;
+        }
+    }
+
+    ReadSaveRAMData();
+    ReadUserdata();
 }
 bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool active)
 {
@@ -148,10 +178,20 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
         if (info->skipStartMenu && info->active)
             skipStartMenu = true;
+
         info->disableFocusPause = false;
         modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
         if (info->disableFocusPause && info->active)
             disableFocusPause = true;
+
+        info->redirectSave = false;
+        modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
+        if (info->redirectSave && info->active) {
+            char path[0x100];
+            sprintf(path, "mods/%s/", folder.c_str());
+            info->savePath = path;
+        }
+
         return true;
     }
     return false;
@@ -385,6 +425,8 @@ void RefreshEngine()
     skipStartMenu     = skipStartMenu_Config;
     disableFocusPause = disableFocusPause_Config;
     forceUseScripts   = forceUseScripts_Config;
+    sprintf(savePath, "");
+    redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
         if (modList[m].useScripts && modList[m].active)
             forceUseScripts = true;
@@ -394,8 +436,16 @@ void RefreshEngine()
             disableFocusPause = true;
         if (modList[m].useScripts && modList[m].active)
             forceUseScripts = true;
+        if (modList[m].redirectSave && modList[m].active) {
+            sprintf(savePath, "%s", modList[m].savePath.c_str());
+            redirectSave = true;
+        }
     }
+
     saveMods();
+
+    ReadSaveRAMData();
+    ReadUserdata();
 }
 
 void GetModCount() { scriptEng.checkResult = (int)modList.size(); }

@@ -143,77 +143,8 @@ inline int GetGlobalVariableID(const char *name)
     }
 
 extern bool useSGame;
-inline bool ReadSaveRAMData()
-{
-    useSGame = false;
-    char buffer[0x180];
-#if RETRO_PLATFORM == RETRO_UWP
-    if (!usingCWD)
-        sprintf(buffer, "%s/SData.bin", getResourcesPath());
-    else
-        sprintf(buffer, "%sSData.bin", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/SData.bin", gamePath);
-#else
-    sprintf(buffer, "%sSData.bin", gamePath);
-#endif
-    FileIO *saveFile = fOpen(buffer, "rb");
-    if (!saveFile) {
-#if RETRO_PLATFORM == RETRO_UWP
-        if (!usingCWD)
-            sprintf(buffer, "%s/sSGame.bin", getResourcesPath());
-        else
-            sprintf(buffer, "%sSGame.bin", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
-        sprintf(buffer, "%s/sSGame.bin", gamePath);
-#else
-        sprintf(buffer, "%sSGame.bin", gamePath);
-#endif
-        saveFile = fOpen(buffer, "rb");
-        if (!saveFile)
-            return false;
-        useSGame = true;
-    }
-    fRead(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
-    fClose(saveFile);
-    return true;
-}
-
-inline bool WriteSaveRAMData()
-{
-    char buffer[0x180];
-    if (!useSGame) {
-#if RETRO_PLATFORM == RETRO_UWP
-        if (!usingCWD)
-            sprintf(buffer, "%s/SData.bin", getResourcesPath());
-        else
-            sprintf(buffer, "%sSData.bin", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
-        sprintf(buffer, "%s/SData.bin", gamePath);
-#else
-        sprintf(buffer, "%sSData.bin", gamePath);
-#endif
-    }
-    else {
-#if RETRO_PLATFORM == RETRO_UWP
-        if (!usingCWD)
-            sprintf(buffer, "%s/sSGame.bin", getResourcesPath());
-        else
-            sprintf(buffer, "%sSGame.bin", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
-        sprintf(buffer, "%s/sSGame.bin", gamePath);
-#else
-        sprintf(buffer, "%sSGame.bin", gamePath);
-#endif
-    }
-
-    FileIO *saveFile = fOpen(buffer, "wb");
-    if (!saveFile)
-        return false;
-    fWrite(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
-    fClose(saveFile);
-    return true;
-}
+bool ReadSaveRAMData();
+bool WriteSaveRAMData();
 
 #if !RETRO_USE_ORIGINAL_CODE
 void InitUserdata();
