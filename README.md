@@ -3,7 +3,7 @@
 + Without assets from the official releases this decompilation will not run.
 + Video tutorial on how to find your legally obtained Data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
 
-+ You can get the official release of sonic 1 & sonic 2 from:
++ You can get the official release of Sonic 1 & Sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
   * [Sonic 2 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
   * [Sonic 1 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic1px&hl=en_AU&gl=US)
@@ -19,7 +19,7 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Added a built in script compiler. Similar to CD, but tweaked up to match the new syntax for the scripts used in RSDKv4.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * Dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
-* The `f12` pause, `f11` step over & fast forward debug features from Sonic Mania have all be ported and are enabled if dev menu is enabled in the config.
+* The `f12` pause, `f11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if dev menu is enabled in the config.
 * If `devMenu` is enabled in the config, pressing `f10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 
 # How to build:
@@ -27,8 +27,11 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
 * or grab a prebuilt executable from the releases section
 
-## Windows via MSYS2 (64-bit Only):
+## Windows UWP (Phone, Xbox, etc.):
+* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
+* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
 
+## Windows via MSYS2 (64-bit Only):
 * Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it.
 * Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter. Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
 * Now install the dependencies with the following command: `pacman -S make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew`
@@ -36,21 +39,17 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Then run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
 
-## Windows UWP (Phone, Xbox, etc.):
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
-* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
-
 ## Linux:
 * To setup your build enviroment and library dependecies run the following commands:
-* Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libgbm-dev`
-* Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg`
+* Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev`
+* Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg libglew libasio`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
 
 ## Mac:
 * Clone the repo, then follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project.
-* A Mac build of v1.0.0 by sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.0.0mac)
+* A Mac build of v1.1.2 by sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/v1.1.2.1)
 
 ## Android:
 * Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
@@ -58,14 +57,15 @@ If you want to transfer your save from the **Android pre-forever versions,** you
   * `mklink /D src ..\..\..`
   * `mklink /D SDL ..\..\..\dependencies\android\SDL`
 * Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
+
 ## Vita
 * For Vita installation, [Xeeynamo's vita branch](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation) has you covered.
+
 ## Switch:
 * Head on over to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme.
 
 ## Web:
 * Head on over to [mattConn's fork](https://github.com/mattConn/Sonic-Decompilation-WASM) and follow the installation instructions in the readme.
-
 
 ## Other platforms:
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.

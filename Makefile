@@ -11,7 +11,7 @@ LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthr
 
 SOURCES = \
           dependencies/all/tinyxml2/tinyxml2.cpp \
-	  RSDKv4/Animation.cpp     \
+          RSDKv4/Animation.cpp     \
           RSDKv4/Audio.cpp         \
           RSDKv4/Collision.cpp     \
           RSDKv4/Debug.cpp         \
@@ -20,8 +20,8 @@ SOURCES = \
           RSDKv4/Input.cpp         \
           RSDKv4/main.cpp          \
           RSDKv4/Math.cpp          \
-	  RSDKv4/ModAPI.cpp        \
-	  RSDKv4/Networking.cpp	   \
+          RSDKv4/ModAPI.cpp        \
+          RSDKv4/Networking.cpp	   \
           RSDKv4/Object.cpp        \
           RSDKv4/Palette.cpp       \
           RSDKv4/Reader.cpp        \

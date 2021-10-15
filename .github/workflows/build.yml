@@ -180,14 +180,14 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
-      - name: Build RSDK v4 Android
+      - name: Build RSDKv4 Android
         working-directory: ./android
         run: |
           ./gradlew.bat Build --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
-          name: v4-Android
+          name: v4-android
           path: ./android/app/build/outputs/apk
   v4-linux:
     runs-on: ubuntu-latest
