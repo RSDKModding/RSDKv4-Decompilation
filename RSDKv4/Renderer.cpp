@@ -526,8 +526,8 @@ void RenderScene()
 #if RETRO_USING_OPENGL
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer);
             glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
             glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), screenBufferVertexList);
             glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenBufferVertexList[6]);
             glViewport(0, 0, GFX_LINESIZE_DOUBLE, SCREEN_YSIZE * 2);
@@ -544,7 +544,7 @@ void RenderScene()
             glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
             glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), state->vertPtr);
             glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &state->vertPtr->texCoordX);
-            glViewport(0, 0, displaySettings.width, displaySettings.height);
+            glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
             glPopMatrix();
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();

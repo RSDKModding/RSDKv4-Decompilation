@@ -39,7 +39,7 @@ struct GFXSurface
 
 struct DisplaySettings {
     byte field_0;
-    int field_4;
+    int offsetX;
     int width;
     int height;
     int field_10;

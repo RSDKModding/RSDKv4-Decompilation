@@ -67,12 +67,10 @@ bool processEvents()
                 if (touches <= 1) { // Touch always takes priority over mouse
                     uint state = SDL_GetMouseState(&touchX[0], &touchY[0]);
 
-                    int width = 0, height = 0;
-                    SDL_GetWindowSize(Engine.window, &width, &height);
-                    touchXF[0]   = ((touchX[0] / (float)width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
-                    touchYF[0]   = -(((touchY[0] / (float)height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    touchX[0]    = (touchX[0] / (float)width) * SCREEN_XSIZE;
-                    touchY[0]    = (touchY[0] / (float)height) * SCREEN_YSIZE;
+                    touchXF[0]   = (((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                    touchYF[0]   = -(((touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
+                    touchX[0]    = ((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE;
+                    touchY[0]    = (touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE;
                     
                     touchDown[0] = state & SDL_BUTTON_LMASK;
                     if (touchDown[0])
@@ -111,6 +109,10 @@ bool processEvents()
                         touchY[touches]    = finger->y * SCREEN_YSIZE;
                         touchXF[touches]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
                         touchYF[touches]   = -((finger->y * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
+
+                        touchX[touches] -= displaySettings.offsetX;
+                        touchXF[touches] -= displaySettings.offsetX;
+
                         touches++;
                     }
                 }

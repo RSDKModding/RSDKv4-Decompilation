@@ -366,7 +366,7 @@ void FlipScreen()
 
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
-        default: Engine.scalingMode = RETRO_DEFAULTSCALINGMODE; break;
+        default: Engine.scalingMode = 0; break;
         case 0: break;                         // nearest
         case 1: integerScaling = true; break;  // integer scaling
         case 2: break;                         // sharp bilinear
@@ -1362,8 +1362,9 @@ void setupViewport()
 #endif
 
     SetPerspectiveMatrix(90.0, 0.75, 1.0, 5000.0);
+
 #if RETRO_USING_OPENGL
-    glViewport(0, 0, displaySettings.width, displaySettings.height);
+    glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
 #endif
     int displayWidth = aspect * SCREEN_YSIZE;
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
@@ -1410,8 +1411,8 @@ void setupViewport()
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
         glGenTextures(1, &renderbufferHiRes);
         glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth << 1, texHeight << 1, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
@@ -1449,6 +1450,7 @@ void setupViewport()
             glDeleteFramebuffers(1, &framebufferHiRes);
         if (renderbufferHiRes != -1)
             glDeleteTextures(1, &renderbufferHiRes);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         framebufferHiRes  = -1;
         renderbufferHiRes = -1;
@@ -1476,12 +1478,14 @@ void setupViewport()
     else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // GL_LINEAR
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // GL_LINEAR
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
+    
+    mixFiltersOnJekyll = Engine.useHighResAssets;
 
     if (transfer && Engine.frameBuffer)
         TransferRetroBuffer();
@@ -1502,8 +1506,7 @@ void setFullScreen(bool fs)
 #if RETRO_USING_OPENGL
         SDL_DisplayMode mode;
         SDL_GetDesktopDisplayMode(0, &mode);
-        SetScreenDimensions(mode.w, mode.h);
-        setupViewport();
+
         int w = mode.w;
         int h = mode.h;
         if (mode.h > mode.w) {
@@ -1511,7 +1514,18 @@ void setFullScreen(bool fs)
             h = mode.w;
         }
 
-        glViewport(0, 0, w, h);
+#if RETRO_PLATFORM != RETRO_ANDROID
+        float aspect            = SCREEN_XSIZE_CONFIG / (float)SCREEN_YSIZE;
+        displaySettings.height  = h;
+        displaySettings.width   = aspect * displaySettings.height;
+        displaySettings.offsetX = abs(mode.w - displaySettings.width) / 2;
+
+        setupViewport();
+#else
+        displaySettings.height = h;
+        displaySettings.width  = w;
+        glViewport(0, 0, displaySettings.width, displaySettings.height);
+#endif
 #endif
 #endif
     }
@@ -1526,11 +1540,10 @@ void setFullScreen(bool fs)
         SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_RestoreWindow(Engine.window);
 
-        SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+        displaySettings.width  = SCREEN_XSIZE_CONFIG * Engine.windowScale;
+        displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
+        displaySettings.offsetX = 0;
         setupViewport();
-#if RETRO_USING_OPENGL
-        glViewport(0, 0, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#endif
 #endif
     }
     Engine.isFullScreen = fs;
