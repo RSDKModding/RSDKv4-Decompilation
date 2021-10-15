@@ -44,8 +44,10 @@ IniParser::IniParser(const char *filename, bool addPath)
         while (true) {
             ret  = (int)fRead(&buf[strLen++], sizeof(byte), 1, f);
             flag = ret == 0;
-            if (ret == 0)
+            if (ret == 0) {
+                strLen--;
                 break;
+            }
             if (buf[strLen - 1] == '\n')
                 break;
         }
