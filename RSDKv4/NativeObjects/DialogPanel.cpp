@@ -13,6 +13,7 @@ void DialogPanel_Main(void *objPtr)
     RSDK_THIS(DialogPanel);
     NewRenderState();
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
+
     switch (entity->state) {
         case DIALOGPANEL_STATE_SETUP: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
@@ -82,13 +83,13 @@ void DialogPanel_Main(void *objPtr)
                         entity->buttonSelected = 0;
                         entity->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[0]->state = 2;
+                        entity->buttons[0]->state = PUSHBUTTON_STATE_FLASHING;
                     }
                     if (entity->buttonCount == DLGTYPE_YESNO && entity->buttons[1]->state == 1) {
                         entity->buttonSelected = 1;
                         entity->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[1]->state = 2;
+                        entity->buttons[1]->state = PUSHBUTTON_STATE_FLASHING;
                     }
                 }
                 else {
@@ -154,10 +155,7 @@ void DialogPanel_Main(void *objPtr)
         case DIALOGPANEL_STATE_ACTION:
             SetRenderMatrix(&entity->buttonMatrix);
             if (!entity->buttons[entity->buttonSelected]->state) {
-                entity->selection = entity->buttonSelected + 1;
                 entity->state     = DIALOGPANEL_STATE_EXIT;
-                if (entity->buttonCount == DLGTYPE_OK)
-                    entity->selection = DLG_OK;
             }
             break;
         case DIALOGPANEL_STATE_EXIT:
@@ -174,6 +172,10 @@ void DialogPanel_Main(void *objPtr)
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
+                entity->selection = entity->buttonSelected + 1;
+                if (entity->buttonCount == DLGTYPE_OK)
+                    entity->selection = DLG_OK;
+
                 // TODO: is this conditional?
                 for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
