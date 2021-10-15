@@ -314,14 +314,14 @@ void Process2PObjects()
 
 void SetObjectTypeName(const char *objectName, int objectID)
 {
-    int objNameID  = 0;
-    int typeNameID = 0;
-    while (objectName[objNameID]) {
-        if (objectName[objNameID] != ' ')
-            typeNames[objectID][typeNameID++] = objectName[objNameID];
-        ++objNameID;
+    int objPos = 0;
+    int typePos = 0;
+    while (objectName[objPos]) {
+        if (objectName[objPos] != ' ')
+            typeNames[objectID][typePos++] = objectName[objPos];
+        ++objPos;
     }
-    typeNames[objectID][typeNameID] = 0;
+    typeNames[objectID][typePos] = 0;
     printLog("Set Object (%d) name to: %s", objectID, objectName);
 }
 

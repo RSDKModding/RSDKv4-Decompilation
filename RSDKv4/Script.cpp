@@ -1726,16 +1726,26 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: temp0 = StageName[GREEN HILL ZONE 1]
+            // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = 0;
-                AppendIntegerToString(funcName, 0);
-                int s = GetSceneID(activeStageList, arrayStr);
+                int s = -1;
+                if (StrLength(arrayStr) >= 2) {
+                    char list = arrayStr[0];
+                    switch (list) {
+                        case 'P': list = STAGELIST_PRESENTATION; break;
+                        case 'R': list = STAGELIST_REGULAR; break;
+                        case 'S': list = STAGELIST_SPECIAL; break;
+                        case 'B': list = STAGELIST_BONUS; break;
+                    }
+                    s = GetSceneID(list, &arrayStr[2]);
+                }
 
                 if (s == -1) {
                     char buf[0x40];
                     sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
+                    s = 0;
                 }
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, s);

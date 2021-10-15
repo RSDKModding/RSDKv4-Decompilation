@@ -510,8 +510,29 @@ int GetSceneID(byte listID, const char *sceneName)
     if (listID >= 3)
         return -1;
 
+    char scnName[0x40];
+    int scnPos = 0;
+    int pos    = 0;
+    while (sceneName[scnPos]) {
+        if (sceneName[scnPos] != ' ')
+            scnName[pos++] = sceneName[scnPos];
+        ++scnPos;
+    }
+    scnName[pos] = 0;
+
     for (int s = 0; s < stageListCount[listID]; ++s) {
-        if (StrComp(sceneName, stageList[listID][s].name)) {
+        char nameBuffer[0x40];
+
+        scnPos = 0;
+        pos = 0;
+        while (stageList[listID][s].name[scnPos]) {
+            if (stageList[listID][s].name[scnPos] != ' ')
+                nameBuffer[pos++] = stageList[listID][s].name[scnPos];
+            ++scnPos;
+        }
+        nameBuffer[pos] = 0;
+
+        if (StrComp(scnName, nameBuffer)) {
             return s;
         }
     }
