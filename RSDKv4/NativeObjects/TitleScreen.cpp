@@ -368,7 +368,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->field_3C                    = 4.0;
                 entity->rotationZ                   = DegreesToRad(-90.0);
             }
-            RenderImage(64.0, 32.0, 160.0, 0.3, 0.31, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, entity->logoAlpha, entity->logoTextureID);
+            RenderImage(64.0, 32.0, 160.0, 0.3, 0.3, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, entity->logoAlpha, entity->logoTextureID);
             break;
         }
         case TITLESCREEN_STATE_EXIT: {
