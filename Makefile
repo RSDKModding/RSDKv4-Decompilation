@@ -1,6 +1,5 @@
 CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew) $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"' \
-               -DGLEW_STATIC \
                -IRSDKv4/ \
                -IRSDKv4/NativeObjects/ \
                -Idependencies/all/asio/include/ \
@@ -8,7 +7,7 @@ CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew)
                -Idependencies/all/tinyxml2/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -lopengl32 -lws2_32 -pthread $(LIBS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
 
 SOURCES = \
           dependencies/all/tinyxml2/tinyxml2.cpp \
