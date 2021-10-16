@@ -11,7 +11,7 @@
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-Even if your platform isn't supported by the official releases, you **must** buy it for the assets (you dont need to run the official release, you just need the game assets)
+Even if your platform isn't supported by the official releases, you **must** buy it for the assets (you don't need to run the official release, you just need the game assets)
 
 If you want to transfer your save from the official mobile versions, the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file to the `SData.bin` in the EXE folder.
 
