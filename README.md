@@ -1,7 +1,7 @@
 ![](header.png?raw=true)
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & SONIC 2**
 + Without assets from the official releases this decompilation will not run.
-+ To extract the contents of your legally obtained APK file : download Apktool [here](https://ibotpeaches.github.io/Apktool/) and execute the following command : java -jar apktool_2.6.0.jar d name_of_the_file.apk . Then find in the assets directory a file called Data.rsdk.xml. Copy it with the RSDVv4 executable and rename it to Data.rsdk
++ To extract the contents of your legally obtained APK file : download Apktool [here](https://ibotpeaches.github.io/Apktool/) and execute the following command : java -jar apktool_2.6.0.jar d name_of_the_file.apk . Then find in the assets directory a file called Data.rsdk.xml. Copy it with the RSDKv4 executable and rename it to Data.rsdk
 
 + You can get the official release of Sonic 1 & Sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
