@@ -22,7 +22,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * Dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
 * The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
-* If `devMenu` is enabled in the config, pressing 'F9' will visualize hitboxes, and `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
+* If `devMenu` is enabled in the config, pressing `F9` will visualize hitboxes, and `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 * Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
 
 # How to build:
