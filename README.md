@@ -38,6 +38,9 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Then run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+* Go into Server dir to create the executable for multiplayer in Sonic 2 `cd Server`
+* Then run `make -f Makefile.msys2 CXXFLAGS=-static -j4` to create the Server executable (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+
 
 ## Linux:
 * To setup your build enviroment and library dependecies run the following commands:
