@@ -11,25 +11,24 @@
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-Even if your platform isn't supported by the official releases, buy it for the assets (you don't need to run the official release, you just need the game assets)
+Even if your platform isn't supported by the official releases, you **must** buy it for the assets (you dont need to run the official release, you just need the game assets)
 
-If you want to transfer your save from the **Android pre-forever versions,** you can go to `Android/data/com.sega.sonic1 or 2/SGame.bin` and copy it to the `SData.bin` in the EXE folder.
+If you want to transfer your save from the official mobile versions, the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file to the `SData.bin` in the EXE folder.
 
 # Additional Tweaks
-* Added a built in script compiler. Similar to CD, but tweaked up to match the new syntax for the scripts used in RSDKv4.
+* Added a built in script compiler. Similar to the one found in RSDKv3, but tweaked up to match the new syntax for the scripts used in RSDKv4.
+* Added a built in mod loader and API allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig/StageConfig data.
+* Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * Dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
-* The `f12` pause, `f11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if dev menu is enabled in the config.
-* If `devMenu` is enabled in the config, pressing `f10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
+* The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
+* If `devMenu` is enabled in the config, pressing 'F9' will visualize hitboxes, and `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
+* Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
 
 # How to build:
 ## Windows:
 * Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution
 * or grab a prebuilt executable from the releases section
-
-## Windows UWP (Phone, Xbox, etc.):
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
-* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
 
 ## Windows via MSYS2 (64-bit Only):
 ### Decompilation
@@ -43,6 +42,9 @@ If you want to transfer your save from the **Android pre-forever versions,** you
 * Go into Server dir to create the executable for multiplayer in Sonic 2 `cd Server`
 * Then run `make -f Makefile.msys2 CXXFLAGS=-static -j4` to create the Server executable (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
 
+## Windows UWP (Phone, Xbox, etc.):
+* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
+* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
 
 ## Linux:
 * To setup your build enviroment and library dependecies run the following commands:
