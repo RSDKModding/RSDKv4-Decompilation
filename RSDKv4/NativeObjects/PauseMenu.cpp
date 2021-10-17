@@ -262,14 +262,14 @@ void PauseMenu_Main(void *objPtr)
                     entity->buttonSelected = PMB_CONTINUE;
                     PlaySfxByName("Resume", false);
                     entity->state = PAUSEMENU_STATE_ACTION;
-                    break;
                 }
-                break;
             }
-            entity->miniPauseDisabled = false;
-            if (entity->makeSound) {
-                PlaySfxByName("Menu Select", false);
-                entity->makeSound = false;
+            else {
+                entity->miniPauseDisabled = false;
+                if (entity->makeSound) {
+                    PlaySfxByName("Menu Select", false);
+                    entity->makeSound = false;
+                }
             }
             break;
         }
@@ -303,7 +303,7 @@ void PauseMenu_Main(void *objPtr)
             break;
         }
         case PAUSEMENU_STATE_ACTION: {
-            if (entity->buttons[entity->buttonSelected]->state) {
+            if (!entity->buttons[entity->buttonSelected]->state) {
                 switch (entity->buttonSelected) {
                     case PMB_CONTINUE:
                         entity->state   = PAUSEMENU_STATE_CONTINUE;

@@ -1514,7 +1514,7 @@ void setFullScreen(bool fs)
             h = mode.w;
         }
 
-#if RETRO_PLATFORM != RETRO_ANDROID
+#if RETRO_PLATFORM != RETRO_iOS && RETRO_PLATFORM != RETRO_ANDROID
         float aspect            = SCREEN_XSIZE_CONFIG / (float)SCREEN_YSIZE;
         displaySettings.height  = h;
         displaySettings.width   = aspect * displaySettings.height;
