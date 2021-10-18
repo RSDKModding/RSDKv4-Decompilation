@@ -459,12 +459,25 @@ void processStageSelect()
             }
             else if (inputPress.B) {
                 RefreshEngine();
-                setTextMenu(DEVMENU_MAIN);
 
-                SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
-                SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
-                SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
-                SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+                if (Engine.modMenuCalled) {
+                    stageMode            = STAGEMODE_LOAD;
+                    Engine.gameMode      = ENGINE_MAINGAME;
+                    Engine.modMenuCalled = false;
+
+                    if (stageListPosition >= stageListCount[activeStageList]) {
+                        activeStageList   = 0;
+                        stageListPosition = 0;
+                    }
+                }
+                else {
+                    setTextMenu(DEVMENU_MAIN);
+
+                    SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
+                    SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
+                    SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
+                    SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
+                }
             }
 
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX - 4, 40);
