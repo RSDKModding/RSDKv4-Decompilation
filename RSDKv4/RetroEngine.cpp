@@ -930,10 +930,12 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             globalVariables[v] += fileBuffer2 << 24;
         }
 
-        SetGlobalVariableByName("options.devMenuFlag", false);
-        if (devMenu) {
+#if RETRO_USE_MOD_LOADER
+        if (Engine.devMenu)
             SetGlobalVariableByName("options.devMenuFlag", true);
-        }
+        else
+            SetGlobalVariableByName("options.devMenuFlag", false);
+#endif
 
         // Read SFX
         byte globalSFXCount = 0;
