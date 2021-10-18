@@ -52,7 +52,11 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg libglew libasio`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Run `make -j4` (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
+* Clone the following repos with these commands: 
+*  Tinyxml2: `git clone https://github.com/leethomason/tinyxml2.git ./dependencies/all/tinyxml2`
+*  Stb-image: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
+* Run `make -j5` , if your distro is using gcc 8.x.x then add the argument `LIBS=-lstdc++fs`
+* (-j switch is optional but will make building faster, it's based on the number of cores you have +1 so 8 cores wold be -j9)
 
 ## Mac:
 * Clone the repo, then follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the xcode project.
