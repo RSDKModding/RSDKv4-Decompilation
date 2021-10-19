@@ -4,6 +4,81 @@
 
 void MultiplayerScreen_Create(void *objPtr)
 {
+// code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
+#if !RETRO_USE_ORIGINAL_CODE
+    ResetBitmapFonts();
+    int heading = 0, labelTex = 0, textTex = 0;
+
+    if (Engine.useHighResAssets)
+        heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
+    else
+        heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
+    LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
+
+    if (Engine.useHighResAssets)
+        labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
+    else
+        labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
+    LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
+
+    textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
+    LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
+
+    switch (Engine.language) {
+        case RETRO_JP:
+            heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
+
+            labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
+
+            textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
+            break;
+        case RETRO_RU: 
+            if (Engine.useHighResAssets)
+                heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
+            else
+                heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
+
+            if (Engine.useHighResAssets)
+                labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
+            else
+                labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
+            break;
+        case RETRO_KO:
+            heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
+
+            labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
+
+            textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
+            break;
+        case RETRO_ZH:
+            heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
+
+            labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
+
+            textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
+            break;
+        case RETRO_ZS:
+            heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
+            labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
+            textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
+            LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
+            break;
+        default: break;
+    }
+#endif
     RSDK_THIS(MultiplayerScreen);
 
     entity->state = MULTIPLAYERSCREEN_STATE_ENTER;
@@ -21,8 +96,7 @@ void MultiplayerScreen_Create(void *objPtr)
 
     entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -2);
     SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
-
+    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);    
     entity->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]                   = CREATE_ENTITY(PushButton);
     entity->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->useRenderMatrix  = true;
     entity->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->x                = 0.0;
@@ -361,8 +435,11 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
                 RemoveNativeObject(entity->label);
-                if (entity->dialog)
+                if (skipStartMenu==false && entity->dialog)
+                {
+					printLog("Unable to open audio device: %s", SDL_GetError());
                     RemoveNativeObject(entity->dialog);
+                   }
                 for (int i = 0; i < 3; ++i) RemoveNativeObject(entity->codeLabel[i]);
                 for (int i = 0; i < 8; ++i) RemoveNativeObject(entity->enterCodeLabel[i]);
                 for (int i = 0; i < 2; ++i) RemoveNativeObject(entity->enterCodeSlider[i]);
@@ -370,7 +447,16 @@ void MultiplayerScreen_Main(void *objPtr)
                 RemoveNativeObject(entity->bg);
                 RemoveNativeObject(entity);
                 if (entity->state == MULTIPLAYERSCREEN_STATE_EXIT)
-                    Engine.gameMode = ENGINE_RESETGAME;
+					if (skipStartMenu){
+						ClearGraphicsData();
+						ClearAnimationData();
+						activeStageList   = 0;
+						stageMode         = STAGEMODE_LOAD;
+						Engine.gameMode   = ENGINE_MAINGAME;
+						stageListPosition = 0;
+					}
+					else
+						Engine.gameMode = ENGINE_RESETGAME;
                 return;
             }
             break;
@@ -484,6 +570,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         SDL_SetClipboardText(buffer);
                     }
                     if (inputPress.B || entity->backPressed) {
+                        entity->backPressed   = false;
                         entity->dialog = CREATE_ENTITY(DialogPanel);
                         SetStringToFont8(entity->dialog->text,
                                          "Are you sure you want to exit?\rThis will close the room,\rand you will return to the main menu.",
@@ -755,6 +842,7 @@ void MultiplayerScreen_Main(void *objPtr)
             break;
         }
         case MULTIPLAYERSCREEN_STATE_DIALOGWAIT: {
+            SetRenderMatrix(&entity->renderMatrix);
             if (entity->dialog->selection == DLG_NO || entity->dialog->selection == DLG_OK) {
                 entity->state = MULTIPLAYERSCREEN_STATE_HOSTSCR;
             }
