@@ -4,81 +4,84 @@
 
 void MultiplayerScreen_Create(void *objPtr)
 {
-// code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
-#if !RETRO_USE_ORIGINAL_CODE
-    ResetBitmapFonts();
-    int heading = 0, labelTex = 0, textTex = 0;
+	if (skipStartMenu){
+		// code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
+		#if !RETRO_USE_ORIGINAL_CODE
+			ResetBitmapFonts();
+			int heading = 0, labelTex = 0, textTex = 0;
 
-    if (Engine.useHighResAssets)
-        heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
-    else
-        heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
+			if (Engine.useHighResAssets)
+			heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
+			else
+			heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
+			LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
 
-    if (Engine.useHighResAssets)
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
-    else
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
+			if (Engine.useHighResAssets)
+			labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
+			else
+			labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
+			LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
 
-    textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
+			textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
+			LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
 
-    switch (Engine.language) {
-        case RETRO_JP:
-            heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
+			switch (Engine.language) {
+			case RETRO_JP:
+				heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
+				labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
-            break;
-        case RETRO_RU: 
-            if (Engine.useHighResAssets)
-                heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
-            else
-                heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
+				textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
+				break;
+			case RETRO_RU: 
+				if (Engine.useHighResAssets)
+				heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
+				else
+				heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
 
-            if (Engine.useHighResAssets)
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
-            else
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
-            break;
-        case RETRO_KO:
-            heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
+				if (Engine.useHighResAssets)
+				labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
+				else
+				labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
+				break;
+			case RETRO_KO:
+				heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
+				labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
-            break;
-        case RETRO_ZH:
-            heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
+				textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
+				break;
+			case RETRO_ZH:
+				heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
 
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
+				labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
 
-            textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
-            break;
-        case RETRO_ZS:
-            heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
-            textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
-            break;
-        default: break;
-    }
-#endif
+				textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
+				break;
+			case RETRO_ZS:
+				heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
+				labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
+				textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
+				LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
+				break;
+			default: break;
+			}
+		#endif
+	}
+	
     RSDK_THIS(MultiplayerScreen);
 
     entity->state = MULTIPLAYERSCREEN_STATE_ENTER;
@@ -435,11 +438,6 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
                 RemoveNativeObject(entity->label);
-                if (skipStartMenu==false && entity->dialog)
-                {
-					printLog("Unable to open audio device: %s", SDL_GetError());
-                    RemoveNativeObject(entity->dialog);
-                   }
                 for (int i = 0; i < 3; ++i) RemoveNativeObject(entity->codeLabel[i]);
                 for (int i = 0; i < 8; ++i) RemoveNativeObject(entity->enterCodeLabel[i]);
                 for (int i = 0; i < 2; ++i) RemoveNativeObject(entity->enterCodeSlider[i]);
