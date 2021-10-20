@@ -130,36 +130,33 @@ void ProcessStage(void)
 #endif
 
     switch (stageMode) {
-        case STAGEMODE_LOAD: // Startup
-            fadeMode = 0;
+        case STAGEMODE_LOAD: // Startup     
             SetActivePalette(0, 0, 256);
-
-            cameraEnabled = 1;
-            cameraTarget  = -1;
-            cameraShift   = 0;
-            cameraStyle   = 0;
-            cameraXPos    = 0;
-            cameraYPos    = 0;
-            cameraLockedY = 0;
-            cameraAdjustY = 0;
-            xScrollOffset = 0;
-            yScrollOffset = 0;
-            cameraShakeX  = 0;
-            cameraShakeY  = 0;
-
-            vertexCount  = 0;
-            faceCount    = 0;
-            pauseEnabled = false;
-            timeEnabled  = false;
-            frameCounter = 0;
-#if !RETRO_USE_ORIGINAL_CODE
-            Engine.frameCount = 0;
-#endif
-            frameCounter      = 0;
-            stageMilliseconds = 0;
-            stageSeconds      = 0;
-            stageMinutes      = 0;
-            stageMode         = STAGEMODE_NORMAL;
+            gameMenu[0].visibleRowOffset = 0;
+            gameMenu[1].alignment        = 0;
+            gameMenu[1].selectionCount   = 0;
+            fadeMode                     = 0;
+            cameraEnabled                = true;
+            cameraTarget                 = -1;
+            cameraShift                  = 0;
+            cameraStyle                  = 0;
+            cameraXPos                   = 0;
+            cameraYPos                   = 0;
+            cameraLockedY                = 0;
+            cameraAdjustY                = 0;
+            xScrollOffset                = 0;
+            yScrollOffset                = 0;
+            cameraShakeX                 = 0;
+            cameraShakeY                 = 0;
+            vertexCount                  = 0;
+            faceCount                    = 0;
+            frameCounter                 = 0;
+            pauseEnabled                 = false;
+            timeEnabled                  = false;
+            stageMilliseconds            = 0;
+            stageSeconds                 = 0;
+            stageMinutes                 = 0;
+            stageMode                    = STAGEMODE_NORMAL;
 
 #if RETRO_USE_MOD_LOADER
             for (int m = 0; m < modList.size(); ++m) scanModFolder(&modList[m]);
@@ -219,8 +216,8 @@ void ProcessStage(void)
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
             if (pauseEnabled && inputPress.start) {
-                // stageMode = STAGEMODE_STEPOVER;
-                // PauseSound();
+                stageMode = STAGEMODE_NORMAL_STEP;
+                PauseSound();
             }
 
             if (timeEnabled) {
@@ -234,10 +231,10 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-			else {
-				frameCounter = 60 * stageMilliseconds / 100;
-			}
-			
+            else {
+                frameCounter = 60 * stageMilliseconds / 100;
+            }
+
             // Update
             ProcessObjects();
 
@@ -271,9 +268,8 @@ void ProcessStage(void)
             CheckKeyPress(&inputPress);
 
             if (pauseEnabled && inputPress.start) {
-                // stageMode = STAGEMODE_PAUSED_STEPOVER;
-                // stageMode = STAGEMODE_NORMAL;
-                // ResumeSound();
+                stageMode = STAGEMODE_PAUSED_STEP;
+                PauseSound();
             }
 
             // Update
@@ -303,10 +299,6 @@ void ProcessStage(void)
             lastYSize = -1;
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
-            if (pauseEnabled && inputPress.start) {
-                stageMode = STAGEMODE_STEPOVER;
-                PauseSound();
-            }
 
             // Update
             ProcessFrozenObjects();
@@ -339,7 +331,7 @@ void ProcessStage(void)
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
             if (pauseEnabled && inputPress.start) {
-                stageMode = STAGEMODE_2P_PAUSED;
+                stageMode = STAGEMODE_2P_STEP;
                 PauseSound();
             }
 
@@ -354,9 +346,9 @@ void ProcessStage(void)
                 }
                 stageMilliseconds = 100 * frameCounter / 60;
             }
-			else {
-				frameCounter = 60 * stageMilliseconds / 100;
-			}
+            else {
+                frameCounter = 60 * stageMilliseconds / 100;
+            }
 
             // Update
             Process2PObjects();
@@ -380,7 +372,7 @@ void ProcessStage(void)
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
-        case STAGEMODE_STEPOVER:
+        case STAGEMODE_NORMAL_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
@@ -404,10 +396,9 @@ void ProcessStage(void)
                     }
                     stageMilliseconds = 100 * frameCounter / 60;
                 }
-				else {
-					frameCounter = 60 * stageMilliseconds / 100;
-				}
-
+                else {
+                    frameCounter = 60 * stageMilliseconds / 100;
+                }
 
                 ProcessObjects();
                 if (cameraTarget > -1) {
@@ -425,6 +416,9 @@ void ProcessStage(void)
                         SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
                     }
                 }
+
+                DrawStageGFX();
+                ProcessParallaxAutoScroll();
             }
 
             if (pauseEnabled && inputPress.start) {
@@ -432,7 +426,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
-        case STAGEMODE_PAUSED_STEPOVER:
+        case STAGEMODE_PAUSED_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
@@ -466,7 +460,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
-        case STAGEMODE_FROZEN_PAUSED:
+        case STAGEMODE_FROZEN_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
@@ -475,33 +469,37 @@ void ProcessStage(void)
             lastYSize = -1;
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
+
+            if (inputPress.C) {
+                inputPress.C = false;
+
+                // Update
+                ProcessFrozenObjects();
+
+                if (cameraTarget > -1) {
+                    if (cameraEnabled == 1) {
+                        switch (cameraStyle) {
+                            case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
+                            case 1:
+                            case 2:
+                            case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
+                            case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
+                            default: break;
+                        }
+                    }
+                    else {
+                        SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    }
+                }
+
+                DrawStageGFX();
+            }
             if (pauseEnabled && inputPress.start) {
                 stageMode = STAGEMODE_FROZEN;
-                PauseSound();
+                ResumeSound();
             }
-
-            // Update
-            ProcessFrozenObjects();
-
-            if (cameraTarget > -1) {
-                if (cameraEnabled == 1) {
-                    switch (cameraStyle) {
-                        case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
-                        case 1:
-                        case 2:
-                        case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
-                        case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
-                        default: break;
-                    }
-                }
-                else {
-                    SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
-                }
-            }
-
-            DrawStageGFX();
             break;
-        case STAGEMODE_2P_PAUSED:
+        case STAGEMODE_2P_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
                 fadeMode--;
@@ -510,52 +508,53 @@ void ProcessStage(void)
             lastYSize = -1;
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
-            if (pauseEnabled && inputPress.start) {
-                stageMode = STAGEMODE_2P;
-                PauseSound();
-            }
+            if (inputPress.C) {
+                inputPress.C = false;
 
-            if (timeEnabled) {
-                if (++frameCounter == 60) {
-                    frameCounter = 0;
-                    if (++stageSeconds > 59) {
-                        stageSeconds = 0;
-                        if (++stageMinutes > 59)
-                            stageMinutes = 0;
+                if (timeEnabled) {
+                    if (++frameCounter == 60) {
+                        frameCounter = 0;
+                        if (++stageSeconds > 59) {
+                            stageSeconds = 0;
+                            if (++stageMinutes > 59)
+                                stageMinutes = 0;
+                        }
                     }
-                }
-                stageMilliseconds = 100 * frameCounter / 60;
-            }
-			else {
-				frameCounter = 60 * stageMilliseconds / 100;
-			}
-			
-            // Update
-            Process2PObjects();
-
-            if (cameraTarget > -1) {
-                if (cameraEnabled == 1) {
-                    switch (cameraStyle) {
-                        case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
-                        case 1:
-                        case 2:
-                        case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
-                        case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
-                        default: break;
-                    }
+                    stageMilliseconds = 100 * frameCounter / 60;
                 }
                 else {
-                    SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    frameCounter = 60 * stageMilliseconds / 100;
                 }
+
+                // Update
+                Process2PObjects();
+
+                if (cameraTarget > -1) {
+                    if (cameraEnabled == 1) {
+                        switch (cameraStyle) {
+                            case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
+                            case 1:
+                            case 2:
+                            case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
+                            case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
+                            default: break;
+                        }
+                    }
+                    else {
+                        SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    }
+                }
+
+                DrawStageGFX();
+                ProcessParallaxAutoScroll();
             }
 
-            ProcessParallaxAutoScroll();
-            DrawStageGFX();
+            if (pauseEnabled && inputPress.start) {
+                stageMode = STAGEMODE_2P;
+                ResumeSound();
+            }
             break;
     }
-#if !RETRO_USE_ORIGINAL_CODE
-    Engine.frameCount++;
-#endif
 }
 
 void ProcessParallaxAutoScroll()
@@ -566,7 +565,6 @@ void ProcessParallaxAutoScroll()
 
 void LoadStageFiles(void)
 {
-    StopAllSfx();
     FileInfo infoStore;
     FileInfo info;
     byte fileBuffer  = 0;
@@ -574,6 +572,7 @@ void LoadStageFiles(void)
     int scriptID     = 1;
     char strBuffer[0x100];
 
+    StopAllSfx();
     if (!CheckCurrentStageFolder(stageListPosition)) {
         printLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
         ReleaseStageSfx();

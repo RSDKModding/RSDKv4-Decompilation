@@ -1055,9 +1055,16 @@ void ShowWebsite(int websiteID)
     }
 }
 
-void ExitGame()
+void ExitGame() { Engine.running = false; }
+
+void FileExists(int *unused, const char *filePath)
 {
-    Engine.running = false;
+    FileInfo info;
+    scriptEng.checkResult = false;
+    if (LoadFile(filePath, &info)) {
+        scriptEng.checkResult = true;
+        CloseFile();
+    }
 }
 
 void SetScreenWidth(int *width, int *unused)

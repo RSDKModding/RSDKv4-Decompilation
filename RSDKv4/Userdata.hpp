@@ -47,7 +47,7 @@ struct SaveGame {
     int knuxUnlocked;
     int unlockedActs;
     int unlockedHPZ;
-    int unused[18];
+    int unused[17];
     int records[0x80];
 };
 
@@ -208,6 +208,7 @@ void ShowOnlineSignIn();
 void ShowWebsite(int websiteID);
 
 void ExitGame();
+void FileExists(int *unused, const char *filePath);
 
 #if RETRO_USE_MOD_LOADER
 void SetScreenWidth(int *width, int *unused);

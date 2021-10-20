@@ -1027,6 +1027,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
+    AddNativeFunction("FileExists", FileExists);
     AddNativeFunction("OpenModMenu", OpenModMenu); //Opens the dev menu-based mod menu incase you cant be bothered or smth
     AddNativeFunction("AddAchievement", AddGameAchievement);
     AddNativeFunction("SetAchievementDescription", SetAchievementDescription);

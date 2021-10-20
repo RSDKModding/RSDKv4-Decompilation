@@ -1881,8 +1881,10 @@ void DrawStageGFX()
 
 void DrawHLineScrollLayer(int layerID)
 {
+    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
+    if (!layer->xsize || !layer->ysize)
+        return;
 #if RETRO_SOFTWARE_RENDER
-    TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
     int screenwidth16  = (GFX_LINESIZE >> 4) - 1;
     int layerwidth     = layer->xsize;
     int layerheight    = layer->ysize;
@@ -2399,7 +2401,6 @@ void DrawHLineScrollLayer(int layerID)
 #endif
 
 #if RETRO_HARDWARE_RENDER
-    TileLayer *layer      = &stageLayouts[activeTileLayers[layerID]];
     byte *lineScrollPtr   = NULL;
     int chunkPosX         = 0;
     int chunkTileX        = 0;
@@ -3228,8 +3229,10 @@ void DrawHLineScrollLayer(int layerID)
 }
 void DrawVLineScrollLayer(int layerID)
 {
+    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
+    if (!layer->xsize || !layer->ysize)
+        return;
 #if RETRO_SOFTWARE_RENDER
-    TileLayer *layer   = &stageLayouts[activeTileLayers[layerID]];
     int layerwidth     = layer->xsize;
     int layerheight    = layer->ysize;
     bool aboveMidPoint = layerID >= tLayerMidPoint;
@@ -3734,8 +3737,10 @@ void DrawVLineScrollLayer(int layerID)
 }
 void Draw3DFloorLayer(int layerID)
 {
+    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
+    if (!layer->xsize || !layer->ysize)
+        return;
 #if RETRO_SOFTWARE_RENDER
-    TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
     int layerWidth         = layer->xsize << 7;
     int layerHeight        = layer->ysize << 7;
     int layerYPos          = layer->ypos;
@@ -3782,7 +3787,6 @@ void Draw3DFloorLayer(int layerID)
 #endif
 
 #if RETRO_HARDWARE_RENDER
-    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
     int tileOffset, tileX, tileY, tileSinBlock, tileCosBlock;
     int sinValue512, cosValue512;
     int layerWidth         = layer->width << 7;
@@ -4312,8 +4316,10 @@ void Draw3DFloorLayer(int layerID)
 }
 void Draw3DSkyLayer(int layerID)
 {
+    TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
+    if (!layer->xsize || !layer->ysize)
+        return;
 #if RETRO_SOFTWARE_RENDER
-    TileLayer *layer       = &stageLayouts[activeTileLayers[layerID]];
     int layerWidth         = layer->xsize << 7;
     int layerHeight        = layer->ysize << 7;
     int layerYPos          = layer->ypos;

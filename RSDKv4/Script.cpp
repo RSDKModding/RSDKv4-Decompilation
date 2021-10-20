@@ -3023,12 +3023,12 @@ void LoadBytecode(int stageListID, int scriptID)
 
 void ClearScriptData()
 {
-    memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
-    memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
+    memset(scriptData, 0, sizeof(scriptData));
+    memset(jumpTableData, 0, sizeof(jumpTableData));
 
-    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
-    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
-    memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
+    memset(foreachStack, -1, sizeof(foreachStack));
+    memset(jumpTableStack, 0, sizeof(jumpTableStack));
+    memset(functionStack, 0, sizeof(functionStack));
 
     scriptFrameCount = 0;
 
@@ -3073,7 +3073,7 @@ void ClearScriptData()
     memset(privateTables, 0, sizeof(privateTables));
 #endif
 
-    ClearGraphicsData();
+    //ClearGraphicsData();
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {

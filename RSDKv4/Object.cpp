@@ -386,6 +386,13 @@ void InitNativeObjectSystem()
     if (!saveGame->musVolume)
         musicEnabled = false;
 
+    if (!saveGame->vDPadX_Move) {
+        saveGame->vDPadX_Move = 60;
+        saveGame->vDPadY_Move = 176;
+        saveGame->vDPadX_Jump = -56;
+        saveGame->vDPadY_Jump = 180;
+    }
+
     Engine.globalBoxRegion = saveGame->boxRegion;
     SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
     if (skipStartMenu) {
