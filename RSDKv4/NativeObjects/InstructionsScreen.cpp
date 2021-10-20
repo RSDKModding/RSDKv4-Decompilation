@@ -201,43 +201,41 @@ void InstructionsScreen_Main(void *objPtr)
                     entity->pageID      = (entity->pageID + 1) % 5;
                 }
             }
-            else {
-                if (entity->state == 1) {
-                    entity->touchedBack = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
-                    entity->touchedPrev = CheckTouchRect(-162.0, 0.0, 32.0, 32.0) >= 0;
-                    entity->touchedNext = CheckTouchRect(162.0, 0.0, 32.0, 32.0) >= 0;
+            else if (entity->state == 1) {
+                entity->touchedBack = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
+                entity->touchedPrev = CheckTouchRect(-162.0, 0.0, 32.0, 32.0) >= 0;
+                entity->touchedNext = CheckTouchRect(162.0, 0.0, 32.0, 32.0) >= 0;
 
-                    if (entity->field_E0) {
-                        if (entity->lastTouchX - touchXF[0] > 16.0f) {
-                            PlaySfxByName("Menu Move", false);
-                            entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
-                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
-                            entity->flipRight  = false;
-                            entity->field_E0   = false;
-                            entity->pageID     = (entity->pageID + 1) % 5;
-                        }
-                        else if (entity->lastTouchX - touchXF[0] < -16.0f) {
-                            PlaySfxByName("Menu Move", false);
-                            entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
-                            entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
-                            entity->flipRight  = true;
-                            entity->field_E0   = false;
-                            if (--entity->pageID < 0)
-                                entity->pageID = 4;
-                        }
+                if (entity->field_E0) {
+                    if (entity->lastTouchX - touchXF[0] > 16.0f) {
+                        PlaySfxByName("Menu Move", false);
+                        entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
+                        entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                        entity->flipRight  = false;
+                        entity->field_E0   = false;
+                        entity->pageID     = (entity->pageID + 1) % 5;
                     }
-                    else {
-                        entity->field_E0 = true;
+                    else if (entity->lastTouchX - touchXF[0] < -16.0f) {
+                        PlaySfxByName("Menu Move", false);
+                        entity->state      = INSTRUCTIONSCREEN_STATE_FLIP;
+                        entity->stateInput = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                        entity->flipRight  = true;
+                        entity->field_E0   = false;
+                        if (--entity->pageID < 0)
+                            entity->pageID = 4;
                     }
-                    entity->lastTouchX = touchXF[0];
-
-                    if (inputDown.up || inputDown.down || inputDown.left || inputDown.right)
-                        usePhysicalControls = true;
                 }
                 else {
-                    entity->field_E0 = false;
+                    entity->field_E0 = true;
                 }
+                entity->lastTouchX = touchXF[0];
             }
+            else {
+                entity->field_E0 = false;
+            }
+
+            if (inputDown.up || inputDown.down || inputDown.left || inputDown.right)
+                usePhysicalControls = true;
 
             if (entity->state == 1 && inputPress.B) {
                 PlaySfxByName("Menu Back", false);
@@ -351,20 +349,29 @@ void InstructionsScreen_Main(void *objPtr)
 
     switch (entity->shownPage) {
         case 0:
-            RenderImageClipped(0.0, entity->textY - 36.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 4.0, 4.0, 255, entity->textureHelp);
-            switch (Engine.language) {
-                default:
-                    RenderImageClipped(0.0, entity->textY - 164.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, entity->textureHelp);
-                    break;
-                case RETRO_FR:
-                    RenderImageClipped(0.0, entity->textY - 172.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, entity->textureHelp);
-                    break;
-                case RETRO_JP:
-                    RenderImageClipped(0.0, entity->textY - 248.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, entity->textureHelp);
-                    break;
-                case RETRO_KO:
-                    RenderImageClipped(0.0, entity->textY - 268.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, entity->textureHelp);
-                    break;
+            if (Engine.gameType == GAME_SONIC1) {
+                RenderImageClipped(0.0, entity->textY - 36.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 4.0, 4.0, 255, entity->textureHelp);
+                switch (Engine.language) {
+                    default:
+                        RenderImageClipped(0.0, entity->textY - 164.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_FR:
+                        RenderImageClipped(0.0, entity->textY - 172.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_JP:
+                        RenderImageClipped(0.0, entity->textY - 248.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
+                                           entity->textureHelp);
+                        break;
+                    case RETRO_KO:
+                        RenderImageClipped(0.0, entity->textY - 268.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
+                                           entity->textureHelp);
+                        break;
+                }
+            }
+            else {
+                RenderImageClipped(0.0, entity->textY - 36.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, entity->textureHelp);
             }
             break;
         case 1:
