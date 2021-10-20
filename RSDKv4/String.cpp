@@ -295,7 +295,11 @@ void InitLocalizedStrings() {
     strAchievements   = ReadLocalizedString("Achievements", langStr, "Data/Game/StringList.txt");
     strLeaderboards   = ReadLocalizedString("Leaderboards", langStr, "Data/Game/StringList.txt");
     strHelpAndOptions = ReadLocalizedString("HelpAndOptions", langStr, "Data/Game/StringList.txt");
-    strSoundTest      = ReadLocalizedString("SoundTest", langStr, "Data/Game/StringList.txt");
+
+    // SoundTest & StageTest, both unused
+    strSoundTest = ReadLocalizedString("SoundTest", langStr, "Data/Game/StringList.txt");
+    // strStageTest      = ReadLocalizedString("StageTest", langStr, "Data/Game/StringList.txt");
+
     str2PlayerVS      = ReadLocalizedString("TwoPlayerVS", langStr, "Data/Game/StringList.txt");
     strSaveSelect     = ReadLocalizedString("SaveSelect", langStr, "Data/Game/StringList.txt");
     strPlayerSelect   = ReadLocalizedString("PlayerSelect", langStr, "Data/Game/StringList.txt");
@@ -370,6 +374,22 @@ void InitLocalizedStrings() {
     strVersionName       = ReadLocalizedString("Version", langStr, "Data/Game/StringList.txt");
     strPrivacy           = ReadLocalizedString("Privacy", langStr, "Data/Game/StringList.txt");
     strTerms             = ReadLocalizedString("Terms", langStr, "Data/Game/StringList.txt");
+    // strMoreGames         = ReadLocalizedString("MoreGames", langStr, "Data/Game/StringList.txt");
+
+    // Video Filter options
+    // strVideoFilter       = ReadLocalizedString("VideoFilter", langStr, "Data/Game/StringList.txt");
+    // strSharp             = ReadLocalizedString("Sharp", langStr, "Data/Game/StringList.txt");
+    // strSmooth            = ReadLocalizedString("Smooth", langStr, "Data/Game/StringList.txt");
+    // strNostalgic         = ReadLocalizedString("Nostalgic", langStr, "Data/Game/StringList.txt");
+
+    // Login With Facebook
+    //strFBLogin = ReadLocalizedString("LoginWithFacebook", langStr, "Data/Game/StringList.txt");
+
+    // Unused Control Modes
+    // strControlMethod = ReadLocalizedString("ControlMethod", langStr, "Data/Game/StringList.txt");
+    // strSwipeAndTap   = ReadLocalizedString("SwipeAndTap", langStr, "Data/Game/StringList.txt");
+    // strVirtualDPad   = ReadLocalizedString("VirtualDPad", langStr, "Data/Game/StringList.txt");
+
     ReadCreditsList("Data/Game/CreditsMobile.txt");
 }
 ushort *ReadLocalizedString(const char *stringName, const char *language, const char *filePath)
