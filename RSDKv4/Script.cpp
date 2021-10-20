@@ -2021,8 +2021,8 @@ void CheckCaseNumber(char *text)
         }
 
         // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
-        if (StrComp(funcName, "StageName")) {
-            funcName[0] = 0;
+        if (StrComp(caseValue, "StageName")) {
+            caseValue[0] = 0;
             int s = -1;
             if (StrLength(arrayStr) >= 2) {
                 char list = arrayStr[0];
@@ -2041,8 +2041,8 @@ void CheckCaseNumber(char *text)
                 printLog(buf);
                 s = 0;
             }
-            funcName[0] = 0;
-            AppendIntegerToString(funcName, s);
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, s);
         }
 #endif
         StrCopy(caseString, caseValue);
@@ -2247,8 +2247,8 @@ bool ReadSwitchCase(char *text)
             }
 
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
-            if (StrComp(funcName, "StageName")) {
-                funcName[0] = 0;
+            if (StrComp(caseValue, "StageName")) {
+                caseValue[0] = 0;
                 int s = -1;
                 if (StrLength(arrayStr) >= 2) {
                     char list = arrayStr[0];
@@ -2267,8 +2267,8 @@ bool ReadSwitchCase(char *text)
                     printLog(buf);
                     s = 0;
                 }
-                funcName[0] = 0;
-                AppendIntegerToString(funcName, s);
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, s);
             }
 #endif
             StrCopy(caseText, caseValue);
