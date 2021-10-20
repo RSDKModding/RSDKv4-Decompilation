@@ -2020,7 +2020,7 @@ void CheckCaseNumber(char *text)
             }
         }
 
-        // Eg: temp0 = StageName[GREEN HILL ZONE 1]
+        // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
         if (StrComp(caseValue, "StageName")) {
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, 0);
