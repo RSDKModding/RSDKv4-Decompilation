@@ -214,7 +214,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
         case MUSIC_READY:
         case MUSIC_PLAYING: {
 #if RETRO_USING_SDL2
-            while (streamInfoPtr->stream && SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
+            while (musicStatus == MUSIC_PLAYING && streamInfoPtr->stream && SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
                 // We need more samples: get some
                 long bytes_read = ov_read(&streamInfoPtr->vorbisFile, (char *)streamInfoPtr->buffer, sizeof(streamInfoPtr->buffer), 0, 2, 1,
                                           &streamInfoPtr->vorbBitstream);
@@ -231,7 +231,8 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                     }
                 }
 
-                if (streamInfoPtr->stream && SDL_AudioStreamPut(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_read) == -1)
+                if (musicStatus != MUSIC_PLAYING
+                    || (streamInfoPtr->stream && SDL_AudioStreamPut(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_read) == -1))
                     return;
             }
 
@@ -576,11 +577,7 @@ bool PlayMusic(int track, int musStartPos)
             musicStartPos     = musStartPos;
             currentMusicTrack = track;
             musicStatus       = MUSIC_LOADING;
-#if RETRO_USING_SDL2
-            SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
-#else
             LoadMusic(NULL);
-#endif
             UnlockAudioDevice();
             return true;
         }
