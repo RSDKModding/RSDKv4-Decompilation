@@ -36,7 +36,11 @@ namespace fs = std::filesystem;
 fs::path resolvePath(fs::path given) 
 {
     for (auto& p : fs::directory_iterator{given.parent_path()}) {
-        if (std::tolower(p.path().filename().string()) == std::tolower(give.filename().string())) {
+        char pbuf[0x100];
+        char gbuf[0x100];
+        StringLowerCase((char*)p.path().filename().string().c_str(), pbuf);
+        StringLowerCase((char*)given.filename().string().c_str(), gbuf);
+        if (StrComp(pbuf, gbuf)) {
             return p.path();
         }
     }
