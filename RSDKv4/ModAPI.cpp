@@ -18,6 +18,7 @@ char playerNames[PLAYER_MAX][0x20];
 byte playerCount = 0;
 
 #include <filesystem>
+#include <locale>
 
 int OpenModMenu()
 {
@@ -32,6 +33,16 @@ namespace fs = std::__fs::filesystem; //this is so we can avoid using c++17, whi
 namespace fs = std::filesystem;
 #endif
 
+fs::path resolvePath(fs::path given) 
+{
+    for (auto& p : fs::directory_iterator{given.path().parent_path()}) {
+        if (std::tolower(p.path().filename().string()) == std::tolower(give.path().filename().string())) {
+            return p;
+        }
+    }
+    return given; // might work might not!
+}
+
 void initMods()
 {
     modList.clear();
@@ -43,7 +54,7 @@ void initMods()
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
 
-    fs::path modPath(modBuf);
+    fs::path modPath = resolvePath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
         std::string mod_config = modPath.string() + "/modconfig.ini";
@@ -100,15 +111,16 @@ void initMods()
     sprintf(savePath, "");
     redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
-        if (modList[m].useScripts && modList[m].active)
+        if (!modList[m].active) continue;
+        if (modList[m].useScripts)
             forceUseScripts = true;
-        if (modList[m].skipStartMenu && modList[m].active)
+        if (modList[m].skipStartMenu)
             skipStartMenu = true;
-        if (modList[m].disableFocusPause && modList[m].active)
+        if (modList[m].disableFocusPause)
             disableFocusPause = true;
-        if (modList[m].useScripts && modList[m].active)
+        if (modList[m].useScripts)
             forceUseScripts = true;
-        if (modList[m].redirectSave && modList[m].active) {
+        if (modList[m].redirectSave) {
             sprintf(savePath, "%s", modList[m].savePath.c_str());
             redirectSave = true;
         }
@@ -167,29 +179,31 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
 
         info->active = active;
 
-        scanModFolder(info);
+        if (info->active) {
+            scanModFolder(info);
 
-        info->useScripts = false;
-        modSettings.GetBool("", "TxtScripts", &info->useScripts);
-        if (info->useScripts && info->active)
-            forceUseScripts = true;
+            info->useScripts = false;
+            modSettings.GetBool("", "TxtScripts", &info->useScripts);
+            if (info->useScripts && info->active)
+                forceUseScripts = true;
 
-        info->skipStartMenu = false;
-        modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
-        if (info->skipStartMenu && info->active)
-            skipStartMenu = true;
+            info->skipStartMenu = false;
+            modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
+            if (info->skipStartMenu && info->active)
+                skipStartMenu = true;
 
-        info->disableFocusPause = false;
-        modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
-        if (info->disableFocusPause && info->active)
-            disableFocusPause = true;
+            info->disableFocusPause = false;
+            modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
+            if (info->disableFocusPause && info->active)
+                disableFocusPause = true;
 
-        info->redirectSave = false;
-        modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
-        if (info->redirectSave && info->active) {
-            char path[0x100];
-            sprintf(path, "mods/%s/", folder.c_str());
-            info->savePath = path;
+            info->redirectSave = false;
+            modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
+            if (info->redirectSave && info->active) {
+                char path[0x100];
+                sprintf(path, "mods/%s/", folder.c_str());
+                info->savePath = path;
+            }
         }
 
         return true;
@@ -204,14 +218,14 @@ void scanModFolder(ModInfo* info) {
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
 
-    fs::path modPath(modBuf);
+    fs::path modPath = resolvePath(modBuf);
 
     const std::string modDir = modPath.string() + "/" + info->folder;
 
     info->fileMap.clear();
 
     // Check for Data/ replacements
-    fs::path dataPath(modDir + "/Data");
+    fs::path dataPath = resolvePath(modDir + "/Data");
 
     if (fs::exists(dataPath) && fs::is_directory(dataPath)) {
         try {
@@ -259,7 +273,7 @@ void scanModFolder(ModInfo* info) {
     }
 
     // Check for Scripts/ replacements
-    fs::path scriptPath(modDir + "/Scripts");
+    fs::path scriptPath = resolvePath(modDir + "/Scripts");
 
     if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
         try {
@@ -307,7 +321,7 @@ void scanModFolder(ModInfo* info) {
     }
 
     // Check for Bytecode/ replacements
-    fs::path bytecodePath(modDir + "/Bytecode");
+    fs::path bytecodePath = resolvePath(modDir + "/Bytecode");
 
     if (fs::exists(bytecodePath) && fs::is_directory(bytecodePath)) {
         try {
@@ -359,7 +373,7 @@ void saveMods()
 {
     char modBuf[0x100];
     sprintf(modBuf, "%smods/", modsPath);
-    fs::path modPath(modBuf);
+    fs::path modPath = resolvePath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
         std::string mod_config = modPath.string() + "/modconfig.ini";
