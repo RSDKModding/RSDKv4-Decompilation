@@ -35,9 +35,9 @@ namespace fs = std::filesystem;
 
 fs::path resolvePath(fs::path given) 
 {
-    for (auto& p : fs::directory_iterator{given.path().parent_path()}) {
-        if (std::tolower(p.path().filename().string()) == std::tolower(give.path().filename().string())) {
-            return p;
+    for (auto& p : fs::directory_iterator{given.parent_path()}) {
+        if (std::tolower(p.path().filename().string()) == std::tolower(give.filename().string())) {
+            return p.path();
         }
     }
     return given; // might work might not!
