@@ -1390,6 +1390,58 @@ void setupViewport()
     }
     int texWidth  = 1 << width2;
     int texHeight = 1 << height2;
+    
+    float w  = (SCREEN_XSIZE * textureList[0].widthN);
+    float w2 = (GFX_LINESIZE * textureList[0].widthN);
+    float h  = (SCREEN_YSIZE * textureList[0].heightN);
+    
+    retroVertexList[0] = -SCREEN_CENTERX_F;
+    retroVertexList[1] = SCREEN_CENTERY_F;
+    retroVertexList[2] = 160.0;
+    retroVertexList[6] = 0.0;
+    retroVertexList[7] = 0.0;
+
+    retroVertexList[9]  = SCREEN_CENTERX_F;
+    retroVertexList[10] = SCREEN_CENTERY_F;
+    retroVertexList[11] = 160.0;
+    retroVertexList[15] = w;
+    retroVertexList[16] = 0.0;
+
+    retroVertexList[18] = -SCREEN_CENTERX_F;
+    retroVertexList[19] = -SCREEN_CENTERY_F;
+    retroVertexList[20] = 160.0;
+    retroVertexList[24] = 0.0;
+    retroVertexList[25] = h;
+
+    retroVertexList[27] = SCREEN_CENTERX_F;
+    retroVertexList[28] = -SCREEN_CENTERY_F;
+    retroVertexList[29] = 160.0;
+    retroVertexList[33] = w;
+    retroVertexList[34] = h;
+
+    screenBufferVertexList[0] = -1.0;
+    screenBufferVertexList[1] = 1.0;
+    screenBufferVertexList[2] = 1.0;
+    screenBufferVertexList[6] = 0.0;
+    screenBufferVertexList[7] = h;
+
+    screenBufferVertexList[9]  = 1.0;
+    screenBufferVertexList[10] = 1.0;
+    screenBufferVertexList[11] = 1.0;
+    screenBufferVertexList[15] = w2;
+    screenBufferVertexList[16] = h;
+
+    screenBufferVertexList[18] = -1.0;
+    screenBufferVertexList[19] = -1.0;
+    screenBufferVertexList[20] = 1.0;
+    screenBufferVertexList[24] = 0.0;
+    screenBufferVertexList[25] = 0.0;
+
+    screenBufferVertexList[27] = 1.0;
+    screenBufferVertexList[28] = -1.0;
+    screenBufferVertexList[29] = 1.0;
+    screenBufferVertexList[33] = w2;
+    screenBufferVertexList[34] = 0.0;
 
     StrCopy(textureList[0].fileName, "RetroBuffer");
     textureList[0].width   = texWidth;
@@ -1518,7 +1570,11 @@ void setFullScreen(bool fs)
         float aspect            = SCREEN_XSIZE_CONFIG / (float)SCREEN_YSIZE;
         displaySettings.height  = h;
         displaySettings.width   = aspect * displaySettings.height;
-        displaySettings.offsetX = abs(mode.w - displaySettings.width) / 2;
+        displaySettings.offsetX = abs(w - displaySettings.width) / 2;
+        if (displaySettings.width > w) {
+            displaySettings.offsetX = 0;
+            displaySettings.width = w;
+        }
 
         setupViewport();
 #else
