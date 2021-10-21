@@ -3093,7 +3093,6 @@ void ClearScriptData()
     memset(privateTables, 0, sizeof(privateTables));
 #endif
 
-    //ClearGraphicsData();
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
@@ -3108,6 +3107,10 @@ void ClearScriptData()
         scriptInfo->spriteSheetID              = 0;
         scriptInfo->animFile                   = GetDefaultAnimationRef();
         typeNames[o][0]                        = 0;
+    }
+
+    for (int s = globalSFXCount; s < globalSFXCount + stageSFXCount; ++s) {
+        sfxNames[s][0] = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
