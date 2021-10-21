@@ -603,6 +603,70 @@ void RetroEngine::LoadXMLVariables()
     }
     SetActiveMod(-1);
 }
+void RetroEngine::LoadXMLPalettes()
+{
+    FileInfo info;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *gameElement      = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *paletteElement = firstXMLChildElement(doc, gameElement, "palette");
+                if (paletteElement) {
+                    const tinyxml2::XMLElement *clrElement = firstXMLChildElement(doc, paletteElement, "color");
+                    if (clrElement) {
+                        do {
+                            const tinyxml2::XMLAttribute *bankAttr = findXMLAttribute(clrElement, "bank");
+                            int clrBank                            = 0;
+                            if (bankAttr)
+                                clrBank = getXMLAttributeValueInt(bankAttr);
+
+                            const tinyxml2::XMLAttribute *indAttr = findXMLAttribute(clrElement, "index");
+                            int clrInd                            = 0;
+                            if (indAttr)
+                                clrInd = getXMLAttributeValueInt(indAttr);
+
+                            const tinyxml2::XMLAttribute *rAttr = findXMLAttribute(clrElement, "r");
+                            int clrR                            = 0;
+                            if (rAttr)
+                                clrR = getXMLAttributeValueInt(rAttr);
+
+                            const tinyxml2::XMLAttribute *gAttr = findXMLAttribute(clrElement, "g");
+                            int clrG                            = 0;
+                            if (gAttr)
+                                clrG = getXMLAttributeValueInt(gAttr);
+
+                            const tinyxml2::XMLAttribute *bAttr = findXMLAttribute(clrElement, "b");
+                            int clrB                            = 0;
+                            if (bAttr)
+                                clrB = getXMLAttributeValueInt(bAttr);
+
+                            SetPaletteEntry(clrBank, clrInd, clrR, clrG, clrB);
+
+                        } while ((clrElement = nextXMLSiblingElement(doc, clrElement, "color")));
+                    }
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
 void RetroEngine::LoadXMLObjects()
 {
     FileInfo info;
@@ -999,6 +1063,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         CloseFile();
 #if RETRO_USE_MOD_LOADER
         LoadXMLVariables();
+        LoadXMLPalettes();
         LoadXMLObjects();
         LoadXMLPlayers(NULL);
         LoadXMLStages(NULL, 0);

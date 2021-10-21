@@ -657,6 +657,10 @@ void LoadStageFiles(void)
 #endif
             CloseFile();
 
+#if RETRO_USE_MOD_LOADER
+            Engine.LoadXMLPalettes();
+#endif
+
 #if RETRO_USE_MOD_LOADER && RETRO_USE_COMPILER
             globalObjCount = globalObjectCount;
             for (byte i = 0; i < modObjCount && loadGlobalScripts; ++i) {

@@ -346,6 +346,7 @@ public:
     bool LoadGameConfig(const char *filepath);
 #if RETRO_USE_MOD_LOADER
     void LoadXMLVariables();
+    void LoadXMLPalettes();
     void LoadXMLObjects();
     void LoadXMLSoundFX();
     void LoadXMLPlayers(TextMenu *menu);
