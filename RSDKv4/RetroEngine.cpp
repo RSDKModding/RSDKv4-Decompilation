@@ -773,6 +773,7 @@ void RetroEngine::LoadXMLSoundFX()
                             SetSfxName(sfxName, globalSFXCount);
 
                             GetFileInfo(&infoStore);
+                            CloseFile();
                             LoadSfx((char *)sfxPath, globalSFXCount);
                             SetFileInfo(&infoStore);
                             globalSFXCount++;

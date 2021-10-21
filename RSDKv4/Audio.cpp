@@ -155,6 +155,7 @@ void LoadGlobalSfx()
             strBuffer[fileBuffer] = 0;
 
             GetFileInfo(&infoStore);
+            CloseFile();
             LoadSfx(strBuffer, s);
             SetFileInfo(&infoStore);
         }

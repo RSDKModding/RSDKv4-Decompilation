@@ -619,6 +619,7 @@ void LoadStageFiles(void)
             bool bytecodeExists = false;
             FileInfo bytecodeInfo;
             GetFileInfo(&bytecodeInfo);
+            CloseFile();
             if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
                 bytecodeExists = true;
                 CloseFile();
@@ -667,6 +668,7 @@ void LoadStageFiles(void)
                 SetObjectTypeName(modTypeNames[i], scriptID);
 
                 GetFileInfo(&infoStore);
+                CloseFile();
                 ParseScriptFile(modScriptPaths[i], scriptID++);
                 SetFileInfo(&infoStore);
                 if (Engine.gameMode == ENGINE_SCRIPTERROR)
@@ -729,6 +731,7 @@ void LoadStageFiles(void)
             bool bytecodeExists = false;
             FileInfo bytecodeInfo;
             GetFileInfo(&bytecodeInfo);
+            CloseFile();
             if (LoadFile(scriptPath, &info)) {
                 bytecodeExists = true;
                 CloseFile();
