@@ -1069,9 +1069,9 @@ void FileExists(int *unused, const char *filePath)
 
 void SetScreenWidth(int *width, int *unused)
 {
-    SCREEN_XSIZE = SCREEN_XSIZE_CONFIG = *width;
+    SCREEN_XSIZE = *width;
 #if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+    SetScreenDimensions(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 
 #if RETRO_SOFTWARE_RENDER
     if (Engine.frameBuffer)
@@ -1092,7 +1092,7 @@ void SetScreenWidth(int *width, int *unused)
 #endif
 
 #if RETRO_USING_SDL2
-    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 #endif
 
 #if RETRO_USING_OPENGL
