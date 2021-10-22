@@ -651,7 +651,7 @@ void LoadBitmapFont(const char *filePath, int index, char textureID)
 void ResetBitmapFonts()
 {
     for (int i = 0; i < FONTLIST_COUNT; ++i) {
-        fontList[i].count = 2; //none & newline
+        fontList[i].count = 2; // none & newline
     }
 }
 

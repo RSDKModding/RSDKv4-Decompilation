@@ -15,18 +15,16 @@ enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
 enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
 enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_ROTOZOOM, FX_INK, FX_TINT, FX_FLIP };
 
-struct DrawListEntry
-{
+struct DrawListEntry {
     int entityRefs[ENTITY_COUNT];
     int listSize;
 };
 
-struct GFXSurface
-{
+struct GFXSurface {
     char fileName[0x40];
     int height;
     int width;
-#if RETRO_SOFTWARE_RENDER 
+#if RETRO_SOFTWARE_RENDER
     int widthShift;
 #endif
 #if RETRO_HARDWARE_RENDER
@@ -218,31 +216,27 @@ void Draw3DSkyLayer(int layerID);
 void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A);
 void SetFadeHQ(int R, int G, int B, int A);
 void DrawTintRectangle(int XPos, int YPos, int width, int height);
-void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX,
-                        int scaleY, int width, int height, int sprX, int sprY, int sheetID);
+void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                        int sheetID);
 
 // Sprite Drawing
 void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
-void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
-                       int sheetID);
-void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY,
-                      int width, int height, int sprX, int sprY, int sheetID);
+void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID);
+void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
+                      int sheetID);
 #if RETRO_REV01
 void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                     int sheetID);
 #endif
-void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY,
-                       int width, int height, int rotation, int sheetID);
-void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY,
-                        int width, int height, int rotation, int scale, int sheetID);
+void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                       int sheetID);
+void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
+                        int sheetID);
 
 void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
-void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha,
-                            int sheetID);
-void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha,
-                               int sheetID);
-void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
-                                  int alpha, int sheetID);
+void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
+void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
+void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
 
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos);
 

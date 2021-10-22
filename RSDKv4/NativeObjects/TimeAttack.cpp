@@ -267,8 +267,8 @@ void TimeAttack_Main(void *objPtr)
             matrixMultiplyF(&entity->matrix1, &entity->matrixTemp);
 
             if (entity->timer > 1.0) {
-                entity->timer  = 0.0;
-                entity->state  = TIMEATTACK_STATE_MAIN;
+                entity->timer    = 0.0;
+                entity->state    = TIMEATTACK_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
             }

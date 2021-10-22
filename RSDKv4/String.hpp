@@ -2,7 +2,7 @@
 #define STRING_H
 
 #define STRSTORAGE_SIZE (1000)
-#define STRING_SIZE (0x400)
+#define STRING_SIZE     (0x400)
 
 #define CREDITS_LIST_SIZE (0x200)
 
@@ -148,7 +148,6 @@ inline void StrCopyW(ushort *dest, const ushort *src)
     dest[i] = 0;
 }
 
-
 inline void StrAddW(ushort *dest, const ushort *src)
 {
     int destStrPos = 0;
@@ -247,7 +246,7 @@ inline void StringLowerCase(char *dest, const char *src)
             while (curChar - 'A' <= 0x19u) {
                 destPos       = srcPos;
                 dest[destPos] = curChar + ' ';
-                curChar  = src[++srcPos];
+                curChar       = src[++srcPos];
                 if (!curChar) {
                     dest[++destPos] = 0;
                     return;
@@ -271,7 +270,7 @@ inline void StringUpperCase(char *dest, const char *src)
             while (curChar - 'a' <= 0x19u) {
                 destPos       = srcPos;
                 dest[destPos] = curChar - ' ';
-                curChar  = src[++srcPos];
+                curChar       = src[++srcPos];
                 if (!curChar) {
                     dest[++destPos] = 0;
                     return;

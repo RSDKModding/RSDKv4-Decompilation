@@ -2231,7 +2231,6 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
     }
 #endif
 
-
     thisLeft += thisEntity->xpos >> 16;
     thisTop += thisEntity->ypos >> 16;
     thisRight += thisEntity->xpos >> 16;

@@ -1390,11 +1390,11 @@ void setupViewport()
     }
     int texWidth  = 1 << width2;
     int texHeight = 1 << height2;
-    
+
     float w  = (SCREEN_XSIZE * textureList[0].widthN);
     float w2 = (GFX_LINESIZE * textureList[0].widthN);
     float h  = (SCREEN_YSIZE * textureList[0].heightN);
-    
+
     retroVertexList[0] = -SCREEN_CENTERX_F;
     retroVertexList[1] = SCREEN_CENTERY_F;
     retroVertexList[2] = 160.0;
@@ -1536,7 +1536,7 @@ void setupViewport()
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
-    
+
     mixFiltersOnJekyll = Engine.useHighResAssets;
 
     if (transfer && Engine.frameBuffer)
@@ -1573,7 +1573,7 @@ void setFullScreen(bool fs)
         displaySettings.offsetX = abs(w - displaySettings.width) / 2;
         if (displaySettings.width > w) {
             displaySettings.offsetX = 0;
-            displaySettings.width = w;
+            displaySettings.width   = w;
         }
 
         setupViewport();
@@ -1596,7 +1596,7 @@ void setFullScreen(bool fs)
         SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_RestoreWindow(Engine.window);
 
-        displaySettings.width  = SCREEN_XSIZE_CONFIG * Engine.windowScale;
+        displaySettings.width   = SCREEN_XSIZE_CONFIG * Engine.windowScale;
         displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
         displaySettings.offsetX = 0;
         setupViewport();
@@ -1887,12 +1887,11 @@ void DrawStageGFX()
             int y                 = info->ypos + (info->top << 16);
             int w                 = abs((info->xpos + (info->right << 16)) - x) >> 16;
             int h                 = abs((info->ypos + (info->bottom << 16)) - y) >> 16;
-            x = (x >> 16) - xScrollOffset;
-            y = (y >> 16) - yScrollOffset;
+            x                     = (x >> 16) - xScrollOffset;
+            y                     = (y >> 16) - yScrollOffset;
 
             switch (info->type) {
-                case H_TYPE_TOUCH: DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60);
-                    break;
+                case H_TYPE_TOUCH: DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60); break;
                 case H_TYPE_BOX:
                     DrawRectangle(x, y, w, h, 0x00, 0x00, 0xFF, 0x60);
                     if (info->collision & 1) // top

@@ -3,7 +3,7 @@
 
 #define TEXTDATA_COUNT  (0x2800)
 #define TEXTENTRY_COUNT (0x200)
-#define TEXTMENU_COUNT (0x2)
+#define TEXTMENU_COUNT  (0x2)
 
 #define FONTLIST_CHAR_COUNT (0x1000)
 #define FONTLIST_COUNT      (0x4)
@@ -29,8 +29,7 @@ struct TextMenu {
 #if RETRO_REV01
 #define FONTCHAR_COUNT (0x400)
 
-struct FontCharacter
-{
+struct FontCharacter {
     int id;
     short srcX;
     short srcY;

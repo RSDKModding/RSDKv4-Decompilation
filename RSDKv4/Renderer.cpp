@@ -182,7 +182,7 @@ void matrixRotateXYZF(MatrixF *matrix, float angleX, float angleY, float angleZ)
     matrix->values[3][3] = 1.0f;
 }
 
-void matrixInvertF(MatrixF *dstMatrix, MatrixF* matrix)
+void matrixInvertF(MatrixF *dstMatrix, MatrixF *matrix)
 {
     double inv[16], det;
     double m[16];
@@ -495,7 +495,7 @@ void RenderScene()
 #if RETRO_USING_OPENGL
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glDisable(GL_BLEND);
-#endif 
+#endif
                     prevBlendMode = 0;
                     break;
                 case 1:
@@ -625,8 +625,7 @@ int LoadTexture(const char *filePath, int format)
             int id = 0;
             switch (format) {
                 default: break;
-                case TEXFMT_RGBA4444: 
-                {
+                case TEXFMT_RGBA4444: {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
                     for (int y = 0; y < height; ++y) {
@@ -649,8 +648,7 @@ int LoadTexture(const char *filePath, int format)
                     free(pixels);
                     break;
                 }
-                case TEXFMT_RGBA5551:
-                {
+                case TEXFMT_RGBA5551: {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
                     for (int y = 0; y < height; ++y) {
@@ -673,8 +671,7 @@ int LoadTexture(const char *filePath, int format)
                     free(pixels);
                     break;
                 }
-                case TEXFMT_RGBA8888:
-                {
+                case TEXFMT_RGBA8888: {
                     uint *pixels = (uint *)malloc(width * height * sizeof(uint));
 
                     for (int y = 0; y < height; ++y) {
@@ -743,8 +740,7 @@ void ReplaceTexture(const char *filePath, int texID)
             int id = 0;
             switch (texture->format) {
                 default: break;
-                case TEXFMT_RGBA4444:
-                {
+                case TEXFMT_RGBA4444: {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
                     for (int y = 0; y < height; ++y) {
@@ -765,8 +761,7 @@ void ReplaceTexture(const char *filePath, int texID)
                     free(pixels);
                     break;
                 }
-                case TEXFMT_RGBA5551:
-                {
+                case TEXFMT_RGBA5551: {
                     ushort *pixels = (ushort *)malloc(width * height * sizeof(ushort));
 
                     for (int y = 0; y < height; ++y) {
@@ -786,8 +781,7 @@ void ReplaceTexture(const char *filePath, int texID)
                     free(pixels);
                     break;
                 }
-                case TEXFMT_RGBA8888:
-                {
+                case TEXFMT_RGBA8888: {
                     uint *pixels = (uint *)malloc(width * height * sizeof(uint));
 
                     for (int y = 0; y < height; ++y) {
@@ -1244,8 +1238,8 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
         }
     }
 }
-void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,
-                 int alpha, byte texture)
+void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
+                        float sprY, int alpha, byte texture)
 {
     if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
         if (renderStateCount < 0) {
@@ -1576,9 +1570,9 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                         if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
                             currentRenderState.indexCount = 0;
                             memcpy(&renderStateList[renderStateCount++], &currentRenderState, sizeof(RenderState));
-                            currentRenderState.vertPtr          = &drawVertexList[vertexListSize];
-                            currentRenderState.indexPtr         = drawIndexList;
-                            currentRenderState.id               = texture->id;
+                            currentRenderState.vertPtr  = &drawVertexList[vertexListSize];
+                            currentRenderState.indexPtr = drawIndexList;
+                            currentRenderState.id       = texture->id;
                         }
 
                         DrawVertex *vertex1 = &drawVertexList[vertexListSize];

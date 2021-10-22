@@ -361,7 +361,7 @@ public:
 #if RETRO_RENDERTYPE == RETRO_SW_RENDER
     const char *gameRenderType = "SW_RENDERING";
 #elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType = "HW_RENDERING";
+    const char *gameRenderType    = "HW_RENDERING";
 #endif
 
 #if RETRO_USE_HAPTICS
@@ -417,8 +417,8 @@ public:
 
 #if RETRO_USING_OPENGL
     SDL_GLContext glContext; // OpenGL context
-#endif // RETRO_USING_OPENGL
-#endif // RETRO_USING_SDL2
+#endif                       // RETRO_USING_OPENGL
+#endif                       // RETRO_USING_SDL2
 
 #if RETRO_USING_SDL1
     SDL_Surface *windowSurface = nullptr;

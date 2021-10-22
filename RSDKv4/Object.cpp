@@ -314,7 +314,7 @@ void Process2PObjects()
 
 void SetObjectTypeName(const char *objectName, int objectID)
 {
-    int objPos = 0;
+    int objPos  = 0;
     int typePos = 0;
     while (objectName[objPos]) {
         if (objectName[objPos] != ' ')

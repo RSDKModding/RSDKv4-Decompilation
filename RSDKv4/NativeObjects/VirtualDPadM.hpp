@@ -19,4 +19,4 @@ struct NativeEntity_VirtualDPadM : NativeEntityBase {
 void VirtualDPadM_Create(void *objPtr);
 void VirtualDPadM_Main(void *objPtr);
 
-#endif //!NATIVE_VIRTUALDPAD_H
+#endif //! NATIVE_VIRTUALDPAD_H

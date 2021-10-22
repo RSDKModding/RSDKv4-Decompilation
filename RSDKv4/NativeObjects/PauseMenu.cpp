@@ -375,8 +375,8 @@ void PauseMenu_Main(void *objPtr)
                     entity->buttonRotY[i] = -0.02 * (i + 1);
                 }
                 if (entity->buttonSelected == 2) {
-                    entity->settingsScreen               = CREATE_ENTITY(SettingsScreen);
-                    entity->settingsScreen->optionsMenu  = (NativeEntity_OptionsMenu *)entity;
+                    entity->settingsScreen              = CREATE_ENTITY(SettingsScreen);
+                    entity->settingsScreen->optionsMenu = (NativeEntity_OptionsMenu *)entity;
                     entity->settingsScreen->isPauseMenu = 1;
                 }
             }

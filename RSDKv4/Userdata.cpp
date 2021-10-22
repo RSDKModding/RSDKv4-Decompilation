@@ -575,8 +575,7 @@ void writeSettings()
     ini.SetComment("Dev", "DebugModeComment",
                    "Enable this flag to activate features used for debugging the engine (may result in slightly slower game speed)");
     ini.SetBool("Dev", "EngineDebugMode", engineDebugMode);
-    ini.SetComment("Dev", "ScriptsComment",
-                   "Enable this flag to force the engine to load from the scripts folder instead of from bytecode");
+    ini.SetComment("Dev", "ScriptsComment", "Enable this flag to force the engine to load from the scripts folder instead of from bytecode");
     ini.SetBool("Dev", "TxtScripts", forceUseScripts_Config);
     ini.SetComment("Dev", "SCComment", "Sets the starting category ID");
     ini.SetInteger("Dev", "StartingCategory", Engine.startList);
@@ -629,10 +628,7 @@ void writeSettings()
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
     ini.SetBool("Window", "VSync", Engine.vsync);
-    ini.SetComment("Window", "SMComment",
-                   "Determines what scaling is used. 0 is nearest neighbour, 1 is integer scale, 2 is sharp bilinear, and 3 is regular bilinear.");
-    ini.SetComment("Window", "SMWarning",
-                   "Note: Not all scaling options work correctly on certain platforms, as they don't support bilinear filtering.");
+    ini.SetComment("Window", "SMComment", "Determines what scaling is used. 0 is nearest neighbour and 1 is integer scale.");
     ini.SetInteger("Window", "ScalingMode", Engine.scalingMode);
     ini.SetComment("Window", "WSComment", "How big the window will be");
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
@@ -647,7 +643,8 @@ void writeSettings()
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
+    ini.SetComment("Keyboard 1", "IK1Comment",
+                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
 #endif
 #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
@@ -668,7 +665,8 @@ void writeSettings()
     ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
+    ini.SetComment("Controller 1", "IC1Comment",
+                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
     ini.SetComment("Controller 1", "IC1Comment3", "CONTROLLER_BUTTON_ZL             = 16");
     ini.SetComment("Controller 1", "IC1Comment4", "CONTROLLER_BUTTON_ZR             = 17");
@@ -815,7 +813,7 @@ void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[ac
 void SetAchievementDescription(int *id, const char *desc) { StrCopy(achievements[*id].desc, desc); }
 void ClearAchievements() { achievementCount = 0; }
 void GetAchievementCount() { scriptEng.checkResult = achievementCount; }
-void GetAchievementName(uint *id, int* textMenu)
+void GetAchievementName(uint *id, int *textMenu)
 {
     if (*id >= achievementCount)
         return;
@@ -925,8 +923,8 @@ void Disconnect2PVS()
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         disableFocusPause = disableFocusPause_Store;
-        //Engine.devMenu    = vsPlayerID;
-        vsPlaying         = false;
+        // Engine.devMenu    = vsPlayerID;
+        vsPlaying = false;
         disconnectNetwork();
         initNetwork();
 #endif
@@ -1026,8 +1024,8 @@ void receive2PVSMatchCode(int code)
     code |= 0x00001000 * vsPlayerID;
     matchValueData[matchValueWritePos++] = code;
     ResumeSound();
-    vsPlayerID      = Engine.devMenu;
-    //Engine.devMenu  = false;
+    vsPlayerID = Engine.devMenu;
+    // Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
     vsPlaying       = true;
     ClearNativeObjects();

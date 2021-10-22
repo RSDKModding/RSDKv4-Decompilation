@@ -50,7 +50,7 @@ void SegaSplash_Create(void *objPtr)
             textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
             break;
-        case RETRO_RU: 
+        case RETRO_RU:
             if (Engine.useHighResAssets)
                 heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
             else

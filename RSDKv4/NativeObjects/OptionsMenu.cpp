@@ -69,8 +69,8 @@ void OptionsMenu_Main(void *objPtr)
             entity->timer += (Engine.deltaTime + Engine.deltaTime);
             entity->labelPtr->alpha = (256.0 * entity->timer);
             if (entity->timer > 1.0) {
-                entity->timer  = 0.0;
-                entity->state  = OPTIONSMENU_STATE_MAIN;
+                entity->timer    = 0.0;
+                entity->state    = OPTIONSMENU_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
             }

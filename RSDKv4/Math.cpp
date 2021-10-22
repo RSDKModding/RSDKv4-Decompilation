@@ -17,8 +17,8 @@ void CalculateTrigAngles()
     srand(time(NULL));
 
     for (int i = 0; i < 0x200; ++i) {
-        sinValM7[i]   = (sin((i / 256.0) * M_PI) * 4096.0);
-        cosValM7[i]   = (cos((i / 256.0) * M_PI) * 4096.0);
+        sinValM7[i] = (sin((i / 256.0) * M_PI) * 4096.0);
+        cosValM7[i] = (cos((i / 256.0) * M_PI) * 4096.0);
     }
 
     cosValM7[0]   = 0x1000;

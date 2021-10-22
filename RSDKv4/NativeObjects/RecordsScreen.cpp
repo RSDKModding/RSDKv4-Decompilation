@@ -532,8 +532,8 @@ void RecordsScreen_Main(void *objPtr)
             entity->state = RECORDSSCREEN_STATE_MAIN;
             SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
             if (globalVariables[entity->taResultID] > 0) {
-                int *records  = &saveGame->records[pos + (3 * entity->actID)];
-                int time = globalVariables[entity->taResultID];
+                int *records = &saveGame->records[pos + (3 * entity->actID)];
+                int time     = globalVariables[entity->taResultID];
 
                 for (int r = 0; r < 3; ++r) {
                     if (time < records[r]) {

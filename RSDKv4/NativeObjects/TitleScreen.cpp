@@ -11,7 +11,7 @@ void TitleScreen_Create(void *objPtr)
     entity->introRectAlpha = 320.0;
     entity->logoTextureID  = LoadTexture("Data/Game/Menu/SonicLogo.png", TEXFMT_RGBA8888);
 
-    //code has been moved to SegaSplash_Create due to the possibility of opening the dev menu before this loads :(
+    // code has been moved to SegaSplash_Create due to the possibility of opening the dev menu before this loads :(
 #if RETRO_USE_ORIGINAL_CODE
     ResetBitmapFonts();
     if (Engine.useHighResAssets)
@@ -38,7 +38,7 @@ void TitleScreen_Create(void *objPtr)
         case RETRO_ES: entity->labelPtr->scale = 0.125; break;
         case RETRO_JP: entity->labelPtr->scale = 0.1;
 #if RETRO_USE_ORIGINAL_CODE
-            heading                 = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
+            heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
             LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
 
             labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
@@ -138,7 +138,7 @@ void TitleScreen_Create(void *objPtr)
     SetMeshAnimation(entity->boxMesh, &entity->meshAnimator, 16, 16, 0.0);
     AnimateMesh(entity->boxMesh, &entity->meshAnimator);
     SetMeshAnimation(entity->introMesh, &entity->meshAnimator, 0, 36, 0.09);
-    entity->rectY  = 160.0;
+    entity->rectY     = 160.0;
     entity->meshScale = 0.0;
     entity->rotationY = 0.0;
     SetMusicTrack("MenuIntro.ogg", 0, false, 0);
@@ -189,7 +189,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
-                entity->rectY              = -48.0;
+                entity->rectY                 = -48.0;
                 entity->field_12C             = 256;
                 entity->logoAlpha             = 256;
                 entity->field_130             = 1;
@@ -217,7 +217,7 @@ void TitleScreen_Main(void *objPtr)
                 entity->state                 = TITLESCREEN_STATE_TITLE;
                 entity->x                     = -96.0;
                 entity->meshScale             = 1.0;
-                entity->rectY              = -48.0;
+                entity->rectY                 = -48.0;
                 entity->field_12C             = 256;
                 entity->logoAlpha             = 256;
                 entity->field_130             = 1;
@@ -239,7 +239,7 @@ void TitleScreen_Main(void *objPtr)
                 }
                 else {
                     entity->rectY = -48.0;
-                    y                = 192.0;
+                    y             = 192.0;
                 }
             }
             else {

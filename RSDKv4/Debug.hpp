@@ -66,7 +66,7 @@ inline void printLog(const ushort *msg)
             sprintf(pathBuffer, "log.txt");
 #elif RETRO_PLATFORM == RETRO_ANDROID
         sprintf(pathBuffer, "%s/log.txt", gamePath);
-        __android_log_print(ANDROID_LOG_INFO, "RSDKv4", "%ls", (wchar_t*)msg);
+        __android_log_print(ANDROID_LOG_INFO, "RSDKv4", "%ls", (wchar_t *)msg);
 #else
         sprintf(pathBuffer, BASE_PATH "log.txt");
 #endif

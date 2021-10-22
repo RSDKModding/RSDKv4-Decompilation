@@ -81,7 +81,7 @@ ushort tile3DFloorBuffer[0x13334];
 bool drawStageGFXHQ = false;
 
 #if RETRO_USE_MOD_LOADER
-bool loadGlobalScripts = false; //stored here so I can use it later
+bool loadGlobalScripts = false; // stored here so I can use it later
 int globalObjCount     = 0;
 #endif
 
@@ -130,7 +130,7 @@ void ProcessStage(void)
 #endif
 
     switch (stageMode) {
-        case STAGEMODE_LOAD: // Startup     
+        case STAGEMODE_LOAD: // Startup
             SetActivePalette(0, 0, 256);
             gameMenu[0].visibleRowOffset = 0;
             gameMenu[1].alignment        = 0;

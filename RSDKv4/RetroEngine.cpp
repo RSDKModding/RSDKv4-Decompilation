@@ -67,11 +67,11 @@ bool processEvents()
                 if (touches <= 1) { // Touch always takes priority over mouse
                     uint state = SDL_GetMouseState(&touchX[0], &touchY[0]);
 
-                    touchXF[0]   = (((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
-                    touchYF[0]   = -(((touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
-                    touchX[0]    = ((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE;
-                    touchY[0]    = (touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE;
-                    
+                    touchXF[0] = (((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
+                    touchYF[0] = -(((touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE_F) - SCREEN_CENTERY_F);
+                    touchX[0]  = ((touchX[0] - displaySettings.offsetX) / (float)displaySettings.width) * SCREEN_XSIZE;
+                    touchY[0]  = (touchY[0] / (float)displaySettings.height) * SCREEN_YSIZE;
+
                     touchDown[0] = state & SDL_BUTTON_LMASK;
                     if (touchDown[0])
                         touches = 1;
@@ -104,7 +104,7 @@ bool processEvents()
                 for (int i = 0; i < count; i++) {
                     SDL_Finger *finger = SDL_GetTouchFinger(Engine.sdlEvents.tfinger.touchId, i);
                     if (finger) {
-                        touchDown[touches]  = true;
+                        touchDown[touches] = true;
                         touchX[touches]    = finger->x * SCREEN_XSIZE;
                         touchY[touches]    = finger->y * SCREEN_YSIZE;
                         touchXF[touches]   = (finger->x * SCREEN_XSIZE_F) - SCREEN_CENTERX_F;
@@ -404,7 +404,8 @@ void RetroEngine::Init()
     ReadSaveRAMData();
 
     if (Engine.gameType == GAME_SONIC1) {
-        AddAchievement("Ramp Ring Acrobatics", "Without touching the ground,\rcollect all the rings in a\rtrapezoid formation in Green\rHill Zone Act 1");
+        AddAchievement("Ramp Ring Acrobatics",
+                       "Without touching the ground,\rcollect all the rings in a\rtrapezoid formation in Green\rHill Zone Act 1");
         AddAchievement("Blast Processing", "Clear Green Hill Zone Act 1\rin under 30 seconds");
         AddAchievement("Secret of Marble Zone", "Travel though a secret\rroom in Marbale Zone Act 3");
         AddAchievement("Block Buster", "Break 16 blocks in a row\rwithout stopping");
@@ -429,7 +430,7 @@ void RetroEngine::Init()
         AddAchievement("Head 2 Head", "Win a 2P Versus race\ragainst a friend");
         AddAchievement("Metropolis Master", "Complete Any Metropolis\rZone Act without getting\rhurt");
         AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack moed in under 7\rminutes");
-        AddAchievement("Beat the Clock","Complete the Time Attack\rmode in less than 45\rminutes");
+        AddAchievement("Beat the Clock", "Complete the Time Attack\rmode in less than 45\rminutes");
     }
 
     if (skipStartMenu)
@@ -444,10 +445,10 @@ void RetroEngine::Run()
     const Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
     Uint64 frameStartBlunt = SDL_GetTicks(), frameEndBlunt = SDL_GetTicks();
-    float frameDelta = 0.0f;
+    float frameDelta      = 0.0f;
     float frameDeltaBlunt = 0.0f;
-	Engine.deltaTime = 0.0f;
-    
+    Engine.deltaTime      = 0.0f;
+
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
         frameStartBlunt = SDL_GetTicks();
@@ -456,19 +457,19 @@ void RetroEngine::Run()
         if (frameDeltaBlunt < 1000.0f / (float)refreshRate) {
             SDL_Delay(1000.0f / (float)refreshRate - frameDeltaBlunt);
             continue;
-        }        
-        
+        }
+
         frameStart = SDL_GetPerformanceCounter();
         frameDelta = frameStart - frameEnd;
         if (frameDelta < frequency / (float)refreshRate) {
             continue;
         }
-        frameEnd = SDL_GetPerformanceCounter();
-        frameEndBlunt = SDL_GetTicks();
+        frameEnd         = SDL_GetPerformanceCounter();
+        frameEndBlunt    = SDL_GetTicks();
         Engine.deltaTime = 0.016666668;
 #endif
         running = processEvents();
-		
+
 #if !RETRO_USE_ORIGINAL_CODE
         for (int s = 0; s < gameSpeed; ++s) {
             ProcessInput();
@@ -502,7 +503,7 @@ void RetroEngine::Run()
         }
         else if (hapticID == HAPTIC_STOP) {
             // stopHaptics();
-        } 
+        }
     }
 
     ReleaseAudioDevice();
@@ -570,7 +571,7 @@ void RetroEngine::LoadXMLVariables()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement      = firstXMLChildElement(doc, nullptr, "game");
                 const tinyxml2::XMLElement *variablesElement = firstXMLChildElement(doc, gameElement, "variables");
                 if (variablesElement) {
                     const tinyxml2::XMLElement *varElement = firstXMLChildElement(doc, variablesElement, "variable");
@@ -621,7 +622,7 @@ void RetroEngine::LoadXMLPalettes()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement      = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement    = firstXMLChildElement(doc, nullptr, "game");
                 const tinyxml2::XMLElement *paletteElement = firstXMLChildElement(doc, gameElement, "palette");
                 if (paletteElement) {
                     const tinyxml2::XMLElement *clrElement = firstXMLChildElement(doc, paletteElement, "color");
@@ -687,7 +688,7 @@ void RetroEngine::LoadXMLObjects()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement    = firstXMLChildElement(doc, nullptr, "game");
                 const tinyxml2::XMLElement *objectsElement = firstXMLChildElement(doc, gameElement, "objects");
                 if (objectsElement) {
                     const tinyxml2::XMLElement *objElement = firstXMLChildElement(doc, objectsElement, "object");
@@ -754,7 +755,7 @@ void RetroEngine::LoadXMLSoundFX()
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement   = firstXMLChildElement(doc, nullptr, "game");
                 const tinyxml2::XMLElement *soundsElement = firstXMLChildElement(doc, gameElement, "sounds");
                 if (soundsElement) {
                     const tinyxml2::XMLElement *sfxElement = firstXMLChildElement(doc, soundsElement, "soundfx");
@@ -813,7 +814,7 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
             bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
 
             if (success) {
-                const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *gameElement    = firstXMLChildElement(doc, nullptr, "game");
                 const tinyxml2::XMLElement *playersElement = firstXMLChildElement(doc, gameElement, "players");
                 if (playersElement) {
                     const tinyxml2::XMLElement *plrElement = firstXMLChildElement(doc, playersElement, "player");
@@ -864,7 +865,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
 
             if (success) {
                 const tinyxml2::XMLElement *gameElement = firstXMLChildElement(doc, nullptr, "game");
-                const char *elementNames[] = { "presentationStages", "regularStages", "bonusStages", "specialStages" };
+                const char *elementNames[]              = { "presentationStages", "regularStages", "bonusStages", "specialStages" };
 
                 for (int l = 0; l < STAGELIST_MAX; ++l) {
                     const tinyxml2::XMLElement *listElement = firstXMLChildElement(doc, gameElement, elementNames[l]);
@@ -1094,7 +1095,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
     AddNativeFunction("FileExists", FileExists);
-    AddNativeFunction("OpenModMenu", OpenModMenu); //Opens the dev menu-based mod menu incase you cant be bothered or smth
+    AddNativeFunction("OpenModMenu", OpenModMenu); // Opens the dev menu-based mod menu incase you cant be bothered or smth
     AddNativeFunction("AddAchievement", AddGameAchievement);
     AddNativeFunction("SetAchievementDescription", SetAchievementDescription);
     AddNativeFunction("ClearAchievements", ClearAchievements);
@@ -1106,7 +1107,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("SetWindowScale", SetWindowScale);
     AddNativeFunction("SetWindowFullScreen", SetWindowFullScreen);
     AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
-    //AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
+    // AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
     AddNativeFunction("GetModCount", GetModCount);
     AddNativeFunction("GetModName", GetModName);
     AddNativeFunction("GetModDescription", GetModDescription);
@@ -1114,7 +1115,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("GetModVersion", GetModVersion);
     AddNativeFunction("GetModActive", GetModActive);
     AddNativeFunction("SetModActive", SetModActive);
-    AddNativeFunction("RefreshEngine", RefreshEngine); //Reload engine after changing mod status
+    AddNativeFunction("RefreshEngine", RefreshEngine); // Reload engine after changing mod status
 #endif
 
     return loaded;

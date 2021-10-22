@@ -1729,7 +1729,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = 0;
-                int s = -1;
+                int s       = -1;
                 if (StrLength(arrayStr) >= 2) {
                     char list = arrayStr[0];
                     switch (list) {
@@ -2023,7 +2023,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
         if (StrComp(caseValue, "StageName")) {
             caseValue[0] = 0;
-            int s = -1;
+            int s        = -1;
             if (StrLength(arrayStr) >= 2) {
                 char list = arrayStr[0];
                 switch (list) {
@@ -2249,7 +2249,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(caseValue, "StageName")) {
                 caseValue[0] = 0;
-                int s = -1;
+                int s        = -1;
                 if (StrLength(arrayStr) >= 2) {
                     char list = arrayStr[0];
                     switch (list) {
@@ -3435,10 +3435,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         int boundX3_2P = -(0x180 << 16);
                         int boundX4_2P = (0x180 << 16);
 
-                        int boundY1_2P   = -(0x180 << 16);
-                        int boundY2_2P   = (0x180 << 16);
-                        int boundY3_2P   = -(0x100 << 16);
-                        int boundY4_2P   = (0x100 << 16);
+                        int boundY1_2P = -(0x180 << 16);
+                        int boundY2_2P = (0x180 << 16);
+                        int boundY3_2P = -(0x100 << 16);
+                        int boundY4_2P = (0x100 << 16);
 
                         int P1Bound_L = objectEntityList[0].xpos - 0x1FFFFFF;
                         int P1Bound_R = objectEntityList[0].xpos + 0x1FFFFFF;

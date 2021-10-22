@@ -59,10 +59,10 @@ void InitGifDecoder()
 void ReadGifLine(byte *line, int length, int offset)
 {
     int i         = 0;
-    int stackPtr       = gifDecoder.stackPtr;
+    int stackPtr  = gifDecoder.stackPtr;
     int eofCode   = gifDecoder.eofCode;
     int clearCode = gifDecoder.clearCode;
-    int prevCode      = gifDecoder.prevCode;
+    int prevCode  = gifDecoder.prevCode;
     if (stackPtr != 0) {
         while (stackPtr != 0) {
             if (i >= length) {
@@ -115,7 +115,7 @@ void ReadGifLine(byte *line, int length, int offset)
                     int c = 0;
                     while (c++ <= LZ_MAX_CODE && code > clearCode && code <= LZ_MAX_CODE) {
                         gifDecoder.stack[stackPtr++] = gifDecoder.suffix[code];
-                        code                    = gifDecoder.prefix[code];
+                        code                         = gifDecoder.prefix[code];
                     }
                     if (c >= LZ_MAX_CODE | code > LZ_MAX_CODE) {
                         return;
@@ -331,9 +331,9 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         FileRead(&fileBuffer, 1);
         surface->height |= fileBuffer << 8;
 
-        FileRead(&fileBuffer, 1); // Palette Size 
-        //int has_pallete  = (fileBuffer & 0x80) >> 7;
-        //int colors       = ((fileBuffer & 0x70) >> 4) + 1;
+        FileRead(&fileBuffer, 1); // Palette Size
+        // int has_pallete  = (fileBuffer & 0x80) >> 7;
+        // int colors       = ((fileBuffer & 0x70) >> 4) + 1;
         int palette_size = (fileBuffer & 0x7) + 1;
         if (palette_size > 0)
             palette_size = 1 << palette_size;
@@ -422,7 +422,7 @@ int LoadPVRFile(const char *filePath, byte sheetID)
 
 #if RETRO_SOFTWARE_RENDER
         surface->widthShift = 0;
-        int w                 = surface->width;
+        int w               = surface->width;
         while (w > 1) {
             w >>= 1;
             ++surface->widthShift;

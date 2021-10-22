@@ -4,8 +4,8 @@
 #define DRAWFACE_LIMIT    (0x1000)
 #define DRAWVERTEX_LIMIT  (DRAWFACE_LIMIT * 4)
 #define DRAWINDEX_LIMIT   (DRAWFACE_LIMIT * 6)
-#define TEXTURE_LIMIT (0x80)
-#define MESH_LIMIT (0x40)
+#define TEXTURE_LIMIT     (0x80)
+#define MESH_LIMIT        (0x40)
 #define RENDERSTATE_LIMIT (0x100)
 
 enum RenderBlendModes {
@@ -120,7 +120,7 @@ extern int renderStateCount;
 extern RenderState renderStateList[RENDERSTATE_LIMIT];
 extern RenderState currentRenderState;
 
-//Matricies
+// Matricies
 void setIdentityMatrixF(MatrixF *matrixA);
 void matrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB);
 void matrixTranslateXYZF(MatrixF *Matrix, float XPos, float YPos, float ZPos);
@@ -131,7 +131,7 @@ void matrixRotateZF(MatrixF *matrix, float rotationZ);
 void matrixRotateXYZF(MatrixF *matrix, float rotationX, float rotationY, float rotationZ);
 void matrixInvertF(MatrixF *dstMatrix, MatrixF *matrix);
 
-//Render States
+// Render States
 void ResetRenderStates();
 void SetRenderBlendMode(byte mode);
 void SetRenderVertexColor(byte r, byte g, byte b);
@@ -153,7 +153,7 @@ void ClearMeshData();
 void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, ushort frameCount, float speed);
 void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator);
 
-//Rendering
+// Rendering
 void TransferRetroBuffer();
 void RenderRetroBuffer(int alpha, float z);
 void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,

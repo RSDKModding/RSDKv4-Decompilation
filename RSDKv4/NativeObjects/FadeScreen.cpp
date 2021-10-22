@@ -4,7 +4,7 @@ void FadeScreen_Create(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
     entity->timer           = 0.0;
-    entity->delay       = 1.5;
+    entity->delay           = 1.5;
     entity->fadeSpeed       = 2.0;
     entity->state           = FADESCREEN_STATE_GAMEFADEOUT;
     Engine.nativeMenuFadeIn = true;

@@ -29,7 +29,7 @@ void initDevMenu()
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     setTextMenu(DEVMENU_MAIN);
-    drawStageGFXHQ           = false;
+    drawStageGFXHQ = false;
 #if !RETRO_USE_ORIGINAL_CODE
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
 #endif
@@ -310,7 +310,7 @@ void processStageSelect()
                 gameMenu[1].timer += 1;
                 if (gameMenu[1].timer > 8) {
                     gameMenu[1].timer = 0;
-                    inputPress.down     = true;
+                    inputPress.down   = true;
                 }
             }
             else {
@@ -318,7 +318,7 @@ void processStageSelect()
                     gameMenu[1].timer -= 1;
                     if (gameMenu[1].timer < -8) {
                         gameMenu[1].timer = 0;
-                        inputPress.up       = true;
+                        inputPress.up     = true;
                     }
                 }
                 else {
@@ -392,7 +392,7 @@ void processStageSelect()
                 gameMenu[1].timer += 1;
                 if (gameMenu[1].timer > 8) {
                     gameMenu[1].timer = 0;
-                    inputPress.down     = true;
+                    inputPress.down   = true;
                 }
             }
             else {
@@ -400,7 +400,7 @@ void processStageSelect()
                     gameMenu[1].timer -= 1;
                     if (gameMenu[1].timer < -8) {
                         gameMenu[1].timer = 0;
-                        inputPress.up       = true;
+                        inputPress.up     = true;
                     }
                 }
                 else {
@@ -439,7 +439,7 @@ void processStageSelect()
                     gameMenu[1].visibleRowOffset = gameMenu[1].rowCount - gameMenu[1].visibleRowCount;
                 }
             }
-            gameMenu[1].selection2 = gameMenu[1].selection1; //its a bug fix LOL
+            gameMenu[1].selection2 = gameMenu[1].selection1; // its a bug fix LOL
 
             char buffer[0x100];
             if (gameMenu[1].selection1 < modList.size() && (inputPress.A || inputPress.start || inputPress.left || inputPress.right)) {

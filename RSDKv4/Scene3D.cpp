@@ -55,11 +55,8 @@ void matrixMultiply(Matrix *matrixA, Matrix *matrixB)
     for (int i = 0; i < 0x10; ++i) {
         uint rowA = i / 4;
         uint rowB = i % 4;
-        output[i] = 
-            (matrixA->values[rowA][3] * matrixB->values[3][rowB] >> 8) + 
-            (matrixA->values[rowA][2] * matrixB->values[2][rowB] >> 8) + 
-            (matrixA->values[rowA][1] * matrixB->values[1][rowB] >> 8) + 
-            (matrixA->values[rowA][0] * matrixB->values[0][rowB] >> 8);
+        output[i] = (matrixA->values[rowA][3] * matrixB->values[3][rowB] >> 8) + (matrixA->values[rowA][2] * matrixB->values[2][rowB] >> 8)
+                    + (matrixA->values[rowA][1] * matrixB->values[1][rowB] >> 8) + (matrixA->values[rowA][0] * matrixB->values[0][rowB] >> 8);
     }
 
     for (int i = 0; i < 0x10; ++i) matrixA->values[i / 4][i % 4] = output[i];
@@ -110,8 +107,8 @@ void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
 }
 void matrixRotateX(Matrix *matrix, int rotationX)
 {
-    int sine             = sinVal512[rotationX & 0x1FF] >> 1;
-    int cosine           = cosVal512[rotationX & 0x1FF] >> 1;
+    int sine   = sinVal512[rotationX & 0x1FF] >> 1;
+    int cosine = cosVal512[rotationX & 0x1FF] >> 1;
 
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
@@ -135,8 +132,8 @@ void matrixRotateX(Matrix *matrix, int rotationX)
 }
 void matrixRotateY(Matrix *matrix, int rotationY)
 {
-    int sine             = sinVal512[rotationY & 0x1FF] >> 1;
-    int cosine           = cosVal512[rotationY & 0x1FF] >> 1;
+    int sine   = sinVal512[rotationY & 0x1FF] >> 1;
+    int cosine = cosVal512[rotationY & 0x1FF] >> 1;
 
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
@@ -287,13 +284,16 @@ void transformVertexBuffer()
     matrixMultiply(&matFinal, &matView);
 
     for (int v = 0; v < vertexCount; ++v) {
-        int vx       = vertexBuffer[v].x;
-        int vy       = vertexBuffer[v].y;
-        int vz       = vertexBuffer[v].z;
+        int vx = vertexBuffer[v].x;
+        int vy = vertexBuffer[v].y;
+        int vz = vertexBuffer[v].z;
 
-        vertexBufferT[v].x = (vx * matFinal.values[0][0] >> 8) + (vy * matFinal.values[1][0] >> 8) + (vz * matFinal.values[2][0] >> 8) + matFinal.values[3][0];
-        vertexBufferT[v].y = (vx * matFinal.values[0][1] >> 8) + (vy * matFinal.values[1][1] >> 8) + (vz * matFinal.values[2][1] >> 8) + matFinal.values[3][1];
-        vertexBufferT[v].z = (vx * matFinal.values[0][2] >> 8) + (vy * matFinal.values[1][2] >> 8) + (vz * matFinal.values[2][2] >> 8) + matFinal.values[3][2];
+        vertexBufferT[v].x =
+            (vx * matFinal.values[0][0] >> 8) + (vy * matFinal.values[1][0] >> 8) + (vz * matFinal.values[2][0] >> 8) + matFinal.values[3][0];
+        vertexBufferT[v].y =
+            (vx * matFinal.values[0][1] >> 8) + (vy * matFinal.values[1][1] >> 8) + (vz * matFinal.values[2][1] >> 8) + matFinal.values[3][1];
+        vertexBufferT[v].z =
+            (vx * matFinal.values[0][2] >> 8) + (vy * matFinal.values[1][2] >> 8) + (vz * matFinal.values[2][2] >> 8) + matFinal.values[3][2];
     }
 }
 void transformVertices(Matrix *matrix, int startIndex, int endIndex)
@@ -522,8 +522,8 @@ void processScanEdge(Vertex *vertA, Vertex *vertB)
         return;
     if (bottom > SCREEN_YSIZE)
         bottom = SCREEN_YSIZE;
-    int fullX       = vertA->x << 16;
-    int deltaX      = ((vertB->x - vertA->x) << 16) / (vertB->y - vertA->y);
+    int fullX  = vertA->x << 16;
+    int deltaX = ((vertB->x - vertA->x) << 16) / (vertB->y - vertA->y);
     if (top < 0) {
         fullX -= top * deltaX;
         top = 0;
@@ -556,9 +556,9 @@ void processScanEdgeUV(Vertex *vertA, Vertex *vertB)
     if (bottom > SCREEN_YSIZE)
         bottom = SCREEN_YSIZE;
 
-    int fullX      = vertA->x << 16;
-    int fullU      = vertA->u << 16;
-    int fullV      = vertA->v << 16;
+    int fullX  = vertA->x << 16;
+    int fullU  = vertA->u << 16;
+    int fullV  = vertA->v << 16;
     int deltaX = ((vertB->x - vertA->x) << 16) / (vertB->y - vertA->y);
 
     int deltaU = 0;

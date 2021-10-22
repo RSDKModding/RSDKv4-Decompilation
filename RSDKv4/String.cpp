@@ -33,33 +33,33 @@ ushort *strExitGame         = NULL;
 ushort *strNetworkMessage   = NULL;
 ushort *strStageList[16];
 ushort *strSaveStageList[32];
-ushort *strNewBestTime      = NULL;
-ushort *strRecords          = NULL;
-ushort *strNextAct          = NULL;
-ushort *strPlay             = NULL;
-ushort *strTotalTime        = NULL;
-ushort *strInstructions     = NULL;
-ushort *strSettings         = NULL;
-ushort *strStaffCredits     = NULL;
-ushort *strAbout            = NULL;
-ushort *strMusic            = NULL;
-ushort *strSoundFX          = NULL;
-ushort *strSpindash         = NULL;
-ushort *strBoxArt           = NULL;
-ushort *strControls         = NULL;
-ushort *strOn               = NULL;
-ushort *strOff              = NULL;
-ushort *strCustomizeDPad    = NULL;
-ushort *strDPadSize         = NULL;
-ushort *strDPadOpacity      = NULL;
-ushort *strHelpText1        = NULL;
-ushort *strHelpText2        = NULL;
-ushort *strHelpText3        = NULL;
-ushort *strHelpText4        = NULL;
-ushort *strHelpText5        = NULL;
-ushort *strVersionName      = NULL;
-ushort *strPrivacy          = NULL;
-ushort *strTerms            = NULL;
+ushort *strNewBestTime   = NULL;
+ushort *strRecords       = NULL;
+ushort *strNextAct       = NULL;
+ushort *strPlay          = NULL;
+ushort *strTotalTime     = NULL;
+ushort *strInstructions  = NULL;
+ushort *strSettings      = NULL;
+ushort *strStaffCredits  = NULL;
+ushort *strAbout         = NULL;
+ushort *strMusic         = NULL;
+ushort *strSoundFX       = NULL;
+ushort *strSpindash      = NULL;
+ushort *strBoxArt        = NULL;
+ushort *strControls      = NULL;
+ushort *strOn            = NULL;
+ushort *strOff           = NULL;
+ushort *strCustomizeDPad = NULL;
+ushort *strDPadSize      = NULL;
+ushort *strDPadOpacity   = NULL;
+ushort *strHelpText1     = NULL;
+ushort *strHelpText2     = NULL;
+ushort *strHelpText3     = NULL;
+ushort *strHelpText4     = NULL;
+ushort *strHelpText5     = NULL;
+ushort *strVersionName   = NULL;
+ushort *strPrivacy       = NULL;
+ushort *strTerms         = NULL;
 
 int stageStrCount = 0;
 
@@ -71,7 +71,7 @@ ushort *strCreditsList[CREDITS_LIST_SIZE];
 byte creditsType[CREDITS_LIST_SIZE];
 float creditsAdvanceY[CREDITS_LIST_SIZE];
 
-//From here: https://rosettacode.org/wiki/MD5#C
+// From here: https://rosettacode.org/wiki/MD5#C
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -151,7 +151,7 @@ unsigned *md5(const char *msg, int mlen)
 
     {
         grps = 1 + (mlen + 8) / 64;
-        msg2 = (unsigned char*)malloc(64 * grps);
+        msg2 = (unsigned char *)malloc(64 * grps);
         memcpy(msg2, msg, mlen);
         msg2[mlen] = (unsigned char)0x80;
         q          = mlen + 1;
@@ -196,7 +196,7 @@ unsigned *md5(const char *msg, int mlen)
         free(msg2);
 
     return h;
-}    
+}
 
 int FindStringToken(const char *string, const char *token, char stopID)
 {
@@ -257,7 +257,7 @@ void ConvertIntegerToString(char *text, int value)
     sprintf(text, "%d", value); // Vary lazy ik
 }
 
-//Buffer is expected to be at least 16 bytes long
+// Buffer is expected to be at least 16 bytes long
 void GenerateMD5FromString(const char *string, int len, byte *buffer)
 {
     unsigned *d = md5(string, len);
@@ -269,7 +269,8 @@ void GenerateMD5FromString(const char *string, int len, byte *buffer)
     }
 }
 
-void InitLocalizedStrings() {
+void InitLocalizedStrings()
+{
     memset(stringStorage, 0, STRING_SIZE * STRSTORAGE_SIZE * sizeof(ushort));
     stringStorePos = 0;
 
@@ -327,8 +328,8 @@ void InitLocalizedStrings() {
         strNSRestartMessage = ReadLocalizedString("RestartMessage", langStr, "Data/Game/StringList.txt");
         strNSExitMessage    = ReadLocalizedString("ExitMessage", langStr, "Data/Game/StringList.txt");
     }
-    strExitGame          = ReadLocalizedString("ExitGame", langStr, "Data/Game/StringList.txt");
-    strNetworkMessage    = ReadLocalizedString("NetworkMessage", langStr, "Data/Game/StringList.txt");
+    strExitGame       = ReadLocalizedString("ExitGame", langStr, "Data/Game/StringList.txt");
+    strNetworkMessage = ReadLocalizedString("NetworkMessage", langStr, "Data/Game/StringList.txt");
     for (int i = 0; i < 16; ++i) {
         char buffer[0x10];
         sprintf(buffer, "StageName%d", i + 1);
@@ -336,7 +337,6 @@ void InitLocalizedStrings() {
         strStageList[i] = ReadLocalizedString(buffer, "en", "Data/Game/StringList.txt");
     }
 
-    
     stageStrCount = 0;
     for (int i = 0; i < 32; ++i) {
         char buffer[0x20];
@@ -347,33 +347,33 @@ void InitLocalizedStrings() {
             break;
         stageStrCount++;
     }
-    strNewBestTime       = ReadLocalizedString("NewBestTime", langStr, "Data/Game/StringList.txt");
-    strRecords           = ReadLocalizedString("Records", langStr, "Data/Game/StringList.txt");
-    strNextAct           = ReadLocalizedString("NextAct", langStr, "Data/Game/StringList.txt");
-    strPlay              = ReadLocalizedString("Play", langStr, "Data/Game/StringList.txt");
-    strTotalTime         = ReadLocalizedString("TotalTime", langStr, "Data/Game/StringList.txt");
-    strInstructions      = ReadLocalizedString("Instructions", langStr, "Data/Game/StringList.txt");
-    strSettings          = ReadLocalizedString("Settings", langStr, "Data/Game/StringList.txt");
-    strStaffCredits      = ReadLocalizedString("StaffCredits", langStr, "Data/Game/StringList.txt");
-    strAbout             = ReadLocalizedString("About", langStr, "Data/Game/StringList.txt");
-    strMusic             = ReadLocalizedString("Music", langStr, "Data/Game/StringList.txt");
-    strSoundFX           = ReadLocalizedString("SoundFX", langStr, "Data/Game/StringList.txt");
-    strSpindash          = ReadLocalizedString("SpinDash", langStr, "Data/Game/StringList.txt");
-    strBoxArt            = ReadLocalizedString("BoxArt", langStr, "Data/Game/StringList.txt");
-    strControls          = ReadLocalizedString("Controls", langStr, "Data/Game/StringList.txt");
-    strOn                = ReadLocalizedString("On", langStr, "Data/Game/StringList.txt");
-    strOff               = ReadLocalizedString("Off", langStr, "Data/Game/StringList.txt");
-    strCustomizeDPad     = ReadLocalizedString("CustomizeDPad", langStr, "Data/Game/StringList.txt");
-    strDPadSize          = ReadLocalizedString("DPadSize", langStr, "Data/Game/StringList.txt");
-    strDPadOpacity       = ReadLocalizedString("DPadOpacity", langStr, "Data/Game/StringList.txt");
-    strHelpText1         = ReadLocalizedString("HelpText1", langStr, "Data/Game/StringList.txt");
-    strHelpText2         = ReadLocalizedString("HelpText2", langStr, "Data/Game/StringList.txt");
-    strHelpText3         = ReadLocalizedString("HelpText3", langStr, "Data/Game/StringList.txt");
-    strHelpText4         = ReadLocalizedString("HelpText4", langStr, "Data/Game/StringList.txt");
-    strHelpText5         = ReadLocalizedString("HelpText5", langStr, "Data/Game/StringList.txt");
-    strVersionName       = ReadLocalizedString("Version", langStr, "Data/Game/StringList.txt");
-    strPrivacy           = ReadLocalizedString("Privacy", langStr, "Data/Game/StringList.txt");
-    strTerms             = ReadLocalizedString("Terms", langStr, "Data/Game/StringList.txt");
+    strNewBestTime   = ReadLocalizedString("NewBestTime", langStr, "Data/Game/StringList.txt");
+    strRecords       = ReadLocalizedString("Records", langStr, "Data/Game/StringList.txt");
+    strNextAct       = ReadLocalizedString("NextAct", langStr, "Data/Game/StringList.txt");
+    strPlay          = ReadLocalizedString("Play", langStr, "Data/Game/StringList.txt");
+    strTotalTime     = ReadLocalizedString("TotalTime", langStr, "Data/Game/StringList.txt");
+    strInstructions  = ReadLocalizedString("Instructions", langStr, "Data/Game/StringList.txt");
+    strSettings      = ReadLocalizedString("Settings", langStr, "Data/Game/StringList.txt");
+    strStaffCredits  = ReadLocalizedString("StaffCredits", langStr, "Data/Game/StringList.txt");
+    strAbout         = ReadLocalizedString("About", langStr, "Data/Game/StringList.txt");
+    strMusic         = ReadLocalizedString("Music", langStr, "Data/Game/StringList.txt");
+    strSoundFX       = ReadLocalizedString("SoundFX", langStr, "Data/Game/StringList.txt");
+    strSpindash      = ReadLocalizedString("SpinDash", langStr, "Data/Game/StringList.txt");
+    strBoxArt        = ReadLocalizedString("BoxArt", langStr, "Data/Game/StringList.txt");
+    strControls      = ReadLocalizedString("Controls", langStr, "Data/Game/StringList.txt");
+    strOn            = ReadLocalizedString("On", langStr, "Data/Game/StringList.txt");
+    strOff           = ReadLocalizedString("Off", langStr, "Data/Game/StringList.txt");
+    strCustomizeDPad = ReadLocalizedString("CustomizeDPad", langStr, "Data/Game/StringList.txt");
+    strDPadSize      = ReadLocalizedString("DPadSize", langStr, "Data/Game/StringList.txt");
+    strDPadOpacity   = ReadLocalizedString("DPadOpacity", langStr, "Data/Game/StringList.txt");
+    strHelpText1     = ReadLocalizedString("HelpText1", langStr, "Data/Game/StringList.txt");
+    strHelpText2     = ReadLocalizedString("HelpText2", langStr, "Data/Game/StringList.txt");
+    strHelpText3     = ReadLocalizedString("HelpText3", langStr, "Data/Game/StringList.txt");
+    strHelpText4     = ReadLocalizedString("HelpText4", langStr, "Data/Game/StringList.txt");
+    strHelpText5     = ReadLocalizedString("HelpText5", langStr, "Data/Game/StringList.txt");
+    strVersionName   = ReadLocalizedString("Version", langStr, "Data/Game/StringList.txt");
+    strPrivacy       = ReadLocalizedString("Privacy", langStr, "Data/Game/StringList.txt");
+    strTerms         = ReadLocalizedString("Terms", langStr, "Data/Game/StringList.txt");
     // strMoreGames         = ReadLocalizedString("MoreGames", langStr, "Data/Game/StringList.txt");
 
     // Video Filter options
@@ -383,7 +383,7 @@ void InitLocalizedStrings() {
     // strNostalgic         = ReadLocalizedString("Nostalgic", langStr, "Data/Game/StringList.txt");
 
     // Login With Facebook
-    //strFBLogin = ReadLocalizedString("LoginWithFacebook", langStr, "Data/Game/StringList.txt");
+    // strFBLogin = ReadLocalizedString("LoginWithFacebook", langStr, "Data/Game/StringList.txt");
 
     // Unused Control Modes
     // strControlMethod = ReadLocalizedString("ControlMethod", langStr, "Data/Game/StringList.txt");
@@ -403,7 +403,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
     memset(langName, 0, 0x8 * sizeof(ushort));
     memset(lineBuffer, 0, 0x200 * sizeof(ushort));
 
-    int strNamePos   = 0;
+    int strNamePos = 0;
     while (stringName[strNamePos]) {
         strName[strNamePos] = stringName[strNamePos];
         strNamePos++;
@@ -411,7 +411,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
     strName[strNamePos++] = ':';
     strName[strNamePos]   = 0;
 
-    int langNamePos   = 0;
+    int langNamePos = 0;
     for (langNamePos = 0; langNamePos < 4; ++langNamePos) {
         if (!language[langNamePos])
             break;
@@ -455,7 +455,7 @@ ushort *ReadLocalizedString(const char *stringName, const char *language, const 
                             readMode = 2;
                         }
                         else {
-                            readMode                                = 2;
+                            readMode                                 = 2;
                             stringStorage[stringStorePos + charID++] = '\n';
                         }
                     }
@@ -491,7 +491,7 @@ void ReadCreditsList(const char *filePath)
         if (!ReachedEndOfFile()) {
             while (creditsListSize < CREDITS_LIST_SIZE) {
                 ReadCreditsLine(dest);
-                
+
                 if (dest[0] != '[' || dest[2] != ']') {
                     advance += 24.0;
                 }
@@ -501,7 +501,7 @@ void ReadCreditsList(const char *filePath)
                     while (curChar) {
                         stringStorage[stringStorePos + strPos] = curChar;
                         strPos++;
-                        curChar                               = dest[strPos + 3];
+                        curChar = dest[strPos + 3];
                     }
                     stringStorage[stringStorePos + strPos++] = 0;
 
@@ -513,11 +513,11 @@ void ReadCreditsList(const char *filePath)
                         case '3': creditsType[creditsListSize] = 3; break;
                     }
 
-                    creditsAdvanceY[creditsListSize]  = advance;
+                    creditsAdvanceY[creditsListSize] = advance;
 
                     strCreditsList[creditsListSize++] = &stringStorage[stringStorePos];
                     stringStorePos += strPos;
-                    advance                          = 24.0;
+                    advance = 24.0;
                 }
 
                 if (ReachedEndOfFile())
@@ -528,4 +528,3 @@ void ReadCreditsList(const char *filePath)
         CloseFile();
     }
 }
-

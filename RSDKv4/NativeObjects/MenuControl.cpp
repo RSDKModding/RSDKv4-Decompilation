@@ -373,7 +373,7 @@ void MenuControl_Main(void *objPtr)
                             entity->dialog              = CREATE_ENTITY(DialogPanel);
                             entity->dialog->buttonCount = DLGTYPE_OK;
                             SetStringToFont(entity->dialog->text, strNetworkMessage, FONT_TEXT);
-                            entity->state           = MENUCONTROL_STATE_DIALOGWAIT;
+                            entity->state = MENUCONTROL_STATE_DIALOGWAIT;
                         }
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;

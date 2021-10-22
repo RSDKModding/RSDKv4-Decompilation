@@ -3,10 +3,10 @@
 
 #define NATIVEENTITY_COUNT (0x100)
 
-#define ENTITY_COUNT (0x4A0)
+#define ENTITY_COUNT     (0x4A0)
 #define TEMPENTITY_START (ENTITY_COUNT - 0x80)
-#define OBJECT_COUNT (0x100)
-#define TYPEGROUP_COUNT (0x103)
+#define OBJECT_COUNT     (0x100)
+#define TYPEGROUP_COUNT  (0x103)
 
 struct TypeGroupList {
     int entityRefs[ENTITY_COUNT];
@@ -74,7 +74,7 @@ struct NativeEntity {
 };
 
 enum ObjectTypes {
-    OBJ_TYPE_BLANKOBJECT = 0 //0 is always blank obj
+    OBJ_TYPE_BLANKOBJECT = 0 // 0 is always blank obj
 };
 
 enum ObjectGroups {
@@ -92,7 +92,7 @@ enum ObjectPriority {
     PRIORITY_ACTIVE_2P_UNKNOWN
 };
 
-//Native Objects
+// Native Objects
 extern int nativeEntityPos;
 
 extern int activeEntityList[NATIVEENTITY_COUNT];
@@ -108,7 +108,7 @@ extern int nativeEntityCountBackupS;
 extern int backupEntityListS[NATIVEENTITY_COUNT];
 extern NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
 
-//Game Objects
+// Game Objects
 extern int objectEntityPos;
 extern int curObjectType;
 extern Entity objectEntityList[ENTITY_COUNT * 2];
@@ -143,7 +143,8 @@ NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain
 void RemoveNativeObject(NativeEntityBase *NativeEntry);
 void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
 void ProcessNativeObjects();
-inline void BackupNativeObjects() {
+inline void BackupNativeObjects()
+{
     memset(backupEntityList, 0, sizeof(backupEntityList));
     memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
 
@@ -151,7 +152,8 @@ inline void BackupNativeObjects() {
     memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackup = nativeEntityCount;
 }
-inline void BackupNativeObjectsSettings() {
+inline void BackupNativeObjectsSettings()
+{
     memcpy(backupEntityListS, activeEntityList, sizeof(int) * NATIVEENTITY_COUNT);
     memcpy(objectEntityBackupS, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackupS = nativeEntityCount;
@@ -167,7 +169,7 @@ inline NativeEntity *GetNativeObject(uint objID)
         return &objectEntityBank[objID];
 }
 
-//Custom, used for cleaning purposes
+// Custom, used for cleaning purposes
 inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
 {
     for (int i = nativeEntityCount - 1; i >= 0; --i) {
@@ -176,7 +178,8 @@ inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMa
         }
     }
 }
-inline void ClearNativeObjects() {
+inline void ClearNativeObjects()
+{
     nativeEntityCount = 0;
     memset(objectEntityBank, 0, sizeof(NativeEntity) * NATIVEENTITY_COUNT);
 }

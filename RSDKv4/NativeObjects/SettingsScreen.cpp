@@ -523,10 +523,10 @@ void SettingsScreen_Main(void *objPtr)
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
             SetRenderMatrix(&entity->tempMatrix);
-            
+
             if (touches > 0) {
 
-                //Size -
+                // Size -
                 NativeEntity_PushButton *buttonDec = entity->buttons[SETTINGSSCREEN_BTN_MUSUP];
                 if (CheckTouchRect(32.0, 54.0, ((64.0 * buttonDec->scale) + buttonDec->textWidth) * 0.75, 12.0) >= 0) {
                     buttonDec->state = PUSHBUTTON_STATE_SELECTED;
@@ -541,7 +541,7 @@ void SettingsScreen_Main(void *objPtr)
                     buttonDec->state = PUSHBUTTON_STATE_UNSELECTED;
                 }
 
-                //Size +
+                // Size +
                 NativeEntity_PushButton *buttonInc = entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN];
                 if (CheckTouchRect(108.0, 54.0, ((64.0 * buttonInc->scale) + buttonInc->textWidth) * 0.75, 12.0) >= 0) {
                     buttonInc->state = PUSHBUTTON_STATE_SELECTED;
@@ -556,7 +556,7 @@ void SettingsScreen_Main(void *objPtr)
                     entity->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                 }
 
-                //Opacity -
+                // Opacity -
                 buttonDec = entity->buttons[SETTINGSSCREEN_BTN_SFXUP];
                 if (CheckTouchRect(32.0, 26.0, ((64.0 * buttonDec->scale) + buttonDec->textWidth) * 0.75, 12.0) >= 0) {
                     buttonDec->state = PUSHBUTTON_STATE_SELECTED;
@@ -568,7 +568,7 @@ void SettingsScreen_Main(void *objPtr)
                     buttonDec->state = PUSHBUTTON_STATE_UNSELECTED;
                 }
 
-                //Opacity +
+                // Opacity +
                 buttonInc = entity->buttons[SETTINGSSCREEN_BTN_SFXDOWN];
                 if (CheckTouchRect(108.0, 26.0, ((64.0 * buttonInc->scale) + buttonInc->textWidth) * 0.75, 12.0) >= 0) {
                     buttonInc->state = PUSHBUTTON_STATE_SELECTED;
@@ -603,7 +603,7 @@ void SettingsScreen_Main(void *objPtr)
                     float moveSizeScale        = 128.0 * entity->virtualDPad->moveSize;
                     entity->virtualDPad->moveX = touchXF[moveTouch] + entity->virtualDPad->relativeX;
                     entity->virtualDPad->moveY = touchYF[moveTouch] + entity->virtualDPad->relativeY;
-                    if (-SCREEN_CENTERX_F > (entity->virtualDPad->moveX - moveSizeScale)) 
+                    if (-SCREEN_CENTERX_F > (entity->virtualDPad->moveX - moveSizeScale))
                         entity->virtualDPad->moveX = moveSizeScale - SCREEN_CENTERX_F;
                     if (entity->virtualDPad->moveX + moveSizeScale > 0.0f)
                         entity->virtualDPad->moveX = -moveSizeScale;

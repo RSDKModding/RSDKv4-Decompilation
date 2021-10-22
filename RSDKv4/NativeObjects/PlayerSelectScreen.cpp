@@ -58,11 +58,11 @@ void PlayerSelectScreen_Main(void *objPtr)
 
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
-                entity->timer  = 0.0;
-                entity->state  = PLAYERSELECTSCREEN_STATE_MAIN;
+                entity->timer    = 0.0;
+                entity->state    = PLAYERSELECTSCREEN_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
-                entity->alpha  = 256;
+                entity->alpha    = 256;
                 if (usePhysicalControls)
                     entity->playerID = SAVESEL_SONIC;
             }
