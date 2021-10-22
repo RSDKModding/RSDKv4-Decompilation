@@ -87,7 +87,7 @@ if you've cloned this repo and ported it to a platform not on the list or made s
 A: Try turning on vsync, that worked for me (tested on mac)
 
 ### Q: I found a bug/I have a feature request!
-A: Submit an issue in the issues tab and I'll fix/add (if possible) it as soon as I can
+A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any future releases, however.
 
 ### Q: Will you do a decompilation for Sonic CD (2011)?
 A: I already have! you can find it [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation)!
