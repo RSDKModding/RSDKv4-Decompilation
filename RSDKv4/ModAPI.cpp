@@ -28,18 +28,24 @@ int OpenModMenu()
 }
 
 #if RETRO_PLATFORM == RETRO_ANDROID
-namespace fs = std::__fs::filesystem; //this is so we can avoid using c++17, which causes a ton of warnings w asio and looks ugly
+namespace fs = std::__fs::filesystem; // this is so we can avoid using c++17, which causes a ton of warnings w asio and looks ugly
 #else
 namespace fs = std::filesystem;
 #endif
 
-fs::path resolvePath(fs::path given) 
+fs::path resolvePath(fs::path given)
 {
-    for (auto& p : fs::directory_iterator{given.parent_path()}) {
+    if (given.is_relative())
+        given = fs::current_path() / given; // thanks for the weird syntax!
+    for (auto &p : fs::directory_iterator{ given.parent_path() }) {
         char pbuf[0x100];
         char gbuf[0x100];
-        StringLowerCase((char*)p.path().filename().string().c_str(), pbuf);
-        StringLowerCase((char*)given.filename().string().c_str(), gbuf);
+        auto pf   = p.path().filename();
+        auto pstr = pf.string();
+        StringLowerCase(pbuf, pstr.c_str());
+        auto gf   = given.filename();
+        auto gstr = gf.string();
+        StringLowerCase(gbuf, gstr.c_str());
         if (StrComp(pbuf, gbuf)) {
             return p.path();
         }
@@ -56,7 +62,7 @@ void initMods()
     sprintf(savePath, "");
 
     char modBuf[0x100];
-    sprintf(modBuf, "%smods/", modsPath);
+    sprintf(modBuf, "%smods", modsPath);
 
     fs::path modPath = resolvePath(modBuf);
 
@@ -115,7 +121,8 @@ void initMods()
     sprintf(savePath, "");
     redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active) continue;
+        if (!modList[m].active)
+            continue;
         if (modList[m].useScripts)
             forceUseScripts = true;
         if (modList[m].skipStartMenu)
@@ -215,12 +222,13 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
     return false;
 }
 
-void scanModFolder(ModInfo* info) {
+void scanModFolder(ModInfo *info)
+{
     if (!info)
         return;
 
     char modBuf[0x100];
-    sprintf(modBuf, "%smods/", modsPath);
+    sprintf(modBuf, "%smods", modsPath);
 
     fs::path modPath = resolvePath(modBuf);
 
@@ -376,7 +384,7 @@ void scanModFolder(ModInfo* info) {
 void saveMods()
 {
     char modBuf[0x100];
-    sprintf(modBuf, "%smods/", modsPath);
+    sprintf(modBuf, "%smods", modsPath);
     fs::path modPath = resolvePath(modBuf);
 
     if (fs::exists(modPath) && fs::is_directory(modPath)) {
@@ -418,7 +426,6 @@ void RefreshEngine()
     nativeEntityCountBackupS = 0;
     memset(backupEntityListS, 0, sizeof(backupEntityListS));
     memset(objectEntityBackupS, 0, sizeof(objectEntityBackupS));
-
 
     for (int i = 0; i < FONTLIST_COUNT; ++i) {
         fontList[i].count = 2;
@@ -542,7 +549,7 @@ int GetSceneID(byte listID, const char *sceneName)
         char nameBuffer[0x40];
 
         scnPos = 0;
-        pos = 0;
+        pos    = 0;
         while (stageList[listID][s].name[scnPos]) {
             if (stageList[listID][s].name[scnPos] != ' ')
                 nameBuffer[pos++] = stageList[listID][s].name[scnPos];
