@@ -4864,9 +4864,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_RETURN:
                 opcodeSize    = 0;
-                scriptCodePtr = functionStack[--functionStackPos];
-                jumpTablePtr  = functionStack[--functionStackPos];
-                scriptDataPtr = functionStack[--functionStackPos];
+                if (!functionStackPos) { //event, stop running
+                    running = false;
+                }
+                else { //function, jump out
+                    scriptCodePtr = functionStack[--functionStackPos];
+                    jumpTablePtr  = functionStack[--functionStackPos];
+                    scriptDataPtr = functionStack[--functionStackPos];
+                }
                 break;
             case FUNC_SETLAYERDEFORMATION:
                 opcodeSize = 0;
