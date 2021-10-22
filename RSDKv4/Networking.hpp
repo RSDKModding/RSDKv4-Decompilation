@@ -2,6 +2,7 @@
 #ifndef NETWORKING_H
 #define NETWORKING_H
 #include <thread>
+#include <memory>
 
 extern char networkHost[64];
 extern char networkGame[16];
