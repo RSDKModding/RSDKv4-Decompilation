@@ -190,31 +190,29 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
 
         info->active = active;
 
-        if (info->active) {
-            scanModFolder(info);
+        scanModFolder(info);
 
-            info->useScripts = false;
-            modSettings.GetBool("", "TxtScripts", &info->useScripts);
-            if (info->useScripts && info->active)
-                forceUseScripts = true;
+        info->useScripts = false;
+        modSettings.GetBool("", "TxtScripts", &info->useScripts);
+        if (info->useScripts && info->active)
+            forceUseScripts = true;
 
-            info->skipStartMenu = false;
-            modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
-            if (info->skipStartMenu && info->active)
-                skipStartMenu = true;
+        info->skipStartMenu = false;
+        modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
+        if (info->skipStartMenu && info->active)
+            skipStartMenu = true;
 
-            info->disableFocusPause = false;
-            modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
-            if (info->disableFocusPause && info->active)
-                disableFocusPause = true;
+        info->disableFocusPause = false;
+        modSettings.GetBool("", "DisableFocusPause", &info->disableFocusPause);
+        if (info->disableFocusPause && info->active)
+            disableFocusPause = true;
 
-            info->redirectSave = false;
-            modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
-            if (info->redirectSave && info->active) {
-                char path[0x100];
-                sprintf(path, "mods/%s/", folder.c_str());
-                info->savePath = path;
-            }
+        info->redirectSave = false;
+        modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
+        if (info->redirectSave && info->active) {
+            char path[0x100];
+            sprintf(path, "mods/%s/", folder.c_str());
+            info->savePath = path;
         }
 
         return true;
@@ -453,15 +451,17 @@ void RefreshEngine()
     sprintf(savePath, "");
     redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
-        if (modList[m].useScripts && modList[m].active)
+        if (!modList[m].active)
+            continue;
+        if (modList[m].useScripts)
             forceUseScripts = true;
-        if (modList[m].skipStartMenu && modList[m].active)
+        if (modList[m].skipStartMenu)
             skipStartMenu = true;
-        if (modList[m].disableFocusPause && modList[m].active)
+        if (modList[m].disableFocusPause)
             disableFocusPause = true;
-        if (modList[m].useScripts && modList[m].active)
+        if (modList[m].useScripts)
             forceUseScripts = true;
-        if (modList[m].redirectSave && modList[m].active) {
+        if (modList[m].redirectSave) {
             sprintf(savePath, "%s", modList[m].savePath.c_str());
             redirectSave = true;
         }
