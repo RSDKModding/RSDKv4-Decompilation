@@ -5013,10 +5013,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
                 TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
-                if (!Engine.drawLock) {
-                    DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
-                                   scriptEng.operands[5], scriptEng.operands[6]);
-                }
+                DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                               scriptEng.operands[5], scriptEng.operands[6]);
                 break;
             }
 #endif
