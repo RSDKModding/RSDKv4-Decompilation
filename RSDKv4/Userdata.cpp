@@ -1108,6 +1108,13 @@ void SetWindowScale(int *scale, int *unused)
 #if RETRO_USING_SDL2
     SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 #endif
+
+#if RETRO_USING_OPENGL
+    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
+    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
+    displaySettings.offsetX = 0;
+    setupViewport();
+#endif
 }
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
