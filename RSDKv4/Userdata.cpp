@@ -1072,10 +1072,34 @@ void SetScreenWidth(int *width, int *unused)
     SCREEN_XSIZE = SCREEN_XSIZE_CONFIG = *width;
 #if RETRO_PLATFORM != RETRO_ANDROID
     SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+
+#if RETRO_SOFTWARE_RENDER
+    if (Engine.frameBuffer)
+        delete[] Engine.frameBuffer;
+    if (Engine.frameBuffer2x)
+        delete[] Engine.frameBuffer2x;
+
+    Engine.frameBuffer   = new ushort[GFX_LINESIZE * SCREEN_YSIZE];
+    Engine.frameBuffer2x = new ushort[GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2)];
+    memset(Engine.frameBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(ushort));
+    memset(Engine.frameBuffer2x, 0, GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2) * sizeof(ushort));
+#endif
+    if (Engine.texBuffer)
+        delete[] Engine.texBuffer;
+
+    Engine.texBuffer = new uint[GFX_LINESIZE * SCREEN_YSIZE];
+    memset(Engine.texBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(uint));
 #endif
 
 #if RETRO_USING_SDL2
     SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+
+#if RETRO_USING_OPENGL
+    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
+    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
+    displaySettings.offsetX = 0;
+    setupViewport();
 #endif
 }
 void SetWindowScale(int *scale, int *unused)
