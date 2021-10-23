@@ -14,10 +14,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+        with:
+          submodules: recursive
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
       - name: Download libogg and libvorbis for easier includes
-        run : |
+        run: |
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/ogg/libogg-1.3.5.zip" -OutFile "libogg.zip"
           Expand-Archive -Path libogg.zip -DestinationPath ./dependencies/windows/
           Rename-Item ./dependencies/windows/libogg-1.3.5 libogg
@@ -30,16 +32,6 @@ jobs:
           Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
           Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
           Get-ChildItem -Path ./dependencies/all/
-      - name: Download stb-image
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
-          Expand-Archive -Path stb-image.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/stb-master stb-image
-      - name: Download tinyxml2
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip" -OutFile "tinyxml2.zip"
-          Expand-Archive -Path tinyxml2.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/tinyxml2-master tinyxml2
       - name: Download GLEW
         run: |
           Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
@@ -63,19 +55,21 @@ jobs:
           move ./build/Win32/Release/*.dll ./artifacts 
           move ./build/Win32/Release/*.exe ./artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0  
+        uses: actions/upload-artifact@v1.0.0
         with:
-          name: v4-windows 
-          path: artifacts      
+          name: v4-windows
+          path: artifacts
   v4-windows-x64:
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+        with:
+          submodules: recursive
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
       - name: Download libogg and libvorbis for easier includes
-        run : |
+        run: |
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/ogg/libogg-1.3.5.zip" -OutFile "libogg.zip"
           Expand-Archive -Path libogg.zip -DestinationPath ./dependencies/windows/
           Rename-Item ./dependencies/windows/libogg-1.3.5 libogg
@@ -88,16 +82,6 @@ jobs:
           Expand-Archive -Path Asio.zip -DestinationPath ./dependencies/all/
           Move-Item -Path ./dependencies/all/asio-master/asio -Destination ./dependencies/all/
           Get-ChildItem -Path ./dependencies/all/
-      - name: Download stb-image
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
-          Expand-Archive -Path stb-image.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/stb-master stb-image
-      - name: Download tinyxml2
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip" -OutFile "tinyxml2.zip"
-          Expand-Archive -Path tinyxml2.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/tinyxml2-master tinyxml2
       - name: Download GLEW
         run: |
           Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
@@ -121,20 +105,22 @@ jobs:
           move ./build/x64/Release/*.dll ./artifacts 
           move ./build/x64/Release/*.exe ./artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1.0.0  
+        uses: actions/upload-artifact@v1.0.0
         with:
-          name: v4-windows-x64 
-          path: artifacts  
-          
+          name: v4-windows-x64
+          path: artifacts
+
   v4-android:
     runs-on: windows-latest
     steps:
       - name: Checkout repository Android
-        uses: actions/checkout@v2      
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
       - name: Download libogg, libvorbis, and libtheora for easier includes
-        run : |
+        run: |
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
           Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/android/
           Rename-Item ./dependencies/android/libvorbis-1.3.7 libvorbis
@@ -144,16 +130,6 @@ jobs:
           Invoke-WebRequest -Uri "https://ftp.osuosl.org/pub/xiph/releases/vorbis/libvorbis-1.3.7.zip" -OutFile "libvorbis.zip"
           Expand-Archive -Path libvorbis.zip -DestinationPath ./dependencies/android/app/jni/src/dependencies/android/
           Rename-Item ./dependencies/android/app/jni/src/dependencies/android/libvorbis-1.3.7 libvorbis
-      - name: Download tinyxml2
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip" -OutFile "tinyxml2.zip"
-          Expand-Archive -Path tinyxml2.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/tinyxml2-master tinyxml2
-      - name: Download stb-image
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/nothings/stb/archive/refs/heads/master.zip" -OutFile "stb-image.zip"
-          Expand-Archive -Path stb-image.zip -DestinationPath ./dependencies/all/
-          Rename-Item ./dependencies/all/stb-master stb-image
       - name: Download GLEW
         run: |
           Invoke-WebRequest -Uri "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip" -OutFile "GLEW.zip"
@@ -178,7 +154,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 11
       - name: Build RSDKv4 Android
         working-directory: ./android
@@ -194,16 +170,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev libasio-dev
-          sudo wget --no-check-certificate --content-disposition https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip -P ./dependencies/all/
-          sudo unzip ./dependencies/all/tinyxml2-master.zip -d ./dependencies/all
-          sudo mv ./dependencies/all/tinyxml2-master ./dependencies/all/tinyxml2
-          sudo wget --no-check-certificate --content-disposition https://github.com/nothings/stb/archive/refs/heads/master.zip -P ./dependencies/all/
-          sudo unzip ./dependencies/all/stb-master.zip -d ./dependencies/all
-          sudo mv ./dependencies/all/stb-master ./dependencies/all/stb-image
           ls ./dependencies/all
       - name: Build RSDKv4
         run: make
