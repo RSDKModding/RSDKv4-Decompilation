@@ -42,6 +42,10 @@ typedef unsigned int uint;
 #define RETRO_STANDARD (0)
 #define RETRO_MOBILE   (1)
 
+#if defined(__linux__)
+#include <sys/stat.h>
+#endif
+
 #if defined _WIN32
 
 #if defined WINAPI_FAMILY
