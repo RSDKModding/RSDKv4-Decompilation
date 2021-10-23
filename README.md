@@ -63,6 +63,11 @@ If you want to transfer your save from the official mobile versions, the **Andro
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
 * A Mac build of v1.1.2 by sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/v1.1.2.1)
+### Server (Only required to host Sonic 2 multiplayer servers)
+* Go into Server directory (`cd Server`) when in the root of the decompilation source folder.
+* Then run `make -f Makefile.mac -j4` to create the Server executable
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+  * Primary difference between the Windows instruction and Mac instruction is dependencies and inability to static link against certain system libraries.
 
 ## Android
 * Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
