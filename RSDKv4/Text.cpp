@@ -5,13 +5,15 @@ int textMenuSurfaceNo = 0;
 
 char playerListText[0x80][0x20];
 
+BitmapFont fontList[FONTLIST_COUNT];
+
 #if RETRO_REV01
 FontCharacter fontCharacterList[FONTCHAR_COUNT];
 
 void LoadFontFile(const char *filePath)
 {
     byte fileBuffer = 0;
-    int cnt        = 0;
+    int cnt         = 0;
     FileInfo info;
     if (LoadFile(filePath, &info)) {
         while (!ReachedEndOfFile()) {
@@ -77,7 +79,7 @@ void LoadFontFile(const char *filePath)
                 fontCharacterList[cnt].xAdvance += fileBuffer << 8;
             }
 
-            //Unused
+            // Unused
             FileRead(&fileBuffer, 1);
             FileRead(&fileBuffer, 1);
             cnt++;
@@ -240,14 +242,14 @@ void LoadTextFile(TextMenu *menu, const char *filePath, byte mapCode)
 void SetupTextMenu(TextMenu *menu, int rowCount)
 {
     menu->textDataPos = 0;
-    menu->rowCount     = rowCount;
+    menu->rowCount    = rowCount;
 }
 void AddTextMenuEntry(TextMenu *menu, const char *text)
 {
     menu->entryStart[menu->rowCount]     = menu->textDataPos;
     menu->entrySize[menu->rowCount]      = 0;
     menu->entryHighlight[menu->rowCount] = false;
-    int textLength                   = StrLength(text);
+    int textLength                       = StrLength(text);
     for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
@@ -265,7 +267,7 @@ void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
     menu->entryStart[menu->rowCount]     = menu->textDataPos;
     menu->entrySize[menu->rowCount]      = 0;
     menu->entryHighlight[menu->rowCount] = false;
-    int textLength                   = StrLengthW(text);
+    int textLength                       = StrLengthW(text);
     for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
@@ -280,10 +282,10 @@ void AddTextMenuEntryW(TextMenu *menu, const ushort *text)
 }
 void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
-    menu->entryStart[rowID] = menu->textDataPos;
+    menu->entryStart[rowID]              = menu->textDataPos;
     menu->entrySize[rowID]               = 0;
     menu->entryHighlight[menu->rowCount] = false;
-    int textLength          = StrLength(text);
+    int textLength                       = StrLength(text);
     for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
@@ -297,10 +299,10 @@ void SetTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 }
 void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
 {
-    menu->entryStart[rowID] = menu->textDataPos;
+    menu->entryStart[rowID]              = menu->textDataPos;
     menu->entrySize[rowID]               = 0;
     menu->entryHighlight[menu->rowCount] = false;
-    int textLength          = StrLengthW(text);
+    int textLength                       = StrLengthW(text);
     for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[menu->textDataPos++] = text[i];
@@ -314,10 +316,10 @@ void SetTextMenuEntryW(TextMenu *menu, const ushort *text, int rowID)
 }
 void EditTextMenuEntry(TextMenu *menu, const char *text, int rowID)
 {
-    int entryPos             = menu->entryStart[rowID];
+    int entryPos                         = menu->entryStart[rowID];
     menu->entrySize[rowID]               = 0;
     menu->entryHighlight[menu->rowCount] = false;
-    int textLength         = StrLength(text);
+    int textLength                       = StrLength(text);
     for (int i = 0; i < textLength;) {
         if (text[i] != '\0') {
             menu->textData[entryPos++] = text[i];
@@ -368,12 +370,12 @@ void LoadConfigListText(TextMenu *menu, int listNo)
         // Variables
         FileRead(&count, 1);
         for (byte v = 0; v < count; ++v) {
-            //Var Name
+            // Var Name
             FileRead(&strLen, 1);
             FileRead(&strBuf, strLen);
             strBuf[strLen] = 0;
 
-            //Var Value
+            // Var Value
             FileRead(&fileBuffer, 1);
             FileRead(&fileBuffer, 1);
             FileRead(&fileBuffer, 1);
@@ -412,22 +414,22 @@ void LoadConfigListText(TextMenu *menu, int listNo)
             byte stageCnt = 0;
             FileRead(&stageCnt, 1);
             for (byte s = 0; s < stageCnt; ++s) {
-                //Stage Folder
+                // Stage Folder
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);
                 strBuf[strLen] = 0;
 
-                //Stage ID
+                // Stage ID
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);
                 strBuf[strLen] = 0;
 
-                //Stage Name
+                // Stage Name
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);
                 strBuf[strLen] = '\0';
 
-                //IsHighlighted
+                // IsHighlighted
                 FileRead(&fileBuffer, 1);
                 if (listNo == c) {
                     menu->entryHighlight[s] = fileBuffer;
@@ -436,5 +438,358 @@ void LoadConfigListText(TextMenu *menu, int listNo)
             }
         }
         CloseFile();
+
+#if RETRO_USE_MOD_LOADER
+        if (listNo == 0)
+            Engine.LoadXMLPlayers(menu);
+        else
+            Engine.LoadXMLStages(menu, listNo);
+#endif
     }
+}
+
+void LoadBitmapFont(const char *filePath, int index, char textureID)
+{
+    FileInfo info;
+
+    BitmapFont *entry = &fontList[index];
+    if (!entry->count)
+        entry->count = 2;
+    if (LoadFile(filePath, &info)) {
+        char lineBuffer[256];
+        char buffer[32];
+        int num = 0;
+        int pos = 0;
+
+        ReadStringLine(lineBuffer);
+        ReadStringLine(lineBuffer);
+
+        int lineHeightPos = FindStringToken(lineBuffer, "lineHeight=", 1);
+        int basePos       = FindStringToken(lineBuffer, "base=", 1);
+        int scaleWPos     = FindStringToken(lineBuffer, "scaleW=", 1);
+
+        pos = 0;
+        if (lineHeightPos + 11 >= basePos) {
+            pos = 0;
+        }
+        else {
+            pos = basePos - 11 - lineHeightPos;
+            memcpy(buffer, &lineBuffer[lineHeightPos + 11], pos);
+        }
+        buffer[pos] = 0;
+        if (!ConvertStringToInteger(buffer, &num))
+            num = 0;
+        if (fontList[index].lineHeight < 1.0)
+            fontList[index].lineHeight = num;
+
+        if (basePos + 5 >= scaleWPos) {
+            pos = 0;
+        }
+        else {
+            pos = scaleWPos - 5 - basePos;
+            memcpy(buffer, &lineBuffer[basePos + 5], pos);
+        }
+        buffer[pos] = 0;
+        if (!ConvertStringToInteger(buffer, &num))
+            num = 0;
+        if (fontList[index].base < 1.0)
+            fontList[index].base = num;
+
+        ReadStringLine(lineBuffer);
+        ReadStringLine(lineBuffer);
+
+        int countPos = FindStringToken(lineBuffer, "count=", 1);
+
+        pos = 0;
+        if (lineBuffer[countPos + 6]) {
+            char *str = &lineBuffer[countPos + 6];
+            do {
+                buffer[pos++] = *str;
+                str++;
+            } while (*str);
+        }
+        buffer[pos] = 0;
+
+        ConvertStringToInteger(buffer, &num);
+
+        int start = entry->count;
+        entry->count += num;
+
+        for (int c = start; c < entry->count; ++c) {
+            BitmapFontCharacter *character = &fontList[index].characters[c];
+            ReadStringLine(lineBuffer);
+
+            int idPos   = FindStringToken(lineBuffer, "id=", 1);
+            int xPos    = FindStringToken(lineBuffer, "x=", 1);
+            int yPos    = FindStringToken(lineBuffer, "y=", 1);
+            int wPos    = FindStringToken(lineBuffer, "width=", 1);
+            int hPos    = FindStringToken(lineBuffer, "height=", 1);
+            int xOffPos = FindStringToken(lineBuffer, "xoffset=", 1);
+            int yOffPos = FindStringToken(lineBuffer, "yoffset=", 1);
+            int xAdvPos = FindStringToken(lineBuffer, "xadvance=", 1);
+            int pagePos = FindStringToken(lineBuffer, "page=", 1);
+
+            character->textureID = textureID;
+
+            // ID
+            pos = 0;
+            if (idPos + 3 >= xPos) {
+                pos = 0;
+            }
+            else {
+                pos = xPos - 3 - idPos;
+                memcpy(buffer, &lineBuffer[idPos + 3], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->id = num;
+
+            // X
+            pos = 0;
+            if (xPos + 2 >= yPos) {
+                pos = 0;
+            }
+            else {
+                pos = yPos - 2 - xPos;
+                memcpy(buffer, &lineBuffer[xPos + 2], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->x = num;
+
+            // Y
+            pos = 0;
+            if (yPos + 2 >= wPos) {
+                pos = 0;
+            }
+            else {
+                pos = wPos - 2 - yPos;
+                memcpy(buffer, &lineBuffer[yPos + 2], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->y = num;
+
+            // Width
+            pos = 0;
+            if (wPos + 6 >= hPos) {
+                pos = 0;
+            }
+            else {
+                pos = hPos - 6 - wPos;
+                memcpy(buffer, &lineBuffer[wPos + 6], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->width = num;
+
+            // Height
+            pos = 0;
+            if (hPos + 7 >= xOffPos) {
+                pos = 0;
+            }
+            else {
+                pos = xOffPos - 7 - hPos;
+                memcpy(buffer, &lineBuffer[hPos + 7], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->height = num;
+
+            // XOffset
+            pos = 0;
+            if (xOffPos + 8 >= yOffPos) {
+                pos = 0;
+            }
+            else {
+                pos = yOffPos - 8 - xOffPos;
+                memcpy(buffer, &lineBuffer[xOffPos + 8], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->xOffset = num;
+
+            // YOffset
+            pos = 0;
+            if (yOffPos + 8 >= xAdvPos) {
+                pos = 0;
+            }
+            else {
+                pos = xAdvPos - 8 - yOffPos;
+                memcpy(buffer, &lineBuffer[yOffPos + 8], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->yOffset = num;
+
+            // XAdvance
+            pos = 0;
+            if (xAdvPos + 9 >= pagePos) {
+                pos = 0;
+            }
+            else {
+                pos = pagePos - 9 - xAdvPos;
+                memcpy(buffer, &lineBuffer[xAdvPos + 9], pos);
+            }
+            buffer[pos] = 0;
+            if (!ConvertStringToInteger(buffer, &num))
+                num = 0;
+            character->xAdvance = num;
+        }
+
+        CloseFile();
+    }
+}
+
+void ResetBitmapFonts()
+{
+    for (int i = 0; i < FONTLIST_COUNT; ++i) {
+        fontList[i].count = 2; // none & newline
+    }
+}
+
+float GetTextWidth(ushort *text, int fontID, float scaleX)
+{
+    float width      = 0.0;
+    ushort character = *text++;
+    float lineMax    = 0.0;
+    float w          = 0.0;
+    while (character) {
+        w += fontList[fontID].characters[character].xAdvance;
+        if (character == 1) {
+            if (w > lineMax)
+                lineMax = w;
+            w = 0.0;
+        }
+        character = *text++;
+    }
+
+    width = fmaxf(w, lineMax);
+    return width * scaleX;
+}
+
+float GetTextHeight(ushort *text, int fontID, float scaleY)
+{
+    float height     = 0.0;
+    ushort character = *text++;
+    while (character) {
+        if (character == 1) {
+            height += fontList[fontID].lineHeight;
+        }
+        character = *text++;
+    }
+    return height * scaleY;
+}
+
+void SetStringToFont(ushort *text, ushort *string, int fontID)
+{
+    ushort stringChar = *string++;
+
+    int textPos = 0;
+    while (stringChar) {
+        ushort charID = 0;
+        while (!charID && stringChar) {
+            if (stringChar != '\n') {
+                if (stringChar == '\r') {
+                    charID = 1;
+                }
+                else {
+                    for (int i = 2; i < FONTLIST_CHAR_COUNT; ++i) {
+                        if (fontList[fontID].characters[i].id == stringChar) {
+                            charID = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            stringChar = *string++;
+        }
+        text[textPos++] = charID;
+    }
+    text[textPos] = 0;
+}
+
+void SetStringToFont8(ushort *text, const char *string, int fontID)
+{
+    char stringChar = *string++;
+
+    int textPos = 0;
+    while (stringChar) {
+        ushort charID = 0;
+        while (!charID && stringChar) {
+            if (stringChar != '\n') {
+                if (stringChar == '\r') {
+                    charID = 1;
+                }
+                else {
+                    for (int i = 2; i < FONTLIST_CHAR_COUNT; ++i) {
+                        if (fontList[fontID].characters[i].id == stringChar) {
+                            charID = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            stringChar = *string++;
+        }
+        text[textPos++] = charID;
+    }
+    text[textPos] = 0;
+}
+
+void AddTimeStringToFont(ushort *text, int time, int fontID)
+{
+    char textBuffer[0x40];
+    char numBuffer[0x20];
+
+    int minutes      = time / 6000;
+    int seconds      = time / 100 % 60;
+    int milliseconds = time % 100;
+
+    if (time / 6000) {
+        StrCopy(textBuffer, " ");
+        ConvertIntegerToString(numBuffer, minutes);
+        StrAdd(textBuffer, numBuffer);
+    }
+    else {
+        StrCopy(textBuffer, " 0");
+    }
+    StrAdd(textBuffer, "'");
+    if (seconds) {
+        if (seconds <= 9)
+            StrAdd(textBuffer, "0");
+        ConvertIntegerToString(numBuffer, seconds);
+        StrAdd(textBuffer, numBuffer);
+    }
+    else {
+        StrAdd(textBuffer, "00");
+    }
+    StrAdd(textBuffer, "\"");
+
+    if (milliseconds) {
+        if (milliseconds <= 9)
+            StrAdd(textBuffer, "0");
+        ConvertIntegerToString(numBuffer, milliseconds);
+        StrAdd(textBuffer, numBuffer);
+    }
+    else {
+        StrAdd(textBuffer, "00");
+    }
+
+    while (*text) {
+        if (*text == 1)
+            *text = 2;
+        text++;
+    }
+
+    SetStringToFont8(text, textBuffer, fontID);
 }

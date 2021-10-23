@@ -140,14 +140,23 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     }
 
     bool addPath = true;
-    for (int m = 0; m < modList.size(); ++m) {
-        if (modList[m].active) {
-            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
-            if (iter != modList[m].fileMap.cend()) {
-                StrCopy(filePathBuf, iter->second.c_str());
-                forceFolder = true;
-                addPath     = false;
-                break;
+    if (activeMod != -1) {
+        char buf[0x100];
+        sprintf(buf, "%s", filePathBuf);
+        sprintf(filePathBuf, "%smods/%s/%s", modsPath, modList[activeMod].folder.c_str(), buf);
+        forceFolder = true;
+        addPath     = false;
+    }
+    else {
+        for (int m = 0; m < modList.size(); ++m) {
+            if (modList[m].active) {
+                std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
+                if (iter != modList[m].fileMap.cend()) {
+                    StrCopy(filePathBuf, iter->second.c_str());
+                    forceFolder = true;
+                    addPath     = false;
+                    break;
+                }
             }
         }
     }
@@ -371,6 +380,69 @@ void FileRead(void *dest, int size)
     }
 }
 
+void FileSkip(int count)
+{
+    if (readPos <= fileSize) {
+        if (useEncryption) {
+            while (count > 0) {
+                if (bufferPosition == readSize)
+                    FillFileBuffer();
+                bufferPosition++;
+
+                ++eStringPosA;
+                ++eStringPosB;
+                if (eStringPosA <= 0x0F) {
+                    if (eStringPosB > 0x0C) {
+                        eStringPosB = 0;
+                        eNybbleSwap ^= 0x01;
+                    }
+                }
+                else if (eStringPosB <= 0x08) {
+                    eStringPosA = 0;
+                    eNybbleSwap ^= 0x01;
+                }
+                else {
+                    eStringNo += 2;
+                    eStringNo &= 0x7F;
+
+                    if (eNybbleSwap != 0) {
+                        int key1    = mulUnsignedHigh(ENC_KEY_1, eStringNo);
+                        int key2    = mulUnsignedHigh(ENC_KEY_2, eStringNo);
+                        eNybbleSwap = 0;
+
+                        int temp1 = key2 + (eStringNo - key2) / 2;
+                        int temp2 = key1 / 8 * 3;
+
+                        eStringPosA = eStringNo - temp1 / 4 * 7;
+                        eStringPosB = eStringNo - temp2 * 4 + 2;
+                    }
+                    else {
+                        int key1    = mulUnsignedHigh(ENC_KEY_1, eStringNo);
+                        int key2    = mulUnsignedHigh(ENC_KEY_2, eStringNo);
+                        eNybbleSwap = 1;
+
+                        int temp1 = key2 + (eStringNo - key2) / 2;
+                        int temp2 = key1 / 8 * 3;
+
+                        eStringPosB = eStringNo - temp1 / 4 * 7;
+                        eStringPosA = eStringNo - temp2 * 4 + 3;
+                    }
+                }
+
+                --count;
+            }
+        }
+        else {
+            while (count > 0) {
+                if (bufferPosition == readSize)
+                    FillFileBuffer();
+                bufferPosition++;
+                count--;
+            }
+        }
+    }
+}
+
 void GetFileInfo(FileInfo *fileInfo)
 {
     StrCopy(fileInfo->fileName, fileName);
@@ -513,295 +585,3 @@ bool ReachedEndOfFile()
     else
         return bufferPosition + readPos - readSize >= fileSize;
 }
-
-#if !RETRO_USE_ORIGINAL_CODE
-bool LoadFile2(const char *filePath, FileInfo *fileInfo)
-{
-    if (fileInfo->cFileHandle)
-        fClose(fileInfo->cFileHandle);
-
-    MEM_ZEROP(fileInfo);
-    char filePathBuf[0x100];
-    StrCopy(filePathBuf, filePath);
-    bool forceFolder = false;
-#if RETRO_USE_MOD_LOADER
-    // Fixes ".ani" ".Ani" bug and any other case differences
-    char pathLower[0x100];
-    memset(pathLower, 0, sizeof(char) * 0x100);
-    for (int c = 0; c < strlen(filePathBuf); ++c) {
-        pathLower[c] = tolower(filePathBuf[c]);
-    }
-
-    bool addPath = true;
-    for (int m = 0; m < modList.size(); ++m) {
-        if (modList[m].active) {
-            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
-            if (iter != modList[m].fileMap.cend()) {
-                StrCopy(filePathBuf, iter->second.c_str());
-                forceFolder = true;
-                addPath     = false;
-                break;
-            }
-        }
-    }
-#endif
-
-#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
-    if (addPath) {
-        char pathBuf[0x100];
-        sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
-        sprintf(filePathBuf, "%s", pathBuf);
-    }
-#endif
-
-    MEM_ZEROP(fileInfo);
-    if (CheckFileInfo(filePath) != -1 && !forceFolder) {
-        StringLowerCase(fileInfo->fileName, filePath);
-        StrCopy(fileName, fileInfo->fileName);
-        byte buffer[0x10];
-        int len = StrLength(fileInfo->fileName);
-        GenerateMD5FromString(fileInfo->fileName, len, buffer);
-
-        for (int f = 0; f < rsdkContainer.fileCount; ++f) {
-            RSDKFileInfo *file = &rsdkContainer.files[f];
-
-            bool match = true;
-            for (int h = 0; h < 0x10; ++h) {
-                if (buffer[h] != file->hash[h]) {
-                    match = false;
-                    break;
-                }
-            }
-            if (!match)
-                continue;
-
-            packID = fileInfo->packID = file->packID;
-            fileInfo->cFileHandle     = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
-            fSeek(fileInfo->cFileHandle, 0, SEEK_END);
-            fileSize = (int)fTell(fileInfo->cFileHandle);
-
-            vFileSize         = file->filesize;
-            virtualFileOffset = file->offset;
-            readPos           = file->offset;
-            readSize          = 0;
-            bufferPosition    = 0;
-            fSeek(fileInfo->cFileHandle, virtualFileOffset, SEEK_SET);
-
-            useEncryption = file->encrypted;
-            memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
-            memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
-            if (useEncryption) {
-                GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
-                eStringNo   = (vFileSize & 0x1FC) >> 2;
-                eStringPosA = 0;
-                eStringPosB = 8;
-                eNybbleSwap = 0;
-                memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
-                memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
-            }
-
-            fileInfo->readPos           = readPos;
-            fileInfo->fileSize          = fileSize;
-            fileInfo->vfileSize         = vFileSize;
-            fileInfo->virtualFileOffset = virtualFileOffset;
-            fileInfo->eStringNo         = eStringNo;
-            fileInfo->eStringPosB       = eStringPosB;
-            fileInfo->eStringPosA       = eStringPosA;
-            fileInfo->eNybbleSwap       = eNybbleSwap;
-            fileInfo->bufferPosition    = bufferPosition;
-            fileInfo->useEncryption     = useEncryption;
-            fileInfo->packID            = packID;
-            fileInfo->usingDataPack     = true;
-
-#if !RETRO_USE_ORIGINAL_CODE
-            fileInfo->usingDataPack = true;
-#endif
-            printLog("Loaded File '%s'", filePath);
-            return true;
-        }
-        printLog("Couldn't load file '%s'", filePath);
-        return false;
-    }
-    else {
-        StrCopy(fileInfo->fileName, filePathBuf);
-        StrCopy(fileName, fileInfo->fileName);
-
-        fileInfo->cFileHandle = fOpen(fileInfo->fileName, "rb");
-        if (!fileInfo->cFileHandle) {
-            printLog("Couldn't load file '%s'", filePathBuf);
-            return false;
-        }
-        virtualFileOffset = 0;
-        fSeek(fileInfo->cFileHandle, 0, SEEK_END);
-        fileInfo->fileSize = (int)fTell(fileInfo->cFileHandle);
-        fileSize = fileInfo->vfileSize = fileInfo->fileSize;
-        fSeek(fileInfo->cFileHandle, 0, SEEK_SET);
-        readPos           = 0;
-        fileInfo->readPos = readPos;
-        bufferPosition    = 0;
-        readSize          = 0;
-        packID = fileInfo->packID = -1;
-        fileInfo->usingDataPack   = false;
-
-#if !RETRO_USE_ORIGINAL_CODE
-        fileInfo->usingDataPack = false;
-#endif
-
-        printLog("Loaded File '%s'", filePathBuf);
-        return true;
-    }
-}
-
-size_t FileRead2(FileInfo *info, void *dest, int size)
-{
-    byte *data = (byte *)dest;
-    int rPos   = (int)GetFilePosition2(info);
-    memset(data, 0, size);
-
-    if (rPos <= info->vfileSize) {
-        if (info->useEncryption) {
-            int rSize = 0;
-            if (rPos + size <= info->vfileSize)
-                rSize = size;
-            else
-                rSize = info->vfileSize - rPos;
-
-            size_t result = fRead(data, 1u, rSize, info->cFileHandle);
-            info->readPos += rSize;
-            info->bufferPosition = 0;
-
-            while (size > 0) {
-                *data = info->encryptionStringB[info->eStringPosB] ^ info->eStringNo ^ *data;
-                if (info->eNybbleSwap)
-                    *data = 16 * (*data & 0xF) + (*data >> 4);
-                *data ^= info->encryptionStringA[info->eStringPosA];
-
-                ++info->eStringPosA;
-                ++info->eStringPosB;
-                if (info->eStringPosA <= 0x0F) {
-                    if (info->eStringPosB > 0x0C) {
-                        info->eStringPosB = 0;
-                        info->eNybbleSwap ^= 1;
-                    }
-                }
-                else if (info->eStringPosB <= 0x08) {
-                    info->eStringPosA = 0;
-                    info->eNybbleSwap ^= 1;
-                }
-                else {
-                    info->eStringNo += 2;
-                    info->eStringNo &= 0x7F;
-
-                    if (info->eNybbleSwap != 0) {
-                        int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                        int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
-                        info->eNybbleSwap = 0;
-
-                        int temp1 = key2 + (info->eStringNo - key2) / 2;
-                        int temp2 = key1 / 8 * 3;
-
-                        info->eStringPosA = info->eStringNo - temp1 / 4 * 7;
-                        info->eStringPosB = info->eStringNo - temp2 * 4 + 2;
-                    }
-                    else {
-                        int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                        int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
-                        info->eNybbleSwap = 1;
-
-                        int temp1 = key2 + (info->eStringNo - key2) / 2;
-                        int temp2 = key1 / 8 * 3;
-
-                        info->eStringPosB = info->eStringNo - temp1 / 4 * 7;
-                        info->eStringPosA = info->eStringNo - temp2 * 4 + 3;
-                    }
-                }
-                ++data;
-                --size;
-            }
-            return result;
-        }
-        else {
-            int rSize = 0;
-            if (rPos + size <= info->vfileSize)
-                rSize = size;
-            else
-                rSize = info->vfileSize - rPos;
-
-            size_t result = fRead(data, 1u, rSize, info->cFileHandle);
-            info->readPos += rSize;
-            info->bufferPosition = 0;
-            return result;
-        }
-    }
-    return 0;
-}
-
-size_t GetFilePosition2(FileInfo *info)
-{
-    if (info->usingDataPack)
-        return info->bufferPosition + info->readPos - info->virtualFileOffset;
-    else
-        return info->bufferPosition + info->readPos;
-}
-
-void SetFilePosition2(FileInfo *info, int newPos)
-{
-    if (info->useEncryption) {
-        info->readPos     = info->virtualFileOffset + newPos;
-        info->eStringNo   = (info->vfileSize & 0x1FC) >> 2;
-        info->eStringPosB = (info->eStringNo % 9) + 1;
-        info->eStringPosA = (info->eStringNo % info->eStringPosB) + 1;
-        info->eNybbleSwap = false;
-        while (newPos) {
-            ++info->eStringPosA;
-            ++info->eStringPosB;
-            if (info->eStringPosA <= 0x0F) {
-                if (info->eStringPosB > 0x0C) {
-                    info->eStringPosB = 0;
-                    info->eNybbleSwap ^= 0x01;
-                }
-            }
-            else if (info->eStringPosB <= 0x08) {
-                info->eStringPosA = 0;
-                info->eNybbleSwap ^= 0x01;
-            }
-            else {
-                info->eStringNo += 2;
-                info->eStringNo &= 0x7F;
-
-                if (info->eNybbleSwap != 0) {
-                    int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                    int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
-                    info->eNybbleSwap = false;
-
-                    int temp1 = key2 + (info->eStringNo - key2) / 2;
-                    int temp2 = key1 / 8 * 3;
-
-                    info->eStringPosA = info->eStringNo - temp1 / 4 * 7;
-                    info->eStringPosB = info->eStringNo - temp2 * 4 + 2;
-                }
-                else {
-                    int key1          = mulUnsignedHigh(ENC_KEY_1, info->eStringNo);
-                    int key2          = mulUnsignedHigh(ENC_KEY_2, info->eStringNo);
-                    info->eNybbleSwap = true;
-
-                    int temp1 = key2 + (info->eStringNo - key2) / 2;
-                    int temp2 = key1 / 8 * 3;
-
-                    info->eStringPosB = info->eStringNo - temp1 / 4 * 7;
-                    info->eStringPosA = info->eStringNo - temp2 * 4 + 3;
-                }
-            }
-            --newPos;
-        }
-    }
-    else {
-        if (info->usingDataPack)
-            info->readPos = info->virtualFileOffset + newPos;
-        else
-            info->readPos = newPos;
-    }
-
-    fSeek(info->cFileHandle, info->readPos, SEEK_SET);
-}
-#endif

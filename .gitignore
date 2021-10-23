@@ -36,6 +36,7 @@ cmake/
 [Dd]ependencies/mac/libogg/
 [Dd]ependencies/mac/libvorbis/
 [Dd]ependencies/mac/SDL2.framework/
+[Dd]ependencies/mac/glew/
 [Dd]ependencies/ios/Ogg.framework/
 [Dd]ependencies/ios/Vorbis.framework/
 [Dd]ependencies/ios/SDL2.framework/

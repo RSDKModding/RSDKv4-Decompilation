@@ -20,10 +20,17 @@ struct PaletteEntry {
 // Palettes (as RGB565 Colours)
 extern PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
 extern ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
-extern ushort *activePalette; // Ptr to the 256 colour set thats active
+extern ushort *activePalette; // Pointers to the 256 colour set thats active
 extern PaletteEntry *activePalette32;
 
 extern byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
+extern int GFX_LINESIZE;
+extern int GFX_LINESIZE_MINUSONE;
+extern int GFX_LINESIZE_DOUBLE;
+extern int GFX_FRAMEBUFFERSIZE;
+extern int GFX_FBUFFERMINUSONE;
+
+extern uint gfxPalette16to32[0x10000];
 
 extern int fadeMode;
 extern byte fadeA;
@@ -42,7 +49,7 @@ extern int texPaletteNum;
 
 #if RETRO_SOFTWARE_RENDER
 #define PACK_RGB888(r, g, b) RGB888_TO_RGB565(r, g, b)
-#elif RETRO_HARDWARE_RENDER
+#elif RETRO_HARDWARE_RENDER || RETRO_USING_OPENGL
 #define PACK_RGB888(r, g, b) RGB888_TO_RGB5551(r, g, b)
 #endif
 

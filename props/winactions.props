@@ -2,8 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <ItemDefinitionGroup>
         <Link>
-            <AdditionalLibraryDirectories>C:/vcpkg/installed/x86-windows-static/lib/;$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/</AdditionalLibraryDirectories>
-            <AdditionalDependencies>SDL2.lib;SDL2main.lib;ogg.lib;vorbis.lib;vorbisfile.lib;Shell32.lib</AdditionalDependencies>
+            <AdditionalLibraryDirectories>C:/vcpkg/installed/x86-windows-static-md/lib/;$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
+            <AdditionalDependencies>SDL2.lib;SDL2main.lib;ogg.lib;vorbis.lib;vorbisfile.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
 </Project>

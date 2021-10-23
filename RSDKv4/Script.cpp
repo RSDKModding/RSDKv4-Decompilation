@@ -24,7 +24,8 @@ int scriptDataOffset    = 0;
 int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
-#define COMMONALIAS_COUNT (0x4E)
+#if RETRO_USE_COMPILER
+#define COMMONALIAS_COUNT (0x56)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -46,6 +47,7 @@ struct AliasInfo {
 };
 
 #define STATICVAR_COUNT (0x200)
+#endif
 
 struct FunctionInfo {
     FunctionInfo()
@@ -63,6 +65,7 @@ struct FunctionInfo {
     int opcodeSize;
 };
 
+#if RETRO_USE_COMPILER
 const char variableNames[][0x20] = {
     // Internal Script Values
     "temp0",
@@ -331,6 +334,7 @@ const char variableNames[][0x20] = {
     "engine.trialMode",
     "engine.deviceType",
 };
+#endif
 
 const FunctionInfo functions[] = {
     FunctionInfo("End", 0),      // End of Script
@@ -515,6 +519,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("Print", 3),
 };
 
+#if RETRO_USE_COMPILER
 AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("false", "0"),
                                          AliasInfo("FX_SCALE", "0"),
@@ -541,8 +546,10 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("FLIP_X", "1"),
                                          AliasInfo("FLIP_Y", "2"),
                                          AliasInfo("FLIP_XY", "3"),
-                                         AliasInfo("STAGE_PAUSED", "2"),
                                          AliasInfo("STAGE_RUNNING", "1"),
+                                         AliasInfo("STAGE_PAUSED", "2"),
+                                         AliasInfo("STAGE_FROZEN", "3"),
+                                         AliasInfo("STAGE_2P", "4"),
                                          AliasInfo("RESET_GAME", "2"),
                                          AliasInfo("RETRO_STANDARD", "0"),
                                          AliasInfo("RETRO_MOBILE", "1"),
@@ -559,6 +566,11 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("CMODE_LWALL", "1"),
                                          AliasInfo("CMODE_ROOF", "2"),
                                          AliasInfo("CMODE_RWALL", "3"),
+                                         AliasInfo("COL_NONE", "0"),
+                                         AliasInfo("COL_TOP", "1"),
+                                         AliasInfo("COL_LEFT", "2"),
+                                         AliasInfo("COL_RIGHT", "3"),
+                                         AliasInfo("COL_BOTTOM", "4"),
                                          AliasInfo("PATH_A", "0"),
                                          AliasInfo("PATH_B", "1"),
                                          AliasInfo("GRAVITY_GROUND", "0"),
@@ -590,14 +602,15 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("TILEINFO_ANGLEB", "8"),
                                          AliasInfo("TEXTINFO_TEXTDATA", "0"),
                                          AliasInfo("TEXTINFO_TEXTSIZE", "1"),
-                                         AliasInfo("TEXTINFO_ROWCOUNT", "1"),
+                                         AliasInfo("TEXTINFO_ROWCOUNT", "2"),
                                          AliasInfo("ONLINEMENU_ACHIEVEMENTS", "0"),
                                          AliasInfo("ONLINEMENU_LEADERBOARDS", "1"),
                                          AliasInfo("TILELAYER_NOSCROLL", "0"),
                                          AliasInfo("TILELAYER_HSCROLL", "1"),
                                          AliasInfo("TILELAYER_VSCROLL", "2"),
                                          AliasInfo("TILELAYER_3DFLOOR", "3"),
-                                         AliasInfo("TILELAYER_3DSKY", "4") };
+                                         AliasInfo("TILELAYER_3DSKY", "4"),
+                                         AliasInfo("GROUP_ALL", "0") };
 AliasInfo privateAliases[ALIAS_COUNT_TRIM];
 int publicAliasCount  = 0;
 int privateAliasCount = 0;
@@ -630,6 +643,7 @@ enum ScriptParseModes {
     PARSEMODE_TABLEREAD    = 4,
     PARSEMODE_ERROR        = 0xFF
 };
+#endif
 
 enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCONST = 3 };
 enum ScriptVarArrTypes { VARARR_NONE = 0, VARARR_ARRAY = 1, VARARR_ENTNOPLUS1 = 2, VARARR_ENTNOMINUS1 = 3 };
@@ -1032,8 +1046,10 @@ enum ScrFunc {
     FUNC_MAX_CNT
 };
 
+#if RETRO_USE_COMPILER
 void CheckAliasText(char *text)
 {
+    sizeof(publicTables);
     if (FindStringToken(text, "publicalias", 1) && FindStringToken(text, "privatealias", 1))
         return;
     int textPos     = 11;
@@ -1119,6 +1135,8 @@ void CheckStaticText(char *text)
     }
     MEM_ZEROP(var);
 
+    var->dataPos = -1;
+
     while (staticMatch < 2) {
         if (staticMatch == 1) {
             if (text[staticStrPos] != ';' && text[textPos]) {
@@ -1126,7 +1144,28 @@ void CheckStaticText(char *text)
             }
             else {
                 strBuffer[staticStrPos] = 0;
-                ConvertStringToInteger(strBuffer, &var->value);
+
+                if (!ConvertStringToInteger(strBuffer, &var->value)) {
+                    bool flag = false;
+                    for (int a = 0; a < privateAliasCount; ++a) {
+                        if (StrComp(privateAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, privateAliases[a].value);
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+                        if (StrComp(publicAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, publicAliases[a].value);
+                            break;
+                        }
+                    }
+
+                    if (!ConvertStringToInteger(strBuffer, &var->value)) {
+                        printLog("WARNING: unable to convert static var value \"%s\" to int, on line %d", strBuffer, lineID);
+                    }
+                }
 
                 var->dataPos                = scriptDataPos;
                 scriptData[scriptDataPos++] = var->value;
@@ -1139,10 +1178,20 @@ void CheckStaticText(char *text)
             staticStrPos            = 0;
             staticMatch             = 1;
         }
+        else if (!text[textPos]) {
+            break;
+        }
         else {
             var->name[staticStrPos++] = text[textPos];
         }
         ++textPos;
+    }
+
+    // no assigned value, default to 0
+    if (var->dataPos == -1) {
+        var->dataPos                = scriptDataPos;
+        var->value                  = 0;
+        scriptData[scriptDataPos++] = var->value;
     }
 
     for (int v = 0; v < *cnt; ++v) {
@@ -1423,28 +1472,51 @@ void ConvertFunctionText(char *text)
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int funcNamePos      = 0;
-            int value            = 0;
-            int scriptTextByteID = 0;
-            while (text[textPos] != ',' && text[textPos] != ')' && text[textPos]) {
-                if (value) {
-                    if (text[textPos] == ']')
-                        value = 0;
-                    else
-                        arrayStr[scriptTextByteID++] = text[textPos];
-                    ++textPos;
-                }
-                else {
-                    if (text[textPos] == '[')
-                        value = 1;
-                    else
-                        funcName[funcNamePos++] = text[textPos];
-                    ++textPos;
+            int funcNamePos = 0;
+            int mode        = 0;
+            int prevMode    = 0;
+            int arrayStrPos = 0;
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2) && text[textPos]) {
+                switch (mode) {
+                    case 0: // normal
+                        if (text[textPos] == '[')
+                            mode = 1;
+                        else if (text[textPos] == '"') {
+                            prevMode                = mode;
+                            mode                    = 2;
+                            funcName[funcNamePos++] = '"';
+                        }
+                        else
+                            funcName[funcNamePos++] = text[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (text[textPos] == ']')
+                            mode = 0;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                        }
+                        else
+                            arrayStr[arrayStrPos++] = text[textPos];
+                        ++textPos;
+                        break;
+                    case 2: // string
+                        if (text[textPos] == '"') {
+                            mode                    = prevMode;
+                            funcName[funcNamePos++] = '"';
+                        }
+                        else
+                            funcName[funcNamePos++] = text[textPos];
+                        ++textPos;
+                        break;
                 }
             }
-            funcName[funcNamePos]      = 0;
-            arrayStr[scriptTextByteID] = 0;
-            // Eg: TempValue0 = FX_SCALE
+            funcName[funcNamePos] = 0;
+            arrayStr[arrayStrPos] = 0;
+
+            int value = 0;
+            // Eg: temp0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
                 if (StrComp(funcName, privateAliases[a].name)) {
@@ -1499,7 +1571,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = value0
+            // Eg: temp0 = value0
             // Private (this script only)
             for (int s = 0; s < privateStaticVarCount; ++s) {
                 if (StrComp(funcName, privateStaticVariables[s].name)) {
@@ -1517,7 +1589,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: GetTableValue(TempValue0, 1, array0)
+            // Eg: GetTableValue(temp0, 1, arrayPos0)
             // Private (this script only)
             for (int a = 0; a < privateTableCount; ++a) {
                 if (StrComp(funcName, privateTables[a].name)) {
@@ -1535,7 +1607,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-            // Eg: TempValue0 = Game.Variable
+            // Eg: temp0 = game.variable
             for (int v = 0; v < globalVariablesCount; ++v) {
                 if (StrComp(funcName, globalVariableNames[v])) {
                     StrCopy(funcName, "global");
@@ -1543,14 +1615,15 @@ void ConvertFunctionText(char *text)
                     AppendIntegerToString(arrayStr, v);
                 }
             }
-            // Eg: TempValue0 = Function1
+            // Eg: temp0 = Function1
             for (int f = 0; f < scriptFunctionCount; ++f) {
                 if (StrComp(funcName, scriptFunctionNames[f])) {
                     funcName[0] = 0;
                     AppendIntegerToString(funcName, f);
                 }
             }
-            // Eg: TempValue0 = TypeName[PlayerObject]
+
+            // Eg: temp0 = TypeName[Player Object]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1565,12 +1638,12 @@ void ConvertFunctionText(char *text)
 
                 if (o == OBJECT_COUNT) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown typename \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
 
-            // Eg: TempValue0 = SfxName[Jump]
+            // Eg: temp0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
@@ -1585,10 +1658,99 @@ void ConvertFunctionText(char *text)
 
                 if (s == SFX_COUNT) {
                     char buf[0x40];
-                    sprintf(buf, "WARNING: Unknown sfxName \"%s\"", arrayStr);
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
+
+#if RETRO_USE_MOD_LOADER
+            // Eg: temp0 = AchievementName[Ring King]
+            if (StrComp(funcName, "AchievementName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int a = 0;
+                for (; a < achievementCount; ++a) {
+                    char buf[0x40];
+                    char *str = achievements[a].name;
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, a);
+                        break;
+                    }
+                }
+
+                if (a == achievementCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = PlayerName[SONIC]
+            if (StrComp(funcName, "PlayerName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int p = 0;
+                for (; p < PLAYER_MAX; ++p) {
+                    char buf[0x40];
+                    char *str = playerNames[p];
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, p);
+                        break;
+                    }
+                }
+
+                if (p == PLAYER_MAX) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
+            if (StrComp(funcName, "StageName")) {
+                funcName[0] = 0;
+                int s       = -1;
+                if (StrLength(arrayStr) >= 2) {
+                    char list = arrayStr[0];
+                    switch (list) {
+                        case 'P': list = STAGELIST_PRESENTATION; break;
+                        case 'R': list = STAGELIST_REGULAR; break;
+                        case 'S': list = STAGELIST_SPECIAL; break;
+                        case 'B': list = STAGELIST_BONUS; break;
+                    }
+                    s = GetSceneID(list, &arrayStr[2]);
+                }
+
+                if (s == -1) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                    s = 0;
+                }
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, s);
+            }
+#endif
 
             // Storing Values
             if (ConvertStringToInteger(funcName, &value)) {
@@ -1599,29 +1761,29 @@ void ConvertFunctionText(char *text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
                 scriptData[scriptDataPos++] = StrLength(funcName) - 2;
                 int scriptTextPos           = 1;
-                scriptTextByteID            = 0;
+                arrayStrPos                 = 0;
                 while (scriptTextPos > -1) {
-                    switch (scriptTextByteID) {
+                    switch (arrayStrPos) {
                         case 0:
                             scriptData[scriptDataPos] = funcName[scriptTextPos] << 24;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 1:
                             scriptData[scriptDataPos] += funcName[scriptTextPos] << 16;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 2:
                             scriptData[scriptDataPos] += funcName[scriptTextPos] << 8;
-                            ++scriptTextByteID;
+                            ++arrayStrPos;
                             break;
                         case 3:
                             scriptData[scriptDataPos++] += funcName[scriptTextPos];
-                            scriptTextByteID = 0;
+                            arrayStrPos = 0;
                             break;
                         default: break;
                     }
                     if (funcName[scriptTextPos] == '"') {
-                        if (scriptTextByteID > 0)
+                        if (arrayStrPos > 0)
                             ++scriptDataPos;
                         scriptTextPos = -1;
                     }
@@ -1702,46 +1864,218 @@ void CheckCaseNumber(char *text)
     if (FindStringToken(text, "case", 1))
         return;
 
-    char dest[128];
-    int destStrPos = 0;
+    char caseString[128];
+    int caseStrPos = 0;
     char caseChar  = text[4];
     if (text[4]) {
         int textPos = 5;
         do {
             if (caseChar != ':')
-                dest[destStrPos++] = caseChar;
+                caseString[caseStrPos++] = caseChar;
             caseChar = text[textPos++];
         } while (caseChar);
     }
     else {
-        destStrPos = 0;
+        caseStrPos = 0;
     }
-    dest[destStrPos] = 0;
+    caseString[caseStrPos] = 0;
 
-    for (int a = 0; a < privateAliasCount; ++a) {
-        if (StrComp(privateAliases[a].name, dest)) {
-            StrCopy(dest, privateAliases[a].value);
-            goto CONV_VAL;
+    bool flag = false;
+
+    if (FindStringToken(caseString, "[", 1) >= 0) {
+        char caseValue[0x80];
+        char arrayStr[0x80];
+
+        int textPos     = 0;
+        int funcNamePos = 0;
+        int mode        = 0;
+        int arrayStrPos = 0;
+        while (caseString[textPos] != ':' && caseString[textPos]) {
+            if (mode) {
+                if (caseString[textPos] == ']')
+                    mode = 0;
+                else
+                    arrayStr[arrayStrPos++] = caseString[textPos];
+                ++textPos;
+            }
+            else {
+                if (caseString[textPos] == '[')
+                    mode = 1;
+                else
+                    caseValue[funcNamePos++] = caseString[textPos];
+                ++textPos;
+            }
+        }
+        caseValue[funcNamePos] = 0;
+        arrayStr[arrayStrPos]  = 0;
+
+        char arrStrBuf[0x80];
+        int arrPos = 0;
+        int bufPos = 0;
+        if (arrayStr[0] == '+' || arrayStr[0] == '-')
+            ++arrPos;
+        while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+        arrStrBuf[bufPos] = 0;
+
+        // Eg: temp0 = TypeName[Player Object]
+        if (StrComp(caseValue, "TypeName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int o = 0;
+            for (; o < OBJECT_COUNT; ++o) {
+                if (StrComp(arrayStr, typeNames[o])) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, o);
+                    break;
+                }
+            }
+
+            if (o == OBJECT_COUNT) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: temp0 = SfxName[Jump]
+        if (StrComp(caseValue, "SfxName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int s = 0;
+            for (; s < SFX_COUNT; ++s) {
+                if (StrComp(arrayStr, sfxNames[s])) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, s);
+                    break;
+                }
+            }
+
+            if (s == SFX_COUNT) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+#if RETRO_USE_MOD_LOADER
+        // Eg: temp0 = AchievementName[Ring King]
+        if (StrComp(caseValue, "AchievementName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int a = 0;
+            for (; a < achievementCount; ++a) {
+                char buf[0x40];
+                char *str = achievements[a].name;
+                int pos   = 0;
+
+                while (*str) {
+                    if (*str != ' ')
+                        buf[pos++] = *str;
+                    str++;
+                }
+                buf[pos] = 0;
+
+                if (StrComp(arrayStr, buf)) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, a);
+                    break;
+                }
+            }
+
+            if (a == achievementCount) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: temp0 = PlayerName[SONIC]
+        if (StrComp(caseValue, "PlayerName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int p = 0;
+            for (; p < PLAYER_MAX; ++p) {
+                char buf[0x40];
+                char *str = playerNames[p];
+                int pos   = 0;
+
+                while (*str) {
+                    if (*str != ' ')
+                        buf[pos++] = *str;
+                    str++;
+                }
+                buf[pos] = 0;
+
+                if (StrComp(arrayStr, buf)) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, p);
+                    break;
+                }
+            }
+
+            if (p == PLAYER_MAX) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
+        // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
+        if (StrComp(caseValue, "StageName")) {
+            caseValue[0] = 0;
+            int s        = -1;
+            if (StrLength(arrayStr) >= 2) {
+                char list = arrayStr[0];
+                switch (list) {
+                    case 'P': list = STAGELIST_PRESENTATION; break;
+                    case 'R': list = STAGELIST_REGULAR; break;
+                    case 'S': list = STAGELIST_SPECIAL; break;
+                    case 'B': list = STAGELIST_BONUS; break;
+                }
+                s = GetSceneID(list, &arrayStr[2]);
+            }
+
+            if (s == -1) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+                s = 0;
+            }
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, s);
+        }
+#endif
+        StrCopy(caseString, caseValue);
+        flag = true;
+    }
+
+    for (int a = 0; a < privateAliasCount && !flag; ++a) {
+        if (StrComp(privateAliases[a].name, caseString)) {
+            StrCopy(caseString, privateAliases[a].value);
+            flag = true;
+            break;
         }
     }
 
-    for (int a = 0; a < publicAliasCount; ++a) {
-        if (StrComp(publicAliases[a].name, dest)) {
-            StrCopy(dest, publicAliases[a].value);
-            goto CONV_VAL;
+    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+        if (StrComp(publicAliases[a].name, caseString)) {
+            StrCopy(caseString, publicAliases[a].value);
+            break;
         }
     }
 
-CONV_VAL:
-    int aliasVarID = 0;
-    if (ConvertStringToInteger(dest, &aliasVarID) != 1)
-        return;
-    int stackValue = jumpTableStack[jumpTableStackPos];
-    if (aliasVarID < jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
-    stackValue++;
-    if (aliasVarID > jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
+    int caseID = 0;
+    if (ConvertStringToInteger(caseString, &caseID)) {
+        int stackValue = jumpTableStack[jumpTableStackPos];
+        if (caseID < jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+        stackValue++;
+        if (caseID > jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+    }
+    else {
+        printLog("WARNING: unable to convert case string \"%s\" to int, on line %d", caseString, lineID);
+    }
 }
 bool ReadSwitchCase(char *text)
 {
@@ -1772,9 +2106,188 @@ bool ReadSwitchCase(char *text)
             ++textPos;
         }
         caseText[caseStringPos] = 0;
-        for (int a = 0; a < publicAliasCount; ++a) {
-            if (StrComp(caseText, publicAliases[a].name))
+
+        bool flag = false;
+        if (FindStringToken(caseText, "[", 1) >= 0) {
+            char caseValue[0x80];
+            char arrayStr[0x80];
+
+            int textPos     = 0;
+            int funcNamePos = 0;
+            int mode        = 0;
+            int arrayStrPos = 0;
+            while (caseText[textPos] != ':' && caseText[textPos]) {
+                if (mode) {
+                    if (caseText[textPos] == ']')
+                        mode = 0;
+                    else
+                        arrayStr[arrayStrPos++] = caseText[textPos];
+                    ++textPos;
+                }
+                else {
+                    if (caseText[textPos] == '[')
+                        mode = 1;
+                    else
+                        caseValue[funcNamePos++] = caseText[textPos];
+                    ++textPos;
+                }
+            }
+            caseValue[funcNamePos] = 0;
+            arrayStr[arrayStrPos]  = 0;
+
+            char arrStrBuf[0x80];
+            int arrPos = 0;
+            int bufPos = 0;
+            if (arrayStr[0] == '+' || arrayStr[0] == '-')
+                ++arrPos;
+            while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
+            arrStrBuf[bufPos] = 0;
+
+            // Eg: temp0 = TypeName[Player Object]
+            if (StrComp(caseValue, "TypeName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int o = 0;
+                for (; o < OBJECT_COUNT; ++o) {
+                    if (StrComp(arrayStr, typeNames[o])) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, o);
+                        break;
+                    }
+                }
+
+                if (o == OBJECT_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = SfxName[Jump]
+            if (StrComp(caseValue, "SfxName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int s = 0;
+                for (; s < SFX_COUNT; ++s) {
+                    if (StrComp(arrayStr, sfxNames[s])) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, s);
+                        break;
+                    }
+                }
+
+                if (s == SFX_COUNT) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+#if RETRO_USE_MOD_LOADER
+            // Eg: temp0 = AchievementName[Ring King]
+            if (StrComp(caseValue, "AchievementName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int a = 0;
+                for (; a < achievementCount; ++a) {
+                    char buf[0x40];
+                    char *str = achievements[a].name;
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, a);
+                        break;
+                    }
+                }
+
+                if (a == achievementCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown AchievementName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = PlayerName[SONIC]
+            if (StrComp(caseValue, "PlayerName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int p = 0;
+                for (; p < PLAYER_MAX; ++p) {
+                    char buf[0x40];
+                    char *str = playerNames[p];
+                    int pos   = 0;
+
+                    while (*str) {
+                        if (*str != ' ')
+                            buf[pos++] = *str;
+                        str++;
+                    }
+                    buf[pos] = 0;
+
+                    if (StrComp(arrayStr, buf)) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, p);
+                        break;
+                    }
+                }
+
+                if (p == PLAYER_MAX) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
+            if (StrComp(caseValue, "StageName")) {
+                caseValue[0] = 0;
+                int s        = -1;
+                if (StrLength(arrayStr) >= 2) {
+                    char list = arrayStr[0];
+                    switch (list) {
+                        case 'P': list = STAGELIST_PRESENTATION; break;
+                        case 'R': list = STAGELIST_REGULAR; break;
+                        case 'S': list = STAGELIST_SPECIAL; break;
+                        case 'B': list = STAGELIST_BONUS; break;
+                    }
+                    s = GetSceneID(list, &arrayStr[2]);
+                }
+
+                if (s == -1) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                    s = 0;
+                }
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, s);
+            }
+#endif
+            StrCopy(caseText, caseValue);
+            flag = true;
+        }
+
+        for (int a = 0; a < privateAliasCount && !flag; ++a) {
+            if (StrComp(caseText, privateAliases[a].name)) {
+                StrCopy(caseText, privateAliases[a].value);
+                flag = true;
+                break;
+            }
+        }
+
+        for (int a = 0; a < publicAliasCount && !flag; ++a) {
+            if (StrComp(caseText, publicAliases[a].name)) {
                 StrCopy(caseText, publicAliases[a].value);
+                break;
+            }
         }
 
         int val = 0;
@@ -1783,6 +2296,8 @@ bool ReadSwitchCase(char *text)
         int jOffset = jPos + 4;
         if (ConvertStringToInteger(caseText, &val))
             jumpTableData[val - jumpTableData[jPos] + jOffset] = scriptDataPos - scriptDataOffset;
+        else
+            printLog("WARNING: unable to read case string \"%s\" as an int, on line %d", caseText, lineID);
         return true;
     }
     return false;
@@ -1795,10 +2310,32 @@ void ReadTableValues(char *text)
     while (true) {
         if (text[textPos] == ',' || !text[textPos]) {
             strBuffer[strPos] = 0;
+            if (strBuffer[0]) { // only try if something exists
+                int cnt = currentTable->valueCount;
 
-            int cnt = currentTable->valueCount;
-            ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value);
-            currentTable->valueCount++;
+                if (!ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
+                    bool flag = false;
+                    for (int a = 0; a < privateAliasCount; ++a) {
+                        if (StrComp(privateAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, privateAliases[a].value);
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                    for (int a = 0; a < publicAliasCount && !flag; ++a) {
+                        if (StrComp(publicAliases[a].name, strBuffer)) {
+                            StrCopy(strBuffer, publicAliases[a].value);
+                            break;
+                        }
+                    }
+
+                    if (!ConvertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
+                        printLog("WARNING: unable to convert table var %d value \"%s\" to int, on line %d", cnt, strBuffer, lineID);
+                    }
+                }
+                currentTable->valueCount++;
+            }
 
             strPos = 0;
 
@@ -1873,6 +2410,8 @@ void AppendIntegerToStringW(ushort *text, int value)
         text[textPos++] = '0';
     text[textPos] = 0;
 }
+#endif
+
 bool ConvertStringToInteger(const char *text, int *value)
 {
     int charID    = 0;
@@ -1882,7 +2421,7 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
     int strLength = StrLength(text) - 1;
-    int charVal   = 0;
+    uint charVal  = 0;
     if (*text == '-') {
         negative = true;
         charID   = 1;
@@ -1894,15 +2433,31 @@ bool ConvertStringToInteger(const char *text, int *value)
     }
 
     if (text[charID] == '0') {
-        if (text[charID + 1] == 'x' || text[charID + 1] == 'X') {
+        if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
+            base = 0x10;
+        else if (text[charID + 1] == 'b' || text[charID + 1] == 'B')
+            base = 0b10;
+        else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
+            base = 0010; // base 8
+
+        if (base != 10) {
             charID += 2;
             strLength -= 2;
-            base = 0x10;
         }
     }
 
     while (strLength > -1) {
-        if (text[charID] < '0' || text[charID] > (base == 10 ? '9' : (base == 0x10 ? 'F' : '1'))) {
+        bool flag = text[charID] < '0';
+        if (!flag) {
+            if (base == 0x10 && text[charID] > 'f')
+                flag = true;
+            if (base == 0010 && text[charID] > '7')
+                flag = true;
+            if (base == 0b10 && text[charID] > '1')
+                flag = true;
+        }
+
+        if (flag) {
             return 0;
         }
         if (strLength <= 0) {
@@ -1945,6 +2500,8 @@ bool ConvertStringToInteger(const char *text, int *value)
         *value = -*value;
     return true;
 }
+
+#if RETRO_USE_COMPILER
 void CopyAliasStr(char *dest, char *text, bool arrayIndex)
 {
     int textPos     = 0;
@@ -2016,9 +2573,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
         char prevChar  = 0;
         char curChar   = 0;
         int switchDeep = 0;
+
         while (readMode < READMODE_EOF) {
-            int textPos = 0;
-            readMode    = READMODE_NORMAL;
+            int textPos   = 0;
+            readMode      = READMODE_NORMAL;
+            bool semiFlag = false;
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 FileRead(&curChar, 1);
@@ -2044,9 +2603,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;
+                        if (curChar == ';')
+                            semiFlag = true;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
@@ -2069,7 +2630,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
 
             switch (parseMode) {
                 case PARSEMODE_SCOPELESS:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     CheckAliasText(scriptText);
                     CheckStaticText(scriptText);
 
@@ -2153,12 +2715,14 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (!FindStringToken(scriptText, "#endplatform", 1))
                         parseMode = PARSEMODE_FUNCTION;
                     break;
                 case PARSEMODE_FUNCTION:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (scriptText[0]) {
                         if (StrComp(scriptText, "endevent")) {
                             scriptData[scriptDataPos++] = FUNC_END;
@@ -2194,6 +2758,15 @@ void ParseScriptFile(char *scriptName, int scriptID)
 #if RETRO_USE_HAPTICS
                                  && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
+#if !RETRO_USE_ORIGINAL_CODE
+                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
+#endif
+#if RETRO_USE_NETWORKING
+                                 && FindStringToken(scriptText, "USE_NETWORKING", 1) == -1
+#endif
+#if RETRO_USE_MOD_LOADER
+                                 && FindStringToken(scriptText, "USE_MOD_LOADER", 1) == -1
+#endif
                         ) {
                             parseMode = PARSEMODE_PLATFORMSKIP;
                         }
@@ -2218,6 +2791,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     break;
                 case PARSEMODE_TABLEREAD:
+                    if (!semiFlag)
+                        ++lineID;
                     if (FindStringToken(scriptText, "endtable", 1)) {
                         ReadTableValues(scriptText);
                     }
@@ -2265,6 +2840,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
         CloseFile();
     }
 }
+#endif
+
 void LoadBytecode(int stageListID, int scriptID)
 {
     char scriptPath[0x40];
@@ -2466,12 +3043,12 @@ void LoadBytecode(int stageListID, int scriptID)
 
 void ClearScriptData()
 {
-    memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
-    memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
+    memset(scriptData, 0, sizeof(scriptData));
+    memset(jumpTableData, 0, sizeof(jumpTableData));
 
-    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
-    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
-    memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
+    memset(foreachStack, -1, sizeof(foreachStack));
+    memset(jumpTableStack, 0, sizeof(jumpTableStack));
+    memset(functionStack, 0, sizeof(functionStack));
 
     scriptFrameCount = 0;
 
@@ -2485,6 +3062,7 @@ void ClearScriptData()
     jumpTableDataPos    = 0;
     jumpTableDataOffset = 0;
 
+#if RETRO_USE_COMPILER
     scriptFunctionCount = 0;
 
     lineID = 0;
@@ -2508,13 +3086,13 @@ void ClearScriptData()
         StrCopy(privateAliases[i].value, "");
     }
 
-    memset(publicStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
-    memset(privateStaticVariables, 0, STATICVAR_COUNT * sizeof(StaticInfo));
+    memset(publicStaticVariables, 0, sizeof(publicStaticVariables));
+    memset(privateStaticVariables, 0, sizeof(privateStaticVariables));
 
-    memset(publicTables, 0, TABLE_COUNT * sizeof(TableInfo));
-    memset(privateTables, 0, TABLE_COUNT * sizeof(TableInfo));
+    memset(publicTables, 0, sizeof(publicTables));
+    memset(privateTables, 0, sizeof(privateTables));
+#endif
 
-    ClearGraphicsData();
     ClearAnimationData();
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
@@ -2529,6 +3107,10 @@ void ClearScriptData()
         scriptInfo->spriteSheetID              = 0;
         scriptInfo->animFile                   = GetDefaultAnimationRef();
         typeNames[o][0]                        = 0;
+    }
+
+    for (int s = globalSFXCount; s < globalSFXCount + stageSFXCount; ++s) {
+        sfxNames[s][0] = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
@@ -2587,14 +3169,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
-                    case VAR_TEMP0: scriptEng.operands[i] = scriptEng.tempValue[0]; break;
-                    case VAR_TEMP1: scriptEng.operands[i] = scriptEng.tempValue[1]; break;
-                    case VAR_TEMP2: scriptEng.operands[i] = scriptEng.tempValue[2]; break;
-                    case VAR_TEMP3: scriptEng.operands[i] = scriptEng.tempValue[3]; break;
-                    case VAR_TEMP4: scriptEng.operands[i] = scriptEng.tempValue[4]; break;
-                    case VAR_TEMP5: scriptEng.operands[i] = scriptEng.tempValue[5]; break;
-                    case VAR_TEMP6: scriptEng.operands[i] = scriptEng.tempValue[6]; break;
-                    case VAR_TEMP7: scriptEng.operands[i] = scriptEng.tempValue[7]; break;
+                    case VAR_TEMP0: scriptEng.operands[i] = scriptEng.temp[0]; break;
+                    case VAR_TEMP1: scriptEng.operands[i] = scriptEng.temp[1]; break;
+                    case VAR_TEMP2: scriptEng.operands[i] = scriptEng.temp[2]; break;
+                    case VAR_TEMP3: scriptEng.operands[i] = scriptEng.temp[3]; break;
+                    case VAR_TEMP4: scriptEng.operands[i] = scriptEng.temp[4]; break;
+                    case VAR_TEMP5: scriptEng.operands[i] = scriptEng.temp[5]; break;
+                    case VAR_TEMP6: scriptEng.operands[i] = scriptEng.temp[6]; break;
+                    case VAR_TEMP7: scriptEng.operands[i] = scriptEng.temp[7]; break;
                     case VAR_CHECKRESULT: scriptEng.operands[i] = scriptEng.checkResult; break;
                     case VAR_ARRAYPOS0: scriptEng.operands[i] = scriptEng.arrayPosition[0]; break;
                     case VAR_ARRAYPOS1: scriptEng.operands[i] = scriptEng.arrayPosition[1]; break;
@@ -2608,7 +3190,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_LOCAL: scriptEng.operands[i] = scriptData[arrayVal]; break;
                     case VAR_OBJECTENTITYPOS: scriptEng.operands[i] = arrayVal; break;
                     case VAR_OBJECTGROUPID: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].typeGroup;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].groupID;
                         break;
                     }
                     case VAR_OBJECTTYPE: {
@@ -2620,27 +3202,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].xpos;
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].ypos;
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos >> 16;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].xpos >> 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].ypos >> 16;
                         break;
                     }
                     case VAR_OBJECTXVEL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XVelocity;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].xvel;
                         break;
                     }
                     case VAR_OBJECTYVEL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YVelocity;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].yvel;
                         break;
                     }
                     case VAR_OBJECTSPEED: {
@@ -2704,11 +3286,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].camOffsetX;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosX;
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPos;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosY;
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
@@ -2772,27 +3354,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTSCROLLTRACKING: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].trackScroll;
+                        scriptEng.operands[i] = objectEntityList[arrayVal].scrollTracking;
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[0];
+                        scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[0];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[1];
+                        scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[1];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORR: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[2];
+                        scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[2];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORLC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[3];
+                        scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[3];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORRC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[4];
+                        scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[4];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONLEFT: {
@@ -2848,13 +3430,81 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
-                        int pos = objectEntityList[arrayVal].XPos >> 16;
-                        if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= xScrollOffset + OBJECT_BORDER_X2) {
-                            scriptEng.operands[i] = 1;
+                        int boundX1_2P = -(0x200 << 16);
+                        int boundX2_2P = (0x200 << 16);
+                        int boundX3_2P = -(0x180 << 16);
+                        int boundX4_2P = (0x180 << 16);
+
+                        int boundY1_2P = -(0x180 << 16);
+                        int boundY2_2P = (0x180 << 16);
+                        int boundY3_2P = -(0x100 << 16);
+                        int boundY4_2P = (0x100 << 16);
+
+                        int P1Bound_L = objectEntityList[0].xpos - 0x1FFFFFF;
+                        int P1Bound_R = objectEntityList[0].xpos + 0x1FFFFFF;
+                        int P1Bound_T = objectEntityList[0].ypos - 0x1800000;
+                        int P1Bound_B = objectEntityList[0].ypos + 0x1800000;
+
+                        int P2Bound_L = objectEntityList[1].xpos - 0x1FFFFFF;
+                        int P2Bound_R = objectEntityList[1].xpos + 0x1FFFFFF;
+                        int P2Bound_T = objectEntityList[1].ypos - 0x17FFFFF;
+                        int P2Bound_B = objectEntityList[1].ypos + 0x17FFFFF;
+
+                        Entity *entPtr = &objectEntityList[arrayVal];
+                        int x          = entPtr->xpos >> 16;
+                        int y          = entPtr->ypos >> 16;
+
+                        if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_2P_UNKNOWN) {
+                            if (stageMode == STAGEMODE_2P) {
+                                int boundL_P1 = objectEntityList[0].xpos + boundX3_2P;
+                                int boundR_P1 = objectEntityList[0].xpos + boundX4_2P;
+                                int boundT_P1 = objectEntityList[0].ypos + boundY3_2P;
+                                int boundB_P1 = objectEntityList[0].ypos + boundY4_2P;
+
+                                int boundL_P2 = objectEntityList[1].xpos + boundX3_2P;
+                                int boundR_P2 = objectEntityList[1].xpos + boundX4_2P;
+                                int boundT_P2 = objectEntityList[1].ypos + boundY3_2P;
+                                int boundB_P2 = objectEntityList[1].ypos + boundY4_2P;
+
+                                bool oobP1 = scriptEng.operands[i] = x <= boundL_P1 || x >= boundR_P1 || y <= boundT_P1 || y >= boundB_P1;
+                                bool oobP2 = scriptEng.operands[i] = x <= boundL_P2 || x >= boundR_P2 || y <= boundT_P2 || y >= boundB_P2;
+
+                                scriptEng.operands[i] = oobP1 && oobP2;
+                            }
+                            else {
+                                int boundL = xScrollOffset - OBJECT_BORDER_X3;
+                                int boundR = xScrollOffset + OBJECT_BORDER_X4;
+                                int boundT = yScrollOffset - OBJECT_BORDER_Y3;
+                                int boundB = yScrollOffset + OBJECT_BORDER_Y4;
+
+                                scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
+                            }
                         }
                         else {
-                            pos                   = objectEntityList[arrayVal].YPos >> 16;
-                            scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >= yScrollOffset + OBJECT_BORDER_Y2;
+                            if (stageMode == STAGEMODE_2P) {
+                                int boundL_P1 = objectEntityList[0].xpos + boundX1_2P;
+                                int boundR_P1 = objectEntityList[0].xpos + boundX2_2P;
+                                int boundT_P1 = objectEntityList[0].ypos + boundY1_2P;
+                                int boundB_P1 = objectEntityList[0].ypos + boundY2_2P;
+
+                                int boundL_P2 = objectEntityList[1].xpos + boundX1_2P;
+                                int boundR_P2 = objectEntityList[1].xpos + boundX2_2P;
+                                int boundT_P2 = objectEntityList[1].ypos + boundY1_2P;
+                                int boundB_P2 = objectEntityList[1].ypos + boundY2_2P;
+
+                                bool oobP1 = scriptEng.operands[i] = x <= boundL_P1 || x >= boundR_P1 || y <= boundT_P1 || y >= boundB_P1;
+                                bool oobP2 = scriptEng.operands[i] = x <= boundL_P2 || x >= boundR_P2 || y <= boundT_P2 || y >= boundB_P2;
+
+                                scriptEng.operands[i] = oobP1 && oobP2;
+                            }
+                            else {
+                                int boundL = xScrollOffset - OBJECT_BORDER_X1;
+                                int boundR = xScrollOffset + OBJECT_BORDER_X2;
+                                int boundT = yScrollOffset - OBJECT_BORDER_Y1;
+                                int boundB = yScrollOffset + OBJECT_BORDER_Y2;
+
+                                scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
+                            }
                         }
                         break;
                     }
@@ -3103,43 +3753,43 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
-                    case VAR_INPUTDOWNUP: scriptEng.operands[i] = keyDown.up; break;
-                    case VAR_INPUTDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
-                    case VAR_INPUTDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
-                    case VAR_INPUTDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
-                    case VAR_INPUTDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
-                    case VAR_INPUTDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
-                    case VAR_INPUTDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
-                    case VAR_INPUTDOWNBUTTONX: scriptEng.operands[i] = keyDown.X; break;
-                    case VAR_INPUTDOWNBUTTONY: scriptEng.operands[i] = keyDown.Y; break;
-                    case VAR_INPUTDOWNBUTTONZ: scriptEng.operands[i] = keyDown.Z; break;
-                    case VAR_INPUTDOWNBUTTONL: scriptEng.operands[i] = keyDown.L; break;
-                    case VAR_INPUTDOWNBUTTONR: scriptEng.operands[i] = keyDown.R; break;
-                    case VAR_INPUTDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
-                    case VAR_INPUTDOWNSELECT: scriptEng.operands[i] = keyDown.select; break;
-                    case VAR_INPUTPRESSUP: scriptEng.operands[i] = keyPress.up; break;
-                    case VAR_INPUTPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
-                    case VAR_INPUTPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
-                    case VAR_INPUTPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
-                    case VAR_INPUTPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
-                    case VAR_INPUTPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
-                    case VAR_INPUTPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
-                    case VAR_INPUTPRESSBUTTONX: scriptEng.operands[i] = keyPress.X; break;
-                    case VAR_INPUTPRESSBUTTONY: scriptEng.operands[i] = keyPress.Y; break;
-                    case VAR_INPUTPRESSBUTTONZ: scriptEng.operands[i] = keyPress.Z; break;
-                    case VAR_INPUTPRESSBUTTONL: scriptEng.operands[i] = keyPress.L; break;
-                    case VAR_INPUTPRESSBUTTONR: scriptEng.operands[i] = keyPress.R; break;
-                    case VAR_INPUTPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
-                    case VAR_INPUTPRESSSELECT: scriptEng.operands[i] = keyPress.select; break;
+                    case VAR_INPUTDOWNUP: scriptEng.operands[i] = inputDown.up; break;
+                    case VAR_INPUTDOWNDOWN: scriptEng.operands[i] = inputDown.down; break;
+                    case VAR_INPUTDOWNLEFT: scriptEng.operands[i] = inputDown.left; break;
+                    case VAR_INPUTDOWNRIGHT: scriptEng.operands[i] = inputDown.right; break;
+                    case VAR_INPUTDOWNBUTTONA: scriptEng.operands[i] = inputDown.A; break;
+                    case VAR_INPUTDOWNBUTTONB: scriptEng.operands[i] = inputDown.B; break;
+                    case VAR_INPUTDOWNBUTTONC: scriptEng.operands[i] = inputDown.C; break;
+                    case VAR_INPUTDOWNBUTTONX: scriptEng.operands[i] = inputDown.X; break;
+                    case VAR_INPUTDOWNBUTTONY: scriptEng.operands[i] = inputDown.Y; break;
+                    case VAR_INPUTDOWNBUTTONZ: scriptEng.operands[i] = inputDown.Z; break;
+                    case VAR_INPUTDOWNBUTTONL: scriptEng.operands[i] = inputDown.L; break;
+                    case VAR_INPUTDOWNBUTTONR: scriptEng.operands[i] = inputDown.R; break;
+                    case VAR_INPUTDOWNSTART: scriptEng.operands[i] = inputDown.start; break;
+                    case VAR_INPUTDOWNSELECT: scriptEng.operands[i] = inputDown.select; break;
+                    case VAR_INPUTPRESSUP: scriptEng.operands[i] = inputPress.up; break;
+                    case VAR_INPUTPRESSDOWN: scriptEng.operands[i] = inputPress.down; break;
+                    case VAR_INPUTPRESSLEFT: scriptEng.operands[i] = inputPress.left; break;
+                    case VAR_INPUTPRESSRIGHT: scriptEng.operands[i] = inputPress.right; break;
+                    case VAR_INPUTPRESSBUTTONA: scriptEng.operands[i] = inputPress.A; break;
+                    case VAR_INPUTPRESSBUTTONB: scriptEng.operands[i] = inputPress.B; break;
+                    case VAR_INPUTPRESSBUTTONC: scriptEng.operands[i] = inputPress.C; break;
+                    case VAR_INPUTPRESSBUTTONX: scriptEng.operands[i] = inputPress.X; break;
+                    case VAR_INPUTPRESSBUTTONY: scriptEng.operands[i] = inputPress.Y; break;
+                    case VAR_INPUTPRESSBUTTONZ: scriptEng.operands[i] = inputPress.Z; break;
+                    case VAR_INPUTPRESSBUTTONL: scriptEng.operands[i] = inputPress.L; break;
+                    case VAR_INPUTPRESSBUTTONR: scriptEng.operands[i] = inputPress.R; break;
+                    case VAR_INPUTPRESSSTART: scriptEng.operands[i] = inputPress.start; break;
+                    case VAR_INPUTPRESSSELECT: scriptEng.operands[i] = inputPress.select; break;
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
-                    case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].width; break;
-                    case VAR_TILELAYERYSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].height; break;
+                    case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].xsize; break;
+                    case VAR_TILELAYERYSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].ysize; break;
                     case VAR_TILELAYERTYPE: scriptEng.operands[i] = stageLayouts[arrayVal].type; break;
                     case VAR_TILELAYERANGLE: scriptEng.operands[i] = stageLayouts[arrayVal].angle; break;
-                    case VAR_TILELAYERXPOS: scriptEng.operands[i] = stageLayouts[arrayVal].XPos; break;
-                    case VAR_TILELAYERYPOS: scriptEng.operands[i] = stageLayouts[arrayVal].YPos; break;
-                    case VAR_TILELAYERZPOS: scriptEng.operands[i] = stageLayouts[arrayVal].ZPos; break;
+                    case VAR_TILELAYERXPOS: scriptEng.operands[i] = stageLayouts[arrayVal].xpos; break;
+                    case VAR_TILELAYERYPOS: scriptEng.operands[i] = stageLayouts[arrayVal].ypos; break;
+                    case VAR_TILELAYERZPOS: scriptEng.operands[i] = stageLayouts[arrayVal].zpos; break;
                     case VAR_TILELAYERPARALLAXFACTOR: scriptEng.operands[i] = stageLayouts[arrayVal].parallaxFactor; break;
                     case VAR_TILELAYERSCROLLSPEED: scriptEng.operands[i] = stageLayouts[arrayVal].scrollSpeed; break;
                     case VAR_TILELAYERSCROLLPOS: scriptEng.operands[i] = stageLayouts[arrayVal].scrollPos; break;
@@ -3338,18 +3988,18 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
                 break;
             case FUNC_FOREACHACTIVE: {
-                int typeGroup = scriptEng.operands[1];
-                if (typeGroup < TYPEGROUP_COUNT) {
+                int groupID = scriptEng.operands[1];
+                if (groupID < TYPEGROUP_COUNT) {
                     int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
-                    if (loop >= objectTypeGroupList[typeGroup].listSize) {
+                    if (loop >= objectTypeGroupList[groupID].listSize) {
                         opcodeSize                      = 0;
                         foreachStack[foreachStackPos--] = -1;
                         scriptDataPtr                   = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
                         break;
                     }
                     else {
-                        scriptEng.operands[2]               = objectTypeGroupList[typeGroup].entityRefs[loop];
+                        scriptEng.operands[2]               = objectTypeGroupList[groupID].entityRefs[loop];
                         jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                     }
                 }
@@ -3475,7 +4125,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_DRAWSPRITE:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                DrawSprite((entity->XPos >> 16) - xScrollOffset + spriteFrame->pivotX, (entity->YPos >> 16) - yScrollOffset + spriteFrame->pivotY,
+                DrawSprite((entity->xpos >> 16) - xScrollOffset + spriteFrame->pivotX, (entity->ypos >> 16) - yScrollOffset + spriteFrame->pivotY,
                            spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                 break;
             case FUNC_DRAWSPRITEXY:
@@ -3954,8 +4604,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 memset(newEnt, 0, sizeof(Entity));
                 newEnt->type               = scriptEng.operands[1];
                 newEnt->propertyValue      = scriptEng.operands[2];
-                newEnt->XPos               = scriptEng.operands[3];
-                newEnt->YPos               = scriptEng.operands[4];
+                newEnt->xpos               = scriptEng.operands[3];
+                newEnt->ypos               = scriptEng.operands[4];
                 newEnt->direction          = FLIP_NONE;
                 newEnt->priority           = PRIORITY_ACTIVE_BOUNDS;
                 newEnt->drawOrder          = 3;
@@ -4000,8 +4650,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 memset(temp, 0, sizeof(Entity));
                 temp->type               = scriptEng.operands[0];
                 temp->propertyValue      = scriptEng.operands[1];
-                temp->XPos               = scriptEng.operands[2];
-                temp->YPos               = scriptEng.operands[3];
+                temp->xpos               = scriptEng.operands[2];
+                temp->ypos               = scriptEng.operands[3];
                 temp->direction          = FLIP_NONE;
                 temp->priority           = PRIORITY_ACTIVE;
                 temp->drawOrder          = 3;
@@ -4015,16 +4665,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_PROCESSOBJECTMOVEMENT:
                 opcodeSize = 0;
                 if (entity->tileCollisions) {
-                    ProcessPlayerTileCollisions(entity);
+                    ProcessTileCollisions(entity);
                 }
                 else {
-                    entity->XPos += entity->XVelocity;
-                    entity->YPos += entity->YVelocity;
+                    entity->xpos += entity->xvel;
+                    entity->ypos += entity->yvel;
                 }
                 break;
             case FUNC_PROCESSOBJECTCONTROL:
                 opcodeSize = 0;
-                ProcessPlayerControl(entity);
+                ProcessObjectControl(entity);
                 break;
             case FUNC_PROCESSANIMATION:
                 opcodeSize = 0;
@@ -4033,7 +4683,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_DRAWOBJECTANIMATION:
                 opcodeSize = 0;
                 if (entity->visible)
-                    DrawObjectAnimation(scriptInfo, entity, (entity->XPos >> 16) - xScrollOffset, (entity->YPos >> 16) - yScrollOffset);
+                    DrawObjectAnimation(scriptInfo, entity, (entity->xpos >> 16) - xScrollOffset, (entity->ypos >> 16) - yScrollOffset);
                 break;
             case FUNC_SETMUSICTRACK:
                 opcodeSize = 0;
@@ -4213,10 +4863,15 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 break;
             }
             case FUNC_RETURN:
-                opcodeSize    = 0;
-                scriptCodePtr = functionStack[--functionStackPos];
-                jumpTablePtr  = functionStack[--functionStackPos];
-                scriptDataPtr = functionStack[--functionStackPos];
+                opcodeSize = 0;
+                if (!functionStackPos) { // event, stop running
+                    running = false;
+                }
+                else { // function, jump out
+                    scriptCodePtr = functionStack[--functionStackPos];
+                    jumpTablePtr  = functionStack[--functionStackPos];
+                    scriptDataPtr = functionStack[--functionStackPos];
+                }
                 break;
             case FUNC_SETLAYERDEFORMATION:
                 opcodeSize = 0;
@@ -4358,10 +5013,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
                 TextMenu *menu    = &gameMenu[scriptEng.operands[0]];
-                if (!Engine.drawLock) {
-                    DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
-                                   scriptEng.operands[5], scriptEng.operands[6]);
-                }
+                DrawBitmapText(menu, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                               scriptEng.operands[5], scriptEng.operands[6]);
                 break;
             }
 #endif
@@ -4403,24 +5056,39 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_CALLNATIVEFUNCTION:
                 opcodeSize = 0;
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
-                    nativeFunction[scriptEng.operands[0]](0x00, NULL);
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
+                    void (*func)(void) = (void (*)(void))nativeFunction[scriptEng.operands[0]];
+                    if (func)
+                        func();
+                }
                 break;
             case FUNC_CALLNATIVEFUNCTION2:
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF) {
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
                     if (StrLength(scriptText)) {
-                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[2], scriptText);
+                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[2], scriptText);
                     }
                     else {
-                        nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
-                                                              reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
-                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] <= 0xF)
-                    nativeFunction[scriptEng.operands[0]](scriptEng.operands[1],
-                                                          reinterpret_cast<void *>(static_cast<intptr_t>(scriptEng.operands[2])));
+                if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
+                    if (StrLength(scriptText)) {
+                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[2], scriptText);
+                    }
+                    else {
+                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
+                        if (func)
+                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
+                    }
+                }
                 break;
             case FUNC_SETOBJECTRANGE: {
                 opcodeSize       = 0;
@@ -4445,19 +5113,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             }
             case FUNC_COPYOBJECT: {
                 // dstID, srcID, count
-                Entity *storageList = &objectEntityList[ENTITY_COUNT + scriptEng.operands[0]];
-                Entity *objList     = &objectEntityList[scriptEng.operands[1]];
-
-                if (scriptEng.operands[2])
-                    memcpy(objList, storageList, sizeof(Entity));
-                else
-                    memcpy(storageList, objList, sizeof(Entity));
-
-                //for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                //    memcpy(storageList, objList, sizeof(Entity));
-                //    storageList++;
-                //    objList++;
-                //}
+                Entity *dstList = &objectEntityList[scriptEng.operands[0]];
+                Entity *srcList = &objectEntityList[scriptEng.operands[1]];
+                for (int i = 0; i < scriptEng.operands[2]; ++i) memcpy(&dstList[i], &srcList[i], sizeof(Entity));
                 break;
             }
 #endif
@@ -4508,14 +5166,14 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
-                    case VAR_TEMP0: scriptEng.tempValue[0] = scriptEng.operands[i]; break;
-                    case VAR_TEMP1: scriptEng.tempValue[1] = scriptEng.operands[i]; break;
-                    case VAR_TEMP2: scriptEng.tempValue[2] = scriptEng.operands[i]; break;
-                    case VAR_TEMP3: scriptEng.tempValue[3] = scriptEng.operands[i]; break;
-                    case VAR_TEMP4: scriptEng.tempValue[4] = scriptEng.operands[i]; break;
-                    case VAR_TEMP5: scriptEng.tempValue[5] = scriptEng.operands[i]; break;
-                    case VAR_TEMP6: scriptEng.tempValue[6] = scriptEng.operands[i]; break;
-                    case VAR_TEMP7: scriptEng.tempValue[7] = scriptEng.operands[i]; break;
+                    case VAR_TEMP0: scriptEng.temp[0] = scriptEng.operands[i]; break;
+                    case VAR_TEMP1: scriptEng.temp[1] = scriptEng.operands[i]; break;
+                    case VAR_TEMP2: scriptEng.temp[2] = scriptEng.operands[i]; break;
+                    case VAR_TEMP3: scriptEng.temp[3] = scriptEng.operands[i]; break;
+                    case VAR_TEMP4: scriptEng.temp[4] = scriptEng.operands[i]; break;
+                    case VAR_TEMP5: scriptEng.temp[5] = scriptEng.operands[i]; break;
+                    case VAR_TEMP6: scriptEng.temp[6] = scriptEng.operands[i]; break;
+                    case VAR_TEMP7: scriptEng.temp[7] = scriptEng.operands[i]; break;
                     case VAR_CHECKRESULT: scriptEng.checkResult = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS0: scriptEng.arrayPosition[0] = scriptEng.operands[i]; break;
                     case VAR_ARRAYPOS1: scriptEng.arrayPosition[1] = scriptEng.operands[i]; break;
@@ -4529,7 +5187,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_LOCAL: scriptData[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_OBJECTENTITYPOS: break;
                     case VAR_OBJECTGROUPID: {
-                        objectEntityList[arrayVal].typeGroup = scriptEng.operands[i];
+                        objectEntityList[arrayVal].groupID = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTTYPE: {
@@ -4541,27 +5199,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i];
+                        objectEntityList[arrayVal].xpos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i];
+                        objectEntityList[arrayVal].ypos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i] << 16;
+                        objectEntityList[arrayVal].xpos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
+                        objectEntityList[arrayVal].ypos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTXVEL: {
-                        objectEntityList[arrayVal].XVelocity = scriptEng.operands[i];
+                        objectEntityList[arrayVal].xvel = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYVEL: {
-                        objectEntityList[arrayVal].YVelocity = scriptEng.operands[i];
+                        objectEntityList[arrayVal].yvel = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSPEED: {
@@ -4625,11 +5283,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        objectEntityList[arrayVal].camOffsetX = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosX = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        objectEntityList[arrayVal].lookPos = scriptEng.operands[i];
+                        objectEntityList[arrayVal].lookPosY = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
@@ -4693,27 +5351,27 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTSCROLLTRACKING: {
-                        objectEntityList[arrayVal].trackScroll = scriptEng.operands[i];
+                        objectEntityList[arrayVal].scrollTracking = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORL: {
-                        objectEntityList[arrayVal].flailing[0] = scriptEng.operands[i];
+                        objectEntityList[arrayVal].floorSensors[0] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORC: {
-                        objectEntityList[arrayVal].flailing[1] = scriptEng.operands[i];
+                        objectEntityList[arrayVal].floorSensors[1] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORR: {
-                        objectEntityList[arrayVal].flailing[2] = scriptEng.operands[i];
+                        objectEntityList[arrayVal].floorSensors[2] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORLC: {
-                        objectEntityList[arrayVal].flailing[3] = scriptEng.operands[i];
+                        objectEntityList[arrayVal].floorSensors[3] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORRC: {
-                        objectEntityList[arrayVal].flailing[4] = scriptEng.operands[i];
+                        objectEntityList[arrayVal].floorSensors[4] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONLEFT: {
@@ -4996,49 +5654,49 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_MUSICPOSITION: break;
-                    case VAR_INPUTDOWNUP: keyDown.up = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONX: keyDown.X = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONY: keyDown.Y = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONZ: keyDown.Z = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONL: keyDown.L = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONR: keyDown.R = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSELECT: keyDown.select = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSUP: keyPress.up = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONX: keyPress.X = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONY: keyPress.Y = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONZ: keyPress.Z = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONL: keyPress.L = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONR: keyPress.R = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSELECT: keyPress.select = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNUP: inputDown.up = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNDOWN: inputDown.down = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNLEFT: inputDown.left = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNRIGHT: inputDown.right = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONA: inputDown.A = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONB: inputDown.B = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONC: inputDown.C = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONX: inputDown.X = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONY: inputDown.Y = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONZ: inputDown.Z = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONL: inputDown.L = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNBUTTONR: inputDown.R = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNSTART: inputDown.start = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNSELECT: inputDown.select = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSUP: inputPress.up = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSDOWN: inputPress.down = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSLEFT: inputPress.left = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSRIGHT: inputPress.right = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONA: inputPress.A = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONB: inputPress.B = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONC: inputPress.C = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONX: inputPress.X = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONY: inputPress.Y = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONZ: inputPress.Z = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONL: inputPress.L = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSBUTTONR: inputPress.R = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSSTART: inputPress.start = scriptEng.operands[i]; break;
+                    case VAR_INPUTPRESSSELECT: inputPress.select = scriptEng.operands[i]; break;
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
-                    case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].width = scriptEng.operands[i]; break;
-                    case VAR_TILELAYERYSIZE: stageLayouts[arrayVal].height = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].xsize = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERYSIZE: stageLayouts[arrayVal].ysize = scriptEng.operands[i]; break;
                     case VAR_TILELAYERTYPE: stageLayouts[arrayVal].type = scriptEng.operands[i]; break;
                     case VAR_TILELAYERANGLE: {
-                        int angle = scriptEng.operands[i] + 512;
+                        int angle = scriptEng.operands[i] + 0x200;
                         if (scriptEng.operands[i] >= 0)
                             angle = scriptEng.operands[i];
                         stageLayouts[arrayVal].angle = angle & 0x1FF;
                         break;
                     }
-                    case VAR_TILELAYERXPOS: stageLayouts[arrayVal].XPos = scriptEng.operands[i]; break;
-                    case VAR_TILELAYERYPOS: stageLayouts[arrayVal].YPos = scriptEng.operands[i]; break;
-                    case VAR_TILELAYERZPOS: stageLayouts[arrayVal].ZPos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERXPOS: stageLayouts[arrayVal].xpos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERYPOS: stageLayouts[arrayVal].ypos = scriptEng.operands[i]; break;
+                    case VAR_TILELAYERZPOS: stageLayouts[arrayVal].zpos = scriptEng.operands[i]; break;
                     case VAR_TILELAYERPARALLAXFACTOR: stageLayouts[arrayVal].parallaxFactor = scriptEng.operands[i]; break;
                     case VAR_TILELAYERSCROLLSPEED: stageLayouts[arrayVal].scrollSpeed = scriptEng.operands[i]; break;
                     case VAR_TILELAYERSCROLLPOS: stageLayouts[arrayVal].scrollPos = scriptEng.operands[i]; break;

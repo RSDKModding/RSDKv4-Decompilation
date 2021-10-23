@@ -44,8 +44,10 @@ IniParser::IniParser(const char *filename, bool addPath)
         while (true) {
             ret  = (int)fRead(&buf[strLen++], sizeof(byte), 1, f);
             flag = ret == 0;
-            if (ret == 0)
+            if (ret == 0) {
+                strLen--;
                 break;
+            }
             if (buf[strLen - 1] == '\n')
                 break;
         }
@@ -153,7 +155,7 @@ int IniParser::SetString(const char *section, const char *key, char *value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -175,7 +177,7 @@ int IniParser::SetInteger(const char *section, const char *key, int value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -197,7 +199,7 @@ int IniParser::SetFloat(const char *section, const char *key, float value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -219,7 +221,7 @@ int IniParser::SetBool(const char *section, const char *key, bool value)
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 
@@ -241,7 +243,7 @@ int IniParser::SetComment(const char *section, const char *key, const char *comm
         }
     }
     if (where < 0) {
-        where = items.size();
+        where = (int)items.size();
         items.push_back(ConfigItem());
     }
 

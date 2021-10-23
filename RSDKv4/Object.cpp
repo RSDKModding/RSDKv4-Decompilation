@@ -4,8 +4,7 @@
 int nativeEntityPos;
 
 int activeEntityList[NATIVEENTITY_COUNT];
-int objectRemoveFlag[NATIVEENTITY_COUNT];
-NativeEntity *nativeEntityList[NATIVEENTITY_COUNT];
+byte objectRemoveFlag[NATIVEENTITY_COUNT];
 NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
 int nativeEntityCount = 0;
 
@@ -49,14 +48,8 @@ void ProcessStartupObjects()
     OBJECT_BORDER_X4           = SCREEN_XSIZE + 0x20;
     Entity *entity             = &objectEntityList[TEMPENTITY_START];
 
-    memset(foreachStack, -1, FORSTACK_COUNT * sizeof(int));
-    memset(jumpTableStack, 0, JUMPSTACK_COUNT * sizeof(int));
-
-#if !RETRO_USE_ORIGINAL_CODE
-    int flagStore  = GetGlobalVariableByName("options.stageSelectFlag");
-    int flagStore2 = GetGlobalVariableByName("options.saveSlot");
-    SetGlobalVariableByName("options.stageSelectFlag", 1); // temp, to allow game opts
-#endif
+    memset(foreachStack, -1, sizeof(foreachStack));
+    memset(jumpTableStack, 0, sizeof(jumpTableStack));
 
     for (int i = 0; i < OBJECT_COUNT; ++i) {
         ObjectScript *scriptInfo    = &objectScriptList[i];
@@ -66,47 +59,12 @@ void ProcessStartupObjects()
         scriptInfo->spriteSheetID   = 0;
         entity->type                = i;
 
-#if !RETRO_USE_ORIGINAL_CODE
-        // Man this is so hacky, I hope there's a better way to do this
-        if (StrComp("StageSetup", typeNames[i])) {
-            SetGlobalVariableByName("options.saveSlot", 0);
-        }
-#endif
-
         if (scriptData[scriptInfo->eventStartup.scriptCodePtr] > 0)
             ProcessScript(scriptInfo->eventStartup.scriptCodePtr, scriptInfo->eventStartup.jumpTablePtr, EVENT_SETUP);
         scriptInfo->frameCount = scriptFrameCount - scriptInfo->frameListOffset;
-
-#if !RETRO_USE_ORIGINAL_CODE
-        if (StrComp("StageSetup", typeNames[i])) {
-            SetGlobalVariableByName("options.saveSlot", flagStore2);
-        }
-#endif
     }
     entity->type  = 0;
     curObjectType = 0;
-
-#if !RETRO_USE_ORIGINAL_CODE
-    // Temp(?): forces game options to load on non-no save slots
-    SetGlobalVariableByName("options.stageSelectFlag", flagStore);
-    if (GetGlobalVariableByName("options.gameMode") == 1) {
-        if (Engine.gameType == GAME_SONIC1) {
-            SetGlobalVariableByName("options.spindash", saveRAM[0x101]);
-            SetGlobalVariableByName("options.speedCap", saveRAM[0x102]);
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-            SetGlobalVariableByName("options.superStates", saveRAM[0x106]);
-        }
-        else {
-            SetGlobalVariableByName("options.airSpeedCap", saveRAM[0x101]);
-            SetGlobalVariableByName("options.tailsFlight", saveRAM[0x102]);
-            SetGlobalVariableByName("options.superTails", saveRAM[0x103]);
-            SetGlobalVariableByName("options.spikeBehavior", saveRAM[0x104]);
-            SetGlobalVariableByName("options.shieldType", saveRAM[0x105]);
-        }
-    }
-#endif
 }
 
 void ProcessObjects()
@@ -117,8 +75,8 @@ void ProcessObjects()
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos >> 16;
-        y              = entity->YPos >> 16;
+        x              = entity->xpos >> 16;
+        y              = entity->ypos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
@@ -127,7 +85,7 @@ void ProcessObjects()
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
@@ -161,17 +119,18 @@ void ProcessObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
-                list->entityRefs[list->listSize++] = objectEntityPos;
+            // Custom Group
+            if (entity->groupID >= OBJECT_COUNT) {
+                TypeGroupList *listCustom                      = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
+                listCustom->entityRefs[listCustom->listSize++] = objectEntityPos;
             }
-            else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
-                list->entityRefs[list->listSize++] = objectEntityPos;
-            }
+            // Type-Specific list
+            TypeGroupList *listType                    = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+            listType->entityRefs[listType->listSize++] = objectEntityPos;
+
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
-            list->entityRefs[list->listSize++] = objectEntityPos;
+            TypeGroupList *listAll                   = &objectTypeGroupList[GROUP_ALL];
+            listAll->entityRefs[listAll->listSize++] = objectEntityPos;
         }
     }
 }
@@ -200,8 +159,8 @@ void ProcessFrozenObjects()
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos >> 16;
-        y              = entity->YPos >> 16;
+        x              = entity->xpos >> 16;
+        y              = entity->ypos >> 16;
 
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
@@ -210,7 +169,7 @@ void ProcessFrozenObjects()
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
@@ -244,17 +203,18 @@ void ProcessFrozenObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
-                list->entityRefs[list->listSize++] = objectEntityPos;
+            // Custom Group
+            if (entity->groupID >= OBJECT_COUNT) {
+                TypeGroupList *listCustom                      = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
+                listCustom->entityRefs[listCustom->listSize++] = objectEntityPos;
             }
-            else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
-                list->entityRefs[list->listSize++] = objectEntityPos;
-            }
+            // Type-Specific list
+            TypeGroupList *listType                    = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+            listType->entityRefs[listType->listSize++] = objectEntityPos;
+
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
-            list->entityRefs[list->listSize++] = objectEntityPos;
+            TypeGroupList *listAll                   = &objectTypeGroupList[GROUP_ALL];
+            listAll->entityRefs[listAll->listSize++] = objectEntityPos;
         }
     }
 }
@@ -263,54 +223,59 @@ void Process2PObjects()
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
     Entity *entityP1 = &objectEntityList[0];
-    int XPosP1       = entityP1->XPos;
-    int YPosP1       = entityP1->YPos;
+    int XPosP1       = entityP1->xpos;
+    int YPosP1       = entityP1->ypos;
     Entity *entityP2 = &objectEntityList[1];
-    int XPosP2       = entityP2->XPos;
-    int YPosP2       = entityP2->YPos;
+    int XPosP2       = entityP2->xpos;
+    int YPosP2       = entityP2->ypos;
+
+    int boundX1 = -(0x200 << 16);
+    int boundX2 = (0x200 << 16);
+    int boundX3 = -(0x180 << 16);
+    int boundX4 = (0x180 << 16);
+
+    int boundY1 = -(0x180 << 16);
+    int boundY2 = (0x180 << 16);
+    int boundY3 = -(0x100 << 16);
+    int boundY4 = (0x100 << 16);
 
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         processObjectFlag[objectEntityPos] = false;
         int x = 0, y = 0;
 
         Entity *entity = &objectEntityList[objectEntityPos];
-        x              = entity->XPos;
-        y              = entity->YPos;
+        x              = entity->xpos;
+        y              = entity->ypos;
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
-                processObjectFlag[objectEntityPos] =
-                    x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16) && y > YPosP1 - (0x180 << 16) && y < YPosP1 + (0x180 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2 && y > YPosP1 + boundY1 && y < YPosP1 + boundY2;
                 if (!processObjectFlag[objectEntityPos]) {
-                    processObjectFlag[objectEntityPos] =
-                        x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16) && y > YPosP2 - (0x180 << 16) && y < YPosP2 + (0x180 << 16);
+                    processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2 && y > YPosP2 + boundY1 && y < YPosP2 + boundY2;
                 }
                 break;
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE2: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
             case PRIORITY_ACTIVE_XBOUNDS:
-                processObjectFlag[objectEntityPos] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
-                    processObjectFlag[objectEntityPos] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
+                    processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2;
                 }
                 break;
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
-                processObjectFlag[objectEntityPos] = x > XPosP1 - (0x200 << 16) && x < XPosP1 + (0x200 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
-                    processObjectFlag[objectEntityPos] = x > XPosP2 - (0x200 << 16) && x < XPosP2 + (0x200 << 16);
+                    processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2;
                 }
 
-                if (!processObjectFlag[objectEntityPos]) {
+                if (!processObjectFlag[objectEntityPos])
                     entity->type = OBJ_TYPE_BLANKOBJECT;
-                }
                 break;
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
-                processObjectFlag[objectEntityPos] =
-                    x > XPosP1 - (0x180 << 16) && x < XPosP1 + (0x180 << 16) && y > YPosP1 - (0x100 << 16) && y < YPosP1 + (0x100 << 16);
+                processObjectFlag[objectEntityPos] = x > XPosP1 + boundX3 && x < XPosP1 + boundX4 && y > YPosP1 + boundY3 && y < YPosP1 + boundY4;
                 if (!processObjectFlag[objectEntityPos]) {
-                    processObjectFlag[objectEntityPos] =
-                        x > XPosP2 - (0x180 << 16) && x < XPosP2 + (0x180 << 16) && y > YPosP2 - (0x100 << 16) && y < YPosP2 + (0x100 << 16);
+                    processObjectFlag[objectEntityPos] = x > XPosP2 + boundX3 && x < XPosP2 + boundX4 && y > YPosP2 + boundY3 && y < YPosP2 + boundY4;
                 }
                 break;
             default: break;
@@ -331,49 +296,50 @@ void Process2PObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
         if (processObjectFlag[objectEntityPos] && entity->objectInteractions) {
-            if (entity->typeGroup < OBJECT_COUNT) {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
-                list->entityRefs[list->listSize++] = objectEntityPos;
+            // Custom Group
+            if (entity->groupID >= OBJECT_COUNT) {
+                TypeGroupList *listCustom                      = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
+                listCustom->entityRefs[listCustom->listSize++] = objectEntityPos;
             }
-            else {
-                TypeGroupList *list                = &objectTypeGroupList[objectEntityList[objectEntityPos].typeGroup];
-                list->entityRefs[list->listSize++] = objectEntityPos;
-            }
+            // Type-Specific list
+            TypeGroupList *listType                    = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
+            listType->entityRefs[listType->listSize++] = objectEntityPos;
+
             // All Entities list
-            TypeGroupList *list                = &objectTypeGroupList[0];
-            list->entityRefs[list->listSize++] = objectEntityPos;
+            TypeGroupList *listAll                   = &objectTypeGroupList[GROUP_ALL];
+            listAll->entityRefs[listAll->listSize++] = objectEntityPos;
         }
     }
 }
 
 void SetObjectTypeName(const char *objectName, int objectID)
 {
-    int objNameID  = 0;
-    int typeNameID = 0;
-    while (objectName[objNameID]) {
-        if (objectName[objNameID] != ' ')
-            typeNames[objectID][typeNameID++] = objectName[objNameID];
-        ++objNameID;
+    int objPos  = 0;
+    int typePos = 0;
+    while (objectName[objPos]) {
+        if (objectName[objPos] != ' ')
+            typeNames[objectID][typePos++] = objectName[objPos];
+        ++objPos;
     }
-    typeNames[objectID][typeNameID] = 0;
+    typeNames[objectID][typePos] = 0;
     printLog("Set Object (%d) name to: %s", objectID, objectName);
 }
 
-void ProcessPlayerControl(Entity *player)
+void ProcessObjectControl(Entity *player)
 {
     if (!player->controlMode) {
-        player->up   = keyDown.up;
-        player->down = keyDown.down;
-        if (!keyDown.left || !keyDown.right) {
-            player->left  = keyDown.left;
-            player->right = keyDown.right;
+        player->up   = inputDown.up;
+        player->down = inputDown.down;
+        if (!inputDown.left || !inputDown.right) {
+            player->left  = inputDown.left;
+            player->right = inputDown.right;
         }
         else {
             player->left  = false;
             player->right = false;
         }
-        player->jumpHold  = keyDown.C | keyDown.B | keyDown.A;
-        player->jumpPress = keyPress.C | keyPress.B | keyPress.A;
+        player->jumpHold  = inputDown.C || inputDown.B || inputDown.A;
+        player->jumpPress = inputPress.C || inputPress.B || inputPress.A;
     }
 }
 
@@ -382,82 +348,90 @@ void InitNativeObjectSystem()
     InitLocalizedStrings();
 
     nativeEntityCount = 0;
-    memset(activeEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectRemoveFlag, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(nativeEntityList, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase *));
-    memset(objectEntityBank, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(activeEntityList, 0, sizeof(activeEntityList));
+    memset(objectRemoveFlag, 0, sizeof(objectRemoveFlag));
+    memset(objectEntityBank, 0, sizeof(objectEntityBank));
 
     nativeEntityCountBackup = 0;
-    memset(backupEntityList, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectEntityBackup, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(backupEntityList, 0, sizeof(backupEntityList));
+    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
 
     nativeEntityCountBackupS = 0;
-    memset(backupEntityListS, 0, NATIVEENTITY_COUNT * sizeof(int));
-    memset(objectEntityBackupS, 0, NATIVEENTITY_COUNT * sizeof(NativeEntityBase));
+    memset(backupEntityListS, 0, sizeof(backupEntityListS));
+    memset(objectEntityBackupS, 0, sizeof(objectEntityBackupS));
 
     ReadSaveRAMData();
-    if (!saveRAM[32]) // if new save
-    {
-        saveRAM[32] = 1; // Not new save
-        saveRAM[33] = MAX_VOLUME;
-        saveRAM[34] = MAX_VOLUME;
-        saveRAM[35] = 1;
-        saveRAM[36] = 0; // Box-Region
-        saveRAM[37] = 64;
-        saveRAM[38] = 160;
-        saveRAM[39] = 56;
-        saveRAM[40] = 184;
-        saveRAM[41] = -56;
-        saveRAM[42] = 188;
-        saveRAM[43] = 0;
-        saveRAM[44] = 0;
-        saveRAM[45] = 0;
+
+    SaveGame *saveGame = (SaveGame *)saveRAM;
+    if (!saveGame->saveInitialized) {
+        saveGame->saveInitialized = true;
+        saveGame->musVolume       = MAX_VOLUME;
+        saveGame->sfxVolume       = MAX_VOLUME;
+        saveGame->spindashEnabled = true;
+        saveGame->boxRegion       = 0;
+        saveGame->vDPadSize       = 64;
+        saveGame->vDPadOpacity    = 160;
+        saveGame->vDPadX_Move     = 56;
+        saveGame->vDPadY_Move     = 184;
+        saveGame->vDPadX_Jump     = -56;
+        saveGame->vDPadY_Jump     = 188;
+        saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1;
+        saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1;
+        saveGame->unlockedActs    = 0;
         WriteSaveRAMData();
     }
-    saveRAM[33] = bgmVolume;
-    saveRAM[34] = sfxVolume;
+    saveGame->musVolume = bgmVolume;
+    saveGame->sfxVolume = sfxVolume;
 
-    if (!saveRAM[33])
-        musicEnabled = 0;
+    if (!saveGame->musVolume)
+        musicEnabled = false;
 
-    // if (!saveRAM[39])
-    //    _mm_storeu_si128((__m128i *)&saveRAM[39], _mm_load_si128((const __m128i *)&xmmword_8C670));
-    // globalBoxRegion[0] = saveRAM[36];
-    SetGameVolumes(saveRAM[33], saveRAM[34]);
-    // CreateNativeObject(SegaSplash_Create, SegaSplash_Main);
-    CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
+    if (!saveGame->vDPadX_Move) {
+        saveGame->vDPadX_Move = 60;
+        saveGame->vDPadY_Move = 176;
+        saveGame->vDPadX_Jump = -56;
+        saveGame->vDPadY_Jump = 180;
+    }
+
+    Engine.globalBoxRegion = saveGame->boxRegion;
+    SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
+    if (skipStartMenu) {
+        CREATE_ENTITY(RetroGameLoop);
+        if (Engine.gameDeviceType == RETRO_MOBILE)
+            CREATE_ENTITY(VirtualDPad);
+    }
+    else
+        CREATE_ENTITY(SegaSplash);
 }
-NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
+NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {
     if (!nativeEntityCount) {
-        NativeEntity *entity = objectEntityBank;
-        memset(objectEntityBank, 0, sizeof(NativeEntityBase));
-        entity->createPtr   = objCreate;
-        entity->mainPtr     = objMain;
-        activeEntityList[0] = 0;
+        memset(objectEntityBank, 0, sizeof(objectEntityBank));
+        NativeEntity *entity = &objectEntityBank[0];
+        entity->createPtr    = create;
+        entity->mainPtr      = main;
+        activeEntityList[0]  = 0;
         nativeEntityCount++;
         if (entity->createPtr)
             entity->createPtr(entity);
         return entity;
     }
-    else if (nativeEntityCount >= 0xFF) {
+    else if (nativeEntityCount >= NATIVEENTITY_COUNT) {
         // TODO
         return NULL;
     }
     else {
-        NativeEntity *entity = objectEntityBank;
-        int slot             = 0;
-        while (entity->mainPtr) {
-            ++entity;
-            ++slot;
-            if (slot >= NATIVEENTITY_COUNT)
-                return entity;
+        int slot = 0;
+        for (; slot < NATIVEENTITY_COUNT; ++slot) {
+            if (!objectEntityBank[slot].mainPtr)
+                break;
         }
+        NativeEntity *entity = &objectEntityBank[slot];
         memset(entity, 0, sizeof(NativeEntity));
         entity->slotID                        = slot;
         entity->objectID                      = nativeEntityCount;
-        entity->createPtr                     = objCreate;
-        entity->mainPtr                       = objMain;
+        entity->createPtr                     = create;
+        entity->mainPtr                       = main;
         activeEntityList[nativeEntityCount++] = slot;
         if (entity->createPtr)
             entity->createPtr(entity);
@@ -466,52 +440,85 @@ NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain
 }
 void RemoveNativeObject(NativeEntityBase *entity)
 {
-    for (int o = 0; o < nativeEntityCount; ++o) {
-        if (objectEntityBank[o].createPtr == entity->createPtr && objectEntityBank[o].mainPtr == entity->mainPtr
-            && objectEntityBank[o].slotID == entity->slotID && objectEntityBank[o].objectID == entity->objectID) {
-            objectEntityBank[o].createPtr = nullptr;
-            objectEntityBank[o].mainPtr   = nullptr;
-            objectEntityBank[o].slotID    = 0;
-            objectEntityBank[o].objectID  = 0;
-
-            nativeEntityCount--;
-            for (int i = o; i < nativeEntityCount; ++i) {
-                objectEntityBank[i].createPtr = objectEntityBank[i + 1].createPtr;
-                objectEntityBank[i].mainPtr   = objectEntityBank[i + 1].mainPtr;
-                objectEntityBank[i].slotID    = objectEntityBank[i + 1].slotID;
-                objectEntityBank[i].objectID  = objectEntityBank[i + 1].objectID;
-            }
-        }
-    }
-
-    /*if (nativeEntityCount <= 0) {
-        objectRemoveFlag[entity->slotID] = 1;
+    if (nativeEntityCount <= 0) {
+        objectRemoveFlag[entity->slotID] = true;
     }
     else {
         memset(objectRemoveFlag, 0, nativeEntityCount);
         int slotStore                    = 0;
-        objectRemoveFlag[entity->slotID] = 1;
-        int curSlot                      = 0;
-        do {
-            if (!objectRemoveFlag[curSlot]) {
-                if (curSlot != slotStore) {
-                    int store                   = activeEntityList[curSlot];
-                    objectRemoveFlag[slotStore] = 0;
+        objectRemoveFlag[entity->slotID] = true;
+        int s                            = 0;
+        for (; s < nativeEntityCount; ++s) {
+            if (!objectRemoveFlag[s]) {
+                if (s != slotStore) {
+                    int store                   = activeEntityList[s];
+                    objectRemoveFlag[slotStore] = false;
                     activeEntityList[slotStore] = store;
                 }
                 ++slotStore;
             }
-            ++curSlot;
-        } while (curSlot != nativeEntityCount);
-        nativeEntityCount = curSlot - 1;
-    }*/
+        }
+        nativeEntityCount = s - 1;
+    }
+}
+void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void (*main)(void *objPtr))
+{
+    int slotID = obj->slotID;
+    int objID  = obj->objectID;
+    memset(&objectEntityBank[slotID], 0, sizeof(NativeEntity));
+    obj->slotID    = slotID;
+    obj->mainPtr   = main;
+    obj->createPtr = create;
+    obj->objectID  = objID;
+    if (create)
+        create(obj);
 }
 void ProcessNativeObjects()
 {
-    // ResetRenderStates();
+    ResetRenderStates();
     for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
         NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
         entity->mainPtr(entity);
     }
-    // RenderScene();
+    RenderScene();
+}
+
+void RestoreNativeObjects()
+{
+    memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!nativeEntityCountBackup) {
+        CREATE_ENTITY(SegaSplash);
+        nativeEntityCountBackup = 1;
+    }
+#endif
+    nativeEntityCount = nativeEntityCountBackup;
+
+    CREATE_ENTITY(FadeScreen)->state = FADESCREEN_STATE_MENUFADEIN;
+}
+
+void RestoreNativeObjectsNoFade()
+{
+    memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!nativeEntityCountBackup) {
+        CREATE_ENTITY(SegaSplash);
+        nativeEntityCountBackup = 1;
+    }
+#endif
+    nativeEntityCount = nativeEntityCountBackup;
+}
+void RestoreNativeObjectsSettings()
+{
+    memcpy(activeEntityList, backupEntityListS, sizeof(activeEntityList));
+    memcpy(objectEntityBank, objectEntityBackupS, sizeof(objectEntityBank));
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!nativeEntityCountBackupS) {
+        CREATE_ENTITY(SegaSplash);
+        nativeEntityCountBackupS = 1;
+    }
+#endif
+    nativeEntityCount = nativeEntityCountBackupS;
 }

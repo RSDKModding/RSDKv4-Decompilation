@@ -2,7 +2,7 @@
 #define DRAWING3D_H
 
 #define VERTEXBUFFER_SIZE (0x1000)
-#define FACEBUFFER_SIZE (0x400)
+#define FACEBUFFER_SIZE   (0x400)
 
 enum FaceFlags {
     FACE_FLAG_TEXTURED_3D = 0,
