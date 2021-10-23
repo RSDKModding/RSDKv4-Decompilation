@@ -45,18 +45,18 @@ bool useSGame = false;
 #if RETRO_PLATFORM == RETRO_LINUX
 std::string getXDGDataPath()
 {
-    std::ostringstream oss;
-    const char *dataHome = getenv("XDG_DATA_HOME");
-
-    if (dataHome == NULL || dataHome[0] == '\0') {
-        const char *home = getenv("HOME");
-        oss << home << "/.local/share/RSDKv4";
+    std::string path;
+    char const *dataHome = getenv("XDG_DATA_HOME");
+    if (dataHome == NULL) {
+        char const *home = getenv("HOME");
+        path += home;
+        path += "/.local/share";
     }
     else {
-        oss << dataHome << "/RSDKv4";
+        path += dataHome;
     }
-
-    return oss.str();
+    path += "/RSDKv4";
+    return path;
 }
 #endif
 
