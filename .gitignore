@@ -275,3 +275,8 @@ objects/
 .idea/
 android/key/
 android/local.properties
+
+# Linux
+.flatpak-builder
+flatpak/*.apk
+build-dir
