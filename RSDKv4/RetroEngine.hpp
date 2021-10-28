@@ -171,7 +171,6 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
 #else
 #include <GL/glew.h>
-#include <GL/glu.h>
 #endif
 #endif
 
