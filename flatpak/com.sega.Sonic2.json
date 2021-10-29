@@ -15,17 +15,6 @@
         "shared-modules/glew/glew.json",
         "shared-modules/glu/glu-9.json",
         {
-            "name": "asio",
-            "sources": [
-                {
-                    "type": "archive",
-                    "archive-type": "zip",
-                    "url": "https://sourceforge.net/projects/asio/files/asio/1.20.0%20%28Stable%29/asio-1.20.0.zip/download",
-                    "sha256": "c6c401ab08432efb681728ad0c7407eee08143192c15dc7f38c713e83cc1d9d2"
-                }
-            ]
-        },
-        {
             "name": "sonic2",
             "no-autogen": true,
             "make-args": [

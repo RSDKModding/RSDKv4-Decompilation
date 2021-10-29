@@ -46,6 +46,7 @@ cmake/
 ![Dd]ependencies/all/dependencies.txt
 ![Dd]ependencies/all/stb-image
 ![Dd]ependencies/all/tinyxml2
+![Dd]ependencies/all/asio
 ![Dd]ependencies/windows/dependencies.txt
 ![Dd]ependencies/ios/dependencies.txt
 ![Dd]ependencies/mac/dependencies.txt
