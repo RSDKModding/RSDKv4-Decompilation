@@ -17,7 +17,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 
 # Additional Tweaks
 * Added a built in script compiler. Similar to the one found in RSDKv3, but tweaked up to match the new syntax for the scripts used in RSDKv4.
-* Added a built in mod loader and API allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig/StageConfig data.
+* Added a built in mod loader and API allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
 * Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * Dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
