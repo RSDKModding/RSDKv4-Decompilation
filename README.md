@@ -79,7 +79,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 
 ## Other platforms
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
-If you've cloned this repo and ported it to a platform not on the list or made some changes you'd like to see added to this repo, submit a pull request and it'll most likely be added.
+If you're able to, you can clone this repo and port it to a platform not on the list.
 
 # FAQ
 ### Q: The screen is tearing, how do I fix it?
