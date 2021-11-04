@@ -85,7 +85,7 @@ If you're able to, you can clone this repo and port it to a platform not on the 
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
 
-### Q: I found a bug/I have a feature request!
+### Q: I found a bug!
 A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any future releases, however.
 
 ### Q: Will you do a decompilation for Sonic CD (2011)?
