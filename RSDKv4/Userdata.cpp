@@ -903,7 +903,9 @@ void Connect2PVS(int *gameLength, int *itemMode)
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
+#if RETRO_USE_NETWORKING
     Engine.gameMode        = ENGINE_CONNECT2PVS;
+#endif
     // PauseSound();
     // actual connection code
     vsGameLength = *gameLength;
