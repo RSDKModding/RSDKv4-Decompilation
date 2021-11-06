@@ -78,6 +78,7 @@ Follow the installation instructions in the readme of each branch.
 * For the **Nintendo 3DS**, go to [JeffRuLz's fork](https://github.com/JeffRuLz/Sonic-1-2-2013-Decompilation).
   * A New Nintendo 3DS is required for the games to run smoothly.
 * To play it on the web using **Wasm**, go to [mattConn's fork](https://github.com/mattConn/Sonic-Decompilation-WASM).
+
 Because these branches are unofficial, we can't provide support for them and they may not be up-to-date.
 
 ## Other Platforms
