@@ -72,12 +72,15 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
 ## Unofficial Branches
+Follow the installation instructions in the readme of each branch.
+* For the **PlayStation Vita**, go to [Xeeynamo's fork](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation).
+* For the **Nintendo Switch**, go to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation).
+* For the **Nintendo 3DS**, go to [JeffRuLz's fork](https://github.com/JeffRuLz/Sonic-1-2-2013-Decompilation).
+  * A New Nintendo 3DS is required for the games to run smoothly.
+* To play it on the web using **Wasm**, go to [mattConn's fork](https://github.com/mattConn/Sonic-Decompilation-WASM).
+Because these branches are unofficial, we can't provide support for them and they may not be up-to-date.
 
-* For **Vita** installation, [Xeeynamo's vita branch](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation) has you covered.
-* For the **Nintendo Switch**, go to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation) and follow the installation instructions in the readme.
-* To play it on the web using **Wasm**, use [mattConn's fork](https://github.com/mattConn/Sonic-Decompilation-WASM) and follow the installation instructions in the readme.
-
-## Other platforms
+## Other Platforms
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
 If you're able to, you can clone this repo and port it to a platform not on the list.
 
