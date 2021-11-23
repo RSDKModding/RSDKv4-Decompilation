@@ -55,14 +55,23 @@ struct InputButton {
     inline bool down() { return (press || hold); }
 };
 
-extern InputData keyPress;
-extern InputData keyDown;
+enum DefaultHapticIDs {
+    HAPTIC_NONE = -2,
+    HAPTIC_STOP = -1,
+};
+
+extern InputData inputPress;
+extern InputData inputDown;
 
 extern int touchDown[8];
 extern int touchX[8];
 extern int touchY[8];
 extern int touchID[8];
+extern float touchXF[8];
+extern float touchYF[8];
 extern int touches;
+
+extern int hapticEffectNum;
 
 #if !RETRO_USE_ORIGINAL_CODE
 extern InputButton inputDevice[INPUT_MAX];
@@ -105,10 +114,24 @@ extern byte keyState[SDLK_LAST];
 extern SDL_Joystick *controller;
 #endif
 
+void InitInputDevices();
+void ReleaseInputDevices();
+
 void ProcessInput();
 #endif
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
+
+int CheckTouchRect(float x1, float y1, float x2, float y2);
+int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2);
+
+inline int GetHapticEffectNum()
+{
+    int num         = hapticEffectNum;
+    hapticEffectNum = HAPTIC_NONE;
+    return num;
+}
+void HapticEffect(int *id, int *a2, int *a3, int *a4);
 
 #endif // !INPUT_H

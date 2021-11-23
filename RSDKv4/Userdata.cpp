@@ -11,30 +11,28 @@ int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
 
-int (*nativeFunction[16])(int, void *);
+void *nativeFunction[NATIIVEFUNCTION_MAX];
 int nativeFunctionCount = 0;
 
 char gamePath[0x100];
-char modsPath[0x100];
 int saveRAM[SAVEDATA_MAX];
 Achievement achievements[ACHIEVEMENT_MAX];
-LeaderboardEntry leaderboard[LEADERBOARD_MAX];
+int achievementCount = 0;
+
+LeaderboardEntry leaderboards[LEADERBOARD_MAX];
 
 MultiplayerData multiplayerDataIN  = MultiplayerData();
 MultiplayerData multiplayerDataOUT = MultiplayerData();
 int matchValueData[0x100];
-int matchValueReadPos  = 0;
-int matchValueWritePos = 0;
+byte matchValueReadPos  = 0;
+byte matchValueWritePos = 0;
 
-int sendDataMethod = 0;
-int sendCounter    = 0;
+int vsGameLength = 4;
+int vsItemMode   = 1;
+int vsPlayerID   = 0;
+bool vsPlaying   = false;
 
-#if RETRO_USE_MOD_LOADER
-ModInfo modList[MOD_MAX];
-int modCount         = 0;
-
-#include <filesystem>
-#endif
+int sendCounter = 0;
 
 #if RETRO_PLATFORM == RETRO_OSX
 #include <sys/stat.h>
@@ -42,8 +40,96 @@ int modCount         = 0;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-bool forceUseScripts = false;
-bool skipStartMenu   = false;
+bool forceUseScripts          = false;
+bool forceUseScripts_Config   = false;
+bool skipStartMenu            = false;
+bool skipStartMenu_Config     = false;
+bool disableFocusPause        = false;
+bool disableFocusPause_Config = false;
+
+bool useSGame = false;
+
+bool ReadSaveRAMData()
+{
+    useSGame = false;
+    char buffer[0x180];
+#if RETRO_PLATFORM == RETRO_UWP
+    if (!usingCWD)
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+    else
+        sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+    sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+
+    FileIO *saveFile = fOpen(buffer, "rb");
+    if (!saveFile) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+
+        saveFile = fOpen(buffer, "rb");
+        if (!saveFile)
+            return false;
+        useSGame = true;
+    }
+    fRead(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fClose(saveFile);
+    return true;
+}
+
+bool WriteSaveRAMData()
+{
+    char buffer[0x180];
+    if (!useSGame) {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+    }
+    else {
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
+        else
+            sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#else
+        sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
+#endif
+    }
+
+    FileIO *saveFile = fOpen(buffer, "wb");
+    if (!saveFile)
+        return false;
+    fWrite(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fClose(saveFile);
+    return true;
+}
 
 void InitUserdata()
 {
@@ -54,17 +140,35 @@ void InitUserdata()
 #if RETRO_PLATFORM == RETRO_OSX
     sprintf(gamePath, "%s/RSDKv4", getResourcesPath());
     sprintf(modsPath, "%s/RSDKv4/", getResourcesPath());
-    
+
     mkdir(gamePath, 0777);
+#elif RETRO_PLATFORM == RETRO_ANDROID
+    {
+        char buffer[0x200];
+
+        JNIEnv *env      = (JNIEnv *)SDL_AndroidGetJNIEnv();
+        jobject activity = (jobject)SDL_AndroidGetActivity();
+        jclass cls(env->GetObjectClass(activity));
+        jmethodID method = env->GetMethodID(cls, "getBasePath", "()Ljava/lang/String;");
+        auto ret         = env->CallObjectMethod(activity, method);
+
+        strcpy(buffer, env->GetStringUTFChars((jstring)ret, NULL));
+
+        sprintf(gamePath, "%s", buffer);
+        sprintf(modsPath, "%s", buffer);
+
+        env->DeleteLocalRef(activity);
+        env->DeleteLocalRef(cls);
+    }
 #endif
-    
+
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
         sprintf(buffer, "%s/settings.ini", getResourcesPath());
     else
         sprintf(buffer, "%ssettings.ini", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
+#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     sprintf(buffer, "%s/settings.ini", gamePath);
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
@@ -75,6 +179,8 @@ void InitUserdata()
 
         ini.SetBool("Dev", "DevMenu", Engine.devMenu = false);
         ini.SetBool("Dev", "EngineDebugMode", engineDebugMode = false);
+        ini.SetBool("Dev", "TxtScripts", forceUseScripts = false);
+        forceUseScripts_Config = forceUseScripts;
         ini.SetInteger("Dev", "StartingCategory", Engine.startList = 255);
         ini.SetInteger("Dev", "StartingScene", Engine.startStage = 255);
         ini.SetInteger("Dev", "StartingPlayer", Engine.startPlayer = 255);
@@ -98,6 +204,9 @@ void InitUserdata()
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
+        skipStartMenu_Config = skipStartMenu;
+        ini.SetBool("Game", "DisableFocusPause", disableFocusPause = false);
+        disableFocusPause_Config = disableFocusPause;
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -106,9 +215,10 @@ void InitUserdata()
         #else
         ini.SetBool("Window", "VSync", Engine.vsync = false);
         #endif
-        ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = RETRO_DEFAULTSCALINGMODE);
+        ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = 0);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
-        ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE);
+        ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE);
+        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
         ini.SetInteger("Window", "DimLimit", Engine.dimLimit = 300);
         Engine.dimLimit *= Engine.refreshRate;
@@ -190,16 +300,19 @@ void InitUserdata()
         ini.SetFloat("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE = 0.3);
 #endif
 
-        ini.Write(BASE_PATH "settings.ini");
+        ini.Write(buffer);
     }
     else {
         fClose(file);
-        IniParser ini(BASE_PATH "settings.ini");
+        IniParser ini(buffer, false);
 
         if (!ini.GetBool("Dev", "DevMenu", &Engine.devMenu))
             Engine.devMenu = false;
         if (!ini.GetBool("Dev", "EngineDebugMode", &engineDebugMode))
             engineDebugMode = false;
+        if (!ini.GetBool("Dev", "TxtScripts", &forceUseScripts))
+            forceUseScripts = false;
+        forceUseScripts_Config = forceUseScripts;
         if (!ini.GetInteger("Dev", "StartingCategory", &Engine.startList))
             Engine.startList = 255;
         if (!ini.GetInteger("Dev", "StartingScene", &Engine.startStage))
@@ -232,6 +345,17 @@ void InitUserdata()
             Engine.language = RETRO_EN;
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
             skipStartMenu = false;
+        skipStartMenu_Config = skipStartMenu;
+        if (!ini.GetBool("Game", "DisableFocusPause", &disableFocusPause))
+            disableFocusPause = false;
+        disableFocusPause_Config = disableFocusPause;
+
+#if RETRO_USE_NETWORKING
+        if (!ini.GetString("Network", "Host", networkHost))
+            StrCopy(networkHost, "127.0.0.1");
+        if (!ini.GetInteger("Network", "Port", &networkPort))
+            networkPort = 50;
+#endif
 
         if (!ini.GetBool("Window", "FullScreen", &Engine.startFullScreen))
             Engine.startFullScreen = DEFAULT_FULLSCREEN;
@@ -244,11 +368,12 @@ void InitUserdata()
             Engine.vsync = false;
             #endif
         if (!ini.GetInteger("Window", "ScalingMode", &Engine.scalingMode))
-            Engine.scalingMode = RETRO_DEFAULTSCALINGMODE;
+            Engine.scalingMode = 0;
         if (!ini.GetInteger("Window", "WindowScale", &Engine.windowScale))
             Engine.windowScale = 2;
-        if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE))
-            SCREEN_XSIZE = DEFAULT_SCREEN_XSIZE;
+        if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE_CONFIG))
+            SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE;
+        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
         if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
             Engine.refreshRate = 60;
         if (!ini.GetInteger("Window", "DimLimit", &Engine.dimLimit))
@@ -334,7 +459,6 @@ void InitUserdata()
         if (!ini.GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
             inputDevice[INPUT_SELECT].contMappings = SDL_CONTROLLER_BUTTON_GUIDE;
 
-        
         if (!ini.GetFloat("Controller 1", "LStickDeadzone", &LSTICK_DEADZONE))
             LSTICK_DEADZONE = 0.3;
         if (!ini.GetFloat("Controller 1", "RStickDeadzone", &RSTICK_DEADZONE))
@@ -415,8 +539,6 @@ void InitUserdata()
 #endif
     }
 
-    SetScreenSize(SCREEN_XSIZE, SCREEN_YSIZE);
-
 #if RETRO_USING_SDL2
     // Support for extra controller types SDL doesn't recognise
 #if RETRO_PLATFORM == RETRO_UWP
@@ -424,7 +546,7 @@ void InitUserdata()
         sprintf(buffer, "%s/controllerdb.txt", getResourcesPath());
     else
         sprintf(buffer, "%scontrollerdb.txt", gamePath);
-#elif RETRO_PLATFORM == RETRO_OSX
+#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     sprintf(buffer, "%s/controllerdb.txt", gamePath);
 #else
     sprintf(buffer, BASE_PATH "controllerdb.txt");
@@ -468,6 +590,8 @@ void writeSettings()
     ini.SetComment("Dev", "DebugModeComment",
                    "Enable this flag to activate features used for debugging the engine (may result in slightly slower game speed)");
     ini.SetBool("Dev", "EngineDebugMode", engineDebugMode);
+    ini.SetComment("Dev", "ScriptsComment", "Enable this flag to force the engine to load from the scripts folder instead of from bytecode");
+    ini.SetBool("Dev", "TxtScripts", forceUseScripts_Config);
     ini.SetComment("Dev", "SCComment", "Sets the starting category ID");
     ini.SetInteger("Dev", "StartingCategory", Engine.startList);
     ini.SetComment("Dev", "SSComment", "Sets the starting scene ID");
@@ -502,7 +626,16 @@ void writeSettings()
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
     ini.SetComment("Game", "SSMenuComment", "if set to true, disables the start menu");
-    ini.SetBool("Game", "SkipStartMenu", skipStartMenu);
+    ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
+    ini.SetComment("Game", "DFPMenuComment", "if set to true, disables the game pausing when focus is lost");
+    ini.SetBool("Game", "DisableFocusPause", disableFocusPause_Config);
+
+#if RETRO_USE_NETWORKING
+    ini.SetComment("Network", "HostComment", "The host (IP address or \"URL\") that the game will try to connect to.");
+    ini.SetString("Network", "Host", networkHost);
+    ini.SetComment("Network", "PortComment", "The port the game will try to connect to.");
+    ini.SetInteger("Network", "Port", networkPort);
+#endif
 
     ini.SetComment("Window", "FSComment", "Determines if the window will be fullscreen or not");
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
@@ -510,15 +643,12 @@ void writeSettings()
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
     ini.SetBool("Window", "VSync", Engine.vsync);
-    ini.SetComment("Window", "SMComment",
-                   "Determines what scaling is used. 0 is nearest neighbour, 1 is integer scale, 2 is sharp bilinear, and 3 is regular bilinear.");
-    ini.SetComment("Window", "SMWarning",
-                   "Note: Not all scaling options work correctly on certain platforms, as they don't support bilinear filtering.");
+    ini.SetComment("Window", "SMComment", "Determines what scaling is used. 0 is nearest neighbour and 1 is integer scale.");
     ini.SetInteger("Window", "ScalingMode", Engine.scalingMode);
     ini.SetComment("Window", "WSComment", "How big the window will be");
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
     ini.SetComment("Window", "SWComment", "How wide the base screen will be in pixels");
-    ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE);
+    ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG);
     ini.SetComment("Window", "RRComment", "Determines the target FPS");
     ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
     ini.SetComment("Window", "DLComment", "Determines the dim timer in seconds, set to -1 to disable dimming");
@@ -528,7 +658,8 @@ void writeSettings()
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_Scancode)");
+    ini.SetComment("Keyboard 1", "IK1Comment",
+                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
 #endif
 #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
@@ -549,7 +680,8 @@ void writeSettings()
     ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1 (Based on: https://wiki.libsdl.org/SDL_GameControllerButton)");
+    ini.SetComment("Controller 1", "IC1Comment",
+                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
     ini.SetComment("Controller 1", "IC1Comment3", "CONTROLLER_BUTTON_ZL             = 16");
     ini.SetComment("Controller 1", "IC1Comment4", "CONTROLLER_BUTTON_ZR             = 17");
@@ -583,7 +715,20 @@ void writeSettings()
     ini.SetFloat("Controller 1", "LTriggerDeadzone", LTRIGGER_DEADZONE);
     ini.SetFloat("Controller 1", "RTriggerDeadzone", RTRIGGER_DEADZONE);
 
-    ini.Write(BASE_PATH "settings.ini");
+    char buffer[0x100];
+
+#if RETRO_PLATFORM == RETRO_UWP
+    if (!usingCWD)
+        sprintf(buffer, "%s/settings.ini", getResourcesPath());
+    else
+        sprintf(buffer, "%ssettings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_OSX
+    sprintf(buffer, "%s/settings.ini", gamePath);
+#else
+    sprintf(buffer, "%ssettings.ini", gamePath);
+#endif
+
+    ini.Write(buffer, false);
 }
 
 void ReadUserdata()
@@ -591,13 +736,15 @@ void ReadUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
-        sprintf(buffer, "%s/UData.bin", getResourcesPath());
+        sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
     else
-        sprintf(buffer, "%sUData.bin", gamePath);
+        sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/UData.bin", gamePath);
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
 #else
-    sprintf(buffer, "%sUData.bin", gamePath);
+    sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
     FileIO *userFile = fOpen(buffer, "rb");
     if (!userFile)
@@ -610,7 +757,9 @@ void ReadUserdata()
     }
     for (int l = 0; l < LEADERBOARD_MAX; ++l) {
         fRead(&buf, 4, 1, userFile);
-        leaderboard[l].status = buf;
+        leaderboards[l].score = buf;
+        if (!leaderboards[l].score)
+            leaderboards[l].score = 0x7FFFFFF;
     }
 
     fClose(userFile);
@@ -625,20 +774,22 @@ void WriteUserdata()
     char buffer[0x100];
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
-        sprintf(buffer, "%s/UData.bin", getResourcesPath());
+        sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getResourcesPath(), savePath);
     else
-        sprintf(buffer, "%sUData.bin", gamePath);
+        sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_OSX
-    sprintf(buffer, "%s/UData.bin", gamePath);
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
+#elif RETRO_PLATFORM == RETRO_iOS
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
 #else
-    sprintf(buffer, "%sUData.bin", gamePath);
+    sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
     FileIO *userFile = fOpen(buffer, "wb");
     if (!userFile)
         return;
 
     for (int a = 0; a < ACHIEVEMENT_MAX; ++a) fWrite(&achievements[a].status, 4, 1, userFile);
-    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboard[l].status, 4, 1, userFile);
+    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboards[l].score, 4, 1, userFile);
 
     fClose(userFile);
 
@@ -666,174 +817,213 @@ void AwardAchievement(int id, int status)
 #endif
 }
 
-int SetAchievement(int achievementID, void *achDone)
+void SetAchievement(int *achievementID, int *status)
 {
-    int achievementDone = static_cast<int>(reinterpret_cast<intptr_t>(achDone));
     if (!Engine.trialMode && !debugMode) {
-        AwardAchievement(achievementID, achievementDone);
+        AwardAchievement(*achievementID, *status);
+    }
+}
+#if RETRO_USE_MOD_LOADER
+void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[achievementCount++].name, name); }
+void SetAchievementDescription(int *id, const char *desc) { StrCopy(achievements[*id].desc, desc); }
+void ClearAchievements() { achievementCount = 0; }
+void GetAchievementCount() { scriptEng.checkResult = achievementCount; }
+void GetAchievementName(uint *id, int *textMenu)
+{
+    if (*id >= achievementCount)
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = false;
+    AddTextMenuEntry(menu, achievements[*id].name);
+}
+void GetAchievementDescription(uint *id, int *textMenu)
+{
+    if (*id >= achievementCount)
+        return;
+
+    TextMenu *menu                       = &gameMenu[*textMenu];
+    menu->entryHighlight[menu->rowCount] = false;
+    AddTextMenuEntry(menu, achievements[*id].desc);
+}
+void GetAchievement(uint *id, void *unused)
+{
+    if (*id >= achievementCount)
+        return;
+    scriptEng.checkResult = achievements[*id].status;
+}
+#endif
+void ShowAchievementsScreen()
+{
+#if !RETRO_USE_ORIGINAL_CODE
+    CREATE_ENTITY(AchievementsMenu);
+#endif
+}
+
+int SetLeaderboard(int *leaderboardID, int *score)
+{
+    if (!Engine.trialMode && !debugMode) {
+        // 0  = GHZ1/EHZ1
+        // 1  = GHZ2/EHZ1
+        // 2  = GHZ3/CPZ1
+        // 3  = MZ1/CPZ1
+        // 4  = MZ2/ARZ1
+        // 5  = MZ3/ARZ1
+        // 6  = SYZ1/CNZ1
+        // 7  = SYZ2/CNZ1
+        // 8  = SYZ3/HTZ1
+        // 9  = LZ1/HTZ1
+        // 10 = LZ2/MCZ1
+        // 11 = LZ3/MCZ1
+        // 12 = SLZ1/OOZ1
+        // 13 = SLZ2/OOZ1
+        // 14 = SLZ3/MPZ1
+        // 15 = SBZ1/MPZ2
+        // 15 = SBZ2/MPZ3
+        // 16 = SBZ3/SCZ
+        // 17 = ???/WFZ
+        // 18 = ???/DEZ
+        // 19 = TotalScore (S1)/???
+        // 20 = ???
+        // 21 = HPZ
+        // 22 = TotalScore (S2)
+#if !RETRO_USE_ORIGINAL_CODE
+        if (*score < leaderboards[*leaderboardID].score) {
+            printLog("Set leaderboard (%d) value to %d", *leaderboardID, score);
+            leaderboards[*leaderboardID].score = *score;
+            WriteUserdata();
+        }
+        else {
+            printLog("Attempted to set leaderboard (%d) value to %d... but score was already %d!", *leaderboardID, *score,
+                     leaderboards[*leaderboardID].score);
+        }
+#endif
         return 1;
     }
     return 0;
 }
-int SetLeaderboard(int leaderboardID, void *res)
+void ShowLeaderboardsScreen()
 {
-    int result = static_cast<int>(reinterpret_cast<intptr_t>(res));
-    if (!Engine.trialMode && !debugMode) {
-        printLog("Set leaderboard (%d) value to %d", leaderboard, result);
-        switch (leaderboardID) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17:
-            case 18:
-            case 19:
-            case 20:
-            case 21:
-                leaderboard[leaderboardID].status = result;
-#if !RETRO_USE_ORIGINAL_CODE
-                WriteUserdata();
-#endif
-                return 1;
-        }
-    }
-    return 0;
+    /*TODO*/
+    printLog("we're showing the leaderboards screen");
 }
 
-int Connect2PVS(int gameLength, void *itemMode)
+bool disableFocusPause_Store = false;
+void Connect2PVS(int *gameLength, int *itemMode)
 {
-    printLog("Attempting to connect to 2P game (%d) (%p)", gameLength, itemMode);
+    printLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
 
     multiplayerDataIN.type = 0;
     matchValueData[0]      = 0;
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
+#if RETRO_USE_NETWORKING
     Engine.gameMode        = ENGINE_CONNECT2PVS;
-    PauseSound();
-
+#endif
+    // PauseSound();
     // actual connection code
+    vsGameLength = *gameLength;
+    vsItemMode   = *itemMode;
     if (Engine.onlineActive) {
-        // Do online code
-        return 1;
+#if RETRO_USE_NETWORKING
+        disableFocusPause_Store = disableFocusPause;
+        disableFocusPause       = true;
+        runNetwork();
+#endif
     }
-    return 0;
 }
-int Disconnect2PVS(int a1, void *a2)
+void Disconnect2PVS()
 {
-    printLog("Attempting to disconnect from 2P game (%d) (%p)", a1, a2);
+    printLog("Attempting to disconnect from 2P game");
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+        disableFocusPause = disableFocusPause_Store;
+        // Engine.devMenu    = vsPlayerID;
+        vsPlaying = false;
+        disconnectNetwork();
+        initNetwork();
 #endif
-        return 1;
     }
-    return 0;
 }
-int SendEntity(int dataSlot, void *entityID)
+void SendEntity(int *entityID, void *unused)
 {
-    printLog("Attempting to send entity (%d) (%p)", dataSlot, entityID);
-
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
-        memcpy(multiplayerDataOUT.data, &objectEntityList[static_cast<int>(reinterpret_cast<intptr_t>(entityID))], sizeof(Entity));
+        memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-            sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+            sendData();
 #endif
-            return 1;
         }
     }
-    sendCounter += 1;
-    sendCounter %= 2;
-    return 0;
+    sendCounter = (sendCounter + 1) % 2;
 }
-int SendValue(int a1, void *value)
+void SendValue(int *value, void *unused)
 {
-    printLog("Attempting to send value (%d) (%p)", a1, value);
+    // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
     multiplayerDataOUT.type    = 0;
-    multiplayerDataOUT.data[0] = static_cast<int>(reinterpret_cast<intptr_t>(value));
-    if (Engine.onlineActive && sendDataMethod) {
-#if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
-#endif
-        return 1;
-    }
-    return 0;
-}
-int ReceiveEntity(int dataSlotID, void *entityID)
-{
-    printLog("Attempting to receive entity (%d) (%p)", dataSlotID, entityID);
-
+    multiplayerDataOUT.data[0] = *value;
     if (Engine.onlineActive) {
-        // Do online code
-        int entitySlot = static_cast<int>(reinterpret_cast<intptr_t>(entityID));
-        if (dataSlotID == 1) {
+#if RETRO_USE_NETWORKING
+        sendData();
+#endif
+    }
+}
+bool recieveReady = false;
+void ReceiveEntity(int *entityID, int *incrementPos)
+{
+    // printLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
+
+    if (Engine.onlineActive && recieveReady) {
+        // recieveReady = false;
+        if (*incrementPos == 1) {
             if (multiplayerDataIN.type == 1) {
-                memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
+                memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
             }
             multiplayerDataIN.type = 0;
         }
         else {
-            memcpy(&objectEntityList[entitySlot], multiplayerDataIN.data, sizeof(Entity));
+            memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
         }
     }
-    return 0;
 }
-int ReceiveValue(int dataSlot, void *value)
+void ReceiveValue(int *value, int *incrementPos)
 {
-    printLog("Attempting to receive value (%d) (%p)", dataSlot, value);
+    // printLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
 
-    if (Engine.onlineActive) {
-        // Do online code
-        int *val = (int *)value;
-
-        if (dataSlot == 1) {
+    if (Engine.onlineActive && recieveReady) {
+        // recieveReady = false;
+        if (*incrementPos == 1) {
             if (matchValueReadPos != matchValueWritePos) {
-                *val = matchValueData[matchValueReadPos];
+                *value = matchValueData[matchValueReadPos];
                 matchValueReadPos++;
             }
         }
         else {
-            *val = matchValueData[matchValueReadPos];
+            *value = matchValueData[matchValueReadPos];
         }
-        return 1;
     }
-    return 0;
 }
-int TransmitGlobal(int globalValue, void *globalName)
+void TransmitGlobal(int *globalValue, const char *globalName)
 {
-    printLog("Attempting to transmit global (%s) (%d)", (char *)globalName, globalValue);
+    printLog("Attempting to transmit global (%s) (%d)", globalName, *globalValue);
 
     multiplayerDataOUT.type    = 2;
-    multiplayerDataOUT.data[0] = GetGlobalVariableID((char *)globalName);
-    multiplayerDataOUT.data[1] = globalValue;
-    if (Engine.onlineActive && sendDataMethod) {
+    multiplayerDataOUT.data[0] = GetGlobalVariableID(globalName);
+    multiplayerDataOUT.data[1] = *globalValue;
+    if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(0, sizeof(multiplayerDataOUT), &multiplayerDataOUT);
+        sendData();
 #endif
-        return 1;
     }
-    return 0;
 }
 
 void receive2PVSData(MultiplayerData *data)
 {
+    recieveReady = true;
     switch (data->type) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
@@ -846,309 +1036,111 @@ void receive2PVSData(MultiplayerData *data)
 
 void receive2PVSMatchCode(int code)
 {
+    recieveReady = true;
+    code &= 0x00000FF0;
+    code |= 0x00001000 * vsPlayerID;
     matchValueData[matchValueWritePos++] = code;
     ResumeSound();
+    vsPlayerID = Engine.devMenu;
+    // Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
+    vsPlaying       = true;
+    ClearNativeObjects();
+    CREATE_ENTITY(RetroGameLoop); // hack
+    if (Engine.gameDeviceType == RETRO_MOBILE)
+        CREATE_ENTITY(VirtualDPad);
+    CREATE_ENTITY(MultiplayerHandler);
 }
 
-int ShowPromoPopup(int a1, void *a2)
+void ShowPromoPopup(int *id, const char *popupName) { printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
+void ShowSegaIDPopup()
 {
-    printLog("Attempting to show promo popup (%d) (%p)", a1, a2);
-    if (Engine.onlineActive) {
-        // Do online code
-        return 1;
+    // nothing here, its just all to a java method of the same name
+}
+void ShowOnlineSignIn()
+{
+    // nothing here, its just all to a java method of the same name
+}
+void ShowWebsite(int websiteID)
+{
+    switch (websiteID) {
+        default: printLog("Showing unknown website: (%d)", websiteID); break;
+        case 0: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID); break;
+        case 1: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID); break;
     }
-    return 0;
 }
 
-int ExitGame(int val, void *name)
+void ExitGame() { Engine.running = false; }
+
+void FileExists(int *unused, const char *filePath)
 {
-    Engine.running = false;
-    return 1;
+    FileInfo info;
+    scriptEng.checkResult = false;
+    if (LoadFile(filePath, &info)) {
+        scriptEng.checkResult = true;
+        CloseFile();
+    }
 }
 
-int OpenModMenu(int val, void *name)
+void SetScreenWidth(int *width, int *unused)
 {
-#if RETRO_USE_MOD_LOADER
-    Engine.gameMode = ENGINE_INITMODMENU;
+    SCREEN_XSIZE = *width;
+#if RETRO_PLATFORM != RETRO_ANDROID
+    SetScreenDimensions(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+
+#if RETRO_SOFTWARE_RENDER
+    if (Engine.frameBuffer)
+        delete[] Engine.frameBuffer;
+    if (Engine.frameBuffer2x)
+        delete[] Engine.frameBuffer2x;
+
+    Engine.frameBuffer   = new ushort[GFX_LINESIZE * SCREEN_YSIZE];
+    Engine.frameBuffer2x = new ushort[GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2)];
+    memset(Engine.frameBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(ushort));
+    memset(Engine.frameBuffer2x, 0, GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2) * sizeof(ushort));
 #endif
-    return 1;
-}
+    if (Engine.texBuffer)
+        delete[] Engine.texBuffer;
 
-#if RETRO_USE_MOD_LOADER
-#include <string>
-
-void initMods()
-{
-    for (int i = 0; i < modCount; ++i) {
-        modList[i].fileMap.clear();
-        modList[i].name    = "";
-        modList[i].desc    = "";
-        modList[i].author  = "";
-        modList[i].version = "";
-        modList[i].folder  = "";
-        modList[i].active  = false;
-    }
-
-    modCount        = 0;
-    forceUseScripts = false;
-
-    char modBuf[0x100];
-    sprintf(modBuf, "%smods/", modsPath);
-    STD_FILESYSTEM::path modPath(modBuf);
-
-    if (STD_FILESYSTEM::exists(modPath) && STD_FILESYSTEM::is_directory(modPath)) {
-        try {
-            auto rdi = STD_FILESYSTEM::directory_iterator(modPath);
-            for (auto de : rdi) {
-                if (de.is_directory()) {
-                    STD_FILESYSTEM::path modDirPath = de.path();
-
-                    ModInfo *info = &modList[modCount];
-
-                    info->fileMap.clear();
-                    info->name    = "";
-                    info->desc    = "";
-                    info->author  = "";
-                    info->version = "";
-                    info->folder  = "";
-                    info->active = false;
-
-                    std::string modDir            = modDirPath.string().c_str();
-                    const std::string mod_inifile = modDir + "/mod.ini";
-
-                    FileIO *f = fOpen(mod_inifile.c_str(), "r");
-                    if (f) {
-                        fClose(f);
-                        IniParser modSettings(mod_inifile.c_str(), false);
-
-                        info->name    = "Unnamed Mod";
-                        info->desc    = "";
-                        info->author  = "Unknown Author";
-                        info->version = "1.0.0";
-                        info->folder  = modDirPath.filename().string();
-
-                        char infoBuf[0x100];
-                        // Name
-                        StrCopy(infoBuf, "");
-                        modSettings.GetString("", "Name", infoBuf);
-                        if (!StrComp(infoBuf, ""))
-                            info->name = infoBuf;
-                        // Desc
-                        StrCopy(infoBuf, "");
-                        modSettings.GetString("", "Description", infoBuf);
-                        if (!StrComp(infoBuf, ""))
-                            info->desc = infoBuf;
-                        // Author
-                        StrCopy(infoBuf, "");
-                        modSettings.GetString("", "Author", infoBuf);
-                        if (!StrComp(infoBuf, ""))
-                            info->author = infoBuf;
-                        // Version
-                        StrCopy(infoBuf, "");
-                        modSettings.GetString("", "Version", infoBuf);
-                        if (!StrComp(infoBuf, ""))
-                            info->version = infoBuf;
-
-                        info->active = false;
-                        modSettings.GetBool("", "Active", &info->active);
-
-                        // Check for Data/ replacements
-                        STD_FILESYSTEM::path dataPath(modDir + "/Data");
-
-                        if (STD_FILESYSTEM::exists(dataPath) && STD_FILESYSTEM::is_directory(dataPath)) {
-                            try {
-                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(dataPath);
-                                for (auto data_de : data_rdi) {
-                                    if (data_de.is_regular_file()) {
-                                        char modBuf[0x100];
-                                        StrCopy(modBuf, data_de.path().string().c_str());
-                                        char folderTest[4][0x10] = {
-                                            "Data/",
-                                            "Data\\",
-                                            "data/",
-                                            "data\\",
-                                        };
-                                        int tokenPos = -1;
-                                        for (int i = 0; i < 4; ++i) {
-                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                                            if (tokenPos >= 0)
-                                                break;
-                                        }
-
-                                        if (tokenPos >= 0) {
-                                            char buffer[0x80];
-                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                                            }
-
-                                            //printLog(modBuf);
-                                            std::string path(buffer);
-                                            std::string modPath(modBuf);
-                                            char pathLower[0x100];
-                                            memset(pathLower, 0, sizeof(char) * 0x100);
-                                            for (int c = 0; c < path.size(); ++c) {
-                                                pathLower[c] = tolower(path.c_str()[c]);
-                                            }
-
-                                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                                        }
-                                    }
-                                }
-                            } catch (STD_FILESYSTEM::filesystem_error fe) {
-                                printLog("Data Folder Scanning Error: ");
-                                printLog(fe.what());
-                            }
-                        }
-
-                        // Check for Scripts/ replacements
-                        STD_FILESYSTEM::path scriptPath(modDir + "/Scripts");
-
-                        if (STD_FILESYSTEM::exists(scriptPath) && STD_FILESYSTEM::is_directory(scriptPath)) {
-                            try {
-                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(scriptPath);
-                                for (auto data_de : data_rdi) {
-                                    if (data_de.is_regular_file()) {
-                                        char modBuf[0x100];
-                                        StrCopy(modBuf, data_de.path().string().c_str());
-                                        char folderTest[4][0x10] = {
-                                            "Scripts/",
-                                            "Scripts\\",
-                                            "scripts/",
-                                            "scripts\\",
-                                        };
-                                        int tokenPos = -1;
-                                        for (int i = 0; i < 4; ++i) {
-                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                                            if (tokenPos >= 0)
-                                                break;
-                                        }
-
-                                        if (tokenPos >= 0) {
-                                            char buffer[0x80];
-                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                                            }
-
-                                            //printLog(modBuf);
-                                            std::string path(buffer);
-                                            std::string modPath(modBuf);
-                                            char pathLower[0x100];
-                                            memset(pathLower, 0, sizeof(char) * 0x100);
-                                            for (int c = 0; c < path.size(); ++c) {
-                                                pathLower[c] = tolower(path.c_str()[c]);
-                                            }
-
-                                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                                        }
-                                    }
-                                }
-                            } catch (STD_FILESYSTEM::filesystem_error fe) {
-                                printLog("Script Folder Scanning Error: ");
-                                printLog(fe.what());
-                            }
-                        }
-
-                        // Check for Bytecode/ replacements
-                        STD_FILESYSTEM::path bytecodePath(modDir + "/Bytecode");
-
-                        if (STD_FILESYSTEM::exists(bytecodePath) && STD_FILESYSTEM::is_directory(bytecodePath)) {
-                            try {
-                                auto data_rdi = STD_FILESYSTEM::recursive_directory_iterator(bytecodePath);
-                                for (auto data_de : data_rdi) {
-                                    if (data_de.is_regular_file()) {
-                                        char modBuf[0x100];
-                                        StrCopy(modBuf, data_de.path().string().c_str());
-                                        char folderTest[4][0x10] = {
-                                            "Bytecode/",
-                                            "Bytecode\\",
-                                            "bytecode/",
-                                            "bytecode\\",
-                                        };
-                                        int tokenPos = -1;
-                                        for (int i = 0; i < 4; ++i) {
-                                            tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                                            if (tokenPos >= 0)
-                                                break;
-                                        }
-
-                                        if (tokenPos >= 0) {
-                                            char buffer[0x80];
-                                            for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                                                buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                                            }
-
-                                            //printLog(modBuf);
-                                            std::string path(buffer);
-                                            std::string modPath(modBuf);
-                                            char pathLower[0x100];
-                                            memset(pathLower, 0, sizeof(char) * 0x100);
-                                            for (int c = 0; c < path.size(); ++c) {
-                                                pathLower[c] = tolower(path.c_str()[c]);
-                                            }
-
-                                            info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                                        }
-                                    }
-                                }
-                            } catch (STD_FILESYSTEM::filesystem_error fe) {
-                                printLog("Bytecode Folder Scanning Error: ");
-                                printLog(fe.what());
-                            }
-                        }
-
-                        info->useScripts = false;
-                        modSettings.GetBool("", "TxtScripts", &info->useScripts);
-                        if (info->useScripts && info->active)
-                            forceUseScripts = true;
-
-                        info->skipStartMenu = false;
-                        modSettings.GetBool("", "SkipStartMenu", &info->skipStartMenu);
-                        if (info->skipStartMenu && info->active)
-                            skipStartMenu = true;
-
-                        modCount++;
-                    }
-                }
-            }
-        } catch (STD_FILESYSTEM::filesystem_error fe) {
-            printLog("Mods Folder Scanning Error: ");
-            printLog(fe.what());
-        }
-    }
-}
-void saveMods()
-{
-    char modBuf[0x100];
-    sprintf(modBuf, "%smods/", modsPath);
-    STD_FILESYSTEM::path modPath(modBuf);
-
-    if (STD_FILESYSTEM::exists(modPath) && STD_FILESYSTEM::is_directory(modPath)) {
-        for (int m = 0; m < modCount; ++m) {
-            ModInfo *info                 = &modList[m];
-            std::string modDir            = modPath.string().c_str();
-            const std::string mod_inifile = modDir + info->folder + "/mod.ini";
-
-            FileIO *f = fOpen(mod_inifile.c_str(), "w");
-            if (f) {
-                fClose(f);
-                IniParser *modSettings = new IniParser;
-
-                modSettings->SetString("", "Name", (char *)info->name.c_str());
-                modSettings->SetString("", "Description", (char *)info->desc.c_str());
-                modSettings->SetString("", "Author", (char *)info->author.c_str());
-                modSettings->SetString("", "Version", (char *)info->version.c_str());
-                if (info->useScripts)
-                    modSettings->SetBool("", "TxtScripts", info->useScripts);
-                if (info->skipStartMenu)
-                    modSettings->SetBool("", "SkipStartMenu", info->skipStartMenu);
-                modSettings->SetBool("", "Active", info->active);
-
-                modSettings->Write(mod_inifile.c_str(), false);
-
-                delete modSettings;
-            }
-        }
-    }
-}
+    Engine.texBuffer = new uint[GFX_LINESIZE * SCREEN_YSIZE];
+    memset(Engine.texBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(uint));
 #endif
+
+#if RETRO_USING_SDL2
+    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+
+#if RETRO_USING_OPENGL
+    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
+    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
+    displaySettings.offsetX = 0;
+    setupViewport();
+#endif
+}
+void SetWindowScale(int *scale, int *unused)
+{
+    Engine.windowScale = *scale;
+#if RETRO_USING_SDL2
+    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
+#endif
+
+#if RETRO_USING_OPENGL
+    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
+    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
+    displaySettings.offsetX = 0;
+    setupViewport();
+#endif
+}
+void SetWindowFullScreen(int *fullscreen, int *unused)
+{
+    Engine.isFullScreen = *fullscreen;
+    setFullScreen(Engine.isFullScreen);
+}
+void SetWindowBorderless(int *borderless, int *unused)
+{
+    Engine.borderless = *borderless;
+#if RETRO_USING_SDL2
+    SDL_RestoreWindow(Engine.window);
+    SDL_SetWindowBordered(Engine.window, Engine.borderless ? SDL_FALSE : SDL_TRUE);
+#endif
+}

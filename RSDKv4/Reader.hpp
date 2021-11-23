@@ -116,6 +116,10 @@ inline void CloseRSDKContainers()
     rsdkContainer.fileCount = 0;
 }
 
+#if !RETRO_USE_ORIGINAL_CODE
+int CheckFileInfo(const char *filepath);
+#endif
+
 bool LoadFile(const char *filePath, FileInfo *fileInfo);
 inline bool CloseFile()
 {
@@ -130,12 +134,13 @@ inline bool CloseFile()
 void GenerateELoadKeys(uint key1, uint key2);
 
 void FileRead(void *dest, int size);
+void FileSkip(int count);
 
 inline size_t FillFileBuffer()
 {
     if (readPos + 0x2000 <= fileSize)
         readSize = 0x2000;
-    else 
+    else
         readSize = fileSize - readPos;
 
     size_t result = fRead(fileBuffer, 1u, readSize, cFileHandle);
@@ -149,21 +154,5 @@ void SetFileInfo(FileInfo *fileInfo);
 size_t GetFilePosition();
 void SetFilePosition(int newPos);
 bool ReachedEndOfFile();
-
-#if !RETRO_USE_ORIGINAL_CODE
-bool LoadFile2(const char *filePath, FileInfo *fileInfo);
-size_t FileRead2(FileInfo *info, void *dest, int size); // For Music Streaming
-inline bool CloseFile2(FileInfo *info)
-{
-    int result = 0;
-    if (info->cFileHandle)
-        result = fClose(info->cFileHandle);
-
-    info->cFileHandle = NULL;
-    return result;
-}
-size_t GetFilePosition2(FileInfo *info);
-void SetFilePosition2(FileInfo *info, int newPos);
-#endif
 
 #endif // !READER_H

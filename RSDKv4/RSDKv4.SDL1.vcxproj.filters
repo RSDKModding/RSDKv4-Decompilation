@@ -19,6 +19,12 @@
     <Filter Include="Header Files\nativeEntities">
       <UniqueIdentifier>{65197e20-a952-4014-93ca-c21e07885ac7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{cc743dd7-6461-445b-9702-5efe92c821cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dependencies">
+      <UniqueIdentifier>{80cefbe8-760b-4172-8ba9-3bfbc6d7b938}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -87,7 +93,139 @@
     <ClInclude Include="PauseMenu.hpp">
       <Filter>Header Files\nativeEntities</Filter>
     </ClInclude>
-    <ClInclude Include="Network.hpp">
+    <ClInclude Include="NativeObjects\ZoneButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TextLabel.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\DialogPanel.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PushButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\RecordsScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SettingsScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TimeAttackButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\ModsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\CreditText.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TimeAttack.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SubMenuButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PlayerSelectScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\AchievementsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\BackButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\LeaderboardsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SegaIDButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\OptionsButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\StartGameButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\TitleScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\AboutScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\OptionsMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MenuControl.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\AchievementDisplay.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\AchievementsMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerHandler.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\NativeObjects.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\VirtualDPad.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MultiplayerScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\ModsMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\PauseMenu.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\InstructionsScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\StaffCredits.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SaveSelect.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\ModInfoButton.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\SegaSplash.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\CWSplash.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\RetroGameLoop.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\MenuBG.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\VirtualDPadM.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeObjects\FadeScreen.hpp">
+      <Filter>Header Files\nativeEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="ModAPI.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\all\tinyxml2\tinyxml2.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,11 +296,143 @@
     <ClCompile Include="PauseMenu.cpp">
       <Filter>Source Files\nativeEntities</Filter>
     </ClCompile>
-    <ClCompile Include="Network.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StartMenu.cpp">
       <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\AchievementsMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SettingsScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\AboutScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PushButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TextLabel.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\VirtualDPad.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\VirtualDPadM.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\ModsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SubMenuButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TimeAttackButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TitleScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\AchievementDisplay.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\AchievementsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\BackButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\CreditText.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\CWSplash.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\FadeScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\InstructionsScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\LeaderboardsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MenuBG.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MenuControl.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerHandler.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\MultiplayerScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\OptionsButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\OptionsMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PauseMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\PlayerSelectScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\RecordsScreen.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\RetroGameLoop.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SaveSelect.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SegaIDButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\SegaSplash.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\StaffCredits.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\StartGameButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\TimeAttack.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\ZoneButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\DialogPanel.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\All.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\ModInfoButton.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeObjects\ModsMenu.cpp">
+      <Filter>Source Files\nativeEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="ModAPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\all\tinyxml2\tinyxml2.cpp">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

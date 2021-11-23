@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
         if (StrComp(argv[i], "UsingCWD"))
             usingCWD = true;
     }
-    
+
     SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
     Engine.Init();
     Engine.Run();
