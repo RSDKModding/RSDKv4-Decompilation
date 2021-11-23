@@ -39,15 +39,15 @@ enum TileLayerTypes {
 };
 
 enum StageModes {
-    STAGEMODE_LOAD            = 0,
-    STAGEMODE_NORMAL          = 1,
-    STAGEMODE_PAUSED          = 2,
-    STAGEMODE_FROZEN          = 3,
-    STAGEMODE_2P              = 4,
-    STAGEMODE_STEPOVER        = 5,
-    STAGEMODE_PAUSED_STEPOVER = 6,
-    STAGEMODE_FROZEN_PAUSED   = 7,
-    STAGEMODE_2P_PAUSED       = 8
+    STAGEMODE_LOAD        = 0,
+    STAGEMODE_NORMAL      = 1,
+    STAGEMODE_PAUSED      = 2,
+    STAGEMODE_FROZEN      = 3,
+    STAGEMODE_2P          = 4,
+    STAGEMODE_NORMAL_STEP = 5,
+    STAGEMODE_PAUSED_STEP = 6,
+    STAGEMODE_FROZEN_STEP = 7,
+    STAGEMODE_2P_STEP     = 8
 };
 
 enum TileInfo {
@@ -92,14 +92,14 @@ struct TileLayer {
     int scrollSpeed;
     int scrollPos;
     int angle;
-    int XPos;
-    int YPos;
-    int ZPos;
+    int xpos;
+    int ypos;
+    int zpos;
     int deformationOffset;
     int deformationOffsetW;
     byte type;
-    byte width;
-    byte height;
+    byte xsize;
+    byte ysize;
 };
 
 struct LineScroll {
