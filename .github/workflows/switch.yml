@@ -13,16 +13,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v1
-    - name: Checkout tinyxml2
-      uses: actions/checkout@v1
       with:
-        repository: leethomason/tinyxml2
-        path: ./dependencies/all/tinyxml2
-    - name: Checkout tinyxml2
-      uses: actions/checkout@v1
-      with:
-        repository: nothings/stb.git
-        path: ./dependencies/all/stb-image
+        - submodules: true
     - name: make clean
       run: make PLATFORM=Switch clean
     - name: make 
