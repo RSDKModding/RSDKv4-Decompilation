@@ -15,12 +15,14 @@ jobs:
       uses: actions/checkout@v1
     - name: Checkout tinyxml2
       uses: actions/checkout@v1
-      repository: https://github.com/leethomason/tinyxml2.git
-      path: ./dependencies/all/tinyxml2
+      with:
+        repository: https://github.com/leethomason/tinyxml2.git
+        path: ./dependencies/all/tinyxml2
     - name: Checkout tinyxml2
       uses: actions/checkout@v1
-      repository: https://github.com/nothings/stb.git
-      path: ./dependencies/all/stb-image
+      with:
+        repository: https://github.com/nothings/stb.git
+        path: ./dependencies/all/stb-image
     - name: make clean
       run: make PLATFORM=Switch clean
     - name: make 
