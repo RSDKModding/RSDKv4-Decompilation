@@ -9,7 +9,7 @@
 #define RETRO_USE_ORIGINAL_CODE (0)
 
 #define RETRO_USE_MOD_LOADER (!RETRO_USE_ORIGINAL_CODE && 1)
-#define RETRO_USE_NETWORKING (!RETRO_USE_ORIGINAL_CODE && 1)
+// #define RETRO_USE_NETWORKING (!RETRO_USE_ORIGINAL_CODE && 1)
 
 // ================
 // STANDARD LIBS
@@ -173,6 +173,11 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
 #define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
+#elif RETRO_PLATFORM == RETRO_SWITCH
+#include <GLES/gl.h>    // EGL library
+#include <EGL/egl.h>    // EGL library
+#include <EGL/eglext.h> // EGL extensions
+#include <glad/glad.h>  // glad library (OpenGL loader)
 #else
 #include <GL/glew.h>
 #endif
