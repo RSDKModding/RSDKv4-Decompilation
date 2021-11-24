@@ -1,6 +1,11 @@
 #ifndef MOD_API_H
 #define MOD_API_H
 
+// These are still needed even if RETRO_USE_MOD_LOADER isn't defined
+extern bool redirectSave;
+extern char modsPath[0x100];
+extern char savePath[0x100];
+
 #if RETRO_USE_MOD_LOADER
 #include <string>
 #include <map>
@@ -26,11 +31,6 @@ struct ModInfo {
 
 extern std::vector<ModInfo> modList;
 extern int activeMod;
-
-extern char modsPath[0x100];
-
-extern bool redirectSave;
-extern char savePath[0x100];
 
 extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];

@@ -10,7 +10,7 @@ PROFILE		?= 0
 STRIP		?= strip
 
 # -fsigned-char required to prevent hang in LoadStageCollisions
-CFLAGS		?= -fsigned-char -std=c++20
+CFLAGS		?= -fsigned-char -std=c++17
 
 # =============================================================================
 # Detect default platform if not explicitly specified

@@ -346,7 +346,7 @@ void MenuControl_Main(void *objPtr)
                         SetGlobalVariableByName("lampPostID", 0);
                         SetGlobalVariableByName("starPostID", 0);
                         if (Engine.onlineActive) {
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE & RETRO_USE_MOD_LOADER
                             BackupNativeObjects();
                             int id = GetSceneID(STAGELIST_PRESENTATION, "2P VS");
                             if (id == -1)

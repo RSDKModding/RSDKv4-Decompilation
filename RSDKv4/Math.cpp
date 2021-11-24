@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
 #include <math.h>
+#include <time.h>
 
 int sinValM7[0x200];
 int cosValM7[0x200];

@@ -1,11 +1,11 @@
 #include "RetroEngine.hpp"
 
-// #if defined(__SWITCH__)
-//     #include "filesystem.hpp"
-//     #define STD_FILESYSTEM ghc::filesystem
-// #else
-#define STD_FILESYSTEM std::filesystem
-// #endif
+// Your guess is as good as mine
+#if RETRO_PLATFORM == RETRO_SWITCH
+long pathconf (const char *__path, int __name) {
+    return 0;
+}
+#endif
 
 int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
@@ -1049,7 +1049,9 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(RetroGameLoop); // hack
     if (Engine.gameDeviceType == RETRO_MOBILE)
         CREATE_ENTITY(VirtualDPad);
-    // CREATE_ENTITY(MultiplayerHandler);
+    #if RETRO_USE_NETWORKING
+    CREATE_ENTITY(MultiplayerHandler);
+    #endif
 }
 
 void ShowPromoPopup(int *id, const char *popupName) { printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
