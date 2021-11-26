@@ -2,9 +2,7 @@ CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew 
                -DBASE_PATH='"$(BASE_PATH)"' \
                -IRSDKv4/ \
                -IRSDKv4/NativeObjects/ \
-               -Idependencies/all/asio/include/ \
-               -Idependencies/all/stb-image/ \
-               -Idependencies/all/tinyxml2/
+               -Idependencies/all/asio/include/
 
 LDFLAGS_ALL = $(LDFLAGS)
 LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew tinyxml2 stb) -pthread $(LIBS)
