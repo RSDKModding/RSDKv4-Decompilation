@@ -197,13 +197,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev libasio-dev
-          sudo wget --no-check-certificate --content-disposition https://github.com/leethomason/tinyxml2/archive/refs/heads/master.zip -P ./dependencies/all/
-          sudo unzip ./dependencies/all/tinyxml2-master.zip -d ./dependencies/all
-          sudo mv ./dependencies/all/tinyxml2-master ./dependencies/all/tinyxml2
-          sudo wget --no-check-certificate --content-disposition https://github.com/nothings/stb/archive/refs/heads/master.zip -P ./dependencies/all/
-          sudo unzip ./dependencies/all/stb-master.zip -d ./dependencies/all
-          sudo mv ./dependencies/all/stb-master ./dependencies/all/stb-image
+          sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev libasio-dev libtinyxml2-dev libstb-dev
           ls ./dependencies/all
       - name: Build RSDKv4
         run: make
