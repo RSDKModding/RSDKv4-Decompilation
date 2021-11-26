@@ -239,7 +239,7 @@ enum RetroGameType {
 #include "cocoaHelpers.hpp"
 
 #elif RETRO_USING_SDL2
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <vorbis/vorbisfile.h>
 #else
 
