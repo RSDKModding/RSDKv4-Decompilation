@@ -53,8 +53,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg libglew libasio libtinyxml2`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Clone the following repos with these commands: 
-  * stb-image: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
+* Clone the stb-image repo with the following command: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
 * Run `make -j5`.
   * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
