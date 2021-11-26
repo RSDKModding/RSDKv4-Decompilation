@@ -203,7 +203,6 @@ jobs:
         run: |
           pkg-config --libs sdl2
           pkg-config --libs glew
-          pkg-config --libs asio
           pkg-config --libs tinyxml2
           pkg-config --libs stb
       - name: Build RSDKv4
