@@ -198,11 +198,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev libasio-dev libtinyxml2-dev libstb-dev
+          ls ./dependencies/all
+      - name: Check if dependencies are installed
+        run: |
           pkg-config --libs sdl2
           pkg-config --libs glew
+          pkg-config --libs asio
           pkg-config --libs tinyxml2
           pkg-config --libs stb
-          ls ./dependencies/all
       - name: Build RSDKv4
         run: make
       - name: Upload artifact
