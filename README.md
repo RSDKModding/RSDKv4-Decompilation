@@ -1,7 +1,7 @@
 ![](header.png?raw=true)
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
-+ Video tutorial on how to find your legally obtained Data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
++ For tutorials on how to find your legally obtained Data.rsdk file, see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
 
 + You can get the official release of Sonic 1 & Sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
