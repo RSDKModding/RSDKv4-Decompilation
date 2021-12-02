@@ -51,6 +51,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * To setup your build enviroment and library dependecies run the following commands:
   * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev libtinyxml2-dev`
     * If you're using Debian, add `libgbm-dev` and `libdrm-dev`
+  * Fedora Linux: `sudo rpm install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel asio-devel tinyxml2-devel`
   * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg libglew libasio libtinyxml2`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
