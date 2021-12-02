@@ -5076,23 +5076,23 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                             func(&scriptEng.operands[2], scriptText);
                     }
                     else {
-                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
+                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
                     }
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
                     if (StrLength(scriptText)) {
-                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, char *, int *, int *) = (void (*)(int *, char *, int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[2], scriptText);
+                            func(&scriptEng.operands[1], scriptText, &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                     else {
-                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
+                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                 }
                 break;
