@@ -3456,6 +3456,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
 
                         if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_2P_UNKNOWN) {
                             if (stageMode == STAGEMODE_2P) {
+                                x = entPtr->xpos;
+                                y = entPtr->ypos;
+
                                 int boundL_P1 = objectEntityList[0].xpos + boundX3_2P;
                                 int boundR_P1 = objectEntityList[0].xpos + boundX4_2P;
                                 int boundT_P1 = objectEntityList[0].ypos + boundY3_2P;
@@ -3482,6 +3485,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         }
                         else {
                             if (stageMode == STAGEMODE_2P) {
+                                x = entPtr->xpos;
+                                y = entPtr->ypos;
+
                                 int boundL_P1 = objectEntityList[0].xpos + boundX1_2P;
                                 int boundR_P1 = objectEntityList[0].xpos + boundX2_2P;
                                 int boundT_P1 = objectEntityList[0].ypos + boundY1_2P;

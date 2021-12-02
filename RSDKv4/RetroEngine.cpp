@@ -511,7 +511,7 @@ void RetroEngine::Run()
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
 #if RETRO_USE_NETWORKING
-    disconnectNetwork();
+    disconnectNetwork(true);
 #endif
     writeSettings();
 #if RETRO_USE_MOD_LOADER
