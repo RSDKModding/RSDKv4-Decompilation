@@ -1198,6 +1198,7 @@ void SetWindowScale(int *scale, int *unused)
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
     Engine.isFullScreen = *fullscreen;
+    Engine.startFullScreen = *fullscreen;
     setFullScreen(Engine.isFullScreen);
 }
 void SetWindowBorderless(int *borderless, int *unused)
