@@ -36,6 +36,8 @@ public:
         do_connect(endpoints);
     }
 
+    ~NetworkSession() {}
+
     void write(const ServerPacket &msg, int forceroom = 0)
     {
         ServerPacket sent(msg);
@@ -222,7 +224,7 @@ void sendData()
     session->write(send);
 }
 
-void disconnectNetwork()
+void disconnectNetwork(bool finalClose)
 {
     if (session->running) {
         ServerPacket send;
@@ -236,6 +238,11 @@ void disconnectNetwork()
         if (!io_context.stopped())
             io_context.stop();
         ioThread.join();
+    }
+
+    if (finalClose) {
+        if (session)
+            session.reset();
     }
 }
 

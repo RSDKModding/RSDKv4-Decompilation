@@ -1,13 +1,16 @@
 #include "RetroEngine.hpp"
 
-// These are still needed even if RETRO_USE_MOD_LOADER isn't defined
-bool redirectSave = false;
-char modsPath[0x100];
+#if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE
 char savePath[0x100];
+#endif
 
 #if RETRO_USE_MOD_LOADER
 std::vector<ModInfo> modList;
 int activeMod = -1;
+
+char modsPath[0x100];
+
+bool redirectSave = false;
 
 char modTypeNames[OBJECT_COUNT][0x40];
 char modScriptPaths[OBJECT_COUNT][0x40];
@@ -534,6 +537,9 @@ void SetModActive(uint *id, int *active)
     modList[*id].active = *active;
 }
 
+#endif
+
+#if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE
 int GetSceneID(byte listID, const char *sceneName)
 {
     if (listID >= 3)
@@ -567,5 +573,4 @@ int GetSceneID(byte listID, const char *sceneName)
     }
     return -1;
 }
-
 #endif

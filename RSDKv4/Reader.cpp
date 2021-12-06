@@ -163,7 +163,11 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 #endif
 
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
+#if RETRO_USE_MOD_LOADER
     if (addPath) {
+#else
+    if (true) {
+#endif
         char pathBuf[0x100];
         sprintf(pathBuf, "%s/%s", gamePath, filePathBuf);
         sprintf(filePathBuf, "%s", pathBuf);
@@ -197,48 +201,53 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
             packID      = file->packID;
             cFileHandle = fOpen(rsdkContainer.packNames[file->packID], "rb");
-            fSeek(cFileHandle, 0, SEEK_END);
-            fileSize = (int)fTell(cFileHandle);
+            if (cFileHandle) {
+                fSeek(cFileHandle, 0, SEEK_END);
+                fileSize = (int)fTell(cFileHandle);
 
-            vFileSize         = file->filesize;
-            virtualFileOffset = file->offset;
-            readPos           = file->offset;
-            readSize          = 0;
-            bufferPosition    = 0;
-            fSeek(cFileHandle, virtualFileOffset, SEEK_SET);
+                vFileSize         = file->filesize;
+                virtualFileOffset = file->offset;
+                readPos           = file->offset;
+                readSize          = 0;
+                bufferPosition    = 0;
+                fSeek(cFileHandle, virtualFileOffset, SEEK_SET);
 
-            useEncryption = file->encrypted;
-            memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
-            memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
-            if (useEncryption) {
-                GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
-                eStringNo   = (vFileSize & 0x1FC) >> 2;
-                eStringPosA = 0;
-                eStringPosB = 8;
-                eNybbleSwap = 0;
-                memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
-                memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
-            }
+                useEncryption = file->encrypted;
+                memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
+                memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
+                if (useEncryption) {
+                    GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
+                    eStringNo   = (vFileSize & 0x1FC) >> 2;
+                    eStringPosA = 0;
+                    eStringPosB = 8;
+                    eNybbleSwap = 0;
+                    memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
+                    memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
+                }
 
-            fileInfo->readPos           = readPos;
-            fileInfo->fileSize          = fileSize;
-            fileInfo->vfileSize         = vFileSize;
-            fileInfo->virtualFileOffset = virtualFileOffset;
-            fileInfo->eStringNo         = eStringNo;
-            fileInfo->eStringPosB       = eStringPosB;
-            fileInfo->eStringPosA       = eStringPosA;
-            fileInfo->eNybbleSwap       = eNybbleSwap;
-            fileInfo->bufferPosition    = bufferPosition;
-            fileInfo->useEncryption     = useEncryption;
-            fileInfo->packID            = packID;
-            fileInfo->usingDataPack     = true;
-            printLog("Loaded Data File '%s'", filePath);
+                fileInfo->readPos           = readPos;
+                fileInfo->fileSize          = fileSize;
+                fileInfo->vfileSize         = vFileSize;
+                fileInfo->virtualFileOffset = virtualFileOffset;
+                fileInfo->eStringNo         = eStringNo;
+                fileInfo->eStringPosB       = eStringPosB;
+                fileInfo->eStringPosA       = eStringPosA;
+                fileInfo->eNybbleSwap       = eNybbleSwap;
+                fileInfo->bufferPosition    = bufferPosition;
+                fileInfo->useEncryption     = useEncryption;
+                fileInfo->packID            = packID;
+                fileInfo->usingDataPack     = true;
+                printLog("Loaded Data File '%s'", filePath);
 
 #if !RETRO_USE_ORIGINAL_CODE
-            Engine.usingDataFile = true;
+                Engine.usingDataFile = true;
 #endif
 
-            return true;
+                return true;
+            }
+            else {
+                break;
+            }
         }
         printLog("Couldn't load file '%s'", filePath);
         return false;
@@ -470,24 +479,26 @@ void SetFileInfo(FileInfo *fileInfo)
     if (Engine.usingDataFile) {
 #endif
         cFileHandle       = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
-        virtualFileOffset = fileInfo->virtualFileOffset;
-        vFileSize         = fileInfo->vfileSize;
-        fSeek(cFileHandle, 0, SEEK_END);
-        fileSize = (int)fTell(cFileHandle);
-        readPos  = fileInfo->readPos;
-        fSeek(cFileHandle, readPos, SEEK_SET);
-        FillFileBuffer();
-        bufferPosition       = fileInfo->bufferPosition;
-        eStringPosA          = fileInfo->eStringPosA;
-        eStringPosB          = fileInfo->eStringPosB;
-        eStringNo            = fileInfo->eStringNo;
-        eNybbleSwap          = fileInfo->eNybbleSwap;
-        useEncryption        = fileInfo->useEncryption;
-        packID               = fileInfo->packID;
-        Engine.usingDataFile = fileInfo->usingDataPack;
+        if (cFileHandle) {
+            virtualFileOffset = fileInfo->virtualFileOffset;
+            vFileSize         = fileInfo->vfileSize;
+            fSeek(cFileHandle, 0, SEEK_END);
+            fileSize = (int)fTell(cFileHandle);
+            readPos  = fileInfo->readPos;
+            fSeek(cFileHandle, readPos, SEEK_SET);
+            FillFileBuffer();
+            bufferPosition       = fileInfo->bufferPosition;
+            eStringPosA          = fileInfo->eStringPosA;
+            eStringPosB          = fileInfo->eStringPosB;
+            eStringNo            = fileInfo->eStringNo;
+            eNybbleSwap          = fileInfo->eNybbleSwap;
+            useEncryption        = fileInfo->useEncryption;
+            packID               = fileInfo->packID;
+            Engine.usingDataFile = fileInfo->usingDataPack;
 
-        if (useEncryption) {
-            GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
+            if (useEncryption) {
+                GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
+            }
         }
     }
     else {

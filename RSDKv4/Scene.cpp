@@ -579,7 +579,11 @@ void LoadStageFiles(void)
         ClearScriptData();
         for (int i = SURFACE_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
+#if RETRO_USE_MOD_LOADER
         loadGlobalScripts = false;
+#else
+        bool loadGlobalScripts = false;
+#endif
         if (LoadStageFile("StageConfig.bin", stageListPosition, &info)) {
             byte buf = 0;
             FileRead(&buf, 1);

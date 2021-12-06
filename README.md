@@ -6,7 +6,7 @@ A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
-+ Video tutorial on how to find your legally obtained Data.rsdk file: https://www.youtube.com/watch?v=gzIfRW91IxE
++ For tutorials on how to find your legally obtained Data.rsdk file, see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
 
 + You can get the official release of Sonic 1 & Sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
@@ -53,34 +53,41 @@ Sections below are lifted directly from the source repository.
 
 ## Windows via MSYS2 (64-bit Only)
 ### Decompilation
-* Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it.
-* Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter. Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
-* Now install the dependencies with the following command: `pacman -S make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew`.
-* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`.
-* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
+* Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it
+* Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter
+* Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
+* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew mingw-w64-x86_64-tinyxml2 mingw-w64-x86_64-asio mingw-w64-x86_64-stb`
+* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
 ### Server (Only required to host Sonic 2 multiplayer servers)
-* Go into Server directory (`cd Server`) when in the root of the decompilation source folder.
-* Then run `make -f Makefile.msys2 CXXFLAGS=-static -j4` to create the Server executable
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+* Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
+* Run `make -f Makefile.msys2 CXXFLAGS=-static -j4`
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
 
 ## Windows UWP (Phone, Xbox, etc.)
 * Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies, copy your `Data.rsdk` folder into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `Sonic12Decomp.UWP.sln`
 * You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
 
-## Linux:
+## Linux
+### Decompilation
 * To setup your build enviroment and library dependecies run the following commands:
-* Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev`
-* Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg libglew libasio`
+  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev libtinyxml2-dev`
+    * If you're using Debian, add `libgbm-dev` and `libdrm-dev`
+  * Fedora Linux: `sudo rpm install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel asio-devel tinyxml2-devel`
+  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew asio tinyxml2`
 * Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Clone the following repos with these commands: 
-  * TinyXML-2: `git clone https://github.com/leethomason/tinyxml2.git ./dependencies/all/tinyxml2`
-  * stb-image: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
-* Run `make -j5`.
-  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+* Clone the stb-image repo with the following command: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
+* Run `make -j5`
+  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
+### Server (Only required to host Sonic 2 multiplayer servers)
+* Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
+* Run `make -j5`
+  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
 
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.

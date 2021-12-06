@@ -1,4 +1,5 @@
 #include "RetroEngine.hpp"
+#include <string>
 
 void AboutScreen_Create(void *objPtr)
 {
