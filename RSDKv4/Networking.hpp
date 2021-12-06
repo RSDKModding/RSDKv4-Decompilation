@@ -1,5 +1,11 @@
 #ifndef NETWORKING_H
 #define NETWORKING_H
+
+struct MultiplayerData {
+    int type;
+    int data[0x1FF];
+};
+
 #if RETRO_USE_NETWORKING
 #include <thread>
 #include <memory>
@@ -11,11 +17,6 @@ extern int networkPort;
 extern float lastPing;
 extern int dcError;
 extern bool waitingForPing;
-
-struct MultiplayerData {
-    int type;
-    int data[0x1FF];
-};
 
 struct ServerPacket {
     byte header;
