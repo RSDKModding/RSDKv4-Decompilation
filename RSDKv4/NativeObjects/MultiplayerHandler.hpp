@@ -2,7 +2,7 @@
 #ifndef NATIVE_MULTIPLAYERHANDLER_H
 #define NATIVE_MULTIPLAYERHANDLER_H
 
-#if !RETRO_USE_ORIGINAL_CODE
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
 struct NativeEntity_MultiplayerHandler : NativeEntityBase {
     int state;
     float timer;

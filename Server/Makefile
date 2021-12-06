@@ -3,7 +3,7 @@ CXXFLAGS_ALL = $(CXXFLAGS) \
                -I../dependencies/all/asio/include/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = -lws2_32 -lwsock32 -pthread $(LIBS)
+LIBS_ALL = -pthread $(LIBS)
 
 SOURCES = Server.cpp
 

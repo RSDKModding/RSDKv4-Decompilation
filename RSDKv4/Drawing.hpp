@@ -62,6 +62,8 @@ extern int SCREEN_XSIZE_CONFIG;
 extern int SCREEN_XSIZE;
 extern int SCREEN_CENTERX;
 
+extern bool windowCreated;
+
 extern float SCREEN_XSIZE_F;
 extern float SCREEN_CENTERX_F;
 

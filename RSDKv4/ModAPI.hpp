@@ -32,6 +32,10 @@ struct ModInfo {
 extern std::vector<ModInfo> modList;
 extern int activeMod;
 
+extern char modsPath[0x100];
+
+extern bool redirectSave;
+
 extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern byte modScriptFlags[OBJECT_COUNT];
@@ -58,8 +62,11 @@ void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused);
 void GetModActive(uint *id, int *unused);
 void SetModActive(uint *id, int *active);
 
-int GetSceneID(byte listID, const char *sceneName);
+#endif
 
+#if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE
+extern char savePath[0x100];
+int GetSceneID(byte listID, const char *sceneName);
 #endif
 
 #endif

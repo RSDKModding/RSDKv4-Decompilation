@@ -4,6 +4,8 @@ ushort blendLookupTable[BLENDTABLE_SIZE];
 ushort subtractLookupTable[BLENDTABLE_SIZE];
 ushort tintLookupTable[TINTTABLE_SIZE];
 
+bool windowCreated = false;
+
 int SCREEN_XSIZE_CONFIG = 424;
 int SCREEN_XSIZE        = 424;
 int SCREEN_CENTERX      = 424 / 2;
@@ -147,10 +149,11 @@ int InitRenderDevice()
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
-
-    Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
-
+    if (windowCreated == false) {
+        Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
+                                         SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+        windowCreated = true;
+    }
     if (!Engine.window) {
         printLog("ERROR: failed to create window!");
         return 0;
