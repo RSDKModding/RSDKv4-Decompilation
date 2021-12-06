@@ -1091,9 +1091,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
-#if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
-#endif
 
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);

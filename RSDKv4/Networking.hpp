@@ -1,6 +1,6 @@
-#if RETRO_USE_NETWORKING
 #ifndef NETWORKING_H
 #define NETWORKING_H
+#if RETRO_USE_NETWORKING
 #include <thread>
 #include <memory>
 
@@ -38,8 +38,8 @@ void disconnectNetwork();
 void sendServerPacket(ServerPacket &send);
 int getRoomCode();
 void setRoomCode(int code);
+#endif
 
 void SetNetworkGameName(int *a1, const char *name);
 
-#endif
 #endif

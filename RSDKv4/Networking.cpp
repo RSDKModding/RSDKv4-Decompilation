@@ -1,4 +1,7 @@
 #include "RetroEngine.hpp"
+
+char networkGame[16] = "SONIC2";
+
 #if RETRO_USE_NETWORKING
 
 #include <cstdlib>
@@ -12,7 +15,6 @@
 #include <asio.hpp>
 
 char networkHost[64];
-char networkGame[16] = "SONIC2";
 int networkPort      = 50;
 int dcError          = 0;
 float lastPing       = 0;
@@ -240,6 +242,6 @@ void disconnectNetwork()
 void sendServerPacket(ServerPacket &send) { session->write(send); }
 int getRoomCode() { return session->roomcode; }
 void setRoomCode(int code) { session->roomcode = code; }
+#endif
 
 void SetNetworkGameName(int *a1, const char *name) { StrCopy(networkGame, name); }
-#endif
