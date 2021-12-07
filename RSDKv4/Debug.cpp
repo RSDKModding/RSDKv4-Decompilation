@@ -46,7 +46,6 @@ void initErrorMessage()
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
-    playerListPos   = 0;
     Engine.gameMode = ENGINE_DEVMENU;
     ClearGraphicsData();
     ClearAnimationData();
