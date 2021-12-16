@@ -146,6 +146,8 @@ int InitRenderDevice()
     SCREEN_XSIZE = ((float)SCREEN_YSIZE * h / w);
     if (SCREEN_XSIZE % 2)
         ++SCREEN_XSIZE;
+    if (SCREEN_XSIZE >= 510) 
+        SCREEN_XSIZE = 490;
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
