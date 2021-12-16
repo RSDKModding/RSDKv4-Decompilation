@@ -78,6 +78,8 @@ If you want to transfer your save from the official mobile versions, the **Andro
   * `mklink /D SDL ..\..\..\dependencies\android\SDL`
 * Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
 
+**The Android build is currently a work-in-progress. Unless you're reporting a bug, no support will be given for this build whatsoever.**
+
 ## Unofficial Branches
 Follow the installation instructions in the readme of each branch.
 * For the **PlayStation Vita**, go to [Xeeynamo's fork](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation).
