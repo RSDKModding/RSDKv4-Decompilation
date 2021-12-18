@@ -25,7 +25,7 @@ int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
-#define COMMONALIAS_COUNT (0x56)
+#define COMMONALIAS_COUNT (0x5B)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
