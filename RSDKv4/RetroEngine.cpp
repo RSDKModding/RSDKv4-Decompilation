@@ -1063,10 +1063,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         LoadXMLPlayers(NULL);
         LoadXMLStages(NULL, 0);
 
+        SetGlobalVariableByName("options.devMenuFlag", false);
         if (Engine.devMenu)
             SetGlobalVariableByName("options.devMenuFlag", true);
-        else
-            SetGlobalVariableByName("options.devMenuFlag", false);
 #endif
     }
 
