@@ -69,7 +69,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
 
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
-* A Mac build of v1.3.0 by Sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac)
+* A Mac build of v1.3.0 by [Sappharad](https://github.com/Sappharad) can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac)
 
 ## Android
 * Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
