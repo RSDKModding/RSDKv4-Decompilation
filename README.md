@@ -34,8 +34,8 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it
 * Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter
 * Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
-* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew mingw-w64-x86_64-tinyxml2 mingw-w64-x86_64-asio mingw-w64-x86_64-stb`
-* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew`
+* Clone the repo with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
