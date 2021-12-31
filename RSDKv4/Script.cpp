@@ -25,7 +25,7 @@ int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
-#define COMMONALIAS_COUNT (0x56)
+#define COMMONALIAS_COUNT (0x5B)
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -3456,6 +3456,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
 
                         if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_2P_UNKNOWN) {
                             if (stageMode == STAGEMODE_2P) {
+                                x = entPtr->xpos;
+                                y = entPtr->ypos;
+
                                 int boundL_P1 = objectEntityList[0].xpos + boundX3_2P;
                                 int boundR_P1 = objectEntityList[0].xpos + boundX4_2P;
                                 int boundT_P1 = objectEntityList[0].ypos + boundY3_2P;
@@ -3482,6 +3485,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         }
                         else {
                             if (stageMode == STAGEMODE_2P) {
+                                x = entPtr->xpos;
+                                y = entPtr->ypos;
+
                                 int boundL_P1 = objectEntityList[0].xpos + boundX1_2P;
                                 int boundR_P1 = objectEntityList[0].xpos + boundX2_2P;
                                 int boundT_P1 = objectEntityList[0].ypos + boundY1_2P;
@@ -5070,23 +5076,23 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                             func(&scriptEng.operands[2], scriptText);
                     }
                     else {
-                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
+                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
                     }
                 }
                 break;
             case FUNC_CALLNATIVEFUNCTION4:
                 if (scriptEng.operands[0] >= 0 && scriptEng.operands[0] < NATIIVEFUNCTION_MAX) {
                     if (StrLength(scriptText)) {
-                        void (*func)(int *, char *) = (void (*)(int *, char *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, char *, int *, int *) = (void (*)(int *, char *, int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[2], scriptText);
+                            func(&scriptEng.operands[1], scriptText, &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                     else {
-                        void (*func)(int *, int *) = (void (*)(int *, int *))nativeFunction[scriptEng.operands[0]];
+                        void (*func)(int *, int *, int *, int *) = (void (*)(int *, int *, int *, int *))nativeFunction[scriptEng.operands[0]];
                         if (func)
-                            func(&scriptEng.operands[1], &scriptEng.operands[2]);
+                            func(&scriptEng.operands[1], &scriptEng.operands[2], &scriptEng.operands[3], &scriptEng.operands[4]);
                     }
                 }
                 break;

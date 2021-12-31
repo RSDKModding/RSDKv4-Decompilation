@@ -1,9 +1,9 @@
 CXXFLAGS_ALL = $(CXXFLAGS) \
                -DBASE_PATH='"$(BASE_PATH)"' \
-               -I../dependencies/all/asio/asio/include/ \
+               -I../dependencies/all/asio/include/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = -lws2_32 -lwsock32 -pthread $(LIBS)
+LIBS_ALL = -pthread $(LIBS)
 
 SOURCES = Server.cpp
 

@@ -84,6 +84,7 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_WAIT2PVS:
             // wait for vs responce
             break;
+#endif
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
@@ -118,7 +119,6 @@ void RetroGameLoop_Main(void *objPtr)
             gameMenu[1].visibleRowOffset = 0;
             stageMode                    = DEVMENU_MODMENU;
             break;
-#endif
 #endif
         default:
             printLog("GameMode '%d' Called", Engine.gameMode);

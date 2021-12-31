@@ -511,7 +511,7 @@ void RetroEngine::Run()
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
 #if RETRO_USE_NETWORKING
-    disconnectNetwork();
+    disconnectNetwork(true);
 #endif
     writeSettings();
 #if RETRO_USE_MOD_LOADER
@@ -996,13 +996,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             globalVariables[v] += fileBuffer2 << 24;
         }
 
-#if RETRO_USE_MOD_LOADER
-        if (Engine.devMenu)
-            SetGlobalVariableByName("options.devMenuFlag", true);
-        else
-            SetGlobalVariableByName("options.devMenuFlag", false);
-#endif
-
         // Read SFX
         byte globalSFXCount = 0;
         FileRead(&globalSFXCount, 1);
@@ -1069,6 +1062,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         LoadXMLObjects();
         LoadXMLPlayers(NULL);
         LoadXMLStages(NULL, 0);
+
+        SetGlobalVariableByName("options.devMenuFlag", false);
+        if (Engine.devMenu)
+            SetGlobalVariableByName("options.devMenuFlag", true);
 #endif
     }
 

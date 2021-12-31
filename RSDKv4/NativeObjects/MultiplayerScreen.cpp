@@ -1,12 +1,11 @@
 #include "RetroEngine.hpp"
 
-#if RETRO_USE_NETWORKING
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
 
 void MultiplayerScreen_Create(void *objPtr)
 {
     if (skipStartMenu) {
 // code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
-#if !RETRO_USE_ORIGINAL_CODE
         ResetBitmapFonts();
         int heading = 0, labelTex = 0, textTex = 0;
 
@@ -79,7 +78,6 @@ void MultiplayerScreen_Create(void *objPtr)
                 break;
             default: break;
         }
-#endif
     }
 
     RSDK_THIS(MultiplayerScreen);

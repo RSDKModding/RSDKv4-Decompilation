@@ -176,7 +176,6 @@ typedef unsigned int uint;
 #define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
 #else
 #include <GL/glew.h>
-#include <GL/glu.h>
 #endif
 #endif
 
@@ -280,9 +279,7 @@ extern bool engineDebugMode;
 #include "Renderer.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
-#if RETRO_USE_MOD_LOADER
 #include "ModAPI.hpp"
-#endif
 
 // Native Entities
 #include "NativeObjects.hpp"
