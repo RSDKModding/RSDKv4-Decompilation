@@ -4,7 +4,7 @@ OGG_DIR := dependencies/android/libogg
 VORBIS_DIR := dependencies/android/libvorbis
 OGG_DIR := dependencies/android/libogg
 TXML_DIR := dependencies/all/tinyxml2
-ASIO_DIR := dependencies/all/asio/include
+ASIO_DIR := dependencies/all/asio/asio/include
 STBIMG_DIR := dependencies/all/stb-image
 
 OGG_INCLUDES    := $(LOCAL_PATH)/$(OGG_DIR)/include

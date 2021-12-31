@@ -27,7 +27,7 @@ bool vsPlaying   = false;
 
 int sendCounter = 0;
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -41,6 +41,24 @@ bool disableFocusPause        = false;
 bool disableFocusPause_Config = false;
 
 bool useSGame = false;
+
+#if RETRO_PLATFORM == RETRO_LINUX
+std::string getXDGDataPath()
+{
+    std::string path;
+    char const *dataHome = getenv("XDG_DATA_HOME");
+    if (dataHome == NULL) {
+        char const *home = getenv("HOME");
+        path += home;
+        path += "/.local/share";
+    }
+    else {
+        path += dataHome;
+    }
+    path += "/RSDKv4";
+    return path;
+}
+#endif
 
 bool ReadSaveRAMData()
 {
@@ -56,6 +74,8 @@ bool ReadSaveRAMData()
     sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -86,6 +106,8 @@ bool ReadSaveRAMData()
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -117,6 +139,7 @@ bool ReadSaveRAMData()
 bool WriteSaveRAMData()
 {
     char buffer[0x180];
+
     if (!useSGame) {
 #if RETRO_USE_MOD_LOADER
 #if RETRO_PLATFORM == RETRO_UWP
@@ -128,6 +151,8 @@ bool WriteSaveRAMData()
         sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -157,6 +182,8 @@ bool WriteSaveRAMData()
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -197,6 +224,11 @@ void InitUserdata()
     sprintf(modsPath, "%s/RSDKv4/", getResourcesPath());
 
     mkdir(gamePath, 0777);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(gamePath, "%s", getXDGDataPath().c_str());
+    sprintf(modsPath, "%s/", getXDGDataPath().c_str());
+
+    mkdir(getXDGDataPath().c_str(), 0755);
 #elif RETRO_PLATFORM == RETRO_ANDROID
     {
         char buffer[0x200];
@@ -227,6 +259,8 @@ void InitUserdata()
         sprintf(buffer, "%ssettings.ini", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     sprintf(buffer, "%s/settings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/settings.ini", getXDGDataPath().c_str());
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
 #endif
@@ -617,6 +651,8 @@ void InitUserdata()
         sprintf(buffer, "%sUData.bin", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX
     sprintf(buffer, "%s/UData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/UData.bin", getXDGDataPath().c_str());
 #else
     sprintf(buffer, "%sUData.bin", gamePath);
 #endif
@@ -773,6 +809,8 @@ void writeSettings()
         sprintf(buffer, "%ssettings.ini", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX
     sprintf(buffer, "%s/settings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/settings.ini", getXDGDataPath().c_str());
 #else
     sprintf(buffer, "%ssettings.ini", gamePath);
 #endif
@@ -793,6 +831,8 @@ void ReadUserdata()
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -846,6 +886,8 @@ void WriteUserdata()
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif

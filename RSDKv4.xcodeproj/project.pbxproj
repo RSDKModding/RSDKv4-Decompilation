@@ -764,7 +764,7 @@
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/dependencies/all/asio/include",
+					"$(PROJECT_DIR)/dependencies/all/asio/asio/include",
 					"$(PROJECT_DIR)/dependencies/all/tinyxml2",
 					"$(PROJECT_DIR)/dependencies/all/stb-image",
 				);
@@ -802,7 +802,7 @@
 					"$(PROJECT_DIR)/dependencies/mac/libtheora/macosx",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/dependencies/all/asio/include",
+					"$(PROJECT_DIR)/dependencies/all/asio/asio/include",
 					"$(PROJECT_DIR)/dependencies/all/tinyxml2",
 					"$(PROJECT_DIR)/dependencies/all/stb-image",
 				);

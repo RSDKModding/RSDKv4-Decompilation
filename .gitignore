@@ -44,6 +44,9 @@ cmake/
 ![Dd]ependencies/ios/[Ii]nfo.plist
 [Dd]ependencies/all/*
 ![Dd]ependencies/all/dependencies.txt
+![Dd]ependencies/all/stb-image
+![Dd]ependencies/all/tinyxml2
+![Dd]ependencies/all/asio
 ![Dd]ependencies/windows/dependencies.txt
 ![Dd]ependencies/ios/dependencies.txt
 ![Dd]ependencies/mac/dependencies.txt
@@ -273,3 +276,8 @@ objects/
 .idea/
 android/key/
 android/local.properties
+
+# Linux
+.flatpak-builder
+flatpak/*.apk
+build-dir

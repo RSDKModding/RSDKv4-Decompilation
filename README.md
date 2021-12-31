@@ -51,16 +51,14 @@ If you want to transfer your save from the official mobile versions, the **Andro
 ## Linux
 ### Decompilation
 * To setup your build enviroment and library dependecies run the following commands:
-  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev libtinyxml2-dev`
+  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev`
     * If you're using Debian, add `libgbm-dev` and `libdrm-dev`
-  * Fedora Linux: `sudo rpm install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel asio-devel tinyxml2-devel`
-  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew asio tinyxml2`
-* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
-* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Clone the stb-image repo with the following command: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
-* Run `make -j5`
-  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
+  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew`
+  * Clone the repo and it's other dependencies with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+  * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
+  * Run `make -j5`.
+    * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
+    * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 ### Server (Only required to host Sonic 2 multiplayer servers)
 * Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
 * Run `make -j5`
