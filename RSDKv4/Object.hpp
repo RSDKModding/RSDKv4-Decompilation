@@ -55,7 +55,8 @@ struct Entity {
     byte jumpPress;
     byte jumpHold;
     byte scrollTracking;
-    byte floorSensors[5];
+    // was 3 on S1 release, but bumped up to 5 for S2
+    byte floorSensors[RETRO_REV00 ? 3 : 5];
 };
 
 struct NativeEntityBase {
@@ -130,7 +131,9 @@ void ProcessStartupObjects();
 void ProcessObjects();
 void ProcessPausedObjects();
 void ProcessFrozenObjects();
+#if !RETRO_REV00
 void Process2PObjects();
+#endif
 
 void SetObjectTypeName(const char *objectName, int objectID);
 

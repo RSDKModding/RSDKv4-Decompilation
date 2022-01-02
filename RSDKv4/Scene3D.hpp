@@ -81,7 +81,9 @@ void matrixRotateX(Matrix *matrix, int rotationX);
 void matrixRotateY(Matrix *matrix, int rotationY);
 void matrixRotateZ(Matrix *matrix, int rotationZ);
 void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ);
+#if !RETRO_REV00
 void matrixInverse(Matrix *matrix);
+#endif
 void transformVertexBuffer();
 void transformVertices(Matrix *matrix, int startIndex, int endIndex);
 void sort3DDrawList();

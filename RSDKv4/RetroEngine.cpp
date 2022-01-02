@@ -50,6 +50,10 @@ bool processEvents()
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                             Engine.gameMode = ENGINE_INITPAUSE;
+#if RETRO_REV00
+                        if (!disableFocusPause)
+                            Engine.message = MESSAGE_LOSTFOCUS;
+#endif
                         break;
                 }
                 break;
@@ -58,6 +62,10 @@ bool processEvents()
             case SDL_APP_WILLENTERBACKGROUND:
                 if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                     Engine.gameMode = ENGINE_INITPAUSE;
+#if RETRO_REV00
+                if (!disableFocusPause)
+                    Engine.message = MESSAGE_LOSTFOCUS;
+#endif
                 break;
             case SDL_APP_TERMINATING: return false;
 #endif
@@ -493,8 +501,12 @@ void RetroEngine::Run()
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
             SDL_GL_SwapWindow(Engine.window);
 #endif
-            frameStep = false;
+            frameStep      = false;
         }
+#endif
+
+#if RETRO_REV00
+        Engine.message = MESSAGE_NONE;
 #endif
 
         int hapticID = GetHapticEffectNum();

@@ -181,9 +181,19 @@ typedef unsigned int uint;
 
 #define RETRO_USE_HAPTICS (1)
 
-// reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
+// Timeline:
+// 1 = S1 release RSDKv4 version
+// 0 = S2 release RSDKv4 version
+// 2 = S3 POC RSDKv4 version (I have no idea how we have this but woohoo apparently)
+#define RSDK_REVISION (2)
+
+// reverts opcode list back to how it was in earliest S1 builds, fixes bugs on some datafiles
 // generally advised to keep this set to 0
-#define RETRO_REV01 (0)
+#define RETRO_REV00 (RSDK_REVISION == 0)
+
+// reverts opcode list back to how it was in earliest S2 builds, fixes bugs on some datafiles
+// generally advised to keep this set to 0
+#define RETRO_REV01 (RSDK_REVISION == 1)
 
 enum RetroLanguages {
     RETRO_EN = 0,
@@ -198,6 +208,16 @@ enum RetroLanguages {
     RETRO_ZH = 9,
     RETRO_ZS = 10,
 };
+
+#if RETRO_REV00 
+enum RetroEngineMessages {
+    MESSAGE_NONE      = 0,
+    MESSAGE_MESSAGE_1 = 1,
+    MESSAGE_LOSTFOCUS = 2,
+    MESSAGE_MESSAGE_3 = 3,
+    MESSAGE_MESSAGE_4 = 4,
+};
+#endif
 
 enum RetroStates {
     ENGINE_DEVMENU     = 0,
@@ -310,6 +330,9 @@ public:
 
     int gameMode          = ENGINE_MAINGAME;
     int language          = RETRO_EN;
+#if RETRO_REV00
+    int message           = 0;
+#endif
     int gameDeviceType    = RETRO_STANDARD;
     int globalBoxRegion   = REGION_JP;
     bool nativeMenuFadeIn = false;

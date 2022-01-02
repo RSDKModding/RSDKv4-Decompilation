@@ -321,6 +321,7 @@ void ProcessStage(void)
 
             DrawStageGFX();
             break;
+#if !RETRO_REV00
         case STAGEMODE_2P:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -372,6 +373,7 @@ void ProcessStage(void)
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
+#endif
         case STAGEMODE_NORMAL_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -456,7 +458,7 @@ void ProcessStage(void)
             }
 
             if (pauseEnabled && inputPress.start) {
-                stageMode = STAGEMODE_2P;
+                stageMode = STAGEMODE_PAUSED;
                 ResumeSound();
             }
             break;
@@ -499,6 +501,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
+#if !RETRO_REV00
         case STAGEMODE_2P_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -554,6 +557,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
+#endif
     }
 }
 
@@ -1052,6 +1056,7 @@ void LoadStageBackground()
 
             // Read Line Scroll
             byte buf[3];
+            int pos = 0;
             while (true) {
                 FileRead(&buf[0], 1);
                 if (buf[0] == 0xFF) {
@@ -1063,11 +1068,15 @@ void LoadStageBackground()
                         FileRead(&buf[2], 1);
                         int val = buf[1];
                         int cnt = buf[2] - 1;
-                        for (int c = 0; c < cnt; ++c) *lineScrollPtr++ = val;
+                        for (int c = 0; c < cnt; ++c) {
+                            *lineScrollPtr++ = val;
+                            ++pos;
+                        }
                     }
                 }
                 else {
                     *lineScrollPtr++ = buf[0];
+                    ++pos;
                 }
             }
 

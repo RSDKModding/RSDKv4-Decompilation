@@ -218,6 +218,7 @@ void ProcessFrozenObjects()
         }
     }
 }
+#if !RETRO_REV00
 void Process2PObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
@@ -311,6 +312,7 @@ void Process2PObjects()
         }
     }
 }
+#endif
 
 void SetObjectTypeName(const char *objectName, int objectID)
 {

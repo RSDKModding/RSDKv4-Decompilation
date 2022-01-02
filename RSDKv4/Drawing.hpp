@@ -223,10 +223,13 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
 
 // Sprite Drawing
 void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
+#if RETRO_REV00
+void DrawSpriteClipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID, int clipY);
+#endif
 void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID);
 void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                       int sheetID);
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
 void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                     int sheetID);
 #endif
@@ -247,7 +250,7 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
 void DrawTexturedFaceBlended(void *v, byte sheetID);
 
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
 void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount);
 #endif
 
