@@ -363,6 +363,9 @@ public:
 
     bool showPaletteOverlay = false;
     bool useHQModes         = true;
+
+    bool hasFocus = true;
+    int focusState = 0;
 #endif
 
     void Init();

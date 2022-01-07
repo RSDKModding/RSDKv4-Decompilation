@@ -566,15 +566,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        // This is HORRIBLE
-        // Context: if the state is changed before its initialized (such as if a windowFocusChange happens)
-        // then the game will die
-        // TODO (if I can be bothered): fix this?????
-        if (mCurrentNativeState == NativeState.INIT) {
-            Log.v(TAG, "panic mode");
-            return;
-        }
-
         // Try a transition to paused state
         if (mNextNativeState == NativeState.PAUSED) {
             if (mSDLThread != null) {

@@ -1940,14 +1940,6 @@ void CheckCaseNumber(char *text)
         caseValue[funcNamePos] = 0;
         arrayStr[arrayStrPos]  = 0;
 
-        char arrStrBuf[0x80];
-        int arrPos = 0;
-        int bufPos = 0;
-        if (arrayStr[0] == '+' || arrayStr[0] == '-')
-            ++arrPos;
-        while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
-        arrStrBuf[bufPos] = 0;
-
         // Eg: temp0 = TypeName[Player Object]
         if (StrComp(caseValue, "TypeName")) {
             caseValue[0] = 0;
@@ -2165,14 +2157,6 @@ bool ReadSwitchCase(char *text)
             }
             caseValue[funcNamePos] = 0;
             arrayStr[arrayStrPos]  = 0;
-
-            char arrStrBuf[0x80];
-            int arrPos = 0;
-            int bufPos = 0;
-            if (arrayStr[0] == '+' || arrayStr[0] == '-')
-                ++arrPos;
-            while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
-            arrStrBuf[bufPos] = 0;
 
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(caseValue, "TypeName")) {
@@ -2894,19 +2878,19 @@ void LoadBytecode(int stageListID, int scriptID)
         byte fileBuffer = 0;
         int *scrData    = &scriptData[scriptCodePos];
         FileRead(&fileBuffer, 1);
-        int scriptDataCount = fileBuffer;
+        int scriptCodeCount = fileBuffer;
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 8);
+        scriptCodeCount += (fileBuffer << 8);
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 16);
+        scriptCodeCount += (fileBuffer << 16);
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 24);
+        scriptCodeCount += (fileBuffer << 24);
 
-        while (scriptDataCount > 0) {
+        while (scriptCodeCount > 0) {
             FileRead(&fileBuffer, 1);
-            int buf = fileBuffer & 0x7F;
+            int blockSize = fileBuffer & 0x7F;
             if (fileBuffer >= 0x80) {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     int data = fileBuffer;
                     FileRead(&fileBuffer, 1);
@@ -2918,18 +2902,18 @@ void LoadBytecode(int stageListID, int scriptID)
                     *scrData = data;
                     ++scrData;
                     ++scriptCodePos;
-                    --scriptDataCount;
-                    --buf;
+                    --scriptCodeCount;
+                    --blockSize;
                 }
             }
             else {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     *scrData = fileBuffer;
                     ++scrData;
                     ++scriptCodePos;
-                    --scriptDataCount;
-                    --buf;
+                    --scriptCodeCount;
+                    --blockSize;
                 }
             }
         }
@@ -2946,9 +2930,9 @@ void LoadBytecode(int stageListID, int scriptID)
 
         while (jumpDataCnt > 0) {
             FileRead(&fileBuffer, 1);
-            int buf = fileBuffer & 0x7F;
+            int blockSize = fileBuffer & 0x7F;
             if (fileBuffer >= 0x80) {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     int data = fileBuffer;
                     FileRead(&fileBuffer, 1);
@@ -2961,27 +2945,27 @@ void LoadBytecode(int stageListID, int scriptID)
                     ++jumpPtr;
                     ++jumpTablePos;
                     --jumpDataCnt;
-                    --buf;
+                    --blockSize;
                 }
             }
             else {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     *jumpPtr = fileBuffer;
                     ++jumpPtr;
                     ++jumpTablePos;
                     --jumpDataCnt;
-                    --buf;
+                    --blockSize;
                 }
             }
         }
         FileRead(&fileBuffer, 1);
-        int objectCount = fileBuffer;
+        int scriptCount = fileBuffer;
         FileRead(&fileBuffer, 1);
-        objectCount += fileBuffer << 8;
+        scriptCount += fileBuffer << 8;
 
         int objType = scriptID;
-        for (int i = 0; i < objectCount; ++i) {
+        for (int i = 0; i < scriptCount; ++i) {
 
             FileRead(&fileBuffer, 1);
             int buf = fileBuffer;
@@ -3012,7 +2996,7 @@ void LoadBytecode(int stageListID, int scriptID)
         }
 
         objType = scriptID;
-        for (int i = 0; i < objectCount; ++i) {
+        for (int i = 0; i < scriptCount; ++i) {
             FileRead(&fileBuffer, 1);
             int buf = fileBuffer;
             FileRead(&fileBuffer, 1);
