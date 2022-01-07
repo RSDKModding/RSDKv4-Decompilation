@@ -477,7 +477,6 @@ void RetroEngine::Run()
         else if (Engine.focusState) {
             if ((Engine.focusState & 2))
                 ResumeSound();
-            ResumeSound();
             Engine.focusState = 0;
         }
 
