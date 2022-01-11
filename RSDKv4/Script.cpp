@@ -2601,6 +2601,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
+                            if (curChar == ';')
+                                semiFlag = true;
                         }
                     }
                     else if (curChar != '/' || textPos <= 0) {

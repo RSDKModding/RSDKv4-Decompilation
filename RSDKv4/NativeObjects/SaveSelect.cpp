@@ -508,7 +508,10 @@ void SaveSelect_Main(void *objPtr)
         case SAVESELECT_STATE_DIALOGWAIT: {
             if (entity->dialog->selection == DLG_YES) {
                 PlaySfxByName("Event", false);
-                entity->saveButtons[entity->selectedButton]->useMeshH = false;
+                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                    if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
+                        entity->saveButtons[i]->useMeshH = false;
+                }
                 entity->state                                         = SAVESELECT_STATE_MAIN;
                 entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
                 SetStringToFont(entity->saveButtons[entity->selectedButton]->text, strNewGame, FONT_LABEL);
@@ -533,7 +536,10 @@ void SaveSelect_Main(void *objPtr)
                 }
             }
             else if (entity->dialog->selection == DLG_NO) {
-                entity->saveButtons[entity->selectedButton]->useMeshH = false;
+                for (int i = SAVESELECT_BUTTON_SAVE1; i < SAVESELECT_BUTTON_COUNT; ++i) {
+                    if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
+                        entity->saveButtons[i]->useMeshH = false;
+                }
                 entity->state                                         = SAVESELECT_STATE_MAIN;
                 entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
             }
