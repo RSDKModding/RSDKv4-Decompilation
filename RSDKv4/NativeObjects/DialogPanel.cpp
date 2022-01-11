@@ -155,7 +155,11 @@ void DialogPanel_Main(void *objPtr)
         case DIALOGPANEL_STATE_ACTION:
             SetRenderMatrix(&entity->buttonMatrix);
             if (!entity->buttons[entity->buttonSelected]->state) {
-                entity->state = DIALOGPANEL_STATE_EXIT;
+                entity->state     = DIALOGPANEL_STATE_EXIT;
+
+                entity->selection = entity->buttonSelected + 1;
+                if (entity->buttonCount == DLGTYPE_OK)
+                    entity->selection = DLG_OK;
             }
             break;
         case DIALOGPANEL_STATE_EXIT:
@@ -172,11 +176,6 @@ void DialogPanel_Main(void *objPtr)
 
             entity->stateTimer += Engine.deltaTime;
             if (entity->stateTimer > 0.5) {
-                entity->selection = entity->buttonSelected + 1;
-                if (entity->buttonCount == DLGTYPE_OK)
-                    entity->selection = DLG_OK;
-
-                // TODO: is this conditional?
                 for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
                 RemoveNativeObject(entity);
                 return;
