@@ -10,7 +10,7 @@ DATASIZE = 0x1000
 CODES: Set[int] = set()
 printmode = 0
 
-SPSTRUCT = struct.Struct(f"B7sQIxxx{DATASIZE - 16}p")
+SPSTRUCT = struct.Struct(f"B7sQIxxx{DATASIZE - (8 + 8 + 4)}p")
 EMPTY = b"\0\0\0\0\0\0\0\0"
 
 CONNECT_MAGIC = 0x1F2F3F4F
@@ -148,6 +148,10 @@ class Room:
             if packet.header == ClientHeaders.QUERY_VERIFICATION:
                 return 0
 
+        if queueSends:
+            for player in self.players:
+                player.deliver(ServerPacket(ServerHeaders.VERIFY_CLEAR,
+                                            self.game.bytename, player.code, self.code, bytes()))
         for player in self.players:
             if player.code != sender.code:
                 player.deliver(packet)

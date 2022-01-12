@@ -55,10 +55,10 @@ public:
 
     void close()
     {
-        if (running) {
+        if (running)
             running = false;
+        if (socket.is_open())
             socket.close();
-        }
     }
 
     NetworkSession &operator=(const NetworkSession &s)
@@ -81,6 +81,8 @@ public:
             StrCopy(send->game, networkGame);
             socket.send_to(asio::buffer(send, sizeof(ServerPacket)), endpoint);
             write_msgs_.pop_front();
+            if (send->header == 0xFF)
+                session->running = false;
         }
         // listen in
         if (!wait)
@@ -90,10 +92,12 @@ public:
 private:
     void do_read()
     {
+        if (wait)
+            return;
         wait = true;
-        socket.async_receive(asio::buffer(&read_msg_, sizeof(ServerPacket)), [&](asio::error_code &ec) {
+        socket.async_receive(asio::buffer(&read_msg_, sizeof(ServerPacket)), [&](const asio::error_code &ec, size_t bytes) {
             wait = false; // async, not threaded. this is safe
-            if (ec)
+            if (ec || !session->running)
                 return;
             if (!code) {
                 if (read_msg_.header == 0x00 && read_msg_.code) {
@@ -108,7 +112,8 @@ private:
                     if (read_msg_.data.multiData.type > 2) {
                         ServerPacket send;
                         send.header = 0xFF;
-                        // dc here
+                        dcError     = 3;
+                        vsPlaying   = false;
                         write(send);
                         return;
                     }
@@ -133,6 +138,14 @@ private:
                 }
                 case 0x21: {
                     waitForRecieve = false;
+                    return;
+                }
+                case 0xFF: {
+                    if (read_msg_.code != partner)
+                        return;
+                    dcError          = 1;
+                    vsPlaying        = false;
+                    session->running = false;
                     return;
                 }
             }
@@ -174,7 +187,6 @@ void networkLoop()
     try {
         session->start();
         while (session->running) session->run();
-
         session->close();
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
@@ -216,8 +228,8 @@ void disconnectNetwork(bool finalClose)
 }
 
 void sendServerPacket(ServerPacket &send) { session->write(send); }
-int getRoomCode() { return session->roomcode; }
-void setRoomCode(int code) { session->roomcode = code; }
+int getRoomCode() { return session->room; }
+void setRoomCode(int code) { session->room = code; }
 
 void SetNetworkGameName(int *a1, const char *name) { StrCopy(networkGame, name); }
 #endif

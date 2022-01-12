@@ -7,7 +7,7 @@
 #define PACKET_SIZE 0x1000
 
 extern char networkHost[64];
-extern char networkGame[16];
+extern char networkGame[7];
 extern int networkPort;
 
 extern float lastPing;
