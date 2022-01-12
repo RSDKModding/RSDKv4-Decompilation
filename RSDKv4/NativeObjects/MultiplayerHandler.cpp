@@ -95,7 +95,7 @@ void MultiplayerHandler_Main(void *objPtr)
             switch (dcError) {
                 case 1: set = (char *)"The other player has disconnected. Returning to title screen."; break;
                 case 2: set = (char *)"Connection timed out. Returning to title screen."; break;
-                case 3: set = (char *)"This room is full. Returnijng to title screen."; break;
+                case 3: set = (char *)"This room is full. Returning to title screen."; break;
                 default: set = (char *)"You shouldn't get this message! If you do, message me."; break;
             }
             // SetStringToFont8(entity->errorPanel->text, set, FONT_TEXT);
