@@ -4,6 +4,8 @@
 #include <thread>
 #include <memory>
 
+#define PACKET_SIZE 0x1000
+
 extern char networkHost[64];
 extern char networkGame[16];
 extern int networkPort;
@@ -11,18 +13,21 @@ extern int networkPort;
 extern float lastPing;
 extern int dcError;
 extern bool waitingForPing;
+extern bool waitForRecieve;
 
 struct MultiplayerData {
     int type;
-    int data[0x1FF];
+    int data[(PACKET_SIZE - 16) / sizeof(int) - 1];
 };
 
-struct ServerPacket {
+struct alignas(8) ServerPacket {
     byte header;
+    char game[7];
     uint64_t code;
-    uint roomcode;
+    uint room;
+
     union {
-        unsigned char bytes[0x1000];
+        unsigned char bytes[PACKET_SIZE - 16];
         MultiplayerData multiData;
     } data;
 };
@@ -33,7 +38,7 @@ extern std::shared_ptr<NetworkSession> session;
 
 void initNetwork();
 void runNetwork();
-void sendData();
+void sendData(bool verify = false);
 void disconnectNetwork(bool finalClose = false);
 void sendServerPacket(ServerPacket &send);
 int getRoomCode();

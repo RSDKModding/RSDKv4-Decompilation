@@ -1041,7 +1041,7 @@ void Connect2PVS(int *gameLength, int *itemMode)
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
 #if RETRO_USE_NETWORKING
-    Engine.gameMode        = ENGINE_CONNECT2PVS;
+    Engine.gameMode = ENGINE_CONNECT2PVS;
 #endif
     // PauseSound();
     // actual connection code
@@ -1069,20 +1069,20 @@ void Disconnect2PVS()
 #endif
     }
 }
-void SendEntity(int *entityID, void *unused)
+void SendEntity(int *entityID, int *verify)
 {
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
         memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-            sendData();
+            sendData(*verify);
 #endif
         }
     }
     sendCounter = (sendCounter + 1) % 2;
 }
-void SendValue(int *value, void *unused)
+void SendValue(int *value, int *verify)
 {
     // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
@@ -1090,7 +1090,7 @@ void SendValue(int *value, void *unused)
     multiplayerDataOUT.data[0] = *value;
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData();
+        sendData(*verify);
 #endif
     }
 }
@@ -1239,7 +1239,7 @@ void SetWindowScale(int *scale, int *unused)
 }
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
-    Engine.isFullScreen = *fullscreen;
+    Engine.isFullScreen    = *fullscreen;
     Engine.startFullScreen = *fullscreen;
     setFullScreen(Engine.isFullScreen);
 }

@@ -87,7 +87,7 @@ public:
         for (auto &participant : participants) {
             if (participant->code != sender->code && participant->roomcode == msg.roomcode) {
                 CodedData s(msg);
-                s.code = participant->code;
+                //s.code = participant->code;
                 participant->deliver(s);
             }
         }
@@ -144,8 +144,6 @@ public:
 
     void deliver(const CodedData &msg)
     {
-        if (msg.code != code)
-            return;
         write_msgs_.push_back(msg);
         do_write();
     }
@@ -243,15 +241,12 @@ private:
                     }
                     break;
                 }
+                case 0x11:   // reliable send
                 case 0x10: { // data
                     get_room().deliver(read_msg_, self);
                     break;
                 }
-                case 0x11:
-                case 0x12: {                 // request entity/value
-                    read_msg_.header += 0xF; // 0x20, 0x21
-                    get_room().deliver(read_msg_, self);
-                }
+
                 case 0xFF: { // leave/quit, sent to both players
                     get_room().leave(self);
                     get_room().deliver(read_msg_, self);
@@ -269,8 +264,7 @@ private:
                 }
             }//*/
             if (!write_msgs_.empty()) {
-                socket_.async_wait(asio::socket_base::wait_write, [](std::error_code) {});
-                do_write();
+                socket_.async_wait(asio::socket_base::wait_write, [this](std::error_code) { do_write(); });
             }
             do_read();
         });
@@ -289,6 +283,11 @@ private:
                     std::cout << "[" + self->get_room().game_name + "] "
                               << "Sending data with header " << std::uppercase << std::hex << (int)msg.header << " to player " << std::hex << msg.code
                               << " in room " << std::hex << msg.roomcode << " from player " << self->code << std::endl;
+                if (msg.header == 0x11) {
+                    CodedData sent;
+                    sent.header = 0x1F;
+                    send_to_self(sent);
+                }
                 write_msgs_.pop_front();
                 self->writing = false;
                 do_write();

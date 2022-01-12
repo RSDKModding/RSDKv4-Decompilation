@@ -454,7 +454,7 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
-    Engine.deltaTime      = 0.0f;
+    Engine.deltaTime = 0.0f;
 
     unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
     unsigned long long curTicks   = 0;
@@ -467,13 +467,13 @@ void RetroEngine::Run()
             curTicks = SDL_GetPerformanceCounter();
         }
 
-        Engine.deltaTime = 0.016666668;
+        Engine.deltaTime = 1.0 / 60;
 #endif
         running = processEvents();
 
         // Focus Checks
         if (!Engine.hasFocus) {
-            if (!(Engine.focusState & 1)) 
+            if (!(Engine.focusState & 1))
                 Engine.focusState = PauseSound() ? 3 : 1;
         }
         else if (Engine.focusState) {
@@ -482,7 +482,7 @@ void RetroEngine::Run()
             Engine.focusState = 0;
         }
 
-        if (!(Engine.focusState & 1)) {
+        if (!(Engine.focusState & 1) || vsPlaying) {
 #if !RETRO_USE_ORIGINAL_CODE
             for (int s = 0; s < gameSpeed; ++s) {
                 ProcessInput();

@@ -12,16 +12,17 @@
 #include <asio.hpp>
 
 char networkHost[64];
-char networkGame[16] = "SONIC2";
-int networkPort      = 50;
-int dcError          = 0;
-float lastPing       = 0;
+char networkGame[7] = "SONIC2";
+int networkPort     = 50;
+int dcError         = 0;
+float lastPing      = 0;
 
 bool waitingForPing = false;
+bool waitForRecieve = false;
 
 uint64_t lastTime = 0;
 
-using asio::ip::tcp;
+using asio::ip::udp;
 
 typedef std::deque<ServerPacket> DataQueue;
 
@@ -29,9 +30,9 @@ class NetworkSession
 {
 public:
     bool running = false;
-    NetworkSession(asio::io_context &io_context, const tcp::resolver::results_type &endpoints) : io_context_(io_context), socket_(io_context)
+    NetworkSession(asio::io_context &io_context, const udp::endpoint &endpoint) : io_context_(io_context), socket(io_context), endpoint(endpoint)
     {
-        do_connect(endpoints);
+        socket.open(udp::v4());
     }
 
     ~NetworkSession() {}
@@ -39,19 +40,24 @@ public:
     void write(const ServerPacket &msg, int forceroom = 0)
     {
         ServerPacket sent(msg);
-        sent.code     = code;
-        sent.roomcode = forceroom ? forceroom : roomcode;
+        sent.code = code;
+        sent.room = forceroom ? forceroom : room;
         write_msgs_.push_back(sent);
-        do_write();
     }
 
-    void start() { running = true; }
+    void start()
+    {
+        running = true;
+        ServerPacket sent;
+        sent.room = 0x1F2F3F4F;
+        write_msgs_.push_back(sent);
+    }
 
     void close()
     {
         if (running) {
             running = false;
-            asio::post(io_context_, [this]() { socket_.close(); });
+            socket.close();
         }
     }
 
@@ -62,103 +68,80 @@ public:
         return *this;
     }
 
-    uint64_t code = 0;
-    bool wait     = false;
-    int roomcode  = 0;
+    uint64_t code    = 0;
+    uint64_t partner = 0;
+    bool wait        = false;
+    int room         = 0;
+
+    void run()
+    {
+        // do we write anything
+        while (!write_msgs_.empty()) {
+            ServerPacket *send = &write_msgs_.front();
+            StrCopy(send->game, networkGame);
+            socket.send_to(asio::buffer(send, sizeof(ServerPacket)), endpoint);
+            write_msgs_.pop_front();
+        }
+        // listen in
+        if (!wait)
+            do_read();
+    }
 
 private:
-    void do_connect(const tcp::resolver::results_type &endpoints)
-    {
-        asio::async_connect(socket_, endpoints, [this](std::error_code ec, tcp::endpoint) {
-            if (!ec) {
-                Engine.onlineActive = true;
-                running             = true;
-                do_read();
-            }
-            else
-                Engine.onlineActive = false;
-        });
-    }
-
     void do_read()
     {
-        asio::async_read(socket_, asio::buffer(&read_msg_, sizeof(ServerPacket)), [this](std::error_code ec, std::size_t /*length*/) {
+        wait = true;
+        socket.async_receive(asio::buffer(&read_msg_, sizeof(ServerPacket)), [&](asio::error_code &ec) {
+            wait = false; // async, not threaded. this is safe
             if (ec)
-                return do_read();
-            lastPing       = ((SDL_GetPerformanceCounter() - lastTime) * 1000.0 / SDL_GetPerformanceFrequency());
-            lastTime       = SDL_GetPerformanceCounter();
-            waitingForPing = false;
-            if (read_msg_.roomcode == roomcode || read_msg_.header == 0x01) {
-                switch (read_msg_.header) {
-                    case 0x02: vsPlayerID = 1;
-                    case 0x01: { // codes
-                        code     = read_msg_.code;
-                        roomcode = read_msg_.roomcode;
-                        // prepare for takeoff :trollsmile:
-                        wait = true;
+                return;
+            if (!code) {
+                if (read_msg_.header == 0x00 && read_msg_.code) {
+                    code = read_msg_.code;
+                }
+                return;
+            }
+
+            switch (read_msg_.header) {
+                case 0x00: {
+                    room = read_msg_.room;
+                    if (read_msg_.data.multiData.type > 2) {
                         ServerPacket send;
-                        send.header   = 0x01;
-                        send.roomcode = roomcode;
+                        send.header = 0xFF;
+                        // dc here
                         write(send);
-                        break;
+                        return;
                     }
-                    case 0x10: { // data
-                        receive2PVSData(&read_msg_.data.multiData);
-                        break;
-                    }
-                    case 0x20: { // send this entity back
-                        SendEntity(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
-                        break;
-                    }
-                    case 0x21: { // send value back
-                        SendValue(&read_msg_.data.multiData.data[0], &read_msg_.data.multiData.data[1]);
-                        break;
-                    }
-                    case 0x81: {
-                        // error handle
-                        break;
-                    }
-                    case 0x80: {
-                        if (wait)
-                            receive2PVSMatchCode(roomcode);
-                        wait = false;
-                        break;
-                    }
-                    case 0xFF: {
-                        // other end disconnected
-                        dcError          = 1;
-                        vsPlaying        = false;
-                        session->running = false;
+
+                    if (read_msg_.data.multiData.type - 1) {
+                        partner = *(uint64_t *)read_msg_.data.multiData.data;
+                        receive2PVSMatchCode(room);
+                        return;
                     }
                 }
+                case 0x01: {
+                    if (partner)
+                        return;
+                    partner = read_msg_.code;
+                    return;
+                }
+                case 0x11: waitForRecieve = true;
+                // fallthrough
+                case 0x10: {
+                    receive2PVSData(&read_msg_.data.multiData);
+                    return;
+                }
+                case 0x21: {
+                    waitForRecieve = false;
+                    return;
+                }
             }
-            if (!write_msgs_.empty())
-                do_write();
-            do_read();
         });
-    }
-
-    void do_write()
-    {
-        if (writing || write_msgs_.empty())
-            return;
-        writing = true;
-        asio::error_code ec;
-        socket_.write_some(asio::buffer(&write_msgs_.front(), sizeof(ServerPacket)), ec);
-        if (!ec && !write_msgs_.empty()) {
-            lastTime = SDL_GetPerformanceCounter();
-            write_msgs_.pop_front();
-            writing = false;
-            do_write();
-        }
-        else if (ec) {
-            socket_.close();
-        }
-        writing = false;
     }
 
     asio::io_context &io_context_;
-    tcp::socket socket_;
+    udp::socket socket;
+    udp::endpoint endpoint;
     ServerPacket read_msg_;
     DataQueue write_msgs_;
 
@@ -169,22 +152,17 @@ private:
 
 std::shared_ptr<NetworkSession> session;
 asio::io_context io_context;
-std::thread loopThread, ioThread;
+std::thread loopThread;
 
 void initNetwork()
 {
     try {
-        tcp::resolver resolver(io_context);
+        udp::resolver resolver(io_context);
         asio::error_code ec;
-        auto endpoints = resolver.resolve(networkHost, std::to_string(networkPort), ec);
+        auto endpoint = *resolver.resolve(udp::v4(), networkHost, std::to_string(networkPort), ec).begin();
         session.reset();
-        auto newsession = std::make_shared<NetworkSession>(io_context, endpoints);
+        auto newsession = std::make_shared<NetworkSession>(io_context, endpoint);
         session.swap(newsession);
-        if (ioThread.joinable()) {
-            io_context.stop();
-            ioThread.join();
-        }
-        ioThread = std::thread([&]() { io_context.run(); });
     } catch (std::exception &e) {
         Engine.onlineActive = false;
         printLog("Failed to initialize networking: %s", e.what());
@@ -195,11 +173,9 @@ void networkLoop()
 {
     try {
         session->start();
-        while (session->running)
-            ;
+        while (session->running) session->run();
 
         session->close();
-        io_context.stop();
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
@@ -214,10 +190,10 @@ void runNetwork()
     loopThread = std::thread(networkLoop);
 }
 
-void sendData()
+void sendData(bool verify)
 {
     ServerPacket send;
-    send.header         = 0x10;
+    send.header         = 0x10 + verify;
     send.data.multiData = multiplayerDataOUT;
     session->write(send);
 }
@@ -232,11 +208,6 @@ void disconnectNetwork(bool finalClose)
     }
     if (loopThread.joinable())
         loopThread.join();
-    if (ioThread.joinable()) {
-        if (!io_context.stopped())
-            io_context.stop();
-        ioThread.join();
-    }
 
     if (finalClose) {
         if (session)

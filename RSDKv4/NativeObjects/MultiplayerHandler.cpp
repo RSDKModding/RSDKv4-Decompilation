@@ -35,7 +35,7 @@ void MultiplayerHandler_Main(void *objPtr)
                 waitingForPing = true;
                 entity->timer  = 0;
                 if (lastPing < 800.0f) {
-                    sprintf(buf, "Ping: %.1fms", lastPing);
+                    sprintf(buf, "Ping: %gms", lastPing);
                     entity->pingLabel->g = 0xFF;
                     entity->pingLabel->b = 0xFF;
                 }
