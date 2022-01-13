@@ -246,7 +246,7 @@ void MultiplayerScreen_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);
 
-    if (dcError)
+    if (dcError && entity->state != MULTIPLAYERSCREEN_STATE_EXIT) 
         CREATE_ENTITY(MultiplayerHandler);
 
     switch (entity->state) {
