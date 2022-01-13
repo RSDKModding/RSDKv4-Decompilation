@@ -301,7 +301,7 @@ void InitUserdata()
 
 #if RETRO_USE_NETWORKING
         ini.SetString("Network", "Host", (char *)"127.0.0.1");
-        StrCopy(networkHost, "127.0.0.1")
+        StrCopy(networkHost, "127.0.0.1");
         ini.SetInteger("Network", "Port", networkPort = 50);
 #endif
 
