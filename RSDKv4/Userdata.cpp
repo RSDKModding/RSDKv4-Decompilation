@@ -282,7 +282,7 @@ void InitUserdata()
         StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
             ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
-            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+            StrCopy(Engine.dataFile[1], "Data2.rsdk");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
             ini.SetString("Dev", "DataFile3", (char *)"Data3.rsdk");
@@ -298,6 +298,12 @@ void InitUserdata()
         skipStartMenu_Config = skipStartMenu;
         ini.SetBool("Game", "DisableFocusPause", disableFocusPause = false);
         disableFocusPause_Config = disableFocusPause;
+
+#if RETRO_USE_NETWORKING
+        ini.SetString("Network", "Host", (char *)"127.0.0.1");
+        StrCopy(networkHost, "127.0.0.1")
+        ini.SetInteger("Network", "Port", networkPort = 50);
+#endif
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -416,8 +422,8 @@ void InitUserdata()
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
             StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
-            ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
-            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+            if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
+                StrCopy(Engine.dataFile[1], "");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
             if (!ini.GetString("Dev", "DataFile3", Engine.dataFile[2]))
