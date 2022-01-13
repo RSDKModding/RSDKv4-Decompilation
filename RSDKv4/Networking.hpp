@@ -13,18 +13,18 @@ extern int networkPort;
 extern float lastPing;
 extern int dcError;
 extern bool waitingForPing;
-extern bool waitForRecieve;
+extern bool waitForVerify;
 
 struct MultiplayerData {
     int type;
     int data[(PACKET_SIZE - 16) / sizeof(int) - 1];
 };
 
-struct alignas(8) ServerPacket {
-    byte header;
-    char game[7];
-    uint64_t code;
-    uint room;
+struct ServerPacket {
+    byte header  = 0;
+    char game[7] = { 0, 0, 0, 0, 0, 0, 0 };
+    uint player  = 0;
+    uint room    = 0;
 
     union {
         unsigned char bytes[PACKET_SIZE - 16];
@@ -40,7 +40,7 @@ void initNetwork();
 void runNetwork();
 void sendData(bool verify = false);
 void disconnectNetwork(bool finalClose = false);
-void sendServerPacket(ServerPacket &send);
+void sendServerPacket(ServerPacket &send, bool verify = false);
 int getRoomCode();
 void setRoomCode(int code);
 

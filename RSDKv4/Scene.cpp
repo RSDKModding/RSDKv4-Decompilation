@@ -336,7 +336,7 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            if (!waitForRecieve) {
+            if (!waitForVerify) {
                 if (timeEnabled) {
                     if (++frameCounter == 60) {
                         frameCounter = 0;

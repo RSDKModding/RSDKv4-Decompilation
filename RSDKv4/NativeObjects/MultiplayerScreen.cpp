@@ -246,6 +246,9 @@ void MultiplayerScreen_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);
 
+    if (dcError)
+        CREATE_ENTITY(MultiplayerHandler);
+
     switch (entity->state) {
         case MULTIPLAYERSCREEN_STATE_ENTER: {
             if (entity->arrowAlpha < 0x100)
@@ -391,8 +394,9 @@ void MultiplayerScreen_Main(void *objPtr)
                             setRoomCode(entity->roomCode);
                             ServerPacket send;
                             send.header = 0x01;
+                            vsPlayerID  = 1; // we are.... Little Guy
 
-                            sendServerPacket(send);
+                            sendServerPacket(send, true);
                         }
                         entity->state = MULTIPLAYERSCREEN_STATE_STARTGAME;
 
@@ -887,8 +891,9 @@ void MultiplayerScreen_Main(void *objPtr)
                 vsItemMode = 1;
             send.data.multiData.type    = 0x00000FF0;
             send.data.multiData.data[0] = (vsGameLength << 4) | (vsItemMode << 8);
+            vsPlayerID                  = 0; // we are... Big Host
 
-            sendServerPacket(send);
+            sendServerPacket(send, true);
             break;
         }
         case MULTIPLAYERSCREEN_STATEDRAW_JOIN: {

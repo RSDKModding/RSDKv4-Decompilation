@@ -18,7 +18,7 @@ int dcError         = 0;
 float lastPing      = 0;
 
 bool waitingForPing = false;
-bool waitForRecieve = false;
+bool waitForVerify  = false;
 
 uint64_t lastTime = 0;
 
@@ -30,26 +30,32 @@ class NetworkSession
 {
 public:
     bool running = false;
-    NetworkSession(asio::io_context &io_context, const udp::endpoint &endpoint) : io_context_(io_context), socket(io_context), endpoint(endpoint)
+    NetworkSession(asio::io_context &io_context, const udp::endpoint &endpoint)
+        : io_context(io_context), socket(io_context), endpoint(endpoint), timer(io_context)
     {
         socket.open(udp::v4());
     }
 
     ~NetworkSession() {}
 
-    void write(const ServerPacket &msg, int forceroom = 0)
+    void write(const ServerPacket &msg, bool repeat = false)
     {
         ServerPacket sent(msg);
-        sent.code = code;
-        sent.room = forceroom ? forceroom : room;
+        sent.player = code;
+        sent.room   = room;
         write_msgs_.push_back(sent);
+        if (repeat) {
+            this->repeat = sent;
+        }
     }
 
     void start()
     {
-        running = true;
+        repeat.header = 0x80;
+        running       = true;
         ServerPacket sent;
-        sent.room = 0x1F2F3F4F;
+        sent.header = 0x00;
+        sent.room   = 0x1F2F3F4F;
         write_msgs_.push_back(sent);
     }
 
@@ -68,10 +74,17 @@ public:
         return *this;
     }
 
-    uint64_t code    = 0;
-    uint64_t partner = 0;
-    bool wait        = false;
-    int room         = 0;
+    uint code    = 0;
+    uint partner = 0;
+    uint room    = 0;
+
+    bool awaitingRecieve = false;
+    bool verifyRecieved  = false;
+
+    bool retried = true;
+    uint retries = 0;
+
+    ServerPacket repeat;
 
     void run()
     {
@@ -84,64 +97,115 @@ public:
             if (send->header == 0xFF)
                 session->running = false;
         }
-        // listen in
-        if (!wait)
+        if (!awaitingRecieve)
             do_read();
+        if (repeat.header != 0x80 && retried) {
+            retried = false;
+            timer.expires_from_now(asio::chrono::seconds(1));
+            timer.async_wait([&](const asio::error_code &) {
+                retried     = true;
+                repeat.room = room;
+                StrCopy(repeat.game, networkGame);
+                if (retries++ == 10)
+                    socket.send_to(asio::buffer(&repeat, sizeof(ServerPacket)), endpoint);
+            });
+        }
+        else if (repeat.header == 0x80)
+            retries = 0;
+        if (retries > 10) {
+            switch (repeat.header) {
+                case 0x01: {
+                    dcError          = 4;
+                    vsPlaying        = false;
+                    session->running = false;
+                    break;
+                }
+                case 0x00: {
+                    if (!room) {
+                        dcError          = 4;
+                        vsPlaying        = false;
+                        session->running = false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        io_context.poll();
+        io_context.restart();
     }
 
 private:
     void do_read()
     {
-        if (wait)
+        if (awaitingRecieve)
             return;
-        wait = true;
+        awaitingRecieve = true;
         socket.async_receive(asio::buffer(&read_msg_, sizeof(ServerPacket)), [&](const asio::error_code &ec, size_t bytes) {
-            wait = false; // async, not threaded. this is safe
+            awaitingRecieve = false; // async, not threaded. this is safe
             if (ec || !session->running)
                 return;
+            // it's ok to use preformace counter; we're in a different thread and slowdown is safe
+            lastPing       = ((SDL_GetPerformanceCounter() - lastTime) * 1000.0 / SDL_GetPerformanceFrequency());
+            lastTime       = SDL_GetPerformanceCounter();
+            waitingForPing = false;
             if (!code) {
-                if (read_msg_.header == 0x00 && read_msg_.code) {
-                    code = read_msg_.code;
+                if (read_msg_.header == 0x00 && read_msg_.player) {
+                    code = read_msg_.player;
                 }
                 return;
             }
 
             switch (read_msg_.header) {
                 case 0x00: {
+                    if (vsPlaying)
+                        return;
                     room = read_msg_.room;
                     if (read_msg_.data.multiData.type > 2) {
                         ServerPacket send;
-                        send.header = 0xFF;
-                        dcError     = 3;
-                        vsPlaying   = false;
+                        send.header      = 0xFF;
+                        dcError          = 3;
+                        vsPlaying        = false;
+                        session->running = false;
                         write(send);
                         return;
                     }
 
                     if (read_msg_.data.multiData.type - 1) {
-                        partner = *(uint64_t *)read_msg_.data.multiData.data;
+                        partner = *read_msg_.data.multiData.data;
                         receive2PVSMatchCode(room);
+                        repeat.header = 0x80;
                         return;
                     }
+                    break;
                 }
                 case 0x01: {
                     if (partner)
                         return;
-                    partner = read_msg_.code;
+                    repeat.header = 0x80;
+                    vsPlayerID    = 0;
+                    partner       = read_msg_.player;
+                    receive2PVSMatchCode(room);
                     return;
                 }
-                case 0x11: waitForRecieve = true;
+                case 0x11:
                 // fallthrough
                 case 0x10: {
                     receive2PVSData(&read_msg_.data.multiData);
                     return;
                 }
+                case 0x20: {
+                    if (repeat.header == 0x11)
+                        repeat.header = 0x20;
+                    return;
+                }
                 case 0x21: {
-                    waitForRecieve = false;
+                    waitForVerify = false;
+                    repeat.header = 0x80;
                     return;
                 }
                 case 0xFF: {
-                    if (read_msg_.code != partner)
+                    if (read_msg_.player != partner)
                         return;
                     dcError          = 1;
                     vsPlaying        = false;
@@ -152,7 +216,8 @@ private:
         });
     }
 
-    asio::io_context &io_context_;
+    asio::io_context &io_context;
+    asio::steady_timer timer;
     udp::socket socket;
     udp::endpoint endpoint;
     ServerPacket read_msg_;
@@ -207,7 +272,9 @@ void sendData(bool verify)
     ServerPacket send;
     send.header         = 0x10 + verify;
     send.data.multiData = multiplayerDataOUT;
-    session->write(send);
+    session->write(send, verify);
+    if (verify)
+        waitForVerify = true;
 }
 
 void disconnectNetwork(bool finalClose)
@@ -227,7 +294,7 @@ void disconnectNetwork(bool finalClose)
     }
 }
 
-void sendServerPacket(ServerPacket &send) { session->write(send); }
+void sendServerPacket(ServerPacket &send, bool repeat) { session->write(send, repeat); }
 int getRoomCode() { return session->room; }
 void setRoomCode(int code) { session->room = code; }
 

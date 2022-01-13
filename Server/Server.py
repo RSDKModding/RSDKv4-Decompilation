@@ -1,22 +1,23 @@
+import builtins
 import socket
 import socketserver
 import struct
 import random
 import sys
 from typing import NamedTuple, Set, Tuple
-from enum import Enum
+from enum import IntEnum
 
 DATASIZE = 0x1000
 CODES: Set[int] = set()
 printmode = 0
 
-SPSTRUCT = struct.Struct(f"B7sQIxxx{DATASIZE - (8 + 8 + 4)}p")
+SPSTRUCT = struct.Struct(f"B7sII{DATASIZE - 16}s")
 EMPTY = b"\0\0\0\0\0\0\0\0"
 
 CONNECT_MAGIC = 0x1F2F3F4F
 
 
-class ClientHeaders(Enum):
+class ClientHeaders(IntEnum):
     REQUEST_CODE = 0x00
     JOIN = 0x01
 
@@ -28,7 +29,7 @@ class ClientHeaders(Enum):
     LEAVE = 0xFF
 
 
-class ServerHeaders(Enum):
+class ServerHeaders(IntEnum):
     CODES = 0x00
     NEW_PLAYER = 0x01
 
@@ -57,35 +58,33 @@ class ServerPacket(NamedTuple):
         return cls._make(SPSTRUCT.unpack(data))
 
     def tobytes(self) -> bytes:
-        return SPSTRUCT.pack(tuple(self))
+        s = ServerPacket(self.header, self.game,
+                         self.player, self.room, self.data)
+        return SPSTRUCT.pack(*tuple(s))
 
     def getint(self, index) -> int:
         return int.from_bytes(self.data[index * 4:(index + 1) * 4], 'little')
 
 
-def hex(i) -> str:
-    return hex(i).upper()[2:].zfill(0)
+def hex(i: int) -> str:
+    return builtins.hex(i).upper()[2:].zfill(8)
 
 
 def randint() -> int:
-    # we add the -1 to protect from & 0xFFFFFFFF
-    return random.randint(1, 0xFFFFFFFFFFFFFFFF - 1)
+    return random.randint(1, 0xFFFFFFFF)
 
 
 class Player:
-    def __init__(self, client, game: "Game", code=0) -> None:
+    def __init__(self, client, code, game: "Game") -> None:
         self.client = client
         self.code: int = code
-        self.room: Room = None
+        self.room: Room = game.get_room(0)
         self.game = game
         game.join(self)
+        self.room.players.add(self)
 
     def move(self, room: "Room"):
-        if self.room:
-            self.room.players.remove(self)
-        else:
-            self.room = NamedTuple("Room", [('code', int)])
-            self.room.code = 0
+        self.room.players.remove(self)
         if printmode:
             print(
                 f"[{self.game.name}] Moved player {hex(self.code)} from {hex(self.room.code)} to {hex(room.code)}")
@@ -97,7 +96,9 @@ class Player:
     def __hash__(self) -> int:
         return self.code
 
-    async def deliver(self, packet: ServerPacket):
+    def deliver(self, packet: ServerPacket):
+        if printmode == 2:
+            print(f"[{self.game.name}/{hex(self.room.code)}] {ServerHeaders(packet.header).name} from {hex(packet.player)} to {hex(self.code)}")
         server.socket.sendto(packet.tobytes(), self.client)
 
 
@@ -130,6 +131,10 @@ class Room:
             if packet.header == ClientHeaders.DATA_VERIFIED:
                 self.verifiying = True
                 self.verified.add(sender)
+                if printmode:
+                    print(
+                        f"[{self.game.name}/{hex(self.code)}] Verifying {len(self.verified)}/{len(self.vcopy)}")
+
             elif not self.verifiying:
                 # hack. if querying and not verifying, use this to force "yes"
                 self.verified = self.players
@@ -142,28 +147,35 @@ class Room:
                 self.vcopy.clear()
                 self.verifiying = False
             else:
-                sender.deliver(ServerPacket(ServerHeaders.RECIEVED),
-                               self.game.bytename, sender.code, self.code, bytes())
+                sender.deliver(ServerPacket(ServerHeaders.RECIEVED,
+                                            self.game.bytename, sender.code, self.code, bytes()))
 
-            if packet.header == ClientHeaders.QUERY_VERIFICATION:
-                return 0
+        if packet.header != ClientHeaders.QUERY_VERIFICATION:
+            for player in self.players:
+                if player.code != sender.code:
+                    player.deliver(packet)
+                    sent += 1
 
         if queueSends:
             for player in self.players:
                 player.deliver(ServerPacket(ServerHeaders.VERIFY_CLEAR,
-                                            self.game.bytename, player.code, self.code, bytes()))
-        for player in self.players:
-            if player.code != sender.code:
-                player.deliver(packet)
-                sent += 1
+                                            self.game.bytename, player.code, self.code, pl))
         return sent
+
+
+class EmptyRoom(Room):
+    def __init__(self, game: "Game") -> None:
+        super().__init__(game, code=0)
+
+    def deliver(self):
+        return
 
 
 class Game:
     def __init__(self, name: bytes) -> None:
         self.name: str = name.decode().rstrip("\x00")
         self.bytename: bytes = name
-        self.rooms: Set[Room] = set()
+        self.rooms: Set[Room] = {EmptyRoom(self)}
 
     def __hash__(self) -> int:
         return hash(self.name)
@@ -172,7 +184,7 @@ class Game:
         self.rooms.add(player.room)
         if printmode:
             print(
-                f"[{self.name}] New player {hex(player.code)}{f' in {hex(player.room.code)}' if player.room else ''}")
+                f"[{self.name}] New player {hex(player.code)}{f' in {hex(player.room.code)}' if player.room.code else ''}")
 
     def leave(self, player: Player) -> bool:
         for r in self.rooms.copy():
@@ -201,11 +213,18 @@ class Handler(socketserver.BaseRequestHandler):
         self.request: Tuple[bytes, socket.socket]
 
         data = ServerPacket.frombytes(self.request[0])
+        try:
+            ClientHeaders(data.header)
+        except:
+            return  # not a valid header
+        if printmode == 2:
+            print(
+                f"(SERVER) {ClientHeaders(data.header).name} from {hex(data.player)} to server")
         if not data.player:
             if data.header != ClientHeaders.REQUEST_CODE and data.room != CONNECT_MAGIC:
                 return  # shhhhhh
-            player = Player(self.client_address, randint())
-            self.server.get_game(data.game).join(player)
+            player = Player(self.client_address, randint(),
+                            self.server.get_game(data.game))
 
             return self.send(ServerHeaders.CODES, player)
 
@@ -215,10 +234,13 @@ class Handler(socketserver.BaseRequestHandler):
             # let's give a room code back and reassign
 
             p = self.server.resolve_player(data.player, data.game)
-            if p.room:
-                return self.send(ServerHeaders.INVALID_HEADER, p)
+            if not p:
+                return self.send_raw(ServerPacket(ServerHeaders.UNKNOWN_PLAYER, data.game, data.player, data.room, bytes()))
+            if p.room.code:
+                return self.send(ServerHeaders.CODES, p, len(p.room.players).to_bytes(4, 'little') + b''.join([x.code.to_bytes(8, "little")
+                                                                                                               for x in p.room.players - {p}]))
             roomid = 0
-            while (roomid and roomid not in [x.code for x in p.game.rooms]):
+            while (roomid in [x.code for x in p.game.rooms]):
                 roomid = ((randint() & 0xFFFFFFFF) & ~
                           data.getint(0)) | data.getint(1)
             r = Room(p.game, roomid)
@@ -229,7 +251,7 @@ class Handler(socketserver.BaseRequestHandler):
             # data will be how many players there are so the client can decide "this is too many players"
             p = self.server.resolve_player(data.player, data.game)
             r = p.game.get_room(data.room)
-            if not r:
+            if not r.code:
                 return self.send(ServerHeaders.NO_ROOM, p)
             p.move(r)
             self.send(ServerHeaders.CODES, p, len(r.players).to_bytes(4, 'little') + b''.join([x.code.to_bytes(8, "little")
