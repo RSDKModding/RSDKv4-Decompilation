@@ -200,7 +200,7 @@ private:
                     return;
                 }
                 case 0x21: {
-                    waitForVerify = false;
+                    //waitForVerify = false;
                     repeat.header = 0x80;
                     return;
                 }
@@ -273,8 +273,8 @@ void sendData(bool verify)
     send.header         = 0x10 + verify;
     send.data.multiData = multiplayerDataOUT;
     session->write(send, verify);
-    if (verify)
-        waitForVerify = true;
+    //if (verify)
+    //    waitForVerify = true;
 }
 
 void disconnectNetwork(bool finalClose)

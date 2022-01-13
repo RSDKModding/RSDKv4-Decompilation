@@ -24,7 +24,7 @@ void MultiplayerHandler_Main(void *objPtr)
         entity->state = 2;
     switch (entity->state) {
         case 0:
-            if (activeStageList != STAGELIST_REGULAR) {
+            if (!(activeStageList & 1)) {
                 entity->state = 1;
                 break;
             }
@@ -82,7 +82,7 @@ void MultiplayerHandler_Main(void *objPtr)
                 RemoveNativeObject(entity);
                 break;
             }
-            else if (activeStageList == STAGELIST_REGULAR)
+            else if (activeStageList & 1)
                 entity->state = 0;
             break;
         case 2:
