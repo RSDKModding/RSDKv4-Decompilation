@@ -201,7 +201,7 @@ class Game:
         for x in self.rooms:
             if x.code == room:
                 return x
-        return None
+        return self.get_room(0)
 
     def deliver(self, packet: ServerPacket, sender: Player) -> int:
         return sender.room.deliver(packet, sender)
