@@ -5,7 +5,7 @@
 void MultiplayerScreen_Create(void *objPtr)
 {
     if (skipStartMenu) {
-// code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
+        // code has been copied here from SegaSplash_Create due to the possibility of loading the 2P stage without the HW menus >:(
         ResetBitmapFonts();
         int heading = 0, labelTex = 0, textTex = 0;
 
@@ -246,6 +246,9 @@ void MultiplayerScreen_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);
 
+    if (dcError)
+        CREATE_ENTITY(MultiplayerHandler);
+
     switch (entity->state) {
         case MULTIPLAYERSCREEN_STATE_ENTER: {
             if (entity->arrowAlpha < 0x100)
@@ -390,11 +393,10 @@ void MultiplayerScreen_Main(void *objPtr)
                         if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_UNSELECTED) { /// hhhhhhack
                             setRoomCode(entity->roomCode);
                             ServerPacket send;
-                            send.header                 = 0;
-                            send.data.multiData.data[1] = (int)strlen(networkGame);
-                            StrCopy((char *)&send.data.multiData.data[2], networkGame);
+                            send.header = 0x01;
+                            vsPlayerID  = 1; // we are.... Little Guy
 
-                            sendServerPacket(send);
+                            sendServerPacket(send, true);
                         }
                         entity->state = MULTIPLAYERSCREEN_STATE_STARTGAME;
 
@@ -410,6 +412,8 @@ void MultiplayerScreen_Main(void *objPtr)
         }
         case MULTIPLAYERSCREEN_STATE_STARTGAME:
         case MULTIPLAYERSCREEN_STATE_EXIT: {
+            if (entity->dialog)
+                entity->dialog->state = DIALOGPANEL_STATE_IDLE;
             if (entity->arrowAlpha > 0)
                 entity->arrowAlpha -= 8;
 
@@ -881,7 +885,7 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->codeLabel[1]->alignPtr(entity->codeLabel[1], ALIGN_CENTER);
 
             ServerPacket send;
-            send.header = 0;
+            send.header = 0x00;
             // send over a preferred roomcode style
             if (!vsGameLength)
                 vsGameLength = 4;
@@ -889,10 +893,9 @@ void MultiplayerScreen_Main(void *objPtr)
                 vsItemMode = 1;
             send.data.multiData.type    = 0x00000FF0;
             send.data.multiData.data[0] = (vsGameLength << 4) | (vsItemMode << 8);
-            send.data.multiData.data[1] = (int)strlen(networkGame);
-            StrCopy((char *)&send.data.multiData.data[2], networkGame);
+            vsPlayerID                  = 0; // we are... Big Host
 
-            sendServerPacket(send);
+            sendServerPacket(send, true);
             break;
         }
         case MULTIPLAYERSCREEN_STATEDRAW_JOIN: {

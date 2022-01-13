@@ -336,37 +336,39 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            if (timeEnabled) {
-                if (++frameCounter == 60) {
-                    frameCounter = 0;
-                    if (++stageSeconds > 59) {
-                        stageSeconds = 0;
-                        if (++stageMinutes > 59)
-                            stageMinutes = 0;
+            if (!waitForVerify) {
+                if (timeEnabled) {
+                    if (++frameCounter == 60) {
+                        frameCounter = 0;
+                        if (++stageSeconds > 59) {
+                            stageSeconds = 0;
+                            if (++stageMinutes > 59)
+                                stageMinutes = 0;
+                        }
                     }
-                }
-                stageMilliseconds = 100 * frameCounter / 60;
-            }
-            else {
-                frameCounter = 60 * stageMilliseconds / 100;
-            }
-
-            // Update
-            Process2PObjects();
-
-            if (cameraTarget > -1) {
-                if (cameraEnabled == 1) {
-                    switch (cameraStyle) {
-                        case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
-                        case 1:
-                        case 2:
-                        case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
-                        case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
-                        default: break;
-                    }
+                    stageMilliseconds = 100 * frameCounter / 60;
                 }
                 else {
-                    SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    frameCounter = 60 * stageMilliseconds / 100;
+                }
+
+                // Update
+                Process2PObjects();
+
+                if (cameraTarget > -1) {
+                    if (cameraEnabled == 1) {
+                        switch (cameraStyle) {
+                            case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
+                            case 1:
+                            case 2:
+                            case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
+                            case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
+                            default: break;
+                        }
+                    }
+                    else {
+                        SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    }
                 }
             }
 
