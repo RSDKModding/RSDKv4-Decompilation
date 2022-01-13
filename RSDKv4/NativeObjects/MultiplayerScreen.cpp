@@ -412,6 +412,8 @@ void MultiplayerScreen_Main(void *objPtr)
         }
         case MULTIPLAYERSCREEN_STATE_STARTGAME:
         case MULTIPLAYERSCREEN_STATE_EXIT: {
+            if (entity->dialog)
+                entity->dialog->state = DIALOGPANEL_STATE_IDLE;
             if (entity->arrowAlpha > 0)
                 entity->arrowAlpha -= 8;
 

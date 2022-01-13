@@ -337,15 +337,16 @@ class Server(socketserver.ThreadingUDPServer):
         return search(player)
 
 
-if len(sys.argv) < 1:
-    print("must have port")
+if len(sys.argv) < 2:
+    print("must have IP and port")
     exit()
 
-p = int(sys.argv[1])
+ip = sys.argv[1]
+p = int(sys.argv[2])
 
-server: Server = Server(("127.0.0.1", p))
+server: Server = Server((ip, p))
 
-if len(sys.argv) > 2:
+if len(sys.argv) > 3:
     for x in sys.argv[2:]:
         if x == "debug":
             printmode = max(printmode, 1)
