@@ -242,6 +242,18 @@ void MultiplayerScreen_DrawJoinCode(void *objPtr, int v)
     entity->enterCodeLabel[v]->useColours = true;
 }
 
+void MultiplayerScreen_Destroy(void *objPtr)
+{
+    RSDK_THIS(MultiplayerScreen);
+    RemoveNativeObject(entity->label);
+    for (int i = 0; i < 3; ++i) RemoveNativeObject(entity->codeLabel[i]);
+    for (int i = 0; i < 8; ++i) RemoveNativeObject(entity->enterCodeLabel[i]);
+    for (int i = 0; i < 2; ++i) RemoveNativeObject(entity->enterCodeSlider[i]);
+    for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
+    RemoveNativeObject(entity->bg);
+    RemoveNativeObject(entity);
+}
+
 void MultiplayerScreen_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);
@@ -453,8 +465,14 @@ void MultiplayerScreen_Main(void *objPtr)
                         sendServerPacket(send, true);
                     }
                 }
-                RemoveNativeObject(entity);
-                // fade will handle the rest of destruction for us
+                MultiplayerScreen_Destroy(entity);
+                NewRenderState();
+                matrixScaleXYZF(&entity->renderMatrix, Engine.windowScale, Engine.windowScale, 1.0);
+                matrixTranslateXYZF(&entity->matrixTemp, 0.0, 0.0, 160.0);
+                matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
+                SetRenderMatrix(&entity->renderMatrix);
+
+                RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                 return;
             }
             break;

@@ -182,7 +182,7 @@ inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMa
 inline void ClearNativeObjects()
 {
     nativeEntityCount = 0;
-    memset(objectEntityBank, 0, sizeof(NativeEntity) * NATIVEENTITY_COUNT);
+    memset(objectEntityBank, 0, sizeof(objectEntityBank));
 }
 
 #endif // !OBJECT_H
