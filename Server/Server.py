@@ -9,7 +9,7 @@ from enum import IntEnum
 
 DATASIZE = 0x1000
 CODES: Set[int] = set()
-printmode = 0
+printmode = 1
 
 SPSTRUCT = struct.Struct(f"B7sII{DATASIZE - 16}s")
 EMPTY = b"\0\0\0\0\0\0\0\0"
@@ -84,12 +84,9 @@ class Player:
         self.room.players.add(self)
 
     def move(self, room: "Room"):
-        self.room.players.remove(self)
-        if printmode:
-            print(
-                f"[{self.game.name}] Moved player {hex(self.code)} from {hex(self.room.code)} to {hex(room.code)}")
+        self.room.leave(self)
         self.room = room
-        self.room.players.add(self)
+        self.room.join(self)
         if self.room not in self.game.rooms:
             self.game.rooms.add(self.room)
 
@@ -114,6 +111,20 @@ class Room:
 
     def __hash__(self) -> int:
         return self.code
+
+    def join(self, player: Player):
+        if player not in self.players:
+            self.players.add(player)
+            if printmode:
+                print(
+                    f"[{self.game.name}/{hex(self.code)}] Player {hex(player.code)} joined")
+
+    def leave(self, player: Player):
+        if player in self.players:
+            self.players.remove(player)
+            if printmode:
+                print(
+                    f"[{self.game.name}/{hex(self.code)}] Player {hex(player.code)} left")
 
     def deliver(self, packet: ServerPacket, sender: Player) -> int:
         sent = 0
@@ -169,6 +180,15 @@ class EmptyRoom(Room):
 
     def deliver(self):
         return
+
+    def join(self, player: Player):
+        self.players.add(player)
+
+    def leave(self, player: Player):
+        try:
+            self.players.remove(player)
+        except:
+            pass
 
 
 class Game:
@@ -270,7 +290,15 @@ class Handler(socketserver.BaseRequestHandler):
             p = self.server.resolve_player(data.player, data.game, data.room)
             if not p or not p.room:
                 return
-            p.room.deliver(data, p)
+            p.room.leave(p)
+            if not p.room.code:
+                return
+            if p.room.players:
+                p.room.deliver(data, p)
+            else:
+                p.game.rooms.remove(p.room)
+                if printmode:
+                    print(f"[{p.game.name}] Room {hex(p.room.code)} disbanded")
 
     def send(self, header, player: Player, data=()):
         self.request[1].sendto(ServerPacket(header, player.game.bytename,
@@ -348,8 +376,10 @@ server: Server = Server((ip, p))
 
 if len(sys.argv) > 3:
     for x in sys.argv[2:]:
+        if x == "silent":
+            printmode = 0
         if x == "debug":
-            printmode = max(printmode, 1)
+            printmode = 1
         if x == "verbose":
             printmode = 2
 

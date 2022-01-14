@@ -86,7 +86,7 @@ void MultiplayerHandler_Main(void *objPtr)
             else if (activeStageList & 1)
                 entity->state = 0;
             break;
-        case 2:
+        case 2: {
             // display error
             StopMusic(true);
             RemoveNativeObject(entity->pingLabel);
@@ -96,15 +96,17 @@ void MultiplayerHandler_Main(void *objPtr)
 
             entity->fadeError               = CREATE_ENTITY(FadeScreen);
             entity->fadeError->state        = FADESCREEN_STATE_FADEOUT;
-            entity->fadeError->fadeSpeed    = 3.0f;
             entity->errorPanel              = CREATE_ENTITY(DialogPanel);
             entity->errorPanel->buttonCount = DLGTYPE_OK;
-            char *set;
+            char *set                       = NULL;
             switch (dcError) {
                 case 1: set = (char *)"The other player has disconnected.\rReturning to title screen."; break;
                 case 2: set = (char *)"Connection timed out.\rReturning to title screen."; break;
-                case 3:
-                    set                      = (char *)"This room is full.\rReturning to title screen.";
+                case 3: set = (char *)"This room is full.\rReturning to title screen.";
+                // fallthrough
+                case 5:
+                    if (!set)
+                        set = (char *)"This room doesn't exist.\rReturning to title screen.";
                     entity->fadeError->timer = entity->fadeError->delay;
                     for (int i = 0; i < nativeEntityCount; ++i) {
                         if (objectEntityBank[activeEntityList[i]].mainPtr == MultiplayerScreen_Main) {
@@ -114,14 +116,14 @@ void MultiplayerHandler_Main(void *objPtr)
                     }
                     break;
                 case 4: set = (char *)"Couldn't connect after 10 retries.\rReturning to title screen."; break;
-                default: set = (char *)"You shouldn't get this message!\rIf you do, message me."; break;
             }
             SetStringToFont8(entity->errorPanel->text, set, FONT_TEXT);
             entity->state = 3;
             dcError       = 0;
+        }
             // FallThrough
         case 3:
-            RenderRetroBuffer(64, 160);
+            RenderRetroBuffer(256, 160);
             if (entity->errorPanel->state == DIALOGPANEL_STATE_EXIT)
                 entity->errorPanel->state = DIALOGPANEL_STATE_IDLE;
             if (entity->fadeError->timer >= entity->fadeError->delay) {

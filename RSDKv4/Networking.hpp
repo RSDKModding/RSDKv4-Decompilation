@@ -32,6 +32,34 @@ struct ServerPacket {
     } data;
 };
 
+enum ClientHeaders {
+    CL_REQUEST_CODE = 0x00,
+    CL_JOIN         = 0x01,
+
+    CL_DATA          = 0x10,
+    CL_DATA_VERIFIED = 0x11,
+
+    CL_QUERY_VERIFICATION = 0x20,
+
+    CL_LEAVE = 0xFF
+};
+enum ServerHeaders {
+    SV_CODES      = 0x00,
+    SV_NEW_PLAYER = 0x01,
+
+    SV_DATA          = 0x10,
+    SV_DATA_VERIFIED = 0x11,
+
+    SV_RECIEVED     = 0x20,
+    SV_VERIFY_CLEAR = 0x21,
+
+    SV_INVALID_HEADER = 0x80,
+    SV_NO_ROOM        = 0x81,
+    SV_UNKNOWN_PLAYER = 0x82,
+
+    SV_LEAVE = 0xFF
+};
+
 class NetworkSession;
 
 extern std::shared_ptr<NetworkSession> session;

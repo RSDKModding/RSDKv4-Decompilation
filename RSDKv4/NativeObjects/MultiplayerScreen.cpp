@@ -459,14 +459,13 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_UNSELECTED) { /// hhhhhhack
                         setRoomCode(entity->roomCode);
                         ServerPacket send;
-                        send.header = 0x01;
+                        send.header = CL_JOIN;
                         vsPlayerID  = 1; // we are.... Little Guy
 
                         sendServerPacket(send, true);
                     }
                 }
                 MultiplayerScreen_Destroy(entity);
-                NewRenderState();
                 matrixScaleXYZF(&entity->renderMatrix, Engine.windowScale, Engine.windowScale, 1.0);
                 matrixTranslateXYZF(&entity->matrixTemp, 0.0, 0.0, 160.0);
                 matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
@@ -904,7 +903,7 @@ void MultiplayerScreen_Main(void *objPtr)
             entity->codeLabel[1]->alignPtr(entity->codeLabel[1], ALIGN_CENTER);
 
             ServerPacket send;
-            send.header = 0x00;
+            send.header = CL_REQUEST_CODE;
             // send over a preferred roomcode style
             if (!vsGameLength)
                 vsGameLength = 4;

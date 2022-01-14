@@ -54,7 +54,7 @@ public:
         repeat.header = 0x80;
         running       = true;
         ServerPacket sent;
-        sent.header = 0x00;
+        sent.header = CL_REQUEST_CODE;
         sent.room   = 0x1F2F3F4F;
         write_msgs_.push_back(sent);
     }
@@ -135,6 +135,14 @@ public:
         io_context.restart();
     }
 
+    void leave()
+    {
+        ServerPacket send;
+        send.header = CL_LEAVE;
+        vsPlaying   = false;
+        write(send);
+    }
+
 private:
     void do_read()
     {
@@ -150,24 +158,20 @@ private:
             lastTime       = SDL_GetPerformanceCounter();
             waitingForPing = false;
             if (!code) {
-                if (read_msg_.header == 0x00 && read_msg_.player) {
+                if (read_msg_.header == SV_CODES && read_msg_.player) {
                     code = read_msg_.player;
                 }
                 return;
             }
 
             switch (read_msg_.header) {
-                case 0x00: {
+                case SV_CODES: {
                     if (vsPlaying)
                         return;
                     room = read_msg_.room;
                     if (read_msg_.data.multiData.type > 2) {
-                        ServerPacket send;
-                        send.header      = 0xFF;
-                        dcError          = 3;
-                        vsPlaying        = false;
-                        session->running = false;
-                        write(send);
+                        dcError = 3;
+                        leave();
                         return;
                     }
 
@@ -179,7 +183,7 @@ private:
                     }
                     break;
                 }
-                case 0x01: {
+                case SV_NEW_PLAYER: {
                     if (partner)
                         return;
                     repeat.header = 0x80;
@@ -188,28 +192,32 @@ private:
                     receive2PVSMatchCode(room);
                     return;
                 }
-                case 0x11:
+                case SV_DATA_VERIFIED:
                 // fallthrough
-                case 0x10: {
+                case SV_DATA: {
                     receive2PVSData(&read_msg_.data.multiData);
                     return;
                 }
-                case 0x20: {
-                    if (repeat.header == 0x11)
-                        repeat.header = 0x20;
+                case SV_RECIEVED: {
+                    if (repeat.header == CL_DATA_VERIFIED)
+                        repeat.header = CL_QUERY_VERIFICATION;
                     return;
                 }
-                case 0x21: {
-                    //waitForVerify = false;
+                case SV_VERIFY_CLEAR: {
+                    // waitForVerify = false;
                     repeat.header = 0x80;
                     return;
                 }
-                case 0xFF: {
+                case SV_NO_ROOM: {
+                    leave();
+                    dcError = 5;
+                    return;
+                }
+                case SV_LEAVE: {
                     if (read_msg_.player != partner)
                         return;
-                    dcError          = 1;
-                    vsPlaying        = false;
-                    session->running = false;
+                    leave();
+                    dcError = 1;
                     return;
                 }
             }
@@ -270,21 +278,17 @@ void runNetwork()
 void sendData(bool verify)
 {
     ServerPacket send;
-    send.header         = 0x10 + verify;
+    send.header         = CL_DATA + verify;
     send.data.multiData = multiplayerDataOUT;
     session->write(send, verify);
-    //if (verify)
+    // if (verify)
     //    waitForVerify = true;
 }
 
 void disconnectNetwork(bool finalClose)
 {
-    if (session->running) {
-        ServerPacket send;
-        send.header = 0xFF;
-        session->write(send);
-        session->running = false;
-    }
+    if (session->running)
+        session->leave();
     if (loopThread.joinable())
         loopThread.join();
 
