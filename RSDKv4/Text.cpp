@@ -405,11 +405,12 @@ void LoadConfigListText(TextMenu *menu, int listNo)
 
             if (listNo == 0) { // Player List
                 AddTextMenuEntry(menu, strBuf);
-                StrCopy(playerListText[p], strBuf);
+                StrCopy(playerListText[menu->rowCount], strBuf);
             }
         }
 
         // Categories
+        int entryID = 0;
         for (byte c = 1; c <= 4; ++c) {
             byte stageCnt = 0;
             FileRead(&stageCnt, 1);
@@ -417,12 +418,12 @@ void LoadConfigListText(TextMenu *menu, int listNo)
                 // Stage Folder
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);
-                strBuf[strLen] = 0;
+                strBuf[strLen] = '\0';
 
                 // Stage ID
                 FileRead(&strLen, 1);
                 FileRead(&strBuf, strLen);
-                strBuf[strLen] = 0;
+                strBuf[strLen] = '\0';
 
                 // Stage Name
                 FileRead(&strLen, 1);
@@ -432,8 +433,8 @@ void LoadConfigListText(TextMenu *menu, int listNo)
                 // IsHighlighted
                 FileRead(&fileBuffer, 1);
                 if (listNo == c) {
-                    menu->entryHighlight[s] = fileBuffer;
                     AddTextMenuEntry(menu, strBuf);
+                    menu->entryHighlight[menu->rowCount - 1] = fileBuffer;
                 }
             }
         }
