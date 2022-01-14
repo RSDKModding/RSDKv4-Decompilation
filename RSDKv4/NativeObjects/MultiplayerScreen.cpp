@@ -246,7 +246,7 @@ void MultiplayerScreen_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerScreen);
 
-    if (dcError && entity->state != MULTIPLAYERSCREEN_STATE_EXIT) 
+    if (dcError && entity->state == MULTIPLAYERSCREEN_STATE_HOSTSCR)
         CREATE_ENTITY(MultiplayerHandler);
 
     switch (entity->state) {
@@ -310,10 +310,13 @@ void MultiplayerScreen_Main(void *objPtr)
                         entity->buttons[entity->selectedButton]->state = PUSHBUTTON_STATE_FLASHING;
                         entity->state                                  = MULTIPLAYERSCREEN_STATE_ACTION;
                     }
-                    else if (inputPress.B) {
+                    else if (inputPress.B || entity->backPressed) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = false;
-                        entity->state       = MULTIPLAYERSCREEN_STATE_EXIT;
+                        entity->backPressed           = false;
+                        entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
+                        NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
+                        fade->delay                   = 1.1f;
+                        fade->state                   = FADESCREEN_STATE_FADEOUT;
                     }
                 }
             }
@@ -350,10 +353,9 @@ void MultiplayerScreen_Main(void *objPtr)
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed           = false;
                         entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
-                        NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen); // fade back to menu
-                        fade->fadeSpeed               = 1.0;
-                        fade->delay                   = 0.5;
-                        fade->state                   = FADESCREEN_STATE_FADEIN_CLEAR;
+                        NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
+                        fade->delay                   = 1.0;
+                        fade->state                   = FADESCREEN_STATE_FADEOUT;
                     }
                     else {
                         if (entity->state == MULTIPLAYERSCREEN_STATE_MAIN) {
@@ -390,20 +392,10 @@ void MultiplayerScreen_Main(void *objPtr)
                         entity->nextStateDraw = MULTIPLAYERSCREEN_STATEDRAW_JOIN;
                         break;
                     case MULTIPLAYERSCREEN_BUTTON_JOINROOM: {
-                        if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_UNSELECTED) { /// hhhhhhack
-                            setRoomCode(entity->roomCode);
-                            ServerPacket send;
-                            send.header = 0x01;
-                            vsPlayerID  = 1; // we are.... Little Guy
-
-                            sendServerPacket(send, true);
-                        }
-                        entity->state = MULTIPLAYERSCREEN_STATE_STARTGAME;
-
-                        NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen); // TODO: get rdc to figure out what's going on here
+                        entity->state                 = MULTIPLAYERSCREEN_STATE_STARTGAME;
+                        NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->state                   = FADESCREEN_STATE_GAMEFADEOUT;
-                        fade->fadeSpeed               = 1.0f;
-                        fade->delay                   = 0.5f;
+                        fade->delay                   = 1.1f;
                         break;
                     }
                 }
@@ -417,11 +409,11 @@ void MultiplayerScreen_Main(void *objPtr)
             if (entity->arrowAlpha > 0)
                 entity->arrowAlpha -= 8;
 
-            if (entity->timer < 0.2)
+            /*if (entity->timer < 0.2)
                 entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
             else
                 entity->scale = fmaxf(entity->scale + ((-1.0f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
-
+            //*/
             NewRenderState();
             matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
             matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
@@ -439,14 +431,7 @@ void MultiplayerScreen_Main(void *objPtr)
 
             entity->timer += Engine.deltaTime;
             if (entity->timer > 0.5) {
-                RemoveNativeObject(entity->label);
-                for (int i = 0; i < 3; ++i) RemoveNativeObject(entity->codeLabel[i]);
-                for (int i = 0; i < 8; ++i) RemoveNativeObject(entity->enterCodeLabel[i]);
-                for (int i = 0; i < 2; ++i) RemoveNativeObject(entity->enterCodeSlider[i]);
-                for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
-                RemoveNativeObject(entity->bg);
-                RemoveNativeObject(entity);
-                if (entity->state == MULTIPLAYERSCREEN_STATE_EXIT)
+                if (entity->state == MULTIPLAYERSCREEN_STATE_EXIT) {
                     if (skipStartMenu) {
                         ClearGraphicsData();
                         ClearAnimationData();
@@ -457,6 +442,19 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
                     else
                         Engine.gameMode = ENGINE_RESETGAME;
+                }
+                else {
+                    if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_UNSELECTED) { /// hhhhhhack
+                        setRoomCode(entity->roomCode);
+                        ServerPacket send;
+                        send.header = 0x01;
+                        vsPlayerID  = 1; // we are.... Little Guy
+
+                        sendServerPacket(send, true);
+                    }
+                }
+                RemoveNativeObject(entity);
+                // fade will handle the rest of destruction for us
                 return;
             }
             break;
@@ -519,7 +517,7 @@ void MultiplayerScreen_Main(void *objPtr)
             else {
                 // listen.
                 if (Engine.gameMode != ENGINE_WAIT2PVS) {
-                    entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_SELECTED; // HAck
+                    entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_UNSELECTED; // HAck
                     entity->selectedButton                                    = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                     entity->state                                             = MULTIPLAYERSCREEN_STATE_ACTION;
                 }
@@ -652,7 +650,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (inputPress.start || inputPress.A) {
                         if (entity->selectedButton == MULTIPLAYERSCREEN_BUTTON_JOINROOM) {
                             PlaySfxByName("Menu Select", false);
-                            entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_FLASHING;
+                            entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_UNSELECTED;
                             entity->selectedButton                                    = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                             entity->state                                             = MULTIPLAYERSCREEN_STATE_ACTION;
                         }
@@ -668,7 +666,7 @@ void MultiplayerScreen_Main(void *objPtr)
                                     MultiplayerScreen_DrawJoinCode(entity, 0);
                                     entity->enterCodeLabel[0]->useColours = false;
                                     entity->selectedButton                = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
-                                    if (Engine.gameType == GAME_SONIC1)
+                                    if (Engine.gameType == GAME_SONIC1) //??
                                         PlaySfxByName("Lamp Post", false);
                                     else
                                         PlaySfxByName("Star Post", false);
@@ -789,7 +787,7 @@ void MultiplayerScreen_Main(void *objPtr)
 
                     if (entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_FLASHING;
+                        entity->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_UNSELECTED;
                         entity->selectedButton                                    = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                         entity->state                                             = MULTIPLAYERSCREEN_STATE_ACTION;
                     }
@@ -848,9 +846,12 @@ void MultiplayerScreen_Main(void *objPtr)
             }
             else if (entity->dialog->selection == DLG_YES) {
                 PlaySfxByName("Menu Back", false);
-                entity->backPressed = false;
-                entity->state       = MULTIPLAYERSCREEN_STATE_EXIT;
-                entity->timer       = 0;
+                entity->backPressed           = false;
+                entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
+                entity->timer                 = 0;
+                NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
+                fade->delay                   = 1.1f;
+                fade->state                   = FADESCREEN_STATE_FADEOUT;
                 disconnectNetwork();
                 initNetwork();
             }

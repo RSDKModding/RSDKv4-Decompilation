@@ -71,7 +71,7 @@ struct NativeEntity {
     void (*mainPtr)(void *objPtr);
     int slotID;
     int objectID;
-    byte extra[0x400];
+    void *extra[0x100];
 };
 
 enum ObjectTypes {
@@ -148,16 +148,13 @@ void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), v
 void ProcessNativeObjects();
 inline void BackupNativeObjects()
 {
-    memset(backupEntityList, 0, sizeof(backupEntityList));
-    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
-
     memcpy(backupEntityList, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackup = nativeEntityCount;
 }
 inline void BackupNativeObjectsSettings()
 {
-    memcpy(backupEntityListS, activeEntityList, sizeof(int) * NATIVEENTITY_COUNT);
+    memcpy(backupEntityListS, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackupS, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackupS = nativeEntityCount;
 }
@@ -176,8 +173,9 @@ inline NativeEntity *GetNativeObject(uint objID)
 inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
 {
     for (int i = nativeEntityCount - 1; i >= 0; --i) {
-        if (objectEntityBank[i].createPtr == objCreate && objectEntityBank[i].mainPtr == objMain) {
-            RemoveNativeObject((NativeEntityBase *)&objectEntityBank[i]);
+        NativeEntity *entity = &objectEntityBank[activeEntityList[i]];
+        if (entity->createPtr == objCreate && entity->mainPtr == objMain) {
+            RemoveNativeObject((NativeEntityBase *)entity);
         }
     }
 }

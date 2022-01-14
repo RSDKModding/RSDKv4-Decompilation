@@ -419,7 +419,7 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
         return entity;
     }
     else if (nativeEntityCount >= NATIVEENTITY_COUNT) {
-        // TODO
+        // TODO, probably never
         return NULL;
     }
     else {
@@ -450,7 +450,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
         int slotStore                    = 0;
         objectRemoveFlag[entity->slotID] = true;
         int s                            = 0;
-        for (; s < nativeEntityCount; ++s) {
+        do {
             if (!objectRemoveFlag[s]) {
                 if (s != slotStore) {
                     int store                   = activeEntityList[s];
@@ -459,7 +459,8 @@ void RemoveNativeObject(NativeEntityBase *entity)
                 }
                 ++slotStore;
             }
-        }
+            ++s;
+        } while (s != nativeEntityCount);
         nativeEntityCount = s - 1;
     }
 }
@@ -489,12 +490,6 @@ void RestoreNativeObjects()
 {
     memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
-#if !RETRO_USE_ORIGINAL_CODE
-    if (!nativeEntityCountBackup) {
-        CREATE_ENTITY(SegaSplash);
-        nativeEntityCountBackup = 1;
-    }
-#endif
     nativeEntityCount = nativeEntityCountBackup;
 
     CREATE_ENTITY(FadeScreen)->state = FADESCREEN_STATE_MENUFADEIN;
@@ -504,23 +499,11 @@ void RestoreNativeObjectsNoFade()
 {
     memcpy(activeEntityList, backupEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBank, objectEntityBackup, sizeof(objectEntityBank));
-#if !RETRO_USE_ORIGINAL_CODE
-    if (!nativeEntityCountBackup) {
-        CREATE_ENTITY(SegaSplash);
-        nativeEntityCountBackup = 1;
-    }
-#endif
     nativeEntityCount = nativeEntityCountBackup;
 }
 void RestoreNativeObjectsSettings()
 {
     memcpy(activeEntityList, backupEntityListS, sizeof(activeEntityList));
     memcpy(objectEntityBank, objectEntityBackupS, sizeof(objectEntityBank));
-#if !RETRO_USE_ORIGINAL_CODE
-    if (!nativeEntityCountBackupS) {
-        CREATE_ENTITY(SegaSplash);
-        nativeEntityCountBackupS = 1;
-    }
-#endif
     nativeEntityCount = nativeEntityCountBackupS;
 }

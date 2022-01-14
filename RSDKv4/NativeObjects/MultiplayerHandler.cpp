@@ -91,6 +91,7 @@ void MultiplayerHandler_Main(void *objPtr)
             RemoveNativeObject(entity->pingLabel);
             RemoveNativeObjectType(RetroGameLoop_Create, RetroGameLoop_Main);
             RemoveNativeObjectType(VirtualDPad_Create, VirtualDPad_Main);
+            RemoveNativeObjectType(FadeScreen_Create, FadeScreen_Main);
             entity->errorPanel              = CREATE_ENTITY(DialogPanel);
             entity->errorPanel->buttonCount = DLGTYPE_OK;
             char *set;

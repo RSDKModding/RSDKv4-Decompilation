@@ -57,16 +57,6 @@ void FadeScreen_Main(void *objPtr)
                 Engine.nativeMenuFadeIn = false;
             }
             break;
-        case FADESCREEN_STATE_FADEIN_CLEAR:
-            entity->fadeA = ((entity->delay - entity->timer) * 256.0f);
-            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
-                       entity->fadeA);
-            if (entity->timer > entity->delay) {
-                ClearNativeObjects();
-                RestoreNativeObjects();
-                Engine.nativeMenuFadeIn = false;
-            }
-            break;
 #endif
     }
 }
