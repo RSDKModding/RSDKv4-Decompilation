@@ -59,6 +59,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
   * Run `make -j5`.
     * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
     * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+  * Copy the 'Data.rsdk' into the 'bin' folder inside of the repository, and launch 'RSDKv4'.
 ### Server (Only required to host Sonic 2 multiplayer servers)
 * Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
 * Run `make -j5`
