@@ -78,8 +78,8 @@ public:
     uint partner = 0;
     uint room    = 0;
 
-    bool awaitingRecieve = false;
-    bool verifyRecieved  = false;
+    bool awaitingReceive = false;
+    bool verifyReceived  = false;
 
     bool retried = true;
     uint retries = 0;
@@ -97,7 +97,7 @@ public:
             if (send->header == 0xFF)
                 session->running = false;
         }
-        if (!awaitingRecieve)
+        if (!awaitingReceive)
             do_read();
         if (repeat.header != 0x80 && retried) {
             retried = false;
@@ -146,11 +146,11 @@ public:
 private:
     void do_read()
     {
-        if (awaitingRecieve)
+        if (awaitingReceive)
             return;
-        awaitingRecieve = true;
+        awaitingReceive = true;
         socket.async_receive(asio::buffer(&read_msg_, sizeof(ServerPacket)), [&](const asio::error_code &ec, size_t bytes) {
-            awaitingRecieve = false; // async, not threaded. this is safe
+            awaitingReceive = false; // async, not threaded. this is safe
             if (ec || !session->running)
                 return;
             // it's ok to use preformace counter; we're in a different thread and slowdown is safe
@@ -198,7 +198,7 @@ private:
                     receive2PVSData(&read_msg_.data.multiData);
                     return;
                 }
-                case SV_RECIEVED: {
+                case SV_RECEIVED: {
                     if (repeat.header == CL_DATA_VERIFIED)
                         repeat.header = CL_QUERY_VERIFICATION;
                     return;

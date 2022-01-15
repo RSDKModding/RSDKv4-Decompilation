@@ -36,7 +36,7 @@ class ServerHeaders(IntEnum):
     DATA = 0x10
     DATA_VERIFIED = 0x11
 
-    RECIEVED = 0x20
+    RECEIVED = 0x20
     VERIFY_CLEAR = 0x21
 
     INVALID_HEADER = 0x80
@@ -158,7 +158,7 @@ class Room:
                 self.vcopy.clear()
                 self.verifiying = False
             else:
-                sender.deliver(ServerPacket(ServerHeaders.RECIEVED,
+                sender.deliver(ServerPacket(ServerHeaders.RECEIVED,
                                             self.game.bytename, sender.code, self.code, bytes()))
 
         if packet.header != ClientHeaders.QUERY_VERIFICATION:

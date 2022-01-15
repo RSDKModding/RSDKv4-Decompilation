@@ -50,7 +50,7 @@ enum ServerHeaders {
     SV_DATA          = 0x10,
     SV_DATA_VERIFIED = 0x11,
 
-    SV_RECIEVED     = 0x20,
+    SV_RECEIVED     = 0x20,
     SV_VERIFY_CLEAR = 0x21,
 
     SV_INVALID_HEADER = 0x80,

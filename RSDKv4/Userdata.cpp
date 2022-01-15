@@ -1100,13 +1100,13 @@ void SendValue(int *value, int *verify)
 #endif
     }
 }
-bool recieveReady = false;
+bool receiveReady = false;
 void ReceiveEntity(int *entityID, int *incrementPos)
 {
     // printLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
 
-    if (Engine.onlineActive && recieveReady) {
-        // recieveReady = false;
+    if (Engine.onlineActive && receiveReady) {
+        // receiveReady = false;
         if (*incrementPos == 1) {
             if (multiplayerDataIN.type == 1) {
                 memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
@@ -1122,8 +1122,8 @@ void ReceiveValue(int *value, int *incrementPos)
 {
     // printLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
 
-    if (Engine.onlineActive && recieveReady) {
-        // recieveReady = false;
+    if (Engine.onlineActive && receiveReady) {
+        // receiveReady = false;
         if (*incrementPos == 1) {
             if (matchValueReadPos != matchValueWritePos) {
                 *value = matchValueData[matchValueReadPos];
@@ -1151,7 +1151,7 @@ void TransmitGlobal(int *globalValue, const char *globalName)
 
 void receive2PVSData(MultiplayerData *data)
 {
-    recieveReady = true;
+    receiveReady = true;
     switch (data->type) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
@@ -1164,7 +1164,7 @@ void receive2PVSData(MultiplayerData *data)
 
 void receive2PVSMatchCode(int code)
 {
-    recieveReady = true;
+    receiveReady = true;
     code &= 0x00000FF0;
     code |= 0x00001000 * vsPlayerID;
     matchValueData[matchValueWritePos++] = code;
