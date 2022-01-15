@@ -6,6 +6,7 @@ import random
 import sys
 from typing import NamedTuple, Set, Tuple
 from enum import IntEnum
+from datetime import datetime
 
 DATASIZE = 0x1000
 CODES: Set[int] = set()
@@ -72,6 +73,9 @@ def hex(i: int) -> str:
 
 def randint() -> int:
     return random.randint(1, 0xFFFFFFFF)
+
+def print(*args):
+    builtins.print(datetime.now().strftime("[%m-%d-%y %H:%M:%S]"), *args)
 
 
 class Player:
