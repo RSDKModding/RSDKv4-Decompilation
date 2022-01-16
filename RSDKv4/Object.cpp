@@ -442,6 +442,15 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
 }
 void RemoveNativeObject(NativeEntityBase *entity)
 {
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!entity)
+        return;
+    memcpy(&activeEntityList[entity->objectID], &activeEntityList[entity->objectID + 1], sizeof(int) * (NATIVEENTITY_COUNT - (entity->objectID + 2)));
+    --nativeEntityCount;
+    for (int i = entity->slotID; objectEntityBank[i].mainPtr; ++i) objectEntityBank[i].objectID--;
+#else
+    // this actually behaves COMPLETELY improperly, duplicating the deleted one instead
+    // the above code is my attempt to make a proper version
     if (nativeEntityCount <= 0) {
         objectRemoveFlag[entity->slotID] = true;
     }
@@ -463,6 +472,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
         } while (s != nativeEntityCount);
         nativeEntityCount = s - 1;
     }
+#endif
 }
 void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void (*main)(void *objPtr))
 {

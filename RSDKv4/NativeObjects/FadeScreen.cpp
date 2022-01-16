@@ -13,6 +13,15 @@ void FadeScreen_Main(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
 
+#if !RETRO_USE_ORIGINAL_CODE
+    MatrixF render, temp;
+    NewRenderState();
+    matrixScaleXYZF(&render, Engine.windowScale, Engine.windowScale, 1.0);
+    matrixTranslateXYZF(&temp, 0.0, 0.0, 160.0);
+    matrixMultiplyF(&render, &temp);
+    SetRenderMatrix(&render);
+#endif
+
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
     switch (entity->state) {

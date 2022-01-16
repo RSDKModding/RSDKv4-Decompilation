@@ -9,6 +9,7 @@ struct NativeEntity_MultiplayerHandler : NativeEntityBase {
     NativeEntity_TextLabel *pingLabel;
     NativeEntity_DialogPanel *errorPanel;
     NativeEntity_FadeScreen *fade;
+    NativeEntity_FadeScreen *fadeError;
 };
 
 void MultiplayerHandler_Create(void *objPtr);
