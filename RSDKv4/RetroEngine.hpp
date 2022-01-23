@@ -72,7 +72,6 @@ typedef unsigned int uint;
 #elif defined __SWITCH__
 #define RETRO_PLATFORM   (RETRO_SWITCH)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
-#undef RETRO_USE_NETWORKING
 #elif defined __ANDROID__
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
