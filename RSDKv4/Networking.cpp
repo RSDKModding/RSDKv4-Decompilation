@@ -14,6 +14,7 @@
 #endif // RETRO_PLATFORM == RETRO_ANDROID
 #include <asio/io_context.hpp>
 #include <asio/ip/udp.hpp>
+#include <asio/steady_timer.hpp>
 
 using asio::ip::udp;
 asio::io_context io_context;
@@ -111,11 +112,7 @@ public:
 
     ServerPacket repeat;
 
-    void timerCB(
-#if RETRO_PLATFORM != RETRO_SWITCH
-        const asio::error_code &
-#endif
-    )
+    void timerCB()
     {
         retried     = true;
         repeat.room = room;
@@ -141,7 +138,7 @@ public:
             retried = false;
 #if RETRO_PLATFORM != RETRO_SWITCH
             timer.expires_from_now(asio::chrono::seconds(1));
-            timer.async_wait(timerCB);
+            timer.async_wait([&](const asio::error_code &) { timerCB(); });
 #else
             retryTime = time(NULL);
 #endif
@@ -206,10 +203,7 @@ private:
     udp::socket socket;
     udp::endpoint endpoint;
 #else
-    void do_write(ServerPacket *send)
-    {
-        int sent = sendto(sockfd, send, sizeof(ServerPacket), 0, (sockaddr *)&servaddr, sizeof(servaddr));
-    }
+    void do_write(ServerPacket *send) { int sent = sendto(sockfd, send, sizeof(ServerPacket), 0, (sockaddr *)&servaddr, sizeof(servaddr)); }
 
     void do_read()
     {
@@ -395,10 +389,7 @@ void disconnectNetwork(bool finalClose)
     }
 }
 
-void sendServerPacket(ServerPacket &send, bool repeat)
-{
-    session->write(send, repeat);
-}
+void sendServerPacket(ServerPacket &send, bool repeat) { session->write(send, repeat); }
 int getRoomCode() { return session->room; }
 void setRoomCode(int code) { session->room = code; }
 
