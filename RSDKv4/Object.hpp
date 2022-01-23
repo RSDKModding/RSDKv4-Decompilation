@@ -55,7 +55,8 @@ struct Entity {
     byte jumpPress;
     byte jumpHold;
     byte scrollTracking;
-    byte floorSensors[5];
+    // was 3 on S1 release, but bumped up to 5 for S2
+    byte floorSensors[RETRO_REV00 ? 3 : 5];
 };
 
 struct NativeEntityBase {
@@ -70,7 +71,7 @@ struct NativeEntity {
     void (*mainPtr)(void *objPtr);
     int slotID;
     int objectID;
-    byte extra[0x400];
+    void *extra[0x100];
 };
 
 enum ObjectTypes {
@@ -130,7 +131,9 @@ void ProcessStartupObjects();
 void ProcessObjects();
 void ProcessPausedObjects();
 void ProcessFrozenObjects();
+#if !RETRO_REV00
 void Process2PObjects();
+#endif
 
 void SetObjectTypeName(const char *objectName, int objectID);
 
@@ -145,16 +148,13 @@ void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), v
 void ProcessNativeObjects();
 inline void BackupNativeObjects()
 {
-    memset(backupEntityList, 0, sizeof(backupEntityList));
-    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
-
     memcpy(backupEntityList, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackup = nativeEntityCount;
 }
 inline void BackupNativeObjectsSettings()
 {
-    memcpy(backupEntityListS, activeEntityList, sizeof(int) * NATIVEENTITY_COUNT);
+    memcpy(backupEntityListS, activeEntityList, sizeof(activeEntityList));
     memcpy(objectEntityBackupS, objectEntityBank, sizeof(objectEntityBank));
     nativeEntityCountBackupS = nativeEntityCount;
 }
@@ -173,15 +173,16 @@ inline NativeEntity *GetNativeObject(uint objID)
 inline void RemoveNativeObjectType(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr))
 {
     for (int i = nativeEntityCount - 1; i >= 0; --i) {
-        if (objectEntityBank[i].createPtr == objCreate && objectEntityBank[i].mainPtr == objMain) {
-            RemoveNativeObject((NativeEntityBase *)&objectEntityBank[i]);
+        NativeEntity *entity = &objectEntityBank[activeEntityList[i]];
+        if (entity->createPtr == objCreate && entity->mainPtr == objMain) {
+            RemoveNativeObject((NativeEntityBase *)entity);
         }
     }
 }
 inline void ClearNativeObjects()
 {
     nativeEntityCount = 0;
-    memset(objectEntityBank, 0, sizeof(NativeEntity) * NATIVEENTITY_COUNT);
+    memset(objectEntityBank, 0, sizeof(objectEntityBank));
 }
 
 #endif // !OBJECT_H

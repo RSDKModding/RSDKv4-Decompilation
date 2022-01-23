@@ -34,7 +34,7 @@ bool vsPlaying   = false;
 
 int sendCounter = 0;
 
-#if RETRO_PLATFORM == RETRO_OSX
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -48,6 +48,24 @@ bool disableFocusPause        = false;
 bool disableFocusPause_Config = false;
 
 bool useSGame = false;
+
+#if RETRO_PLATFORM == RETRO_LINUX
+std::string getXDGDataPath()
+{
+    std::string path;
+    char const *dataHome = getenv("XDG_DATA_HOME");
+    if (dataHome == NULL) {
+        char const *home = getenv("HOME");
+        path += home;
+        path += "/.local/share";
+    }
+    else {
+        path += dataHome;
+    }
+    path += "/RSDKv4";
+    return path;
+}
+#endif
 
 bool ReadSaveRAMData()
 {
@@ -63,6 +81,8 @@ bool ReadSaveRAMData()
     sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -93,6 +113,8 @@ bool ReadSaveRAMData()
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -124,6 +146,7 @@ bool ReadSaveRAMData()
 bool WriteSaveRAMData()
 {
     char buffer[0x180];
+
     if (!useSGame) {
 #if RETRO_USE_MOD_LOADER
 #if RETRO_PLATFORM == RETRO_UWP
@@ -135,6 +158,8 @@ bool WriteSaveRAMData()
         sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -164,6 +189,8 @@ bool WriteSaveRAMData()
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
         sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+        sprintf(buffer, "%s/%sSGame.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
         sprintf(buffer, "%s%sSGame.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -204,6 +231,11 @@ void InitUserdata()
     sprintf(modsPath, "%s/RSDKv4/", getResourcesPath());
 
     mkdir(gamePath, 0777);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(gamePath, "%s", getXDGDataPath().c_str());
+    sprintf(modsPath, "%s/", getXDGDataPath().c_str());
+
+    mkdir(getXDGDataPath().c_str(), 0755);
 #elif RETRO_PLATFORM == RETRO_ANDROID
     {
         char buffer[0x200];
@@ -234,6 +266,8 @@ void InitUserdata()
         sprintf(buffer, "%ssettings.ini", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
     sprintf(buffer, "%s/settings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/settings.ini", getXDGDataPath().c_str());
 #else
     sprintf(buffer, BASE_PATH "settings.ini");
 #endif
@@ -255,7 +289,7 @@ void InitUserdata()
         StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
             ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
-            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+            StrCopy(Engine.dataFile[1], "Data2.rsdk");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
             ini.SetString("Dev", "DataFile3", (char *)"Data3.rsdk");
@@ -271,6 +305,12 @@ void InitUserdata()
         skipStartMenu_Config = skipStartMenu;
         ini.SetBool("Game", "DisableFocusPause", disableFocusPause = false);
         disableFocusPause_Config = disableFocusPause;
+
+#if RETRO_USE_NETWORKING
+        ini.SetString("Network", "Host", (char *)"127.0.0.1");
+        StrCopy(networkHost, "127.0.0.1");
+        ini.SetInteger("Network", "Port", networkPort = 50);
+#endif
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
@@ -393,8 +433,8 @@ void InitUserdata()
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
             StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
-            ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
-            StrCopy(Engine.dataFile[2], "Data2.rsdk");
+            if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
+                StrCopy(Engine.dataFile[1], "");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
             if (!ini.GetString("Dev", "DataFile3", Engine.dataFile[2]))
@@ -632,6 +672,8 @@ void InitUserdata()
         sprintf(buffer, "%sUData.bin", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX
     sprintf(buffer, "%s/UData.bin", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/UData.bin", getXDGDataPath().c_str());
 #else
     sprintf(buffer, "%sUData.bin", gamePath);
 #endif
@@ -707,7 +749,7 @@ void writeSettings()
     ini.SetBool("Window", "Borderless", Engine.borderless);
     ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
     ini.SetBool("Window", "VSync", Engine.vsync);
-    ini.SetComment("Window", "SMComment", "Determines what scaling is used. 0 is nearest neighbour and 1 is integer scale.");
+    ini.SetComment("Window", "SMComment", "Determines what scaling is used. 0 is nearest neighbour, 1 is linear.");
     ini.SetInteger("Window", "ScalingMode", Engine.scalingMode);
     ini.SetComment("Window", "WSComment", "How big the window will be");
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
@@ -788,6 +830,8 @@ void writeSettings()
         sprintf(buffer, "%ssettings.ini", gamePath);
 #elif RETRO_PLATFORM == RETRO_OSX
     sprintf(buffer, "%s/settings.ini", gamePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/settings.ini", getXDGDataPath().c_str());
 #else
     sprintf(buffer, "%ssettings.ini", gamePath);
 #endif
@@ -808,6 +852,8 @@ void ReadUserdata()
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -861,6 +907,8 @@ void WriteUserdata()
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #elif RETRO_PLATFORM == RETRO_iOS
     sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getDocumentsPath(), savePath);
+#elif RETRO_PLATFORM == RETRO_LINUX
+    sprintf(buffer, "%s/%sUData.bin", redirectSave ? modsPath : getXDGDataPath().c_str(), savePath);
 #else
     sprintf(buffer, "%s%sUData.bin", redirectSave ? modsPath : gamePath, savePath);
 #endif
@@ -1014,7 +1062,7 @@ void Connect2PVS(int *gameLength, int *itemMode)
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
 #if RETRO_USE_NETWORKING
-    Engine.gameMode        = ENGINE_CONNECT2PVS;
+    Engine.gameMode = ENGINE_CONNECT2PVS;
 #endif
     // PauseSound();
     // actual connection code
@@ -1042,20 +1090,20 @@ void Disconnect2PVS()
 #endif
     }
 }
-void SendEntity(int *entityID, void *unused)
+void SendEntity(int *entityID, int *verify)
 {
     if (!sendCounter) {
         multiplayerDataOUT.type = 1;
         memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-            sendData();
+            sendData(*verify);
 #endif
         }
     }
     sendCounter = (sendCounter + 1) % 2;
 }
-void SendValue(int *value, void *unused)
+void SendValue(int *value, int *verify)
 {
     // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
@@ -1063,17 +1111,17 @@ void SendValue(int *value, void *unused)
     multiplayerDataOUT.data[0] = *value;
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData();
+        sendData(*verify);
 #endif
     }
 }
-bool recieveReady = false;
+bool receiveReady = false;
 void ReceiveEntity(int *entityID, int *incrementPos)
 {
     // printLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
 
-    if (Engine.onlineActive && recieveReady) {
-        // recieveReady = false;
+    if (Engine.onlineActive && receiveReady) {
+        // receiveReady = false;
         if (*incrementPos == 1) {
             if (multiplayerDataIN.type == 1) {
                 memcpy(&objectEntityList[*entityID], multiplayerDataIN.data, sizeof(Entity));
@@ -1089,8 +1137,8 @@ void ReceiveValue(int *value, int *incrementPos)
 {
     // printLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
 
-    if (Engine.onlineActive && recieveReady) {
-        // recieveReady = false;
+    if (Engine.onlineActive && receiveReady) {
+        // receiveReady = false;
         if (*incrementPos == 1) {
             if (matchValueReadPos != matchValueWritePos) {
                 *value = matchValueData[matchValueReadPos];
@@ -1118,7 +1166,7 @@ void TransmitGlobal(int *globalValue, const char *globalName)
 
 void receive2PVSData(MultiplayerData *data)
 {
-    recieveReady = true;
+    receiveReady = true;
     switch (data->type) {
         case 0: matchValueData[matchValueWritePos++] = data->data[0]; break;
         case 1:
@@ -1131,7 +1179,7 @@ void receive2PVSData(MultiplayerData *data)
 
 void receive2PVSMatchCode(int code)
 {
-    recieveReady = true;
+    receiveReady = true;
     code &= 0x00000FF0;
     code |= 0x00001000 * vsPlayerID;
     matchValueData[matchValueWritePos++] = code;
@@ -1212,7 +1260,7 @@ void SetWindowScale(int *scale, int *unused)
 }
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
-    Engine.isFullScreen = *fullscreen;
+    Engine.isFullScreen    = *fullscreen;
     Engine.startFullScreen = *fullscreen;
     setFullScreen(Engine.isFullScreen);
 }

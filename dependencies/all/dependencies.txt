@@ -1,8 +1,0 @@
-asio: download https://think-async.com/Asio/
-download the latest release and unzip it in "./asio/"
-
-stb-image: download https://github.com/nothings/stb
-download the source code and unzip it in "./stb-image/"
-
-tinyxml2: download https://github.com/leethomason/tinyxml2/releases
-download the source code of the latest release and unzip it in "./tinyxml2/"

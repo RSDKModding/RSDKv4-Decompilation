@@ -189,8 +189,8 @@ void ShowLeaderboardsScreen();
 
 void Connect2PVS(int *gameLength, int *itemMode);
 void Disconnect2PVS();
-void SendEntity(int *entityID, void *unused);
-void SendValue(int *value, void *unused);
+void SendEntity(int *entityID, int *verify);
+void SendValue(int *value, int *verify);
 void ReceiveEntity(int *entityID, int *incrementPos);
 void ReceiveValue(int *value, int *incrementPos);
 void TransmitGlobal(int *globalValue, const char *globalName);

@@ -61,6 +61,7 @@ struct NativeEntity_MultiplayerScreen : NativeEntityBase {
 
 void MultiplayerScreen_Create(void *objPtr);
 void MultiplayerScreen_Main(void *objPtr);
+void MultiplayerScreen_Destroy(void *objPtr);
 #endif
 
 #endif // !NATIVE_MULTIPLAYERSCREEN_H

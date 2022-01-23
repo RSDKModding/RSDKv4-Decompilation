@@ -126,6 +126,7 @@ void CheckKeyDown(InputData *input);
 int CheckTouchRect(float x1, float y1, float x2, float y2);
 int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2);
 
+#if RETRO_USE_HAPTICS
 inline int GetHapticEffectNum()
 {
     int num         = hapticEffectNum;
@@ -133,5 +134,6 @@ inline int GetHapticEffectNum()
     return num;
 }
 void HapticEffect(int *id, int *a2, int *a3, int *a4);
+#endif
 
 #endif // !INPUT_H

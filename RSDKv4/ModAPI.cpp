@@ -64,6 +64,7 @@ void initMods()
 {
     modList.clear();
     forceUseScripts   = forceUseScripts_Config;
+    skipStartMenu     = skipStartMenu_Config;
     disableFocusPause = disableFocusPause_Config;
     redirectSave      = false;
     sprintf(savePath, "");
@@ -121,10 +122,9 @@ void initMods()
         }
     }
 
-    forceUseScripts   = false;
+    forceUseScripts   = forceUseScripts_Config;
     skipStartMenu     = skipStartMenu_Config;
     disableFocusPause = disableFocusPause_Config;
-    forceUseScripts   = forceUseScripts_Config;
     sprintf(savePath, "");
     redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
@@ -136,8 +136,6 @@ void initMods()
             skipStartMenu = true;
         if (modList[m].disableFocusPause)
             disableFocusPause = true;
-        if (modList[m].useScripts)
-            forceUseScripts = true;
         if (modList[m].redirectSave) {
             sprintf(savePath, "%s", modList[m].savePath.c_str());
             redirectSave = true;
@@ -451,10 +449,9 @@ void RefreshEngine()
         Engine.gameType = GAME_SONIC1;
     }
 
-    forceUseScripts   = false;
+    forceUseScripts   = forceUseScripts_Config;
     skipStartMenu     = skipStartMenu_Config;
     disableFocusPause = disableFocusPause_Config;
-    forceUseScripts   = forceUseScripts_Config;
     sprintf(savePath, "");
     redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
@@ -466,8 +463,6 @@ void RefreshEngine()
             skipStartMenu = true;
         if (modList[m].disableFocusPause)
             disableFocusPause = true;
-        if (modList[m].useScripts)
-            forceUseScripts = true;
         if (modList[m].redirectSave) {
             sprintf(savePath, "%s", modList[m].savePath.c_str());
             redirectSave = true;

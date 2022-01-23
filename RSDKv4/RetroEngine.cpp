@@ -50,7 +50,13 @@ bool processEvents()
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                             Engine.gameMode = ENGINE_INITPAUSE;
+#if RETRO_REV00
+                        if (!disableFocusPause)
+                            Engine.message = MESSAGE_LOSTFOCUS;
+#endif
+                        Engine.hasFocus = false;
                         break;
+                    case SDL_WINDOWEVENT_FOCUS_GAINED: Engine.hasFocus = true; break;
                 }
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
@@ -58,7 +64,13 @@ bool processEvents()
             case SDL_APP_WILLENTERBACKGROUND:
                 if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
                     Engine.gameMode = ENGINE_INITPAUSE;
+#if RETRO_REV00
+                if (!disableFocusPause)
+                    Engine.message = MESSAGE_LOSTFOCUS;
+#endif
+                Engine.hasFocus = false;
                 break;
+            case SDL_APP_WILLENTERFOREGROUND: Engine.hasFocus = true; break;
             case SDL_APP_TERMINATING: return false;
 #endif
 
@@ -445,67 +457,73 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
-    const Uint64 frequency = SDL_GetPerformanceFrequency();
-    Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
-    Uint64 frameStartBlunt = SDL_GetTicks(), frameEndBlunt = SDL_GetTicks();
-    float frameDelta      = 0.0f;
-    float frameDeltaBlunt = 0.0f;
-    Engine.deltaTime      = 0.0f;
+    Engine.deltaTime = 0.0f;
+
+    unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
+    unsigned long long curTicks   = 0;
 
     while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
-        frameStartBlunt = SDL_GetTicks();
-        frameDeltaBlunt = frameStartBlunt - frameEndBlunt;
-        ++frameDeltaBlunt;
-        if (frameDeltaBlunt < 1000.0f / (float)refreshRate) {
-            SDL_Delay(1000.0f / (float)refreshRate - frameDeltaBlunt);
-            continue;
+        if (!vsync) {
+            if (SDL_GetPerformanceCounter() < curTicks + targetFreq)
+                continue;
+            curTicks = SDL_GetPerformanceCounter();
         }
 
-        frameStart = SDL_GetPerformanceCounter();
-        frameDelta = frameStart - frameEnd;
-        if (frameDelta < frequency / (float)refreshRate) {
-            continue;
-        }
-        frameEnd         = SDL_GetPerformanceCounter();
-        frameEndBlunt    = SDL_GetTicks();
-        Engine.deltaTime = 0.016666668;
+        Engine.deltaTime = 1.0 / 60;
 #endif
         running = processEvents();
 
+        // Focus Checks
+        if (!Engine.hasFocus) {
+            if (!(Engine.focusState & 1))
+                Engine.focusState = PauseSound() ? 3 : 1;
+        }
+        else if (Engine.focusState) {
+            if ((Engine.focusState & 2))
+                ResumeSound();
+            Engine.focusState = 0;
+        }
+
+        if (!(Engine.focusState & 1) || vsPlaying) {
 #if !RETRO_USE_ORIGINAL_CODE
-        for (int s = 0; s < gameSpeed; ++s) {
-            ProcessInput();
+            for (int s = 0; s < gameSpeed; ++s) {
+                ProcessInput();
 #endif
+
+#if !RETRO_USE_ORIGINAL_CODE
+                if (!masterPaused || frameStep) {
+#endif
+                    ProcessNativeObjects();
+#if !RETRO_USE_ORIGINAL_CODE
+                }
+#endif
+            }
 
 #if !RETRO_USE_ORIGINAL_CODE
             if (!masterPaused || frameStep) {
 #endif
-                ProcessNativeObjects();
-#if !RETRO_USE_ORIGINAL_CODE
-            }
-#endif
-        }
-
-#if !RETRO_USE_ORIGINAL_CODE
-        if (!masterPaused || frameStep) {
-#endif
-            FlipScreen();
+                FlipScreen();
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
-            SDL_GL_SwapWindow(Engine.window);
+                SDL_GL_SwapWindow(Engine.window);
 #endif
-            frameStep = false;
-        }
+                frameStep = false;
+            }
 #endif
 
-        int hapticID = GetHapticEffectNum();
-        if (hapticID >= 0) {
-            // playHaptics(hapticID);
-        }
-        else if (hapticID == HAPTIC_STOP) {
-            // stopHaptics();
+#if RETRO_REV00
+            Engine.message = MESSAGE_NONE;
+#endif
+
+            int hapticID = GetHapticEffectNum();
+            if (hapticID >= 0) {
+                // playHaptics(hapticID);
+            }
+            else if (hapticID == HAPTIC_STOP) {
+                // stopHaptics();
+            }
         }
     }
 
@@ -999,13 +1017,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             globalVariables[v] += fileBuffer2 << 24;
         }
 
-#if RETRO_USE_MOD_LOADER
-        if (Engine.devMenu)
-            SetGlobalVariableByName("options.devMenuFlag", true);
-        else
-            SetGlobalVariableByName("options.devMenuFlag", false);
-#endif
-
         // Read SFX
         byte globalSFXCount = 0;
         FileRead(&globalSFXCount, 1);
@@ -1072,6 +1083,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         LoadXMLObjects();
         LoadXMLPlayers(NULL);
         LoadXMLStages(NULL, 0);
+
+        SetGlobalVariableByName("options.devMenuFlag", false);
+        if (Engine.devMenu)
+            SetGlobalVariableByName("options.devMenuFlag", true);
 #endif
     }
 

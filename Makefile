@@ -9,9 +9,6 @@ VERBOSE		?= 0
 PROFILE		?= 0
 STRIP		?= strip
 
-# -fsigned-char required to prevent hang in LoadStageCollisions
-CFLAGS		?= -fsigned-char -std=c++17
-
 # =============================================================================
 # Detect default platform if not explicitly specified
 # =============================================================================
@@ -51,14 +48,97 @@ ifeq ($(STATIC),1)
 endif
 
 ifeq ($(DEBUG),1)
-	CFLAGS += -g
+	CXXFLAGS += -g
 	STRIP = :
 else
-	CFLAGS += -O3
+	CXXFLAGS += -O3
+endif
+
+
+ifeq ($(STATIC),1)
+	CXXFLAGS += -static
+endif
+
+CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew) $(CXXFLAGS) \
+               -DBASE_PATH='"$(BASE_PATH)"' \
+               --std=c++17 \
+               -fsigned-char
+
+LDFLAGS_ALL = $(LDFLAGS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
+
+SOURCES = dependencies/all/tinyxml2/tinyxml2.cpp \
+          RSDKv4/Animation.cpp     \
+          RSDKv4/Audio.cpp         \
+          RSDKv4/Collision.cpp     \
+          RSDKv4/Debug.cpp         \
+          RSDKv4/Drawing.cpp       \
+          RSDKv4/Ini.cpp           \
+          RSDKv4/Input.cpp         \
+          RSDKv4/main.cpp          \
+          RSDKv4/Math.cpp          \
+          RSDKv4/ModAPI.cpp        \
+          RSDKv4/Networking.cpp	   \
+          RSDKv4/Object.cpp        \
+          RSDKv4/Palette.cpp       \
+          RSDKv4/Reader.cpp        \
+          RSDKv4/Renderer.cpp      \
+          RSDKv4/RetroEngine.cpp   \
+          RSDKv4/Scene.cpp         \
+          RSDKv4/Scene3D.cpp       \
+          RSDKv4/Script.cpp        \
+          RSDKv4/Sprite.cpp        \
+          RSDKv4/String.cpp        \
+          RSDKv4/Text.cpp          \
+          RSDKv4/Userdata.cpp      \
+          RSDKv4/NativeObjects/AboutScreen.cpp \
+          RSDKv4/NativeObjects/AchievementDisplay.cpp \
+          RSDKv4/NativeObjects/AchievementsButton.cpp \
+          RSDKv4/NativeObjects/AchievementsMenu.cpp \
+          RSDKv4/NativeObjects/BackButton.cpp \
+          RSDKv4/NativeObjects/CWSplash.cpp \
+          RSDKv4/NativeObjects/CreditText.cpp \
+          RSDKv4/NativeObjects/DialogPanel.cpp \
+          RSDKv4/NativeObjects/FadeScreen.cpp \
+          RSDKv4/NativeObjects/InstructionsScreen.cpp \
+          RSDKv4/NativeObjects/LeaderboardsButton.cpp \
+          RSDKv4/NativeObjects/MenuBG.cpp \
+          RSDKv4/NativeObjects/MenuControl.cpp \
+          RSDKv4/NativeObjects/ModInfoButton.cpp \
+          RSDKv4/NativeObjects/ModsButton.cpp \
+          RSDKv4/NativeObjects/ModsMenu.cpp \
+          RSDKv4/NativeObjects/MultiplayerButton.cpp \
+          RSDKv4/NativeObjects/MultiplayerHandler.cpp \
+          RSDKv4/NativeObjects/MultiplayerScreen.cpp \
+          RSDKv4/NativeObjects/OptionsButton.cpp \
+          RSDKv4/NativeObjects/OptionsMenu.cpp \
+          RSDKv4/NativeObjects/PauseMenu.cpp \
+          RSDKv4/NativeObjects/PlayerSelectScreen.cpp \
+          RSDKv4/NativeObjects/PushButton.cpp \
+          RSDKv4/NativeObjects/RecordsScreen.cpp \
+          RSDKv4/NativeObjects/RetroGameLoop.cpp \
+          RSDKv4/NativeObjects/SaveSelect.cpp \
+          RSDKv4/NativeObjects/SegaIDButton.cpp \
+          RSDKv4/NativeObjects/SegaSplash.cpp \
+          RSDKv4/NativeObjects/SettingsScreen.cpp \
+          RSDKv4/NativeObjects/StaffCredits.cpp \
+          RSDKv4/NativeObjects/StartGameButton.cpp \
+          RSDKv4/NativeObjects/SubMenuButton.cpp \
+          RSDKv4/NativeObjects/TextLabel.cpp \
+          RSDKv4/NativeObjects/TimeAttack.cpp \
+          RSDKv4/NativeObjects/TimeAttackButton.cpp \
+          RSDKv4/NativeObjects/TitleScreen.cpp \
+          RSDKv4/NativeObjects/VirtualDPad.cpp \
+          RSDKv4/NativeObjects/VirtualDPadM.cpp \
+          RSDKv4/NativeObjects/ZoneButton.cpp \
+   
+ifneq ($(FORCE_CASE_INSENSITIVE),)
+	CXXFLAGS_ALL += -DFORCE_CASE_INSENSITIVE
+	SOURCES += RSDKv4/fcaseopen.c
 endif
 
 ifeq ($(PROFILE),1)
-	CFLAGS += -pg -g -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls -fno-default-inline
+	CXXFLAGS_ALL += -pg -g -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls -fno-default-inline
 endif
 
 ifeq ($(VERBOSE),0)
@@ -66,22 +146,14 @@ ifeq ($(VERBOSE),0)
 	CXX := @$(CXX)
 endif
 
-# =============================================================================
-
-CFLAGS += `$(PKGCONFIG) --cflags sdl2 ogg vorbis theora vorbisfile theoradec`
-LIBS   += `$(PKGCONFIG) --libs-only-l --libs-only-L sdl2 ogg vorbis theora vorbisfile theoradec`
-
-#CFLAGS += -Wno-strict-aliasing -Wno-narrowing -Wno-write-strings
-
-ifeq ($(STATIC),1)
-	CFLAGS += -static
-endif
 
 INCLUDES  += \
-    -I./dependencies/all/stb-image  \
-    -I./dependencies/all/tinyxml2  \
-    -I./RSDKv4  \
-    -I./RSDKv4/NativeObjects  \
+    -I./RSDKv4/ \
+    -I./RSDKv4/NativeObjects/ \
+    -I./dependencies/all/asio/asio/include/ \
+    -I./dependencies/all/stb-image/ \
+    -I./dependencies/all/tinyxml2/
+
 
 INCLUDES += $(LIBS)
 
@@ -164,18 +236,18 @@ $(shell mkdir -p $(OBJDIR))
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(@D)
 	@echo -n Compiling $<...
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(DEFINES) $< -o $@
+	$(CXX) -c $(CXXFLAGS_ALL) $(INCLUDES) $(DEFINES) $< -o $@
 	@echo " Done!"
 
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@echo -n Compiling $<...
-	$(CXX) -c $(CFLAGS) $(INCLUDES) $(DEFINES) $< -o $@
+	$(CXX) -c $(CXXFLAGS_ALL) $(INCLUDES) $(DEFINES) $< -o $@
 	@echo " Done!"
 
 $(BINPATH): $(OBJDIR) $(OBJECTS)
 	@echo -n Linking...
-	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
+	$(CXX) $(CXXFLAGS_ALL) $(LDFLAGS_ALL) $(OBJECTS) -o $@ $(LIBS_ALL)
 	@echo " Done!"
 	$(STRIP) $@
 
@@ -186,4 +258,4 @@ all: $(PKGPATH)
 endif
 
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf $(OBJDIR) && rm -rf $(BINPATH)

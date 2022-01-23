@@ -2,5 +2,5 @@
 Type=Application
 Name=Sonic the Hedgehog 2
 Icon=com.sega.Sonic2
-Exec=sonic2013
+Exec=RSDKv4
 Categories=Game;

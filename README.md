@@ -56,8 +56,8 @@ Sections below are lifted directly from the source repository.
 * Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it
 * Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter
 * Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
-* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew mingw-w64-x86_64-tinyxml2 mingw-w64-x86_64-asio mingw-w64-x86_64-stb`
-* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew`
+* Clone the repo with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
@@ -73,16 +73,14 @@ Sections below are lifted directly from the source repository.
 ## Linux
 ### Decompilation
 * To setup your build enviroment and library dependecies run the following commands:
-  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libasio-dev libtinyxml2-dev`
+  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev`
     * If you're using Debian, add `libgbm-dev` and `libdrm-dev`
-  * Fedora Linux: `sudo rpm install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel asio-devel tinyxml2-devel`
-  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew asio tinyxml2`
-* Clone the repo with the following command: `git clone https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
-* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
-* Clone the stb-image repo with the following command: `git clone https://github.com/nothings/stb.git ./dependencies/all/stb-image`
-* Run `make -j5`
-  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9)
+  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew`
+  * Clone the repo and it's other dependencies with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
+  * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`
+  * Run `make -j5`.
+    * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
+    * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 ### Server (Only required to host Sonic 2 multiplayer servers)
 * Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
 * Run `make -j5`
@@ -91,7 +89,7 @@ Sections below are lifted directly from the source repository.
 
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
-* A Mac build of v1.3.0 by Sappharad can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac)
+* A Mac build of v1.3.0 by [Sappharad](https://github.com/Sappharad) can be found [here.](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac)
 
 ## Android
 * Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
@@ -99,6 +97,8 @@ Sections below are lifted directly from the source repository.
   * `mklink /D src ..\..\..`
   * `mklink /D SDL ..\..\..\dependencies\android\SDL`
 * Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
+
+**The Android build is currently a work-in-progress. Unless you're reporting a bug, no support will be given for this build whatsoever.**
 
 ## Unofficial Branches
 Follow the installation instructions in the readme of each branch.
@@ -111,7 +111,7 @@ Follow the installation instructions in the readme of each branch.
 Because these branches are unofficial, we can't provide support for them and they may not be up-to-date.
 
 ## Other Platforms
-Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it, so the codebase is very multiplatform.
+Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it (as well as tinyxml2 for the mod API), so the codebase is very multiplatform.
 If you're able to, you can clone this repo and port it to a platform not on the list.
 
 # FAQ
@@ -128,7 +128,7 @@ A: I already have! You can find it [here](https://github.com/Rubberduckycooly/So
 A: No. Sonic Mania is much bigger and requires that I'd decompile not only how the (far more complex) RSDKv5 works, but also all _600_+ objects work.
 
 # Special Thanks
-* [Lulu](https://github.com/MGRich) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
+* [Chuli](https://github.com/MGRich) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project
 * The Weigman for creating the header you see up here along with similar assets
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found
 

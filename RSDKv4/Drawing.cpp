@@ -146,6 +146,9 @@ int InitRenderDevice()
     SCREEN_XSIZE = ((float)SCREEN_YSIZE * h / w);
     if (SCREEN_XSIZE % 2)
         ++SCREEN_XSIZE;
+
+    if (SCREEN_XSIZE >= 500)
+        SCREEN_XSIZE = 500;
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
@@ -4767,9 +4770,8 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
         lineBuffer++;
         int w = width;
         while (w--) {
-            if (*gfxDataPtr > 0) {
+            if (*gfxDataPtr > 0) 
                 *frameBufferPtr = activePalette[*gfxDataPtr];
-            }
             ++gfxDataPtr;
             ++frameBufferPtr;
         }
@@ -4825,6 +4827,52 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
     }
 #endif
 }
+
+
+#if RETRO_REV00
+// WHY IS THIS BACK LOLLLL
+// This was last seen in nexus
+void DrawSpriteClipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID, int clipY)
+{
+    if (width + XPos > GFX_LINESIZE)
+        width = GFX_LINESIZE - XPos;
+    if (XPos < 0) {
+        sprX -= XPos;
+        width += XPos;
+        XPos = 0;
+    }
+    if (height + YPos > clipY)
+        height = clipY - YPos;
+    if (YPos < 0) {
+        sprY -= YPos;
+        height += YPos;
+        YPos = 0;
+    }
+    if (width <= 0 || height <= 0)
+        return;
+
+    GFXSurface *surface    = &gfxSurface[sheetID];
+    int pitch              = GFX_LINESIZE - width;
+    int gfxPitch           = surface->width - width;
+    byte *lineBuffer       = &gfxLineBuffer[YPos];
+    byte *gfxDataPtr       = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
+    ushort *frameBufferPtr = &Engine.frameBuffer[XPos + GFX_LINESIZE * YPos];
+    while (height--) {
+        activePalette   = fullPalette[*lineBuffer];
+        activePalette32 = fullPalette32[*lineBuffer];
+        lineBuffer++;
+        int w = width;
+        while (w--) {
+            if (*gfxDataPtr > 0)
+                *frameBufferPtr = activePalette[*gfxDataPtr];
+            ++gfxDataPtr;
+            ++frameBufferPtr;
+        }
+        frameBufferPtr += pitch;
+        gfxDataPtr += gfxPitch;
+    }
+}
+#endif
 
 void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID)
 {
@@ -5281,7 +5329,7 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
     }
 #endif
 }
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
 void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                     int sheetID)
 {
@@ -7082,7 +7130,7 @@ void DrawTexturedFaceBlended(void *v, byte sheetID)
 #endif
 }
 
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
 void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount)
 {
     TextMenu *tMenu = (TextMenu *)menu;

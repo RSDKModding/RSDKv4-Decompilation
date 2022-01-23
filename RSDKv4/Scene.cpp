@@ -321,6 +321,7 @@ void ProcessStage(void)
 
             DrawStageGFX();
             break;
+#if !RETRO_REV00
         case STAGEMODE_2P:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -335,43 +336,46 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            if (timeEnabled) {
-                if (++frameCounter == 60) {
-                    frameCounter = 0;
-                    if (++stageSeconds > 59) {
-                        stageSeconds = 0;
-                        if (++stageMinutes > 59)
-                            stageMinutes = 0;
+            if (!waitForVerify) {
+                if (timeEnabled) {
+                    if (++frameCounter == 60) {
+                        frameCounter = 0;
+                        if (++stageSeconds > 59) {
+                            stageSeconds = 0;
+                            if (++stageMinutes > 59)
+                                stageMinutes = 0;
+                        }
                     }
-                }
-                stageMilliseconds = 100 * frameCounter / 60;
-            }
-            else {
-                frameCounter = 60 * stageMilliseconds / 100;
-            }
-
-            // Update
-            Process2PObjects();
-
-            if (cameraTarget > -1) {
-                if (cameraEnabled == 1) {
-                    switch (cameraStyle) {
-                        case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
-                        case 1:
-                        case 2:
-                        case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
-                        case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
-                        default: break;
-                    }
+                    stageMilliseconds = 100 * frameCounter / 60;
                 }
                 else {
-                    SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    frameCounter = 60 * stageMilliseconds / 100;
+                }
+
+                // Update
+                Process2PObjects();
+
+                if (cameraTarget > -1) {
+                    if (cameraEnabled == 1) {
+                        switch (cameraStyle) {
+                            case 0: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
+                            case 1:
+                            case 2:
+                            case 3: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
+                            case 4: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
+                            default: break;
+                        }
+                    }
+                    else {
+                        SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
+                    }
                 }
             }
 
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
+#endif
         case STAGEMODE_NORMAL_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -456,7 +460,7 @@ void ProcessStage(void)
             }
 
             if (pauseEnabled && inputPress.start) {
-                stageMode = STAGEMODE_2P;
+                stageMode = STAGEMODE_PAUSED;
                 ResumeSound();
             }
             break;
@@ -499,6 +503,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
+#if !RETRO_REV00
         case STAGEMODE_2P_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -554,6 +559,7 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
+#endif
     }
 }
 
@@ -1052,6 +1058,7 @@ void LoadStageBackground()
 
             // Read Line Scroll
             byte buf[3];
+            int pos = 0;
             while (true) {
                 FileRead(&buf[0], 1);
                 if (buf[0] == 0xFF) {
@@ -1063,11 +1070,15 @@ void LoadStageBackground()
                         FileRead(&buf[2], 1);
                         int val = buf[1];
                         int cnt = buf[2] - 1;
-                        for (int c = 0; c < cnt; ++c) *lineScrollPtr++ = val;
+                        for (int c = 0; c < cnt; ++c) {
+                            *lineScrollPtr++ = val;
+                            ++pos;
+                        }
                     }
                 }
                 else {
                     *lineScrollPtr++ = buf[0];
+                    ++pos;
                 }
             }
 

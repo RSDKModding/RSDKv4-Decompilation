@@ -36,8 +36,9 @@ typedef unsigned int uint;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 // Custom Platforms start here
-#define RETRO_UWP (7)
-#define RETRO_SWITCH (8)
+#define RETRO_UWP   (7)
+#define RETRO_LINUX (8)
+#define RETRO_SWITCH (9)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -76,6 +77,9 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
+#elif defined(__linux__)
+#define RETRO_PLATFORM   (RETRO_LINUX)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 //#error "No Platform was defined"
 #define RETRO_PLATFORM   (RETRO_WIN)
@@ -91,7 +95,8 @@ typedef unsigned int uint;
 #define BASE_PATH ""
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_SWITCH
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_UWP                       \
+    || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_SWITCH
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
@@ -186,9 +191,19 @@ typedef unsigned int uint;
 
 #define RETRO_USE_HAPTICS (1)
 
-// reverts opcode list back to how it was in earliest builds, fixes bugs on some datafiles
+// Timeline:
+// 1 = S1 release RSDKv4 version
+// 0 = S2 release RSDKv4 version
+// 2 = S3 POC RSDKv4 version (I have no idea how we have this but woohoo apparently)
+#define RSDK_REVISION (2)
+
+// reverts opcode list back to how it was in earliest S1 builds, fixes bugs on some datafiles
 // generally advised to keep this set to 0
-#define RETRO_REV01 (0)
+#define RETRO_REV00 (RSDK_REVISION == 0)
+
+// reverts opcode list back to how it was in earliest S2 builds, fixes bugs on some datafiles
+// generally advised to keep this set to 0
+#define RETRO_REV01 (RSDK_REVISION == 1)
 
 enum RetroLanguages {
     RETRO_EN = 0,
@@ -203,6 +218,16 @@ enum RetroLanguages {
     RETRO_ZH = 9,
     RETRO_ZS = 10,
 };
+
+#if RETRO_REV00 
+enum RetroEngineMessages {
+    MESSAGE_NONE      = 0,
+    MESSAGE_MESSAGE_1 = 1,
+    MESSAGE_LOSTFOCUS = 2,
+    MESSAGE_MESSAGE_3 = 3,
+    MESSAGE_MESSAGE_4 = 4,
+};
+#endif
 
 enum RetroStates {
     ENGINE_DEVMENU     = 0,
@@ -235,7 +260,7 @@ enum RetroGameType {
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1
@@ -315,6 +340,9 @@ public:
 
     int gameMode          = ENGINE_MAINGAME;
     int language          = RETRO_EN;
+#if RETRO_REV00
+    int message           = 0;
+#endif
     int gameDeviceType    = RETRO_STANDARD;
     int globalBoxRegion   = REGION_JP;
     bool nativeMenuFadeIn = false;
@@ -345,6 +373,9 @@ public:
 
     bool showPaletteOverlay = false;
     bool useHQModes         = true;
+
+    bool hasFocus = true;
+    int focusState = 0;
 #endif
 
     void Init();

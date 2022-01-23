@@ -16,19 +16,22 @@ public class RSDKv4 extends SDLActivity {
         getBasePath();
     }
 
+    //Idk what the hell "has multi window" is, but I do NOT have multiple windows and therefore DO wanna pause/resume these threads
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            SDLActivity.mCurrentNativeState = SDLActivity.NativeState.PAUSED;
-            SDLActivity.mNextNativeState = SDLActivity.NativeState.RESUMED;
-        } 
-        else {
-            SDLActivity.mCurrentNativeState = SDLActivity.NativeState.RESUMED;
-            SDLActivity.mNextNativeState = SDLActivity.NativeState.PAUSED;
+    protected void onPause() {
+        super.onPause();
+        if (mHasMultiWindow) {
+            pauseNativeThread();
         }
+    }
 
-        SDLActivity.handleNativeState();
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mHasMultiWindow) {
+            resumeNativeThread();
+        }
     }
 
     public String getBasePath() {

@@ -46,7 +46,6 @@ void initErrorMessage()
     StopAllSfx();
     ReleaseStageSfx();
     fadeMode        = 0;
-    playerListPos   = 0;
     Engine.gameMode = ENGINE_DEVMENU;
     ClearGraphicsData();
     ClearAnimationData();
@@ -183,6 +182,7 @@ void processStageSelect()
                             CREATE_ENTITY(VirtualDPad);
                     }
                     else
+                        DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0x00, 0x00, 0x00, 0xFF); // This is probably hacky don't tell rdc or i'm going to jail
                         CREATE_ENTITY(SegaSplash);
                 }
 #if RETRO_USE_MOD_LOADER

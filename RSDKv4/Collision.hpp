@@ -68,7 +68,7 @@ extern int collisionBottom;
 
 extern int collisionTolerance;
 
-extern CollisionSensor sensors[7];
+extern CollisionSensor sensors[RETRO_REV00 ? 6 : 7];
 
 void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startYPos);
 void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startXPos);

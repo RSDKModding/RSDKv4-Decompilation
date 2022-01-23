@@ -1,6 +1,6 @@
 # Flatpak
 
-You will need the FreeDesktop.org 20.08 SDK installed, if you don't have it,
+You will need the FreeDesktop.org 21.08 SDK installed, if you don't have it,
 install [Flathub](https://flathub.org/) which provides it.
 
 # Sonic the Hedgehog Flatpak

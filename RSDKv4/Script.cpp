@@ -25,7 +25,11 @@ int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
-#define COMMONALIAS_COUNT (0x56)
+#if !RETRO_REV00
+#define COMMONALIAS_COUNT (0x5B)
+#else
+#define COMMONALIAS_COUNT (0x5A)
+#endif
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
@@ -135,8 +139,10 @@ const char variableNames[][0x20] = {
     "object.floorSensorL",
     "object.floorSensorC",
     "object.floorSensorR",
+#if !RETRO_REV00
     "object.floorSensorLC",
     "object.floorSensorRC",
+#endif
     "object.collisionLeft",
     "object.collisionTop",
     "object.collisionRight",
@@ -309,8 +315,10 @@ const char variableNames[][0x20] = {
     "scene3D.faceCount",
     "scene3D.projectionX",
     "scene3D.projectionY",
+#if !RETRO_REV00
     "scene3D.fogColor",
     "scene3D.fogStrength",
+#endif
 
     "vertexBuffer.x",
     "vertexBuffer.y",
@@ -327,12 +335,19 @@ const char variableNames[][0x20] = {
 
     "saveRAM",
     "engine.state",
+#if RETRO_REV00
+    "engine.message",
+#endif
     "engine.language",
     "engine.onlineActive",
     "engine.sfxVolume",
     "engine.bgmVolume",
     "engine.trialMode",
     "engine.deviceType",
+#if RETRO_USE_HAPTICS
+    "engine.hapticsEnabled",
+#endif
+
 };
 #endif
 
@@ -464,7 +479,9 @@ const FunctionInfo functions[] = {
     FunctionInfo("MatrixRotateY", 2),
     FunctionInfo("MatrixRotateZ", 2),
     FunctionInfo("MatrixRotateXYZ", 4),
+#if !RETRO_REV00
     FunctionInfo("MatrixInverse", 1),
+#endif
     FunctionInfo("TransformVertices", 3),
 
     FunctionInfo("CallFunction", 1),
@@ -490,12 +507,12 @@ const FunctionInfo functions[] = {
     FunctionInfo("ReadSaveRAM", 0),
     FunctionInfo("WriteSaveRAM", 0),
 
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
     FunctionInfo("LoadFontFile", 1),
 #endif
     FunctionInfo("LoadTextFile", 2),
     FunctionInfo("GetTextInfo", 5),
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
     FunctionInfo("DrawText", 7),
 #endif
     FunctionInfo("GetVersionNumber", 2),
@@ -511,7 +528,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("CallNativeFunction4", 5),
 
     FunctionInfo("SetObjectRange", 1),
-#if !RETRO_REV01
+#if !RETRO_REV00 || !RETRO_REV01
     FunctionInfo("GetObjectValue", 3),
     FunctionInfo("SetObjectValue", 3),
     FunctionInfo("CopyObject", 3),
@@ -549,7 +566,9 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("STAGE_RUNNING", "1"),
                                          AliasInfo("STAGE_PAUSED", "2"),
                                          AliasInfo("STAGE_FROZEN", "3"),
+#if !RETRO_REV00
                                          AliasInfo("STAGE_2P", "4"),
+#endif
                                          AliasInfo("RESET_GAME", "2"),
                                          AliasInfo("RETRO_STANDARD", "0"),
                                          AliasInfo("RETRO_MOBILE", "1"),
@@ -714,8 +733,10 @@ enum ScrVar {
     VAR_OBJECTFLOORSENSORL,
     VAR_OBJECTFLOORSENSORC,
     VAR_OBJECTFLOORSENSORR,
+#if !RETRO_REV00
     VAR_OBJECTFLOORSENSORLC,
     VAR_OBJECTFLOORSENSORRC,
+#endif
     VAR_OBJECTCOLLISIONLEFT,
     VAR_OBJECTCOLLISIONTOP,
     VAR_OBJECTCOLLISIONRIGHT,
@@ -871,8 +892,10 @@ enum ScrVar {
     VAR_SCENE3DFACECOUNT,
     VAR_SCENE3DPROJECTIONX,
     VAR_SCENE3DPROJECTIONY,
+#if !RETRO_REV00
     VAR_SCENE3DFOGCOLOR,
     VAR_SCENE3DFOGSTRENGTH,
+#endif
     VAR_VERTEXBUFFERX,
     VAR_VERTEXBUFFERY,
     VAR_VERTEXBUFFERZ,
@@ -886,12 +909,18 @@ enum ScrVar {
     VAR_FACEBUFFERCOLOR,
     VAR_SAVERAM,
     VAR_ENGINESTATE,
+#if RETRO_REV00
+    VAR_ENGINEMESSAGE,
+#endif
     VAR_ENGINELANGUAGE,
     VAR_ENGINEONLINEACTIVE,
     VAR_ENGINESFXVOLUME,
     VAR_ENGINEBGMVOLUME,
     VAR_ENGINETRIALMODE,
     VAR_ENGINEDEVICETYPE,
+#if RETRO_USE_HAPTICS
+    VAR_HAPTICSENABLED,
+#endif
     VAR_MAX_CNT
 };
 
@@ -1000,7 +1029,9 @@ enum ScrFunc {
     FUNC_MATRIXROTATEY,
     FUNC_MATRIXROTATEZ,
     FUNC_MATRIXROTATEXYZ,
+#if !RETRO_REV00
     FUNC_MATRIXINVERSE,
+#endif
     FUNC_TRANSFORMVERTICES,
     FUNC_CALLFUNCTION,
     FUNC_RETURN,
@@ -1020,11 +1051,11 @@ enum ScrFunc {
     FUNC_GETANIMATIONBYNAME,
     FUNC_READSAVERAM,
     FUNC_WRITESAVERAM,
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
     FUNC_LOADTEXTFONT,
 #endif
     FUNC_LOADTEXTFILE,
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
     FUNC_DRAWTEXT,
 #endif
     FUNC_GETTEXTINFO,
@@ -1037,7 +1068,7 @@ enum ScrFunc {
     FUNC_CALLNATIVEFUNCTION2,
     FUNC_CALLNATIVEFUNCTION4,
     FUNC_SETOBJECTRANGE,
-#if !RETRO_REV01
+#if !RETRO_REV00 && !RETRO_REV01
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
@@ -1909,14 +1940,6 @@ void CheckCaseNumber(char *text)
         caseValue[funcNamePos] = 0;
         arrayStr[arrayStrPos]  = 0;
 
-        char arrStrBuf[0x80];
-        int arrPos = 0;
-        int bufPos = 0;
-        if (arrayStr[0] == '+' || arrayStr[0] == '-')
-            ++arrPos;
-        while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
-        arrStrBuf[bufPos] = 0;
-
         // Eg: temp0 = TypeName[Player Object]
         if (StrComp(caseValue, "TypeName")) {
             caseValue[0] = 0;
@@ -2134,14 +2157,6 @@ bool ReadSwitchCase(char *text)
             }
             caseValue[funcNamePos] = 0;
             arrayStr[arrayStrPos]  = 0;
-
-            char arrStrBuf[0x80];
-            int arrPos = 0;
-            int bufPos = 0;
-            if (arrayStr[0] == '+' || arrayStr[0] == '-')
-                ++arrPos;
-            while (arrayStr[arrPos]) arrStrBuf[bufPos++] = arrayStr[arrPos++];
-            arrStrBuf[bufPos] = 0;
 
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(caseValue, "TypeName")) {
@@ -2586,6 +2601,8 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
+                            if (curChar == ';')
+                                semiFlag = true;
                         }
                     }
                     else if (curChar != '/' || textPos <= 0) {
@@ -2863,19 +2880,19 @@ void LoadBytecode(int stageListID, int scriptID)
         byte fileBuffer = 0;
         int *scrData    = &scriptData[scriptCodePos];
         FileRead(&fileBuffer, 1);
-        int scriptDataCount = fileBuffer;
+        int scriptCodeCount = fileBuffer;
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 8);
+        scriptCodeCount += (fileBuffer << 8);
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 16);
+        scriptCodeCount += (fileBuffer << 16);
         FileRead(&fileBuffer, 1);
-        scriptDataCount += (fileBuffer << 24);
+        scriptCodeCount += (fileBuffer << 24);
 
-        while (scriptDataCount > 0) {
+        while (scriptCodeCount > 0) {
             FileRead(&fileBuffer, 1);
-            int buf = fileBuffer & 0x7F;
+            int blockSize = fileBuffer & 0x7F;
             if (fileBuffer >= 0x80) {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     int data = fileBuffer;
                     FileRead(&fileBuffer, 1);
@@ -2887,18 +2904,18 @@ void LoadBytecode(int stageListID, int scriptID)
                     *scrData = data;
                     ++scrData;
                     ++scriptCodePos;
-                    --scriptDataCount;
-                    --buf;
+                    --scriptCodeCount;
+                    --blockSize;
                 }
             }
             else {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     *scrData = fileBuffer;
                     ++scrData;
                     ++scriptCodePos;
-                    --scriptDataCount;
-                    --buf;
+                    --scriptCodeCount;
+                    --blockSize;
                 }
             }
         }
@@ -2915,9 +2932,9 @@ void LoadBytecode(int stageListID, int scriptID)
 
         while (jumpDataCnt > 0) {
             FileRead(&fileBuffer, 1);
-            int buf = fileBuffer & 0x7F;
+            int blockSize = fileBuffer & 0x7F;
             if (fileBuffer >= 0x80) {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     int data = fileBuffer;
                     FileRead(&fileBuffer, 1);
@@ -2930,27 +2947,27 @@ void LoadBytecode(int stageListID, int scriptID)
                     ++jumpPtr;
                     ++jumpTablePos;
                     --jumpDataCnt;
-                    --buf;
+                    --blockSize;
                 }
             }
             else {
-                while (buf > 0) {
+                while (blockSize > 0) {
                     FileRead(&fileBuffer, 1);
                     *jumpPtr = fileBuffer;
                     ++jumpPtr;
                     ++jumpTablePos;
                     --jumpDataCnt;
-                    --buf;
+                    --blockSize;
                 }
             }
         }
         FileRead(&fileBuffer, 1);
-        int objectCount = fileBuffer;
+        int scriptCount = fileBuffer;
         FileRead(&fileBuffer, 1);
-        objectCount += fileBuffer << 8;
+        scriptCount += fileBuffer << 8;
 
         int objType = scriptID;
-        for (int i = 0; i < objectCount; ++i) {
+        for (int i = 0; i < scriptCount; ++i) {
 
             FileRead(&fileBuffer, 1);
             int buf = fileBuffer;
@@ -2981,7 +2998,7 @@ void LoadBytecode(int stageListID, int scriptID)
         }
 
         objType = scriptID;
-        for (int i = 0; i < objectCount; ++i) {
+        for (int i = 0; i < scriptCount; ++i) {
             FileRead(&fileBuffer, 1);
             int buf = fileBuffer;
             FileRead(&fileBuffer, 1);
@@ -3369,6 +3386,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[2];
                         break;
                     }
+#if !RETRO_REV00
                     case VAR_OBJECTFLOORSENSORLC: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[3];
                         break;
@@ -3377,6 +3395,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         scriptEng.operands[i] = objectEntityList[arrayVal].floorSensors[4];
                         break;
                     }
+#endif
                     case VAR_OBJECTCOLLISIONLEFT: {
                         AnimationFile *animFile = objectScriptList[objectEntityList[arrayVal].type].animFile;
                         Entity *ent             = &objectEntityList[arrayVal];
@@ -3430,6 +3449,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
+#if !RETRO_REV00
                         int boundX1_2P = -(0x200 << 16);
                         int boundX2_2P = (0x200 << 16);
                         int boundX3_2P = -(0x180 << 16);
@@ -3512,6 +3532,17 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                 scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
                             }
                         }
+#else
+                        int x      = objectEntityList[arrayVal].xpos >> 16;
+                        int y      = objectEntityList[arrayVal].ypos >> 16;
+
+                        int boundL = xScrollOffset - OBJECT_BORDER_X1;
+                        int boundR = xScrollOffset + OBJECT_BORDER_X2;
+                        int boundT = yScrollOffset - OBJECT_BORDER_Y1;
+                        int boundB = yScrollOffset + OBJECT_BORDER_Y2;
+
+                        scriptEng.operands[i] = x <= boundL || x >= boundR || y <= boundT || y >= boundB;
+#endif
                         break;
                     }
                     case VAR_OBJECTSPRITESHEET: {
@@ -3811,8 +3842,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_SCENE3DFACECOUNT: scriptEng.operands[i] = faceCount; break;
                     case VAR_SCENE3DPROJECTIONX: scriptEng.operands[i] = projectionX; break;
                     case VAR_SCENE3DPROJECTIONY: scriptEng.operands[i] = projectionY; break;
+#if !RETRO_REV00
                     case VAR_SCENE3DFOGCOLOR: scriptEng.operands[i] = fogColour; break;
                     case VAR_SCENE3DFOGSTRENGTH: scriptEng.operands[i] = fogStrength; break;
+#endif
                     case VAR_VERTEXBUFFERX: scriptEng.operands[i] = vertexBuffer[arrayVal].x; break;
                     case VAR_VERTEXBUFFERY: scriptEng.operands[i] = vertexBuffer[arrayVal].y; break;
                     case VAR_VERTEXBUFFERZ: scriptEng.operands[i] = vertexBuffer[arrayVal].z; break;
@@ -3826,12 +3859,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_FACEBUFFERCOLOR: scriptEng.operands[i] = faceBuffer[arrayVal].colour; break;
                     case VAR_SAVERAM: scriptEng.operands[i] = saveRAM[arrayVal]; break;
                     case VAR_ENGINESTATE: scriptEng.operands[i] = Engine.gameMode; break;
+#if RETRO_REV00
+                    case VAR_ENGINEMESSAGE: scriptEng.operands[i] = Engine.message; break;
+#endif
                     case VAR_ENGINELANGUAGE: scriptEng.operands[i] = Engine.language; break;
                     case VAR_ENGINEONLINEACTIVE: scriptEng.operands[i] = Engine.onlineActive; break;
                     case VAR_ENGINESFXVOLUME: scriptEng.operands[i] = sfxVolume; break;
                     case VAR_ENGINEBGMVOLUME: scriptEng.operands[i] = bgmVolume; break;
                     case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
                     case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
+                    case VAR_HAPTICSENABLED: scriptEng.operands[i] = Engine.hapticsEnabled; break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -4842,6 +4879,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case MAT_TEMP: matrixRotateXYZ(&matTemp, scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                 }
                 break;
+#if !RETRO_REV00
             case FUNC_MATRIXINVERSE:
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
@@ -4850,6 +4888,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case MAT_TEMP: matrixInverse(&matTemp); break;
                 }
                 break;
+#endif
             case FUNC_TRANSFORMVERTICES:
                 opcodeSize = 0;
                 switch (scriptEng.operands[0]) {
@@ -4986,7 +5025,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 opcodeSize            = 0;
                 scriptEng.checkResult = WriteSaveRAMData();
                 break;
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
             case FUNC_LOADTEXTFONT: {
                 opcodeSize = 0;
                 LoadFontFile(scriptText);
@@ -4996,7 +5035,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
                 LoadTextFile(menu, scriptText, scriptEng.operands[2] != 0);
 #else
                 LoadTextFile(menu, scriptText, false);
@@ -5014,7 +5053,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 }
                 break;
             }
-#if RETRO_REV01
+#if RETRO_REV00 || RETRO_REV01
             case FUNC_DRAWTEXT: {
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
@@ -5105,7 +5144,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 OBJECT_BORDER_X4 = scriptEng.operands[0] + 0x20 - offset;
                 break;
             }
-#if !RETRO_REV01
+#if !RETRO_REV00 && !RETRO_REV01
             case FUNC_GETOBJECTVALUE: {
                 if (scriptEng.operands[1] < 48)
                     scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]];
@@ -5372,6 +5411,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         objectEntityList[arrayVal].floorSensors[2] = scriptEng.operands[i];
                         break;
                     }
+#if !RETRO_REV00
                     case VAR_OBJECTFLOORSENSORLC: {
                         objectEntityList[arrayVal].floorSensors[3] = scriptEng.operands[i];
                         break;
@@ -5380,6 +5420,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         objectEntityList[arrayVal].floorSensors[4] = scriptEng.operands[i];
                         break;
                     }
+#endif
                     case VAR_OBJECTCOLLISIONLEFT: {
                         break;
                     }
@@ -5718,8 +5759,10 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_SCENE3DFACECOUNT: faceCount = scriptEng.operands[i]; break;
                     case VAR_SCENE3DPROJECTIONX: projectionX = scriptEng.operands[i]; break;
                     case VAR_SCENE3DPROJECTIONY: projectionY = scriptEng.operands[i]; break;
+#if !RETRO_REV00
                     case VAR_SCENE3DFOGCOLOR: fogColour = scriptEng.operands[i]; break;
                     case VAR_SCENE3DFOGSTRENGTH: fogStrength = scriptEng.operands[i]; break;
+#endif
                     case VAR_VERTEXBUFFERX: vertexBuffer[arrayVal].x = scriptEng.operands[i]; break;
                     case VAR_VERTEXBUFFERY: vertexBuffer[arrayVal].y = scriptEng.operands[i]; break;
                     case VAR_VERTEXBUFFERZ: vertexBuffer[arrayVal].z = scriptEng.operands[i]; break;
@@ -5733,6 +5776,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_FACEBUFFERCOLOR: faceBuffer[arrayVal].colour = scriptEng.operands[i]; break;
                     case VAR_SAVERAM: saveRAM[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_ENGINESTATE: Engine.gameMode = scriptEng.operands[i]; break;
+#if RETRO_REV00
+                    case VAR_ENGINEMESSAGE: break;
+#endif
                     case VAR_ENGINELANGUAGE: Engine.language = scriptEng.operands[i]; break;
                     case VAR_ENGINEONLINEACTIVE: Engine.onlineActive = scriptEng.operands[i]; break;
                     case VAR_ENGINESFXVOLUME:
@@ -5744,7 +5790,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         SetGameVolumes(bgmVolume, sfxVolume);
                         break;
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
-                    case VAR_ENGINEDEVICETYPE: break;
+                    case VAR_ENGINEDEVICETYPE: Engine.hapticsEnabled = scriptEng.operands[i]; break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

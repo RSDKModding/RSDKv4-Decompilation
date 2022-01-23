@@ -208,7 +208,7 @@ bool getControllerButton(byte buttonID)
 
     return pressed;
 }
-#endif
+#endif //! RETRO_USING_SDL2
 
 void controllerInit(byte controllerID)
 {
@@ -375,7 +375,6 @@ void ProcessInput()
 
 #ifdef RETRO_USING_MOUSE
     if (touches <= 0) { // Touch always takes priority over mouse
-#endif                  //! RETRO_USING_SDL2
         int mx = 0, my = 0;
         SDL_GetMouseState(&mx, &my);
 
@@ -394,7 +393,6 @@ void ProcessInput()
 
         lastMouseX = mx;
         lastMouseY = my;
-#if RETRO_USING_SDL2
     }
 #endif //! RETRO_USING_MOUSE
 
@@ -465,9 +463,9 @@ void ProcessInput()
     if (!flag && inputType == 1) {
         inputDevice[INPUT_ANY].setReleased();
     }
-#endif
+#endif //! RETRO_USING_SDL2
 }
-#endif
+#endif //! !RETRO_USE_ORIGINAL_CODE
 
 // Pretty much is this code in the original, just formatted differently
 void CheckKeyPress(InputData *input)
@@ -538,9 +536,10 @@ int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
     return -1;
 }
 
+#if RETRO_USE_HAPTICS
 void HapticEffect(int *hapticID, int *a2, int *a3, int *a4)
 {
-    if (Engine.hapticsEnabled) {
+    if (Engine.hapticsEnabled) 
         hapticEffectNum = *hapticID;
-    }
 }
+#endif

@@ -82,7 +82,9 @@ void RetroGameLoop_Main(void *objPtr)
             break;
         }
         case ENGINE_WAIT2PVS:
-            // wait for vs responce
+            // wait for vs response
+            if (dcError)
+                CREATE_ENTITY(MultiplayerHandler);
             break;
 #endif
 #if RETRO_USE_MOD_LOADER
