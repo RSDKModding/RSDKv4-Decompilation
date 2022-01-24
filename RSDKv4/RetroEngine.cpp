@@ -516,7 +516,7 @@ void RetroEngine::Run()
 
 #if RETRO_PLATFORM == RETRO_SWITCH
             //it's time for some devmenu switch hacks
-            if (getControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+            if (getControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER) && Engine.devMenu) {
                 if (getControllerButton(SDL_CONTROLLER_BUTTON_BACK)) {
                     SDL_Event event;
                     event.type           = SDL_KEYDOWN;
