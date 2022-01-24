@@ -29,6 +29,10 @@ inline int getLowerRate(int intendRate, int targetRate)
 }
 #endif
 
+#if RETRO_PLATFORM == RETRO_SWITCH
+int devDownTimer = 0;
+#endif
+
 bool processEvents()
 {
 #if !RETRO_USE_ORIGINAL_CODE
@@ -322,10 +326,6 @@ void RetroEngine::Init()
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
-                for (int i = 0; i < INPUT_MAX; ++i) {
-                    printLog("input %d mapped %d", i, inputDevice[i].contMappings);
-                }
-
                 InitFirstStage();
                 ClearScriptData();
                 initialised = true;
@@ -516,21 +516,40 @@ void RetroEngine::Run()
 
 #if RETRO_PLATFORM == RETRO_SWITCH
             //it's time for some devmenu switch hacks
-            Engine.gameSpeed = 1;
-            if (getControllerButton(SDL_CONTROLLER_BUTTON_ZL)) {
-                if (getControllerButton(SDL_CONTROLLER_BUTTON_ZR)) {
-                    SDL_Event event;
-                    event.type           = SDL_KEYDOWN;
-                    event.key.keysym.sym = SDLK_BACKSPACE;
-                    SDL_PushEvent(&event);
-                }
-                else if (getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+            if (getControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) {
+                if (getControllerButton(SDL_CONTROLLER_BUTTON_BACK)) {
                     SDL_Event event;
                     event.type           = SDL_KEYDOWN;
                     event.key.keysym.sym = SDLK_ESCAPE;
                     SDL_PushEvent(&event);
                 }
+                if (getControllerButton(SDL_CONTROLLER_BUTTON_ZL)) {
+                    if (!masterPaused) masterPaused = true;
+                }
+                else {
+                    if (masterPaused) masterPaused = false;
+                }
+
+                if (masterPaused) {
+                    if (getControllerButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
+                        if (!devDownTimer++) frameStep = true;
+                    }
+                    else devDownTimer = 0;
+                }
+                else {
+                    if (getControllerButton(SDL_CONTROLLER_BUTTON_ZR)) {
+                        Engine.gameSpeed = Engine.fastForwardSpeed;
+                    }
+                    else Engine.gameSpeed = 1;
+                }
             }
+            else {
+                if (Engine.gameSpeed != 1) 
+                    Engine.gameSpeed = 1;
+                
+                if (masterPaused)
+                    masterPaused = false;
+            } 
 #endif
 
 #if RETRO_REV00
