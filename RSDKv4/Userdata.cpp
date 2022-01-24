@@ -466,11 +466,7 @@ void InitUserdata()
         if (!ini.GetBool("Window", "Borderless", &Engine.borderless))
             Engine.borderless = false;
         if (!ini.GetBool("Window", "VSync", &Engine.vsync))
-            #if RETRO_PLATFORM == RETRO_SWITCH
-            Engine.vsync = true;
-            #else
             Engine.vsync = false;
-            #endif
         if (!ini.GetInteger("Window", "ScalingMode", &Engine.scalingMode))
             Engine.scalingMode = 0;
         if (!ini.GetInteger("Window", "WindowScale", &Engine.windowScale))

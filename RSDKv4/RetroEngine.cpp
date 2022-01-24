@@ -322,9 +322,10 @@ void RetroEngine::Init()
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
         if (InitRenderDevice()) {
             if (InitAudioPlayback()) {
-                #if RETRO_PLATFORM == RETRO_SWITCH
-                controllerInit(0);
-                #endif
+                for (int i = 0; i < INPUT_MAX; ++i) {
+                    printLog("input %d mapped %d", i, inputDevice[i].contMappings);
+                }
+
                 InitFirstStage();
                 ClearScriptData();
                 initialised = true;
@@ -510,6 +511,25 @@ void RetroEngine::Run()
                 SDL_GL_SwapWindow(Engine.window);
 #endif
                 frameStep = false;
+            }
+#endif
+
+#if RETRO_PLATFORM == RETRO_SWITCH
+            //it's time for some devmenu switch hacks
+            Engine.gameSpeed = 1;
+            if (getControllerButton(SDL_CONTROLLER_BUTTON_ZL)) {
+                if (getControllerButton(SDL_CONTROLLER_BUTTON_ZR)) {
+                    SDL_Event event;
+                    event.type           = SDL_KEYDOWN;
+                    event.key.keysym.sym = SDLK_BACKSPACE;
+                    SDL_PushEvent(&event);
+                }
+                else if (getControllerButton(SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+                    SDL_Event event;
+                    event.type           = SDL_KEYDOWN;
+                    event.key.keysym.sym = SDLK_ESCAPE;
+                    SDL_PushEvent(&event);
+                }
             }
 #endif
 
