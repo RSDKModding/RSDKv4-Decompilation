@@ -277,6 +277,9 @@ void InitUserdata()
         ini.SetInteger("Dev", "StartingPlayer", Engine.startPlayer = 255);
         ini.SetInteger("Dev", "StartingSaveFile", Engine.startSave = 255);
         ini.SetInteger("Dev", "FastForwardSpeed", Engine.fastForwardSpeed = 8);
+        Engine.startList_Game  = Engine.startList;
+        Engine.startStage_Game = Engine.startStage;
+
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
         ini.SetString("Dev", "DataFile", (char *)"Data.rsdk");
         StrCopy(Engine.dataFile[0], "Data.rsdk");
@@ -418,6 +421,9 @@ void InitUserdata()
             Engine.fastForwardSpeed = 8;
         if (!ini.GetBool("Dev", "UseHQModes", &Engine.useHQModes))
             Engine.useHQModes = true;
+
+        Engine.startList_Game  = Engine.startList;
+        Engine.startStage_Game = Engine.startStage;
 
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
             StrCopy(Engine.dataFile[0], "Data.rsdk");

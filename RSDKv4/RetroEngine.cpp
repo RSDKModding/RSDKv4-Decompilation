@@ -328,9 +328,9 @@ void RetroEngine::Init()
                 running     = true;
 
 #if !RETRO_USE_ORIGINAL_CODE
-                if ((startList != 0xFF && startList) || (startStage != 0xFF && startStage) || startPlayer != 0xFF) {
+                if ((startList_Game != 0xFF && startList_Game) || (startStage_Game != 0xFF && startStage_Game) || startPlayer != 0xFF) {
                     skipStart = true;
-                    InitStartingStage(startList == 0xFF ? STAGELIST_PRESENTATION : startList, startStage == 0xFF ? 0 : startStage,
+                    InitStartingStage(startList_Game == 0xFF ? STAGELIST_PRESENTATION : startList_Game, startStage_Game == 0xFF ? 0 : startStage_Game,
                                       startPlayer == 0xFF ? 0 : startPlayer);
                 }
                 else if (startSave != 0xFF && startSave < 4) {
@@ -391,7 +391,7 @@ void RetroEngine::Init()
                             InitStartingStage(STAGELIST_REGULAR, 0, 0);
                         }
                     }
-                    skipStartMenu = true;
+                    skipStart = true;
                 }
 #endif
             }
@@ -405,7 +405,14 @@ void RetroEngine::Init()
     }
 #endif
 
+#if !RETRO_USE_ORIGINAL_CODE
+    bool skipStore = skipStartMenu;
+    skipStartMenu  = skipStart;
     InitNativeObjectSystem();
+    skipStartMenu = skipStore;
+#else
+    InitNativeObjectSystem();
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
@@ -445,7 +452,7 @@ void RetroEngine::Init()
         AddAchievement("Beat the Clock", "Complete the Time Attack\rmode in less than 45\rminutes");
     }
 
-    if (skipStartMenu)
+    if (skipStart)
         Engine.gameMode = ENGINE_MAINGAME;
     else
         Engine.gameMode = ENGINE_WAIT;
@@ -1131,6 +1138,17 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("GetModActive", GetModActive);
     AddNativeFunction("SetModActive", SetModActive);
     AddNativeFunction("RefreshEngine", RefreshEngine); // Reload engine after changing mod status
+#endif
+
+#if !RETRO_USE_ORIGINAL_CODE
+    if (strlen(Engine.startSceneFolder) && strlen(Engine.startSceneID)) {
+        SceneInfo *scene = &stageList[STAGELIST_BONUS][0xFE]; //slot 0xFF is used for "none" startStage
+        strcpy(scene->name, "_RSDK_SCENE");
+        strcpy(scene->folder, Engine.startSceneFolder);
+        strcpy(scene->id, Engine.startSceneID);
+        startList_Game  = STAGELIST_BONUS;
+        startStage_Game = 0xFE;
+    }
 #endif
 
     return loaded;

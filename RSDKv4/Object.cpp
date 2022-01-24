@@ -397,6 +397,7 @@ void InitNativeObjectSystem()
 
     Engine.globalBoxRegion = saveGame->boxRegion;
     SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
+
     if (skipStartMenu) {
         CREATE_ENTITY(RetroGameLoop);
         if (Engine.gameDeviceType == RETRO_MOBILE)
