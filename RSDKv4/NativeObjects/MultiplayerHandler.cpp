@@ -149,7 +149,7 @@ void MultiplayerHandler_Main(void *objPtr)
 					if (Engine.gameDeviceType == RETRO_MOBILE)
 						CREATE_ENTITY(VirtualDPad);
 				} else {
-                    RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
+					RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
 					CREATE_ENTITY(SegaSplash);
 				}
             }
