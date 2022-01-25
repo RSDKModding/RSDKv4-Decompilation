@@ -137,7 +137,6 @@ void MultiplayerHandler_Main(void *objPtr)
             }
             else if (entity->fade->timer > entity->fade->delay) {
                 ClearNativeObjects();
-                RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                 Engine.nativeMenuFadeIn = false;
 				if (skipStartMenu) {
 					ClearGraphicsData();
@@ -150,7 +149,7 @@ void MultiplayerHandler_Main(void *objPtr)
 					if (Engine.gameDeviceType == RETRO_MOBILE)
 						CREATE_ENTITY(VirtualDPad);
 				} else {
-					DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0x00, 0x00, 0x00, 0xFF); // This is probably hacky don't tell rdc or i'm going to jail
+                    RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
 					CREATE_ENTITY(SegaSplash);
 				}
             }
