@@ -137,9 +137,22 @@ void MultiplayerHandler_Main(void *objPtr)
             }
             else if (entity->fade->timer > entity->fade->delay) {
                 ClearNativeObjects();
-                CREATE_ENTITY(SegaSplash);
                 RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
                 Engine.nativeMenuFadeIn = false;
+				if (skipStartMenu) {
+					ClearGraphicsData();
+					ClearAnimationData();
+					activeStageList   = 0;
+					stageMode         = STAGEMODE_LOAD;
+					Engine.gameMode   = ENGINE_MAINGAME;
+					stageListPosition = 0;
+					CREATE_ENTITY(RetroGameLoop);
+					if (Engine.gameDeviceType == RETRO_MOBILE)
+						CREATE_ENTITY(VirtualDPad);
+				} else {
+					DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0x00, 0x00, 0x00, 0xFF); // This is probably hacky don't tell rdc or i'm going to jail
+					CREATE_ENTITY(SegaSplash);
+				}
             }
             break;
     }
