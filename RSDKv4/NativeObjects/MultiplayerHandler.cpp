@@ -138,20 +138,21 @@ void MultiplayerHandler_Main(void *objPtr)
             else if (entity->fade->timer > entity->fade->delay) {
                 ClearNativeObjects();
                 Engine.nativeMenuFadeIn = false;
-				if (skipStartMenu) {
-					ClearGraphicsData();
-					ClearAnimationData();
-					activeStageList   = 0;
-					stageMode         = STAGEMODE_LOAD;
-					Engine.gameMode   = ENGINE_MAINGAME;
-					stageListPosition = 0;
-					CREATE_ENTITY(RetroGameLoop);
-					if (Engine.gameDeviceType == RETRO_MOBILE)
-						CREATE_ENTITY(VirtualDPad);
-				} else {
-					RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
-					CREATE_ENTITY(SegaSplash);
-				}
+                if (skipStartMenu) {
+                    ClearGraphicsData();
+                    ClearAnimationData();
+                    activeStageList   = 0;
+                    stageMode         = STAGEMODE_LOAD;
+                    Engine.gameMode   = ENGINE_MAINGAME;
+                    stageListPosition = 0;
+                    CREATE_ENTITY(RetroGameLoop);
+                    if (Engine.gameDeviceType == RETRO_MOBILE)
+                        CREATE_ENTITY(VirtualDPad);
+                }
+                else {
+                    RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
+                    CREATE_ENTITY(SegaSplash);
+                }
             }
             break;
     }
