@@ -29,10 +29,6 @@ inline int getLowerRate(int intendRate, int targetRate)
 }
 #endif
 
-#if RETRO_PLATFORM == RETRO_SWITCH
-int devDownTimer = 0;
-#endif
-
 bool processEvents()
 {
 #if !RETRO_USE_ORIGINAL_CODE
@@ -519,44 +515,6 @@ void RetroEngine::Run()
 #endif
                 frameStep = false;
             }
-#endif
-
-#if RETRO_PLATFORM == RETRO_SWITCH
-            //it's time for some devmenu switch hacks
-            if (getControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER) && Engine.devMenu) {
-                if (getControllerButton(SDL_CONTROLLER_BUTTON_BACK)) {
-                    SDL_Event event;
-                    event.type           = SDL_KEYDOWN;
-                    event.key.keysym.sym = SDLK_ESCAPE;
-                    SDL_PushEvent(&event);
-                }
-                if (getControllerButton(SDL_CONTROLLER_BUTTON_ZL)) {
-                    if (!masterPaused) masterPaused = true;
-                }
-                else {
-                    if (masterPaused) masterPaused = false;
-                }
-
-                if (masterPaused) {
-                    if (getControllerButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) {
-                        if (!devDownTimer++) frameStep = true;
-                    }
-                    else devDownTimer = 0;
-                }
-                else {
-                    if (getControllerButton(SDL_CONTROLLER_BUTTON_ZR)) {
-                        Engine.gameSpeed = Engine.fastForwardSpeed;
-                    }
-                    else Engine.gameSpeed = 1;
-                }
-            }
-            else {
-                if (Engine.gameSpeed != 1) 
-                    Engine.gameSpeed = 1;
-                
-                if (masterPaused)
-                    masterPaused = false;
-            } 
 #endif
 
 #if RETRO_REV00
@@ -1152,7 +1110,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
+#if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
+#endif
 
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);

@@ -1,12 +1,5 @@
 #include "RetroEngine.hpp"
 
-// Your guess is as good as mine
-#if RETRO_PLATFORM == RETRO_SWITCH
-long pathconf (const char *__path, int __name) {
-    return 0;
-}
-#endif
-
 int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
@@ -317,11 +310,7 @@ void InitUserdata()
 
         ini.SetBool("Window", "FullScreen", Engine.startFullScreen = DEFAULT_FULLSCREEN);
         ini.SetBool("Window", "Borderless", Engine.borderless = false);
-        #if RETRO_PLATFORM == RETRO_SWITCH
-        ini.SetBool("Window", "VSync", Engine.vsync = true);
-        #else
         ini.SetBool("Window", "VSync", Engine.vsync = false);
-        #endif
         ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = 0);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE);

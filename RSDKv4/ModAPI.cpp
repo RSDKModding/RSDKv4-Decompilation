@@ -30,7 +30,7 @@ int OpenModMenu()
     return 1;
 }
 
-#if (RETRO_PLATFORM == RETRO_ANDROID)
+#if RETRO_PLATFORM == RETRO_ANDROID
 namespace fs = std::__fs::filesystem; // this is so we can avoid using c++17, which causes a ton of warnings w asio and looks ugly
 #else
 namespace fs = std::filesystem;
@@ -38,12 +38,8 @@ namespace fs = std::filesystem;
 
 fs::path resolvePath(fs::path given)
 {
-    // This crashes and I don't know why
-    // Maybe to do with pathconf somehow?
-#if RETRO_PLATFORM != RETRO_SWITCH
     if (given.is_relative())
         given = fs::current_path() / given; // thanks for the weird syntax!
-#endif
     for (auto &p : fs::directory_iterator{ given.parent_path() }) {
         char pbuf[0x100];
         char gbuf[0x100];
