@@ -39,12 +39,10 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Clone the repo with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`.
-  * The `CXXFLAGS` option can be removed if you do not want optimizations.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 ### Server (Only required to host Sonic 2 multiplayer servers)
 * Go into the Server directory by running `cd Server` when in the root of the decompilation source folder.
 * Run `make -f Makefile.msys2 CXXFLAGS=-static -j4`.
-  * The `CXXFLAGS` option can be removed if you do not want optimizations.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 
 ## Windows UWP (Phone, Xbox, etc.)
