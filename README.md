@@ -1,4 +1,9 @@
 ![](header.png?raw=true)
+
+[![Nintendo Switch](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/actions/workflows/switch.yml/badge.svg)](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/actions/workflows/switch.yml)
+
+A Full Decompilation of Sonic 1 & 2 (2013). Ported to the Switch.
+
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
 + For tutorials on how to find your legally obtained Data.rsdk file, see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
@@ -14,6 +19,23 @@
 Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets)
 
 If you want to transfer your save from the official mobile versions, the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file to the `SData.bin` in the EXE folder.
+
+## Installation Instructions
+You can find downloads in [releases](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation/releases).
+
+1. Make sure your Switch can run homebrew.
+2. Extract the contents of the zip to the root of your SD card.
+3. Copy Data.rsdk to `/switch/s12013` or `/switch/s22013` on your Switch's SD card. You can get it from the "assets" folder of the APK. (Which you can open using 7-zip.)
+    - If you find "Data.rsdk.xmf" instead, just rename it to "Data.rsdk".
+4. Start Sonic 1/2 via hbmenu (or whatever method you prefer).
+
+NOTE: It is recommended to give the game full RAM access. This means you shouldn't launch hbmenu from the album applet when running this. With the latest Atmosphere build and its default config, you can hold R while starting any game to open hbmenu with full RAM access. If you have any issues make sure the game has full RAM access before reporting them; launching as an applet will not be supported.
+
+----
+
+Sections below are lifted directly from the source repository.
+
+-----
 
 # Additional Tweaks
 * Added a built in script compiler. Similar to the one found in RSDKv3, but tweaked up to match the new syntax for the scripts used in RSDKv4.
@@ -112,3 +134,4 @@ A: No. Sonic Mania is much bigger and requires that I'd decompile not only how t
 
 # Contact:
 Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any extra questions you may need to know about the decompilation or modding it.
+ 

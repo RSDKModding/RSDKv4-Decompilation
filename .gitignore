@@ -42,7 +42,6 @@ cmake/
 [Dd]ependencies/ios/SDL2.framework/
 [Dd]ependencies/ios/libSDLMain.a
 ![Dd]ependencies/ios/[Ii]nfo.plist
-[Dd]ependencies/all/*
 ![Dd]ependencies/all/dependencies.txt
 ![Dd]ependencies/all/stb-image
 ![Dd]ependencies/all/tinyxml2

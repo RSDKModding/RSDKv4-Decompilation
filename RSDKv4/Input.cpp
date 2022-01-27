@@ -20,6 +20,7 @@ int hapticEffectNum = -2;
 InputButton inputDevice[INPUT_MAX];
 int inputType = 0;
 
+
 // mania deadzone vals lol
 float LSTICK_DEADZONE   = 0.3;
 float RSTICK_DEADZONE   = 0.3;
@@ -55,11 +56,12 @@ bool getControllerButton(byte buttonID)
     bool pressed = false;
 
     for (int i = 0; i < controllers.size(); ++i) {
+        if (pressed) break;
         SDL_GameController *controller = controllers[i].devicePtr;
 
         if (SDL_GameControllerGetButton(controller, (SDL_GameControllerButton)buttonID)) {
             pressed |= true;
-            continue;
+            break;
         }
         else {
             switch (buttonID) {
@@ -213,7 +215,7 @@ void controllerInit(byte controllerID)
             return; // we already opened this one!
         }
     }
-
+    
 #if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
@@ -268,6 +270,10 @@ void controllerClose(byte controllerID)
 void InitInputDevices()
 {
 #if RETRO_USING_SDL2
+#if RETRO_PLATFORM == RETRO_SWITCH
+    // just gonna override the mapping and be done with it
+    SDL_GameControllerAddMapping("53776974636820436f6e74726f6c6c65,Switch Controller,a:b0,b:b1,back:b11,dpdown:b15,dpleft:b12,dpright:b14,dpup:b13,leftshoulder:b6,leftstick:b4,lefttrigger:b8,leftx:a0,lefty:a1,rightshoulder:b7,rightstick:b5,righttrigger:b9,rightx:a2,righty:a3,start:b10,x:b3,y:b2,");
+#endif
     printLog("Initializing gamepads...");
     int joyStickCount = SDL_NumJoysticks();
     controllers.clear();

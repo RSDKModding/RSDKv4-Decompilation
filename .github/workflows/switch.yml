@@ -1,0 +1,31 @@
+name: Nintendo Switch
+
+on:
+  push:
+    branches: [ main, 1.2.0 ]
+  pull_request:
+    branches: [ main, 1.2.0 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    container: devkitpro/devkita64:20200730
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: make clean
+      run: make PLATFORM=Switch clean
+    - name: make 
+      run: make PLATFORM=Switch
+    - name: Create directory structure
+      run: |
+        mkdir -p bin/Switch/sd/switch/s12013
+        mv bin/Switch/s12013.nro bin/Switch/sd/switch/s12013/
+        mkdir -p bin/Switch/sd/switch/s22013
+        mv bin/Switch/s22013.nro bin/Switch/sd/switch/s22013/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: bin/Switch/sd

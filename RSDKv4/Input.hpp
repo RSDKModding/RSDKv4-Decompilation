@@ -1,6 +1,12 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+
+#if RETRO_PLATFORM == RETRO_SWITCH
+// expose it for hacks
+bool getControllerButton(byte buttonID);
+#endif
+
 enum InputButtons {
     INPUT_UP,
     INPUT_DOWN,

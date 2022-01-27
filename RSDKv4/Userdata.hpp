@@ -1,6 +1,8 @@
 #ifndef USERDATA_H
 #define USERDATA_H
 
+#include "Networking.hpp"
+
 #define GLOBALVAR_COUNT (0x100)
 
 #define ACHIEVEMENT_MAX (0x40)
@@ -66,12 +68,6 @@ struct LeaderboardEntry {
     int score;
 };
 
-#ifndef NETWORKING_H
-struct MultiplayerData {
-    int type;
-    int data[0x1FF];
-};
-#endif
 
 extern void *nativeFunction[NATIIVEFUNCTION_MAX];
 extern int nativeFunctionCount;

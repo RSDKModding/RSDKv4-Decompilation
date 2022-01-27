@@ -133,11 +133,12 @@ int InitRenderDevice()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 #endif
 #endif
-#if RETRO_DEVICETYPE == RETRO_MOBILE
+
+#if RETRO_DEVICETYPE == RETRO_MOBILE || RETRO_PLATFORM == RETRO_SWITCH
     Engine.startFullScreen = true;
 
     SDL_DisplayMode dm;
-    SDL_GetDesktopDisplayMode(0, &dm);
+    SDL_GetCurrentDisplayMode(0, &dm);
 
     bool landscape = dm.h < dm.w;
     int h          = landscape ? dm.w : dm.h;
@@ -150,11 +151,19 @@ int InitRenderDevice()
     if (SCREEN_XSIZE >= 500)
         SCREEN_XSIZE = 500;
 #endif
+    int winX, winY;
+#if RETRO_PLATFORM == RETRO_SWITCH
+    winX = 1920;
+    winY = 1080;
+    flags |= SDL_WINDOW_FULLSCREEN;
+#else
+    winX       = SCREEN_XSIZE * Engine.windowScale;
+    winX       = SCREEN_YSIZE * Engine.windowScale;
+#endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
     if (windowCreated == false) {
-        Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                         SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+        Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winX, winY, SDL_WINDOW_ALLOW_HIGHDPI | flags);
         windowCreated = true;
     }
     if (!Engine.window) {
@@ -259,7 +268,10 @@ int InitRenderDevice()
 
     SDL_GL_SetSwapInterval(Engine.vsync ? 1 : 0);
 
-#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
+#if RETRO_PLATFORM == RETRO_SWITCH
+    // Should probably add error
+    gladLoadGL();
+#elif RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         printLog("glew init error:");
@@ -352,6 +364,7 @@ int InitRenderDevice()
 void FlipScreen()
 {
 #if !RETRO_USE_ORIGINAL_CODE
+#if RETRO_PLATFORM != RETRO_SWITCH //switch doesn't need this it's builtin
     if (Engine.dimTimer < Engine.dimLimit) {
         if (Engine.dimPercent < 1.0) {
             Engine.dimPercent += 0.05;
@@ -362,7 +375,7 @@ void FlipScreen()
     else if (Engine.dimPercent > 0.25 && Engine.dimLimit >= 0) {
         Engine.dimPercent *= 0.9;
     }
-
+#endif //! RETRO_PLATFORM != RETRO_SWITCH
     float dimAmount = Engine.dimMax * Engine.dimPercent;
 
 #if RETRO_SOFTWARE_RENDER && !RETRO_USING_OPENGL
@@ -4767,7 +4780,7 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
         lineBuffer++;
         int w = width;
         while (w--) {
-            if (*gfxDataPtr > 0) 
+            if (*gfxDataPtr > 0)
                 *frameBufferPtr = activePalette[*gfxDataPtr];
             ++gfxDataPtr;
             ++frameBufferPtr;
@@ -4824,7 +4837,6 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
     }
 #endif
 }
-
 
 #if RETRO_REV00
 // WHY IS THIS BACK LOLLLL

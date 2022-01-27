@@ -80,8 +80,8 @@ byte tilesetGFXData[TILESET_SIZE];
 ushort tile3DFloorBuffer[0x13334];
 bool drawStageGFXHQ = false;
 
-#if RETRO_USE_MOD_LOADER
 bool loadGlobalScripts = false; // stored here so I can use it later
+#if RETRO_USE_MOD_LOADER
 int globalObjCount     = 0;
 #endif
 
