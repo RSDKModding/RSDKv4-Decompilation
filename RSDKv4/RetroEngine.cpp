@@ -1044,6 +1044,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #if RETRO_USE_MOD_LOADER
             strBuffer[fileBuffer] = 0;
             StrCopy(playerNames[p], strBuffer);
+            playerCount++;
 #endif
         }
 
