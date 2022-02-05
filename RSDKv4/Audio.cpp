@@ -496,7 +496,7 @@ void LoadMusic(void *userdata)
             if (musicStartPos) {
                 uint oldPos = (uint)ov_pcm_tell(&streamInfo[oldStreamID].vorbisFile);
 
-                float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8000 == 0.8 (ratio / 10,000)
+                float newPos  = oldPos * ((float)musicRatio * 0.0001); // 8,000 == 0.8, 10,000 == 1.0 (ratio / 10,000)
                 musicStartPos = fmod(newPos, samples);
 
                 ov_pcm_seek(&strmInfo->vorbisFile, musicStartPos);

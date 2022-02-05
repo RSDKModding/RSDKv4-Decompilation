@@ -26,9 +26,9 @@ int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
 #if !RETRO_REV00
-#define COMMONALIAS_COUNT (0x5B)
+#define COMMONALIAS_COUNT (0x64)
 #else
-#define COMMONALIAS_COUNT (0x5A)
+#define COMMONALIAS_COUNT (0x63)
 #endif
 #define ALIAS_COUNT_TRIM  (0xE0)
 #define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
@@ -569,6 +569,15 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
 #if !RETRO_REV00
                                          AliasInfo("STAGE_2P", "4"),
 #endif
+                                         AliasInfo("ENGINE_DEVMENU", "0"),
+                                         AliasInfo("ENGINE_MAINGAME", "1"),
+                                         AliasInfo("ENGINE_INITDEVMENU", "2"),
+                                         AliasInfo("ENGINE_WAIT", "3"),
+                                         AliasInfo("ENGINE_SCRIPTERROR", "4"),
+                                         AliasInfo("ENGINE_INITPAUSE", "5"),
+                                         AliasInfo("ENGINE_EXITPAUSE", "6"),
+                                         AliasInfo("ENGINE_ENDGAME", "7"),
+                                         AliasInfo("ENGINE_RESETGAME", "8"),
                                          AliasInfo("RESET_GAME", "2"),
                                          AliasInfo("RETRO_STANDARD", "0"),
                                          AliasInfo("RETRO_MOBILE", "1"),
