@@ -365,7 +365,7 @@ void ProcessInput()
     if (inputDevice[INPUT_ANY].press || inputDevice[INPUT_ANY].hold || touches > 1) {
         Engine.dimTimer = 0;
     }
-    else if (Engine.dimTimer < Engine.dimLimit) {
+    else if (Engine.dimTimer < Engine.dimLimit && !Engine.masterPaused) {
         ++Engine.dimTimer;
     }
 

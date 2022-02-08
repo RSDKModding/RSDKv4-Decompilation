@@ -1703,6 +1703,26 @@ void ConvertFunctionText(char *text)
                 }
             }
 
+            // Eg: temp0 = VarName[player.lives]
+            if (StrComp(funcName, "VarName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
+                int v = 0;
+                for (; v < globalVariablesCount; ++v) {
+                    if (StrComp(arrayStr, globalVariableNames[v])) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, v);
+                        break;
+                    }
+                }
+
+                if (v == globalVariablesCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
 #if RETRO_USE_MOD_LOADER
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
@@ -1989,6 +2009,26 @@ void CheckCaseNumber(char *text)
             }
         }
 
+        // Eg: temp0 = VarName[player.lives]
+        if (StrComp(caseValue, "VarName")) {
+            caseValue[0] = 0;
+            AppendIntegerToString(caseValue, 0);
+            int v = 0;
+            for (; v < globalVariablesCount; ++v) {
+                if (StrComp(arrayStr, globalVariableNames[v])) {
+                    caseValue[0] = 0;
+                    AppendIntegerToString(caseValue, v);
+                    break;
+                }
+            }
+
+            if (v == globalVariablesCount) {
+                char buf[0x40];
+                sprintf(buf, "WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
+                printLog(buf);
+            }
+        }
+
 #if RETRO_USE_MOD_LOADER
         // Eg: temp0 = AchievementName[Ring King]
         if (StrComp(caseValue, "AchievementName")) {
@@ -2203,6 +2243,26 @@ bool ReadSwitchCase(char *text)
                 if (s == SFX_COUNT) {
                     char buf[0x40];
                     sprintf(buf, "WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(buf);
+                }
+            }
+
+            // Eg: temp0 = VarName[player.lives]
+            if (StrComp(caseValue, "VarName")) {
+                caseValue[0] = 0;
+                AppendIntegerToString(caseValue, 0);
+                int v = 0;
+                for (; v < globalVariablesCount; ++v) {
+                    if (StrComp(arrayStr, globalVariableNames[v])) {
+                        caseValue[0] = 0;
+                        AppendIntegerToString(caseValue, v);
+                        break;
+                    }
+                }
+
+                if (v == globalVariablesCount) {
+                    char buf[0x40];
+                    sprintf(buf, "WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
                     printLog(buf);
                 }
             }
