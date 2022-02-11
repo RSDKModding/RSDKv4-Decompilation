@@ -374,7 +374,7 @@ void ProcessInput()
         int mx = 0, my = 0;
         SDL_GetMouseState(&mx, &my);
 
-        if ((mx == lastMouseX && my == lastMouseY)) {
+        if (mx == lastMouseX && my == lastMouseY) {
             ++mouseHideTimer;
             if (mouseHideTimer == 120) {
                 SDL_ShowCursor(false);

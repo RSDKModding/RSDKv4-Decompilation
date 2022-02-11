@@ -439,10 +439,25 @@ void PauseMenu_Main(void *objPtr)
         }
         case PAUSEMENU_STATE_EXIT: {
             if (entity->dialog->selection == DLG_YES) {
-                entity->state         = PAUSEMENU_STATE_SUBMENU;
-                Engine.gameMode       = (GetGlobalVariableByName("options.gameMode") > 1) + ENGINE_ENDGAME;
-                entity->dialog->state = DIALOGPANEL_STATE_IDLE;
-                CREATE_ENTITY(FadeScreen);
+                entity->state = PAUSEMENU_STATE_SUBMENU;
+#if !RETRO_USE_ORIGINAL_CODE
+                if (skipStartMenu) {
+                    Engine.gameMode       = ENGINE_MAINGAME;
+                    entity->dialog->state = DIALOGPANEL_STATE_IDLE;
+                    NativeEntity_FadeScreen *fadeout = CREATE_ENTITY(FadeScreen);
+                    fadeout->state                   = FADESCREEN_STATE_GAMEFADEOUT;
+                    activeStageList                  = STAGELIST_PRESENTATION;
+                    stageListPosition                = 0;
+                    stageMode                        = STAGEMODE_LOAD;
+                }
+                else {
+#endif
+                    Engine.gameMode       = (GetGlobalVariableByName("options.gameMode") > 1) + ENGINE_ENDGAME;
+                    entity->dialog->state = DIALOGPANEL_STATE_IDLE;
+                    CREATE_ENTITY(FadeScreen);
+#if !RETRO_USE_ORIGINAL_CODE
+                }
+#endif
             }
             else {
                 if (entity->dialog->selection == DLG_YES || entity->dialog->selection == DLG_NO || entity->dialog->selection == DLG_OK) {

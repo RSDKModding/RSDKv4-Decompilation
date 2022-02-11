@@ -5,14 +5,14 @@
 #define FACEBUFFER_SIZE   (0x400)
 
 enum FaceFlags {
-    FACE_FLAG_TEXTURED_3D = 0,
-    FACE_FLAG_TEXTURED_2D = 1,
-    FACE_FLAG_COLOURED_3D = 2,
-    FACE_FLAG_COLOURED_2D = 3,
-    FACE_FLAG_FADED       = 4,
-    FACE_FLAG_TEXTURED_C  = 5,
-    FACE_FLAG_TEXTURED_D  = 6,
-    FACE_FLAG_3DSPRITE    = 7
+    FACE_FLAG_TEXTURED_3D      = 0,
+    FACE_FLAG_TEXTURED_2D      = 1,
+    FACE_FLAG_COLOURED_3D      = 2,
+    FACE_FLAG_COLOURED_2D      = 3,
+    FACE_FLAG_FADED            = 4,
+    FACE_FLAG_TEXTURED_C       = 5,
+    FACE_FLAG_TEXTURED_C_BLEND = 6,
+    FACE_FLAG_3DSPRITE         = 7
 };
 
 enum MatrixTypes {

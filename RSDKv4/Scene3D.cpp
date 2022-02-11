@@ -432,6 +432,11 @@ void draw3DScene(int spriteSheetID)
                 break;
             case FACE_FLAG_TEXTURED_C:
                 if (vertexBufferT[face->a].z > 0) {
+                    // [face->a].uv == sprite center
+                    // [face->b].uv == ???
+                    // [face->c].uv == sprite extend (how far to each edge X & Y)
+                    // [face->d].uv == unused
+
                     quad[0].x = SCREEN_CENTERX + projectionX * (vertexBufferT[face->a].x - vertexBuffer[face->b].u) / vertexBufferT[face->a].z;
                     quad[0].y = SCREEN_CENTERY - projectionY * (vertexBufferT[face->a].y + vertexBuffer[face->b].v) / vertexBufferT[face->a].z;
                     quad[1].x = SCREEN_CENTERX + projectionX * (vertexBufferT[face->a].x + vertexBuffer[face->b].u) / vertexBufferT[face->a].z;
@@ -443,18 +448,20 @@ void draw3DScene(int spriteSheetID)
 
                     quad[0].u = vertexBuffer[face->a].u - vertexBuffer[face->c].u;
                     quad[0].v = vertexBuffer[face->a].v - vertexBuffer[face->c].v;
-                    quad[1].u = vertexBuffer[face->c].u + vertexBuffer[face->a].u;
+                    quad[1].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[1].v = vertexBuffer[face->a].v - vertexBuffer[face->c].v;
                     quad[2].u = vertexBuffer[face->a].u - vertexBuffer[face->c].u;
                     quad[2].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
-                    quad[3].u = vertexBuffer[face->c].u + vertexBuffer[face->a].u;
+                    quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
                     DrawTexturedFace(quad, face->colour);
                 }
                 break;
-            case FACE_FLAG_TEXTURED_D:
+            case FACE_FLAG_TEXTURED_C_BLEND:
                 if (vertexBufferT[face->a].z > 0) {
+                    // See above, its the same just blended
+
                     quad[0].x = SCREEN_CENTERX + projectionX * (vertexBufferT[face->a].x - vertexBuffer[face->b].u) / vertexBufferT[face->a].z;
                     quad[0].y = SCREEN_CENTERY - projectionY * (vertexBufferT[face->a].y + vertexBuffer[face->b].v) / vertexBufferT[face->a].z;
                     quad[1].x = SCREEN_CENTERX + projectionX * (vertexBufferT[face->a].x + vertexBuffer[face->b].u) / vertexBufferT[face->a].z;
@@ -466,11 +473,11 @@ void draw3DScene(int spriteSheetID)
 
                     quad[0].u = vertexBuffer[face->a].u - vertexBuffer[face->c].u;
                     quad[0].v = vertexBuffer[face->a].v - vertexBuffer[face->c].v;
-                    quad[1].u = vertexBuffer[face->c].u + vertexBuffer[face->a].u;
+                    quad[1].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[1].v = vertexBuffer[face->a].v - vertexBuffer[face->c].v;
                     quad[2].u = vertexBuffer[face->a].u - vertexBuffer[face->c].u;
                     quad[2].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
-                    quad[3].u = vertexBuffer[face->c].u + vertexBuffer[face->a].u;
+                    quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
                     DrawTexturedFaceBlended(quad, face->colour);
