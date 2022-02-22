@@ -40,10 +40,6 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
-### Server (Only required to host Sonic 2 multiplayer servers)
-* Go into the Server directory by running `cd Server` when in the root of the decompilation source folder.
-* Run `make -f Makefile.msys2 CXXFLAGS=-static -j4`.
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 
 ## Windows UWP (Phone, Xbox, etc.)
 * Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
@@ -61,11 +57,6 @@ If you want to transfer your save from the official mobile versions, the **Andro
   * Run `make -j5`.
     * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
     * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
-### Server (Only required to host Sonic 2 multiplayer servers)
-* Go into the Server directory by running `cd Server` when in the root of the decompilation source folder
-* Run `make -j5`.
-  * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
@@ -91,6 +82,11 @@ Because these branches are unofficial, we can't provide support for them and the
 ## Other Platforms
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it (as well as tinyxml2 for the mod API and asio for networking), so the codebase is very multiplatform.
 If you're able to, you can clone this repo and port it to a platform not on the list.
+
+# Server
+The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
+To use the server, open Command Prompt in the folder [Server.py](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/Server/Server.py) is located in, then run the command ``py -3 Server.py [local IPv4 address] [port] debug``. You can find your local IPv4 address using the command ``ipconfig``.
+Note that the CPP server found in the Server folder in the repo has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
 ### Q: The screen is tearing, how do I fix it?
