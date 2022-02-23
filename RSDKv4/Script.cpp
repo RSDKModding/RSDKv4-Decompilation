@@ -347,7 +347,6 @@ const char variableNames[][0x20] = {
 #if RETRO_USE_HAPTICS
     "engine.hapticsEnabled",
 #endif
-
 };
 #endif
 
@@ -424,7 +423,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("RotatePalette", 4),
     FunctionInfo("SetScreenFade", 4),
     FunctionInfo("SetActivePalette", 3),
-    FunctionInfo("SetPaletteFade", 6),
+    FunctionInfo("SetPaletteFade", RETRO_REV00 ? 7 : 6),
     FunctionInfo("SetPaletteEntry", 3),
     FunctionInfo("GetPaletteEntry", 3),
     FunctionInfo("CopyPalette", 5),
@@ -510,7 +509,7 @@ const FunctionInfo functions[] = {
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("LoadFontFile", 1),
 #endif
-    FunctionInfo("LoadTextFile", 2),
+    FunctionInfo("LoadTextFile", RETRO_REV02 ? 2 : 3),
     FunctionInfo("GetTextInfo", 5),
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("DrawText", 7),
@@ -1064,10 +1063,10 @@ enum ScrFunc {
     FUNC_LOADTEXTFONT,
 #endif
     FUNC_LOADTEXTFILE,
+    FUNC_GETTEXTINFO,
 #if RETRO_REV00 || RETRO_REV01
     FUNC_DRAWTEXT,
 #endif
-    FUNC_GETTEXTINFO,
     FUNC_GETVERSIONNUMBER,
     FUNC_GETTABLEVALUE,
     FUNC_SETTABLEVALUE,
@@ -4487,8 +4486,13 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 SetActivePalette(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
                 break;
             case FUNC_SETPALETTEFADE:
+#if RETRO_REV00
+                SetLimitedFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
+                               scriptEng.operands[5], scriptEng.operands[6]);
+#else
                 SetPaletteFade(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                scriptEng.operands[5]);
+#endif
                 break;
             case FUNC_SETPALETTEENTRY: SetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_GETPALETTEENTRY: scriptEng.operands[2] = GetPaletteEntryPacked(scriptEng.operands[0], scriptEng.operands[1]); break;

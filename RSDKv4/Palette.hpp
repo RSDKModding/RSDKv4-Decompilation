@@ -155,6 +155,11 @@ inline void SetFade(byte R, byte G, byte B, ushort A)
     fadeB    = B;
     fadeA    = A > 0xFF ? 0xFF : A;
 }
+
+#if RETRO_REV00
+void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort alpha, int startIndex, int endIndex);
+#else
 void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, ushort blendAmount, int startIndex, int endIndex);
+#endif
 
 #endif // !PALETTE_H

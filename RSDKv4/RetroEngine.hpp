@@ -182,8 +182,8 @@ typedef unsigned int uint;
 #define RETRO_USE_HAPTICS (1)
 
 // Timeline:
-// 1 = S1 release RSDKv4 version
-// 0 = S2 release RSDKv4 version
+// 0 = S1 release RSDKv4 version
+// 1 = S2 release RSDKv4 version
 // 2 = S3 POC RSDKv4 version (I have no idea how we have this but woohoo apparently)
 #define RSDK_REVISION (2)
 
@@ -194,6 +194,10 @@ typedef unsigned int uint;
 // reverts opcode list back to how it was in earliest S2 builds, fixes bugs on some datafiles
 // generally advised to keep this set to 0
 #define RETRO_REV01 (RSDK_REVISION == 1)
+
+// the default, uses the S3 POC opcode list, which is the latest version of RSDKv4
+// generally advised to keep this set to 1
+#define RETRO_REV02 (RSDK_REVISION == 2)
 
 enum RetroLanguages {
     RETRO_EN = 0,
