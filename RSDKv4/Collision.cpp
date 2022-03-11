@@ -10,7 +10,7 @@ int collisionTolerance = 0;
 CollisionSensor sensors[RETRO_REV00 ? 6 : 7];
 
 #if !RETRO_USE_ORIGINAL_CODE
-bool showHitboxes = false;
+byte showHitboxes = 0;
 
 int debugHitboxCount = 0;
 DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_MAX];
@@ -20,8 +20,8 @@ int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int 
     int i = 0;
     for (; i < debugHitboxCount; ++i) {
         if (debugHitboxList[i].left == left && debugHitboxList[i].top == top && debugHitboxList[i].right == right
-            && debugHitboxList[i].bottom == bottom && debugHitboxList[i].xpos == entity->xpos && debugHitboxList[i].ypos == entity->ypos
-            && debugHitboxList[i].entity == entity) {
+            && debugHitboxList[i].bottom == bottom && (entity && debugHitboxList[i].xpos == entity->xpos && debugHitboxList[i].ypos == entity->ypos
+            && debugHitboxList[i].entity == entity)) {
             return i;
         }
     }
@@ -34,8 +34,8 @@ int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int 
         debugHitboxList[i].top       = top;
         debugHitboxList[i].right     = right;
         debugHitboxList[i].bottom    = bottom;
-        debugHitboxList[i].xpos      = entity->xpos;
-        debugHitboxList[i].ypos      = entity->ypos;
+        debugHitboxList[i].xpos      = entity ? entity->xpos : 0;
+        debugHitboxList[i].ypos      = entity ? entity->ypos : 0;
 
         int id = debugHitboxCount;
         debugHitboxCount++;

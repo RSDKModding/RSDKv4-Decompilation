@@ -52,9 +52,9 @@ struct DebugHitboxInfo {
     Entity *entity;
 };
 
-enum DebugHitboxTypes { H_TYPE_TOUCH, H_TYPE_BOX, H_TYPE_PLAT };
+enum DebugHitboxTypes { H_TYPE_TOUCH, H_TYPE_BOX, H_TYPE_PLAT, H_TYPE_FINGER };
 
-extern bool showHitboxes;
+extern byte showHitboxes;
 extern int debugHitboxCount;
 extern DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_MAX];
 

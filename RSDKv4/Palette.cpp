@@ -94,9 +94,8 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
     if (destPaletteID >= PALETTE_COUNT || srcPaletteA >= PALETTE_COUNT || srcPaletteB >= PALETTE_COUNT)
         return;
 
-    if (blendAmount >= PALETTE_SIZE) {
-        blendAmount = PALETTE_SIZE - 1;
-    }
+    if (blendAmount >= 0x100) 
+        blendAmount = 0xFF;
 
     if (startIndex >= endIndex)
         return;

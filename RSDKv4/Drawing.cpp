@@ -1897,42 +1897,55 @@ void DrawStageGFX()
             y                     = (y >> 16) - yScrollOffset;
 
             switch (info->type) {
-                case H_TYPE_TOUCH: DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60); break;
+                case H_TYPE_TOUCH: 
+                    if (showHitboxes & 1)
+                        DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60); 
+                    break;
                 case H_TYPE_BOX:
-                    DrawRectangle(x, y, w, h, 0x00, 0x00, 0xFF, 0x60);
-                    if (info->collision & 1) // top
-                        DrawRectangle(x, y, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
-                    if (info->collision & 8) // bottom
-                        DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
-                    if (info->collision & 2) { // left
-                        int sy = y;
-                        int sh = h;
-                        if (info->collision & 1) {
-                            sy++;
-                            sh--;
+                    if (showHitboxes & 1) {
+                        DrawRectangle(x, y, w, h, 0x00, 0x00, 0xFF, 0x60);
+                        if (info->collision & 1) // top
+                            DrawRectangle(x, y, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
+                        if (info->collision & 8) // bottom
+                            DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
+                        if (info->collision & 2) { // left
+                            int sy = y;
+                            int sh = h;
+                            if (info->collision & 1) {
+                                sy++;
+                                sh--;
+                            }
+                            if (info->collision & 8)
+                                sh--;
+                            DrawRectangle(x, sy, 1, sh, 0xFF, 0xFF, 0x00, 0xC0);
                         }
-                        if (info->collision & 8)
-                            sh--;
-                        DrawRectangle(x, sy, 1, sh, 0xFF, 0xFF, 0x00, 0xC0);
-                    }
-                    if (info->collision & 4) { // right
-                        int sy = y;
-                        int sh = h;
-                        if (info->collision & 1) {
-                            sy++;
-                            sh--;
+                        if (info->collision & 4) { // right
+                            int sy = y;
+                            int sh = h;
+                            if (info->collision & 1) {
+                                sy++;
+                                sh--;
+                            }
+                            if (info->collision & 8)
+                                sh--;
+                            DrawRectangle(x + w, sy, 1, sh, 0xFF, 0xFF, 0x00, 0xC0);
                         }
-                        if (info->collision & 8)
-                            sh--;
-                        DrawRectangle(x + w, sy, 1, sh, 0xFF, 0xFF, 0x00, 0xC0);
                     }
                     break;
                 case H_TYPE_PLAT:
-                    DrawRectangle(x, y, w, h, 0x00, 0xFF, 0x00, 0x60);
-                    if (info->collision & 1) // top
-                        DrawRectangle(x, y, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
-                    if (info->collision & 8) // bottom
-                        DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
+                    if (showHitboxes & 1) {
+
+                        DrawRectangle(x, y, w, h, 0x00, 0xFF, 0x00, 0x60);
+                        if (info->collision & 1) // top
+                            DrawRectangle(x, y, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
+                        if (info->collision & 8) // bottom
+                            DrawRectangle(x, y + h, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
+                    }
+                    break;
+
+                case H_TYPE_FINGER:
+                    if (showHitboxes & 2)
+                        DrawRectangle(x + xScrollOffset, y + yScrollOffset, w, h, 0xF0, 0x00, 0xF0, 0x60);
                     break;
             }
         }
@@ -7207,6 +7220,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
         tMenu->visibleRowOffset = 0;
         cnt                     = (int)tMenu->rowCount;
     }
+
     if (tMenu->selectionCount == 3) {
         tMenu->selection2 = -1;
         for (int i = 0; i < tMenu->selection1 + 1; ++i) {
@@ -7215,6 +7229,7 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
             }
         }
     }
+
     switch (tMenu->alignment) {
         case 0:
             for (int i = (int)tMenu->visibleRowOffset; i < cnt; ++i) {
@@ -7225,81 +7240,90 @@ void DrawTextMenu(void *menu, int XPos, int YPos)
                         else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
                         break;
+
                     case 2:
                         if (i == tMenu->selection1 || i == tMenu->selection2)
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 128);
                         else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
                         break;
+
                     case 3:
                         if (i == tMenu->selection1)
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 128);
                         else
                             DrawTextMenuEntry(tMenu, i, XPos, YPos, 0);
+
                         if (i == tMenu->selection2 && i != tMenu->selection1)
                             DrawStageTextEntry(tMenu, i, XPos, YPos, 128);
                         break;
                 }
                 YPos += 8;
             }
-            return;
+            break;
+
         case 1:
             for (int i = (int)tMenu->visibleRowOffset; i < cnt; ++i) {
-                int XPos2 = XPos - (tMenu->entrySize[i] << 3);
+                int entryX = XPos - (tMenu->entrySize[i] << 3);
                 switch (tMenu->selectionCount) {
                     case 1:
                         if (i == tMenu->selection1)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
                         else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
                         break;
+
                     case 2:
                         if (i == tMenu->selection1 || i == tMenu->selection2)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
                         else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
                         break;
+
                     case 3:
                         if (i == tMenu->selection1)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
                         else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
-                        if (i == tMenu->selection2 && i != tMenu->selection1)
-                            DrawStageTextEntry(tMenu, i, XPos2, YPos, 128);
-                        break;
-                }
-                YPos += 8;
-            }
-            return;
-        case 2:
-            for (int i = (int)tMenu->visibleRowOffset; i < cnt; ++i) {
-                int XPos2 = XPos - (tMenu->entrySize[i] >> 1 << 3);
-                switch (tMenu->selectionCount) {
-                    case 1:
-                        if (i == tMenu->selection1)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
-                        break;
-                    case 2:
-                        if (i == tMenu->selection1 || i == tMenu->selection2)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
-                        break;
-                    case 3:
-                        if (i == tMenu->selection1)
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 128);
-                        else
-                            DrawTextMenuEntry(tMenu, i, XPos2, YPos, 0);
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
 
                         if (i == tMenu->selection2 && i != tMenu->selection1)
-                            DrawStageTextEntry(tMenu, i, XPos2, YPos, 128);
+                            DrawStageTextEntry(tMenu, i, entryX, YPos, 128);
                         break;
                 }
                 YPos += 8;
             }
-            return;
-        default: return;
+            break;
+
+        case 2:
+            for (int i = (int)tMenu->visibleRowOffset; i < cnt; ++i) {
+                int entryX = XPos - (tMenu->entrySize[i] >> 1 << 3);
+                switch (tMenu->selectionCount) {
+                    case 1:
+                        if (i == tMenu->selection1)
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
+                        else
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
+                        break;
+                    case 2:
+                        if (i == tMenu->selection1 || i == tMenu->selection2)
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
+                        else
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
+                        break;
+                    case 3:
+                        if (i == tMenu->selection1)
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 128);
+                        else
+                            DrawTextMenuEntry(tMenu, i, entryX, YPos, 0);
+
+                        if (i == tMenu->selection2 && i != tMenu->selection1)
+                            DrawStageTextEntry(tMenu, i, entryX, YPos, 128);
+                        break;
+                }
+                YPos += 8;
+            }
+            break;
+
+        default: break;
     }
 }
