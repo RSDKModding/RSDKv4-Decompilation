@@ -5007,7 +5007,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                                     scriptEng.operands[5]);
                 break;
             case FUNC_CHECKTOUCHRECT:
-                opcodeSize            = 0; scriptEng.checkResult = -1;
+                opcodeSize            = 0;
+                scriptEng.checkResult = -1;
 #if !RETRO_USE_ORIGINAL_CODE
                 addDebugHitbox(H_TYPE_FINGER, NULL, scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2],
                                scriptEng.operands[3]);
