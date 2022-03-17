@@ -1928,6 +1928,7 @@ void ObjectFloorGrip(int xOffset, int yOffset, int cPath)
         }
         YPos += 16;
     }
+
     if (scriptEng.checkResult) {
         if (abs(entity->ypos - chunkX) < 16) {
             entity->ypos = (entity->ypos - yOffset) << 16;
