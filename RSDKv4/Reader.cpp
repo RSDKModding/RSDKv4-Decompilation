@@ -478,7 +478,7 @@ void SetFileInfo(FileInfo *fileInfo)
 #else
     if (Engine.usingDataFile) {
 #endif
-        cFileHandle       = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
+        cFileHandle = fOpen(rsdkContainer.packNames[fileInfo->packID], "rb");
         if (cFileHandle) {
             virtualFileOffset = fileInfo->virtualFileOffset;
             vFileSize         = fileInfo->vfileSize;

@@ -535,7 +535,7 @@ int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
 #if RETRO_USE_HAPTICS
 void HapticEffect(int *hapticID, int *a2, int *a3, int *a4)
 {
-    if (Engine.hapticsEnabled) 
+    if (Engine.hapticsEnabled)
         hapticEffectNum = *hapticID;
 }
 #endif

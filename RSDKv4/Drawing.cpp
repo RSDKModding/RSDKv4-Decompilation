@@ -1897,9 +1897,9 @@ void DrawStageGFX()
             y                     = (y >> 16) - yScrollOffset;
 
             switch (info->type) {
-                case H_TYPE_TOUCH: 
+                case H_TYPE_TOUCH:
                     if (showHitboxes & 1)
-                        DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60); 
+                        DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60);
                     break;
                 case H_TYPE_BOX:
                     if (showHitboxes & 1) {
@@ -4780,7 +4780,7 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
         lineBuffer++;
         int w = width;
         while (w--) {
-            if (*gfxDataPtr > 0) 
+            if (*gfxDataPtr > 0)
                 *frameBufferPtr = activePalette[*gfxDataPtr];
             ++gfxDataPtr;
             ++frameBufferPtr;
@@ -4837,7 +4837,6 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
     }
 #endif
 }
-
 
 #if RETRO_REV00
 // WHY IS THIS BACK LOLLLL

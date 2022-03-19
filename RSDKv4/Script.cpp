@@ -30,8 +30,8 @@ int jumpTableDataOffset = 0;
 #else
 #define COMMONALIAS_COUNT (0x63)
 #endif
-#define ALIAS_COUNT_TRIM  (0xE0)
-#define ALIAS_COUNT       (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
+#define ALIAS_COUNT_TRIM (0xE0)
+#define ALIAS_COUNT      (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
 
 struct AliasInfo {
@@ -608,7 +608,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("FACE_COLOURED_2D", "3"),
                                          AliasInfo("FACE_FADED", "4"),
                                          AliasInfo("FACE_TEXTURED_C", "5"),
-                                         AliasInfo("FACE_TEXTURED_D", "6"),
+                                         AliasInfo("FACE_TEXTURED_C_BLEND", "6"),
                                          AliasInfo("FACE_SPRITE_3D", "7"),
                                          AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
                                          AliasInfo("PRIORITY_ACTIVE", "1"),
@@ -617,7 +617,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("PRIORITY_XBOUNDS_DESTROY", "4"),
                                          AliasInfo("PRIORITY_INACTIVE", "5"),
                                          AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
-                                         AliasInfo("PRIORITY_UNKNOWN", "7"),
+                                         AliasInfo("PRIORITY_ACTIVE_SMALL", "7"),
                                          AliasInfo("TILEINFO_INDEX", "0"),
                                          AliasInfo("TILEINFO_DIRECTION", "1"),
                                          AliasInfo("TILEINFO_VISUALPLANE", "2"),
@@ -3528,21 +3528,11 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         int boundY3_2P = -(0x100 << 16);
                         int boundY4_2P = (0x100 << 16);
 
-                        int P1Bound_L = objectEntityList[0].xpos - 0x1FFFFFF;
-                        int P1Bound_R = objectEntityList[0].xpos + 0x1FFFFFF;
-                        int P1Bound_T = objectEntityList[0].ypos - 0x1800000;
-                        int P1Bound_B = objectEntityList[0].ypos + 0x1800000;
-
-                        int P2Bound_L = objectEntityList[1].xpos - 0x1FFFFFF;
-                        int P2Bound_R = objectEntityList[1].xpos + 0x1FFFFFF;
-                        int P2Bound_T = objectEntityList[1].ypos - 0x17FFFFF;
-                        int P2Bound_B = objectEntityList[1].ypos + 0x17FFFFF;
-
                         Entity *entPtr = &objectEntityList[arrayVal];
                         int x          = entPtr->xpos >> 16;
                         int y          = entPtr->ypos >> 16;
 
-                        if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_2P_UNKNOWN) {
+                        if (entPtr->priority == PRIORITY_ACTIVE_BOUNDS_SMALL || entPtr->priority == PRIORITY_ACTIVE_SMALL) {
                             if (stageMode == STAGEMODE_2P) {
                                 x = entPtr->xpos;
                                 y = entPtr->ypos;
@@ -3601,8 +3591,8 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                             }
                         }
 #else
-                        int x      = objectEntityList[arrayVal].xpos >> 16;
-                        int y      = objectEntityList[arrayVal].ypos >> 16;
+                        int x = objectEntityList[arrayVal].xpos >> 16;
+                        int y = objectEntityList[arrayVal].ypos >> 16;
 
                         int boundL = xScrollOffset - OBJECT_BORDER_X1;
                         int boundR = xScrollOffset + OBJECT_BORDER_X2;
@@ -5006,12 +4996,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 SetLayerDeformation(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                     scriptEng.operands[5]);
                 break;
-            case FUNC_CHECKTOUCHRECT:
-                opcodeSize            = 0;
-                scriptEng.checkResult = -1;
+            case FUNC_CHECKTOUCHRECT: opcodeSize = 0; scriptEng.checkResult = -1;
 #if !RETRO_USE_ORIGINAL_CODE
-                addDebugHitbox(H_TYPE_FINGER, NULL, scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2],
-                               scriptEng.operands[3]);
+                addDebugHitbox(H_TYPE_FINGER, NULL, scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
 #endif
                 for (int f = 0; f < touches; ++f) {
                     if (touchDown[f] && touchX[f] > scriptEng.operands[0] && touchX[f] < scriptEng.operands[2] && touchY[f] > scriptEng.operands[1]

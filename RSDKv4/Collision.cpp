@@ -20,8 +20,9 @@ int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int 
     int i = 0;
     for (; i < debugHitboxCount; ++i) {
         if (debugHitboxList[i].left == left && debugHitboxList[i].top == top && debugHitboxList[i].right == right
-            && debugHitboxList[i].bottom == bottom && (entity && debugHitboxList[i].xpos == entity->xpos && debugHitboxList[i].ypos == entity->ypos
-            && debugHitboxList[i].entity == entity)) {
+            && debugHitboxList[i].bottom == bottom
+            && (entity && debugHitboxList[i].xpos == entity->xpos && debugHitboxList[i].ypos == entity->ypos
+                && debugHitboxList[i].entity == entity)) {
             return i;
         }
     }
@@ -1616,7 +1617,7 @@ void ProcessTileCollisions(Entity *player)
     player->floorSensors[3] = false;
     player->floorSensors[4] = false;
 #endif
-    scriptEng.checkResult   = false;
+    scriptEng.checkResult = false;
 
     collisionTolerance = 15;
     if (player->speed < 0x60000)

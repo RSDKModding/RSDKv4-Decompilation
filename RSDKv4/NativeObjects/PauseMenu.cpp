@@ -442,8 +442,8 @@ void PauseMenu_Main(void *objPtr)
                 entity->state = PAUSEMENU_STATE_SUBMENU;
 #if !RETRO_USE_ORIGINAL_CODE
                 if (skipStartMenu) {
-                    Engine.gameMode       = ENGINE_MAINGAME;
-                    entity->dialog->state = DIALOGPANEL_STATE_IDLE;
+                    Engine.gameMode                  = ENGINE_MAINGAME;
+                    entity->dialog->state            = DIALOGPANEL_STATE_IDLE;
                     NativeEntity_FadeScreen *fadeout = CREATE_ENTITY(FadeScreen);
                     fadeout->state                   = FADESCREEN_STATE_GAMEFADEOUT;
                     activeStageList                  = STAGELIST_PRESENTATION;

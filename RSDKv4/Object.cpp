@@ -47,6 +47,8 @@ void ProcessStartupObjects()
     OBJECT_BORDER_X2           = SCREEN_XSIZE + 0x80;
     OBJECT_BORDER_X4           = SCREEN_XSIZE + 0x20;
     Entity *entity             = &objectEntityList[TEMPENTITY_START];
+    // Dunno what this is meant for, but it's here in the original code so...
+    objectEntityList[TEMPENTITY_START + 1].type = objectEntityList[0].type;
 
     memset(foreachStack, -1, sizeof(foreachStack));
     memset(jumpTableStack, 0, sizeof(jumpTableStack));
@@ -83,12 +85,15 @@ void ProcessObjects()
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                      && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
+
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
+
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
+
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
                 if (!processObjectFlag[objectEntityPos]) {
@@ -96,11 +101,13 @@ void ProcessObjects()
                     entity->type                       = OBJ_TYPE_BLANKOBJECT;
                 }
                 break;
+
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                      && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
+
             default: break;
         }
 
@@ -167,12 +174,15 @@ void ProcessFrozenObjects()
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                      && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
+
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
+
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
+
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
                 if (!processObjectFlag[objectEntityPos]) {
@@ -180,11 +190,14 @@ void ProcessFrozenObjects()
                     entity->type                       = OBJ_TYPE_BLANKOBJECT;
                 }
                 break;
+
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
+
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                      && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
+
             default: break;
         }
 
@@ -223,13 +236,6 @@ void Process2PObjects()
 {
     for (int i = 0; i < DRAWLAYER_COUNT; ++i) drawListEntries[i].listSize = 0;
 
-    Entity *entityP1 = &objectEntityList[0];
-    int XPosP1       = entityP1->xpos;
-    int YPosP1       = entityP1->ypos;
-    Entity *entityP2 = &objectEntityList[1];
-    int XPosP2       = entityP2->xpos;
-    int YPosP2       = entityP2->ypos;
-
     int boundX1 = -(0x200 << 16);
     int boundX2 = (0x200 << 16);
     int boundX3 = -(0x180 << 16);
@@ -247,6 +253,15 @@ void Process2PObjects()
         Entity *entity = &objectEntityList[objectEntityPos];
         x              = entity->xpos;
         y              = entity->ypos;
+
+        // Set these here, they could (and prolly are) updated after objects
+        Entity *entityP1 = &objectEntityList[0];
+        int XPosP1       = entityP1->xpos;
+        int YPosP1       = entityP1->ypos;
+        Entity *entityP2 = &objectEntityList[1];
+        int XPosP2       = entityP2->xpos;
+        int YPosP2       = entityP2->ypos;
+
         switch (entity->priority) {
             case PRIORITY_ACTIVE_BOUNDS:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2 && y > YPosP1 + boundY1 && y < YPosP1 + boundY2;
@@ -254,15 +269,18 @@ void Process2PObjects()
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2 && y > YPosP2 + boundY1 && y < YPosP2 + boundY2;
                 }
                 break;
+
             case PRIORITY_ACTIVE:
             case PRIORITY_ACTIVE_PAUSED:
-            case PRIORITY_ACTIVE_2P_UNKNOWN: processObjectFlag[objectEntityPos] = true; break;
+            case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
+
             case PRIORITY_ACTIVE_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2;
                 }
                 break;
+
             case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
@@ -272,6 +290,7 @@ void Process2PObjects()
                 if (!processObjectFlag[objectEntityPos])
                     entity->type = OBJ_TYPE_BLANKOBJECT;
                 break;
+
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
             case PRIORITY_ACTIVE_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX3 && x < XPosP1 + boundX4 && y > YPosP1 + boundY3 && y < YPosP1 + boundY4;
@@ -279,6 +298,7 @@ void Process2PObjects()
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX3 && x < XPosP2 + boundX4 && y > YPosP2 + boundY3 && y < YPosP2 + boundY4;
                 }
                 break;
+
             default: break;
         }
 
@@ -382,7 +402,8 @@ void InitNativeObjectSystem()
         saveGame->unlockedActs    = 0;
         WriteSaveRAMData();
 #if !RETRO_USE_ORIGINAL_CODE
-    } else if (Engine.gameType == GAME_SONIC2) {
+    }
+    else if (Engine.gameType == GAME_SONIC2) {
         // ensure tails and knuckles are unlocked in sonic 2
         // they weren't automatically unlocked in older versions of the decomp
         saveGame->tailsUnlocked = true;

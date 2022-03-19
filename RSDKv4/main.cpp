@@ -6,7 +6,8 @@
 #include "Windows.h"
 #endif
 
-void parseArguments(int argc, char* argv[]) {
+void parseArguments(int argc, char *argv[])
+{
     for (int a = 0; a < argc; ++a) {
         const char *find = "";
 

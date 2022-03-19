@@ -155,7 +155,7 @@ void DialogPanel_Main(void *objPtr)
         case DIALOGPANEL_STATE_ACTION:
             SetRenderMatrix(&entity->buttonMatrix);
             if (!entity->buttons[entity->buttonSelected]->state) {
-                entity->state     = DIALOGPANEL_STATE_EXIT;
+                entity->state = DIALOGPANEL_STATE_EXIT;
 
                 entity->selection = entity->buttonSelected + 1;
                 if (entity->buttonCount == DLGTYPE_OK)

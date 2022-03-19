@@ -74,7 +74,7 @@ void ReadGifLine(byte *line, int length, int offset)
     while (i < length) {
         int gifCode = ReadGifCode();
         if (gifCode == eofCode) {
-            if (i != length - 1 || gifDecoder.pixelCount != 0) 
+            if (i != length - 1 || gifDecoder.pixelCount != 0)
                 return;
             i++;
         }
@@ -93,15 +93,15 @@ void ReadGifLine(byte *line, int length, int offset)
                     i++;
                 }
                 else {
-                    if (gifCode < 0 || gifCode > LZ_MAX_CODE) 
+                    if (gifCode < 0 || gifCode > LZ_MAX_CODE)
                         return;
 
                     int code = 0;
                     if (gifDecoder.prefix[gifCode] == NO_SUCH_CODE) {
-                        if (gifCode != gifDecoder.runningCode - 2) 
+                        if (gifCode != gifDecoder.runningCode - 2)
                             return;
 
-                        code = prevCode;
+                        code                                          = prevCode;
                         gifDecoder.suffix[gifDecoder.runningCode - 2] = gifDecoder.stack[stackPtr++] =
                             TraceGifPrefix(gifDecoder.prefix, prevCode, clearCode);
                     }
@@ -113,7 +113,7 @@ void ReadGifLine(byte *line, int length, int offset)
                         gifDecoder.stack[stackPtr++] = gifDecoder.suffix[code];
                         code                         = gifDecoder.prefix[code];
                     }
-                    if (c >= LZ_MAX_CODE || code > LZ_MAX_CODE) 
+                    if (c >= LZ_MAX_CODE || code > LZ_MAX_CODE)
                         return;
 
                     gifDecoder.stack[stackPtr++] = (byte)code;
@@ -192,8 +192,7 @@ void ReadGifPictureData(int width, int height, bool interlaced, byte *gfxData, i
     InitGifDecoder();
     if (interlaced) {
         for (int p = 0; p < 4; ++p) {
-            for (int y = initialRow[p]; y < height; y += rowInc[p])
-                ReadGifLine(gfxData, width, y * width + offset);
+            for (int y = initialRow[p]; y < height; y += rowInc[p]) ReadGifLine(gfxData, width, y * width + offset);
         }
     }
     else {

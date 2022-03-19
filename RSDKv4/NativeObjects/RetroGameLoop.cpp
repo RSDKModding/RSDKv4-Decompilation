@@ -24,6 +24,7 @@ void RetroGameLoop_Main(void *objPtr)
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
             break;
+
         case ENGINE_MAINGAME:
 #if RETRO_HARDWARE_RENDER
             gfxIndexSize        = 0;
@@ -38,26 +39,32 @@ void RetroGameLoop_Main(void *objPtr)
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
             break;
+
         case ENGINE_INITDEVMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             initDevMenu();
             ResetCurrentStageFolder();
             break;
+
         case ENGINE_WAIT: break;
+
         case ENGINE_SCRIPTERROR:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             initErrorMessage();
             ResetCurrentStageFolder();
             break;
+
         case ENGINE_INITPAUSE:
             mixFiltersOnJekyll = false;
             InitPauseMenu();
             break;
+
         case ENGINE_EXITPAUSE:
             Engine.gameMode = ENGINE_MAINGAME;
             ResumeSound();
             TransferRetroBuffer();
             break;
+
         case ENGINE_ENDGAME:
             ClearScreen(1);
             TransferRetroBuffer();
@@ -66,11 +73,13 @@ void RetroGameLoop_Main(void *objPtr)
             activeStageList   = 0;
             stageListPosition = 0;
             break;
+
         case ENGINE_RESETGAME: // Also called when 2P VS disconnects
             ClearScreen(1);
             TransferRetroBuffer();
             RestoreNativeObjects();
             break;
+
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
         case ENGINE_CONNECT2PVS: {
             CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
@@ -86,6 +95,7 @@ void RetroGameLoop_Main(void *objPtr)
             if (dcError)
                 CREATE_ENTITY(MultiplayerHandler);
             break;
+
 #endif
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:

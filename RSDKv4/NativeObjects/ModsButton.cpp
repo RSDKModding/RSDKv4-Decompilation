@@ -22,6 +22,7 @@ void ModsButton_Create(void *objPtr)
     SetStringToFont8(entity->labelPtr->text, "MODS", FONT_HEADING);
     entity->labelPtr->alignPtr(entity->labelPtr, ALIGN_CENTER);
 }
+
 void ModsButton_Main(void *objPtr)
 {
     RSDK_THIS(ModsButton);

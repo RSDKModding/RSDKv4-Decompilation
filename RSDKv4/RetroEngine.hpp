@@ -213,7 +213,7 @@ enum RetroLanguages {
     RETRO_ZS = 10,
 };
 
-#if RETRO_REV00 
+#if RETRO_REV00
 enum RetroEngineMessages {
     MESSAGE_NONE      = 0,
     MESSAGE_MESSAGE_1 = 1,
@@ -332,10 +332,10 @@ public:
     bool running     = false;
     double deltaTime = 0;
 
-    int gameMode          = ENGINE_MAINGAME;
-    int language          = RETRO_EN;
+    int gameMode = ENGINE_MAINGAME;
+    int language = RETRO_EN;
 #if RETRO_REV00
-    int message           = 0;
+    int message = 0;
 #endif
     int gameDeviceType    = RETRO_STANDARD;
     int globalBoxRegion   = REGION_JP;
@@ -375,7 +375,7 @@ public:
     bool showPaletteOverlay = false;
     bool useHQModes         = true;
 
-    bool hasFocus = true;
+    bool hasFocus  = true;
     int focusState = 0;
 #endif
 
