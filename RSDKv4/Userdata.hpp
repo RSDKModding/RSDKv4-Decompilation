@@ -105,8 +105,8 @@ extern bool forceUseScripts;
 extern bool forceUseScripts_Config;
 extern bool skipStartMenu;
 extern bool skipStartMenu_Config;
-extern bool disableFocusPause;
-extern bool disableFocusPause_Config;
+extern int disableFocusPause;
+extern int disableFocusPause_Config;
 #endif
 
 inline int GetGlobalVariableByName(const char *name)

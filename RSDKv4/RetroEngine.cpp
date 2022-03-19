@@ -48,10 +48,10 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
-                        if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                        if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                             Engine.gameMode = ENGINE_INITPAUSE;
 #if RETRO_REV00
-                        if (!disableFocusPause)
+                        if (!(disableFocusPause & 1))
                             Engine.message = MESSAGE_LOSTFOCUS;
 #endif
                         Engine.hasFocus = false;
@@ -62,10 +62,10 @@ bool processEvents()
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
-                if (Engine.gameMode == ENGINE_MAINGAME && !disableFocusPause)
+                if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                     Engine.gameMode = ENGINE_INITPAUSE;
 #if RETRO_REV00
-                if (!disableFocusPause)
+                if (!(disableFocusPause & 1))
                     Engine.message = MESSAGE_LOSTFOCUS;
 #endif
                 Engine.hasFocus = false;
@@ -276,10 +276,6 @@ bool processEvents()
 
 void RetroEngine::Init()
 {
-#if RETRO_PLATFORM == RETRO_ANDROID
-    sleep(1); // wait to initialize the engine
-#endif
-
     CalculateTrigAngles();
     GenerateBlendLookupTable();
 
@@ -314,6 +310,7 @@ void RetroEngine::Init()
 #elif RETRO_PLATFORM == RETRO_ANDROID
     StrCopy(dest, gamePath);
     StrAdd(dest, Engine.dataFile[0]);
+    disableFocusPause = 0; // focus pause is ALWAYS enabled.
 #else
 
     StrCopy(dest, BASE_PATH);
@@ -501,14 +498,16 @@ void RetroEngine::Run()
         running = processEvents();
 
         // Focus Checks
-        if (!Engine.hasFocus) {
-            if (!(Engine.focusState & 1))
-                Engine.focusState = PauseSound() ? 3 : 1;
-        }
-        else if (Engine.focusState) {
-            if ((Engine.focusState & 2))
-                ResumeSound();
-            Engine.focusState = 0;
+        if (!(disableFocusPause & 2)) {
+            if (!Engine.hasFocus) {
+                if (!(Engine.focusState & 1))
+                    Engine.focusState = PauseSound() ? 3 : 1;
+            }
+            else if (Engine.focusState) {
+                if ((Engine.focusState & 2))
+                    ResumeSound();
+                Engine.focusState = 0;
+            }
         }
 
         if (!(Engine.focusState & 1) || vsPlaying) {
@@ -937,7 +936,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
 
                                 const tinyxml2::XMLAttribute *highlightAttr = findXMLAttribute(stgElement, "highlight");
                                 bool stgHighlighted                         = false;
-                                if (stgHighlighted)
+                                if (highlightAttr)
                                     stgHighlighted = getXMLAttributeValueBool(highlightAttr);
 
                                 if (menu) {

@@ -18,7 +18,7 @@ struct ModInfo {
     std::string folder;
     bool useScripts;
     bool skipStartMenu;
-    bool disableFocusPause;
+    int disableFocusPause;
     bool redirectSave;
     std::string savePath;
     bool active;
