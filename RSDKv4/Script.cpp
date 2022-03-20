@@ -26,9 +26,9 @@ int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
 #if !RETRO_REV00
-#define COMMONALIAS_COUNT (0x64)
+#define COMMONALIAS_COUNT (0x65)
 #else
-#define COMMONALIAS_COUNT (0x63)
+#define COMMONALIAS_COUNT (0x64)
 #endif
 #define ALIAS_COUNT_TRIM (0xE0)
 #define ALIAS_COUNT      (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
@@ -618,6 +618,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("PRIORITY_INACTIVE", "5"),
                                          AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
                                          AliasInfo("PRIORITY_ACTIVE_SMALL", "7"),
+                                         AliasInfo("PRIORITY_UNKNOWN", "7"), // identical to "PRIORITY_ACTIVE_SMALL", but kept here for backwards compat purposes
                                          AliasInfo("TILEINFO_INDEX", "0"),
                                          AliasInfo("TILEINFO_DIRECTION", "1"),
                                          AliasInfo("TILEINFO_VISUALPLANE", "2"),
