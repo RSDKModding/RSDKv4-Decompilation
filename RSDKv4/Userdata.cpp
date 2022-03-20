@@ -722,11 +722,11 @@ void writeSettings()
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
-    ini.SetComment("Game", "SSMenuComment", "if set to true, disables the start menu");
+    ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
     ini.SetComment("Game", "DFPMenuComment",
-                   "handles pausing behaviour when focus is lost\n; 0 = game focus disabled, engine focus disabled\n; 1 = game focus disabled, "
-                   "engine focus enabled\n; 2 = game focus enabled, engine focus disabled\n; 3 = game focus disabled, engine focus disabled");
+                   "Handles pausing behaviour when focus is lost\n; 0 = Game focus disabled, engine focus disabled\n; 1 = Game focus disabled, "
+                   "engine focus enabled\n; 2 = Game focus enabled, engine focus disabled\n; 3 = Game focus disabled, engine focus disabled");
     ini.SetInteger("Game", "DisableFocusPause", disableFocusPause_Config);
 
 #if RETRO_USE_NETWORKING
