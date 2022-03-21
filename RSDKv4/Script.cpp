@@ -26,9 +26,9 @@ int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
 #if !RETRO_REV00
-#define COMMONALIAS_COUNT (0x65)
+#define COMMONALIAS_COUNT (0x6D)
 #else
-#define COMMONALIAS_COUNT (0x64)
+#define COMMONALIAS_COUNT (0x6C)
 #endif
 #define ALIAS_COUNT_TRIM (0xE0)
 #define ALIAS_COUNT      (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
@@ -609,6 +609,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("FACE_FADED", "4"),
                                          AliasInfo("FACE_TEXTURED_C", "5"),
                                          AliasInfo("FACE_TEXTURED_C_BLEND", "6"),
+                                         AliasInfo("FACE_TEXTURED_D", "6"), // identical to "FACE_TEXTURED_C_BLEND", but kept here for backwards compat purposes
                                          AliasInfo("FACE_SPRITE_3D", "7"),
                                          AliasInfo("PRIORITY_ACTIVE_BOUNDS", "0"),
                                          AliasInfo("PRIORITY_ACTIVE", "1"),
@@ -619,6 +620,13 @@ AliasInfo publicAliases[ALIAS_COUNT] = { AliasInfo("true", "1"),
                                          AliasInfo("PRIORITY_BOUNDS_SMALL", "6"),
                                          AliasInfo("PRIORITY_ACTIVE_SMALL", "7"),
                                          AliasInfo("PRIORITY_UNKNOWN", "7"), // identical to "PRIORITY_ACTIVE_SMALL", but kept here for backwards compat purposes
+                                         AliasInfo("CONTROLMODE_NONE", "-1"),
+                                         AliasInfo("CONTROLMODE_NORMAL", "0"),
+                                         AliasInfo("CAMERASTYLE_FOLLOW", "0"),
+                                         AliasInfo("CAMERASTYLE_EXTENDED", "1"),
+                                         AliasInfo("CAMERASTYLE_EXTENDED_OFFSET_L", "2"),
+                                         AliasInfo("CAMERASTYLE_EXTENDED_OFFSET_R", "3"),
+                                         AliasInfo("CAMERASTYLE_HLOCKED", "4"),
                                          AliasInfo("TILEINFO_INDEX", "0"),
                                          AliasInfo("TILEINFO_DIRECTION", "1"),
                                          AliasInfo("TILEINFO_VISUALPLANE", "2"),

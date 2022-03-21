@@ -23,7 +23,7 @@ void LoadAnimationFile(char *filePath)
         sheetIDs[0] = 0;
 
         byte sheetCount = 0;
-        FileRead(&sheetCount, 1); // Sheet Count
+        FileRead(&sheetCount, 1);
 
         for (int s = 0; s < sheetCount; ++s) {
             FileRead(&fileBuffer, 1);
@@ -75,6 +75,7 @@ void LoadAnimationFile(char *filePath)
                 FileRead(&buffer, 1);
                 frame->pivotY = buffer;
             }
+
             // 90 Degree (Extra rotation Frames) rotation
             if (anim->rotationFlag == ROTFLAG_STATICFRAMES)
                 anim->frameCount >>= 1;
@@ -147,12 +148,14 @@ void ProcessObjectAnimation(void *objScr, void *ent)
             entity->animationSpeed = 0xF0;
         entity->animationTimer += entity->animationSpeed;
     }
+
     if (entity->animation != entity->prevAnimation) {
         entity->prevAnimation  = entity->animation;
         entity->frame          = 0;
         entity->animationTimer = 0;
         entity->animationSpeed = 0;
     }
+
     if (entity->animationTimer >= 0xF0) {
         entity->animationTimer -= 0xF0;
         ++entity->frame;

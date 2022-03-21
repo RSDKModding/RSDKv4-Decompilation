@@ -68,9 +68,8 @@ void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort alpha, int st
     activePalette   = fullPalette[paletteID];
     activePalette32 = fullPalette32[paletteID];
 
-    if (alpha >= PALETTE_SIZE) {
-        alpha = PALETTE_SIZE - 1;
-    }
+    if (blendAmount >= 0x100)
+        blendAmount = 0xFF;
 
     if (startIndex >= endIndex)
         return;

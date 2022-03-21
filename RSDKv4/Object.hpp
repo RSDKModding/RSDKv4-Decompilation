@@ -8,6 +8,11 @@
 #define OBJECT_COUNT     (0x100)
 #define TYPEGROUP_COUNT  (0x103)
 
+enum ObjectControlModes {
+    CONTROLMODE_NONE     = -1,
+    CONTROLMODE_NORMAL   = 0,
+};
+
 struct TypeGroupList {
     int entityRefs[ENTITY_COUNT];
     int listSize;
