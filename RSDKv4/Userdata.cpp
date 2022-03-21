@@ -740,7 +740,7 @@ void writeSettings()
     ini.SetBool("Window", "FullScreen", Engine.startFullScreen);
     ini.SetComment("Window", "BLComment", "Determines if the window will be borderless or not");
     ini.SetBool("Window", "Borderless", Engine.borderless);
-    ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not");
+    ini.SetComment("Window", "VSComment", "Determines if VSync will be active or not (not recommended as the engine is built around running at 60 FPS)");
     ini.SetBool("Window", "VSync", Engine.vsync);
     ini.SetComment("Window", "SMComment", "Determines what scaling is used. 0 is nearest neighbour, 1 is linear.");
     ini.SetInteger("Window", "ScalingMode", Engine.scalingMode);
