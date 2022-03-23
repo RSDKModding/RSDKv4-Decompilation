@@ -1481,6 +1481,14 @@ void ConvertFunctionText(char *text)
         AddTextMenuEntry(&gameMenu[0], " ");
         AddTextMenuEntry(&gameMenu[0], "OPCODE NOT FOUND");
         AddTextMenuEntry(&gameMenu[0], funcName);
+#if !RETRO_USE_ORIGINAL_CODE
+        AddTextMenuEntry(&gameMenu[0], " ");
+        AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
+        char buffer[0x10];
+        buffer[0] = 0;
+        AppendIntegerToString(buffer, lineID);
+        AddTextMenuEntry(&gameMenu[0], buffer);
+#endif
         Engine.gameMode = ENGINE_SCRIPTERROR;
     }
     else {

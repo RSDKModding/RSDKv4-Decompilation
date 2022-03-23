@@ -1901,6 +1901,7 @@ void DrawStageGFX()
                     if (showHitboxes & 1)
                         DrawRectangle(x, y, w, h, info->collision ? 0x80 : 0xFF, info->collision ? 0x80 : 0x00, 0x00, 0x60);
                     break;
+
                 case H_TYPE_BOX:
                     if (showHitboxes & 1) {
                         DrawRectangle(x, y, w, h, 0x00, 0x00, 0xFF, 0x60);
@@ -1932,9 +1933,9 @@ void DrawStageGFX()
                         }
                     }
                     break;
+
                 case H_TYPE_PLAT:
                     if (showHitboxes & 1) {
-
                         DrawRectangle(x, y, w, h, 0x00, 0xFF, 0x00, 0x60);
                         if (info->collision & 1) // top
                             DrawRectangle(x, y, w, 1, 0xFF, 0xFF, 0x00, 0xC0);
