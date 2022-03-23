@@ -170,6 +170,7 @@ void processStageSelect()
                     ClearNativeObjects();
                     Engine.gameMode         = ENGINE_WAIT;
                     Engine.nativeMenuFadeIn = false;
+#if !RETRO_USE_ORIGINAL_CODE
                     if (skipStartMenu) {
                         ClearGraphicsData();
                         ClearAnimationData();
@@ -182,8 +183,7 @@ void processStageSelect()
                             CREATE_ENTITY(VirtualDPad);
                     }
                     else {
-                        DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0x00, 0x00, 0x00,
-                                      0xFF); // This is probably hacky don't tell rdc or i'm going to jail
+#endif
                         CREATE_ENTITY(SegaSplash);
                     }
                 }

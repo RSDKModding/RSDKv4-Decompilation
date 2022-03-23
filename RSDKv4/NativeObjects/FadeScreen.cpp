@@ -13,15 +13,6 @@ void FadeScreen_Main(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
 
-#if !RETRO_USE_ORIGINAL_CODE
-    MatrixF render, temp;
-    NewRenderState();
-    matrixScaleXYZF(&render, Engine.windowScale, Engine.windowScale, 1.0);
-    matrixTranslateXYZF(&temp, 0.0, 0.0, 160.0);
-    matrixMultiplyF(&render, &temp);
-    SetRenderMatrix(&render);
-#endif
-
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
     entity->timer += entity->fadeSpeed * Engine.deltaTime;
     switch (entity->state) {
@@ -44,11 +35,10 @@ void FadeScreen_Main(void *objPtr)
                 RemoveNativeObject(entity);
             break;
         case FADESCREEN_STATE_GAMEFADEOUT:
-            SetMusicVolume(masterVolume - 2);
-
-            entity->fadeA = 256.0 * entity->timer;
+            entity->fadeA = entity->timer * 256.0;
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, entity->fadeR, entity->fadeG, entity->fadeB,
                        entity->fadeA);
+            SetMusicVolume(masterVolume - 2);
             if (entity->timer > entity->delay) {
                 ClearNativeObjects();
                 CREATE_ENTITY(RetroGameLoop);
@@ -68,4 +58,11 @@ void FadeScreen_Main(void *objPtr)
             break;
 #endif
     }
+#if !RETRO_USE_ORIGINAL_CODE
+    NewRenderState();
+    matrixScaleXYZF(&entity->render, Engine.windowScale, Engine.windowScale, 1.0);
+    matrixTranslateXYZF(&entity->temp, 0.0, 0.0, 160.0);
+    matrixMultiplyF(&entity->render, &entity->temp);
+    SetRenderMatrix(&entity->render);
+#endif
 }

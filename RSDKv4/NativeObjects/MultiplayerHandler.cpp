@@ -139,8 +139,6 @@ void MultiplayerHandler_Main(void *objPtr)
                 ClearNativeObjects();
                 Engine.nativeMenuFadeIn = false;
                 if (skipStartMenu) {
-                    ClearGraphicsData();
-                    ClearAnimationData();
                     activeStageList   = 0;
                     stageMode         = STAGEMODE_LOAD;
                     Engine.gameMode   = ENGINE_MAINGAME;

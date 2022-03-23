@@ -384,8 +384,6 @@ void SaveSelect_Main(void *objPtr)
                             entity->field_C0[i] = val;
                             val += 0.02;
                         }
-                        SetGlobalVariableByName("options.stageSelectFlag", 0);
-                        debugMode = false;
                     }
                 }
                 else {
@@ -512,8 +510,8 @@ void SaveSelect_Main(void *objPtr)
                     if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                         entity->saveButtons[i]->useMeshH = false;
                 }
-                entity->state              = SAVESELECT_STATE_MAIN;
-                entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
+                entity->state                                         = SAVESELECT_STATE_MAIN;
+                entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
                 SetStringToFont(entity->saveButtons[entity->selectedButton]->text, strNewGame, FONT_LABEL);
 
                 entity->saveButtons[entity->selectedButton]->state = SUBMENUBUTTON_STATE_IDLE;
@@ -540,8 +538,8 @@ void SaveSelect_Main(void *objPtr)
                     if (entity->saveButtons[i]->state == SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED)
                         entity->saveButtons[i]->useMeshH = false;
                 }
-                entity->state              = SAVESELECT_STATE_MAIN;
-                entity->menuControl->state = MENUCONTROL_STATE_SUBMENU;
+                entity->state                                         = SAVESELECT_STATE_MAIN;
+                entity->menuControl->state                            = MENUCONTROL_STATE_SUBMENU;
             }
             break;
         }

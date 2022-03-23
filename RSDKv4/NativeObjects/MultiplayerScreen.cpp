@@ -326,6 +326,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed           = false;
                         entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
+                        entity->timer                 = 0;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->delay                   = 1.1f;
                         fade->state                   = FADESCREEN_STATE_FADEOUT;
@@ -365,6 +366,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         PlaySfxByName("Menu Back", false);
                         entity->backPressed           = false;
                         entity->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
+                        entity->timer                 = 0;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->delay                   = 1.0;
                         fade->state                   = FADESCREEN_STATE_FADEOUT;
@@ -445,8 +447,15 @@ void MultiplayerScreen_Main(void *objPtr)
             if (entity->timer > 0.5) {
                 if (entity->state == MULTIPLAYERSCREEN_STATE_EXIT) {
                     if (skipStartMenu) {
-                        ClearGraphicsData();
-                        ClearAnimationData();
+                        StopMusic(true);
+                        // is there a better way of removing the pop up message? :(
+                        if (entity->dialog)
+                        {
+                            RemoveNativeObject(entity->dialog);
+                            RemoveNativeObject(entity->label);
+                            RemoveNativeObject(entity->label);
+                        }
+                        SetGlobalVariableByName("options.stageSelectFlag", 0);
                         activeStageList   = 0;
                         stageMode         = STAGEMODE_LOAD;
                         Engine.gameMode   = ENGINE_MAINGAME;

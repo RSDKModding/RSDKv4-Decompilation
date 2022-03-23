@@ -426,13 +426,14 @@ void InitNativeObjectSystem()
 
     Engine.globalBoxRegion = saveGame->boxRegion;
     SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
-
+#if !RETRO_USE_ORIGINAL_CODE
     if (skipStartMenu) {
         CREATE_ENTITY(RetroGameLoop);
         if (Engine.gameDeviceType == RETRO_MOBILE)
             CREATE_ENTITY(VirtualDPad);
     }
     else
+#endif
         CREATE_ENTITY(SegaSplash);
 }
 NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))

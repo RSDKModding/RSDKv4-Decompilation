@@ -212,6 +212,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                     saveGame->files[saveSel->selectedButton - 1].specialStageID = 0;
                     WriteSaveRAMData();
                 }
+                SetGlobalVariableByName("options.stageSelectFlag", 0);
                 SetGlobalVariableByName("player.lives", 3);
                 SetGlobalVariableByName("player.score", 0);
                 SetGlobalVariableByName("player.scoreBonus", 50000);
@@ -221,6 +222,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                 SetGlobalVariableByName("timeAttack.result", 0);
                 SetGlobalVariableByName("lampPostID", 0);
                 SetGlobalVariableByName("starPostID", 0);
+                debugMode = false;
 
                 switch (entity->playerID) {
                     case SAVESEL_SONIC: saveGame->files[saveSel->selectedButton - 1].characterID = 0; break;

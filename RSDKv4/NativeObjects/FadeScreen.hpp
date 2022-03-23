@@ -19,6 +19,9 @@ struct NativeEntity_FadeScreen : NativeEntityBase {
     byte fadeG;
     byte fadeB;
     int fadeA;
+#if !RETRO_USE_ORIGINAL_CODE
+    MatrixF render, temp;
+#endif
 };
 
 void FadeScreen_Create(void *objPtr);
