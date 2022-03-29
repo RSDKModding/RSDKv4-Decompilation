@@ -1874,6 +1874,13 @@ void DrawStageGFX()
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
+    DrawDebugOverlays();
+#endif
+}
+
+#if !RETRO_USE_ORIGINAL_CODE
+void DrawDebugOverlays()
+{
     if (Engine.showPaletteOverlay) {
         for (int p = 0; p < PALETTE_COUNT; ++p) {
             int x = (SCREEN_XSIZE - (0x10 << 3));
@@ -1951,8 +1958,8 @@ void DrawStageGFX()
             }
         }
     }
-#endif
 }
+#endif
 
 void DrawHLineScrollLayer(int layerID)
 {

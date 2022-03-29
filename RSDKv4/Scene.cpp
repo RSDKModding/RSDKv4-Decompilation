@@ -291,6 +291,10 @@ void ProcessStage(void)
             DrawObjectList(4);
             DrawObjectList(5);
             DrawObjectList(6);
+
+#if !RETRO_USE_ORIGINAL_CODE
+            DrawDebugOverlays();
+#endif
             break;
 
         case STAGEMODE_FROZEN:
@@ -463,6 +467,10 @@ void ProcessStage(void)
                 DrawObjectList(4);
                 DrawObjectList(5);
                 DrawObjectList(6);
+
+#if !RETRO_USE_ORIGINAL_CODE
+                DrawDebugOverlays();
+#endif
             }
 
             if (pauseEnabled && inputPress.start) {
