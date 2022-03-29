@@ -1881,18 +1881,6 @@ void DrawStageGFX()
 #if !RETRO_USE_ORIGINAL_CODE
 void DrawDebugOverlays()
 {
-    if (Engine.showPaletteOverlay) {
-        for (int p = 0; p < PALETTE_COUNT; ++p) {
-            int x = (SCREEN_XSIZE - (0x10 << 3));
-            int y = (SCREEN_YSIZE - (0x10 << 2));
-            for (int c = 0; c < PALETTE_SIZE; ++c) {
-                DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
-                              y + ((c >> 4) << 1) + ((p / (PALETTE_COUNT / 2)) * (2 * 16)), 2, 2, fullPalette32[p][c].r, fullPalette32[p][c].g,
-                              fullPalette32[p][c].b, 0xFF);
-            }
-        }
-    }
-
     if (showHitboxes) {
         for (int i = 0; i < debugHitboxCount; ++i) {
             DebugHitboxInfo *info = &debugHitboxList[i];
@@ -1955,6 +1943,18 @@ void DrawDebugOverlays()
                     if (showHitboxes & 2)
                         DrawRectangle(x + xScrollOffset, y + yScrollOffset, w, h, 0xF0, 0x00, 0xF0, 0x60);
                     break;
+            }
+        }
+    }
+
+    if (Engine.showPaletteOverlay) {
+        for (int p = 0; p < PALETTE_COUNT; ++p) {
+            int x = (SCREEN_XSIZE - (0x10 << 3));
+            int y = (SCREEN_YSIZE - (0x10 << 2));
+            for (int c = 0; c < PALETTE_SIZE; ++c) {
+                DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
+                              y + ((c >> 4) << 1) + ((p / (PALETTE_COUNT / 2)) * (2 * 16)), 2, 2, fullPalette32[p][c].r, fullPalette32[p][c].g,
+                              fullPalette32[p][c].b, 0xFF);
             }
         }
     }
