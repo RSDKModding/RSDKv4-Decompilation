@@ -45,6 +45,9 @@ bool CheckRSDKFile(const char *filePath)
         }
 
         Engine.usingDataFile = true;
+#if !RETRO_USE_ORIGINAL_CODE
+        Engine.usingDataFile_Config = true;
+#endif
 
         StrCopy(rsdkContainer.packNames[rsdkContainer.packCount], filePathBuffer);
 
@@ -82,6 +85,9 @@ bool CheckRSDKFile(const char *filePath)
     }
     else {
         Engine.usingDataFile = false;
+#if !RETRO_USE_ORIGINAL_CODE
+        Engine.usingDataFile_Config = false;
+#endif
         cFileHandle          = NULL;
 
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {

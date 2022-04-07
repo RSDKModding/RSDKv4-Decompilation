@@ -1,8 +1,12 @@
 #include "RetroEngine.hpp"
 
-ushort blendLookupTable[BLENDTABLE_SIZE];
-ushort subtractLookupTable[BLENDTABLE_SIZE];
-ushort tintLookupTable[TINTTABLE_SIZE];
+ushort blendLookupTable[0x20 * 0x100];
+ushort subtractLookupTable[0x20 * 0x100];
+ushort tintLookupTable[0x10000];
+
+// Extras used in blending
+#define maxVal(a, b) (a >= b ? a : b)
+#define minVal(a, b) (a <= b ? a : b)
 
 bool windowCreated = false;
 
@@ -84,14 +88,6 @@ float pureLight[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 #endif
 #endif
-
-// Alpha blending
-#define setPixelAlpha(colour, frameBufferClr, alpha)                                                                                                 \
-    ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - alpha)];                                                                        \
-    ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * alpha];                                                                                 \
-    frameBufferClr    = (blendPtrB[frameBufferClr & 0x1F] + blendPtrA[colour & 0x1F])                                                                \
-                     | ((blendPtrB[(frameBufferClr & 0x7E0) >> 6] + blendPtrA[(colour & 0x7E0) >> 6]) << 6)                                          \
-                     | ((blendPtrB[(frameBufferClr & 0xF800) >> 11] + blendPtrA[(colour & 0xF800) >> 11]) << 11)
 
 #if !RETRO_USE_ORIGINAL_CODE
 // enable integer scaling, which is a modification of enhanced scaling
@@ -689,19 +685,16 @@ void ReleaseRenderDevice()
 
 void GenerateBlendLookupTable(void)
 {
-    int blendTableID = 0;
-    for (int y = 0; y < BLENDTABLE_YSIZE; y++) {
-        for (int x = 0; x < BLENDTABLE_XSIZE; x++) {
-            blendLookupTable[blendTableID]      = y * x >> 8;
-            subtractLookupTable[blendTableID++] = y * (0x1F - x) >> 8;
+    for (int y = 0; y < 0x100; y++) {
+        for (int x = 0; x < 0x20; x++) {
+            blendLookupTable[x + (0x20 * y)]    = y * x >> 8;
+            subtractLookupTable[x + (0x20 * y)] = y * (0x1F - x) >> 8;
         }
     }
 
-    for (int i = 0; i < TINTTABLE_SIZE; i++) {
-        int tintValue = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
-        if (tintValue > 31)
-            tintValue = 31;
-        tintLookupTable[i] = 0x841 * tintValue;
+    for (int i = 0; i < 0x10000; i++) {
+        int tintValue      = ((i & 0x1F) + ((i & 0x7E0) >> 6) + ((i & 0xF800) >> 11)) / 3 + 6;
+        tintLookupTable[i] = 0x841 * minVal(tintValue, 0x1F);
     }
 }
 
@@ -4513,16 +4506,18 @@ void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int 
         }
     }
     else {
+        ushort *fbufferBlend = &blendLookupTable[0x20 * (0xFF - A)];
+        ushort *pixelBlend   = &blendLookupTable[0x20 * A];
+
         int h = height;
         while (h--) {
             int w = width;
             while (w--) {
-                ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
-                ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
+                int R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(clr & 0xF800) >> 11]) << 11;
+                int G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(clr & 0x7E0) >> 6]) << 6;
+                int B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[clr & 0x1F];
 
-                *frameBufferPtr = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
-                                  | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
-                                  | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
+                *frameBufferPtr = R | G | B;
                 ++frameBufferPtr;
             }
             frameBufferPtr += pitch;
@@ -4597,15 +4592,18 @@ void SetFadeHQ(int R, int G, int B, int A)
         }
     }
     else {
+        ushort *fbufferBlend = &blendLookupTable[0x20 * (0xFF - A)];
+        ushort *pixelBlend   = &blendLookupTable[0x20 * A];
+
         int h = SCREEN_YSIZE;
         while (h--) {
             int w = pitch;
             while (w--) {
-                ushort *blendPtrB = &blendLookupTable[BLENDTABLE_XSIZE * (0xFF - A)];
-                ushort *blendPtrA = &blendLookupTable[BLENDTABLE_XSIZE * A];
-                *frameBufferPtr   = (blendPtrB[*frameBufferPtr & 0x1F] + blendPtrA[((byte)(B >> 3) | (byte)(32 * (G >> 2))) & 0x1F])
-                                  | ((blendPtrB[(*frameBufferPtr & 0x7E0) >> 6] + blendPtrA[(clr & 0x7E0) >> 6]) << 6)
-                                  | ((blendPtrB[(*frameBufferPtr & 0xF800) >> 11] + blendPtrA[(clr & 0xF800) >> 11]) << 11);
+                int R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(clr & 0xF800) >> 11]) << 11;
+                int G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(clr & 0x7E0) >> 6]) << 6;
+                int B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[clr & 0x1F];
+
+                *frameBufferPtr = R | G | B;
                 ++frameBufferPtr;
             }
         }
@@ -6077,6 +6075,9 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
         }
     }
     else {
+        ushort *fbufferBlend = &blendLookupTable[0x20 * (0xFF - alpha)];
+        ushort *pixelBlend   = &blendLookupTable[0x20 * alpha];
+
         while (height--) {
             activePalette   = fullPalette[*lineBuffer];
             activePalette32 = fullPalette32[*lineBuffer];
@@ -6084,7 +6085,13 @@ void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
             int w = width;
             while (w--) {
                 if (*gfxData > 0) {
-                    setPixelAlpha(activePalette[*gfxData], *frameBufferPtr, alpha);
+                    ushort colour = activePalette[*gfxData];
+
+                    int R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(colour & 0xF800) >> 11]) << 11;
+                    int G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(colour & 0x7E0) >> 6]) << 6;
+                    int B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[colour & 0x1F];
+
+                    *frameBufferPtr = R | G | B;
                 }
                 ++gfxData;
                 ++frameBufferPtr;
@@ -6164,7 +6171,7 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
     if (width <= 0 || height <= 0 || alpha <= 0)
         return;
 
-    ushort *blendTablePtr  = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
+    ushort *blendTablePtr  = &blendLookupTable[0x20 * alpha];
     GFXSurface *surface    = &gfxSurface[sheetID];
     int pitch              = GFX_LINESIZE - width;
     int gfxPitch           = surface->width - width;
@@ -6179,26 +6186,13 @@ void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sp
         int w = width;
         while (w--) {
             if (*gfxData > 0) {
-                ushort colour   = activePalette[*gfxData];
-                int v20         = 0;
-                int v21         = 0;
-                int finalColour = 0;
+                ushort colour = activePalette[*gfxData];
 
-                if ((blendTablePtr[(colour & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800) <= 0xF800)
-                    v20 = (blendTablePtr[(colour & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800);
-                else
-                    v20 = 0xF800;
-                int v12 = (blendTablePtr[(colour & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0);
-                if (v12 <= 0x7E0)
-                    v21 = v12 | v20;
-                else
-                    v21 = v20 | 0x7E0;
-                int v13 = blendTablePtr[colour & 0x1F] + (*frameBufferPtr & 0x1F);
-                if (v13 <= 0x1F)
-                    finalColour = v13 | v21;
-                else
-                    finalColour = v21 | 0x1F;
-                *frameBufferPtr = finalColour;
+                int R = minVal((blendTablePtr[(colour & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
+                int G = minVal((blendTablePtr[(colour & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
+                int B = minVal(blendTablePtr[colour & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
+
+                *frameBufferPtr = R | G | B;
             }
             ++gfxData;
             ++frameBufferPtr;
@@ -6278,7 +6272,7 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
     if (width <= 0 || height <= 0 || alpha <= 0)
         return;
 
-    ushort *subBlendTable  = &subtractLookupTable[BLENDTABLE_XSIZE * alpha];
+    ushort *subBlendTable  = &subtractLookupTable[0x20 * alpha];
     GFXSurface *surface    = &gfxSurface[sheetID];
     int pitch              = GFX_LINESIZE - width;
     int gfxPitch           = surface->width - width;
@@ -6293,19 +6287,13 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
         int w = width;
         while (w--) {
             if (*gfxData > 0) {
-                ushort colour      = activePalette[*gfxData];
-                ushort finalColour = 0;
-                if ((*frameBufferPtr & 0xF800) - (subBlendTable[(colour & 0xF800) >> 11] << 11) <= 0)
-                    finalColour = 0;
-                else
-                    finalColour = (*frameBufferPtr & 0xF800) - (subBlendTable[(colour & 0xF800) >> 11] << 11);
-                int v12 = (*frameBufferPtr & 0x7E0) - (subBlendTable[(colour & 0x7E0) >> 6] << 6);
-                if (v12 > 0)
-                    finalColour |= v12;
-                int v13 = (*frameBufferPtr & 0x1F) - subBlendTable[colour & 0x1F];
-                if (v13 > 0)
-                    finalColour |= v13;
-                *frameBufferPtr = finalColour;
+                ushort colour = activePalette[*gfxData];
+
+                int R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(colour & 0xF800) >> 11] << 11), 0);
+                int G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(colour & 0x7E0) >> 6] << 6), 0);
+                int B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[colour & 0x1F], 0);
+
+                *frameBufferPtr = R | G | B;
             }
             ++gfxData;
             ++frameBufferPtr;
@@ -6568,6 +6556,9 @@ void DrawFace(void *v, uint colour)
         }
     }
     else {
+        ushort *fbufferBlend = &blendLookupTable[0x20 * (0xFF - alpha)];
+        ushort *pixelBlend   = &blendLookupTable[0x20 * alpha];
+
         while (faceTop < faceBottom) {
             int startX = faceLineStart[faceTop];
             int endX   = faceLineEnd[faceTop];
@@ -6583,7 +6574,11 @@ void DrawFace(void *v, uint colour)
                 frameBufferPtr += GFX_LINESIZE;
                 int vertexwidth = endX - startX + 1;
                 while (vertexwidth--) {
-                    setPixelAlpha(colour16, *fbPtr, alpha);
+                    int R = (fbufferBlend[(*fbPtr & 0xF800) >> 11] + pixelBlend[(colour16 & 0xF800) >> 11]) << 11;
+                    int G = (fbufferBlend[(*fbPtr & 0x7E0) >> 6] + pixelBlend[(colour16 & 0x7E0) >> 6]) << 6;
+                    int B = fbufferBlend[*fbPtr & 0x1F] + pixelBlend[colour16 & 0x1F];
+
+                    *fbPtr = R | G | B;
                     ++fbPtr;
                 }
             }
@@ -6723,6 +6718,9 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
     ushort fogColour16 = PACK_RGB888(((fogColour >> 16) & 0xFF), ((fogColour >> 8) & 0xFF), ((fogColour >> 0) & 0xFF));
 
     ushort *frameBufferPtr = &Engine.frameBuffer[GFX_LINESIZE * faceTop];
+    ushort *fbufferBlend   = &blendLookupTable[0x20 * (0xFF - alpha)];
+    ushort *pixelBlend     = &blendLookupTable[0x20 * alpha];
+
     while (faceTop < faceBottom) {
         int startX = faceLineStart[faceTop];
         int endX   = faceLineEnd[faceTop];
@@ -6738,11 +6736,11 @@ void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha)
             frameBufferPtr += GFX_LINESIZE;
             int vertexwidth = endX - startX + 1;
             while (vertexwidth--) {
-                ushort *blendTableA = &blendLookupTable[BLENDTABLE_XSIZE * ((BLENDTABLE_YSIZE - 1) - alpha)];
-                ushort *blendTableB = &blendLookupTable[BLENDTABLE_XSIZE * alpha];
-                *fbPtr              = (blendTableA[fogColour16 & 0x1F] + blendTableB[colour16 & 0x1F])
-                         | ((blendTableA[(fogColour16 & 0x7E0) >> 6] + blendTableB[(colour16 & 0x7E0) >> 6]) << 6)
-                         | ((blendTableA[(fogColour16 & 0xF800) >> 11] + blendTableB[(colour16 & 0xF800) >> 11]) << 11);
+                int R = (fbufferBlend[(fogColour16 & 0xF800) >> 11] + pixelBlend[(colour16 & 0xF800) >> 11]) << 11;
+                int G = (fbufferBlend[(fogColour16 & 0x7E0) >> 6] + pixelBlend[(colour16 & 0x7E0) >> 6]) << 6;
+                int B = fbufferBlend[fogColour16 & 0x1F] + pixelBlend[colour16 & 0x1F];
+
+                *fbPtr = R | G | B;
                 ++fbPtr;
             }
         }

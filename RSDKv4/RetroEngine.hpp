@@ -323,8 +323,11 @@ public:
         }
     }
 
-    bool usingDataFile = false;
-    bool usingBytecode = false;
+#if !RETRO_USE_ORIGINAL_CODE
+    bool usingDataFile_Config = false;
+#endif
+    bool usingDataFile        = false;
+    bool usingBytecode        = false;
 
     char dataFile[RETRO_PACKFILE_COUNT][0x80];
 

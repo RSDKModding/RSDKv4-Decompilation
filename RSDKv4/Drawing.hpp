@@ -4,11 +4,6 @@
 #define SURFACE_MAX (24)
 #define GFXDATA_MAX (0x800 * 0x800)
 
-#define BLENDTABLE_YSIZE (0x100)
-#define BLENDTABLE_XSIZE (0x20)
-#define BLENDTABLE_SIZE  (BLENDTABLE_XSIZE * BLENDTABLE_YSIZE)
-#define TINTTABLE_SIZE   (0x1000)
-
 #define DRAWLAYER_COUNT (7)
 
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
@@ -54,9 +49,9 @@ struct DisplaySettings {
     int field_3C;
 };
 
-extern ushort blendLookupTable[BLENDTABLE_SIZE];
-extern ushort subtractLookupTable[BLENDTABLE_SIZE];
-extern ushort tintLookupTable[TINTTABLE_SIZE];
+extern ushort blendLookupTable[0x20 * 0x100];
+extern ushort subtractLookupTable[0x20 * 0x100];
+extern ushort tintLookupTable[0x10000];
 
 extern int SCREEN_XSIZE_CONFIG;
 extern int SCREEN_XSIZE;
