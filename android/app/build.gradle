@@ -9,13 +9,13 @@ else {
 
 android {
     ndkVersion "22.1.7171670"
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.decomp.rsdkv4"
         }
         minSdkVersion 23
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
