@@ -1845,6 +1845,11 @@ void DrawStageGFX()
         DrawObjectList(6);
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
+    if (drawStageGFXHQ)
+        DrawDebugOverlays();
+#endif
+
 #if RETRO_SOFTWARE_RENDER
     if (drawStageGFXHQ) {
         CopyFrameOverlay2x();
@@ -1867,7 +1872,8 @@ void DrawStageGFX()
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-    DrawDebugOverlays();
+    if (!drawStageGFXHQ)
+        DrawDebugOverlays();
 #endif
 }
 
@@ -1945,9 +1951,14 @@ void DrawDebugOverlays()
             int x = (SCREEN_XSIZE - (0x10 << 3));
             int y = (SCREEN_YSIZE - (0x10 << 2));
             for (int c = 0; c < PALETTE_SIZE; ++c) {
+                int g = fullPalette32[p][c].g;
+                // HQ mode overrides any magenta px, so slightly change the g channel since it has the most bits to make it "not quite magenta"
+                if (drawStageGFXHQ && fullPalette32[p][c].r == 0xFF && fullPalette32[p][c].g == 0x00 && fullPalette32[p][c].b == 0xFF)
+                    g += 8;
+
                 DrawRectangle(x + ((c & 0xF) << 1) + ((p % (PALETTE_COUNT / 2)) * (2 * 16)),
-                              y + ((c >> 4) << 1) + ((p / (PALETTE_COUNT / 2)) * (2 * 16)), 2, 2, fullPalette32[p][c].r, fullPalette32[p][c].g,
-                              fullPalette32[p][c].b, 0xFF);
+                              y + ((c >> 4) << 1) + ((p / (PALETTE_COUNT / 2)) * (2 * 16)), 2, 2, fullPalette32[p][c].r, g, fullPalette32[p][c].b,
+                              0xFF);
             }
         }
     }
