@@ -77,7 +77,7 @@ CollisionMasks collisionMasks[2];
 
 byte tilesetGFXData[TILESET_SIZE];
 
-ushort tile3DFloorBuffer[0x13334];
+ushort tile3DFloorBuffer[0x100 * 0x100];
 bool drawStageGFXHQ = false;
 
 #if RETRO_USE_MOD_LOADER
