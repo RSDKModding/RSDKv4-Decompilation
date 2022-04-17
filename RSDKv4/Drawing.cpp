@@ -3437,7 +3437,6 @@ void DrawVLineScrollLayer(int layerID)
 
     // Draw Above Water (if applicable)
     int drawableLines = SCREEN_XSIZE;
-    int line          = 0;
     while (drawableLines--) {
         int chunkY = vParallax.linePos[*scrollIndex];
         if (vParallax.deform[*scrollIndex])
@@ -4553,7 +4552,7 @@ void Draw3DSkyLayer(int layerID)
     ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     ushort *bufferPtr      = Engine.frameBuffer2x;
     if (!drawStageGFXHQ)
-        bufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
+        bufferPtr = &Engine.frameBuffer[(SCREEN_YSIZE / 2) + 12];
     byte *gfxLineBufferPtr = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12)];
     int layerXPos          = layer->xpos >> 4;
     int layerZPos          = layer->zpos >> 4;
