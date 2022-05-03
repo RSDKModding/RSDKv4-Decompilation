@@ -1,7 +1,7 @@
 ![](header.png?raw=true)
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
-+ For tutorials on how to find your legally obtained Data.rsdk file, see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
++ For tutorials on how to find the game assets from your legally obtained copy of the game(s), see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
 
 + You can get the official releases of Sonic 1 & Sonic 2 from:
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
@@ -11,23 +11,23 @@
   * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
   * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets)
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets).
 
-If you want to transfer your save from the official mobile versions, the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file to the `SData.bin` in the EXE folder.
+If you want to transfer your save(s) from the official mobile version(s), the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file into the decompilation's folder with the name `SData.bin`.
 
 # Additional Tweaks
 * Added a built in script compiler. Similar to the one found in RSDKv3, but tweaked up to match the new syntax for the scripts used in RSDKv4.
 * Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
 * Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
-* Dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
+* The dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
 * The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
 * A number of additional dev menu debug features have been added:
-  * `F1` will load the first scene in the Presentation stage list (usually the title screen)
-  * `F2` and `F3` will load the previous and next scene in the current stage list
-  * `F5` will reload the current scene, as well as all assets and scripts
-  * `F8` and `F9` will visualize touch screen and object hitboxes
-  * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time
+  * `F1` will load the first scene in the Presentation stage list (usually the title screen).
+  * `F2` and `F3` will load the previous and next scene in the current stage list.
+  * `F5` will reload the current scene, as well as all assets and scripts.
+  * `F8` and `F9` will visualize touch screen and object hitboxes.
+  * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 * Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
 
 # How to build
@@ -44,12 +44,12 @@ If you want to transfer your save from the official mobile versions, the **Andro
 * Clone the repo with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
 * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
 * Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`.
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Windows UWP (Phone, Xbox, etc.)
 * Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
-* Copy your `Data.rsdk` file into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `RSDKv4.UWP.sln`
-* You may also need to generate visual assets, to do so, open the Package.appxmanifest file in the designer, under the Visual Assets tab, select an image of your choice and click generate.
+* Copy your `Data.rsdk` file into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `RSDKv4.UWP.sln`.
+* You may also need to generate visual assets. To do so, open the Package.appxmanifest file in the designer. Under the Visual Assets tab, select an image of your choice, and click generate.
 
 ## Linux
 ### Decompilation
@@ -61,7 +61,7 @@ If you want to transfer your save from the official mobile versions, the **Andro
   * Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
   * Run `make -j5`.
     * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
-    * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
+    * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Mac
 * Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
@@ -90,7 +90,7 @@ If you're able to, you can clone this repo and port it to a platform not on the 
 
 # Server
 The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
-To use the server, open Command Prompt in the folder [Server.py](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/Server/Server.py) is located in, then run the command ``py -3 Server.py [local IPv4 address] [port] debug``. You can find your local IPv4 address using the command ``ipconfig``.
+To use the server, open Command Prompt in the folder [Server.py](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/Server/Server.py) is located in, then run the command `py -3 Server.py [local IPv4 address] [port] debug`. You can find your local IPv4 address using the command `ipconfig`.
 Note that the CPP server found in the Server folder in the repo has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
