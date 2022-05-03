@@ -33,12 +33,12 @@ int sendCounter = 0;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-bool forceUseScripts          = false;
-bool forceUseScripts_Config   = false;
-bool skipStartMenu            = false;
-bool skipStartMenu_Config     = false;
-int disableFocusPause         = 0;
-int disableFocusPause_Config  = 0;
+bool forceUseScripts          = true;
+bool forceUseScripts_Config   = true;
+bool skipStartMenu            = true;
+bool skipStartMenu_Config     = true;
+int disableFocusPause         = 3;
+int disableFocusPause_Config  = 3;
 
 bool useSGame = false;
 
@@ -451,8 +451,7 @@ void InitUserdata()
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
             skipStartMenu = true;
         skipStartMenu_Config = skipStartMenu;
-        if (!ini.GetInteger("Game", "DisableFocusPause", &disableFocusPause))
-            disableFocusPause = 3;
+        disableFocusPause = 3;
         disableFocusPause_Config = disableFocusPause;
 
 #if RETRO_USE_NETWORKING
@@ -733,10 +732,6 @@ void writeSettings()
     ini.SetInteger("Game", "Language", Engine.language);
     ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
-    ini.SetComment("Game", "DFPMenuComment",
-                   "Handles pausing behaviour when focus is lost\n; 0 = Game focus disabled, engine focus disabled\n; 1 = Game focus disabled, "
-                   "engine focus enabled\n; 2 = Game focus enabled, engine focus disabled\n; 3 = Game focus disabled, engine focus disabled");
-    ini.SetInteger("Game", "DisableFocusPause", disableFocusPause_Config);
 
 #if RETRO_USE_NETWORKING
     ini.SetComment("Network", "HostComment", "The host (IP address or \"URL\") that the game will try to connect to.");
