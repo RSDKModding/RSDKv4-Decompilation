@@ -2,7 +2,7 @@
 #define DRAWING_H
 
 #define SURFACE_MAX (24)
-#define GFXDATA_MAX (0x800 * 0x800)
+#define GFXDATA_MAX (0x2000 * 0x2000)
 
 #define DRAWLAYER_COUNT (7)
 
