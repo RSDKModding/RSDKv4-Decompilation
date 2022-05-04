@@ -27,11 +27,12 @@ bool CheckRSDKFile(const char *filePath)
     FileInfo info;
 
     char filePathBuffer[0x100];
-    sprintf(filePathBuffer, "%s", filePath);
 #if RETRO_PLATFORM == RETRO_OSX
     char pathBuf[0x100];
     sprintf(pathBuf, "%s/%s", gamePath, filePathBuffer);
     sprintf(filePathBuffer, "%s", pathBuf);
+#else
+    sprintf(filePathBuffer, "%s", filePath);
 #endif
 
     cFileHandle = fOpen(filePathBuffer, "rb");
