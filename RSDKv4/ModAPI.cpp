@@ -210,7 +210,7 @@ bool loadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
 
         info->redirectSave = false;
         modSettings.GetBool("", "RedirectSaveRAM", &info->redirectSave);
-        if (info->redirectSave && info->active) {
+        if (info->redirectSave) {
             char path[0x100];
             sprintf(path, "mods/%s/", folder.c_str());
             info->savePath = path;

@@ -1084,17 +1084,13 @@ void LoadStageBackground()
                     }
                     else {
                         FileRead(&buf[2], 1);
-                        int val = buf[1];
-                        int cnt = buf[2] - 1;
-                        for (int c = 0; c < cnt; ++c) {
-                            *lineScrollPtr++ = val;
-                            ++pos;
-                        }
+                        int index = buf[1];
+                        int cnt   = buf[2] - 1;
+                        for (int c = 0; c < cnt; ++c) *lineScrollPtr++ = index;
                     }
                 }
                 else {
                     *lineScrollPtr++ = buf[0];
-                    ++pos;
                 }
             }
 

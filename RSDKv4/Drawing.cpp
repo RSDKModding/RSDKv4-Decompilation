@@ -438,9 +438,7 @@ void FlipScreen()
         SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
         ushort *frameBufferPtr = Engine.frameBuffer;
         for (int y = 0; y < SCREEN_YSIZE; ++y) {
-            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                pixels[x] = frameBufferPtr[x];
-            }
+            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
             frameBufferPtr += GFX_LINESIZE;
             pixels += pitch / sizeof(ushort);
         }
@@ -1970,6 +1968,7 @@ void DrawHLineScrollLayer(int layerID)
     TileLayer *layer = &stageLayouts[activeTileLayers[layerID]];
     if (!layer->xsize || !layer->ysize)
         return;
+
 #if RETRO_SOFTWARE_RENDER
     int screenwidth16  = (GFX_LINESIZE >> 4) - 1;
     int layerwidth     = layer->xsize;

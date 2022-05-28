@@ -22,28 +22,30 @@ void CalculateTrigAngles()
         cosValM7[i] = (cos((i / 256.0) * M_PI) * 4096.0);
     }
 
-    cosValM7[0]   = 0x1000;
-    cosValM7[128] = 0;
-    cosValM7[256] = -0x1000;
-    cosValM7[384] = 0;
-    sinValM7[0]   = 0;
-    sinValM7[128] = 0x1000;
-    sinValM7[256] = 0;
-    sinValM7[384] = -0x1000;
+    cosValM7[0x00]  = 0x1000;
+    cosValM7[0x80]  = 0;
+    cosValM7[0x100] = -0x1000;
+    cosValM7[0x180] = 0;
+
+    sinValM7[0x00]  = 0;
+    sinValM7[0x80]  = 0x1000;
+    sinValM7[0x100] = 0;
+    sinValM7[0x180] = -0x1000;
 
     for (int i = 0; i < 0x200; ++i) {
         sinVal512[i] = (sinf((i / 256.0) * M_PI) * 512.0);
         cosVal512[i] = (cosf((i / 256.0) * M_PI) * 512.0);
     }
 
-    cosVal512[0]   = 0x200;
-    cosVal512[128] = 0;
-    cosVal512[256] = -0x200;
-    cosVal512[384] = 0;
-    sinVal512[0]   = 0;
-    sinVal512[128] = 0x200;
-    sinVal512[256] = 0;
-    sinVal512[384] = -0x200;
+    cosVal512[0x00]  = 0x200;
+    cosVal512[0x80]  = 0;
+    cosVal512[0x100] = -0x200;
+    cosVal512[0x180] = 0;
+
+    sinVal512[0x00]  = 0;
+    sinVal512[0x80]  = 0x200;
+    sinVal512[0x100] = 0;
+    sinVal512[0x180] = -0x200;
 
     for (int i = 0; i < 0x100; i++) {
         sinVal256[i] = (sinVal512[i * 2] >> 1);
