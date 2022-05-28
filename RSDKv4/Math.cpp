@@ -53,11 +53,11 @@ void CalculateTrigAngles()
     }
 
     for (int Y = 0; Y < 0x100; ++Y) {
-        byte *ATan = (byte *)&arcTan256LookupTable[Y];
+        byte *atan = (byte *)&arcTan256LookupTable[Y];
         for (int X = 0; X < 0x100; ++X) {
             float angle = atan2f(Y, X);
-            *ATan       = (angle * 40.743664f);
-            ATan += 0x100;
+            *atan       = (angle * 40.743664f);
+            atan += 0x100;
         }
     }
 }

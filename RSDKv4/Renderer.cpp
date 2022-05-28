@@ -344,18 +344,21 @@ void RenderScene()
         return;
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (Engine.dimTimer < Engine.dimLimit) {
-        if (Engine.dimPercent < 1.0) {
-            Engine.dimPercent += 0.05;
-            if (Engine.dimPercent > 1.0)
-                Engine.dimPercent = 1.0;
+    float dimAmount = 1.0;
+    if (!Engine.masterPaused || Engine.frameStep) {
+        if (Engine.dimTimer < Engine.dimLimit) {
+            if (Engine.dimPercent < 1.0) {
+                Engine.dimPercent += 0.05;
+                if (Engine.dimPercent > 1.0)
+                    Engine.dimPercent = 1.0;
+            }
         }
-    }
-    else if (Engine.dimPercent > 0.25 && Engine.dimLimit >= 0) {
-        Engine.dimPercent *= 0.9;
-    }
+        else if (Engine.dimPercent > 0.25 && Engine.dimLimit >= 0) {
+            Engine.dimPercent *= 0.9;
+        }
 
-    float dimAmount = Engine.dimMax * Engine.dimPercent;
+        dimAmount = Engine.dimMax * Engine.dimPercent;
+    }
 
     if (dimAmount < 1.0) {
         SetRenderBlendMode(RENDER_BLEND_ALPHA);
