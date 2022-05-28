@@ -678,7 +678,7 @@ void InitUserdata()
     }
 }
 
-void writeSettings()
+void WriteSettings()
 {
     IniParser ini;
 

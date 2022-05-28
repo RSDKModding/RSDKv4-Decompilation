@@ -21,6 +21,7 @@ struct ModInfo {
     int disableFocusPause;
     bool redirectSave;
     std::string savePath;
+    bool forceSonic1;
     bool active;
 };
 

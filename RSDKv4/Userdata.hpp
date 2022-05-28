@@ -148,7 +148,7 @@ bool WriteSaveRAMData();
 
 #if !RETRO_USE_ORIGINAL_CODE
 void InitUserdata();
-void writeSettings();
+void WriteSettings();
 void ReadUserdata();
 void WriteUserdata();
 #endif

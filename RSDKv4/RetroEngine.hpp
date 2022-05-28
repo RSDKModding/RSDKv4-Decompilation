@@ -416,6 +416,7 @@ public:
     byte gameType = GAME_UNKNOWN;
 #if RETRO_USE_MOD_LOADER
     bool modMenuCalled = false;
+    bool forceSonic1   = false;
 #endif
 #endif
 

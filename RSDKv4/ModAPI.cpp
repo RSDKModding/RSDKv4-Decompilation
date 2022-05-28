@@ -59,10 +59,11 @@ fs::path resolvePath(fs::path given)
 void InitMods()
 {
     modList.clear();
-    forceUseScripts   = forceUseScripts_Config;
-    skipStartMenu     = skipStartMenu_Config;
-    disableFocusPause = disableFocusPause_Config;
-    redirectSave      = false;
+    forceUseScripts    = forceUseScripts_Config;
+    skipStartMenu      = skipStartMenu_Config;
+    disableFocusPause  = disableFocusPause_Config;
+    redirectSave       = false;
+    Engine.forceSonic1 = false;
     sprintf(savePath, "");
 
     char modBuf[0x100];
@@ -118,11 +119,12 @@ void InitMods()
         }
     }
 
-    forceUseScripts   = forceUseScripts_Config;
-    skipStartMenu     = skipStartMenu_Config;
-    disableFocusPause = disableFocusPause_Config;
+    forceUseScripts    = forceUseScripts_Config;
+    skipStartMenu      = skipStartMenu_Config;
+    disableFocusPause  = disableFocusPause_Config;
+    redirectSave       = false;
+    Engine.forceSonic1 = false;
     sprintf(savePath, "");
-    redirectSave = false;
     for (int m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
             continue;
@@ -136,6 +138,8 @@ void InitMods()
             sprintf(savePath, "%s", modList[m].savePath.c_str());
             redirectSave = true;
         }
+        if (modList[m].forceSonic1)
+            Engine.forceSonic1 = true;
     }
 
     ReadSaveRAMData();
@@ -215,6 +219,11 @@ bool LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
             sprintf(path, "mods/%s/", folder.c_str());
             info->savePath = path;
         }
+
+        info->forceSonic1 = false;
+        modSettings.GetBool("", "ForceSonic1", &info->forceSonic1);
+        if (info->forceSonic1 && info->active)
+            Engine.forceSonic1 = true;
 
         return true;
     }
@@ -441,8 +450,31 @@ void RefreshEngine()
         entity->eventCreate(entity);
     }
 
+    forceUseScripts    = forceUseScripts_Config;
+    skipStartMenu      = skipStartMenu_Config;
+    disableFocusPause  = disableFocusPause_Config;
+    redirectSave       = false;
+    Engine.forceSonic1 = false;
+    sprintf(savePath, "");
+    for (int m = 0; m < modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+        if (modList[m].useScripts)
+            forceUseScripts = true;
+        if (modList[m].skipStartMenu)
+            skipStartMenu = true;
+        if (modList[m].disableFocusPause)
+            disableFocusPause |= modList[m].disableFocusPause;
+        if (modList[m].redirectSave) {
+            sprintf(savePath, "%s", modList[m].savePath.c_str());
+            redirectSave = true;
+        }
+        if (modList[m].forceSonic1)
+            Engine.forceSonic1 = true;
+    }
+
     Engine.gameType = GAME_SONIC2;
-    if (strstr(Engine.gameWindowText, "Sonic 1")) {
+    if (strstr(Engine.gameWindowText, "Sonic 1") || Engine.forceSonic1) {
         Engine.gameType = GAME_SONIC1;
     }
 
@@ -475,26 +507,6 @@ void RefreshEngine()
         AddAchievement("Metropolis Master", "Complete Any Metropolis\rZone Act without getting\rhurt");
         AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack mode in under 7\rminutes");
         AddAchievement("Beat the Clock", "Complete the Time Attack\rmode in less than 45\rminutes");
-    }
-
-    forceUseScripts   = forceUseScripts_Config;
-    skipStartMenu     = skipStartMenu_Config;
-    disableFocusPause = disableFocusPause_Config;
-    sprintf(savePath, "");
-    redirectSave = false;
-    for (int m = 0; m < modList.size(); ++m) {
-        if (!modList[m].active)
-            continue;
-        if (modList[m].useScripts)
-            forceUseScripts = true;
-        if (modList[m].skipStartMenu)
-            skipStartMenu = true;
-        if (modList[m].disableFocusPause)
-            disableFocusPause |= modList[m].disableFocusPause;
-        if (modList[m].redirectSave) {
-            sprintf(savePath, "%s", modList[m].savePath.c_str());
-            redirectSave = true;
-        }
     }
 
     SaveMods();

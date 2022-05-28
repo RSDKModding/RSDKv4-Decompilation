@@ -419,7 +419,11 @@ void RetroEngine::Init()
 
 #if !RETRO_USE_ORIGINAL_CODE
     gameType = GAME_SONIC2;
+#if RETRO_USE_MOD_LOADER
+    if (strstr(gameWindowText, "Sonic 1") || forceSonic1) {
+#else
     if (strstr(gameWindowText, "Sonic 1")) {
+#endif
         gameType = GAME_SONIC1;
     }
 #endif
@@ -561,7 +565,7 @@ void RetroEngine::Run()
 #if RETRO_USE_NETWORKING
     DisconnectNetwork(true);
 #endif
-    writeSettings();
+    WriteSettings();
 #if RETRO_USE_MOD_LOADER
     SaveMods();
 #endif
