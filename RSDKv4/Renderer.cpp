@@ -345,7 +345,7 @@ void RenderScene()
 
 #if !RETRO_USE_ORIGINAL_CODE
     float dimAmount = 1.0;
-    if (!Engine.masterPaused || Engine.frameStep) {
+    if ((!Engine.masterPaused || Engine.frameStep) && !drawStageGFXHQ) {
         if (Engine.dimTimer < Engine.dimLimit) {
             if (Engine.dimPercent < 1.0) {
                 Engine.dimPercent += 0.05;
