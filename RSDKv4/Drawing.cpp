@@ -569,7 +569,7 @@ void GenerateBlendLookupTable(void)
 void ClearScreen(byte index)
 {
 #if RETRO_SOFTWARE_RENDER
-    ushort color       = activePalette[index];
+    ushort color        = activePalette[index];
     ushort *framebuffer = Engine.frameBuffer;
     int cnt             = GFX_LINESIZE * SCREEN_YSIZE;
     while (cnt--) {

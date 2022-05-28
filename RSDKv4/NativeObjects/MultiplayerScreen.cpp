@@ -97,58 +97,58 @@ void MultiplayerScreen_Create(void *objPtr)
 
     self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -2);
     SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
-    self->textureArrows                                            = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]                   = CREATE_ENTITY(PushButton);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->useRenderMatrix  = true;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->x                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->y                = 20.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->z                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->scale            = 0.25;
+    self->textureArrows                                           = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]                  = CREATE_ENTITY(PushButton);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->useRenderMatrix = true;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->x               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->y               = 20.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->z               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->scale           = 0.25;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->bgColor         = 0x00A048;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->bgColorSelected = 0x00C060;
     SetStringToFont8(self->buttons[0]->text, "HOST", FONT_LABEL);
 
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]                   = CREATE_ENTITY(PushButton);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->useRenderMatrix  = true;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->x                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->y                = -20.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->z                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->scale            = 0.25;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]                  = CREATE_ENTITY(PushButton);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->useRenderMatrix = true;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->x               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->y               = -20.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->z               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->scale           = 0.25;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->bgColor         = 0x00A048;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->bgColorSelected = 0x00C060;
     SetStringToFont8(self->buttons[1]->text, "JOIN", FONT_LABEL);
 
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]                   = CREATE_ENTITY(PushButton);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->useRenderMatrix  = true;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->x                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->y                = -56.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->z                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->scale            = 0.175;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]                  = CREATE_ENTITY(PushButton);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->useRenderMatrix = true;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->x               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->y               = -56.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->z               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->scale           = 0.175;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->bgColor         = 0x00A048;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->bgColorSelected = 0x00C060;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->alpha            = 0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->alpha           = 0;
     SetStringToFont8(self->buttons[2]->text, "COPY", FONT_LABEL);
 
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]                   = CREATE_ENTITY(PushButton);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->useRenderMatrix  = true;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->x                = -56.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->y                = -56.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->z                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->scale            = 0.175;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]                  = CREATE_ENTITY(PushButton);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->useRenderMatrix = true;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->x               = -56.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->y               = -56.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->z               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->scale           = 0.175;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->bgColor         = 0x00A048;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->bgColorSelected = 0x00C060;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->alpha            = 0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->alpha           = 0;
     SetStringToFont8(self->buttons[3]->text, "JOIN ROOM", FONT_LABEL);
 
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]                   = CREATE_ENTITY(PushButton);
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->useRenderMatrix  = true;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->x                = 64.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->y                = -56.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->z                = 0.0;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->scale            = 0.175;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]                  = CREATE_ENTITY(PushButton);
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->useRenderMatrix = true;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->x               = 64.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->y               = -56.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->z               = 0.0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->scale           = 0.175;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->bgColor         = 0x00A048;
     self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->bgColorSelected = 0x00C060;
-    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->alpha            = 0;
+    self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->alpha           = 0;
     SetStringToFont8(self->buttons[4]->text, "PASTE", FONT_LABEL);
 
     for (int i = 0; i < 3; ++i) {
@@ -276,8 +276,7 @@ void MultiplayerScreen_Main(void *objPtr)
 
             memcpy(&self->label->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 3; ++i) memcpy(&self->codeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i)
-                memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 8; ++i) memcpy(&self->enterCodeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             memcpy(&self->enterCodeSlider[1]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             MatrixRotateZF(&self->enterCodeSlider[0]->renderMatrix, DegreesToRad(180));
@@ -315,18 +314,18 @@ void MultiplayerScreen_Main(void *objPtr)
 
                     self->buttons[MULTIPLAYERSCREEN_BUTTON_HOST]->state = PUSHBUTTON_STATE_UNSELECTED;
                     self->buttons[MULTIPLAYERSCREEN_BUTTON_JOIN]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    self->buttons[self->selectedButton]->state        = PUSHBUTTON_STATE_SELECTED;
+                    self->buttons[self->selectedButton]->state          = PUSHBUTTON_STATE_SELECTED;
 
                     if (inputPress.start || inputPress.A) {
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = PUSHBUTTON_STATE_FLASHING;
-                        self->state                                  = MULTIPLAYERSCREEN_STATE_ACTION;
+                        self->state                                = MULTIPLAYERSCREEN_STATE_ACTION;
                     }
                     else if (inputPress.B || self->backPressed) {
                         PlaySfxByName("Menu Back", false);
-                        self->backPressed           = false;
-                        self->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
-                        self->timer                 = 0;
+                        self->backPressed             = false;
+                        self->state                   = MULTIPLAYERSCREEN_STATE_EXIT;
+                        self->timer                   = 0;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->delay                   = 1.1f;
                         fade->state                   = FADESCREEN_STATE_FADEOUT;
@@ -343,11 +342,11 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (self->state == MULTIPLAYERSCREEN_STATE_MAIN) {
                         if (inputDown.left) {
                             self->selectedButton = MULTIPLAYERSCREEN_BUTTON_JOIN;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                         if (inputDown.right) {
                             self->selectedButton = MULTIPLAYERSCREEN_BUTTON_HOST;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                     }
                 }
@@ -364,9 +363,9 @@ void MultiplayerScreen_Main(void *objPtr)
 
                     if (inputPress.B || self->backPressed) {
                         PlaySfxByName("Menu Back", false);
-                        self->backPressed           = false;
-                        self->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
-                        self->timer                 = 0;
+                        self->backPressed             = false;
+                        self->state                   = MULTIPLAYERSCREEN_STATE_EXIT;
+                        self->timer                   = 0;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->delay                   = 1.0;
                         fade->state                   = FADESCREEN_STATE_FADEOUT;
@@ -375,11 +374,11 @@ void MultiplayerScreen_Main(void *objPtr)
                         if (self->state == MULTIPLAYERSCREEN_STATE_MAIN) {
                             if (inputDown.down) {
                                 self->selectedButton = MULTIPLAYERSCREEN_BUTTON_JOIN;
-                                usePhysicalControls    = true;
+                                usePhysicalControls  = true;
                             }
                             if (inputDown.up) {
                                 self->selectedButton = MULTIPLAYERSCREEN_BUTTON_HOST;
-                                usePhysicalControls    = true;
+                                usePhysicalControls  = true;
                             }
                         }
                     }
@@ -406,7 +405,7 @@ void MultiplayerScreen_Main(void *objPtr)
                         self->nextStateDraw = MULTIPLAYERSCREEN_STATEDRAW_JOIN;
                         break;
                     case MULTIPLAYERSCREEN_BUTTON_JOINROOM: {
-                        self->state                 = MULTIPLAYERSCREEN_STATE_STARTGAME;
+                        self->state                   = MULTIPLAYERSCREEN_STATE_STARTGAME;
                         NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                         fade->state                   = FADESCREEN_STATE_GAMEFADEOUT;
                         fade->delay                   = 1.1f;
@@ -436,8 +435,7 @@ void MultiplayerScreen_Main(void *objPtr)
 
             memcpy(&self->label->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 3; ++i) memcpy(&self->codeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i)
-                memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 8; ++i) memcpy(&self->enterCodeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             memcpy(&self->enterCodeSlider[1]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             MatrixRotateZF(&self->enterCodeSlider[0]->renderMatrix, DegreesToRad(180));
@@ -449,8 +447,7 @@ void MultiplayerScreen_Main(void *objPtr)
                     if (skipStartMenu) {
                         StopMusic(true);
                         // is there a better way of removing the pop up message? :(
-                        if (self->dialog)
-                        {
+                        if (self->dialog) {
                             RemoveNativeObject(self->dialog);
                             RemoveNativeObject(self->label);
                             RemoveNativeObject(self->label);
@@ -515,8 +512,7 @@ void MultiplayerScreen_Main(void *objPtr)
             SetRenderMatrix(&self->renderMatrix);
 
             for (int i = 0; i < 3; ++i) memcpy(&self->codeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i)
-                memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            for (int i = 0; i < MULTIPLAYERSCREEN_BUTTON_COUNT; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             for (int i = 0; i < 8; ++i) memcpy(&self->enterCodeLabel[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             memcpy(&self->enterCodeSlider[1]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
             MatrixRotateZF(&self->enterCodeSlider[0]->renderMatrix, DegreesToRad(180));
@@ -572,14 +568,13 @@ void MultiplayerScreen_Main(void *objPtr)
             }
             else {
                 if (touches > 0) {
-                    self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
-                    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->state =
-                        CheckTouchRect(0, -64.0f,
-                                       ((64.0 * self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->scale)
-                                        + self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->textWidth)
-                                           * 0.75,
-                                       12.0)
-                        >= 0;
+                    self->backPressed                                   = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
+                    self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->state = CheckTouchRect(0, -64.0f,
+                                                                                         ((64.0 * self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->scale)
+                                                                                          + self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->textWidth)
+                                                                                             * 0.75,
+                                                                                         12.0)
+                                                                          >= 0;
                 }
                 else {
                     self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->state |= inputPress.A || inputPress.start;
@@ -648,8 +643,8 @@ void MultiplayerScreen_Main(void *objPtr)
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
-                        u.bytes[n >> 1]  = (nybbles[1] << 4) | (nybbles[0] & 0xF);
-                        self->roomCode = u.val;
+                        u.bytes[n >> 1] = (nybbles[1] << 4) | (nybbles[0] & 0xF);
+                        self->roomCode  = u.val;
 
                         MultiplayerScreen_DrawJoinCode(self, n);
                     }
@@ -691,7 +686,7 @@ void MultiplayerScreen_Main(void *objPtr)
                                 if (ConvertStringToInteger(buf, &self->roomCode)) {
                                     MultiplayerScreen_DrawJoinCode(self, 0);
                                     self->enterCodeLabel[0]->useColors = false;
-                                    self->selectedButton                = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
+                                    self->selectedButton               = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                                     if (Engine.gameType == GAME_SONIC1) //??
                                         PlaySfxByName("Lamp Post", false);
                                     else
@@ -748,11 +743,11 @@ void MultiplayerScreen_Main(void *objPtr)
                                        12.0)
                         >= 0;
                     self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->state =
-                        CheckTouchRect(64.0f, -64.0f,
-                                       ((64.0 * self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->scale)
-                                        + self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->textWidth)
-                                           * 0.75,
-                                       12.0)
+                        CheckTouchRect(
+                            64.0f, -64.0f,
+                            ((64.0 * self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->scale) + self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->textWidth)
+                                * 0.75,
+                            12.0)
                         >= 0;
 
                     self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
@@ -783,8 +778,8 @@ void MultiplayerScreen_Main(void *objPtr)
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
-                        u.bytes[n >> 1]  = (nybbles[1] << 4) | (nybbles[0] & 0xF);
-                        self->roomCode = u.val;
+                        u.bytes[n >> 1] = (nybbles[1] << 4) | (nybbles[0] & 0xF);
+                        self->roomCode  = u.val;
 
                         for (int i = 0; i < 8; i += 2) {
                             int n         = 7 - i;
@@ -828,7 +823,7 @@ void MultiplayerScreen_Main(void *objPtr)
                             if (ConvertStringToInteger(buf, &self->roomCode)) {
                                 MultiplayerScreen_DrawJoinCode(self, 0);
                                 self->enterCodeLabel[0]->useColors = false;
-                                self->selectedButton                = 5;
+                                self->selectedButton               = 5;
                                 if (Engine.gameType == GAME_SONIC1)
                                     PlaySfxByName("Lamp Post", false);
                                 else
@@ -854,11 +849,11 @@ void MultiplayerScreen_Main(void *objPtr)
                     else {
                         if (inputDown.left) {
                             self->selectedButton = 5;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                         if (inputDown.right) {
                             self->selectedButton = 12;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                     }
                 }
@@ -872,9 +867,9 @@ void MultiplayerScreen_Main(void *objPtr)
             }
             else if (self->dialog->selection == DLG_YES) {
                 PlaySfxByName("Menu Back", false);
-                self->backPressed           = false;
-                self->state                 = MULTIPLAYERSCREEN_STATE_EXIT;
-                self->timer                 = 0;
+                self->backPressed             = false;
+                self->state                   = MULTIPLAYERSCREEN_STATE_EXIT;
+                self->timer                   = 0;
                 NativeEntity_FadeScreen *fade = CREATE_ENTITY(FadeScreen);
                 fade->delay                   = 1.1f;
                 fade->state                   = FADESCREEN_STATE_FADEOUT;
@@ -935,7 +930,7 @@ void MultiplayerScreen_Main(void *objPtr)
 
             self->roomCode = 0;
             for (int i = 0; i < 8; ++i) {
-                self->enterCodeLabel[i]->alpha      = 0x100;
+                self->enterCodeLabel[i]->alpha     = 0x100;
                 self->enterCodeLabel[i]->useColors = false;
 
                 char codeBuf[0x10];
@@ -943,7 +938,7 @@ void MultiplayerScreen_Main(void *objPtr)
                 SetStringToFont8(self->enterCodeLabel[i]->text, codeBuf, self->enterCodeLabel[i]->fontID);
                 self->enterCodeLabel[i]->alignPtr(self->enterCodeLabel[i], ALIGN_CENTER);
             }
-            self->enterCodeLabel[0]->useColors                     = true;
+            self->enterCodeLabel[0]->useColors                      = true;
             self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->alpha = 0x100;
             self->buttons[MULTIPLAYERSCREEN_BUTTON_PASTE]->alpha    = 0x100;
 

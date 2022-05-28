@@ -7,8 +7,8 @@
 enum FaceFlags {
     FACE_FLAG_TEXTURED_3D      = 0,
     FACE_FLAG_TEXTURED_2D      = 1,
-    FACE_FLAG_COLORED_3D      = 2,
-    FACE_FLAG_COLORED_2D      = 3,
+    FACE_FLAG_COLORED_3D       = 2,
+    FACE_FLAG_COLORED_2D       = 3,
     FACE_FLAG_FADED            = 4,
     FACE_FLAG_TEXTURED_C       = 5,
     FACE_FLAG_TEXTURED_C_BLEND = 6,

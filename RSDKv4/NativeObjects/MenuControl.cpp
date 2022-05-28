@@ -96,14 +96,13 @@ void MenuControl_Main(void *objPtr)
                                 segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                                 if (CheckTouchRect(0.0, 16.0, 56.0, 56.0) >= 0) {
                                     BackupNativeObjects();
-                                    self->releaseTouchX                = touchXF[0];
-                                    self->stateInput                   = MENUCONTROL_STATEINPUT_HANDLERELEASE;
-                                    self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                                    self->releaseTouchX              = touchXF[0];
+                                    self->stateInput                 = MENUCONTROL_STATEINPUT_HANDLERELEASE;
+                                    self->buttonID                   = ceilf(self->buttonMovePos / -self->buttonSpacing);
                                     self->buttons[self->buttonID]->g = 0xC0;
                                 }
                                 else {
-                                    if (CheckTouchRect(self->segaIDButton->x, self->segaIDButton->y, 20.0, 20.0) >= 0
-                                        && segaIDButton->alpha > 64) {
+                                    if (CheckTouchRect(self->segaIDButton->x, self->segaIDButton->y, 20.0, 20.0) >= 0 && segaIDButton->alpha > 64) {
                                         segaIDButton->state = SEGAIDBUTTON_STATE_PRESSED;
                                     }
                                     else {
@@ -115,9 +114,9 @@ void MenuControl_Main(void *objPtr)
                                 }
                             }
                             else {
-                                segaIDButton->state                  = SEGAIDBUTTON_STATE_IDLE;
-                                usePhysicalControls                  = true;
-                                self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                                segaIDButton->state              = SEGAIDBUTTON_STATE_IDLE;
+                                usePhysicalControls              = true;
+                                self->buttonID                   = ceilf(self->buttonMovePos / -self->buttonSpacing);
                                 self->buttons[self->buttonID]->g = 0xC0;
                             }
                         }
@@ -127,9 +126,9 @@ void MenuControl_Main(void *objPtr)
                             ShowPromoPopup(0, "MoreGames");
                         }
                         else if (inputDown.left || inputDown.right) {
-                            segaIDButton->state                  = SEGAIDBUTTON_STATE_IDLE;
-                            usePhysicalControls                  = true;
-                            self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                            segaIDButton->state              = SEGAIDBUTTON_STATE_IDLE;
+                            usePhysicalControls              = true;
+                            self->buttonID                   = ceilf(self->buttonMovePos / -self->buttonSpacing);
                             self->buttons[self->buttonID]->g = 0xC0;
                         }
                         break;
@@ -213,10 +212,10 @@ void MenuControl_Main(void *objPtr)
                             else {
                                 self->buttons[self->buttonID]->g = 0xC0;
                                 if (abs(self->releaseTouchX - touchXF[0]) > 8.0f) {
-                                    self->stateInput                   = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                                    self->dragTouchX                   = self->buttonID;
-                                    self->lastDragTouchDistance        = 0.0;
-                                    self->lastButtonMovePos            = self->buttonMovePos;
+                                    self->stateInput                 = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                                    self->dragTouchX                 = self->buttonID;
+                                    self->lastDragTouchDistance      = 0.0;
+                                    self->lastButtonMovePos          = self->buttonMovePos;
                                     self->buttons[self->buttonID]->g = 0xFF;
                                 }
                             }
@@ -224,12 +223,12 @@ void MenuControl_Main(void *objPtr)
                         else {
                             if (self->buttons[self->buttonID]->g == 0xC0) {
                                 self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
-                                self->timer                                      = 0.0;
-                                self->state                                      = MENUCONTROL_STATE_ACTION;
+                                self->timer                                    = 0.0;
+                                self->state                                    = MENUCONTROL_STATE_ACTION;
                                 PlaySfxByName("Menu Select", false);
                             }
                             self->buttons[self->buttonID]->g = 0xFF;
-                            self->stateInput                   = MENUCONTROL_STATEINPUT_CHECKTOUCH;
+                            self->stateInput                 = MENUCONTROL_STATEINPUT_CHECKTOUCH;
                         }
                         break;
                     }
@@ -270,8 +269,8 @@ void MenuControl_Main(void *objPtr)
                         else if ((inputPress.start || inputPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
                             self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
-                            self->timer                                      = 0.0;
-                            self->state                                      = MENUCONTROL_STATE_ACTION;
+                            self->timer                                    = 0.0;
+                            self->state                                    = MENUCONTROL_STATE_ACTION;
                             PlaySfxByName("Menu Select", false);
                         }
 
@@ -316,15 +315,15 @@ void MenuControl_Main(void *objPtr)
         case MENUCONTROL_STATE_ACTION: {
             self->timer += Engine.deltaTime;
             if (self->timer > 0.5) {
-                self->timer                           = 0.0;
+                self->timer                             = 0.0;
                 NativeEntity_AchievementsButton *button = self->buttons[self->buttonID];
                 switch (self->buttonFlags[self->buttonID]) {
                     case BUTTON_STARTGAME:
-                        self->state                                      = MENUCONTROL_STATE_ENTERSUBMENU;
-                        self->autoButtonMoveVelocity                     = 0.0;
-                        button->g                                          = 0xFF;
+                        self->state                                    = MENUCONTROL_STATE_ENTERSUBMENU;
+                        self->autoButtonMoveVelocity                   = 0.0;
+                        button->g                                      = 0xFF;
                         self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_NONE;
-                        self->backButton->visible                        = true;
+                        self->backButton->visible                      = true;
                         SetGlobalVariableByName("options.vsMode", false);
                         CREATE_ENTITY(SaveSelect);
                         break;
@@ -332,14 +331,14 @@ void MenuControl_Main(void *objPtr)
                     case BUTTON_TIMEATTACK:
                         self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
                         self->autoButtonMoveVelocity = 0.0;
-                        button->g                      = 0xFF;
-                        button->labelPtr->state        = TEXTLABEL_STATE_NONE;
+                        button->g                    = 0xFF;
+                        button->labelPtr->state      = TEXTLABEL_STATE_NONE;
                         self->backButton->visible    = true;
                         CREATE_ENTITY(TimeAttack);
                         break;
 
                     case BUTTON_MULTIPLAYER:
-                        self->state           = MENUCONTROL_STATE_MAIN;
+                        self->state             = MENUCONTROL_STATE_MAIN;
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
@@ -404,14 +403,14 @@ void MenuControl_Main(void *objPtr)
                     case BUTTON_OPTIONS:
                         self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
                         self->autoButtonMoveVelocity = 0.0;
-                        button->g                      = 0xFF;
-                        button->labelPtr->state        = TEXTLABEL_STATE_NONE;
+                        button->g                    = 0xFF;
+                        button->labelPtr->state      = TEXTLABEL_STATE_NONE;
                         self->backButton->visible    = true;
                         CREATE_ENTITY(OptionsMenu);
                         break;
 
                     default:
-                        self->state           = MENUCONTROL_STATE_MAIN;
+                        self->state             = MENUCONTROL_STATE_MAIN;
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;
                 }

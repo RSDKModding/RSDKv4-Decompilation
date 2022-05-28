@@ -13,7 +13,7 @@ void VirtualDPadM_Create(void *objPtr)
     self->pauseX   = SCREEN_CENTERX - 76.0f;
     self->pauseX_S = SCREEN_CENTERX - 52.0f;
 
-    float dpadSize    = saveGame->vDPadSize * (1 / 256.0f);
+    float dpadSize  = saveGame->vDPadSize * (1 / 256.0f);
     self->moveSize  = dpadSize;
     self->jumpSize  = self->moveSize * 0.75;
     self->textureID = LoadTexture("Data/Game/Menu/VirtualDPadM.png", 3);
@@ -46,20 +46,20 @@ void VirtualDPadM_Main(void *objPtr)
 
         if (self->alpha == saveGame->vDPadOpacity) {
             if (inputDown.up) {
-                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 25.0, 30.0, 50.0, 55.0, 24.0, 282.0,
-                            self->alpha, self->textureID);
+                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 25.0, 30.0, 50.0, 55.0, 24.0, 282.0, self->alpha,
+                            self->textureID);
             }
             else if (inputDown.down) {
-                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 26.0, 0.0, 52.0, 128.0, 102.0, 384.0,
-                            self->alpha, self->textureID);
+                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 26.0, 0.0, 52.0, 128.0, 102.0, 384.0, self->alpha,
+                            self->textureID);
             }
             else if (inputDown.left) {
-                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 29.0, 128.0, 59.0, 0.0, 355.0,
-                            self->alpha, self->textureID);
+                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 29.0, 128.0, 59.0, 0.0, 355.0, self->alpha,
+                            self->textureID);
             }
             else if (inputDown.right) {
-                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 0.0, 29.0, 128.0, 59.0, 128.0, 355.0,
-                            self->alpha, self->textureID);
+                RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 0.0, 29.0, 128.0, 59.0, 128.0, 355.0, self->alpha,
+                            self->textureID);
             }
         }
 
@@ -79,11 +79,9 @@ void VirtualDPadM_Main(void *objPtr)
 
         if (Engine.gameMode == ENGINE_MAINGAME) {
             if (activeStageList == STAGELIST_SPECIAL)
-                RenderImage(self->pauseX_S, self->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, self->pauseAlpha,
-                            self->textureID);
+                RenderImage(self->pauseX_S, self->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, self->pauseAlpha, self->textureID);
             else
-                RenderImage(self->pauseX, self->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, self->pauseAlpha,
-                            self->textureID);
+                RenderImage(self->pauseX, self->pauseY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, self->pauseAlpha, self->textureID);
         }
     }
 }

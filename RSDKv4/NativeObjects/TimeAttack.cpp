@@ -52,7 +52,7 @@ void TimeAttack_Create(void *objPtr)
     float x = -72.0;
     for (int z = 0; z < timeAttack_ZoneCount; ++z) {
         NativeEntity_ZoneButton *zoneButton = CREATE_ENTITY(ZoneButton);
-        self->zoneButtons[z]              = zoneButton;
+        self->zoneButtons[z]                = zoneButton;
         zoneButton->x                       = x;
         SetStringToFont(zoneButton->zoneText, strStageList[z], FONT_TEXT);
 
@@ -98,7 +98,7 @@ void TimeAttack_Create(void *objPtr)
     }
 
     self->totalTime = 0;
-    pos               = 0;
+    pos             = 0;
     for (int z = 0; z < timeAttack_ZoneCount; ++z) {
         if (Engine.gameType == GAME_SONIC1) {
             switch (z) {
@@ -270,8 +270,8 @@ void TimeAttack_Main(void *objPtr)
             MatrixMultiplyF(&self->matRender, &self->matrixTemp);
 
             if (self->timer > 1.0) {
-                self->timer    = 0.0;
-                self->state    = TIMEATTACK_STATE_MAIN;
+                self->timer      = 0.0;
+                self->state      = TIMEATTACK_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
             }
@@ -395,11 +395,11 @@ void TimeAttack_Main(void *objPtr)
                 if (self->state == TIMEATTACK_STATE_MAIN) {
                     if (inputDown.left) {
                         usePhysicalControls = true;
-                        self->zoneID      = (3 * self->pageID);
+                        self->zoneID        = (3 * self->pageID);
                     }
                     if (inputDown.right) {
                         usePhysicalControls = true;
-                        self->zoneID      = (3 * self->pageID) + 2;
+                        self->zoneID        = (3 * self->pageID) + 2;
                     }
                 }
             }
@@ -437,7 +437,7 @@ void TimeAttack_Main(void *objPtr)
                         if (self->zoneButtons[self->zoneID]->unlocked && (inputPress.start || inputPress.A)) {
                             PlaySfxByName("Menu Select", false);
                             self->zoneButtons[self->zoneID]->state = ZONEBUTTON_STATE_FLASHING;
-                            self->state                              = TIMEATTACK_STATE_ACTION;
+                            self->state                            = TIMEATTACK_STATE_ACTION;
                         }
                     }
                 }

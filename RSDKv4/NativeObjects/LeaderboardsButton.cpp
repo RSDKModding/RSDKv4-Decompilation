@@ -5,7 +5,7 @@ void LeaderboardsButton_Create(void *objPtr)
     RSDK_THIS(LeaderboardsButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    int texture            = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     self->meshLeaderboards = LoadMesh("Data/Game/Models/Leaderboards.bin", texture);
     self->x                = 0.0;
     self->y                = 16.0;

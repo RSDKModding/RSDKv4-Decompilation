@@ -36,6 +36,7 @@ void TitleScreen_Create(void *objPtr)
 
     switch (Engine.language) {
         case RETRO_ES: self->labelPtr->scale = 0.125; break;
+
         case RETRO_JP: self->labelPtr->scale = 0.1;
 #if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
@@ -48,6 +49,7 @@ void TitleScreen_Create(void *objPtr)
             LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
 #endif
             break;
+
         case RETRO_RU: self->labelPtr->scale = 0.08;
 #if RETRO_USE_ORIGINAL_CODE
             if (Engine.useHighResAssets)
@@ -63,6 +65,7 @@ void TitleScreen_Create(void *objPtr)
             LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
 #endif
             break;
+
         case RETRO_KO:
 #if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
@@ -75,6 +78,7 @@ void TitleScreen_Create(void *objPtr)
             LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
 #endif
             break;
+
         case RETRO_ZH:
 #if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
@@ -87,6 +91,7 @@ void TitleScreen_Create(void *objPtr)
             LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
 #endif
             break;
+
         case RETRO_ZS:
 #if RETRO_USE_ORIGINAL_CODE
             heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
@@ -97,6 +102,7 @@ void TitleScreen_Create(void *objPtr)
             LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
 #endif
             break;
+
         default: break;
     }
     self->labelPtr->alpha = 0;
@@ -116,19 +122,19 @@ void TitleScreen_Create(void *objPtr)
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case REGION_JP:
-            package           = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+            package         = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
             self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
             self->boxMesh   = LoadMesh("Data/Game/Models/JPBox.bin", package);
             self->cartMesh  = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
             break;
         case REGION_US:
-            package           = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+            package         = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
             self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
             self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
             self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
         case REGION_EU:
-            package           = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+            package         = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
             self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
             self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
             self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
@@ -187,13 +193,13 @@ void TitleScreen_Main(void *objPtr)
             CheckKeyPress(&inputPress);
 
             if (CheckTouchRect(SCREEN_CENTERX_F - 32.0, 104.0, 20.0, 20.0) >= 0 || (inputPress.start || inputPress.A)) {
-                self->state                 = TITLESCREEN_STATE_TITLE;
-                self->x                     = -96.0;
-                self->meshScale             = 1.0;
-                self->rectY                 = -48.0;
-                self->fadeRectAlpha         = 256;
-                self->logoAlpha             = 256;
-                self->selectionDisabled     = 1;
+                self->state                   = TITLESCREEN_STATE_TITLE;
+                self->x                       = -96.0;
+                self->meshScale               = 1.0;
+                self->rectY                   = -48.0;
+                self->fadeRectAlpha           = 256;
+                self->logoAlpha               = 256;
+                self->selectionDisabled       = 1;
                 NativeEntity_TextLabel *label = self->labelPtr;
                 label->alpha                  = 256;
                 label->state                  = TEXTLABEL_STATE_BLINK;
@@ -243,7 +249,7 @@ void TitleScreen_Main(void *objPtr)
                 }
                 else {
                     self->rectY = -48.0;
-                    y             = 192.0;
+                    y           = 192.0;
                 }
             }
             else {
@@ -263,8 +269,8 @@ void TitleScreen_Main(void *objPtr)
             else {
                 NativeEntity_TextLabel *label = self->labelPtr;
                 label->state                  = TEXTLABEL_STATE_BLINK;
-                self->state                 = TITLESCREEN_STATE_TITLE;
-                self->x                     = 0.0;
+                self->state                   = TITLESCREEN_STATE_TITLE;
+                self->x                       = 0.0;
             }
             self->rotationY += Engine.deltaTime;
             MatrixScaleXYZF(&self->renderMatrix, self->meshScale, self->meshScale, self->meshScale);
@@ -365,7 +371,7 @@ void TitleScreen_Main(void *objPtr)
 
             self->introRectAlpha += Engine.deltaTime;
             if (self->introRectAlpha > 1.0) {
-                self->state                 = TITLESCREEN_STATE_EXIT;
+                self->state                   = TITLESCREEN_STATE_EXIT;
                 NativeEntity_TextLabel *label = self->labelPtr;
                 RemoveNativeObject(label);
                 SetMeshAnimation(self->boxMesh, &self->meshAnimator, 4, 16, 0.0);
@@ -375,6 +381,7 @@ void TitleScreen_Main(void *objPtr)
                 self->rectYVelocity               = 4.0;
                 self->rotationZ                   = DegreesToRad(-90.0);
             }
+
             RenderImage(64.0, 32.0, 160.0, 0.3, 0.3, 256.0, 128.0, 512.0, 256.0, 0.0, 0.0, self->logoAlpha, self->logoTextureID);
             break;
         }

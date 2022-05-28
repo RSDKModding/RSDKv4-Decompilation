@@ -6,7 +6,7 @@ void ModsButton_Create(void *objPtr)
     RSDK_THIS(ModsButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    int texture            = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     self->meshMods         = LoadMesh("Data/Game/Models/Options.bin", texture);
     self->x                = 0.0;
     self->y                = 16.0;

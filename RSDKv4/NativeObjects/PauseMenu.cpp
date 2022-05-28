@@ -136,12 +136,12 @@ void PauseMenu_Create(void *objPtr)
     self->buttonX                = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
     for (int i = 0; i < pauseMenuButtonCount; ++i) {
         NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
-        self->buttons[i]                 = button;
+        self->buttons[i]                   = button;
         button->scale                      = 0.1;
         button->matZ                       = 0.0;
         button->matXOff                    = 512.0;
         button->textY                      = -4.0;
-        self->buttonRot[i]               = DegreesToRad(16.0);
+        self->buttonRot[i]                 = DegreesToRad(16.0);
         MatrixRotateYF(&button->matrix, DegreesToRad(16.0));
         MatrixTranslateXYZF(&self->matrix, self->buttonX, 48.0 - i * 30, 160.0);
         MatrixMultiplyF(&self->buttons[i]->matrix, &self->matrix);
@@ -230,7 +230,7 @@ void PauseMenu_Main(void *objPtr)
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->buttonSelected]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->buttonSelected]->b     = 0xFF;
-                        self->state                                  = PAUSEMENU_STATE_ACTION;
+                        self->state                                = PAUSEMENU_STATE_ACTION;
                     }
                 }
             }
@@ -254,7 +254,7 @@ void PauseMenu_Main(void *objPtr)
 
                 if (self->state == PAUSEMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
                     self->buttonSelected = PMB_CONTINUE;
-                    usePhysicalControls    = true;
+                    usePhysicalControls  = true;
                 }
             }
             if (touches > 0) {
@@ -286,8 +286,7 @@ void PauseMenu_Main(void *objPtr)
                 RenderRetroBuffer(64, 160.0);
                 if (Engine.gameDeviceType == RETRO_MOBILE) {
                     if (activeStageList == STAGELIST_SPECIAL)
-                        RenderImage(self->dpadXSpecial, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255,
-                                    self->textureDPad);
+                        RenderImage(self->dpadXSpecial, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
                     else
                         RenderImage(self->dpadX, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
                 }
@@ -418,7 +417,7 @@ void PauseMenu_Main(void *objPtr)
         }
         case PAUSEMENU_STATE_RESTART: {
             if (self->dialog->selection == DLG_YES) {
-                self->state   = PAUSEMENU_STATE_SUBMENU;
+                self->state     = PAUSEMENU_STATE_SUBMENU;
                 Engine.gameMode = ENGINE_EXITPAUSE;
                 stageMode       = STAGEMODE_LOAD;
                 if (GetGlobalVariableByName("options.gameMode") <= 1) {
@@ -443,7 +442,7 @@ void PauseMenu_Main(void *objPtr)
 #if !RETRO_USE_ORIGINAL_CODE
                 if (skipStartMenu) {
                     Engine.gameMode                  = ENGINE_MAINGAME;
-                    self->dialog->state            = DIALOGPANEL_STATE_IDLE;
+                    self->dialog->state              = DIALOGPANEL_STATE_IDLE;
                     NativeEntity_FadeScreen *fadeout = CREATE_ENTITY(FadeScreen);
                     fadeout->state                   = FADESCREEN_STATE_GAMEFADEOUT;
                     activeStageList                  = STAGELIST_PRESENTATION;
@@ -452,7 +451,7 @@ void PauseMenu_Main(void *objPtr)
                 }
                 else {
 #endif
-                    Engine.gameMode       = (GetGlobalVariableByName("options.gameMode") > 1) + ENGINE_ENDGAME;
+                    Engine.gameMode     = (GetGlobalVariableByName("options.gameMode") > 1) + ENGINE_ENDGAME;
                     self->dialog->state = DIALOGPANEL_STATE_IDLE;
                     CREATE_ENTITY(FadeScreen);
 #if !RETRO_USE_ORIGINAL_CODE

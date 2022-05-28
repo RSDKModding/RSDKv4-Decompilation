@@ -114,8 +114,8 @@ void SaveSelect_Main(void *objPtr)
             self->timer += (Engine.deltaTime + Engine.deltaTime);
             self->labelPtr->alpha = (256.0 * self->timer);
             if (self->timer > 1.0) {
-                self->timer    = 0.0;
-                self->state    = SAVESELECT_STATE_MAIN;
+                self->timer      = 0.0;
+                self->state      = SAVESELECT_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
             }
@@ -164,9 +164,9 @@ void SaveSelect_Main(void *objPtr)
                             self->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
                         else {
-                            self->selectedButton                         = SAVESELECT_BUTTON_NOSAVE;
+                            self->selectedButton                       = SAVESELECT_BUTTON_NOSAVE;
                             self->saveButtons[self->selectedButton]->b = 0x00;
-                            self->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
+                            self->delButton->state                     = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
                     else {
@@ -175,7 +175,7 @@ void SaveSelect_Main(void *objPtr)
                         }
                         else {
                             self->saveButtons[self->selectedButton]->b = 0x00;
-                            self->delButton->state                       = PUSHBUTTON_STATE_UNSELECTED;
+                            self->delButton->state                     = PUSHBUTTON_STATE_UNSELECTED;
                         }
                     }
 
@@ -184,7 +184,7 @@ void SaveSelect_Main(void *objPtr)
                             if (self->state == SAVESELECT_STATE_MAIN_DELETING) {
                                 if (self->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[self->selectedButton - 1].stageID > 0) {
                                     PlaySfxByName("Menu Select", false);
-                                    self->state                                      = SAVESELECT_STATE_DELSETUP;
+                                    self->state                                    = SAVESELECT_STATE_DELSETUP;
                                     self->saveButtons[self->selectedButton]->b     = 0xFF;
                                     self->saveButtons[self->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                                 }
@@ -197,7 +197,7 @@ void SaveSelect_Main(void *objPtr)
                                     self->saveButtons[self->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                                 }
                                 self->saveButtons[self->selectedButton]->b = 0xFF;
-                                self->state                                  = SAVESELECT_STATE_LOADSAVE;
+                                self->state                                = SAVESELECT_STATE_LOADSAVE;
                             }
                         }
                         else {
@@ -235,7 +235,7 @@ void SaveSelect_Main(void *objPtr)
                         if (self->state == SAVESELECT_STATE_MAIN_DELETING) {
                             if (self->selectedButton > SAVESELECT_BUTTON_NOSAVE && saveGame->files[self->selectedButton - 1].stageID > 0) {
                                 PlaySfxByName("Menu Select", false);
-                                self->state                                      = SAVESELECT_STATE_DELSETUP;
+                                self->state                                    = SAVESELECT_STATE_DELSETUP;
                                 self->saveButtons[self->selectedButton]->b     = 0xFF;
                                 self->saveButtons[self->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                             }
@@ -248,7 +248,7 @@ void SaveSelect_Main(void *objPtr)
                                 self->saveButtons[self->selectedButton]->state = SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED;
                             }
                             self->saveButtons[self->selectedButton]->b = 0xFF;
-                            self->state                                  = SAVESELECT_STATE_LOADSAVE;
+                            self->state                                = SAVESELECT_STATE_LOADSAVE;
                         }
 
                         break;
@@ -260,7 +260,7 @@ void SaveSelect_Main(void *objPtr)
                     if (!self->deleteEnabled) {
                         if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                             self->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                     }
                     else {
@@ -277,18 +277,18 @@ void SaveSelect_Main(void *objPtr)
                             else {
                                 if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                                     self->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                                    usePhysicalControls    = true;
+                                    usePhysicalControls  = true;
                                 }
                             }
                         }
                         else {
                             self->delButton->state = CheckTouchRect(self->delButton->x, self->delButton->y,
-                                                                      (64.0 * self->delButton->scale) + self->delButton->textWidth, 12.0)
-                                                       >= 0;
+                                                                    (64.0 * self->delButton->scale) + self->delButton->textWidth, 12.0)
+                                                     >= 0;
                             if (self->state == SAVESELECT_STATE_MAIN) {
                                 if (inputDown.up || inputDown.down || inputDown.left || inputDown.right) {
                                     self->selectedButton = SAVESELECT_BUTTON_NOSAVE;
-                                    usePhysicalControls    = true;
+                                    usePhysicalControls  = true;
                                 }
                             }
                         }
@@ -296,8 +296,7 @@ void SaveSelect_Main(void *objPtr)
                 }
                 else if (self->state == SAVESELECT_STATE_MAIN_DELETING) {
                     if (touches > 0) {
-                        if (CheckTouchRect(self->delButton->x, self->delButton->y,
-                                           (64.0 * self->delButton->scale) + self->delButton->textWidth, 12.0)
+                        if (CheckTouchRect(self->delButton->x, self->delButton->y, (64.0 * self->delButton->scale) + self->delButton->textWidth, 12.0)
                             >= 0) {
                             self->delButton->state = PUSHBUTTON_STATE_SELECTED;
                         }
@@ -489,7 +488,7 @@ void SaveSelect_Main(void *objPtr)
                 self->delButton->x += ((92.0 - self->delButton->x) / div);
 
             if (backButton->x < SCREEN_YSIZE) {
-                backButton->x              = SCREEN_YSIZE;
+                backButton->x            = SCREEN_YSIZE;
                 self->state              = SAVESELECT_STATE_MAIN;
                 self->menuControl->state = MENUCONTROL_STATE_SUBMENU;
             }

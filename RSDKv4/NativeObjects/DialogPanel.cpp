@@ -17,29 +17,29 @@ void DialogPanel_Main(void *objPtr)
     switch (self->state) {
         case DIALOGPANEL_STATE_SETUP: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
-            self->buttons[0]                     = confirmButton;
+            self->buttons[0]                       = confirmButton;
             if (self->buttonCount == DLGTYPE_OK) {
-                confirmButton->x                = 0.0;
-                confirmButton->y                = -40.0;
-                confirmButton->z                = 0.0;
-                confirmButton->scale            = 0.25;
+                confirmButton->x               = 0.0;
+                confirmButton->y               = -40.0;
+                confirmButton->z               = 0.0;
+                confirmButton->scale           = 0.25;
                 confirmButton->bgColor         = 0x00A048;
                 confirmButton->bgColorSelected = 0x00C060;
-                confirmButton->useRenderMatrix  = true;
+                confirmButton->useRenderMatrix = true;
                 SetStringToFont8(confirmButton->text, " OK ", FONT_LABEL);
             }
             else {
-                confirmButton->x                = -48.0;
-                confirmButton->y                = -40.0;
-                confirmButton->z                = 0.0;
-                confirmButton->scale            = 0.25;
+                confirmButton->x               = -48.0;
+                confirmButton->y               = -40.0;
+                confirmButton->z               = 0.0;
+                confirmButton->scale           = 0.25;
                 confirmButton->bgColor         = 0x00A048;
                 confirmButton->bgColorSelected = 0x00C060;
-                confirmButton->useRenderMatrix  = true;
+                confirmButton->useRenderMatrix = true;
                 SetStringToFont(confirmButton->text, strYes, FONT_LABEL);
 
                 NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
-                self->buttons[1]                = noButton;
+                self->buttons[1]                  = noButton;
                 noButton->useRenderMatrix         = true;
                 noButton->scale                   = 0.25;
                 noButton->x                       = 48.0;
@@ -105,11 +105,11 @@ void DialogPanel_Main(void *objPtr)
                     }
                 }
                 if (inputDown.left) {
-                    usePhysicalControls    = true;
+                    usePhysicalControls  = true;
                     self->buttonSelected = 1;
                 }
                 else if (inputDown.right) {
-                    usePhysicalControls    = true;
+                    usePhysicalControls  = true;
                     self->buttonSelected = 0;
                 }
             }
@@ -135,8 +135,8 @@ void DialogPanel_Main(void *objPtr)
                     if (++self->buttonSelected > 1)
                         self->buttonSelected = 0;
                 }
-                self->buttons[0]->state                      = 0;
-                self->buttons[1]->state                      = 0;
+                self->buttons[0]->state                    = 0;
+                self->buttons[1]->state                    = 0;
                 self->buttons[self->buttonSelected]->state = 1;
 
                 if (inputPress.start || inputPress.A) {
@@ -163,8 +163,7 @@ void DialogPanel_Main(void *objPtr)
             }
             break;
         case DIALOGPANEL_STATE_EXIT:
-            self->buttonScale =
-                self->buttonScale + ((((self->stateTimer < 0.2) ? 1 : -1) - self->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
+            self->buttonScale = self->buttonScale + ((((self->stateTimer < 0.2) ? 1 : -1) - self->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
             if (self->buttonScale < 0.0)
                 self->buttonScale = 0.0;
             NewRenderState();

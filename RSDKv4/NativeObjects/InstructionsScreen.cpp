@@ -221,17 +221,17 @@ void InstructionsScreen_Main(void *objPtr)
                 if (self->selectionEnabled) {
                     if (self->lastTouchX - touchXF[0] > 16.0f) {
                         PlaySfxByName("Menu Move", false);
-                        self->state           = INSTRUCTIONSCREEN_STATE_FLIP;
-                        self->stateInput      = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
-                        self->flipRight       = false;
+                        self->state            = INSTRUCTIONSCREEN_STATE_FLIP;
+                        self->stateInput       = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                        self->flipRight        = false;
                         self->selectionEnabled = false;
-                        self->pageID          = (self->pageID + 1) % 5;
+                        self->pageID           = (self->pageID + 1) % 5;
                     }
                     else if (self->lastTouchX - touchXF[0] < -16.0f) {
                         PlaySfxByName("Menu Move", false);
-                        self->state           = INSTRUCTIONSCREEN_STATE_FLIP;
-                        self->stateInput      = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
-                        self->flipRight       = true;
+                        self->state            = INSTRUCTIONSCREEN_STATE_FLIP;
+                        self->stateInput       = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
+                        self->flipRight        = true;
                         self->selectionEnabled = false;
                         if (--self->pageID < 0)
                             self->pageID = 4;
@@ -373,23 +373,19 @@ void InstructionsScreen_Main(void *objPtr)
                 RenderImageClipped(0.0, self->textY - 36.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 4.0, 4.0, 255, self->textureHelp);
                 switch (Engine.language) {
                     default:
-                        RenderImageClipped(0.0, self->textY - 164.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 164.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, self->textureHelp);
                         break;
 
                     case RETRO_FR:
-                        RenderImageClipped(0.0, self->textY - 172.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 172.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, self->textureHelp);
                         break;
 
                     case RETRO_JP:
-                        RenderImageClipped(0.0, self->textY - 248.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 248.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, self->textureHelp);
                         break;
 
                     case RETRO_KO:
-                        RenderImageClipped(0.0, self->textY - 268.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 268.0, 8.0, 0.3, 0.3, 72.0, 72.0, 144.0, 144.0, 312.0, 300.0, 255, self->textureHelp);
                         break;
                 }
             }
@@ -449,13 +445,11 @@ void InstructionsScreen_Main(void *objPtr)
             if (Engine.gameType == GAME_SONIC1) {
                 switch (Engine.language) {
                     default:
-                        RenderImageClipped(0.0, self->textY - 188.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 188.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, self->textureHelp);
-                        RenderImageClipped(0.0, self->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, self->textureHelp);
                         break;
 
                     case RETRO_JP:
@@ -472,13 +466,11 @@ void InstructionsScreen_Main(void *objPtr)
                         break;
 
                     case RETRO_RU:
-                        RenderImageClipped(0.0, self->textY - 204.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 204.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 256.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 304.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 352.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, self->textureHelp);
-                        RenderImageClipped(0.0, self->textY - 396.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 396.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, self->textureHelp);
                         break;
 
                     case RETRO_ZH:
@@ -495,13 +487,11 @@ void InstructionsScreen_Main(void *objPtr)
                         break;
 
                     case RETRO_ZS:
-                        RenderImageClipped(0.0, self->textY - 196.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 196.0, 8.0, 0.3, 0.3, 204.0, 24.0, 408.0, 48.0, 16.0, 448.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 240.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 4.0, 360.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 288.0, 8.0, 0.3, 0.3, 42.0, 42.0, 84.0, 84.0, 56.0, 152.0, 255, self->textureHelp);
                         RenderImageClipped(0.0, self->textY - 336.0, 8.0, 0.3, 0.3, 36.0, 36.0, 72.0, 72.0, 80.0, 360.0, 255, self->textureHelp);
-                        RenderImageClipped(0.0, self->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255,
-                                           self->textureHelp);
+                        RenderImageClipped(0.0, self->textY - 380.0, 8.0, 0.3, 0.3, 76.0, 36.0, 152.0, 72.0, 156.0, 360.0, 255, self->textureHelp);
                         break;
                 }
             }

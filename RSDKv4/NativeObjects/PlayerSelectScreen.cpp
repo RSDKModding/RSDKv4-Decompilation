@@ -58,11 +58,11 @@ void PlayerSelectScreen_Main(void *objPtr)
 
             self->timer += Engine.deltaTime;
             if (self->timer > 0.5) {
-                self->timer    = 0.0;
-                self->state    = PLAYERSELECTSCREEN_STATE_MAIN;
+                self->timer      = 0.0;
+                self->state      = PLAYERSELECTSCREEN_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
-                self->alpha    = 256;
+                self->alpha      = 256;
                 if (usePhysicalControls)
                     self->playerID = SAVESEL_SONIC;
             }
@@ -155,7 +155,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                     self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
                     if (self->state == PLAYERSELECTSCREEN_STATE_MAIN && (inputDown.left || inputDown.right)) {
                         usePhysicalControls = true;
-                        self->playerID    = SAVESEL_SONIC;
+                        self->playerID      = SAVESEL_SONIC;
                     }
                 }
                 else {
@@ -171,7 +171,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                     }
                     else if (self->state == PLAYERSELECTSCREEN_STATE_MAIN && (inputDown.left || inputDown.right)) {
                         usePhysicalControls = true;
-                        self->playerID    = SAVESEL_SONIC;
+                        self->playerID      = SAVESEL_SONIC;
                     }
                 }
             }

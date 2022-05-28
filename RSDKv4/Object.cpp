@@ -441,8 +441,8 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
     if (!nativeEntityCount) {
         memset(objectEntityBank, 0, sizeof(objectEntityBank));
         NativeEntity *entity = &objectEntityBank[0];
-        entity->eventCreate    = create;
-        entity->eventMain      = main;
+        entity->eventCreate  = create;
+        entity->eventMain    = main;
         activeEntityList[0]  = 0;
         nativeEntityCount++;
         if (entity->eventCreate)
@@ -463,8 +463,8 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
         memset(entity, 0, sizeof(NativeEntity));
         entity->slotID                        = slot;
         entity->objectID                      = nativeEntityCount;
-        entity->eventCreate                     = create;
-        entity->eventMain                       = main;
+        entity->eventCreate                   = create;
+        entity->eventMain                     = main;
         activeEntityList[nativeEntityCount++] = slot;
         if (entity->eventCreate)
             entity->eventCreate(entity);
@@ -510,10 +510,10 @@ void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void
     int slotID = obj->slotID;
     int objID  = obj->objectID;
     memset(&objectEntityBank[slotID], 0, sizeof(NativeEntity));
-    obj->slotID    = slotID;
+    obj->slotID      = slotID;
     obj->eventMain   = main;
     obj->eventCreate = create;
-    obj->objectID  = objID;
+    obj->objectID    = objID;
     if (create)
         create(obj);
 }

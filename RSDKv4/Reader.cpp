@@ -89,7 +89,7 @@ bool CheckRSDKFile(const char *filePath)
 #if !RETRO_USE_ORIGINAL_CODE
         Engine.usingDataFile_Config = false;
 #endif
-        cFileHandle          = NULL;
+        cFileHandle = NULL;
 
         if (LoadFile("Bytecode/GlobalCode.bin", &info)) {
             Engine.usingBytecode = true;

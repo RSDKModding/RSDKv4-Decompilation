@@ -8,7 +8,7 @@ void SettingsScreen_Create(void *objPtr)
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
     NativeEntity_TextLabel *label = CREATE_ENTITY(TextLabel);
-    self->label                 = label;
+    self->label                   = label;
     label->useRenderMatrix        = true;
     label->fontID                 = FONT_HEADING;
     label->scale                  = 0.2;
@@ -28,86 +28,86 @@ void SettingsScreen_Create(void *objPtr)
     }
     SetStringToFont(self->boxArtText, strBoxArt, FONT_LABEL);
     for (int i = 0; i < 4; ++i) {
-        button                   = CREATE_ENTITY(PushButton);
-        self->buttons[i]       = button;
-        button->x                = 32.0f + (i % 2) * 76;
-        button->y                = 62.0f - (i / 2) * 32;
-        button->z                = 0.0;
-        button->scale            = 0.175;
+        button                  = CREATE_ENTITY(PushButton);
+        self->buttons[i]        = button;
+        button->x               = 32.0f + (i % 2) * 76;
+        button->y               = 62.0f - (i / 2) * 32;
+        button->z               = 0.0;
+        button->scale           = 0.175;
         button->bgColor         = 0x00A048;
         button->bgColorSelected = 0x00C060;
-        button->useRenderMatrix  = true;
+        button->useRenderMatrix = true;
         SetStringToFont8(self->buttons[i]->text, ((i % 2) ? "+" : "-"), FONT_LABEL);
     }
 
-    button                                   = CREATE_ENTITY(PushButton);
+    button                                 = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_SDON] = button;
-    button->x                                = 32.0;
-    button->y                                = -2.0;
-    button->z                                = 0.0;
-    button->scale                            = 0.175;
-    button->useRenderMatrix                  = true;
-    button->bgColorSelected                 = 0x00C060;
-    button->bgColor                         = saveGame->spindashEnabled ? 0x00A048 : 0x006020;
+    button->x                              = 32.0;
+    button->y                              = -2.0;
+    button->z                              = 0.0;
+    button->scale                          = 0.175;
+    button->useRenderMatrix                = true;
+    button->bgColorSelected                = 0x00C060;
+    button->bgColor                        = saveGame->spindashEnabled ? 0x00A048 : 0x006020;
     SetStringToFont(self->buttons[SETTINGSSCREEN_BTN_SDON]->text, strOn, FONT_LABEL);
 
-    button                                    = CREATE_ENTITY(PushButton);
+    button                                  = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_SDOFF] = button;
-    button->x                                 = 96.0;
-    button->y                                 = -2.0;
-    button->z                                 = 0.0;
-    button->scale                             = 0.175;
-    button->useRenderMatrix                   = true;
-    button->bgColorSelected                  = 0x00A048;
-    button->bgColor                          = !saveGame->spindashEnabled ? 0x00A048 : 0x006020;
+    button->x                               = 96.0;
+    button->y                               = -2.0;
+    button->z                               = 0.0;
+    button->scale                           = 0.175;
+    button->useRenderMatrix                 = true;
+    button->bgColorSelected                 = 0x00A048;
+    button->bgColor                         = !saveGame->spindashEnabled ? 0x00A048 : 0x006020;
     SetStringToFont(self->buttons[SETTINGSSCREEN_BTN_SDOFF]->text, strOff, FONT_LABEL);
     if (Engine.gameType != GAME_SONIC1) {
         self->buttons[SETTINGSSCREEN_BTN_SDON]->alpha  = 0;
         self->buttons[SETTINGSSCREEN_BTN_SDOFF]->alpha = 0;
     }
 
-    button                                 = CREATE_ENTITY(PushButton);
+    button                               = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_JP] = button;
-    button->x                              = 4.0;
-    button->y                              = -34.0;
-    button->z                              = 0.0;
-    button->scale                          = 0.175;
-    button->useRenderMatrix                = true;
-    button->bgColorSelected               = 0x00A048;
-    button->bgColor                       = saveGame->boxRegion == REGION_JP ? 0x00A048 : 0x006020;
+    button->x                            = 4.0;
+    button->y                            = -34.0;
+    button->z                            = 0.0;
+    button->scale                        = 0.175;
+    button->useRenderMatrix              = true;
+    button->bgColorSelected              = 0x00A048;
+    button->bgColor                      = saveGame->boxRegion == REGION_JP ? 0x00A048 : 0x006020;
     SetStringToFont8(self->buttons[SETTINGSSCREEN_BTN_JP]->text, "JP", FONT_LABEL);
 
-    button                                 = CREATE_ENTITY(PushButton);
+    button                               = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_US] = button;
-    button->x                              = 52.0;
-    button->y                              = -34.0;
-    button->z                              = 0.0;
-    button->scale                          = 0.175;
-    button->useRenderMatrix                = true;
-    button->bgColorSelected               = 0x00C060;
-    button->bgColor                       = saveGame->boxRegion == REGION_US ? 0x00A048 : 0x006020;
+    button->x                            = 52.0;
+    button->y                            = -34.0;
+    button->z                            = 0.0;
+    button->scale                        = 0.175;
+    button->useRenderMatrix              = true;
+    button->bgColorSelected              = 0x00C060;
+    button->bgColor                      = saveGame->boxRegion == REGION_US ? 0x00A048 : 0x006020;
     SetStringToFont8(self->buttons[SETTINGSSCREEN_BTN_US]->text, "US", FONT_LABEL);
 
-    button                                 = CREATE_ENTITY(PushButton);
+    button                               = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_EU] = button;
-    button->x                              = 100.0;
-    button->y                              = -34.0;
-    button->z                              = 0.0;
-    button->scale                          = 0.175;
-    button->useRenderMatrix                = true;
-    button->bgColorSelected               = 0x00A048;
-    button->bgColor                       = saveGame->boxRegion == REGION_EU ? 0x00A048 : 0x006020;
+    button->x                            = 100.0;
+    button->y                            = -34.0;
+    button->z                            = 0.0;
+    button->scale                        = 0.175;
+    button->useRenderMatrix              = true;
+    button->bgColorSelected              = 0x00A048;
+    button->bgColor                      = saveGame->boxRegion == REGION_EU ? 0x00A048 : 0x006020;
     SetStringToFont8(self->buttons[SETTINGSSCREEN_BTN_EU]->text, "EU", FONT_LABEL);
 
-    button                                    = CREATE_ENTITY(PushButton);
+    button                                  = CREATE_ENTITY(PushButton);
     self->buttons[SETTINGSSCREEN_BTN_CTRLS] = button;
-    button->useRenderMatrix                   = true;
-    button->x                                 = -52.0;
-    button->y                                 = -64.0;
-    button->z                                 = 0.0;
-    button->scale                             = 0.13;
-    button->bgColor                          = 0x00A048;
-    button->bgColorSelected                  = 0x00C060;
+    button->useRenderMatrix                 = true;
+    button->x                               = -52.0;
+    button->y                               = -64.0;
+    button->z                               = 0.0;
+    button->scale                           = 0.13;
+    button->bgColor                         = 0x00A048;
+    button->bgColorSelected                 = 0x00C060;
     SetStringToFont(button->text, strControls, FONT_LABEL);
 
     if (Engine.gameDeviceType == RETRO_MOBILE) {
@@ -237,22 +237,22 @@ void SettingsScreen_Main(void *objPtr)
                             if (inputPress.left || inputPress.right) {
                                 PlaySfxByName("Menu Move", false);
                                 if (saveGame->spindashEnabled) {
-                                    self->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_UNSELECTED;
-                                    self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_SELECTED;
+                                    self->buttons[SETTINGSSCREEN_BTN_SDON]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                                    self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state           = PUSHBUTTON_STATE_SELECTED;
                                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x006020;
                                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColorSelected  = 0x00C060;
                                     self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColor         = 0x00A048;
                                     self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColorSelected = 0x00C060;
-                                    saveGame->spindashEnabled                                   = false;
+                                    saveGame->spindashEnabled                                = false;
                                 }
                                 else {
-                                    self->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_SELECTED;
-                                    self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                                    self->buttons[SETTINGSSCREEN_BTN_SDON]->state            = PUSHBUTTON_STATE_SELECTED;
+                                    self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state           = PUSHBUTTON_STATE_UNSELECTED;
                                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x00A048;
                                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColorSelected  = 0x00C060;
                                     self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColor         = 0x006020;
                                     self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColorSelected = 0x00C060;
-                                    saveGame->spindashEnabled                                   = true;
+                                    saveGame->spindashEnabled                                = true;
                                 }
                             }
                             break;
@@ -298,7 +298,7 @@ void SettingsScreen_Main(void *objPtr)
                 }
                 else {
                     usePhysicalControls = false;
-                    self->selected    = SETTINGSSCREEN_SEL_NONE;
+                    self->selected      = SETTINGSSCREEN_SEL_NONE;
                 }
             }
             else {
@@ -330,7 +330,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (self->buttons[SETTINGSSCREEN_BTN_SFXUP]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_UNSELECTED;
-                        sfxVolume                                        = saveGame->sfxVolume;
+                        sfxVolume                                      = saveGame->sfxVolume;
                         if (sfxVolume > 0) {
                             sfxVolume -= (MAX_VOLUME / 5);
                             saveGame->sfxVolume = sfxVolume;
@@ -341,7 +341,7 @@ void SettingsScreen_Main(void *objPtr)
                     if (self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
-                        sfxVolume                                          = saveGame->sfxVolume;
+                        sfxVolume                                        = saveGame->sfxVolume;
                         if (sfxVolume < MAX_VOLUME) {
                             sfxVolume += (MAX_VOLUME / 5);
                             saveGame->sfxVolume = sfxVolume;
@@ -351,8 +351,8 @@ void SettingsScreen_Main(void *objPtr)
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SDON]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        saveGame->spindashEnabled                                   = true;
-                        self->buttons[SETTINGSSCREEN_BTN_SDON]->state             = PUSHBUTTON_STATE_UNSELECTED;
+                        saveGame->spindashEnabled                                = true;
+                        self->buttons[SETTINGSSCREEN_BTN_SDON]->state            = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x00A048;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColorSelected  = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColor         = 0x006020;
@@ -361,8 +361,8 @@ void SettingsScreen_Main(void *objPtr)
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        saveGame->spindashEnabled                                   = false;
-                        self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        saveGame->spindashEnabled                                = false;
+                        self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColorSelected  = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_SDOFF]->bgColor         = 0x00A048;
@@ -371,38 +371,38 @@ void SettingsScreen_Main(void *objPtr)
 
                     if (self->buttons[SETTINGSSCREEN_BTN_JP]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        self->buttons[SETTINGSSCREEN_BTN_JP]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        self->buttons[SETTINGSSCREEN_BTN_JP]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x00A048;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColorSelected = 0x00C060;
-                        saveGame->boxRegion                                      = REGION_JP;
+                        saveGame->boxRegion                                   = REGION_JP;
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_US]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        self->buttons[SETTINGSSCREEN_BTN_US]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        self->buttons[SETTINGSSCREEN_BTN_US]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColor         = 0x00A048;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColorSelected = 0x00C060;
-                        saveGame->boxRegion                                      = REGION_US;
+                        saveGame->boxRegion                                   = REGION_US;
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_EU]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        self->buttons[SETTINGSSCREEN_BTN_EU]->state            = PUSHBUTTON_STATE_UNSELECTED;
+                        self->buttons[SETTINGSSCREEN_BTN_EU]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_US]->bgColorSelected = 0x00C060;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColor         = 0x00A048;
                         self->buttons[SETTINGSSCREEN_BTN_EU]->bgColorSelected = 0x00C060;
-                        saveGame->boxRegion                                      = REGION_EU;
+                        saveGame->boxRegion                                   = REGION_EU;
                     }
                     if (self->buttons[SETTINGSSCREEN_BTN_CTRLS]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Select", false);
@@ -416,11 +416,11 @@ void SettingsScreen_Main(void *objPtr)
                     }
                     else if (self->state == SETTINGSSCREEN_STATE_MAIN) {
                         if (inputDown.up) {
-                            self->selected    = SETTINGSSCREEN_SEL_CONTROLS;
+                            self->selected      = SETTINGSSCREEN_SEL_CONTROLS;
                             usePhysicalControls = true;
                         }
                         else if (inputDown.down) {
-                            self->selected    = SETTINGSSCREEN_SEL_MUSVOL;
+                            self->selected      = SETTINGSSCREEN_SEL_MUSVOL;
                             usePhysicalControls = true;
                         }
                     }
@@ -453,7 +453,7 @@ void SettingsScreen_Main(void *objPtr)
                     self->state = SETTINGSSCREEN_STATE_FLIP_CTRLS;
                 else
                     self->state = (physicalControls == CTRLS_MOGA || physicalControls == CTRLS_MOGAPRO) ? SETTINGSSCREEN_STATE_FLIP_CTRLS
-                                                                                                          : SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
+                                                                                                        : SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH;
             }
             break;
         case SETTINGSSCREEN_STATE_FLIP_CTRLSTOUCH:
@@ -477,14 +477,14 @@ void SettingsScreen_Main(void *objPtr)
                     else
                         self->label->scale = 0.2;
                     for (int i = SETTINGSSCREEN_BTN_SDON; i < SETTINGSSCREEN_BTN_COUNT; ++i) RemoveNativeObject(self->buttons[i]);
-                    self->buttons[SETTINGSSCREEN_BTN_SFXUP]->y               = self->buttons[SETTINGSSCREEN_BTN_SFXUP]->y + 4.0;
-                    self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y             = self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y + 4.0;
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]                   = CREATE_ENTITY(PushButton);
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]->useRenderMatrix  = true;
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]->x                = 88.0;
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]->y                = 6.0;
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]->z                = 0.0;
-                    self->buttons[SETTINGSSCREEN_BTN_SDON]->scale            = 0.175;
+                    self->buttons[SETTINGSSCREEN_BTN_SFXUP]->y              = self->buttons[SETTINGSSCREEN_BTN_SFXUP]->y + 4.0;
+                    self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y            = self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->y + 4.0;
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]                  = CREATE_ENTITY(PushButton);
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]->useRenderMatrix = true;
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]->x               = 88.0;
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]->y               = 6.0;
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]->z               = 0.0;
+                    self->buttons[SETTINGSSCREEN_BTN_SDON]->scale           = 0.175;
                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor         = 0x00A048;
                     self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColorSelected = 0x00C060;
                     SetStringToFont8(self->buttons[SETTINGSSCREEN_BTN_SDON]->text, "RESET", FONT_LABEL);
@@ -600,7 +600,7 @@ void SettingsScreen_Main(void *objPtr)
                         self->virtualDPad->relativeY  = self->virtualDPad->moveY - touchYF[moveTouch];
                     }
 
-                    float moveSizeScale        = 128.0 * self->virtualDPad->moveSize;
+                    float moveSizeScale      = 128.0 * self->virtualDPad->moveSize;
                     self->virtualDPad->moveX = touchXF[moveTouch] + self->virtualDPad->relativeX;
                     self->virtualDPad->moveY = touchYF[moveTouch] + self->virtualDPad->relativeY;
                     if (-SCREEN_CENTERX_F > (self->virtualDPad->moveX - moveSizeScale))
@@ -629,7 +629,7 @@ void SettingsScreen_Main(void *objPtr)
                             self->virtualDPad->relativeY  = self->virtualDPad->jumpY - touchYF[jumpTouch];
                         }
 
-                        float jumpScaleSize        = 128.0 * self->virtualDPad->jumpSize;
+                        float jumpScaleSize      = 128.0 * self->virtualDPad->jumpSize;
                         self->virtualDPad->jumpX = touchXF[jumpTouch] + self->virtualDPad->relativeX;
                         self->virtualDPad->jumpY = touchYF[jumpTouch] + self->virtualDPad->relativeY;
 
@@ -667,12 +667,12 @@ void SettingsScreen_Main(void *objPtr)
                 if (self->buttons[SETTINGSSCREEN_BTN_SDON]->state == PUSHBUTTON_STATE_SELECTED) {
                     self->buttons[SETTINGSSCREEN_BTN_SDON]->state = PUSHBUTTON_STATE_UNSELECTED;
                     PlaySfxByName("Event", false);
-                    saveGame->vDPadSize              = 64;
-                    saveGame->vDPadX_Move            = 56;
-                    saveGame->vDPadY_Move            = 184;
-                    saveGame->vDPadX_Jump            = -56;
-                    saveGame->vDPadY_Jump            = 188;
-                    saveGame->vDPadOpacity           = 160;
+                    saveGame->vDPadSize            = 64;
+                    saveGame->vDPadX_Move          = 56;
+                    saveGame->vDPadY_Move          = 184;
+                    saveGame->vDPadX_Jump          = -56;
+                    saveGame->vDPadY_Jump          = 188;
+                    saveGame->vDPadOpacity         = 160;
                     self->virtualDPad->alpha       = 160;
                     self->virtualDPad->moveX       = saveGame->vDPadX_Move - SCREEN_CENTERX_F;
                     self->virtualDPad->moveY       = -(saveGame->vDPadY_Move - SCREEN_CENTERY_F);
@@ -894,13 +894,11 @@ void SettingsScreen_Main(void *objPtr)
 
     switch (self->stateDraw) {
         case SETTINGSSCREEN_STATEDRAW_MAIN:
-            RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, self->backPressed ? 128.0 : 0, self->alpha,
-                        self->arrowsTex);
+            RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, self->backPressed ? 128.0 : 0, self->alpha, self->arrowsTex);
             break;
         case SETTINGSSCREEN_STATEDRAW_CONFIGDPAD:
         case SETTINGSSCREEN_STATEDRAW_CONTROLLER:
-            RenderImage(136.0, 88.0, 160.0, 0.25, 0.25, 64.0, 64.0, 128.0, 128.0, 128.0, self->backPressed ? 128.0 : 0, self->alpha,
-                        self->arrowsTex);
+            RenderImage(136.0, 88.0, 160.0, 0.25, 0.25, 64.0, 64.0, 128.0, 128.0, 128.0, self->backPressed ? 128.0 : 0, self->alpha, self->arrowsTex);
             break;
     }
 }

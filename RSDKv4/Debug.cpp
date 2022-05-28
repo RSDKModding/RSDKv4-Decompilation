@@ -197,7 +197,7 @@ void ProcessStageSelect()
 #if RETRO_USE_MOD_LOADER
                     ExitGame();
 #else
-                    Engine.running = false;
+                Engine.running = false;
 #endif
                 }
             }

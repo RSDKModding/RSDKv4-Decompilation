@@ -22,22 +22,22 @@ void StaffCredits_Create(void *objPtr)
     float offY = -128.0;
     for (int i = 0; i < StaffCredits_CreditsCount; ++i) {
         NativeEntity_CreditText *creditText = CREATE_ENTITY(CreditText);
-        self->creditText[i]               = creditText;
+        self->creditText[i]                 = creditText;
 
         switch (creditsType[self->creditsTextID]) {
             case CREDITS_TYPE_TEXT1:
                 creditText->fontID = FONT_LABEL;
-                creditText->color = 0xFFFFFF;
+                creditText->color  = 0xFFFFFF;
                 creditText->scale  = 0.125;
                 break;
             case CREDITS_TYPE_TEXT2:
                 creditText->fontID = FONT_TEXT;
-                creditText->color = 0xFF8000;
+                creditText->color  = 0xFF8000;
                 creditText->scale  = 0.25;
                 break;
             case CREDITS_TYPE_TEXT3:
                 creditText->fontID = FONT_TEXT;
-                creditText->color = 0xFFFFFF;
+                creditText->color  = 0xFFFFFF;
                 creditText->scale  = 0.25;
                 break;
             case CREDITS_TYPE_LOGO:
@@ -151,19 +151,19 @@ void StaffCredits_Main(void *objPtr)
             switch (creditsType[self->creditsTextID]) {
                 case CREDITS_TYPE_TEXT1:
                     creditText->fontID = FONT_LABEL;
-                    creditText->color = 0xFFFFFF;
+                    creditText->color  = 0xFFFFFF;
                     creditText->scale  = 0.125;
                     creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;
                 case CREDITS_TYPE_TEXT2:
                     creditText->fontID = FONT_TEXT;
-                    creditText->color = 0xFF8000;
+                    creditText->color  = 0xFF8000;
                     creditText->scale  = 0.25;
                     creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;
                 case CREDITS_TYPE_TEXT3:
                     creditText->fontID = FONT_TEXT;
-                    creditText->color = 0xFFFFFF;
+                    creditText->color  = 0xFFFFFF;
                     creditText->scale  = 0.25;
                     creditText->state  = CREDITTEXT_STATE_SETUP;
                     break;

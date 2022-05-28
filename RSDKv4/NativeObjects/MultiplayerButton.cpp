@@ -5,7 +5,7 @@ void MultiplayerButton_Create(void *objPtr)
     RSDK_THIS(MultiplayerButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    int texture            = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     self->meshVS           = LoadMesh("Data/Game/Models/2PVS.bin", texture);
     self->x                = 0.0;
     self->y                = 16.0;

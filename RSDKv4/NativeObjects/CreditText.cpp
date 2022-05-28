@@ -24,8 +24,7 @@ void CreditText_Main(void *objPtr)
         default:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
             SetRenderVertexColor((self->color >> 16) & 0xFF, (self->color >> 8) & 0xFF, self->color & 0xFF);
-            RenderTextClipped(self->text, self->fontID, self->textX - self->alignOffset, self->textY, self->textZ, self->scale,
-                              self->alpha);
+            RenderTextClipped(self->text, self->fontID, self->textX - self->alignOffset, self->textY, self->textZ, self->scale, self->alpha);
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
             break;
 

@@ -5,7 +5,7 @@ void TimeAttackButton_Create(void *objPtr)
     RSDK_THIS(TimeAttackButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture            = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    int texture          = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     self->meshTimeAttack = LoadMesh("Data/Game/Models/TimeAttack.bin", texture);
     SetMeshAnimation(self->meshTimeAttack, &self->animator, 0, 16, 0.0);
     self->animator.loopAnimation = true;

@@ -16,7 +16,7 @@ DrawListEntry3D drawList3D[FACEBUFFER_SIZE];
 
 int projectionX = 136;
 int projectionY = 160;
-int fogColor   = 0;
+int fogColor    = 0;
 int fogStrength = 0;
 
 int faceLineStart[SCREEN_YSIZE];

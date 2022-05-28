@@ -3,10 +3,10 @@
 void FadeScreen_Create(void *objPtr)
 {
     RSDK_THIS(FadeScreen);
-    self->timer           = 0.0;
-    self->delay           = 1.5;
-    self->fadeSpeed       = 2.0;
-    self->state           = FADESCREEN_STATE_GAMEFADEOUT;
+    self->timer             = 0.0;
+    self->delay             = 1.5;
+    self->fadeSpeed         = 2.0;
+    self->state             = FADESCREEN_STATE_GAMEFADEOUT;
     Engine.nativeMenuFadeIn = true;
 }
 void FadeScreen_Main(void *objPtr)
@@ -18,8 +18,7 @@ void FadeScreen_Main(void *objPtr)
     switch (self->state) {
         case FADESCREEN_STATE_MENUFADEIN:
             self->fadeA = ((self->delay - self->timer) * 256.0f);
-            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, self->fadeR, self->fadeG, self->fadeB,
-                       self->fadeA);
+            RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, self->fadeR, self->fadeG, self->fadeB, self->fadeA);
             if (self->timer > self->delay) {
                 RemoveNativeObject(self);
                 Engine.nativeMenuFadeIn = false;

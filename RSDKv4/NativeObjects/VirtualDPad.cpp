@@ -7,17 +7,17 @@ void VirtualDPad_Create(void *objPtr)
 
     float screenXCenter = SCREEN_CENTERX;
     float screenYCenter = SCREEN_CENTERY;
-    self->moveX       = saveGame->vDPadX_Move - screenXCenter;
-    self->moveY       = -(saveGame->vDPadY_Move - screenYCenter);
-    self->jumpX       = saveGame->vDPadX_Jump + screenXCenter;
-    self->pauseY      = 104.0f;
-    self->jumpY       = -(saveGame->vDPadY_Jump - screenYCenter);
-    self->pauseX      = screenXCenter - 76.0f;
-    self->pauseX_S    = screenXCenter - 52.0f;
-    self->moveFinger  = -1;
-    self->jumpFinger  = -1;
+    self->moveX         = saveGame->vDPadX_Move - screenXCenter;
+    self->moveY         = -(saveGame->vDPadY_Move - screenYCenter);
+    self->jumpX         = saveGame->vDPadX_Jump + screenXCenter;
+    self->pauseY        = 104.0f;
+    self->jumpY         = -(saveGame->vDPadY_Jump - screenYCenter);
+    self->pauseX        = screenXCenter - 76.0f;
+    self->pauseX_S      = screenXCenter - 52.0f;
+    self->moveFinger    = -1;
+    self->jumpFinger    = -1;
 
-    float dpadSize              = saveGame->vDPadSize * (1 / 256.0f);
+    float dpadSize            = saveGame->vDPadSize * (1 / 256.0f);
     self->moveSize            = dpadSize;
     self->jumpSize            = dpadSize;
     self->pressedSize         = dpadSize * 0.85;
@@ -56,29 +56,29 @@ void VirtualDPad_Main(void *objPtr)
             self->offsetY = 0.0;
         }
         else if (inputDown.up) {
-            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 128.0, 256.0, 120.0, 256.0, 256.0,
-                        self->alpha, self->textureID);
+            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 128.0, 256.0, 120.0, 256.0, 256.0, self->alpha,
+                        self->textureID);
 
             self->offsetX = 0.0;
             self->offsetY = 20.0;
         }
         else if (inputDown.down) {
-            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, -8.0, 256.0, 120.0, 256.0, 392.0,
-                        self->alpha, self->textureID);
+            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, -8.0, 256.0, 120.0, 256.0, 392.0, self->alpha,
+                        self->textureID);
 
             self->offsetX = 0.0;
             self->offsetY = -20.0;
         }
         else if (inputDown.left) {
-            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 128.0, 120.0, 256.0, 256.0, 256.0,
-                        self->alpha, self->textureID);
+            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, 128.0, 128.0, 120.0, 256.0, 256.0, 256.0, self->alpha,
+                        self->textureID);
 
             self->offsetX = 20.0;
             self->offsetY = 0.0;
         }
         else if (inputDown.right) {
-            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, -8.0, 128.0, 120.0, 256.0, 392.0, 256.0,
-                        self->alpha, self->textureID);
+            RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, -8.0, 128.0, 120.0, 256.0, 392.0, 256.0, self->alpha,
+                        self->textureID);
 
             self->offsetX = -20.0;
             self->offsetY = 0.0;
@@ -90,10 +90,10 @@ void VirtualDPad_Main(void *objPtr)
 
         self->pivotX += (self->offsetX - self->pivotX) * 0.25f;
         self->pivotY += (self->offsetY - self->pivotY) * 0.25f;
-        RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, self->pivotX + 84.0, self->pivotY + 84.0, 168.0,
-                    168.0, 16.0, 328.0, self->alpha, self->textureID);
-        RenderImage(self->jumpX, self->jumpY, 160.0, self->pressedSize, self->pressedSize, 128.0, 128.0, 256.0, 256.0, 256.0, 0.0,
-                    self->alpha, self->textureID);
+        RenderImage(self->moveX, self->moveY, 160.0, self->moveSize, self->moveSize, self->pivotX + 84.0, self->pivotY + 84.0, 168.0, 168.0, 16.0,
+                    328.0, self->alpha, self->textureID);
+        RenderImage(self->jumpX, self->jumpY, 160.0, self->pressedSize, self->pressedSize, 128.0, 128.0, 256.0, 256.0, 256.0, 0.0, self->alpha,
+                    self->textureID);
 
         float size = 0.0f;
         if (self->alpha == saveGame->vDPadOpacity && (inputDown.C || inputDown.A || inputDown.B))

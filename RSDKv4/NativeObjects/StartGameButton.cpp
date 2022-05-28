@@ -8,18 +8,21 @@ void StartGameButton_Create(void *objPtr)
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case REGION_JP:
-            package          = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+            package        = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
             self->meshCart = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
             break;
+
         case REGION_US:
-            package          = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+            package        = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
             self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
+
         case REGION_EU:
-            package          = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+            package        = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
             self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
     }
+
     self->prevRegion       = Engine.globalBoxRegion;
     self->x                = 0.0;
     self->y                = 16.0;
@@ -42,15 +45,15 @@ void StartGameButton_Main(void *objPtr)
         int package = 0;
         switch (Engine.globalBoxRegion) {
             case REGION_JP:
-                package          = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
                 break;
             case REGION_US:
-                package          = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
                 break;
             case REGION_EU:
-                package          = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
                 break;
         }

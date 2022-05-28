@@ -69,8 +69,8 @@ void OptionsMenu_Main(void *objPtr)
             self->timer += (Engine.deltaTime + Engine.deltaTime);
             self->labelPtr->alpha = (256.0 * self->timer);
             if (self->timer > 1.0) {
-                self->timer    = 0.0;
-                self->state    = OPTIONSMENU_STATE_MAIN;
+                self->timer      = 0.0;
+                self->state      = OPTIONSMENU_STATE_MAIN;
                 inputPress.start = false;
                 inputPress.A     = false;
             }
@@ -104,7 +104,7 @@ void OptionsMenu_Main(void *objPtr)
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->selectedButton]->b     = 0xFF;
-                        self->state                                  = OPTIONSMENU_STATE_ACTION;
+                        self->state                                = OPTIONSMENU_STATE_ACTION;
                     }
                 }
             }
@@ -130,7 +130,7 @@ void OptionsMenu_Main(void *objPtr)
 
                 if (self->state == OPTIONSMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
                     self->selectedButton = 0;
-                    usePhysicalControls    = true;
+                    usePhysicalControls  = true;
                 }
             }
             break;
@@ -276,7 +276,7 @@ void OptionsMenu_Main(void *objPtr)
             backButton->x += ((230.0 - backButton->x) / div);
 
             if (backButton->x < SCREEN_YSIZE) {
-                backButton->x              = SCREEN_YSIZE;
+                backButton->x            = SCREEN_YSIZE;
                 self->state              = OPTIONSMENU_STATE_MAIN;
                 self->menuControl->state = MENUCONTROL_STATE_SUBMENU;
             }

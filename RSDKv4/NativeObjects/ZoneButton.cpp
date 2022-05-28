@@ -3,15 +3,15 @@
 void ZoneButton_Create(void *objPtr)
 {
     RSDK_THIS(ZoneButton);
-    self->z                  = 160.0;
-    self->state              = ZONEBUTTON_STATE_UNSELECTED;
-    self->textureIntro       = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
-    self->textureSymbols     = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
+    self->z                 = 160.0;
+    self->state             = ZONEBUTTON_STATE_UNSELECTED;
+    self->textureIntro      = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    self->textureSymbols    = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
     self->bgColor           = 0xFFFFFF;
     self->bgColorSelected   = 0xFFFF00;
     self->textColor         = 0xFFFFFF;
     self->textSelectedColor = 0xFFFF00;
-    self->angleSpeed         = 1.0;
+    self->angleSpeed        = 1.0;
 }
 void ZoneButton_Main(void *objPtr)
 {
@@ -34,9 +34,8 @@ void ZoneButton_Main(void *objPtr)
                        self->bgColor & 0xFF, 255);
 
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
-                        (self->texX - 64.0) + (cosf(self->angle) * 24.0), (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255,
-                        self->textureIntro);
+            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0, (self->texX - 64.0) + (cosf(self->angle) * 24.0),
+                        (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255, self->textureIntro);
 
             SetRenderVertexColor((self->textColor >> 16) & 0xFF, (self->textColor >> 8) & 0xFF, self->textColor & 0xFF);
             RenderText(self->zoneText, FONT_TEXT, self->x - self->textWidth, self->y - 48.0, self->z, 0.25, 255);
@@ -53,12 +52,10 @@ void ZoneButton_Main(void *objPtr)
                        (self->bgColorSelected >> 8) & 0xFF, self->bgColorSelected & 0xFF, 255);
 
             SetRenderVertexColor(255, 255, 255);
-            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
-                        (self->texX - 64.0) + (cosf(self->angle) * 24.0), (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255,
-                        self->textureIntro);
+            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0, (self->texX - 64.0) + (cosf(self->angle) * 24.0),
+                        (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255, self->textureIntro);
 
-            SetRenderVertexColor((self->textSelectedColor >> 16) & 0xFF, (self->textSelectedColor >> 8) & 0xFF,
-                                 self->textSelectedColor & 0xFF);
+            SetRenderVertexColor((self->textSelectedColor >> 16) & 0xFF, (self->textSelectedColor >> 8) & 0xFF, self->textSelectedColor & 0xFF);
             RenderText(self->zoneText, FONT_TEXT, self->x - self->textWidth, self->y - 48.0, self->z, 0.25, 255);
 
             if (self->unlocked)
@@ -81,9 +78,8 @@ void ZoneButton_Main(void *objPtr)
                        (self->bgColorSelected >> 8) & 0xFF, self->bgColorSelected & 0xFF, 255);
 
             SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0,
-                        (self->texX - 64.0) + (cosf(self->angle) * 24.0), (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255,
-                        self->textureIntro);
+            RenderImage(self->x, self->y + 16.0, self->z, 0.9, 0.9, 64.0, 48.0, 128.0, 96.0, (self->texX - 64.0) + (cosf(self->angle) * 24.0),
+                        (self->texY - 48.0) + (sinf(self->angle) * 24.0), 255, self->textureIntro);
 
             color = self->textColor;
             if (self->flashTimer > 0.05)
@@ -96,7 +92,7 @@ void ZoneButton_Main(void *objPtr)
             self->timer += Engine.deltaTime;
             if (self->timer > 0.5) {
                 self->timer = 0.0;
-                self->state   = ZONEBUTTON_STATE_UNSELECTED;
+                self->state = ZONEBUTTON_STATE_UNSELECTED;
             }
             break;
     }

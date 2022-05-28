@@ -29,15 +29,15 @@ void AboutScreen_Create(void *objPtr)
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case REGION_JP:
-            package         = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+            package       = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
             self->meshBox = LoadMesh("Data/Game/Models/JPBox.bin", package);
             break;
         case REGION_US:
-            package         = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+            package       = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
             self->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
             break;
         case REGION_EU:
-            package         = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+            package       = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
             self->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
             break;
         default: break;
@@ -48,12 +48,12 @@ void AboutScreen_Create(void *objPtr)
 
     float y = -24.0f;
     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-        self->buttons[i]                   = CREATE_ENTITY(PushButton);
-        self->buttons[i]->useRenderMatrix  = true;
-        self->buttons[i]->x                = 64.0;
-        self->buttons[i]->y                = y;
-        self->buttons[i]->z                = 0.0;
-        self->buttons[i]->scale            = 0.175;
+        self->buttons[i]                  = CREATE_ENTITY(PushButton);
+        self->buttons[i]->useRenderMatrix = true;
+        self->buttons[i]->x               = 64.0;
+        self->buttons[i]->y               = y;
+        self->buttons[i]->z               = 0.0;
+        self->buttons[i]->scale           = 0.175;
         self->buttons[i]->bgColor         = 0x00A048;
         self->buttons[i]->bgColorSelected = 0x00C060;
 
@@ -130,7 +130,7 @@ void AboutScreen_Main(void *objPtr)
                     if (inputPress.start || inputPress.A) {
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = 2;
-                        self->state                                  = ABOUT_STATE_ACTION;
+                        self->state                                = ABOUT_STATE_ACTION;
                     }
                     else if (inputPress.B) {
                         PlaySfxByName("Menu Back", false);
@@ -152,11 +152,11 @@ void AboutScreen_Main(void *objPtr)
                     if (self->state == ABOUT_STATE_MAIN) {
                         if (inputDown.up) {
                             self->selectedButton = 1;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                         if (inputDown.down) {
                             self->selectedButton = 0;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                     }
                 }
@@ -180,11 +180,11 @@ void AboutScreen_Main(void *objPtr)
                         if (self->state == ABOUT_STATE_MAIN) {
                             if (inputDown.up) {
                                 self->selectedButton = 1;
-                                usePhysicalControls    = true;
+                                usePhysicalControls  = true;
                             }
                             if (inputDown.down) {
                                 self->selectedButton = 0;
-                                usePhysicalControls    = true;
+                                usePhysicalControls  = true;
                             }
                         }
                     }

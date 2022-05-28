@@ -10,9 +10,9 @@ void MultiplayerHandler_Create(void *objPtr)
     self->pingLabel->x      = SCREEN_XSIZE_F / 2 - 64.0f;
     self->pingLabel->y      = -(SCREEN_YSIZE_F / 2) + 4.0f;
     self->pingLabel->alignPtr(self->pingLabel, ALIGN_LEFT);
-    self->pingLabel->scale      = 0.175;
+    self->pingLabel->scale     = 0.175;
     self->pingLabel->useColors = true;
-    self->pingLabel->r          = 0xFF;
+    self->pingLabel->r         = 0xFF;
 
     self->state = 1;
 }
@@ -38,7 +38,7 @@ void MultiplayerHandler_Main(void *objPtr)
 
             if (self->timer >= 0.25f && !waitingForPing) {
                 waitingForPing = true;
-                self->timer  = 0;
+                self->timer    = 0;
                 if (lastPing < 800.0f) {
                     sprintf(buf, "Ping: %.1fms", lastPing);
                     self->pingLabel->g = 0xFF;
@@ -58,9 +58,9 @@ void MultiplayerHandler_Main(void *objPtr)
             }
             else if (self->timer >= 10.0f) {
                 DisconnectNetwork();
-                dcError       = 2; // timeout
+                dcError     = 2; // timeout
                 self->state = 2;
-                vsPlaying     = false;
+                vsPlaying   = false;
             }
             else if (self->timer >= 5.0f && waitingForPing) {
                 self->pingLabel->g = 0xCF * (fmod(self->timer, .5) >= .25) + 0x30;
@@ -101,7 +101,7 @@ void MultiplayerHandler_Main(void *objPtr)
             self->fadeError->state        = FADESCREEN_STATE_FADEOUT;
             self->errorPanel              = CREATE_ENTITY(DialogPanel);
             self->errorPanel->buttonCount = DLGTYPE_OK;
-            char *set                       = NULL;
+            char *set                     = NULL;
             switch (dcError) {
                 case 1: set = (char *)"The other player has disconnected.\rReturning to title screen."; break;
                 case 2: set = (char *)"Connection timed out.\rReturning to title screen."; break;
@@ -122,7 +122,7 @@ void MultiplayerHandler_Main(void *objPtr)
             }
             SetStringToFont8(self->errorPanel->text, set, FONT_TEXT);
             self->state = 3;
-            dcError       = 0;
+            dcError     = 0;
         }
             // FallThrough
         case 3:

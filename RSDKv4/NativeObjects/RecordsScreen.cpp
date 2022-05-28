@@ -47,7 +47,7 @@ void RecordsScreen_Create(void *objPtr)
     SetStringToFont(self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->text, strNextAct, FONT_LABEL);
 
     self->state = RECORDSSCREEN_STATE_SETUP;
-    debugMode     = false;
+    debugMode   = false;
 }
 void RecordsScreen_Main(void *objPtr)
 {
@@ -151,7 +151,7 @@ void RecordsScreen_Main(void *objPtr)
             SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
             AddTimeStringToFont(self->rank3rd, saveGame->records[pos + (3 * self->actID) + 2], FONT_LABEL);
         }
-        // fallthrough
+            // fallthrough
 
         case RECORDSSCREEN_STATE_ENTER: {
             if (self->buttonAlpha < 0x100)
@@ -200,7 +200,7 @@ void RecordsScreen_Main(void *objPtr)
                 else {
                     self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state    = PUSHBUTTON_STATE_UNSELECTED;
                     self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    NativeEntity_PushButton *button                      = self->buttons[RECORDSSCREEN_BUTTON_PLAY];
+                    NativeEntity_PushButton *button                    = self->buttons[RECORDSSCREEN_BUTTON_PLAY];
                     if (CheckTouchRect(-64.0, -58.0, ((64.0 * button->scale) + button->textWidth) * 0.8, 12.0) >= 0) {
                         self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_SELECTED;
                     }
@@ -272,12 +272,12 @@ void RecordsScreen_Main(void *objPtr)
                 if (self->state == RECORDSSCREEN_STATE_MAIN) {
                     if (inputDown.left) {
                         self->selectedButton = RECORDSSCREEN_BUTTON_NEXTACT;
-                        usePhysicalControls    = true;
+                        usePhysicalControls  = true;
                     }
                     else {
                         if (inputDown.right) {
                             self->selectedButton = RECORDSSCREEN_BUTTON_PLAY;
-                            usePhysicalControls    = true;
+                            usePhysicalControls  = true;
                         }
                         else if (inputPress.B) {
                             PlaySfxByName("Menu Back", false);
@@ -544,7 +544,7 @@ void RecordsScreen_Main(void *objPtr)
                 for (int r = 0; r < 3; ++r) {
                     if (time < records[r]) {
                         for (int s = r + 1; s < 3; ++s) records[s + 1] = records[s];
-                        records[r]   = time;
+                        records[r] = time;
                         self->rank = r + 1;
                         break;
                     }

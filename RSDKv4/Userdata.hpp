@@ -137,7 +137,7 @@ inline int GetGlobalVariableID(const char *name)
 }
 
 #define AddNativeFunction(name, funcPtr)                                                                                                             \
-    if (nativeFunctionCount < NATIIVEFUNCTION_COUNT) {                                                                                                 \
+    if (nativeFunctionCount < NATIIVEFUNCTION_COUNT) {                                                                                               \
         SetGlobalVariableByName(name, nativeFunctionCount);                                                                                          \
         nativeFunction[nativeFunctionCount++] = (void *)funcPtr;                                                                                     \
     }

@@ -5,7 +5,7 @@ void AchievementsButton_Create(void *objPtr)
     RSDK_THIS(AchievementsButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
-    int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
+    int texture            = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
     self->meshAchievements = LoadMesh("Data/Game/Models/Achievements.bin", texture);
     self->x                = 0.0;
     self->y                = 16.0;
