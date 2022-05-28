@@ -198,7 +198,7 @@ bool processEvents()
 
                     case SDLK_F4:
                         Engine.isFullScreen ^= 1;
-                        setFullScreen(Engine.isFullScreen);
+                        SetFullScreen(Engine.isFullScreen);
                         break;
 
                     case SDLK_F5:
@@ -287,10 +287,10 @@ void RetroEngine::Init()
 #if !RETRO_USE_ORIGINAL_CODE
     InitUserdata();
 #if RETRO_USE_MOD_LOADER
-    initMods();
+    InitMods();
 #endif
 #if RETRO_USE_NETWORKING
-    initNetwork();
+    InitNetwork();
 #endif
 
     char dest[0x200];
@@ -559,11 +559,11 @@ void RetroEngine::Run()
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
 #if RETRO_USE_NETWORKING
-    disconnectNetwork(true);
+    DisconnectNetwork(true);
 #endif
     writeSettings();
 #if RETRO_USE_MOD_LOADER
-    saveMods();
+    SaveMods();
 #endif
 #endif
 
@@ -773,7 +773,7 @@ void RetroEngine::LoadXMLObjects()
                 }
             }
             else {
-                printLog("Failed to parse Game.xml File!");
+                PrintLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -832,7 +832,7 @@ void RetroEngine::LoadXMLSoundFX()
                 }
             }
             else {
-                printLog("Failed to parse Game.xml File!");
+                PrintLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -883,7 +883,7 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
                 }
             }
             else {
-                printLog("Failed to parse Game.xml File!");
+                PrintLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;
@@ -968,7 +968,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
                 }
             }
             else {
-                printLog("Failed to parse Game.xml File!");
+                PrintLog("Failed to parse Game.xml File!");
             }
 
             delete[] xmlData;

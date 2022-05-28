@@ -17,7 +17,7 @@ enum InputButtons {
     INPUT_START,
     INPUT_SELECT,
     INPUT_ANY,
-    INPUT_MAX,
+    INPUT_BUTTONCOUNT,
 };
 
 struct InputData {
@@ -74,7 +74,7 @@ extern int touches;
 extern int hapticEffectNum;
 
 #if !RETRO_USE_ORIGINAL_CODE
-extern InputButton inputDevice[INPUT_MAX];
+extern InputButton inputDevice[INPUT_BUTTONCOUNT];
 extern int inputType;
 
 extern float LSTICK_DEADZONE;

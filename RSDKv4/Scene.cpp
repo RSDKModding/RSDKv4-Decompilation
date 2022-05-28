@@ -159,7 +159,7 @@ void ProcessStage(void)
             stageMode                    = STAGEMODE_NORMAL;
 
 #if RETRO_USE_MOD_LOADER
-            for (int m = 0; m < modList.size(); ++m) scanModFolder(&modList[m]);
+            for (int m = 0; m < modList.size(); ++m) ScanModFolder(&modList[m]);
 #endif
             ResetBackgroundSettings();
             LoadStageFiles();
@@ -596,10 +596,10 @@ void LoadStageFiles(void)
 
     StopAllSfx();
     if (!CheckCurrentStageFolder(stageListPosition)) {
-        printLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
+        PrintLog("Loading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
         ReleaseStageSfx();
         ClearScriptData();
-        for (int i = SURFACE_MAX; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
+        for (int i = SURFACE_COUNT; i > 0; i--) RemoveGraphicsFile((char *)"", i - 1);
 
 #if RETRO_USE_MOD_LOADER
         loadGlobalScripts = false;
@@ -810,7 +810,7 @@ void LoadStageFiles(void)
         LoadStageBackground();
     }
     else {
-        printLog("Reloading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
+        PrintLog("Reloading Scene %s - %s", stageListNames[activeStageList], stageList[activeStageList][stageListPosition].name);
     }
     LoadStageChunks();
     for (int i = 0; i < TRACK_COUNT; ++i) SetMusicTrack("", i, false, 0);
@@ -888,7 +888,7 @@ void LoadActLayout()
         newXBoundary2 = stageLayouts[0].xsize << 7;
         newYBoundary2 = stageLayouts[0].ysize << 7;
 
-        memset(stageLayouts[0].tiles, 0, TILELAYER_CHUNK_MAX * sizeof(ushort));
+        memset(stageLayouts[0].tiles, 0, TILELAYER_CHUNK_COUNT * sizeof(ushort));
         memset(stageLayouts[0].lineScroll, 0, 0x7FFF);
 
         for (int y = 0; y < stageLayouts[0].ysize; ++y) {
@@ -906,7 +906,7 @@ void LoadActLayout()
         int objectCount = fileBuffer[0] + (fileBuffer[1] << 8);
 #if !RETRO_USE_ORIGINAL_CODE
         if (objectCount > 0x400)
-            printLog("WARNING: object count %d exceeds the object limit", objectCount);
+            PrintLog("WARNING: object count %d exceeds the object limit", objectCount);
 #endif
 
 #if RETRO_USE_MOD_LOADER
@@ -1068,7 +1068,7 @@ void LoadStageBackground()
             stageLayouts[i].scrollSpeed = fileBuffer << 10;
             stageLayouts[i].scrollPos   = 0;
 
-            memset(stageLayouts[i].tiles, 0, TILELAYER_CHUNK_MAX * sizeof(ushort));
+            memset(stageLayouts[i].tiles, 0, TILELAYER_CHUNK_COUNT * sizeof(ushort));
             byte *lineScrollPtr = stageLayouts[i].lineScroll;
             memset(stageLayouts[i].lineScroll, 0, 0x7FFF);
 
@@ -1327,7 +1327,7 @@ void LoadStageGIFFile(int stageID)
         height |= (fileBuffer << 8);
 
         FileRead(&fileBuffer, 1); // Palette Size (thrown away) :/
-        FileRead(&fileBuffer, 1); // BG Colour index (thrown away)
+        FileRead(&fileBuffer, 1); // BG Color index (thrown away)
         FileRead(&fileBuffer, 1); // idk actually (still thrown away)
 
         byte clr[3];
@@ -1411,13 +1411,13 @@ void SetLayerDeformation(int selectedDef, int waveLength, int waveWidth, int wav
     if (waveType == 1) {
         id = YPos;
         for (int i = 0; i < waveSize; ++i) {
-            deformPtr[id] = waveWidth * sinVal512[(i << 9) / waveLength & 0x1FF] >> shift;
+            deformPtr[id] = waveWidth * sin512LookupTable[(i << 9) / waveLength & 0x1FF] >> shift;
             ++id;
         }
     }
     else {
         for (int i = 0; i < 0x200 * 0x100; i += 0x200) {
-            int val       = waveWidth * sinVal512[i / waveLength & 0x1FF] >> shift;
+            int val       = waveWidth * sin512LookupTable[i / waveLength & 0x1FF] >> shift;
             deformPtr[id] = val;
 #if RETRO_SOFTWARE_RENDER
             if (deformPtr[id] >= waveWidth)

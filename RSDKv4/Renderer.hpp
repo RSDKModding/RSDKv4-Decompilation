@@ -1,12 +1,12 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#define DRAWFACE_LIMIT    (0x1000)
-#define DRAWVERTEX_LIMIT  (DRAWFACE_LIMIT * 4)
-#define DRAWINDEX_LIMIT   (DRAWFACE_LIMIT * 6)
-#define TEXTURE_LIMIT     (0x80)
-#define MESH_LIMIT        (0x40)
-#define RENDERSTATE_LIMIT (0x100)
+#define DRAWFACE_COUNT    (0x1000)
+#define DRAWVERTEX_COUNT  (DRAWFACE_COUNT * 4)
+#define DRAWINDEX_COUNT   (DRAWFACE_COUNT * 6)
+#define TEXTURE_COUNT     (0x80)
+#define MESH_COUNT        (0x40)
+#define RENDERSTATE_COUNT (0x100)
 
 enum RenderBlendModes {
     RENDER_BLEND_NONE,
@@ -24,9 +24,9 @@ enum TextureFormats {
 };
 
 enum MeshRenderTypes {
-    MESH_COLOURS,
+    MESH_COLORS,
     MESH_NORMALS,
-    MESH_COLOURS_NORMALS,
+    MESH_COLORS_NORMALS,
 };
 
 struct DrawVertex {
@@ -96,7 +96,7 @@ struct RenderState {
     int id;
     byte blendMode;
     byte useTexture;
-    byte useColours;
+    byte useColors;
     byte depthTest;
     byte useNormals;
     byte useFilter;
@@ -106,30 +106,30 @@ extern float retroVertexList[40];
 extern float screenBufferVertexList[40];
 
 extern int vertexListSize;
-extern DrawVertex drawVertexList[DRAWVERTEX_LIMIT];
-extern ushort drawIndexList[DRAWINDEX_LIMIT];
+extern DrawVertex drawVertexList[DRAWVERTEX_COUNT];
+extern ushort drawIndexList[DRAWINDEX_COUNT];
 
 extern byte vertexR;
 extern byte vertexG;
 extern byte vertexB;
 
-extern TextureInfo textureList[TEXTURE_LIMIT];
-extern MeshInfo meshList[MESH_LIMIT];
+extern TextureInfo textureList[TEXTURE_COUNT];
+extern MeshInfo meshList[MESH_COUNT];
 
 extern int renderStateCount;
-extern RenderState renderStateList[RENDERSTATE_LIMIT];
+extern RenderState renderStateList[RENDERSTATE_COUNT];
 extern RenderState currentRenderState;
 
 // Matricies
-void setIdentityMatrixF(MatrixF *matrixA);
-void matrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB);
-void matrixTranslateXYZF(MatrixF *Matrix, float XPos, float YPos, float ZPos);
-void matrixScaleXYZF(MatrixF *matrix, float scaleX, float scaleY, float scaleZ);
-void matrixRotateXF(MatrixF *matrix, float rotationX);
-void matrixRotateYF(MatrixF *matrix, float rotationY);
-void matrixRotateZF(MatrixF *matrix, float rotationZ);
-void matrixRotateXYZF(MatrixF *matrix, float rotationX, float rotationY, float rotationZ);
-void matrixInvertF(MatrixF *dstMatrix, MatrixF *matrix);
+void SetIdentityMatrixF(MatrixF *matrix);
+void MatrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB);
+void MatrixTranslateXYZF(MatrixF *Matrix, float x, float y, float z);
+void MatrixScaleXYZF(MatrixF *matrix, float scaleX, float scaleY, float scaleZ);
+void MatrixRotateXF(MatrixF *matrix, float rotationX);
+void MatrixRotateYF(MatrixF *matrix, float rotationY);
+void MatrixRotateZF(MatrixF *matrix, float rotationZ);
+void MatrixRotateXYZF(MatrixF *matrix, float rotationX, float rotationY, float rotationZ);
+void MatrixInvertF(MatrixF *dstMatrix, MatrixF *matrix);
 
 // Render States
 void ResetRenderStates();

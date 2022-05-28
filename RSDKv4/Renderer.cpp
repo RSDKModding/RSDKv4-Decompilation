@@ -7,21 +7,21 @@ float retroVertexList[40];
 float screenBufferVertexList[40];
 
 int vertexListSize = 0;
-DrawVertex drawVertexList[DRAWVERTEX_LIMIT];
-ushort drawIndexList[DRAWINDEX_LIMIT];
+DrawVertex drawVertexList[DRAWVERTEX_COUNT];
+ushort drawIndexList[DRAWINDEX_COUNT];
 
 byte vertexR = 0xFF;
 byte vertexG = 0xFF;
 byte vertexB = 0xFF;
 
-TextureInfo textureList[TEXTURE_LIMIT];
-MeshInfo meshList[MESH_LIMIT];
+TextureInfo textureList[TEXTURE_COUNT];
+MeshInfo meshList[MESH_COUNT];
 
 int renderStateCount = 0;
-RenderState renderStateList[RENDERSTATE_LIMIT];
+RenderState renderStateList[RENDERSTATE_COUNT];
 RenderState currentRenderState;
 
-void setIdentityMatrixF(MatrixF *matrix)
+void SetIdentityMatrixF(MatrixF *matrix)
 {
     matrix->values[0][0] = 1.0f;
     matrix->values[0][1] = 0.0f;
@@ -40,7 +40,7 @@ void setIdentityMatrixF(MatrixF *matrix)
     matrix->values[3][2] = 0.0f;
     matrix->values[3][3] = 1.0f;
 }
-void matrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB)
+void MatrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB)
 {
     float output[16];
 
@@ -53,7 +53,7 @@ void matrixMultiplyF(MatrixF *matrixA, MatrixF *matrixB)
 
     for (int i = 0; i < 0x10; ++i) matrixA->values[i / 4][i % 4] = output[i];
 }
-void matrixTranslateXYZF(MatrixF *matrix, float x, float y, float z)
+void MatrixTranslateXYZF(MatrixF *matrix, float x, float y, float z)
 {
     matrix->values[0][0] = 1.0f;
     matrix->values[0][1] = 0.0f;
@@ -72,7 +72,7 @@ void matrixTranslateXYZF(MatrixF *matrix, float x, float y, float z)
     matrix->values[3][2] = z;
     matrix->values[3][3] = 1.0f;
 }
-void matrixScaleXYZF(MatrixF *matrix, float scaleX, float scaleY, float scaleZ)
+void MatrixScaleXYZF(MatrixF *matrix, float scaleX, float scaleY, float scaleZ)
 {
     matrix->values[0][0] = scaleX;
     matrix->values[0][1] = 0.0f;
@@ -91,7 +91,7 @@ void matrixScaleXYZF(MatrixF *matrix, float scaleX, float scaleY, float scaleZ)
     matrix->values[3][2] = 0.0f;
     matrix->values[3][3] = 1.0f;
 }
-void matrixRotateXF(MatrixF *matrix, float angle)
+void MatrixRotateXF(MatrixF *matrix, float angle)
 {
     float sine           = sinf(angle);
     float cosine         = cosf(angle);
@@ -112,7 +112,7 @@ void matrixRotateXF(MatrixF *matrix, float angle)
     matrix->values[3][2] = 0.0f;
     matrix->values[3][3] = 1.0f;
 }
-void matrixRotateYF(MatrixF *matrix, float angle)
+void MatrixRotateYF(MatrixF *matrix, float angle)
 {
     float sine           = sinf(angle);
     float cosine         = cosf(angle);
@@ -133,7 +133,7 @@ void matrixRotateYF(MatrixF *matrix, float angle)
     matrix->values[3][2] = 0.0f;
     matrix->values[3][3] = 1.0f;
 }
-void matrixRotateZF(MatrixF *matrix, float angle)
+void MatrixRotateZF(MatrixF *matrix, float angle)
 {
     float sine   = sinf(angle);
     float cosine = cosf(angle);
@@ -155,7 +155,7 @@ void matrixRotateZF(MatrixF *matrix, float angle)
     matrix->values[3][3] = 1.0;
     matrix->values[3][2] = 0.0;
 }
-void matrixRotateXYZF(MatrixF *matrix, float angleX, float angleY, float angleZ)
+void MatrixRotateXYZF(MatrixF *matrix, float angleX, float angleY, float angleZ)
 {
     float sinX = sinf(angleX);
     float cosX = cosf(angleX);
@@ -182,7 +182,7 @@ void matrixRotateXYZF(MatrixF *matrix, float angleX, float angleY, float angleZ)
     matrix->values[3][3] = 1.0f;
 }
 
-void matrixInvertF(MatrixF *dstMatrix, MatrixF *matrix)
+void MatrixInvertF(MatrixF *dstMatrix, MatrixF *matrix)
 {
     double inv[16], det;
     double m[16];
@@ -242,7 +242,7 @@ void ResetRenderStates()
     currentRenderState.indexCount   = 0;
     currentRenderState.id           = 0;
     currentRenderState.blendMode    = 0;
-    currentRenderState.useColours   = false;
+    currentRenderState.useColors   = false;
     currentRenderState.useTexture   = false;
     currentRenderState.depthTest    = false;
     currentRenderState.useNormals   = false;
@@ -303,7 +303,7 @@ void SetPerspectiveMatrix(float w, float h, float near, float far)
 void SetupDrawIndexList()
 {
     int index = 0;
-    for (int i = 0; i < DRAWINDEX_LIMIT;) {
+    for (int i = 0; i < DRAWINDEX_COUNT;) {
         drawIndexList[i + 2] = index + 0;
         drawIndexList[i + 1] = index + 1;
         drawIndexList[i + 0] = index + 2;
@@ -317,7 +317,7 @@ void SetupDrawIndexList()
 void SetRenderMatrix(MatrixF *matrix) { currentRenderState.renderMatrix = matrix; }
 void NewRenderState()
 {
-    if (renderStateCount < RENDERSTATE_LIMIT) {
+    if (renderStateCount < RENDERSTATE_COUNT) {
         if (currentRenderState.indexCount) {
             RenderState *state = &renderStateList[renderStateCount];
             memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -381,7 +381,7 @@ void RenderScene()
     MatrixF *prevMat   = NULL;
     bool prevTextures  = false;
     uint prevTexID     = 0;
-    bool prevColours   = false;
+    bool prevColors   = false;
     bool prevNormals   = false;
     bool prevDepth     = false;
     byte prevBlendMode = 0;
@@ -435,20 +435,20 @@ void RenderScene()
             prevTextures = false;
         }
 
-        if (state->useColours) {
+        if (state->useColors) {
 #if RETRO_USING_OPENGL
-            if (!prevColours)
+            if (!prevColors)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
 #endif
-            prevColours = true;
+            prevColors = true;
         }
         else {
 #if RETRO_USING_OPENGL
-            if (prevColours)
+            if (prevColors)
                 glDisableClientState(GL_COLOR_ARRAY);
 #endif
-            prevColours = false;
+            prevColors = false;
         }
 
         if (state->useNormals) {
@@ -560,7 +560,7 @@ void RenderScene()
     glDisableClientState(GL_VERTEX_ARRAY);
     if (prevTextures)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    if (prevColours)
+    if (prevColors)
         glDisableClientState(GL_COLOR_ARRAY);
 #endif
 }
@@ -577,14 +577,14 @@ int stb_eof_cb(void *user) { return ReachedEndOfFile(); }
 int LoadTexture(const char *filePath, int format)
 {
     int texID = 0;
-    for (int i = 0; i < TEXTURE_LIMIT; ++i) {
+    for (int i = 0; i < TEXTURE_COUNT; ++i) {
         if (StrComp(textureList[texID].fileName, filePath))
             return texID;
         if (!StrLength(textureList[texID].fileName))
             break;
         texID++;
     }
-    if (texID == TEXTURE_LIMIT)
+    if (texID == TEXTURE_COUNT)
         return 0;
 
     FileInfo info;
@@ -811,7 +811,7 @@ void ReplaceTexture(const char *filePath, int texID)
 }
 void ClearTextures(bool keepBuffer)
 {
-    for (int i = (keepBuffer ? 1 : 0); i < TEXTURE_LIMIT; ++i) {
+    for (int i = (keepBuffer ? 1 : 0); i < TEXTURE_COUNT; ++i) {
 #if RETRO_USING_OPENGL
         glDeleteTextures(1, &textureList[i].id);
 #endif
@@ -823,14 +823,14 @@ void ClearTextures(bool keepBuffer)
 MeshInfo *LoadMesh(const char *filePath, byte textureID)
 {
     int meshID = 0;
-    for (int i = 0; i < MESH_LIMIT; ++i) {
+    for (int i = 0; i < MESH_COUNT; ++i) {
         if (StrComp(meshList[meshID].fileName, filePath) && meshList[meshID].textureID == textureID)
             return &meshList[meshID];
         if (!StrLength(meshList[meshID].fileName))
             break;
         meshID++;
     }
-    if (meshID == MESH_LIMIT)
+    if (meshID == MESH_COUNT)
         return 0;
 
     FileInfo info;
@@ -942,7 +942,7 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
 }
 void ClearMeshData()
 {
-    for (int i = 0; i < MESH_LIMIT; ++i) {
+    for (int i = 0; i < MESH_COUNT; ++i) {
         MeshInfo *mesh = &meshList[i];
         if (StrLength(mesh->fileName)) {
             if (mesh->frameCount > 1)
@@ -1076,7 +1076,7 @@ void TransferRetroBuffer()
 }
 void RenderRetroBuffer(int alpha, float z)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[0].format) {
+    if (vertexListSize < DRAWVERTEX_COUNT && textureList[0].format) {
         if (renderStateCount < 0 || currentRenderState.id != textureList[0].id) {
             if (renderStateCount >= 0) {
                 RenderState *state = &renderStateList[renderStateCount];
@@ -1084,7 +1084,7 @@ void RenderRetroBuffer(int alpha, float z)
             }
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[0].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = true;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1092,7 +1092,7 @@ void RenderRetroBuffer(int alpha, float z)
             renderStateCount++;
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1152,11 +1152,11 @@ void RenderRetroBuffer(int alpha, float z)
 void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,
                  int alpha, byte texture)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
+    if (vertexListSize < DRAWVERTEX_COUNT && textureList[texture].format) {
         if (renderStateCount < 0) {
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[texture].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1174,7 +1174,7 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
 
                 currentRenderState.indexCount = 0;
                 currentRenderState.id         = textureList[texture].id;
-                currentRenderState.useColours = true;
+                currentRenderState.useColors = true;
                 currentRenderState.useTexture = true;
                 currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1183,7 +1183,7 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
             }
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1241,11 +1241,11 @@ void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pi
 void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
                         float sprY, int alpha, byte texture)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
+    if (vertexListSize < DRAWVERTEX_COUNT && textureList[texture].format) {
         if (renderStateCount < 0) {
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[texture].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1263,7 +1263,7 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
 
                 currentRenderState.indexCount = 0;
                 currentRenderState.id         = textureList[texture].id;
-                currentRenderState.useColours = true;
+                currentRenderState.useColors = true;
                 currentRenderState.useTexture = true;
                 currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1272,7 +1272,7 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
             }
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1339,11 +1339,11 @@ void RenderImageClipped(float x, float y, float z, float scaleX, float scaleY, f
 void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX,
                       float sprY, int alpha, byte texture)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT && textureList[texture].format) {
+    if (vertexListSize < DRAWVERTEX_COUNT && textureList[texture].format) {
         if (renderStateCount < 0) {
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[texture].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1361,7 +1361,7 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
 
                 currentRenderState.indexCount = 0;
                 currentRenderState.id         = textureList[texture].id;
-                currentRenderState.useColours = true;
+                currentRenderState.useColors = true;
                 currentRenderState.useTexture = true;
                 currentRenderState.useFilter  = false;
                 currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1370,7 +1370,7 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
             }
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1432,15 +1432,15 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
     float posX       = x;
     float posY       = (font->base * scale) + y;
 
-    if (vertexListSize < DRAWVERTEX_LIMIT) {
-        if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColours)) {
+    if (vertexListSize < DRAWVERTEX_COUNT) {
+        if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColors)) {
             if (renderStateCount >= 0) {
                 RenderState *state = &renderStateList[renderStateCount];
                 memcpy(state, &currentRenderState, sizeof(RenderState));
             }
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[font->characters[*text].textureID].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1448,7 +1448,7 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
             renderStateCount++;
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1456,7 +1456,7 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
                 a = 0xFF;
 
             ushort character = *text++;
-            while (character && vertexListSize < DRAWVERTEX_LIMIT) {
+            while (character && vertexListSize < DRAWVERTEX_COUNT) {
                 BitmapFontCharacter *fontChar = &font->characters[character];
                 TextureInfo *texture          = &textureList[fontChar->textureID];
 
@@ -1466,7 +1466,7 @@ void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, 
                         posY -= (font->lineHeight * scale);
                     }
                     else {
-                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
+                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_COUNT) {
                             currentRenderState.indexCount = 0;
                             memcpy(&renderStateList[renderStateCount++], &currentRenderState, sizeof(RenderState));
                             currentRenderState.vertPtr  = &drawVertexList[vertexListSize];
@@ -1533,15 +1533,15 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
     float posX       = x;
     float posY       = (font->base * scale) + y;
 
-    if (vertexListSize < DRAWVERTEX_LIMIT) {
-        if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColours)) {
+    if (vertexListSize < DRAWVERTEX_COUNT) {
+        if (renderStateCount < 0 || (!currentRenderState.useTexture || currentRenderState.useColors)) {
             if (renderStateCount >= 0) {
                 RenderState *state = &renderStateList[renderStateCount];
                 memcpy(state, &currentRenderState, sizeof(RenderState));
             }
             currentRenderState.indexCount = 0;
             currentRenderState.id         = textureList[font->characters[*text].textureID].id;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = true;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1549,7 +1549,7 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
             renderStateCount++;
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1557,7 +1557,7 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                 a = 0xFF;
 
             ushort character = *text++;
-            while (character && vertexListSize < DRAWVERTEX_LIMIT) {
+            while (character && vertexListSize < DRAWVERTEX_COUNT) {
                 BitmapFontCharacter *fontChar = &font->characters[character];
                 TextureInfo *texture          = &textureList[fontChar->textureID];
 
@@ -1567,7 +1567,7 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
                         posY -= (font->lineHeight * scale);
                     }
                     else {
-                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_LIMIT) {
+                        if (currentRenderState.id != texture->id && renderStateCount < RENDERSTATE_COUNT) {
                             currentRenderState.indexCount = 0;
                             memcpy(&renderStateList[renderStateCount++], &currentRenderState, sizeof(RenderState));
                             currentRenderState.vertPtr  = &drawVertexList[vertexListSize];
@@ -1639,8 +1639,8 @@ void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float 
 
 void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT) {
-        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColours)) {
+    if (vertexListSize < DRAWVERTEX_COUNT) {
+        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColors)) {
             if (renderStateCount >= 0) {
                 RenderState *state = &renderStateList[renderStateCount];
                 memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -1648,7 +1648,7 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
 
             currentRenderState.indexCount = 0;
             currentRenderState.id         = 0;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = false;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1656,7 +1656,7 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
             renderStateCount++;
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1708,8 +1708,8 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
 #if !RETRO_USE_ORIGINAL_CODE
 void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha)
 {
-    if (vertexListSize < DRAWVERTEX_LIMIT) {
-        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColours)) {
+    if (vertexListSize < DRAWVERTEX_COUNT) {
+        if (renderStateCount < 0 || (currentRenderState.useTexture || !currentRenderState.useColors)) {
             if (renderStateCount >= 0) {
                 RenderState *state = &renderStateList[renderStateCount];
                 memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -1717,7 +1717,7 @@ void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte
 
             currentRenderState.indexCount = 0;
             currentRenderState.id         = 0;
-            currentRenderState.useColours = true;
+            currentRenderState.useColors = true;
             currentRenderState.useTexture = false;
             currentRenderState.useFilter  = false;
             currentRenderState.vertPtr    = &drawVertexList[vertexListSize];
@@ -1725,7 +1725,7 @@ void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte
             renderStateCount++;
         }
 
-        if (renderStateCount < RENDERSTATE_LIMIT) {
+        if (renderStateCount < RENDERSTATE_COUNT) {
             int a = 0;
             if (alpha >= 0)
                 a = alpha;
@@ -1788,7 +1788,7 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
     if (!mesh)
         return;
 
-    if (renderStateCount < RENDERSTATE_LIMIT) {
+    if (renderStateCount < RENDERSTATE_COUNT) {
         if (currentRenderState.indexCount) {
             RenderState *state = &renderStateList[renderStateCount++];
             memcpy(state, &currentRenderState, sizeof(RenderState));
@@ -1797,7 +1797,7 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         currentRenderState.vertPtr    = mesh->vertices;
         currentRenderState.indexPtr   = mesh->indices;
         currentRenderState.indexCount = mesh->indexCount * 3;
-        if (mesh->textureID >= TEXTURE_LIMIT) {
+        if (mesh->textureID >= TEXTURE_COUNT) {
             currentRenderState.useTexture = false;
             currentRenderState.id         = 0;
         }
@@ -1807,16 +1807,16 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
         }
 
         switch (type) {
-            case MESH_COLOURS:
-                currentRenderState.useColours = true;
+            case MESH_COLORS:
+                currentRenderState.useColors = true;
                 currentRenderState.useNormals = false;
                 break;
             case MESH_NORMALS:
-                currentRenderState.useColours = false;
+                currentRenderState.useColors = false;
                 currentRenderState.useNormals = true;
                 break;
-            case MESH_COLOURS_NORMALS:
-                currentRenderState.useColours = true;
+            case MESH_COLORS_NORMALS:
+                currentRenderState.useColors = true;
                 currentRenderState.useNormals = true;
                 break;
         }
@@ -1827,7 +1827,7 @@ void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
 
         currentRenderState.indexCount = 0;
         currentRenderState.id         = 0;
-        currentRenderState.useColours = true;
+        currentRenderState.useColors = true;
         currentRenderState.useTexture = false;
         currentRenderState.useNormals = false;
         currentRenderState.depthTest  = false;

@@ -4,7 +4,7 @@
 #define STRSTORAGE_SIZE (1000)
 #define STRING_SIZE     (0x400)
 
-#define CREDITS_LIST_SIZE (0x200)
+#define CREDITS_LIST_COUNT (0x200)
 
 enum TextAlignments { ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT };
 
@@ -77,9 +77,9 @@ extern ushort stringStorage[STRSTORAGE_SIZE * STRING_SIZE];
 extern int stringStorePos;
 
 extern int creditsListSize;
-extern ushort *strCreditsList[CREDITS_LIST_SIZE];
-extern byte creditsType[CREDITS_LIST_SIZE];
-extern float creditsAdvanceY[CREDITS_LIST_SIZE];
+extern ushort *strCreditsList[CREDITS_LIST_COUNT];
+extern byte creditsType[CREDITS_LIST_COUNT];
+extern float creditsAdvanceY[CREDITS_LIST_COUNT];
 
 inline void StrCopy(char *dest, const char *src)
 {

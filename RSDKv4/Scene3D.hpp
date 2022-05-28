@@ -7,8 +7,8 @@
 enum FaceFlags {
     FACE_FLAG_TEXTURED_3D      = 0,
     FACE_FLAG_TEXTURED_2D      = 1,
-    FACE_FLAG_COLOURED_3D      = 2,
-    FACE_FLAG_COLOURED_2D      = 3,
+    FACE_FLAG_COLORED_3D      = 2,
+    FACE_FLAG_COLORED_2D      = 3,
     FACE_FLAG_FADED            = 4,
     FACE_FLAG_TEXTURED_C       = 5,
     FACE_FLAG_TEXTURED_C_BLEND = 6,
@@ -38,7 +38,7 @@ struct Face {
     int b;
     int c;
     int d;
-    uint colour;
+    uint color;
     int flag;
 };
 
@@ -63,7 +63,7 @@ extern DrawListEntry3D drawList3D[FACEBUFFER_SIZE];
 
 extern int projectionX;
 extern int projectionY;
-extern int fogColour;
+extern int fogColor;
 extern int fogStrength;
 
 extern int faceLineStart[SCREEN_YSIZE];
@@ -73,23 +73,23 @@ extern int faceLineEndU[SCREEN_YSIZE];
 extern int faceLineStartV[SCREEN_YSIZE];
 extern int faceLineEndV[SCREEN_YSIZE];
 
-void setIdentityMatrix(Matrix *matrix);
-void matrixMultiply(Matrix *matrixA, Matrix *matrixB);
-void matrixTranslateXYZ(Matrix *Matrix, int XPos, int YPos, int ZPos);
-void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ);
-void matrixRotateX(Matrix *matrix, int rotationX);
-void matrixRotateY(Matrix *matrix, int rotationY);
-void matrixRotateZ(Matrix *matrix, int rotationZ);
-void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ);
+void SetIdentityMatrix(Matrix *matrix);
+void MatrixMultiply(Matrix *matrixA, Matrix *matrixB);
+void MatrixTranslateXYZ(Matrix *Matrix, int x, int y, int z);
+void MatrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ);
+void MatrixRotateX(Matrix *matrix, int rotationX);
+void MatrixRotateY(Matrix *matrix, int rotationY);
+void MatrixRotateZ(Matrix *matrix, int rotationZ);
+void MatrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ);
 #if !RETRO_REV00
-void matrixInverse(Matrix *matrix);
+void MatrixInverse(Matrix *matrix);
 #endif
-void transformVertexBuffer();
-void transformVertices(Matrix *matrix, int startIndex, int endIndex);
-void sort3DDrawList();
-void draw3DScene(int spriteSheetID);
+void TransformVertexBuffer();
+void TransformVertices(Matrix *matrix, int startIndex, int endIndex);
+void Sort3DDrawList();
+void Draw3DScene(int spriteSheetID);
 
-void processScanEdge(Vertex *vertA, Vertex *vertB);
-void processScanEdgeUV(Vertex *vertA, Vertex *vertB);
+void ProcessScanEdge(Vertex *vertA, Vertex *vertB);
+void ProcessScanEdgeUV(Vertex *vertA, Vertex *vertB);
 
 #endif // !DRAWING3D_H

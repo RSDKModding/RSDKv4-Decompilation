@@ -344,7 +344,7 @@ void SetObjectTypeName(const char *objectName, int objectID)
         ++objPos;
     }
     typeNames[objectID][typePos] = 0;
-    printLog("Set Object (%d) name to: %s", objectID, objectName);
+    PrintLog("Set Object (%d) name to: %s", objectID, objectName);
 }
 
 void ProcessObjectControl(Entity *player)

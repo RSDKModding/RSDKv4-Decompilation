@@ -3,15 +3,15 @@
 
 #define GLOBALVAR_COUNT (0x100)
 
-#define ACHIEVEMENT_MAX (0x40)
-#define LEADERBOARD_MAX (0x80)
+#define ACHIEVEMENT_COUNT (0x40)
+#define LEADERBOARD_COUNT (0x80)
 
-#define SAVEDATA_MAX (0x2000)
+#define SAVEDATA_SIZE (0x2000)
 
 #if RETRO_USE_MOD_LOADER
-#define NATIIVEFUNCTION_MAX (0x30)
+#define NATIIVEFUNCTION_COUNT (0x30)
 #else
-#define NATIIVEFUNCTION_MAX (0x10)
+#define NATIIVEFUNCTION_COUNT (0x10)
 #endif
 
 #define intToVoid(x) (void *)(size_t)(x)
@@ -73,7 +73,7 @@ struct MultiplayerData {
 };
 #endif
 
-extern void *nativeFunction[NATIIVEFUNCTION_MAX];
+extern void *nativeFunction[NATIIVEFUNCTION_COUNT];
 extern int nativeFunctionCount;
 
 extern int globalVariablesCount;
@@ -81,10 +81,10 @@ extern int globalVariables[GLOBALVAR_COUNT];
 extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
 
 extern char gamePath[0x100];
-extern int saveRAM[SAVEDATA_MAX];
-extern Achievement achievements[ACHIEVEMENT_MAX];
+extern int saveRAM[SAVEDATA_SIZE];
+extern Achievement achievements[ACHIEVEMENT_COUNT];
 extern int achievementCount;
-extern LeaderboardEntry leaderboards[LEADERBOARD_MAX];
+extern LeaderboardEntry leaderboards[LEADERBOARD_COUNT];
 
 extern MultiplayerData multiplayerDataIN;
 extern MultiplayerData multiplayerDataOUT;
@@ -137,7 +137,7 @@ inline int GetGlobalVariableID(const char *name)
 }
 
 #define AddNativeFunction(name, funcPtr)                                                                                                             \
-    if (nativeFunctionCount < NATIIVEFUNCTION_MAX) {                                                                                                 \
+    if (nativeFunctionCount < NATIIVEFUNCTION_COUNT) {                                                                                                 \
         SetGlobalVariableByName(name, nativeFunctionCount);                                                                                          \
         nativeFunction[nativeFunctionCount++] = (void *)funcPtr;                                                                                     \
     }
@@ -156,7 +156,7 @@ void WriteUserdata();
 #if !RETRO_USE_ORIGINAL_CODE
 inline void AddAchievement(const char *name, const char *description)
 {
-    if (achievementCount < ACHIEVEMENT_MAX) {
+    if (achievementCount < ACHIEVEMENT_COUNT) {
         StrCopy(achievements[achievementCount].name, name);
         StrCopy(achievements[achievementCount].desc, description);
         achievementCount++;
@@ -199,8 +199,8 @@ void ReceiveEntity(int *entityID, int *incrementPos);
 void ReceiveValue(int *value, int *incrementPos);
 void TransmitGlobal(int *globalValue, const char *globalName);
 
-void receive2PVSData(MultiplayerData *data);
-void receive2PVSMatchCode(int code);
+void Receive2PVSData(MultiplayerData *data);
+void Receive2PVSMatchCode(int code);
 
 void ShowPromoPopup(int *id, const char *popupName);
 void ShowSegaIDPopup();

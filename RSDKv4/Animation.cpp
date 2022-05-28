@@ -111,8 +111,8 @@ void ClearAnimationData()
     hitboxCount        = 0;
 
     // Used for pause menu
-    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
-    StrCopy(gfxSurface[SURFACE_MAX - 1].fileName, "Data/Game/SystemText.gif");
+    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_COUNT - 1);
+    StrCopy(gfxSurface[SURFACE_COUNT - 1].fileName, "Data/Game/SystemText.gif");
 }
 
 AnimationFile *AddAnimationFile(char *filePath)

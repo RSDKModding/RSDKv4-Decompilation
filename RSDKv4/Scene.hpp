@@ -2,7 +2,7 @@
 #define SCENE_H
 
 #define LAYER_COUNT    (9)
-#define DEFORM_STORE   (0x100)
+#define DEFORM_STORE   (256)
 #define DEFORM_SIZE    (320)
 #define DEFORM_COUNT   (DEFORM_STORE + DEFORM_SIZE)
 #define PARALLAX_COUNT (0x100)
@@ -15,8 +15,8 @@
 
 #define TILELAYER_CHUNK_W    (0x100)
 #define TILELAYER_CHUNK_H    (0x100)
-#define TILELAYER_CHUNK_MAX  (TILELAYER_CHUNK_W * TILELAYER_CHUNK_H)
-#define TILELAYER_SCROLL_MAX (TILELAYER_CHUNK_H * CHUNK_SIZE)
+#define TILELAYER_CHUNK_COUNT  (TILELAYER_CHUNK_W * TILELAYER_CHUNK_H)
+#define TILELAYER_LINESCROLL_COUNT (TILELAYER_CHUNK_H * CHUNK_SIZE)
 
 #define CHUNKTILE_COUNT (0x200 * (8 * 8))
 
@@ -98,8 +98,8 @@ struct CollisionMasks {
 };
 
 struct TileLayer {
-    ushort tiles[TILELAYER_CHUNK_MAX];
-    byte lineScroll[TILELAYER_SCROLL_MAX];
+    ushort tiles[TILELAYER_CHUNK_COUNT];
+    byte lineScroll[TILELAYER_LINESCROLL_COUNT];
     int parallaxFactor;
     int scrollSpeed;
     int scrollPos;

@@ -33,7 +33,7 @@ IniParser::IniParser(const char *filename, bool addPath)
 
     FileIO *f;
     if ((f = fOpen(pathBuffer, "r")) == NULL) {
-        printLog("ERROR: Couldn't open file '%s'!", filename);
+        PrintLog("ERROR: Couldn't open file '%s'!", filename);
         return;
     }
 
@@ -276,7 +276,7 @@ void IniParser::Write(const char *filename, bool addPath)
 
     FileIO *f;
     if ((f = fOpen(pathBuffer, "w")) == NULL) {
-        printLog("ERROR: Couldn't open file '%s' for writing!", filename);
+        PrintLog("ERROR: Couldn't open file '%s' for writing!", filename);
         return;
     }
 

@@ -79,7 +79,7 @@ bool CheckRSDKFile(const char *filePath)
             Engine.usingBytecode = true;
             CloseFile();
         }
-        printLog("loaded datapack '%s'", filePathBuffer);
+        PrintLog("loaded datapack '%s'", filePathBuffer);
 
         rsdkContainer.packCount++;
         return true;
@@ -95,7 +95,7 @@ bool CheckRSDKFile(const char *filePath)
             Engine.usingBytecode = true;
             CloseFile();
         }
-        printLog("Couldn't load datapack '%s'", filePathBuffer);
+        PrintLog("Couldn't load datapack '%s'", filePathBuffer);
         return false;
     }
 }
@@ -244,7 +244,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 fileInfo->useEncryption     = useEncryption;
                 fileInfo->packID            = packID;
                 fileInfo->usingDataPack     = true;
-                printLog("Loaded Data File '%s'", filePath);
+                PrintLog("Loaded Data File '%s'", filePath);
 
 #if !RETRO_USE_ORIGINAL_CODE
                 Engine.usingDataFile = true;
@@ -256,7 +256,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 break;
             }
         }
-        printLog("Couldn't load file '%s'", filePath);
+        PrintLog("Couldn't load file '%s'", filePath);
         return false;
     }
     else {
@@ -265,7 +265,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
         cFileHandle = fOpen(fileInfo->fileName, "rb");
         if (!cFileHandle) {
-            printLog("Couldn't load file '%s'", filePath);
+            PrintLog("Couldn't load file '%s'", filePath);
             return false;
         }
         virtualFileOffset = 0;
@@ -285,7 +285,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
         Engine.usingDataFile = false;
 #endif
 
-        printLog("Loaded File '%s'", filePath);
+        PrintLog("Loaded File '%s'", filePath);
         return true;
     }
 }

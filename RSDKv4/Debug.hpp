@@ -6,7 +6,7 @@
 #endif
 
 extern bool endLine;
-inline void printLog(const char *msg, ...)
+inline void PrintLog(const char *msg, ...)
 {
 #ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
@@ -46,7 +46,7 @@ inline void printLog(const char *msg, ...)
 #endif
 }
 
-inline void printLog(const ushort *msg)
+inline void PrintLog(const ushort *msg)
 {
 #ifndef RETRO_DISABLE_LOG
     if (engineDebugMode) {
@@ -98,11 +98,11 @@ enum DevMenuMenus {
 #endif
 };
 
-void initDevMenu();
-void initErrorMessage();
-void processStageSelect();
+void InitDevMenu();
+void InitErrorMessage();
+void ProcessStageSelect();
 
 // Not in original, but the code was, and its cleaner this way
-void setTextMenu(int mode);
+void SetTextMenu(int mode);
 
 #endif //! DEBUG_H

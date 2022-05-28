@@ -36,24 +36,18 @@ SDL_AudioDeviceID audioDevice;
 #endif
 SDL_AudioSpec audioDeviceFormat;
 
-#define LockAudioDevice()   SDL_LockAudio()
-#define UnlockAudioDevice() SDL_UnlockAudio()
-
 #define AUDIO_FREQUENCY (44100)
 #define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */
 #define AUDIO_SAMPLES   (0x800)
 #define AUDIO_CHANNELS  (2)
 
 #define ADJUST_VOLUME(s, v) (s = (s * v) / MAX_VOLUME)
-
-#else
-#define LockAudioDevice()   ;
-#define UnlockAudioDevice() ;
 #endif
 
 int InitAudioPlayback()
 {
     StopAllSfx(); //"init"
+
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     SDL_AudioSpec want;
@@ -69,7 +63,7 @@ int InitAudioPlayback()
         SDL_PauseAudioDevice(audioDevice, 0);
     }
     else {
-        printLog("Unable to open audio device: %s", SDL_GetError());
+        PrintLog("Unable to open audio device: %s", SDL_GetError());
         audioEnabled = false;
         return true; // no audio but game wont crash now
     }
@@ -79,7 +73,7 @@ int InitAudioPlayback()
         SDL_PauseAudio(0);
     }
     else {
-        printLog("Unable to open audio device: %s", SDL_GetError());
+        PrintLog("Unable to open audio device: %s", SDL_GetError());
         audioEnabled = false;
         return true; // no audio but game wont crash now
     }
@@ -274,7 +268,7 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
                     bytes_gotten += bytes_read;
                 }
                 else {
-                    printLog("Music read error: vorbis error: %d", bytes_read);
+                    PrintLog("Music read error: vorbis error: %d", bytes_read);
                 }
             }
 
@@ -484,7 +478,7 @@ void LoadMusic(void *userdata)
             strmInfo->stream = SDL_NewAudioStream(AUDIO_S16, strmInfo->vorbisFile.vi->channels, (int)strmInfo->vorbisFile.vi->rate,
                                                   audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
             if (!strmInfo->stream)
-                printLog("Failed to create stream: %s", SDL_GetError());
+                PrintLog("Failed to create stream: %s", SDL_GetError());
 #endif
 
 #if RETRO_USING_SDL1
@@ -516,14 +510,14 @@ void LoadMusic(void *userdata)
         }
         else {
             musicStatus = MUSIC_STOPPED;
-            printLog("Failed to load vorbis! error: %d", error);
+            PrintLog("Failed to load vorbis! error: %d", error);
             switch (error) {
-                default: printLog("Vorbis open error: Unknown (%d)", error); break;
-                case OV_EREAD: printLog("Vorbis open error: A read from media returned an error"); break;
-                case OV_ENOTVORBIS: printLog("Vorbis open error: Bitstream does not contain any Vorbis data"); break;
-                case OV_EVERSION: printLog("Vorbis open error: Vorbis version mismatch"); break;
-                case OV_EBADHEADER: printLog("Vorbis open error: Invalid Vorbis bitstream header"); break;
-                case OV_EFAULT: printLog("Vorbis open error: Internal logic fault; indicates a bug or heap / stack corruption"); break;
+                default: PrintLog("Vorbis open error: Unknown (%d)", error); break;
+                case OV_EREAD: PrintLog("Vorbis open error: A read from media returned an error"); break;
+                case OV_ENOTVORBIS: PrintLog("Vorbis open error: Bitstream does not contain any Vorbis data"); break;
+                case OV_EVERSION: PrintLog("Vorbis open error: Vorbis version mismatch"); break;
+                case OV_EBADHEADER: PrintLog("Vorbis open error: Invalid Vorbis bitstream header"); break;
+                case OV_EFAULT: PrintLog("Vorbis open error: Internal logic fault; indicates a bug or heap / stack corruption"); break;
             }
         }
     }
@@ -583,7 +577,7 @@ bool PlayMusic(int track, int musStartPos)
             return true;
         }
         else {
-            printLog("WARNING music tried to play while music was loading!");
+            PrintLog("WARNING music tried to play while music was loading!");
         }
     }
     else {
@@ -603,7 +597,7 @@ void SetSfxName(const char *sfxName, int sfxID)
         ++sfxNameID;
     }
     sfxNames[sfxID][soundNameID] = 0;
-    printLog("Set SFX (%d) name to: %s", sfxID, sfxName);
+    PrintLog("Set SFX (%d) name to: %s", sfxID, sfxName);
 }
 
 void LoadSfx(char *filePath, byte sfxID)
@@ -627,7 +621,7 @@ void LoadSfx(char *filePath, byte sfxID)
 
             SDL_RWops *src = SDL_RWFromMem(sfx, info.vfileSize);
             if (src == NULL) {
-                printLog("Unable to open sfx: %s", info.fileName);
+                PrintLog("Unable to open sfx: %s", info.fileName);
             }
             else {
                 SDL_AudioSpec wav_spec;
@@ -638,7 +632,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 SDL_RWclose(src);
                 delete[] sfx;
                 if (wav == NULL) {
-                    printLog("Unable to read sfx: %s", info.fileName);
+                    PrintLog("Unable to read sfx: %s", info.fileName);
                 }
                 else {
                     SDL_AudioCVT convert;
@@ -659,7 +653,7 @@ void LoadSfx(char *filePath, byte sfxID)
                         SDL_FreeWAV(wav_buffer);
                     }
                     else { // this causes errors, actually
-                        printLog("Unable to read sfx: %s (error: %s)", info.fileName, SDL_GetError());
+                        PrintLog("Unable to read sfx: %s (error: %s)", info.fileName, SDL_GetError());
                         sfxList[sfxID].loaded = false;
                         SDL_FreeWAV(wav_buffer);
                         // LockAudioDevice()
@@ -705,7 +699,7 @@ void LoadSfx(char *filePath, byte sfxID)
             int error = ov_open_callbacks(sfxFile, &vf, NULL, 0, callbacks);
             if (error != 0) {
                 ov_clear(&vf);
-                printLog("failed to load ogg sfx!");
+                PrintLog("failed to load ogg sfx!");
                 return;
             }
 
@@ -732,7 +726,7 @@ void LoadSfx(char *filePath, byte sfxID)
                 if (read < 0) {
                     free(audioBuf);
                     ov_clear(&vf);
-                    printLog("failed to read ogg sfx!");
+                    PrintLog("failed to read ogg sfx!");
                     return;
                 }
                 toRead -= read;
@@ -774,7 +768,7 @@ void LoadSfx(char *filePath, byte sfxID)
         else {
             // wtf lol
             CloseFile();
-            printLog("Sfx format not supported!");
+            PrintLog("Sfx format not supported!");
         }
 #endif
     }

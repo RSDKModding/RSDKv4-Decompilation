@@ -177,7 +177,7 @@ private:
 
                     if (read_msg_.data.multiData.type - 1) {
                         partner = *read_msg_.data.multiData.data;
-                        receive2PVSMatchCode(room);
+                        Receive2PVSMatchCode(room);
                         repeat.header = 0x80;
                         return;
                     }
@@ -189,13 +189,13 @@ private:
                     repeat.header = 0x80;
                     vsPlayerID    = 0;
                     partner       = read_msg_.player;
-                    receive2PVSMatchCode(room);
+                    Receive2PVSMatchCode(room);
                     return;
                 }
                 case SV_DATA_VERIFIED:
                 // fallthrough
                 case SV_DATA: {
-                    receive2PVSData(&read_msg_.data.multiData);
+                    Receive2PVSData(&read_msg_.data.multiData);
                     return;
                 }
                 case SV_RECEIVED: {
@@ -240,7 +240,7 @@ std::shared_ptr<NetworkSession> session;
 asio::io_context io_context;
 std::thread loopThread;
 
-void initNetwork()
+void InitNetwork()
 {
     try {
         udp::resolver resolver(io_context);
@@ -251,7 +251,7 @@ void initNetwork()
         session.swap(newsession);
     } catch (std::exception &e) {
         Engine.onlineActive = false;
-        printLog("Failed to initialize networking: %s", e.what());
+        PrintLog("Failed to initialize networking: %s", e.what());
     }
 }
 
@@ -266,16 +266,16 @@ void networkLoop()
     }
 }
 
-void runNetwork()
+void RunNetwork()
 {
     if (loopThread.joinable()) {
-        disconnectNetwork();
-        initNetwork();
+        DisconnectNetwork();
+        InitNetwork();
     }
     loopThread = std::thread(networkLoop);
 }
 
-void sendData(bool verify)
+void SendData(bool verify)
 {
     ServerPacket send;
     send.header         = CL_DATA + verify;
@@ -285,7 +285,7 @@ void sendData(bool verify)
     //    waitForVerify = true;
 }
 
-void disconnectNetwork(bool finalClose)
+void DisconnectNetwork(bool finalClose)
 {
     if (session->running)
         session->leave();
@@ -298,9 +298,9 @@ void disconnectNetwork(bool finalClose)
     }
 }
 
-void sendServerPacket(ServerPacket &send, bool repeat) { session->write(send, repeat); }
-int getRoomCode() { return session->room; }
-void setRoomCode(int code) { session->room = code; }
+void SendServerPacket(ServerPacket &send, bool repeat) { session->write(send, repeat); }
+int GetRoomCode() { return session->room; }
+void SetRoomCode(int code) { session->room = code; }
 
 void SetNetworkGameName(int *a1, const char *name) { StrCopy(networkGame, name); }
 #endif

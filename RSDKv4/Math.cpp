@@ -2,58 +2,58 @@
 #include <math.h>
 #include <time.h>
 
-int sinValM7[0x200];
-int cosValM7[0x200];
+int sinM7LookupTable[0x200];
+int cosM7LookupTable[0x200];
 
-int sinVal512[0x200];
-int cosVal512[0x200];
+int sin512LookupTable[0x200];
+int cos512LookupTable[0x200];
 
-int sinVal256[0x100];
-int cosVal256[0x100];
+int sin256LookupTable[0x100];
+int cos256LookupTable[0x100];
 
-byte atanVal256[0x100 * 0x100];
+byte arcTan256LookupTable[0x100 * 0x100];
 
 void CalculateTrigAngles()
 {
     srand(time(NULL));
 
     for (int i = 0; i < 0x200; ++i) {
-        sinValM7[i] = (sin((i / 256.0) * M_PI) * 4096.0);
-        cosValM7[i] = (cos((i / 256.0) * M_PI) * 4096.0);
+        sinM7LookupTable[i] = (sin((i / 256.0) * M_PI) * 4096.0);
+        cosM7LookupTable[i] = (cos((i / 256.0) * M_PI) * 4096.0);
     }
 
-    cosValM7[0x00]  = 0x1000;
-    cosValM7[0x80]  = 0;
-    cosValM7[0x100] = -0x1000;
-    cosValM7[0x180] = 0;
+    cosM7LookupTable[0x00]  = 0x1000;
+    cosM7LookupTable[0x80]  = 0;
+    cosM7LookupTable[0x100] = -0x1000;
+    cosM7LookupTable[0x180] = 0;
 
-    sinValM7[0x00]  = 0;
-    sinValM7[0x80]  = 0x1000;
-    sinValM7[0x100] = 0;
-    sinValM7[0x180] = -0x1000;
+    sinM7LookupTable[0x00]  = 0;
+    sinM7LookupTable[0x80]  = 0x1000;
+    sinM7LookupTable[0x100] = 0;
+    sinM7LookupTable[0x180] = -0x1000;
 
     for (int i = 0; i < 0x200; ++i) {
-        sinVal512[i] = (sinf((i / 256.0) * M_PI) * 512.0);
-        cosVal512[i] = (cosf((i / 256.0) * M_PI) * 512.0);
+        sin512LookupTable[i] = (sinf((i / 256.0) * M_PI) * 512.0);
+        cos512LookupTable[i] = (cosf((i / 256.0) * M_PI) * 512.0);
     }
 
-    cosVal512[0x00]  = 0x200;
-    cosVal512[0x80]  = 0;
-    cosVal512[0x100] = -0x200;
-    cosVal512[0x180] = 0;
+    cos512LookupTable[0x00]  = 0x200;
+    cos512LookupTable[0x80]  = 0;
+    cos512LookupTable[0x100] = -0x200;
+    cos512LookupTable[0x180] = 0;
 
-    sinVal512[0x00]  = 0;
-    sinVal512[0x80]  = 0x200;
-    sinVal512[0x100] = 0;
-    sinVal512[0x180] = -0x200;
+    sin512LookupTable[0x00]  = 0;
+    sin512LookupTable[0x80]  = 0x200;
+    sin512LookupTable[0x100] = 0;
+    sin512LookupTable[0x180] = -0x200;
 
     for (int i = 0; i < 0x100; i++) {
-        sinVal256[i] = (sinVal512[i * 2] >> 1);
-        cosVal256[i] = (cosVal512[i * 2] >> 1);
+        sin256LookupTable[i] = (sin512LookupTable[i * 2] >> 1);
+        cos256LookupTable[i] = (cos512LookupTable[i * 2] >> 1);
     }
 
     for (int Y = 0; Y < 0x100; ++Y) {
-        byte *ATan = (byte *)&atanVal256[Y];
+        byte *ATan = (byte *)&arcTan256LookupTable[Y];
         for (int X = 0; X < 0x100; ++X) {
             float angle = atan2f(Y, X);
             *ATan       = (angle * 40.743664f);
@@ -84,12 +84,12 @@ byte ArcTanLookup(int X, int Y)
     }
     if (X <= 0) {
         if (Y <= 0)
-            return atanVal256[(x << 8) + y] + -0x80;
+            return arcTan256LookupTable[(x << 8) + y] + -0x80;
         else
-            return -0x80 - atanVal256[(x << 8) + y];
+            return -0x80 - arcTan256LookupTable[(x << 8) + y];
     }
     else if (Y <= 0)
-        return -atanVal256[(x << 8) + y];
+        return -arcTan256LookupTable[(x << 8) + y];
     else
-        return atanVal256[(x << 8) + y];
+        return arcTan256LookupTable[(x << 8) + y];
 }

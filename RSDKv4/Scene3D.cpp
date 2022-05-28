@@ -16,7 +16,7 @@ DrawListEntry3D drawList3D[FACEBUFFER_SIZE];
 
 int projectionX = 136;
 int projectionY = 160;
-int fogColour   = 0;
+int fogColor   = 0;
 int fogStrength = 0;
 
 int faceLineStart[SCREEN_YSIZE];
@@ -26,7 +26,7 @@ int faceLineEndU[SCREEN_YSIZE];
 int faceLineStartV[SCREEN_YSIZE];
 int faceLineEndV[SCREEN_YSIZE];
 
-void setIdentityMatrix(Matrix *matrix)
+void SetIdentityMatrix(Matrix *matrix)
 {
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
@@ -48,7 +48,7 @@ void setIdentityMatrix(Matrix *matrix)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixMultiply(Matrix *matrixA, Matrix *matrixB)
+void MatrixMultiply(Matrix *matrixA, Matrix *matrixB)
 {
     int output[16];
 
@@ -61,7 +61,7 @@ void matrixMultiply(Matrix *matrixA, Matrix *matrixB)
 
     for (int i = 0; i < 0x10; ++i) matrixA->values[i / 4][i % 4] = output[i];
 }
-void matrixTranslateXYZ(Matrix *matrix, int XPos, int YPos, int ZPos)
+void MatrixTranslateXYZ(Matrix *matrix, int XPos, int YPos, int ZPos)
 {
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
@@ -83,7 +83,7 @@ void matrixTranslateXYZ(Matrix *matrix, int XPos, int YPos, int ZPos)
     matrix->values[3][2] = ZPos;
     matrix->values[3][3] = 0x100;
 }
-void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
+void MatrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
 {
     matrix->values[0][0] = scaleX;
     matrix->values[0][1] = 0;
@@ -105,10 +105,10 @@ void matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixRotateX(Matrix *matrix, int rotationX)
+void MatrixRotateX(Matrix *matrix, int rotationX)
 {
-    int sine   = sinVal512[rotationX & 0x1FF] >> 1;
-    int cosine = cosVal512[rotationX & 0x1FF] >> 1;
+    int sine   = sin512LookupTable[rotationX & 0x1FF] >> 1;
+    int cosine = cos512LookupTable[rotationX & 0x1FF] >> 1;
 
     matrix->values[0][0] = 0x100;
     matrix->values[0][1] = 0;
@@ -130,10 +130,10 @@ void matrixRotateX(Matrix *matrix, int rotationX)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixRotateY(Matrix *matrix, int rotationY)
+void MatrixRotateY(Matrix *matrix, int rotationY)
 {
-    int sine   = sinVal512[rotationY & 0x1FF] >> 1;
-    int cosine = cosVal512[rotationY & 0x1FF] >> 1;
+    int sine   = sin512LookupTable[rotationY & 0x1FF] >> 1;
+    int cosine = cos512LookupTable[rotationY & 0x1FF] >> 1;
 
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
@@ -155,10 +155,10 @@ void matrixRotateY(Matrix *matrix, int rotationY)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixRotateZ(Matrix *matrix, int rotationZ)
+void MatrixRotateZ(Matrix *matrix, int rotationZ)
 {
-    int sine             = sinVal512[rotationZ & 0x1FF] >> 1;
-    int cosine           = cosVal512[rotationZ & 0x1FF] >> 1;
+    int sine             = sin512LookupTable[rotationZ & 0x1FF] >> 1;
+    int cosine           = cos512LookupTable[rotationZ & 0x1FF] >> 1;
     matrix->values[0][0] = cosine;
     matrix->values[0][1] = 0;
     matrix->values[0][2] = sine;
@@ -179,14 +179,14 @@ void matrixRotateZ(Matrix *matrix, int rotationZ)
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
+void MatrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
 {
-    int sinX = sinVal512[rotationX & 0x1FF] >> 1;
-    int cosX = cosVal512[rotationX & 0x1FF] >> 1;
-    int sinY = sinVal512[rotationY & 0x1FF] >> 1;
-    int cosY = cosVal512[rotationY & 0x1FF] >> 1;
-    int sinZ = sinVal512[rotationZ & 0x1FF] >> 1;
-    int cosZ = cosVal512[rotationZ & 0x1FF] >> 1;
+    int sinX = sin512LookupTable[rotationX & 0x1FF] >> 1;
+    int cosX = cos512LookupTable[rotationX & 0x1FF] >> 1;
+    int sinY = sin512LookupTable[rotationY & 0x1FF] >> 1;
+    int cosY = cos512LookupTable[rotationY & 0x1FF] >> 1;
+    int sinZ = sin512LookupTable[rotationZ & 0x1FF] >> 1;
+    int cosZ = cos512LookupTable[rotationZ & 0x1FF] >> 1;
 
     matrix->values[0][0] = (cosZ * cosY >> 8) + (sinZ * (sinY * sinX >> 8) >> 8);
     matrix->values[0][1] = (sinZ * cosY >> 8) - (cosZ * (sinY * sinX >> 8) >> 8);
@@ -209,7 +209,7 @@ void matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rot
     matrix->values[3][3] = 0x100;
 }
 #if !RETRO_REV00
-void matrixInverse(Matrix *matrix)
+void MatrixInverse(Matrix *matrix)
 {
     double inv[16], det;
     double m[16];
@@ -262,7 +262,7 @@ void matrixInverse(Matrix *matrix)
     for (int i = 0; i < 0x10; ++i) matrix->values[i / 4][i % 4] = inv[i];
 }
 #endif
-void transformVertexBuffer()
+void TransformVertexBuffer()
 {
     matFinal.values[0][0] = matWorld.values[0][0];
     matFinal.values[0][1] = matWorld.values[0][1];
@@ -283,7 +283,7 @@ void transformVertexBuffer()
     matFinal.values[3][1] = matWorld.values[3][1];
     matFinal.values[3][2] = matWorld.values[3][2];
     matFinal.values[3][3] = matWorld.values[3][3];
-    matrixMultiply(&matFinal, &matView);
+    MatrixMultiply(&matFinal, &matView);
 
     for (int v = 0; v < vertexCount; ++v) {
         int vx = vertexBuffer[v].x;
@@ -298,7 +298,7 @@ void transformVertexBuffer()
             (vx * matFinal.values[0][2] >> 8) + (vy * matFinal.values[1][2] >> 8) + (vz * matFinal.values[2][2] >> 8) + matFinal.values[3][2];
     }
 }
-void transformVertices(Matrix *matrix, int startIndex, int endIndex)
+void TransformVertices(Matrix *matrix, int startIndex, int endIndex)
 {
     for (int v = startIndex; v < endIndex; ++v) {
         int vx       = vertexBuffer[v].x;
@@ -310,7 +310,7 @@ void transformVertices(Matrix *matrix, int startIndex, int endIndex)
         vert->z      = (vx * matrix->values[0][2] >> 8) + (vy * matrix->values[1][2] >> 8) + (vz * matrix->values[2][2] >> 8) + matrix->values[3][2];
     }
 }
-void sort3DDrawList()
+void Sort3DDrawList()
 {
     for (int i = 0; i < faceCount; ++i) {
         drawList3D[i].depth = (vertexBufferT[faceBuffer[i].d].z + vertexBufferT[faceBuffer[i].c].z + vertexBufferT[faceBuffer[i].b].z
@@ -332,7 +332,7 @@ void sort3DDrawList()
         }
     }
 }
-void draw3DScene(int spriteSheetID)
+void Draw3DScene(int spriteSheetID)
 {
     Vertex quad[4];
     for (int i = 0; i < faceCount; ++i) {
@@ -383,7 +383,7 @@ void draw3DScene(int spriteSheetID)
                     DrawTexturedFace(quad, spriteSheetID);
                 }
                 break;
-            case FACE_FLAG_COLOURED_3D:
+            case FACE_FLAG_COLORED_3D:
                 if (vertexBufferT[face->a].z > 0 && vertexBufferT[face->b].z > 0 && vertexBufferT[face->c].z > 0 && vertexBufferT[face->d].z > 0) {
                     quad[0].x = SCREEN_CENTERX + projectionX * vertexBufferT[face->a].x / vertexBufferT[face->a].z;
                     quad[0].y = SCREEN_CENTERY - projectionY * vertexBufferT[face->a].y / vertexBufferT[face->a].z;
@@ -393,10 +393,10 @@ void draw3DScene(int spriteSheetID)
                     quad[2].y = SCREEN_CENTERY - projectionY * vertexBufferT[face->c].y / vertexBufferT[face->c].z;
                     quad[3].x = SCREEN_CENTERX + projectionX * vertexBufferT[face->d].x / vertexBufferT[face->d].z;
                     quad[3].y = SCREEN_CENTERY - projectionY * vertexBufferT[face->d].y / vertexBufferT[face->d].z;
-                    DrawFace(quad, face->colour);
+                    DrawFace(quad, face->color);
                 }
                 break;
-            case FACE_FLAG_COLOURED_2D:
+            case FACE_FLAG_COLORED_2D:
                 if (vertexBufferT[face->a].z >= 0 && vertexBufferT[face->b].z >= 0 && vertexBufferT[face->c].z >= 0
                     && vertexBufferT[face->d].z >= 0) {
                     quad[0].x = vertexBufferT[face->a].x;
@@ -407,7 +407,7 @@ void draw3DScene(int spriteSheetID)
                     quad[2].y = vertexBufferT[face->c].y;
                     quad[3].x = vertexBufferT[face->d].x;
                     quad[3].y = vertexBufferT[face->d].y;
-                    DrawFace(quad, face->colour);
+                    DrawFace(quad, face->color);
                 }
                 break;
             case FACE_FLAG_FADED:
@@ -427,7 +427,7 @@ void draw3DScene(int spriteSheetID)
                     if (fogStr > fogStrength)
                         fogStr = fogStrength;
 
-                    DrawFadedFace(quad, face->colour, fogColour, 0xFF - fogStr);
+                    DrawFadedFace(quad, face->color, fogColor, 0xFF - fogStr);
                 }
                 break;
             case FACE_FLAG_TEXTURED_C:
@@ -455,7 +455,7 @@ void draw3DScene(int spriteSheetID)
                     quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
-                    DrawTexturedFace(quad, face->colour);
+                    DrawTexturedFace(quad, face->color);
                 }
                 break;
             case FACE_FLAG_TEXTURED_C_BLEND:
@@ -480,7 +480,7 @@ void draw3DScene(int spriteSheetID)
                     quad[3].u = vertexBuffer[face->a].u + vertexBuffer[face->c].u;
                     quad[3].v = vertexBuffer[face->a].v + vertexBuffer[face->c].v;
 
-                    DrawTexturedFaceBlended(quad, face->colour);
+                    DrawTexturedFaceBlended(quad, face->color);
                 }
                 break;
             case FACE_FLAG_3DSPRITE:
@@ -513,7 +513,7 @@ void draw3DScene(int spriteSheetID)
     }
 }
 
-void processScanEdge(Vertex *vertA, Vertex *vertB)
+void ProcessScanEdge(Vertex *vertA, Vertex *vertB)
 {
     int bottom, top;
 
@@ -546,7 +546,7 @@ void processScanEdge(Vertex *vertA, Vertex *vertB)
         fullX += deltaX;
     }
 }
-void processScanEdgeUV(Vertex *vertA, Vertex *vertB)
+void ProcessScanEdgeUV(Vertex *vertA, Vertex *vertB)
 {
     int bottom, top;
 

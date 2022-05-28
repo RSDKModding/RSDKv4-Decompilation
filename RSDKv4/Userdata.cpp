@@ -4,15 +4,15 @@ int globalVariablesCount;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
 
-void *nativeFunction[NATIIVEFUNCTION_MAX];
+void *nativeFunction[NATIIVEFUNCTION_COUNT];
 int nativeFunctionCount = 0;
 
 char gamePath[0x100];
-int saveRAM[SAVEDATA_MAX];
-Achievement achievements[ACHIEVEMENT_MAX];
+int saveRAM[SAVEDATA_SIZE];
+Achievement achievements[ACHIEVEMENT_COUNT];
 int achievementCount = 0;
 
-LeaderboardEntry leaderboards[LEADERBOARD_MAX];
+LeaderboardEntry leaderboards[LEADERBOARD_COUNT];
 
 MultiplayerData multiplayerDataIN  = MultiplayerData();
 MultiplayerData multiplayerDataOUT = MultiplayerData();
@@ -131,7 +131,7 @@ bool ReadSaveRAMData()
             return false;
         useSGame = true;
     }
-    fRead(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fRead(saveRAM, sizeof(int), SAVEDATA_SIZE, saveFile);
     fClose(saveFile);
     return true;
 }
@@ -206,7 +206,7 @@ bool WriteSaveRAMData()
     FileIO *saveFile = fOpen(buffer, "wb");
     if (!saveFile)
         return false;
-    fWrite(saveRAM, sizeof(int), SAVEDATA_MAX, saveFile);
+    fWrite(saveRAM, sizeof(int), SAVEDATA_SIZE, saveFile);
     fClose(saveFile);
     return true;
 }
@@ -652,7 +652,7 @@ void InitUserdata()
 
         int nummaps = SDL_GameControllerAddMappingsFromFile(buffer);
         if (nummaps >= 0)
-            printLog("loaded %d controller mappings from '%s'\n", buffer, nummaps);
+            PrintLog("loaded %d controller mappings from '%s'\n", buffer, nummaps);
     }
 #endif
 
@@ -869,11 +869,11 @@ void ReadUserdata()
         return;
 
     int buf = 0;
-    for (int a = 0; a < ACHIEVEMENT_MAX; ++a) {
+    for (int a = 0; a < ACHIEVEMENT_COUNT; ++a) {
         fRead(&buf, 4, 1, userFile);
         achievements[a].status = buf;
     }
-    for (int l = 0; l < LEADERBOARD_MAX; ++l) {
+    for (int l = 0; l < LEADERBOARD_COUNT; ++l) {
         fRead(&buf, 4, 1, userFile);
         leaderboards[l].score = buf;
         if (!leaderboards[l].score)
@@ -924,8 +924,8 @@ void WriteUserdata()
     if (!userFile)
         return;
 
-    for (int a = 0; a < ACHIEVEMENT_MAX; ++a) fWrite(&achievements[a].status, 4, 1, userFile);
-    for (int l = 0; l < LEADERBOARD_MAX; ++l) fWrite(&leaderboards[l].score, 4, 1, userFile);
+    for (int a = 0; a < ACHIEVEMENT_COUNT; ++a) fWrite(&achievements[a].status, 4, 1, userFile);
+    for (int l = 0; l < LEADERBOARD_COUNT; ++l) fWrite(&leaderboards[l].score, 4, 1, userFile);
 
     fClose(userFile);
 
@@ -937,11 +937,11 @@ void WriteUserdata()
 
 void AwardAchievement(int id, int status)
 {
-    if (id < 0 || id >= ACHIEVEMENT_MAX)
+    if (id < 0 || id >= ACHIEVEMENT_COUNT)
         return;
 
     if (status == 100 && status != achievements[id].status)
-        printLog("Achieved achievement: %s (%d)!", achievements[id].name, status);
+        PrintLog("Achieved achievement: %s (%d)!", achievements[id].name, status);
 
     achievements[id].status = status;
 
@@ -1025,12 +1025,12 @@ int SetLeaderboard(int *leaderboardID, int *score)
         // 22 = TotalScore (S2)
 #if !RETRO_USE_ORIGINAL_CODE
         if (*score < leaderboards[*leaderboardID].score) {
-            printLog("Set leaderboard (%d) value to %d", *leaderboardID, score);
+            PrintLog("Set leaderboard (%d) value to %d", *leaderboardID, score);
             leaderboards[*leaderboardID].score = *score;
             WriteUserdata();
         }
         else {
-            printLog("Attempted to set leaderboard (%d) value to %d... but score was already %d!", *leaderboardID, *score,
+            PrintLog("Attempted to set leaderboard (%d) value to %d... but score was already %d!", *leaderboardID, *score,
                      leaderboards[*leaderboardID].score);
         }
 #endif
@@ -1041,13 +1041,13 @@ int SetLeaderboard(int *leaderboardID, int *score)
 void ShowLeaderboardsScreen()
 {
     /*TODO*/
-    printLog("we're showing the leaderboards screen");
+    PrintLog("we're showing the leaderboards screen");
 }
 
 bool disableFocusPause_Store = false;
 void Connect2PVS(int *gameLength, int *itemMode)
 {
-    printLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
+    PrintLog("Attempting to connect to 2P game (%d) (%d)", *gameLength, *itemMode);
 
     multiplayerDataIN.type = 0;
     matchValueData[0]      = 0;
@@ -1065,21 +1065,21 @@ void Connect2PVS(int *gameLength, int *itemMode)
 #if RETRO_USE_NETWORKING
         disableFocusPause_Store = disableFocusPause;
         disableFocusPause       = 3;
-        runNetwork();
+        RunNetwork();
 #endif
     }
 }
 void Disconnect2PVS()
 {
-    printLog("Attempting to disconnect from 2P game");
+    PrintLog("Attempting to disconnect from 2P game");
 
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
         disableFocusPause = disableFocusPause_Store;
         // Engine.devMenu    = vsPlayerID;
         vsPlaying = false;
-        disconnectNetwork();
-        initNetwork();
+        DisconnectNetwork();
+        InitNetwork();
 #endif
     }
 }
@@ -1090,7 +1090,7 @@ void SendEntity(int *entityID, int *verify)
         memcpy(multiplayerDataOUT.data, &objectEntityList[*entityID], sizeof(Entity));
         if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-            sendData(*verify);
+            SendData(*verify);
 #endif
         }
     }
@@ -1098,20 +1098,20 @@ void SendEntity(int *entityID, int *verify)
 }
 void SendValue(int *value, int *verify)
 {
-    // printLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
+    // PrintLog("Attempting to send value (%d) (%d)", *dataSlot, *value);
 
     multiplayerDataOUT.type    = 0;
     multiplayerDataOUT.data[0] = *value;
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData(*verify);
+        SendData(*verify);
 #endif
     }
 }
 bool receiveReady = false;
 void ReceiveEntity(int *entityID, int *incrementPos)
 {
-    // printLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
+    // PrintLog("Attempting to receive entity (%d) (%d)", *clearOnReceive, *entityID);
 
     if (Engine.onlineActive && receiveReady) {
         // receiveReady = false;
@@ -1128,7 +1128,7 @@ void ReceiveEntity(int *entityID, int *incrementPos)
 }
 void ReceiveValue(int *value, int *incrementPos)
 {
-    // printLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
+    // PrintLog("Attempting to receive value (%d) (%d)", *incrementPos, *value);
 
     if (Engine.onlineActive && receiveReady) {
         // receiveReady = false;
@@ -1145,19 +1145,19 @@ void ReceiveValue(int *value, int *incrementPos)
 }
 void TransmitGlobal(int *globalValue, const char *globalName)
 {
-    printLog("Attempting to transmit global (%s) (%d)", globalName, *globalValue);
+    PrintLog("Attempting to transmit global (%s) (%d)", globalName, *globalValue);
 
     multiplayerDataOUT.type    = 2;
     multiplayerDataOUT.data[0] = GetGlobalVariableID(globalName);
     multiplayerDataOUT.data[1] = *globalValue;
     if (Engine.onlineActive) {
 #if RETRO_USE_NETWORKING
-        sendData();
+        SendData();
 #endif
     }
 }
 
-void receive2PVSData(MultiplayerData *data)
+void Receive2PVSData(MultiplayerData *data)
 {
     receiveReady = true;
     switch (data->type) {
@@ -1170,7 +1170,7 @@ void receive2PVSData(MultiplayerData *data)
     }
 }
 
-void receive2PVSMatchCode(int code)
+void Receive2PVSMatchCode(int code)
 {
     receiveReady = true;
     code &= 0x00000FF0;
@@ -1190,7 +1190,7 @@ void receive2PVSMatchCode(int code)
 #endif
 }
 
-void ShowPromoPopup(int *id, const char *popupName) { printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
+void ShowPromoPopup(int *id, const char *popupName) { PrintLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
 void ShowSegaIDPopup()
 {
     // nothing here, its just all to a java method of the same name
@@ -1202,9 +1202,9 @@ void ShowOnlineSignIn()
 void ShowWebsite(int websiteID)
 {
     switch (websiteID) {
-        default: printLog("Showing unknown website: (%d)", websiteID); break;
-        case 0: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID); break;
-        case 1: printLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID); break;
+        default: PrintLog("Showing unknown website: (%d)", websiteID); break;
+        case 0: PrintLog("Showing website: \"%s\" (%d)", "http://www.sega.com/mprivacy", websiteID); break;
+        case 1: PrintLog("Showing website: \"%s\" (%d)", "http://www.sega.com/legal", websiteID); break;
     }
 }
 
@@ -1234,7 +1234,7 @@ void SetScreenWidth(int *width, int *unused)
     displaySettings.width   = SCREEN_XSIZE_CONFIG * Engine.windowScale;
     displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
     displaySettings.offsetX = 0;
-    setupViewport();
+    SetupViewport();
 #endif
 }
 void SetWindowScale(int *scale, int *unused)
@@ -1248,14 +1248,14 @@ void SetWindowScale(int *scale, int *unused)
     displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
     displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
     displaySettings.offsetX = 0;
-    setupViewport();
+    SetupViewport();
 #endif
 }
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
     Engine.isFullScreen    = *fullscreen;
     Engine.startFullScreen = *fullscreen;
-    setFullScreen(Engine.isFullScreen);
+    SetFullScreen(Engine.isFullScreen);
 }
 void SetWindowBorderless(int *borderless, int *unused)
 {

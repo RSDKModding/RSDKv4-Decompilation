@@ -5,10 +5,10 @@ int touchFlags = 0;
 
 int taListStore = 0;
 
-void initDevMenu()
+void InitDevMenu()
 {
 #if RETRO_USE_MOD_LOADER
-    for (int m = 0; m < modList.size(); ++m) scanModFolder(&modList[m]);
+    for (int m = 0; m < modList.size(); ++m) ScanModFolder(&modList[m]);
 #endif
     // DrawStageGFXHQ = 0;
     xScrollOffset = 0;
@@ -22,13 +22,13 @@ void initDevMenu()
     ClearGraphicsData();
     ClearAnimationData();
     SetActivePalette(0, 0, 256);
-    textMenuSurfaceNo = SURFACE_MAX - 1;
-    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
+    textMenuSurfaceNo = SURFACE_COUNT - 1;
+    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_COUNT - 1);
     SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
-    setTextMenu(DEVMENU_MAIN);
+    SetTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ = false;
 #if !RETRO_USE_ORIGINAL_CODE
     RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
@@ -38,7 +38,7 @@ void initDevMenu()
     UpdateHardwareTextures();
 #endif
 }
-void initErrorMessage()
+void InitErrorMessage()
 {
     xScrollOffset = 0;
     yScrollOffset = 0;
@@ -50,8 +50,8 @@ void initErrorMessage()
     ClearGraphicsData();
     ClearAnimationData();
     SetActivePalette(0, 0, 256);
-    textMenuSurfaceNo = SURFACE_MAX - 1;
-    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_MAX - 1);
+    textMenuSurfaceNo = SURFACE_COUNT - 1;
+    LoadGIFFile("Data/Game/SystemText.gif", SURFACE_COUNT - 1);
     SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
     SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
     SetPaletteEntry(-1, 0xF0, 0x00, 0x00, 0x00);
@@ -71,7 +71,7 @@ void initErrorMessage()
     UpdateHardwareTextures();
 #endif
 }
-void processStageSelect()
+void ProcessStageSelect()
 {
     ClearScreen(0xF0);
 
@@ -189,8 +189,8 @@ void processStageSelect()
                 }
 #if RETRO_USE_MOD_LOADER
                 else if (gameMenu[0].selection2 == 15) {
-                    initMods(); // reload mods
-                    setTextMenu(DEVMENU_MODMENU);
+                    InitMods(); // reload mods
+                    SetTextMenu(DEVMENU_MODMENU);
                 }
 #endif
                 else {
@@ -227,10 +227,10 @@ void processStageSelect()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX - 40, 96);
             if (inputPress.start || inputPress.A) {
                 playerListPos = gameMenu[1].selection1;
-                setTextMenu(DEVMENU_STAGELISTSEL);
+                SetTextMenu(DEVMENU_STAGELISTSEL);
             }
             else if (inputPress.B) {
-                setTextMenu(DEVMENU_MAIN);
+                SetTextMenu(DEVMENU_MAIN);
             }
             break;
         }
@@ -360,7 +360,7 @@ void processStageSelect()
                 SetGlobalVariableByName("starPostID", 0); // For S2
             }
             else if (inputPress.B) {
-                setTextMenu(DEVMENU_STAGELISTSEL);
+                SetTextMenu(DEVMENU_STAGELISTSEL);
             }
             break;
         }
@@ -368,7 +368,7 @@ void processStageSelect()
         {
             DrawTextMenu(&gameMenu[0], SCREEN_CENTERX, 72);
             if (inputPress.start || inputPress.A) {
-                setTextMenu(DEVMENU_MAIN);
+                SetTextMenu(DEVMENU_MAIN);
             }
             else if (inputPress.B) {
                 ClearGraphicsData();
@@ -460,7 +460,7 @@ void processStageSelect()
                 ModInfo swap       = modList[preOption];
                 modList[preOption] = modList[option];
                 modList[option]    = swap;
-                setTextMenu(DEVMENU_MODMENU);
+                SetTextMenu(DEVMENU_MODMENU);
                 gameMenu[1].selection1       = option;
                 gameMenu[1].visibleRowOffset = visibleOffset;
             }
@@ -478,7 +478,7 @@ void processStageSelect()
                     }
                 }
                 else {
-                    setTextMenu(DEVMENU_MAIN);
+                    SetTextMenu(DEVMENU_MAIN);
 
                     SetPaletteEntry(-1, 1, 0x00, 0x00, 0x00);
                     SetPaletteEntry(-1, 8, 0x80, 0x80, 0x80);
@@ -496,7 +496,7 @@ void processStageSelect()
     }
 }
 
-void setTextMenu(int sm)
+void SetTextMenu(int sm)
 {
     stageMode = sm;
     SetupTextMenu(&gameMenu[0], 0);

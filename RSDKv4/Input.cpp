@@ -17,7 +17,7 @@ int hapticEffectNum = -2;
 #include <algorithm>
 #include <vector>
 
-InputButton inputDevice[INPUT_MAX];
+InputButton inputDevice[INPUT_BUTTONCOUNT];
 int inputType = 0;
 
 // mania deadzone vals lol
@@ -222,7 +222,7 @@ void controllerInit(byte controllerID)
         device.devicePtr = controller;
         device.hapticPtr = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(controller));
         if (device.hapticPtr == NULL) {
-            printLog("Could not open controller haptics...\nSDL_GetError() -> %s", SDL_GetError());
+            PrintLog("Could not open controller haptics...\nSDL_GetError() -> %s", SDL_GetError());
         }
         else {
             if (SDL_HapticRumbleInit(device.hapticPtr) < 0) {
@@ -234,7 +234,7 @@ void controllerInit(byte controllerID)
         inputType = 1;
     }
     else {
-        printLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
+        PrintLog("Could not open controller...\nSDL_GetError() -> %s", SDL_GetError());
     }
 #endif
 }
@@ -268,7 +268,7 @@ void controllerClose(byte controllerID)
 void InitInputDevices()
 {
 #if RETRO_USING_SDL2
-    printLog("Initializing gamepads...");
+    PrintLog("Initializing gamepads...");
     int joyStickCount = SDL_NumJoysticks();
     controllers.clear();
     int gamepadCount = 0;
@@ -278,7 +278,7 @@ void InitInputDevices()
         if (SDL_IsGameController(i))
             gamepadCount++;
 
-    printLog("Found %d gamepads!", gamepadCount);
+    PrintLog("Found %d gamepads!", gamepadCount);
     for (int i = 0; i < gamepadCount; i++) {
         SDL_GameController *gamepad = SDL_GameControllerOpen(i);
         InputDevice device;
@@ -288,7 +288,7 @@ void InitInputDevices()
         if (SDL_GameControllerGetAttached(gamepad))
             controllers.push_back(device);
         else
-            printLog("InitInputDevices() error -> %s", SDL_GetError());
+            PrintLog("InitInputDevices() error -> %s", SDL_GetError());
     }
 
     if (gamepadCount > 0)
@@ -339,7 +339,7 @@ void ProcessInput()
     }
 
     bool isPressed = false;
-    for (int i = 0; i < INPUT_MAX; i++) {
+    for (int i = 0; i < INPUT_BUTTONCOUNT; i++) {
         if (keyState[inputDevice[i].keyMappings]) {
             isPressed = true;
             break;
@@ -414,7 +414,7 @@ void ProcessInput()
     }
 
     if (inputType == 0) {
-        for (int i = 0; i < INPUT_MAX; i++) {
+        for (int i = 0; i < INPUT_BUTTONCOUNT; i++) {
             if (keyState[inputDevice[i].keyMappings]) {
                 inputDevice[i].setHeld();
                 inputDevice[INPUT_ANY].setHeld();
@@ -425,7 +425,7 @@ void ProcessInput()
         }
     }
     else if (inputType == 1 && controller) {
-        for (int i = 0; i < INPUT_MAX; i++) {
+        for (int i = 0; i < INPUT_BUTTONCOUNT; i++) {
             if (SDL_JoystickGetButton(controller, inputDevice[i].contMappings)) {
                 inputDevice[i].setHeld();
                 inputDevice[INPUT_ANY].setHeld();
@@ -437,7 +437,7 @@ void ProcessInput()
     }
 
     bool isPressed = false;
-    for (int i = 0; i < INPUT_MAX; i++) {
+    for (int i = 0; i < INPUT_BUTTONCOUNT; i++) {
         if (keyState[inputDevice[i].keyMappings]) {
             isPressed = true;
             break;

@@ -1,12 +1,12 @@
 #include "RetroEngine.hpp"
 
-// Palettes (as RGB888 Colours)
-PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_SIZE];
+// Palettes (as RGB888 Colors)
+PaletteEntry fullPalette32[PALETTE_COUNT][PALETTE_COLOR_COUNT];
 PaletteEntry *activePalette32 = fullPalette32[0];
 
-// Palettes (as RGB565 Colours)
-ushort fullPalette[PALETTE_COUNT][PALETTE_SIZE];
-ushort *activePalette = fullPalette[0]; // Ptr to the 256 colour set thats active
+// Palettes (as RGB565 Colors)
+ushort fullPalette[PALETTE_COUNT][PALETTE_COLOR_COUNT];
+ushort *activePalette = fullPalette[0]; // Ptr to the 256 color set thats active
 
 byte gfxLineBuffer[SCREEN_YSIZE]; // Pointers to active palette
 int GFX_LINESIZE;
@@ -25,10 +25,6 @@ byte fadeB   = 0;
 
 int paletteMode = 1;
 
-#if RETRO_HARDWARE_RENDER
-int texPaletteNum = 0;
-#endif
-
 void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int startIndex, int endIndex)
 {
     FileInfo info;
@@ -42,17 +38,17 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
         if (paletteID >= PALETTE_COUNT || paletteID < 0)
             paletteID = 0;
 
-        byte colour[3];
+        byte color[3];
         if (paletteID) {
             for (int i = startIndex; i < endIndex; ++i) {
-                FileRead(&colour, 3);
-                SetPaletteEntry(paletteID, startPaletteIndex++, colour[0], colour[1], colour[2]);
+                FileRead(&color, 3);
+                SetPaletteEntry(paletteID, startPaletteIndex++, color[0], color[1], color[2]);
             }
         }
         else {
             for (int i = startIndex; i < endIndex; ++i) {
-                FileRead(&colour, 3);
-                SetPaletteEntry(-1, startPaletteIndex++, colour[0], colour[1], colour[2]);
+                FileRead(&color, 3);
+                SetPaletteEntry(-1, startPaletteIndex++, color[0], color[1], color[2]);
             }
         }
         CloseFile();
@@ -79,12 +75,10 @@ void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort alpha, int st
         PACK_RGB888(activePalette[i], (byte)((ushort)(R * alpha + alpha2 * activePalette32[i].r) >> 8),
                     (byte)((ushort)(G * alpha + alpha2 * activePalette32[i].g) >> 8),
                     (byte)((ushort)(B * alpha + alpha2 * activePalette32[i].b) >> 8));
+
         activePalette32[i].r = (byte)((ushort)(R * alpha + alpha2 * activePalette32[i].r) >> 8);
         activePalette32[i].g = (byte)((ushort)(G * alpha + alpha2 * activePalette32[i].g) >> 8);
         activePalette32[i].b = (byte)((ushort)(B * alpha + alpha2 * activePalette32[i].b) >> 8);
-#if RETRO_HARDWARE_RENDER
-        activePalette[i] |= 1;
-#endif
     }
 }
 #else
@@ -109,9 +103,6 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
         dst32->r = (byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8);
         dst32->g = (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8);
         dst32->b = (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8);
-#if RETRO_HARDWARE_RENDER
-        *dst |= 1;
-#endif
 
         ++dst;
         ++dst32;

@@ -1,8 +1,8 @@
 #ifndef DRAWING_H
 #define DRAWING_H
 
-#define SURFACE_MAX (24)
-#define GFXDATA_MAX (0x800 * 0x800)
+#define SURFACE_COUNT (24)
+#define GFXDATA_SIZE (0x800 * 0x800)
 
 #define DRAWLAYER_COUNT (7)
 
@@ -22,31 +22,17 @@ struct GFXSurface {
 #if RETRO_SOFTWARE_RENDER
     int widthShift;
 #endif
-#if RETRO_HARDWARE_RENDER
-    int texStartX;
-    int texStartY;
-#endif
     int depth;
     int dataPosition;
 };
 
 struct DisplaySettings {
-    byte field_0;
     int offsetX;
     int width;
     int height;
-    int field_10;
-    int field_14;
-    int field_18;
+    int unknown1;
     int maxWidth;
-    byte field_20;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    int field_38;
-    int field_3C;
+    byte unknown2;
 };
 
 extern ushort blendLookupTable[0x20 * 0x100];
@@ -73,8 +59,8 @@ extern float touchHeightF;
 extern DrawListEntry drawListEntries[DRAWLAYER_COUNT];
 
 extern int gfxDataPosition;
-extern GFXSurface gfxSurface[SURFACE_MAX];
-extern byte graphicData[GFXDATA_MAX];
+extern GFXSurface gfxSurface[SURFACE_COUNT];
+extern byte graphicData[GFXDATA_SIZE];
 
 extern DisplaySettings displaySettings;
 extern bool convertTo32Bit;
@@ -86,76 +72,6 @@ extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
 #endif
 
-#if RETRO_HARDWARE_RENDER
-#define INDEX_LIMIT      (0xC000)
-#define VERTEX_LIMIT     (0x2000)
-#define VERTEX3D_LIMIT   (0x1904)
-#define TEXBUFFER_SIZE   (0x100000)
-#define TILEUV_SIZE      (0x1000)
-#define TEXTURE_LIMIT    (6)
-#define TEXTURE_DATASIZE (1024 * 1024 * 2)
-#define TEXTURE_SIZE     (1024)
-
-struct DrawVertex {
-    short x;
-    short y;
-    short u;
-    short v;
-
-    Colour colour;
-};
-
-struct DrawVertex3D {
-    float x;
-    float y;
-    float z;
-    short u;
-    short v;
-
-    Colour colour;
-};
-
-extern DrawVertex gfxPolyList[VERTEX_LIMIT];
-extern short gfxPolyListIndex[INDEX_LIMIT];
-extern ushort gfxVertexSize;
-extern ushort gfxVertexSizeOpaque;
-extern ushort gfxIndexSize;
-extern ushort gfxIndexSizeOpaque;
-
-extern DrawVertex3D polyList3D[VERTEX3D_LIMIT];
-
-extern ushort vertexSize3D;
-extern ushort indexSize3D;
-extern float tileUVArray[TILEUV_SIZE];
-extern float floor3DXPos;
-extern float floor3DYPos;
-extern float floor3DZPos;
-extern float floor3DAngle;
-extern bool render3DEnabled;
-extern bool hq3DFloorEnabled;
-
-extern ushort texBuffer[TEXBUFFER_SIZE];
-extern byte texBufferMode;
-
-extern int orthWidth;
-extern int viewWidth;
-extern int viewHeight;
-extern float viewAspect;
-extern int bufferWidth;
-extern int bufferHeight;
-extern int virtualX;
-extern int virtualY;
-extern int virtualWidth;
-extern int virtualHeight;
-
-#if RETRO_USING_OPENGL
-extern GLuint gfxTextureID[TEXTURE_LIMIT];
-extern GLuint framebufferId;
-extern GLuint fbTextureId;
-#endif
-
-#endif
-
 int InitRenderDevice();
 void FlipScreen();
 void ReleaseRenderDevice();
@@ -164,7 +80,7 @@ void GenerateBlendLookupTable();
 
 inline void ClearGraphicsData()
 {
-    for (int i = 0; i < SURFACE_MAX; ++i) MEM_ZERO(gfxSurface[i]);
+    for (int i = 0; i < SURFACE_COUNT; ++i) MEM_ZERO(gfxSurface[i]);
     gfxDataPosition = 0;
 }
 void ClearScreen(byte index);
@@ -175,29 +91,8 @@ void SetScreenSize(int width, int lineSize);
 void CopyFrameOverlay2x();
 #endif
 
-#if RETRO_HARDWARE_RENDER
-inline bool CheckSurfaceSize(int size)
-{
-    for (int cnt = 2; cnt < 2048; cnt <<= 1) {
-        if (cnt == size)
-            return true;
-    }
-    return false;
-}
-
-void UpdateHardwareTextures();
-void SetScreenDimensions(int width, int height, int scale);
-void ScaleViewport(int width, int height);
-void CalcPerspective(float fov, float aspectRatio, float nearPlane, float farPlane);
-
-void SetupPolygonLists();
-void UpdateTextureBufferWithTiles();
-void UpdateTextureBufferWithSortedSprites();
-void UpdateTextureBufferWithSprites();
-
-#endif
-void setupViewport();
-void setFullScreen(bool fs);
+void SetupViewport();
+void SetFullScreen(bool fs);
 
 // Layer Drawing
 void DrawObjectList(int layer);
@@ -243,8 +138,8 @@ void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int
 
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos);
 
-void DrawFace(void *v, uint colour);
-void DrawFadedFace(void *v, uint colour, uint fogColour, int alpha);
+void DrawFace(void *v, uint color);
+void DrawFadedFace(void *v, uint color, uint fogColor, int alpha);
 void DrawTexturedFace(void *v, byte sheetID);
 void DrawTexturedFaceBlended(void *v, byte sheetID);
 

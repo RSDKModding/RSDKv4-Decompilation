@@ -64,15 +64,15 @@ class NetworkSession;
 
 extern std::shared_ptr<NetworkSession> session;
 
-void initNetwork();
-void runNetwork();
-void sendData(bool verify = false);
-void disconnectNetwork(bool finalClose = false);
-void sendServerPacket(ServerPacket &send, bool verify = false);
-int getRoomCode();
-void setRoomCode(int code);
+void InitNetwork();
+void RunNetwork();
+void SendData(bool verify = false);
+void DisconnectNetwork(bool finalClose = false);
+void SendServerPacket(ServerPacket &send, bool verify = false);
+int GetRoomCode();
+void SetRoomCode(int code);
 
-void SetNetworkGameName(int *a1, const char *name);
+void SetNetworkGameName(int *unused, const char *name);
 
 #endif
 #endif
