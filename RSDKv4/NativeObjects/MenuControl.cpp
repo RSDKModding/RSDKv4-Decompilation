@@ -8,13 +8,13 @@ void MenuControl_Create(void *objPtr)
     SetMusicTrack("MainMenu.ogg", 0, true, 106596);
     CREATE_ENTITY(MenuBG);
 
-    entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(StartGameButton);
-    entity->buttonFlags[entity->buttonCount] = BUTTON_STARTGAME;
-    entity->buttonCount++;
+    self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(StartGameButton);
+    self->buttonFlags[self->buttonCount] = BUTTON_STARTGAME;
+    self->buttonCount++;
 
-    entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(TimeAttackButton);
-    entity->buttonFlags[entity->buttonCount] = BUTTON_TIMEATTACK;
-    entity->buttonCount++;
+    self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(TimeAttackButton);
+    self->buttonFlags[self->buttonCount] = BUTTON_TIMEATTACK;
+    self->buttonCount++;
 
 #if RETRO_USE_MOD_LOADER
     int vsID = GetSceneID(STAGELIST_PRESENTATION, "2P VS");
@@ -22,50 +22,50 @@ void MenuControl_Create(void *objPtr)
 #else
     if (Engine.gameType == GAME_SONIC2) {
 #endif
-        entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(MultiplayerButton);
-        entity->buttonFlags[entity->buttonCount] = BUTTON_MULTIPLAYER;
-        entity->buttonCount++;
+        self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(MultiplayerButton);
+        self->buttonFlags[self->buttonCount] = BUTTON_MULTIPLAYER;
+        self->buttonCount++;
     }
 
     if (Engine.onlineActive) {
-        entity->buttons[entity->buttonCount]     = CREATE_ENTITY(AchievementsButton);
-        entity->buttonFlags[entity->buttonCount] = BUTTON_ACHIEVEMENTS;
-        entity->buttonCount++;
+        self->buttons[self->buttonCount]     = CREATE_ENTITY(AchievementsButton);
+        self->buttonFlags[self->buttonCount] = BUTTON_ACHIEVEMENTS;
+        self->buttonCount++;
 
-        entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(LeaderboardsButton);
-        entity->buttonFlags[entity->buttonCount] = BUTTON_LEADERBOARDS;
-        entity->buttonCount++;
+        self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(LeaderboardsButton);
+        self->buttonFlags[self->buttonCount] = BUTTON_LEADERBOARDS;
+        self->buttonCount++;
     }
 
-    entity->buttons[entity->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(OptionsButton);
-    entity->buttonFlags[entity->buttonCount] = BUTTON_OPTIONS;
-    entity->buttonCount++;
+    self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(OptionsButton);
+    self->buttonFlags[self->buttonCount] = BUTTON_OPTIONS;
+    self->buttonCount++;
 
-    entity->backButton          = CREATE_ENTITY(BackButton);
-    entity->backButton->visible = false;
-    entity->backButton->x       = 240.0;
-    entity->backButton->y       = -160.0;
-    entity->backButton->z       = 0.0;
+    self->backButton          = CREATE_ENTITY(BackButton);
+    self->backButton->visible = false;
+    self->backButton->x       = 240.0;
+    self->backButton->y       = -160.0;
+    self->backButton->z       = 0.0;
 
-    entity->segaIDButton       = CREATE_ENTITY(SegaIDButton);
-    entity->segaIDButton->y    = -92.0;
-    entity->segaIDButton->texX = 0.0;
-    entity->segaIDButton->x    = SCREEN_CENTERX_F - 32.0;
+    self->segaIDButton       = CREATE_ENTITY(SegaIDButton);
+    self->segaIDButton->y    = -92.0;
+    self->segaIDButton->texX = 0.0;
+    self->segaIDButton->x    = SCREEN_CENTERX_F - 32.0;
 
-    entity->float28 = 0.15707964f;  // this but less precise ---> M_PI / 2
-    entity->float2C = 0.078539819f; // this but less precise ---> M_PI / 4
-    entity->float30 = (entity->buttonCount * entity->float28) * 0.5;
+    self->buttonIncline = 0.15707964f;  // this but less precise ---> M_PI / 2
+    self->buttonSpacing = 0.078539819f; // this but less precise ---> M_PI / 4
+    self->menuEndPos    = (self->buttonCount * self->buttonIncline) * 0.5;
 
     float offset = 0.0;
-    for (int b = 0; b < entity->buttonCount; ++b) {
-        NativeEntity_AchievementsButton *button = entity->buttons[b];
-        float sin                               = sinf(entity->float18 + offset);
-        float cos                               = cosf(entity->float18 + offset);
+    for (int b = 0; b < self->buttonCount; ++b) {
+        NativeEntity_AchievementsButton *button = self->buttons[b];
+        float sin                               = sinf(self->buttonMovePos + offset);
+        float cos                               = cosf(self->buttonMovePos + offset);
         button->x                               = 1024.0 * sin;
         button->z                               = (cos * -512.0) + 672.0;
         button->y                               = (128.0 * sin) + 16.0;
         button->visible                         = button->z <= 288.0;
-        offset += entity->float28;
+        offset += self->buttonIncline;
     }
 
     PlayMusic(0, 0);
@@ -76,10 +76,10 @@ void MenuControl_Create(void *objPtr)
 void MenuControl_Main(void *objPtr)
 {
     RSDK_THIS(MenuControl);
-    NativeEntity_SegaIDButton *segaIDButton = entity->segaIDButton;
-    NativeEntity_BackButton *backButton     = entity->backButton;
+    NativeEntity_SegaIDButton *segaIDButton = self->segaIDButton;
+    NativeEntity_BackButton *backButton     = self->backButton;
 
-    switch (entity->state) {
+    switch (self->state) {
         case MENUCONTROL_STATE_MAIN: {
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
@@ -89,39 +89,39 @@ void MenuControl_Main(void *objPtr)
                 segaIDButton->alpha += 8;
 
             if (!usePhysicalControls) {
-                switch (entity->stateInput) {
+                switch (self->stateInput) {
                     case MENUCONTROL_STATEINPUT_CHECKTOUCH: {
                         if (touches > 0) {
                             if (!inputDown.left && !inputDown.right) {
                                 segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                                 if (CheckTouchRect(0.0, 16.0, 56.0, 56.0) >= 0) {
                                     BackupNativeObjects();
-                                    entity->touchX2                      = touchXF[0];
-                                    entity->stateInput                   = MENUCONTROL_STATEINPUT_HANDLERELEASE;
-                                    entity->buttonID                     = ceilf(entity->float18 / -entity->float2C);
-                                    entity->buttons[entity->buttonID]->g = 0xC0;
+                                    self->releaseTouchX                = touchXF[0];
+                                    self->stateInput                   = MENUCONTROL_STATEINPUT_HANDLERELEASE;
+                                    self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                                    self->buttons[self->buttonID]->g = 0xC0;
                                 }
                                 else {
-                                    if (CheckTouchRect(entity->segaIDButton->x, entity->segaIDButton->y, 20.0, 20.0) >= 0
+                                    if (CheckTouchRect(self->segaIDButton->x, self->segaIDButton->y, 20.0, 20.0) >= 0
                                         && segaIDButton->alpha > 64) {
                                         segaIDButton->state = SEGAIDBUTTON_STATE_PRESSED;
                                     }
                                     else {
-                                        entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                                        entity->field_74   = 0.0;
-                                        entity->field_6C   = touchXF[0];
-                                        entity->float20    = entity->float18;
+                                        self->stateInput            = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                                        self->lastDragTouchDistance = 0.0;
+                                        self->dragTouchX            = touchXF[0];
+                                        self->lastButtonMovePos     = self->buttonMovePos;
                                     }
                                 }
                             }
                             else {
                                 segaIDButton->state                  = SEGAIDBUTTON_STATE_IDLE;
                                 usePhysicalControls                  = true;
-                                entity->buttonID                     = ceilf(entity->float18 / -entity->float2C);
-                                entity->buttons[entity->buttonID]->g = 0xC0;
+                                self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                                self->buttons[self->buttonID]->g = 0xC0;
                             }
                         }
-                        else if (segaIDButton->state == 1) {
+                        else if (segaIDButton->state == SEGAIDBUTTON_STATE_PRESSED) {
                             segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                             PlaySfxByName("Menu Select", false);
                             ShowPromoPopup(0, "MoreGames");
@@ -129,209 +129,217 @@ void MenuControl_Main(void *objPtr)
                         else if (inputDown.left || inputDown.right) {
                             segaIDButton->state                  = SEGAIDBUTTON_STATE_IDLE;
                             usePhysicalControls                  = true;
-                            entity->buttonID                     = ceilf(entity->float18 / -entity->float2C);
-                            entity->buttons[entity->buttonID]->g = 0xC0;
+                            self->buttonID                     = ceilf(self->buttonMovePos / -self->buttonSpacing);
+                            self->buttons[self->buttonID]->g = 0xC0;
                         }
                         break;
                     }
+
                     case MENUCONTROL_STATEINPUT_HANDLEDRAG: {
                         if (touches <= 0) {
-                            entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEMOVEMENT;
+                            self->stateInput = MENUCONTROL_STATEINPUT_HANDLEMOVEMENT;
                         }
                         else {
-                            entity->field_70 = 0.0;
-                            entity->field_78 = (entity->field_6C - touchXF[0]) * -0.0007;
-                            if (abs(entity->field_74) > 0.0) {
-                                entity->field_70 = entity->field_78 - entity->field_74;
-                                entity->float18 += entity->field_70;
+                            self->autoButtonMoveVelocity = 0.0;
+                            self->dragTouchDistance      = (self->dragTouchX - touchXF[0]) * -0.0007;
+                            if (abs(self->lastDragTouchDistance) > 0.0) {
+                                self->autoButtonMoveVelocity = self->dragTouchDistance - self->lastDragTouchDistance;
+                                self->buttonMovePos += self->autoButtonMoveVelocity;
                             }
-                            entity->field_74 = entity->field_78;
+                            self->lastDragTouchDistance = self->dragTouchDistance;
                         }
                         break;
                     }
+
                     case MENUCONTROL_STATEINPUT_HANDLEMOVEMENT: {
-                        entity->field_70 /= (1.125 * (60.0 * Engine.deltaTime));
-                        entity->float18 += entity->field_70;
-                        float max = -(entity->float30 - entity->float2C);
+                        self->autoButtonMoveVelocity /= (1.125 * (60.0 * Engine.deltaTime));
+                        self->buttonMovePos += self->autoButtonMoveVelocity;
+                        float max = -(self->menuEndPos - self->buttonSpacing);
 
-                        if (max - 0.05 > entity->float18 || entity->float18 > 0.05) {
-                            entity->field_70 = 0.0;
-                        }
+                        if (max - 0.05 > self->buttonMovePos || self->buttonMovePos > 0.05)
+                            self->autoButtonMoveVelocity = 0.0;
 
-                        if (abs(entity->field_70) < 0.0025) {
-                            if (entity->float18 == entity->float20 && entity->field_6C < 0.0) {
-                                entity->float18 += 0.00001;
+                        if (abs(self->autoButtonMoveVelocity) < 0.0025) {
+                            if (self->buttonMovePos == self->lastButtonMovePos && self->dragTouchX < 0.0) {
+                                self->buttonMovePos += 0.00001;
                             }
 
-                            if (entity->float18 <= entity->float20) {
-                                entity->float1C = floorf(entity->float18 / entity->float2C) * entity->float2C;
+                            if (self->buttonMovePos <= self->lastButtonMovePos) {
+                                self->targetButtonMovePos = floorf(self->buttonMovePos / self->buttonSpacing) * self->buttonSpacing;
 
-                                if (entity->float1C > entity->float20 - entity->float2C)
-                                    entity->float1C = entity->float20 - entity->float2C;
+                                if (self->targetButtonMovePos > self->lastButtonMovePos - self->buttonSpacing)
+                                    self->targetButtonMovePos = self->lastButtonMovePos - self->buttonSpacing;
 
-                                if (entity->float1C < max)
-                                    entity->float1C = max;
+                                if (self->targetButtonMovePos < max)
+                                    self->targetButtonMovePos = max;
                             }
                             else {
-                                entity->float1C = ceilf(entity->float18 / entity->float2C) * entity->float2C;
+                                self->targetButtonMovePos = ceilf(self->buttonMovePos / self->buttonSpacing) * self->buttonSpacing;
 
-                                if (entity->float1C < entity->float2C + entity->float20)
-                                    entity->float1C = entity->float2C + entity->float20;
+                                if (self->targetButtonMovePos < self->buttonSpacing + self->lastButtonMovePos)
+                                    self->targetButtonMovePos = self->buttonSpacing + self->lastButtonMovePos;
 
-                                if (entity->float1C > 0.0)
-                                    entity->float1C = 0.0;
+                                if (self->targetButtonMovePos > 0.0)
+                                    self->targetButtonMovePos = 0.0;
                             }
 
-                            entity->stateInput = MENUCONTROL_STATEINPUT_MOVE;
-                            entity->float18 += (entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0);
+                            self->stateInput = MENUCONTROL_STATEINPUT_MOVE;
+                            self->buttonMovePos += (self->targetButtonMovePos - self->buttonMovePos) / ((60.0 * Engine.deltaTime) * 8.0);
                         }
                         break;
                     }
+
                     case MENUCONTROL_STATEINPUT_MOVE: {
                         if (touches > 0) {
-                            entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                            entity->field_74   = 0.0;
-                            entity->field_6C   = touchXF[0];
+                            self->stateInput            = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                            self->lastDragTouchDistance = 0.0;
+                            self->dragTouchX            = touchXF[0];
                         }
                         else {
-                            entity->float18 += (entity->float1C - entity->float18) / ((60.0 * Engine.deltaTime) * 6.0);
-                            if (abs(entity->float1C - entity->float18) < 0.00025) {
-                                entity->float18    = entity->float1C;
-                                entity->stateInput = MENUCONTROL_STATEINPUT_CHECKTOUCH;
+                            self->buttonMovePos += (self->targetButtonMovePos - self->buttonMovePos) / ((60.0 * Engine.deltaTime) * 6.0);
+                            if (abs(self->targetButtonMovePos - self->buttonMovePos) < 0.00025) {
+                                self->buttonMovePos = self->targetButtonMovePos;
+                                self->stateInput    = MENUCONTROL_STATEINPUT_CHECKTOUCH;
                             }
                         }
                         break;
                     }
+
                     case MENUCONTROL_STATEINPUT_HANDLERELEASE: {
                         if (touches > 0) {
                             if (CheckTouchRect(0.0, 16.0, 56.0, 56.0) < 0) {
-                                entity->buttons[entity->buttonID]->g = 0xFF;
+                                self->buttons[self->buttonID]->g = 0xFF;
                             }
                             else {
-                                entity->buttons[entity->buttonID]->g = 0xC0;
-                                if (abs(entity->touchX2 - touchXF[0]) > 8.0f) {
-                                    entity->stateInput                   = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                                    entity->field_6C                     = entity->buttonID;
-                                    entity->field_74                     = 0.0;
-                                    entity->float20                      = entity->float18;
-                                    entity->buttons[entity->buttonID]->g = 0xFF;
+                                self->buttons[self->buttonID]->g = 0xC0;
+                                if (abs(self->releaseTouchX - touchXF[0]) > 8.0f) {
+                                    self->stateInput                   = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                                    self->dragTouchX                   = self->buttonID;
+                                    self->lastDragTouchDistance        = 0.0;
+                                    self->lastButtonMovePos            = self->buttonMovePos;
+                                    self->buttons[self->buttonID]->g = 0xFF;
                                 }
                             }
                         }
                         else {
-                            if (entity->buttons[entity->buttonID]->g == 0xC0) {
-                                entity->buttons[entity->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
-                                entity->timer                                      = 0.0;
-                                entity->state                                      = MENUCONTROL_STATE_ACTION;
+                            if (self->buttons[self->buttonID]->g == 0xC0) {
+                                self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
+                                self->timer                                      = 0.0;
+                                self->state                                      = MENUCONTROL_STATE_ACTION;
                                 PlaySfxByName("Menu Select", false);
                             }
-                            entity->buttons[entity->buttonID]->g = 0xFF;
-                            entity->stateInput                   = MENUCONTROL_STATEINPUT_CHECKTOUCH;
+                            self->buttons[self->buttonID]->g = 0xFF;
+                            self->stateInput                   = MENUCONTROL_STATEINPUT_CHECKTOUCH;
                         }
                         break;
                     }
+
                     default: break;
                 }
             }
             else {
-                if (entity->stateInput == MENUCONTROL_STATEINPUT_HANDLEDRAG) {
-                    entity->float18 += (((entity->float24 + entity->float1C) - entity->float18) / ((60.0 * Engine.deltaTime) * 8.0));
+                if (self->stateInput == MENUCONTROL_STATEINPUT_HANDLEDRAG) {
+                    self->buttonMovePos +=
+                        (((self->buttonMoveVelocity + self->targetButtonMovePos) - self->buttonMovePos) / ((60.0 * Engine.deltaTime) * 8.0));
 
-                    if (abs(entity->float1C - entity->float18) < 0.001) {
-                        entity->float18    = entity->float1C;
-                        entity->stateInput = MENUCONTROL_STATEINPUT_CHECKTOUCH;
+                    if (abs(self->targetButtonMovePos - self->buttonMovePos) < 0.001) {
+                        self->buttonMovePos = self->targetButtonMovePos;
+                        self->stateInput    = MENUCONTROL_STATEINPUT_CHECKTOUCH;
                     }
                 }
                 else {
                     if (touches <= 0) {
-                        if (inputPress.right && entity->float18 > -(entity->float30 - entity->float2C)) {
-                            entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                            entity->float1C -= entity->float2C;
+                        if (inputPress.right && self->buttonMovePos > -(self->menuEndPos - self->buttonSpacing)) {
+                            self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                            self->targetButtonMovePos -= self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
-                            entity->float24 = -0.01;
-                            entity->buttonID++;
-                            if (entity->buttonID >= entity->buttonCount)
-                                entity->buttonID = entity->buttonCount - 1;
+                            self->buttonMoveVelocity = -0.01;
+                            self->buttonID++;
+                            if (self->buttonID >= self->buttonCount)
+                                self->buttonID = self->buttonCount - 1;
                         }
-                        else if (inputPress.left && entity->float18 < 0.0) {
-                            entity->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
-                            entity->float1C += entity->float2C;
+                        else if (inputPress.left && self->buttonMovePos < 0.0) {
+                            self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
+                            self->targetButtonMovePos += self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
-                            entity->float24 = 0.01;
-                            entity->buttonID--;
-                            if (entity->buttonID > entity->buttonCount)
-                                entity->buttonID = 0;
+                            self->buttonMoveVelocity = 0.01;
+                            self->buttonID--;
+                            if (self->buttonID > self->buttonCount)
+                                self->buttonID = 0;
                         }
                         else if ((inputPress.start || inputPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
-                            entity->buttons[entity->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
-                            entity->timer                                      = 0.0;
-                            entity->state                                      = MENUCONTROL_STATE_ACTION;
+                            self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
+                            self->timer                                      = 0.0;
+                            self->state                                      = MENUCONTROL_STATE_ACTION;
                             PlaySfxByName("Menu Select", false);
                         }
 
-                        for (int i = 0; i < entity->buttonCount; ++i) {
-                            entity->buttons[i]->g = 0xFF;
+                        for (int i = 0; i < self->buttonCount; ++i) {
+                            self->buttons[i]->g = 0xFF;
                         }
-                        entity->buttons[entity->buttonID]->g = 0xC0;
+                        self->buttons[self->buttonID]->g = 0xC0;
                     }
                     else {
                         usePhysicalControls = false;
-                        for (int i = 0; i < entity->buttonCount; ++i) {
-                            entity->buttons[i]->g = 0xFF;
+                        for (int i = 0; i < self->buttonCount; ++i) {
+                            self->buttons[i]->g = 0xFF;
                         }
                     }
                 }
             }
 
-            float offset = entity->float18;
-            for (int i = 0; i < entity->buttonCount; ++i) {
-                NativeEntity_AchievementsButton *button = entity->buttons[i];
-                button->x                               = 1024.0 * sinf(entity->float18 + offset);
-                button->y                               = (sinf(entity->float18 + offset) * 128.0) + 16.0;
-                button->z                               = (cosf(entity->float18 + offset) * -512.0) + 672.0;
+            float offset = self->buttonMovePos;
+            for (int i = 0; i < self->buttonCount; ++i) {
+                NativeEntity_AchievementsButton *button = self->buttons[i];
+                button->x                               = 1024.0 * sinf(self->buttonMovePos + offset);
+                button->y                               = (sinf(self->buttonMovePos + offset) * 128.0) + 16.0;
+                button->z                               = (cosf(self->buttonMovePos + offset) * -512.0) + 672.0;
                 button->visible                         = button->z <= 288.0;
-                offset += entity->float28;
+                offset += self->buttonIncline;
             }
 
-            if (!entity->stateInput) {
-                if (entity->dialogTimer) {
-                    entity->dialogTimer--;
+            if (!self->stateInput) {
+                if (self->dialogTimer) {
+                    self->dialogTimer--;
                 }
                 else if (inputPress.B && !Engine.nativeMenuFadeIn) {
-                    entity->dialog = CREATE_ENTITY(DialogPanel);
-                    SetStringToFont(entity->dialog->text, strExitGame, FONT_TEXT);
-                    entity->state = MENUCONTROL_STATE_DIALOGWAIT;
+                    self->dialog = CREATE_ENTITY(DialogPanel);
+                    SetStringToFont(self->dialog->text, strExitGame, FONT_TEXT);
+                    self->state = MENUCONTROL_STATE_DIALOGWAIT;
                     PlaySfxByName("Resume", false);
                 }
             }
             break;
         }
+
         case MENUCONTROL_STATE_ACTION: {
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 0.5) {
-                entity->timer                           = 0.0;
-                NativeEntity_AchievementsButton *button = entity->buttons[entity->buttonID];
-                switch (entity->buttonFlags[entity->buttonID]) {
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.5) {
+                self->timer                           = 0.0;
+                NativeEntity_AchievementsButton *button = self->buttons[self->buttonID];
+                switch (self->buttonFlags[self->buttonID]) {
                     case BUTTON_STARTGAME:
-                        entity->state                                      = MENUCONTROL_STATE_ENTERSUBMENU;
-                        entity->field_70                                   = 0.0;
+                        self->state                                      = MENUCONTROL_STATE_ENTERSUBMENU;
+                        self->autoButtonMoveVelocity                     = 0.0;
                         button->g                                          = 0xFF;
-                        entity->buttons[entity->buttonID]->labelPtr->state = TEXTLABEL_STATE_NONE;
-                        entity->backButton->visible                        = true;
+                        self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_NONE;
+                        self->backButton->visible                        = true;
                         SetGlobalVariableByName("options.vsMode", false);
                         CREATE_ENTITY(SaveSelect);
                         break;
+
                     case BUTTON_TIMEATTACK:
-                        entity->state               = MENUCONTROL_STATE_ENTERSUBMENU;
-                        entity->field_70            = 0.0;
-                        button->g                   = 0xFF;
-                        button->labelPtr->state     = TEXTLABEL_STATE_NONE;
-                        entity->backButton->visible = true;
+                        self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
+                        self->autoButtonMoveVelocity = 0.0;
+                        button->g                      = 0xFF;
+                        button->labelPtr->state        = TEXTLABEL_STATE_NONE;
+                        self->backButton->visible    = true;
                         CREATE_ENTITY(TimeAttack);
                         break;
+
                     case BUTTON_MULTIPLAYER:
-                        entity->state           = MENUCONTROL_STATE_MAIN;
+                        self->state           = MENUCONTROL_STATE_MAIN;
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
@@ -358,106 +366,113 @@ void MenuControl_Main(void *objPtr)
                             CREATE_ENTITY(FadeScreen);
                         }
                         else {
-                            entity->dialog              = CREATE_ENTITY(DialogPanel);
-                            entity->dialog->buttonCount = DLGTYPE_OK;
-                            SetStringToFont(entity->dialog->text, strNetworkMessage, FONT_TEXT);
-                            entity->state = MENUCONTROL_STATE_DIALOGWAIT;
+                            self->dialog              = CREATE_ENTITY(DialogPanel);
+                            self->dialog->buttonCount = DLGTYPE_OK;
+                            SetStringToFont(self->dialog->text, strNetworkMessage, FONT_TEXT);
+                            self->state = MENUCONTROL_STATE_DIALOGWAIT;
                         }
                         break;
+
                     case BUTTON_ACHIEVEMENTS:
                         if (Engine.onlineActive && false) {
                             ShowAchievementsScreen();
                         }
                         else {
-                            entity->state               = MENUCONTROL_STATE_MAIN;
-                            entity->dialog              = CREATE_ENTITY(DialogPanel);
-                            entity->dialog->buttonCount = DLGTYPE_OK;
-                            SetStringToFont(entity->dialog->text, strNetworkMessage, FONT_TEXT);
-                            entity->state = MENUCONTROL_STATE_DIALOGWAIT;
+                            self->state               = MENUCONTROL_STATE_MAIN;
+                            self->dialog              = CREATE_ENTITY(DialogPanel);
+                            self->dialog->buttonCount = DLGTYPE_OK;
+                            SetStringToFont(self->dialog->text, strNetworkMessage, FONT_TEXT);
+                            self->state = MENUCONTROL_STATE_DIALOGWAIT;
                         }
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;
+
                     case BUTTON_LEADERBOARDS:
-                        entity->state = MENUCONTROL_STATE_MAIN;
+                        self->state = MENUCONTROL_STATE_MAIN;
                         if (Engine.onlineActive && false) {
                             ShowLeaderboardsScreen();
                         }
                         else {
-                            entity->dialog              = CREATE_ENTITY(DialogPanel);
-                            entity->dialog->buttonCount = DLGTYPE_OK;
-                            SetStringToFont(entity->dialog->text, strNetworkMessage, FONT_TEXT);
-                            entity->state = MENUCONTROL_STATE_DIALOGWAIT;
+                            self->dialog              = CREATE_ENTITY(DialogPanel);
+                            self->dialog->buttonCount = DLGTYPE_OK;
+                            SetStringToFont(self->dialog->text, strNetworkMessage, FONT_TEXT);
+                            self->state = MENUCONTROL_STATE_DIALOGWAIT;
                         }
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;
+
                     case BUTTON_OPTIONS:
-                        entity->state               = MENUCONTROL_STATE_ENTERSUBMENU;
-                        entity->field_70            = 0.0;
-                        button->g                   = 0xFF;
-                        button->labelPtr->state     = TEXTLABEL_STATE_NONE;
-                        entity->backButton->visible = true;
+                        self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
+                        self->autoButtonMoveVelocity = 0.0;
+                        button->g                      = 0xFF;
+                        button->labelPtr->state        = TEXTLABEL_STATE_NONE;
+                        self->backButton->visible    = true;
                         CREATE_ENTITY(OptionsMenu);
                         break;
+
                     default:
-                        entity->state           = MENUCONTROL_STATE_MAIN;
+                        self->state           = MENUCONTROL_STATE_MAIN;
                         button->labelPtr->state = TEXTLABEL_STATE_IDLE;
                         break;
                 }
             }
             break;
         }
+
         case MENUCONTROL_STATE_NONE: break;
+
         case MENUCONTROL_STATE_ENTERSUBMENU: {
             if (segaIDButton->alpha > 0)
                 segaIDButton->alpha -= 8;
 
-            entity->field_70 -= 0.125 * (60.0 * Engine.deltaTime);
+            self->autoButtonMoveVelocity -= 0.125 * (60.0 * Engine.deltaTime);
 
-            for (int i = 0; i < entity->buttonCount; ++i) {
-                if (entity->buttonID != i) {
-                    if (entity->buttonID != i)
-                        entity->buttons[i]->z += ((60.0 * Engine.deltaTime) * entity->field_70);
+            for (int i = 0; i < self->buttonCount; ++i) {
+                if (self->buttonID != i) {
+                    if (self->buttonID != i)
+                        self->buttons[i]->z += ((60.0 * Engine.deltaTime) * self->autoButtonMoveVelocity);
                 }
             }
 
-            entity->timer += Engine.deltaTime;
-            entity->field_70 -= 0.125 * (60.0 * Engine.deltaTime);
+            self->timer += Engine.deltaTime;
+            self->autoButtonMoveVelocity -= 0.125 * (60.0 * Engine.deltaTime);
 
-            if (entity->timer > 0.5) {
-                NativeEntity_AchievementsButton *button = entity->buttons[entity->buttonID];
+            if (self->timer > 0.5) {
+                NativeEntity_AchievementsButton *button = self->buttons[self->buttonID];
                 float div                               = (60.0 * Engine.deltaTime) * 16.0;
 
                 button->x += ((112.0 - button->x) / div);
                 button->y += ((64.0 - button->y) / div);
                 button->z += ((200.0 - button->z) / div);
-                entity->backButton->z += ((320.0 - entity->backButton->z) / div);
+                self->backButton->z += ((320.0 - self->backButton->z) / div);
             }
 
-            if (entity->timer > 1.5) {
-                entity->timer = 0.0;
-                entity->state = MENUCONTROL_STATE_SUBMENU;
+            if (self->timer > 1.5) {
+                self->timer = 0.0;
+                self->state = MENUCONTROL_STATE_SUBMENU;
 
-                for (int i = 0; i < entity->buttonCount; ++i) {
-                    if (entity->buttonID != i) {
-                        if (entity->buttonID != i)
-                            entity->buttons[i]->visible = false;
+                for (int i = 0; i < self->buttonCount; ++i) {
+                    if (self->buttonID != i) {
+                        if (self->buttonID != i)
+                            self->buttons[i]->visible = false;
                     }
                 }
             }
             break;
         }
+
         case MENUCONTROL_STATE_SUBMENU: {
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
             if (touches <= 0) {
-                if (entity->backButton->g == 0xC0) {
+                if (self->backButton->g == 0xC0) {
                     PlaySfxByName("Menu Back", false);
-                    entity->backButton->g = 0xFF;
-                    entity->state         = MENUCONTROL_STATE_EXITSUBMENU;
+                    self->backButton->g = 0xFF;
+                    self->state         = MENUCONTROL_STATE_EXITSUBMENU;
                 }
             }
             else {
-                backButton = entity->backButton;
+                backButton = self->backButton;
                 if (CheckTouchRect(122.0, -80.0, 32.0, 32.0) < 0)
                     backButton->g = 0xFF;
                 else
@@ -465,53 +480,56 @@ void MenuControl_Main(void *objPtr)
             }
             if (inputPress.B) {
                 PlaySfxByName("Menu Back", false);
-                entity->backButton->g = 0xFF;
-                entity->state         = MENUCONTROL_STATE_EXITSUBMENU;
+                self->backButton->g = 0xFF;
+                self->state         = MENUCONTROL_STATE_EXITSUBMENU;
             }
             break;
         }
+
         case MENUCONTROL_STATE_EXITSUBMENU: {
-            entity->backButton->z = ((0.0 - entity->backButton->z) / (16.0 * (60.0 * Engine.deltaTime))) + entity->backButton->z;
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 0.25) {
-                float offset = entity->float18;
+            self->backButton->z = ((0.0 - self->backButton->z) / (16.0 * (60.0 * Engine.deltaTime))) + self->backButton->z;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.25) {
+                float offset = self->buttonMovePos;
                 float div    = (60.0 * Engine.deltaTime) * 8.0;
 
-                for (int i = 0; i < entity->buttonCount; ++i) {
-                    if (entity->buttonID != i) {
-                        NativeEntity_AchievementsButton *button = entity->buttons[i];
-                        button->z       = ((((cosf(offset + entity->float18) * -512.0) + 672.0) - button->z) / div) + button->z;
+                for (int i = 0; i < self->buttonCount; ++i) {
+                    if (self->buttonID != i) {
+                        NativeEntity_AchievementsButton *button = self->buttons[i];
+                        button->z       = ((((cosf(offset + self->buttonMovePos) * -512.0) + 672.0) - button->z) / div) + button->z;
                         button->visible = true;
                     }
-                    offset += entity->float28;
+                    offset += self->buttonIncline;
                 }
 
-                NativeEntity_AchievementsButton *curButton = entity->buttons[entity->buttonID];
+                NativeEntity_AchievementsButton *curButton = self->buttons[self->buttonID];
                 curButton->labelPtr->state                 = TEXTLABEL_STATE_IDLE;
                 curButton->x += ((0.0 - curButton->x) / div);
                 curButton->y += ((16.0 - curButton->y) / div);
                 curButton->z += ((160.0 - curButton->z) / div);
             }
 
-            if (entity->timer > 1.0) {
-                entity->timer    = 0.0;
-                entity->field_70 = 0.0;
-                entity->state    = MENUCONTROL_STATE_MAIN;
+            if (self->timer > 1.0) {
+                self->timer                  = 0.0;
+                self->autoButtonMoveVelocity = 0.0;
+                self->state                  = MENUCONTROL_STATE_MAIN;
             }
             break;
         }
+
         case MENUCONTROL_STATE_DIALOGWAIT: {
-            if (entity->dialog->selection == DLG_NO || entity->dialog->selection == DLG_OK) {
-                entity->state       = MENUCONTROL_STATE_MAIN;
-                entity->dialogTimer = 50;
+            if (self->dialog->selection == DLG_NO || self->dialog->selection == DLG_OK) {
+                self->state       = MENUCONTROL_STATE_MAIN;
+                self->dialogTimer = 50;
             }
-            else if (entity->dialog->selection == DLG_YES) {
+            else if (self->dialog->selection == DLG_YES) {
                 ExitGame();
-                entity->dialogTimer = 50;
-                entity->state       = MENUCONTROL_STATE_MAIN;
+                self->dialogTimer = 50;
+                self->state       = MENUCONTROL_STATE_MAIN;
             }
             break;
         }
+
         default: break;
     }
 }

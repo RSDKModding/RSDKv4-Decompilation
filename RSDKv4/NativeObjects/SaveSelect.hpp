@@ -35,13 +35,13 @@ enum SaveSelectButtons {
 struct NativeEntity_SaveSelect : NativeEntityBase {
     SaveSelectStates state;
     float timer;
-    int field_18;
+    int unused1;
     NativeEntity_MenuControl *menuControl;
     void *playerSelect;
     NativeEntity_TextLabel *labelPtr;
     float deleteRotateY;
-    float field_2C;
-    float field_30;
+    float targetDeleteRotateY;
+    float deleteRotateYVelocity;
     MatrixF matrix1;
     NativeEntity_SubMenuButton *saveButtons[SAVESELECT_BUTTON_COUNT];
     NativeEntity_PushButton *delButton;
@@ -49,8 +49,8 @@ struct NativeEntity_SaveSelect : NativeEntityBase {
     byte deleteEnabled;
     int selectedButton;
     float rotateY[SAVESELECT_BUTTON_COUNT];
-    float field_AC[SAVESELECT_BUTTON_COUNT];
-    float field_C0[SAVESELECT_BUTTON_COUNT];
+    float targetRotateY[SAVESELECT_BUTTON_COUNT];
+    float rotateYVelocity[SAVESELECT_BUTTON_COUNT];
 };
 
 void SaveSelect_Create(void *objPtr);

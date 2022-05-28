@@ -5,106 +5,106 @@ void AboutScreen_Create(void *objPtr)
 {
     RSDK_THIS(AboutScreen);
 
-    entity->label                  = CREATE_ENTITY(TextLabel);
-    entity->label->useRenderMatrix = true;
-    entity->label->fontID          = FONT_HEADING;
-    entity->label->scale           = 0.2;
-    entity->label->alpha           = 256;
-    entity->label->x               = -144.0;
-    entity->label->y               = 100.0;
-    entity->label->z               = 16.0;
-    entity->label->state           = TEXTLABEL_STATE_IDLE;
-    SetStringToFont(entity->label->text, strAbout, FONT_HEADING);
+    self->label                  = CREATE_ENTITY(TextLabel);
+    self->label->useRenderMatrix = true;
+    self->label->fontID          = FONT_HEADING;
+    self->label->scale           = 0.2;
+    self->label->alpha           = 256;
+    self->label->x               = -144.0;
+    self->label->y               = 100.0;
+    self->label->z               = 16.0;
+    self->label->state           = TEXTLABEL_STATE_IDLE;
+    SetStringToFont(self->label->text, strAbout, FONT_HEADING);
 
     char title[0x40];
     for (int i = 0; i < StrLength(Engine.gameWindowText); ++i) title[i] = toupper(Engine.gameWindowText[i]);
-    SetStringToFont8(entity->gameTitle, title, FONT_LABEL);
-    SetStringToFont(entity->versionNameText, strVersionName, FONT_LABEL);
-    SetStringToFont8(entity->versionText, Engine.gameVersion, FONT_LABEL);
+    SetStringToFont8(self->gameTitle, title, FONT_LABEL);
+    SetStringToFont(self->versionNameText, strVersionName, FONT_LABEL);
+    SetStringToFont8(self->versionText, Engine.gameVersion, FONT_LABEL);
 
-    entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
-    SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
+    self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
+    SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
+    self->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
 
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case REGION_JP:
             package         = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
-            entity->meshBox = LoadMesh("Data/Game/Models/JPBox.bin", package);
+            self->meshBox = LoadMesh("Data/Game/Models/JPBox.bin", package);
             break;
         case REGION_US:
             package         = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
-            entity->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
+            self->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
             break;
         case REGION_EU:
             package         = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
-            entity->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
+            self->meshBox = LoadMesh("Data/Game/Models/Box.bin", package);
             break;
         default: break;
     }
 
-    SetMeshAnimation(entity->meshBox, &entity->animator, 16, 16, 0.0);
-    AnimateMesh(entity->meshBox, &entity->animator);
+    SetMeshAnimation(self->meshBox, &self->animator, 16, 16, 0.0);
+    AnimateMesh(self->meshBox, &self->animator);
 
     float y = -24.0f;
     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-        entity->buttons[i]                   = CREATE_ENTITY(PushButton);
-        entity->buttons[i]->useRenderMatrix  = true;
-        entity->buttons[i]->x                = 64.0;
-        entity->buttons[i]->y                = y;
-        entity->buttons[i]->z                = 0.0;
-        entity->buttons[i]->scale            = 0.175;
-        entity->buttons[i]->bgColour         = 0x00A048;
-        entity->buttons[i]->bgColourSelected = 0x00C060;
+        self->buttons[i]                   = CREATE_ENTITY(PushButton);
+        self->buttons[i]->useRenderMatrix  = true;
+        self->buttons[i]->x                = 64.0;
+        self->buttons[i]->y                = y;
+        self->buttons[i]->z                = 0.0;
+        self->buttons[i]->scale            = 0.175;
+        self->buttons[i]->bgColor         = 0x00A048;
+        self->buttons[i]->bgColorSelected = 0x00C060;
 
         y -= 32.0f;
     }
 
-    SetStringToFont(entity->buttons[ABOUT_BTN_PRIVACY]->text, strPrivacy, FONT_LABEL);
-    SetStringToFont(entity->buttons[ABOUT_BTN_TERMS]->text, strTerms, FONT_LABEL);
+    SetStringToFont(self->buttons[ABOUT_BTN_PRIVACY]->text, strPrivacy, FONT_LABEL);
+    SetStringToFont(self->buttons[ABOUT_BTN_TERMS]->text, strTerms, FONT_LABEL);
 }
 void AboutScreen_Main(void *objPtr)
 {
     RSDK_THIS(AboutScreen);
-    NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)entity->optionsMenu;
+    NativeEntity_OptionsMenu *optionsMenu = (NativeEntity_OptionsMenu *)self->optionsMenu;
 
-    switch (entity->state) {
+    switch (self->state) {
         case ABOUT_STATE_ENTER: {
-            if (entity->arrowAlpha < 0x100)
-                entity->arrowAlpha += 8;
+            if (self->arrowAlpha < 0x100)
+                self->arrowAlpha += 8;
 
             float maxWidth = 0;
             for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-                if (entity->buttons[i]->textWidth > maxWidth)
-                    maxWidth = entity->buttons[i]->textWidth;
+                if (self->buttons[i]->textWidth > maxWidth)
+                    maxWidth = self->buttons[i]->textWidth;
             }
             for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-                entity->buttons[i]->textWidth = maxWidth;
+                self->buttons[i]->textWidth = maxWidth;
             }
 
-            entity->scale = fminf(entity->scale + ((1.05 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
+            self->scale = fminf(self->scale + ((1.05 - self->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
 
             NewRenderState();
-            matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
+            MatrixScaleXYZF(&self->renderMatrix, self->scale, self->scale, 1.0);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
 
-            memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < ABOUT_BTN_COUNT; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
+            memcpy(&self->label->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            for (int i = 0; i < ABOUT_BTN_COUNT; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
 
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 0.5) {
-                entity->arrowAlpha = 256;
-                entity->timer      = 0.0;
-                entity->state      = ABOUT_STATE_MAIN;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.5) {
+                self->arrowAlpha = 256;
+                self->timer      = 0.0;
+                self->state      = ABOUT_STATE_MAIN;
             }
             break;
         }
         case ABOUT_STATE_MAIN: {
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
-            SetRenderMatrix(&entity->renderMatrix);
+            SetRenderMatrix(&self->renderMatrix);
 
             if (usePhysicalControls) {
                 if (touches > 0) {
@@ -113,29 +113,29 @@ void AboutScreen_Main(void *objPtr)
                 else {
                     if (inputPress.up) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedButton--;
-                        if (entity->selectedButton < 0)
-                            entity->selectedButton = 1;
+                        self->selectedButton--;
+                        if (self->selectedButton < 0)
+                            self->selectedButton = 1;
                     }
                     else if (inputPress.down) {
                         PlaySfxByName("Menu Move", false);
-                        entity->selectedButton++;
-                        if (entity->selectedButton >= 2)
-                            entity->selectedButton = 0;
+                        self->selectedButton++;
+                        if (self->selectedButton >= 2)
+                            self->selectedButton = 0;
                     }
 
-                    for (int i = 0; i < ABOUT_BTN_COUNT; ++i) entity->buttons[i]->state = 0;
-                    entity->buttons[entity->selectedButton]->state = 1;
+                    for (int i = 0; i < ABOUT_BTN_COUNT; ++i) self->buttons[i]->state = 0;
+                    self->buttons[self->selectedButton]->state = 1;
 
                     if (inputPress.start || inputPress.A) {
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[entity->selectedButton]->state = 2;
-                        entity->state                                  = ABOUT_STATE_ACTION;
+                        self->buttons[self->selectedButton]->state = 2;
+                        self->state                                  = ABOUT_STATE_ACTION;
                     }
                     else if (inputPress.B) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = false;
-                        entity->state       = ABOUT_STATE_EXIT;
+                        self->backPressed = false;
+                        self->state       = ABOUT_STATE_EXIT;
                     }
                 }
             }
@@ -143,47 +143,47 @@ void AboutScreen_Main(void *objPtr)
                 if (touches > 0) {
                     float y = -32.0f;
                     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-                        bool valid = CheckTouchRect(64.0, y, ((64.0 * entity->buttons[i]->scale) + entity->buttons[i]->textWidth) * 0.75, 12.0) >= 0;
-                        entity->buttons[i]->state = valid;
+                        bool valid = CheckTouchRect(64.0, y, ((64.0 * self->buttons[i]->scale) + self->buttons[i]->textWidth) * 0.75, 12.0) >= 0;
+                        self->buttons[i]->state = valid;
 
                         y -= 32.0f;
                     }
-                    entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
-                    if (entity->state == ABOUT_STATE_MAIN) {
+                    self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
+                    if (self->state == ABOUT_STATE_MAIN) {
                         if (inputDown.up) {
-                            entity->selectedButton = 1;
+                            self->selectedButton = 1;
                             usePhysicalControls    = true;
                         }
                         if (inputDown.down) {
-                            entity->selectedButton = 0;
+                            self->selectedButton = 0;
                             usePhysicalControls    = true;
                         }
                     }
                 }
                 else {
                     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
-                        if (entity->buttons[i]->state == 1) {
+                        if (self->buttons[i]->state == 1) {
                             PlaySfxByName("Menu Select", false);
-                            entity->buttons[i]->state = 2;
-                            entity->selectedButton    = i;
-                            entity->state             = ABOUT_STATE_ACTION;
+                            self->buttons[i]->state = 2;
+                            self->selectedButton    = i;
+                            self->state             = ABOUT_STATE_ACTION;
                             break;
                         }
                     }
 
-                    if (inputPress.B || entity->backPressed) {
+                    if (inputPress.B || self->backPressed) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = false;
-                        entity->state       = ABOUT_STATE_EXIT;
+                        self->backPressed = false;
+                        self->state       = ABOUT_STATE_EXIT;
                     }
                     else {
-                        if (entity->state == ABOUT_STATE_MAIN) {
+                        if (self->state == ABOUT_STATE_MAIN) {
                             if (inputDown.up) {
-                                entity->selectedButton = 1;
+                                self->selectedButton = 1;
                                 usePhysicalControls    = true;
                             }
                             if (inputDown.down) {
-                                entity->selectedButton = 0;
+                                self->selectedButton = 0;
                                 usePhysicalControls    = true;
                             }
                         }
@@ -194,69 +194,69 @@ void AboutScreen_Main(void *objPtr)
         }
         case ABOUT_STATE_ACTION: {
             CheckKeyDown(&inputDown);
-            SetRenderMatrix(&entity->renderMatrix);
+            SetRenderMatrix(&self->renderMatrix);
 
-            if (entity->buttons[entity->selectedButton]->state) {
-                switch (entity->selectedButton) {
+            if (self->buttons[self->selectedButton]->state) {
+                switch (self->selectedButton) {
                     default: break;
                     case ABOUT_BTN_PRIVACY: ShowWebsite(0); break;
                     case ABOUT_BTN_TERMS: ShowWebsite(1); break;
                 }
-                entity->state = ABOUT_STATE_MAIN;
+                self->state = ABOUT_STATE_MAIN;
             }
             break;
         }
         case ABOUT_STATE_EXIT: {
-            if (entity->arrowAlpha > 0)
-                entity->arrowAlpha -= 8;
+            if (self->arrowAlpha > 0)
+                self->arrowAlpha -= 8;
 
-            if (entity->timer < 0.2)
-                entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+            if (self->timer < 0.2)
+                self->scale = fmaxf(self->scale + ((1.5f - self->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
             else
-                entity->scale = fmaxf(entity->scale + ((-1.0f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+                self->scale = fmaxf(self->scale + ((-1.0f - self->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
 
             NewRenderState();
-            matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
+            MatrixScaleXYZF(&self->renderMatrix, self->scale, self->scale, 1.0);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
 
-            memcpy(&entity->label->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            for (int i = 0; i < ABOUT_BTN_COUNT; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
+            memcpy(&self->label->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            for (int i = 0; i < ABOUT_BTN_COUNT; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
 
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 0.5) {
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.5) {
                 optionsMenu->state = OPTIONSMENU_STATE_EXITSUBMENU;
-                RemoveNativeObject(entity->label);
-                for (int i = 0; i < ABOUT_BTN_COUNT; ++i) RemoveNativeObject(entity->buttons[i]);
-                RemoveNativeObject(entity);
+                RemoveNativeObject(self->label);
+                for (int i = 0; i < ABOUT_BTN_COUNT; ++i) RemoveNativeObject(self->buttons[i]);
+                RemoveNativeObject(self);
                 return;
             }
             break;
         }
     }
 
-    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
-    RenderText(entity->gameTitle, FONT_LABEL, 24.0, 56.0, 0.0, 0.125, 255);
-    RenderText(entity->versionNameText, FONT_LABEL, 24.0, 32.0, 0.0, 0.125, 255);
-    RenderText(entity->versionText, FONT_LABEL, 24.0, 8.0, 0.0, 0.125, 255);
+    RenderMesh(self->meshPanel, MESH_COLORS, false);
+    RenderText(self->gameTitle, FONT_LABEL, 24.0, 56.0, 0.0, 0.125, 255);
+    RenderText(self->versionNameText, FONT_LABEL, 24.0, 32.0, 0.0, 0.125, 255);
+    RenderText(self->versionText, FONT_LABEL, 24.0, 8.0, 0.0, 0.125, 255);
     NewRenderState();
 
-    entity->rotationY -= Engine.deltaTime;
-    if (entity->rotationY < -(M_PI_2))
-        entity->rotationY += (M_PI_2);
+    self->rotationY -= Engine.deltaTime;
+    if (self->rotationY < -(M_PI_2))
+        self->rotationY += (M_PI_2);
 
-    matrixScaleXYZF(&entity->renderMatrix2, 0.6 * entity->scale, 0.6 * entity->scale, 0.6 * entity->scale);
-    matrixRotateYF(&entity->matrixTemp, entity->rotationY);
-    matrixMultiplyF(&entity->renderMatrix2, &entity->matrixTemp);
-    matrixTranslateXYZF(&entity->matrixTemp, -56.0, -8.0, 160.0);
-    matrixMultiplyF(&entity->renderMatrix2, &entity->matrixTemp);
-    SetRenderMatrix(&entity->renderMatrix2);
-    RenderMesh(entity->meshBox, MESH_NORMALS, true);
+    MatrixScaleXYZF(&self->renderMatrix2, 0.6 * self->scale, 0.6 * self->scale, 0.6 * self->scale);
+    MatrixRotateYF(&self->matrixTemp, self->rotationY);
+    MatrixMultiplyF(&self->renderMatrix2, &self->matrixTemp);
+    MatrixTranslateXYZF(&self->matrixTemp, -56.0, -8.0, 160.0);
+    MatrixMultiplyF(&self->renderMatrix2, &self->matrixTemp);
+    SetRenderMatrix(&self->renderMatrix2);
+    RenderMesh(self->meshBox, MESH_NORMALS, true);
     SetRenderMatrix(NULL);
 
-    if (entity->backPressed)
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, entity->arrowAlpha, entity->textureArrows);
+    if (self->backPressed)
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, self->arrowAlpha, self->textureArrows);
     else
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, entity->arrowAlpha, entity->textureArrows);
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, self->arrowAlpha, self->textureArrows);
 }

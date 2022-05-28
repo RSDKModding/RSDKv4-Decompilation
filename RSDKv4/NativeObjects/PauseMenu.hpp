@@ -31,7 +31,7 @@ enum PauseMenuStates {
 struct NativeEntity_PauseMenu : NativeEntityBase {
     PauseMenuStates state;
     float timer;
-    float float18;
+    float unused1;
     NativeEntity_RetroGameLoop *retroGameLoop;
     NativeEntity_SettingsScreen *settingsScreen;
     NativeEntity_TextLabel *label;
@@ -46,7 +46,7 @@ struct NativeEntity_PauseMenu : NativeEntityBase {
     float rotMax[PMB_COUNT];
     float buttonRotY[PMB_COUNT];
     NativeEntity_DialogPanel *dialog;
-    int dwordFC;
+    int unused2;
     float buttonX;
     float matrixX;
     float width;

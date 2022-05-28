@@ -19,7 +19,7 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     InstructionsScreenStates state;
     int pageID;
     int shownPage;
-    float field_1C;
+    float timer;
     float rotationY;
     float scale;
     NativeEntity_OptionsMenu *optionsMenu;
@@ -37,12 +37,12 @@ struct NativeEntity_InstructionsScreen : NativeEntityBase {
     InstructionsScreenInputStates stateInput;
     float textY;
     float textHeight;
-    float field_CC;
-    float field_D0;
-    float field_D4;
-    float field_D8;
+    float lastTouchY;
+    float textVelocity;
+    float lastSwipeDistanceV;
+    float swipeDistanceV;
     float lastTouchX;
-    byte field_E0;
+    byte selectionEnabled;
     byte flipRight;
     ushort pageIDText[8];
 };

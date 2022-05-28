@@ -3,60 +3,60 @@
 void TextLabel_Create(void *objPtr)
 {
     RSDK_THIS(TextLabel);
-    entity->z        = 160.0;
-    entity->alpha    = 0xFF;
-    entity->state    = TEXTLABEL_STATE_IDLE;
-    entity->alignPtr = TextLabel_Align;
+    self->z        = 160.0;
+    self->alpha    = 0xFF;
+    self->state    = TEXTLABEL_STATE_IDLE;
+    self->alignPtr = TextLabel_Align;
 }
 void TextLabel_Main(void *objPtr)
 {
     RSDK_THIS(TextLabel);
 
-    if (entity->useRenderMatrix) {
+    if (self->useRenderMatrix) {
         NewRenderState();
-        SetRenderMatrix(&entity->renderMatrix);
+        SetRenderMatrix(&self->renderMatrix);
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (entity->useColours)
-        SetRenderVertexColor(entity->r, entity->g, entity->b);
+    if (self->useColors)
+        SetRenderVertexColor(self->r, self->g, self->b);
 #endif
 
-    switch (entity->state) {
+    switch (self->state) {
         default: break;
         case TEXTLABEL_STATE_NONE: break;
         case TEXTLABEL_STATE_IDLE:
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderText(entity->text, entity->fontID, entity->x - entity->alignOffset, entity->y, entity->z, entity->scale, entity->alpha);
+            RenderText(self->text, self->fontID, self->x - self->alignOffset, self->y, self->z, self->scale, self->alpha);
             break;
         case TEXTLABEL_STATE_BLINK:
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 1.0f)
-                entity->timer -= 1.0f;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 1.0f)
+                self->timer -= 1.0f;
 
-            if (entity->timer > 0.5) {
+            if (self->timer > 0.5) {
                 SetRenderBlendMode(RENDER_BLEND_ALPHA);
-                RenderText(entity->text, entity->fontID, entity->x - entity->alignOffset, entity->y, entity->z, entity->scale, entity->alpha);
+                RenderText(self->text, self->fontID, self->x - self->alignOffset, self->y, self->z, self->scale, self->alpha);
             }
             break;
         case TEXTLABEL_STATE_BLINK_FAST:
-            entity->timer += Engine.deltaTime;
-            if (entity->timer > 0.1f)
-                entity->timer -= 0.1f;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.1f)
+                self->timer -= 0.1f;
 
-            if (entity->timer > 0.05) {
+            if (self->timer > 0.05) {
                 SetRenderBlendMode(RENDER_BLEND_ALPHA);
-                RenderText(entity->text, entity->fontID, entity->x - entity->alignOffset, entity->y, entity->z, entity->scale, entity->alpha);
+                RenderText(self->text, self->fontID, self->x - self->alignOffset, self->y, self->z, self->scale, self->alpha);
             }
             break;
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    if (entity->useColours)
+    if (self->useColors)
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
 #endif
 
-    if (entity->useRenderMatrix) {
+    if (self->useRenderMatrix) {
         NewRenderState();
         SetRenderMatrix(NULL);
     }

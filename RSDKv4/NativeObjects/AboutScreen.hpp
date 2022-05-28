@@ -6,7 +6,7 @@ enum AboutMenuStates { ABOUT_STATE_ENTER, ABOUT_STATE_MAIN, ABOUT_STATE_ACTION, 
 
 struct NativeEntity_AboutScreen : NativeEntityBase {
     int state;
-    int field_14;
+    int unused;
     float timer;
     float rotationY;
     float scale;

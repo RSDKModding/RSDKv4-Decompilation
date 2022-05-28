@@ -3,115 +3,115 @@
 void SubMenuButton_Create(void *objPtr)
 {
     RSDK_THIS(SubMenuButton);
-    entity->matZ           = 160.0;
-    entity->alpha          = 0xFF;
-    entity->state          = SUBMENUBUTTON_STATE_IDLE;
-    entity->matXOff        = 0.0;
-    entity->r              = 0xFF;
-    entity->g              = 0xFF;
-    entity->b              = 0xFF;
-    entity->textureSymbols = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
-    entity->meshButton     = LoadMesh("Data/Game/Models/Button.bin", 255);
-    entity->meshButtonH    = LoadMesh("Data/Game/Models/ButtonH.bin", 255);
-    SetMeshVertexColors(entity->meshButton, 0, 0, 0, 0xC0);
-    SetMeshVertexColors(entity->meshButtonH, 0xA0, 0, 0, 0xC0);
+    self->matZ           = 160.0;
+    self->alpha          = 0xFF;
+    self->state          = SUBMENUBUTTON_STATE_IDLE;
+    self->matXOff        = 0.0;
+    self->r              = 0xFF;
+    self->g              = 0xFF;
+    self->b              = 0xFF;
+    self->textureSymbols = LoadTexture("Data/Game/Menu/Symbols.png", TEXFMT_RGBA4444);
+    self->meshButton     = LoadMesh("Data/Game/Models/Button.bin", 255);
+    self->meshButtonH    = LoadMesh("Data/Game/Models/ButtonH.bin", 255);
+    SetMeshVertexColors(self->meshButton, 0, 0, 0, 0xC0);
+    SetMeshVertexColors(self->meshButtonH, 0xA0, 0, 0, 0xC0);
 }
 void SubMenuButton_Main(void *objPtr)
 {
     RSDK_THIS(SubMenuButton);
-    if (entity->useMatrix) {
+    if (self->useMatrix) {
         NewRenderState();
-        matrixTranslateXYZF(&entity->renderMatrix, entity->matX - entity->matXOff, entity->matY, entity->matZ);
-        matrixMultiplyF(&entity->renderMatrix, &entity->matrix);
-        SetRenderMatrix(&entity->renderMatrix);
+        MatrixTranslateXYZF(&self->renderMatrix, self->matX - self->matXOff, self->matY, self->matZ);
+        MatrixMultiplyF(&self->renderMatrix, &self->matrix);
+        SetRenderMatrix(&self->renderMatrix);
     }
-    SetRenderVertexColor(entity->r, entity->g, entity->b);
+    SetRenderVertexColor(self->r, self->g, self->b);
 
-    switch (entity->state) {
+    switch (self->state) {
         case SUBMENUBUTTON_STATE_IDLE: {
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, MESH_COLOURS, false);
-            RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
+            RenderMesh(self->meshButton, MESH_COLORS, false);
+            RenderText(self->text, FONT_LABEL, -80.0, self->textY, 0, self->scale, self->alpha);
             break;
         }
         case SUBMENUBUTTON_STATE_FLASHING1: {
-            entity->flashTimer += Engine.deltaTime;
-            if (entity->flashTimer > 1.0)
-                entity->flashTimer -= 1.0;
+            self->flashTimer += Engine.deltaTime;
+            if (self->flashTimer > 1.0)
+                self->flashTimer -= 1.0;
 
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, MESH_COLOURS, false);
-            if (entity->flashTimer > 0.5)
-                RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
+            RenderMesh(self->meshButton, MESH_COLORS, false);
+            if (self->flashTimer > 0.5)
+                RenderText(self->text, FONT_LABEL, -80.0, self->textY, 0, self->scale, self->alpha);
             break;
         }
         case SUBMENUBUTTON_STATE_FLASHING2: {
-            entity->flashTimer += Engine.deltaTime;
-            if (entity->flashTimer > 0.1)
-                entity->flashTimer -= 0.1;
+            self->flashTimer += Engine.deltaTime;
+            if (self->flashTimer > 0.1)
+                self->flashTimer -= 0.1;
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            RenderMesh(entity->meshButton, MESH_COLOURS, false);
-            if (entity->flashTimer > 0.05)
-                RenderText(entity->text, FONT_LABEL, -80.0, entity->textY, 0, entity->scale, entity->alpha);
+            RenderMesh(self->meshButton, MESH_COLORS, false);
+            if (self->flashTimer > 0.05)
+                RenderText(self->text, FONT_LABEL, -80.0, self->textY, 0, self->scale, self->alpha);
 
-            entity->afterFlashTimer += Engine.deltaTime;
-            if (entity->afterFlashTimer > 0.5) {
-                entity->afterFlashTimer = 0.0;
-                entity->state           = SUBMENUBUTTON_STATE_IDLE;
+            self->afterFlashTimer += Engine.deltaTime;
+            if (self->afterFlashTimer > 0.5) {
+                self->afterFlashTimer = 0.0;
+                self->state           = SUBMENUBUTTON_STATE_IDLE;
             }
             break;
         }
         case SUBMENUBUTTON_STATE_SAVEBUTTON_UNSELECTED: {
-            entity->flashTimer += Engine.deltaTime;
-            if (entity->flashTimer > 0.1)
-                entity->flashTimer -= 0.1;
+            self->flashTimer += Engine.deltaTime;
+            if (self->flashTimer > 0.1)
+                self->flashTimer -= 0.1;
 
-            entity->afterFlashTimer += Engine.deltaTime;
-            if (entity->afterFlashTimer > 0.5) {
-                entity->flashTimer      = 0.0;
-                entity->afterFlashTimer = 0.0;
-                entity->state           = SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED;
+            self->afterFlashTimer += Engine.deltaTime;
+            if (self->afterFlashTimer > 0.5) {
+                self->flashTimer      = 0.0;
+                self->afterFlashTimer = 0.0;
+                self->state           = SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED;
             }
             // FallThrough
         }
         case SUBMENUBUTTON_STATE_SAVEBUTTON_SELECTED: {
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
-            if (entity->useMeshH)
-                RenderMesh(entity->meshButtonH, MESH_COLOURS, false);
+            if (self->useMeshH)
+                RenderMesh(self->meshButtonH, MESH_COLORS, false);
             else
-                RenderMesh(entity->meshButton, MESH_COLOURS, false);
-            if (entity->flashTimer < 0.05)
-                RenderText(entity->text, FONT_LABEL, -64.0, entity->textY, 0, entity->scale, entity->alpha);
+                RenderMesh(self->meshButton, MESH_COLORS, false);
+            if (self->flashTimer < 0.05)
+                RenderText(self->text, FONT_LABEL, -64.0, self->textY, 0, self->scale, self->alpha);
 
-            switch (entity->symbol) {
-                case 0: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, entity->textureSymbols); break;
-                case 1: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, entity->textureSymbols); break;
-                case 2: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 29.0, 43.0, 58.0, 86.0, 130.0, 170.0, 255, entity->textureSymbols); break;
+            switch (self->symbol) {
+                case 0: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, self->textureSymbols); break;
+                case 1: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, self->textureSymbols); break;
+                case 2: RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 29.0, 43.0, 58.0, 86.0, 130.0, 170.0, 255, self->textureSymbols); break;
                 case 3:
-                    RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, entity->textureSymbols);
-                    RenderImage(-84.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, entity->textureSymbols);
+                    RenderImage(-76.0, 0.0, 0.0, 0.3, 0.35, 34.0, 43.0, 68.0, 86.0, 58.0, 170.0, 255, self->textureSymbols);
+                    RenderImage(-84.0, 0.0, 0.0, 0.3, 0.35, 28.0, 43.0, 56.0, 86.0, 0.0, 170.0, 255, self->textureSymbols);
                     break;
             }
 
-            uint emeraldColoursS1[] = {
+            uint emeraldColorsS1[] = {
                 0x8080FF, 0xFFFF00, 0xFF60C0, 0xA0FF00, 0xFF4060, 0xFFFFFF,
             };
-            uint emeraldColoursS2[] = {
+            uint emeraldColorsS2[] = {
                 0x00C0FF, 0x8000C0, 0xFF0000, 0xFF60FF, 0xFFC000, 0x60C000, 0xFFFFFF,
             };
 
             float x = -60.0f;
             for (int i = 0; i < (Engine.gameType == GAME_SONIC1 ? 6 : 7); ++i) {
-                if (entity->flags & (1 << i)) {
+                if (self->flags & (1 << i)) {
                     if (Engine.gameType == GAME_SONIC1)
-                        SetRenderVertexColor((emeraldColoursS1[i] >> 16) & 0xFF, (emeraldColoursS1[i] >> 8) & 0xFF, emeraldColoursS1[i] & 0xFF);
+                        SetRenderVertexColor((emeraldColorsS1[i] >> 16) & 0xFF, (emeraldColorsS1[i] >> 8) & 0xFF, emeraldColorsS1[i] & 0xFF);
                     else
-                        SetRenderVertexColor((emeraldColoursS2[i] >> 16) & 0xFF, (emeraldColoursS2[i] >> 8) & 0xFF, emeraldColoursS2[i] & 0xFF);
-                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, entity->textureSymbols);
+                        SetRenderVertexColor((emeraldColorsS2[i] >> 16) & 0xFF, (emeraldColorsS2[i] >> 8) & 0xFF, emeraldColorsS2[i] & 0xFF);
+                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 188.0, 0.0, 255, self->textureSymbols);
                 }
                 else {
                     SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, entity->textureSymbols);
+                    RenderImage(x, -6.0, 0.0, 0.125, 0.125, 28.0, 35.0, 56.0, 70.0, 133.0, 0.0, 255, self->textureSymbols);
                 }
 
                 x += 16.0f;
@@ -122,7 +122,7 @@ void SubMenuButton_Main(void *objPtr)
     }
 
     SetRenderVertexColor(255, 255, 255);
-    if (entity->useMatrix) {
+    if (self->useMatrix) {
         NewRenderState();
         SetRenderMatrix(NULL);
     }

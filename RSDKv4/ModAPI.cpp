@@ -438,7 +438,7 @@ void RefreshEngine()
 
     for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
         NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
-        entity->createPtr(entity);
+        entity->eventCreate(entity);
     }
 
     Engine.gameType = GAME_SONIC2;

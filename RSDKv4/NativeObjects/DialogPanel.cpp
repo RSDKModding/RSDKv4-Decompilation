@@ -3,9 +3,9 @@
 void DialogPanel_Create(void *objPtr)
 {
     RSDK_THIS(DialogPanel);
-    entity->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
-    SetMeshVertexColors(entity->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
-    entity->buttonCount = DLGTYPE_YESNO;
+    self->panelMesh = LoadMesh("Data/Game/Models/Panel.bin", -1);
+    SetMeshVertexColors(self->panelMesh, 0x28, 0x5C, 0xB0, 0xFF);
+    self->buttonCount = DLGTYPE_YESNO;
 }
 
 void DialogPanel_Main(void *objPtr)
@@ -14,17 +14,17 @@ void DialogPanel_Main(void *objPtr)
     NewRenderState();
     SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
-    switch (entity->state) {
+    switch (self->state) {
         case DIALOGPANEL_STATE_SETUP: {
             NativeEntity_PushButton *confirmButton = CREATE_ENTITY(PushButton);
-            entity->buttons[0]                     = confirmButton;
-            if (entity->buttonCount == DLGTYPE_OK) {
+            self->buttons[0]                     = confirmButton;
+            if (self->buttonCount == DLGTYPE_OK) {
                 confirmButton->x                = 0.0;
                 confirmButton->y                = -40.0;
                 confirmButton->z                = 0.0;
                 confirmButton->scale            = 0.25;
-                confirmButton->bgColour         = 0x00A048;
-                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->bgColor         = 0x00A048;
+                confirmButton->bgColorSelected = 0x00C060;
                 confirmButton->useRenderMatrix  = true;
                 SetStringToFont8(confirmButton->text, " OK ", FONT_LABEL);
             }
@@ -33,13 +33,13 @@ void DialogPanel_Main(void *objPtr)
                 confirmButton->y                = -40.0;
                 confirmButton->z                = 0.0;
                 confirmButton->scale            = 0.25;
-                confirmButton->bgColour         = 0x00A048;
-                confirmButton->bgColourSelected = 0x00C060;
+                confirmButton->bgColor         = 0x00A048;
+                confirmButton->bgColorSelected = 0x00C060;
                 confirmButton->useRenderMatrix  = true;
                 SetStringToFont(confirmButton->text, strYes, FONT_LABEL);
 
                 NativeEntity_PushButton *noButton = CREATE_ENTITY(PushButton);
-                entity->buttons[1]                = noButton;
+                self->buttons[1]                = noButton;
                 noButton->useRenderMatrix         = true;
                 noButton->scale                   = 0.25;
                 noButton->x                       = 48.0;
@@ -47,143 +47,143 @@ void DialogPanel_Main(void *objPtr)
                 noButton->z                       = 0.0;
                 SetStringToFont(noButton->text, strNo, FONT_LABEL);
             }
-            entity->scale = 224.0 / (GetTextWidth(entity->text, FONT_TEXT, 1.0) + 1.0);
-            if (entity->scale > 0.4)
-                entity->scale = 0.4;
-            entity->textX = GetTextWidth(entity->text, FONT_TEXT, entity->scale) * -0.5;
-            entity->textY = GetTextHeight(entity->text, FONT_TEXT, entity->scale) * 0.5;
-            entity->state = DIALOGPANEL_STATE_ENTER;
+            self->scale = 224.0 / (GetTextWidth(self->text, FONT_TEXT, 1.0) + 1.0);
+            if (self->scale > 0.4)
+                self->scale = 0.4;
+            self->textX = GetTextWidth(self->text, FONT_TEXT, self->scale) * -0.5;
+            self->textY = GetTextHeight(self->text, FONT_TEXT, self->scale) * 0.5;
+            self->state = DIALOGPANEL_STATE_ENTER;
         }
         // FallThrough
         case DIALOGPANEL_STATE_ENTER: {
-            entity->buttonScale += ((0.77 - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
-            if (entity->buttonScale > 0.75)
-                entity->buttonScale = 0.75;
+            self->buttonScale += ((0.77 - self->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
+            if (self->buttonScale > 0.75)
+                self->buttonScale = 0.75;
             NewRenderState();
-            matrixScaleXYZF(&entity->buttonMatrix, entity->buttonScale, entity->buttonScale, 1.0);
-            matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
-            matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
-            SetRenderMatrix(&entity->buttonMatrix);
-            for (int i = 0; i < entity->buttonCount; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->buttonMatrix, sizeof(MatrixF));
+            MatrixScaleXYZF(&self->buttonMatrix, self->buttonScale, self->buttonScale, 1.0);
+            MatrixTranslateXYZF(&self->buttonMult, 0.0, 0.0, 160.0);
+            MatrixMultiplyF(&self->buttonMatrix, &self->buttonMult);
+            SetRenderMatrix(&self->buttonMatrix);
+            for (int i = 0; i < self->buttonCount; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->buttonMatrix, sizeof(MatrixF));
 
-            entity->stateTimer += Engine.deltaTime;
-            if (entity->stateTimer > 0.5) {
-                entity->state      = DIALOGPANEL_STATE_MAIN;
-                entity->stateTimer = 0.0;
+            self->stateTimer += Engine.deltaTime;
+            if (self->stateTimer > 0.5) {
+                self->state      = DIALOGPANEL_STATE_MAIN;
+                self->stateTimer = 0.0;
             }
             break;
         }
         case DIALOGPANEL_STATE_MAIN: {
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
-            SetRenderMatrix(&entity->buttonMatrix);
+            SetRenderMatrix(&self->buttonMatrix);
             if (!usePhysicalControls) {
                 if (touches < 1) {
-                    if (entity->buttons[0]->state == 1) {
-                        entity->buttonSelected = 0;
-                        entity->state          = DIALOGPANEL_STATE_ACTION;
+                    if (self->buttons[0]->state == 1) {
+                        self->buttonSelected = 0;
+                        self->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[0]->state = PUSHBUTTON_STATE_FLASHING;
+                        self->buttons[0]->state = PUSHBUTTON_STATE_FLASHING;
                     }
-                    if (entity->buttonCount == DLGTYPE_YESNO && entity->buttons[1]->state == 1) {
-                        entity->buttonSelected = 1;
-                        entity->state          = DIALOGPANEL_STATE_ACTION;
+                    if (self->buttonCount == DLGTYPE_YESNO && self->buttons[1]->state == 1) {
+                        self->buttonSelected = 1;
+                        self->state          = DIALOGPANEL_STATE_ACTION;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[1]->state = PUSHBUTTON_STATE_FLASHING;
+                        self->buttons[1]->state = PUSHBUTTON_STATE_FLASHING;
                     }
                 }
                 else {
-                    if (entity->buttonCount == DLGTYPE_OK) {
-                        entity->buttons[0]->state =
-                            CheckTouchRect(0.0, -30.0, (entity->buttons[0]->textWidth + (entity->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                    if (self->buttonCount == DLGTYPE_OK) {
+                        self->buttons[0]->state =
+                            CheckTouchRect(0.0, -30.0, (self->buttons[0]->textWidth + (self->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
                     }
                     else {
-                        entity->buttons[0]->state =
-                            CheckTouchRect(-36.0, -30.0, (entity->buttons[0]->textWidth + (entity->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
-                        entity->buttons[1]->state =
-                            CheckTouchRect(36.0, -30.0, (entity->buttons[1]->textWidth + (entity->buttons[1]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                        self->buttons[0]->state =
+                            CheckTouchRect(-36.0, -30.0, (self->buttons[0]->textWidth + (self->buttons[0]->scale * 64.0)) * 0.75, 12.0) >= 0;
+                        self->buttons[1]->state =
+                            CheckTouchRect(36.0, -30.0, (self->buttons[1]->textWidth + (self->buttons[1]->scale * 64.0)) * 0.75, 12.0) >= 0;
                     }
                 }
                 if (inputDown.left) {
                     usePhysicalControls    = true;
-                    entity->buttonSelected = 1;
+                    self->buttonSelected = 1;
                 }
                 else if (inputDown.right) {
                     usePhysicalControls    = true;
-                    entity->buttonSelected = 0;
+                    self->buttonSelected = 0;
                 }
             }
             else if (touches > 0) {
                 usePhysicalControls = false;
             }
-            else if (entity->buttonCount == DLGTYPE_OK) {
-                entity->buttonSelected = 0;
+            else if (self->buttonCount == DLGTYPE_OK) {
+                self->buttonSelected = 0;
                 if (inputPress.start || inputPress.A) {
-                    entity->state = DIALOGPANEL_STATE_ACTION;
+                    self->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
-                    entity->buttons[entity->buttonSelected]->state = 2;
+                    self->buttons[self->buttonSelected]->state = 2;
                 }
             }
             else {
                 if (inputPress.left) {
                     PlaySfxByName("Menu Move", false);
-                    if (--entity->buttonSelected < 0)
-                        entity->buttonSelected = 1;
+                    if (--self->buttonSelected < 0)
+                        self->buttonSelected = 1;
                 }
                 if (inputPress.right) {
                     PlaySfxByName("Menu Move", false);
-                    if (++entity->buttonSelected > 1)
-                        entity->buttonSelected = 0;
+                    if (++self->buttonSelected > 1)
+                        self->buttonSelected = 0;
                 }
-                entity->buttons[0]->state                      = 0;
-                entity->buttons[1]->state                      = 0;
-                entity->buttons[entity->buttonSelected]->state = 1;
+                self->buttons[0]->state                      = 0;
+                self->buttons[1]->state                      = 0;
+                self->buttons[self->buttonSelected]->state = 1;
 
                 if (inputPress.start || inputPress.A) {
-                    entity->state = DIALOGPANEL_STATE_ACTION;
+                    self->state = DIALOGPANEL_STATE_ACTION;
                     PlaySfxByName("Menu Select", false);
-                    entity->buttons[entity->buttonSelected]->state = 2;
+                    self->buttons[self->buttonSelected]->state = 2;
                 }
             }
-            if (entity->state == 2 && inputPress.B) {
+            if (self->state == 2 && inputPress.B) {
                 PlaySfxByName("Menu Back", false);
-                entity->selection = DLG_NO;
-                entity->state     = DIALOGPANEL_STATE_EXIT;
+                self->selection = DLG_NO;
+                self->state     = DIALOGPANEL_STATE_EXIT;
             }
             break;
         }
         case DIALOGPANEL_STATE_ACTION:
-            SetRenderMatrix(&entity->buttonMatrix);
-            if (!entity->buttons[entity->buttonSelected]->state) {
-                entity->state = DIALOGPANEL_STATE_EXIT;
+            SetRenderMatrix(&self->buttonMatrix);
+            if (!self->buttons[self->buttonSelected]->state) {
+                self->state = DIALOGPANEL_STATE_EXIT;
 
-                entity->selection = entity->buttonSelected + 1;
-                if (entity->buttonCount == DLGTYPE_OK)
-                    entity->selection = DLG_OK;
+                self->selection = self->buttonSelected + 1;
+                if (self->buttonCount == DLGTYPE_OK)
+                    self->selection = DLG_OK;
             }
             break;
         case DIALOGPANEL_STATE_EXIT:
-            entity->buttonScale =
-                entity->buttonScale + ((((entity->stateTimer < 0.2) ? 1 : -1) - entity->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
-            if (entity->buttonScale < 0.0)
-                entity->buttonScale = 0.0;
+            self->buttonScale =
+                self->buttonScale + ((((self->stateTimer < 0.2) ? 1 : -1) - self->buttonScale) / ((Engine.deltaTime * 60.0) * 8.0));
+            if (self->buttonScale < 0.0)
+                self->buttonScale = 0.0;
             NewRenderState();
-            matrixScaleXYZF(&entity->buttonMatrix, entity->buttonScale, entity->buttonScale, 1.0);
-            matrixTranslateXYZF(&entity->buttonMult, 0.0, 0.0, 160.0);
-            matrixMultiplyF(&entity->buttonMatrix, &entity->buttonMult);
-            SetRenderMatrix(&entity->buttonMatrix);
-            for (int i = 0; i < entity->buttonCount; ++i) memcpy(&entity->buttons[i]->renderMatrix, &entity->buttonMatrix, sizeof(MatrixF));
+            MatrixScaleXYZF(&self->buttonMatrix, self->buttonScale, self->buttonScale, 1.0);
+            MatrixTranslateXYZF(&self->buttonMult, 0.0, 0.0, 160.0);
+            MatrixMultiplyF(&self->buttonMatrix, &self->buttonMult);
+            SetRenderMatrix(&self->buttonMatrix);
+            for (int i = 0; i < self->buttonCount; ++i) memcpy(&self->buttons[i]->renderMatrix, &self->buttonMatrix, sizeof(MatrixF));
 
-            entity->stateTimer += Engine.deltaTime;
-            if (entity->stateTimer > 0.5) {
-                for (int i = 0; i < entity->buttonCount; ++i) RemoveNativeObject(entity->buttons[i]);
-                RemoveNativeObject(entity);
+            self->stateTimer += Engine.deltaTime;
+            if (self->stateTimer > 0.5) {
+                for (int i = 0; i < self->buttonCount; ++i) RemoveNativeObject(self->buttons[i]);
+                RemoveNativeObject(self);
                 return;
             }
             break;
-        case DIALOGPANEL_STATE_IDLE: SetRenderMatrix(&entity->buttonMatrix); break;
+        case DIALOGPANEL_STATE_IDLE: SetRenderMatrix(&self->buttonMatrix); break;
         default: break;
     }
-    RenderMesh(entity->panelMesh, MESH_COLOURS, false);
-    RenderText(entity->text, FONT_TEXT, entity->textX, entity->textY, 0.0, entity->scale, 255);
+    RenderMesh(self->panelMesh, MESH_COLORS, false);
+    RenderText(self->text, FONT_TEXT, self->textX, self->textY, 0.0, self->scale, 255);
 }

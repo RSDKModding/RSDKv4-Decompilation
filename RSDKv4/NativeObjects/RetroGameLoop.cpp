@@ -20,7 +20,7 @@ void RetroGameLoop_Main(void *objPtr)
             gfxVertexSizeOpaque = 0;
 #endif
 
-            processStageSelect();
+            ProcessStageSelect();
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
             break;
@@ -42,7 +42,7 @@ void RetroGameLoop_Main(void *objPtr)
 
         case ENGINE_INITDEVMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-            initDevMenu();
+            InitDevMenu();
             ResetCurrentStageFolder();
             break;
 
@@ -50,7 +50,7 @@ void RetroGameLoop_Main(void *objPtr)
 
         case ENGINE_SCRIPTERROR:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-            initErrorMessage();
+            InitErrorMessage();
             ResetCurrentStageFolder();
             break;
 
@@ -100,14 +100,14 @@ void RetroGameLoop_Main(void *objPtr)
 #if RETRO_USE_MOD_LOADER
         case ENGINE_INITMODMENU:
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-            initDevMenu();
+            InitDevMenu();
 
             ResetCurrentStageFolder();
 
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "MOD LIST");
             SetupTextMenu(&gameMenu[1], 0);
-            initMods(); // reload mods
+            InitMods(); // reload mods
 
             char buffer[0x100];
             for (int m = 0; m < modList.size(); ++m) {
@@ -133,7 +133,7 @@ void RetroGameLoop_Main(void *objPtr)
             break;
 #endif
         default:
-            printLog("GameMode '%d' Called", Engine.gameMode);
+            PrintLog("GameMode '%d' Called", Engine.gameMode);
             activeStageList   = 0;
             stageListPosition = 0;
             stageMode         = STAGEMODE_LOAD;

@@ -4,56 +4,54 @@
 void AchievementDisplay_Create(void *objPtr)
 {
     RSDK_THIS(AchievementDisplay);
-    entity->z     = 160.0;
-    entity->alpha = 0xFF;
-    entity->state = ACHDISP_STATE_LOCKED;
+
+    self->z     = 160.0;
+    self->alpha = 0xFF;
+    self->state = ACHDISP_STATE_LOCKED;
 }
 void AchievementDisplay_Main(void *objPtr)
 {
     RSDK_THIS(AchievementDisplay);
 
-    if (entity->useRenderMatrix) {
+    if (self->useRenderMatrix) {
         NewRenderState();
-        SetRenderMatrix(&entity->renderMatrix);
+        SetRenderMatrix(&self->renderMatrix);
     }
 
-    float width  = GetTextWidth(entity->achievementText, entity->fontID, entity->scale);
-    float height = GetTextHeight(entity->achievementText, entity->fontID, entity->scale) + fontList[entity->fontID].lineHeight * entity->scale;
+    float width  = GetTextWidth(self->achievementText, self->fontID, self->scale);
+    float height = GetTextHeight(self->achievementText, self->fontID, self->scale) + fontList[self->fontID].lineHeight * self->scale;
 
-    switch (entity->state) {
+    switch (self->state) {
         case ACHDISP_STATE_LOCKED: // locked
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
-            // RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);
+            // RenderRectClipped(self->x, self->y + 16.0f, self->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);
 
-            RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 4.0f, 80.0f, 0xFF, 0x00, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 220.0f, entity->y + 16.0f, entity->z, 4.0f, 80.0f, 0xFF, 0x00, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 4.0f, entity->y + 16.0f, entity->z, 216.0f, 4.0f, 0xFF, 0x00, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 4.0f, entity->y - 60.0f, entity->z, 216.0f, 4.0f, 0xFF, 0x00, 0x00, 0xC0);
+            RenderRectClipped(self->x, self->y + 16.0f, self->z, 4.0f, 80.0f, 0xFF, 0x00, 0x00, 0xC0);
+            RenderRectClipped(self->x + 220.0f, self->y + 16.0f, self->z, 4.0f, 80.0f, 0xFF, 0x00, 0x00, 0xC0);
+            RenderRectClipped(self->x + 4.0f, self->y + 16.0f, self->z, 216.0f, 4.0f, 0xFF, 0x00, 0x00, 0xC0);
+            RenderRectClipped(self->x + 4.0f, self->y - 60.0f, self->z, 216.0f, 4.0f, 0xFF, 0x00, 0x00, 0xC0);
 
-            RenderTextClipped(entity->achievementText, entity->fontID, entity->x + (224.0f - width) / 2, entity->y, entity->z, entity->scale,
-                              entity->alpha);
-            RenderTextClipped(entity->descriptionText, entity->fontID, entity->x + 8.0f, entity->y - height, entity->z, entity->scale * 0.75,
-                              entity->alpha);
+            RenderTextClipped(self->achievementText, self->fontID, self->x + (224.0f - width) / 2, self->y, self->z, self->scale, self->alpha);
+            RenderTextClipped(self->descriptionText, self->fontID, self->x + 8.0f, self->y - height, self->z, self->scale * 0.75, self->alpha);
             break;
+
         case ACHDISP_STATE_UNLOCKED: // unlocked
             SetRenderBlendMode(RENDER_BLEND_ALPHA);
 
-            // RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);
+            // RenderRectClipped(self->x, self->y + 16.0f, self->z, 224.0f, 80.0f, 0x00, 0x00, 0x00, 0xC0);
 
-            RenderRectClipped(entity->x, entity->y + 16.0f, entity->z, 4.0f, 80.0f, 0x00, 0xFF, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 220.0f, entity->y + 16.0f, entity->z, 4.0f, 80.0f, 0x00, 0xFF, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 4.0f, entity->y + 16.0f, entity->z, 216.0f, 4.0f, 0x00, 0xFF, 0x00, 0xC0);
-            RenderRectClipped(entity->x + 4.0f, entity->y - 60.0f, entity->z, 216.0f, 4.0f, 0x00, 0xFF, 0x00, 0xC0);
+            RenderRectClipped(self->x, self->y + 16.0f, self->z, 4.0f, 80.0f, 0x00, 0xFF, 0x00, 0xC0);
+            RenderRectClipped(self->x + 220.0f, self->y + 16.0f, self->z, 4.0f, 80.0f, 0x00, 0xFF, 0x00, 0xC0);
+            RenderRectClipped(self->x + 4.0f, self->y + 16.0f, self->z, 216.0f, 4.0f, 0x00, 0xFF, 0x00, 0xC0);
+            RenderRectClipped(self->x + 4.0f, self->y - 60.0f, self->z, 216.0f, 4.0f, 0x00, 0xFF, 0x00, 0xC0);
 
-            RenderTextClipped(entity->achievementText, entity->fontID, entity->x + (224.0f - width) / 2, entity->y, entity->z, entity->scale,
-                              entity->alpha);
-            RenderTextClipped(entity->descriptionText, entity->fontID, entity->x + 8.0f, entity->y - height, entity->z, entity->scale * 0.75,
-                              entity->alpha);
+            RenderTextClipped(self->achievementText, self->fontID, self->x + (224.0f - width) / 2, self->y, self->z, self->scale, self->alpha);
+            RenderTextClipped(self->descriptionText, self->fontID, self->x + 8.0f, self->y - height, self->z, self->scale * 0.75, self->alpha);
             break;
     }
 
-    if (entity->useRenderMatrix) {
+    if (self->useRenderMatrix) {
         NewRenderState();
         SetRenderMatrix(NULL);
     }

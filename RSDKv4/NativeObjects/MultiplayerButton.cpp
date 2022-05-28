@@ -3,64 +3,64 @@
 void MultiplayerButton_Create(void *objPtr)
 {
     RSDK_THIS(MultiplayerButton);
-    entity->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
+    self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
 
     int texture              = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA4444);
-    entity->meshVS           = LoadMesh("Data/Game/Models/2PVS.bin", texture);
-    entity->x                = 0.0;
-    entity->y                = 16.0;
-    entity->z                = 160.0;
-    entity->r                = 0xFF;
-    entity->g                = 0xFF;
-    entity->b                = 0x00;
-    entity->labelPtr         = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID = FONT_HEADING;
-    entity->labelPtr->scale  = 0.15;
-    entity->labelPtr->alpha  = 0;
-    entity->labelPtr->state  = TEXTLABEL_STATE_IDLE;
-    SetStringToFont(entity->labelPtr->text, str2PlayerVS, FONT_HEADING);
-    entity->labelPtr->alignPtr(entity->labelPtr, ALIGN_CENTER);
+    self->meshVS           = LoadMesh("Data/Game/Models/2PVS.bin", texture);
+    self->x                = 0.0;
+    self->y                = 16.0;
+    self->z                = 160.0;
+    self->r                = 0xFF;
+    self->g                = 0xFF;
+    self->b                = 0x00;
+    self->labelPtr         = CREATE_ENTITY(TextLabel);
+    self->labelPtr->fontID = FONT_HEADING;
+    self->labelPtr->scale  = 0.15;
+    self->labelPtr->alpha  = 0;
+    self->labelPtr->state  = TEXTLABEL_STATE_IDLE;
+    SetStringToFont(self->labelPtr->text, str2PlayerVS, FONT_HEADING);
+    self->labelPtr->alignPtr(self->labelPtr, ALIGN_CENTER);
 }
 void MultiplayerButton_Main(void *objPtr)
 {
     RSDK_THIS(MultiplayerButton);
 
 #if RETRO_USE_NETWORKING
-    if (entity->connectTimer) {
-        entity->connectTimer += Engine.deltaTime;
-        if (entity->connectTimer >= 0.7f) {
-            entity->connectTimer = 0;
+    if (self->connectTimer) {
+        self->connectTimer += Engine.deltaTime;
+        if (self->connectTimer >= 0.7f) {
+            self->connectTimer = 0;
         }
     }
 #endif
-    if (entity->visible) {
-        if (entity->scale < 0.2) {
-            entity->scale += ((0.25 - entity->scale) / ((60.0 * Engine.deltaTime) * 16.0));
-            if (entity->scale > 0.2)
-                entity->scale = 0.2;
+    if (self->visible) {
+        if (self->scale < 0.2) {
+            self->scale += ((0.25 - self->scale) / ((60.0 * Engine.deltaTime) * 16.0));
+            if (self->scale > 0.2)
+                self->scale = 0.2;
         }
         SetRenderBlendMode(RENDER_BLEND_ALPHA);
-        SetRenderVertexColor(entity->r, entity->g, entity->b);
-        RenderImage(entity->x, entity->y, entity->z, entity->scale, entity->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, entity->textureCircle);
+        SetRenderVertexColor(self->r, self->g, self->b);
+        RenderImage(self->x, self->y, self->z, self->scale, self->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, self->textureCircle);
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
         SetRenderBlendMode(RENDER_BLEND_NONE);
 
-        entity->angle -= Engine.deltaTime;
-        if (entity->angle < -M_PI_2)
-            entity->angle += M_PI_2;
+        self->angle -= Engine.deltaTime;
+        if (self->angle < -M_PI_2)
+            self->angle += M_PI_2;
 
         NewRenderState();
-        matrixRotateXYZF(&entity->renderMatrix, 0.0, entity->angle, 0.0);
-        matrixTranslateXYZF(&entity->matrixTemp, entity->x, entity->y, entity->z - 8.0);
-        matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-        SetRenderMatrix(&entity->renderMatrix);
-        RenderMesh(entity->meshVS, MESH_NORMALS, true);
+        MatrixRotateXYZF(&self->renderMatrix, 0.0, self->angle, 0.0);
+        MatrixTranslateXYZF(&self->matrixTemp, self->x, self->y, self->z - 8.0);
+        MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+        SetRenderMatrix(&self->renderMatrix);
+        RenderMesh(self->meshVS, MESH_NORMALS, true);
         SetRenderMatrix(NULL);
 
-        NativeEntity_TextLabel *label = entity->labelPtr;
-        label->x                      = entity->x;
-        label->y                      = entity->y - 72.0;
-        label->z                      = entity->z;
+        NativeEntity_TextLabel *label = self->labelPtr;
+        label->x                      = self->x;
+        label->y                      = self->y - 72.0;
+        label->z                      = self->z;
         if (label->x <= -8.0 || label->x >= 8.0) {
             if (label->alpha > 0)
                 label->alpha -= 8;
@@ -70,10 +70,10 @@ void MultiplayerButton_Main(void *objPtr)
                 label->alpha += 8;
         }
 #if RETRO_USE_NETWORKING
-        if (!Engine.onlineActive && entity->labelPtr->state == TEXTLABEL_STATE_BLINK_FAST && !entity->connectTimer) {
-            entity->connectTimer = 0.1f;
-            disconnectNetwork();
-            initNetwork(); // let's see if we can turn it on
+        if (!Engine.onlineActive && self->labelPtr->state == TEXTLABEL_STATE_BLINK_FAST && !self->connectTimer) {
+            self->connectTimer = 0.1f;
+            DisconnectNetwork();
+            InitNetwork(); // let's see if we can turn it on
         }
 #endif
     }

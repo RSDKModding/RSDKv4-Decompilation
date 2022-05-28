@@ -7,9 +7,9 @@ enum StaffCreditsStates { STAFFCREDITS_STATE_ENTER, STAFFCREDITS_STATE_SCROLL, S
 
 struct NativeEntity_StaffCredits : NativeEntityBase {
     StaffCreditsStates state;
-    int field_14;
+    int unused1;
     float timer;
-    int field_1C;
+    int unused2;
     float scale;
     NativeEntityBase *optionsMenu;
     NativeEntity_TextLabel *labelPtr;

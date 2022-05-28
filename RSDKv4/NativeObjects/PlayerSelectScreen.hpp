@@ -13,7 +13,7 @@ struct NativeEntity_PlayerSelectScreen : NativeEntityBase {
     PlayerSelectScreenStates state;
     float timer;
     float timer2;
-    int field_1C;
+    int unused1;
     float scale;
     NativeEntity_SaveSelect *saveSel;
     NativeEntity_TextLabel *labelPtr;
@@ -32,7 +32,7 @@ struct NativeEntity_PlayerSelectScreen : NativeEntityBase {
     float knuxX;
     int playerID;
     byte flag;
-    int field_129;
+    int unused2;
 };
 
 void PlayerSelectScreen_Create(void *objPtr);

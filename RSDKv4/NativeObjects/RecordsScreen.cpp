@@ -8,279 +8,281 @@ float timeAttackV[] = { 1.0, 1.0, 1.0, 241.0, 241.0, 241.0 };
 void RecordsScreen_Create(void *objPtr)
 {
     RSDK_THIS(RecordsScreen);
-    entity->labelPtr                  = CREATE_ENTITY(TextLabel);
-    entity->labelPtr->fontID          = FONT_HEADING;
-    entity->labelPtr->scale           = 0.15;
-    entity->labelPtr->alpha           = 256;
-    entity->labelPtr->x               = -144.0;
-    entity->labelPtr->y               = 100.0;
-    entity->labelPtr->z               = 16.0;
-    entity->labelPtr->state           = TEXTLABEL_STATE_IDLE;
-    entity->labelPtr->useRenderMatrix = true;
+    self->labelPtr                  = CREATE_ENTITY(TextLabel);
+    self->labelPtr->fontID          = FONT_HEADING;
+    self->labelPtr->scale           = 0.15;
+    self->labelPtr->alpha           = 256;
+    self->labelPtr->x               = -144.0;
+    self->labelPtr->y               = 100.0;
+    self->labelPtr->z               = 16.0;
+    self->labelPtr->state           = TEXTLABEL_STATE_IDLE;
+    self->labelPtr->useRenderMatrix = true;
 
-    entity->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
-    SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
+    self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", -1);
+    SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
 
-    entity->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
-    SetStringToFont(entity->textRecords, strRecords, FONT_LABEL);
+    self->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
+    SetStringToFont(self->textRecords, strRecords, FONT_LABEL);
 
-    entity->field_D4 = GetTextWidth(entity->textRecords, FONT_LABEL, 0.125) * 0.5;
+    self->recordTextWidth = GetTextWidth(self->textRecords, FONT_LABEL, 0.125) * 0.5;
 
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]                   = CREATE_ENTITY(PushButton);
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->useRenderMatrix  = true;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->x                = -64.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->y                = -52.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->z                = 0.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->scale            = 0.175;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->bgColour         = 0x00A048;
-    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->bgColourSelected = 0x00C060;
-    SetStringToFont(entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->text, strPlay, FONT_LABEL);
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]                  = CREATE_ENTITY(PushButton);
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->useRenderMatrix = true;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->x               = -64.0;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->y               = -52.0;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->z               = 0.0;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->scale           = 0.175;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->bgColor         = 0x00A048;
+    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->bgColorSelected = 0x00C060;
+    SetStringToFont(self->buttons[RECORDSSCREEN_BUTTON_PLAY]->text, strPlay, FONT_LABEL);
 
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]                   = CREATE_ENTITY(PushButton);
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->useRenderMatrix  = true;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->x                = 64.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->y                = -52.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->z                = 0.0;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->scale            = 0.175;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->bgColour         = 0x00A048;
-    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->bgColourSelected = 0x00C060;
-    SetStringToFont(entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->text, strNextAct, FONT_LABEL);
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]                  = CREATE_ENTITY(PushButton);
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->useRenderMatrix = true;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->x               = 64.0;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->y               = -52.0;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->z               = 0.0;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->scale           = 0.175;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->bgColor         = 0x00A048;
+    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->bgColorSelected = 0x00C060;
+    SetStringToFont(self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->text, strNextAct, FONT_LABEL);
 
-    entity->state = RECORDSSCREEN_STATE_SETUP;
+    self->state = RECORDSSCREEN_STATE_SETUP;
     debugMode     = false;
 }
 void RecordsScreen_Main(void *objPtr)
 {
     RSDK_THIS(RecordsScreen);
-    NativeEntity_TimeAttack *timeAttack = (NativeEntity_TimeAttack *)entity->timeAttack;
+    NativeEntity_TimeAttack *timeAttack = (NativeEntity_TimeAttack *)self->timeAttack;
     SaveGame *saveGame                  = (SaveGame *)saveRAM;
 
-    switch (entity->state) {
+    switch (self->state) {
         case RECORDSSCREEN_STATE_SETUP: {
-            int textureID = (entity->zoneID * timeAttack_ActCount) / 6;
+            int textureID = (self->zoneID * timeAttack_ActCount) / 6;
             textureID++;
 
-            entity->actCount     = timeAttack_ActCount;
-            entity->recordOffset = timeAttack_ActCount * entity->zoneID;
+            self->actCount     = timeAttack_ActCount;
+            self->recordOffset = timeAttack_ActCount * self->zoneID;
             char pathBuf[0x40];
             sprintf(pathBuf, "Data/Game/Menu/TimeAttack%d.png", textureID);
-            if (Engine.gameType == GAME_SONIC1 && entity->zoneID == 6) // dumb stupid dumb
+            if (Engine.gameType == GAME_SONIC1 && self->zoneID == 6) // dumb stupid dumb
                 sprintf(pathBuf, "Data/Game/Menu/Intro.png");
 
             if (timeAttackTex) {
                 ReplaceTexture(pathBuf, timeAttackTex);
             }
             else {
-                entity->textureTimeAttack = LoadTexture(pathBuf, TEXFMT_RGBA5551);
+                self->textureTimeAttack = LoadTexture(pathBuf, TEXFMT_RGBA5551);
             }
 
             if (Engine.gameType == GAME_SONIC1) {
-                entity->actCount = 3;
-                if (entity->zoneID == 6) { // final
-                    entity->actCount     = 1;
-                    entity->recordOffset = (timeAttack_ActCount * 6);
+                self->actCount = 3;
+                if (self->zoneID == 6) { // final
+                    self->actCount     = 1;
+                    self->recordOffset = (timeAttack_ActCount * 6);
                 }
-                else if (entity->zoneID == 7) { // special
-                    entity->actCount     = 6;
-                    entity->recordOffset = (timeAttack_ActCount * 6) + 1;
+                else if (self->zoneID == 7) { // special
+                    self->actCount     = 6;
+                    self->recordOffset = (timeAttack_ActCount * 6) + 1;
                 }
             }
             else if (Engine.gameType == GAME_SONIC2) {
-                if (entity->zoneID == 7) // metropolis sux
-                    entity->actCount = 3;
+                if (self->zoneID == 7) // metropolis sux
+                    self->actCount = 3;
 
-                if (entity->zoneID >= 8) {
-                    entity->actCount = 1;
-                    switch (entity->zoneID) {
-                        case 8: entity->recordOffset = (timeAttack_ActCount * 8) + 1; break;
-                        case 9: entity->recordOffset = 22; break;
-                        case 10: entity->recordOffset = 20; break;
-                        case 11: entity->recordOffset = 23; break;
+                if (self->zoneID >= 8) {
+                    self->actCount = 1;
+                    switch (self->zoneID) {
+                        case 8: self->recordOffset = (timeAttack_ActCount * 8) + 1; break;
+                        case 9: self->recordOffset = 22; break;
+                        case 10: self->recordOffset = 20; break;
+                        case 11: self->recordOffset = 23; break;
                     }
                 }
             }
 
-            entity->state = RECORDSSCREEN_STATE_ENTER;
-            if (Engine.gameType == GAME_SONIC2 && entity->zoneID >= 9) {
-                switch (entity->zoneID) {
+            self->state = RECORDSSCREEN_STATE_ENTER;
+            if (Engine.gameType == GAME_SONIC2 && self->zoneID >= 9) {
+                switch (self->zoneID) {
                     default: break;
                     case 9:
                     case 11:
-                        entity->timeAttackU = timeAttackU[0];
-                        entity->timeAttackV = timeAttackV[0];
+                        self->timeAttackU = timeAttackU[0];
+                        self->timeAttackV = timeAttackV[0];
                         break;
                     case 10:
-                        entity->timeAttackU = timeAttackU[1];
-                        entity->timeAttackV = timeAttackV[1];
+                        self->timeAttackU = timeAttackU[1];
+                        self->timeAttackV = timeAttackV[1];
                         break;
                 }
             }
             else {
-                entity->timeAttackU = timeAttackU[entity->recordOffset % 6];
-                entity->timeAttackV = timeAttackV[entity->recordOffset % 6];
+                self->timeAttackU = timeAttackU[self->recordOffset % 6];
+                self->timeAttackV = timeAttackV[self->recordOffset % 6];
             }
 
             int pos = 0;
             if (Engine.gameType == GAME_SONIC1) {
-                switch (entity->zoneID) {
-                    default: pos = timeAttack_ActCount * entity->zoneID; break;
+                switch (self->zoneID) {
+                    default: pos = timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos = 6 * entity->zoneID;
+                        pos = 6 * self->zoneID;
                         pos++;
                         break;
                 }
             }
             else {
-                if (entity->zoneID >= 8) {
+                if (self->zoneID >= 8) {
                     pos = timeAttack_ActCount * 8;
                     ++pos;
-                    pos += entity->zoneID - 8;
+                    pos += self->zoneID - 8;
                 }
                 else {
-                    pos = timeAttack_ActCount * entity->zoneID;
+                    pos = timeAttack_ActCount * self->zoneID;
                 }
             }
             pos *= 3;
 
-            int nameID = entity->recordOffset == (timeAttack_ActCount * 8) + 1 ? entity->recordOffset + 1 : entity->recordOffset;
-            SetStringToFont(entity->labelPtr->text, strSaveStageList[nameID], 0);
-            SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
-            AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
-            SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
-            AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], FONT_LABEL);
-            SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
-            AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], FONT_LABEL);
+            int nameID = self->recordOffset == (timeAttack_ActCount * 8) + 1 ? self->recordOffset + 1 : self->recordOffset;
+            SetStringToFont(self->labelPtr->text, strSaveStageList[nameID], 0);
+            SetStringToFont8(self->rank1st, "1.", FONT_LABEL);
+            AddTimeStringToFont(self->rank1st, saveGame->records[pos + (3 * self->actID)], FONT_LABEL);
+            SetStringToFont8(self->rank2nd, "2.", FONT_LABEL);
+            AddTimeStringToFont(self->rank2nd, saveGame->records[pos + (3 * self->actID) + 1], FONT_LABEL);
+            SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
+            AddTimeStringToFont(self->rank3rd, saveGame->records[pos + (3 * self->actID) + 2], FONT_LABEL);
         }
         // fallthrough
-        case RECORDSSCREEN_STATE_ENTER: {
-            if (entity->buttonAlpha < 0x100)
-                entity->buttonAlpha += 8;
 
-            entity->scale = fminf(entity->scale + ((1.05 - entity->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
+        case RECORDSSCREEN_STATE_ENTER: {
+            if (self->buttonAlpha < 0x100)
+                self->buttonAlpha += 8;
+
+            self->scale = fminf(self->scale + ((1.05 - self->scale) / ((60.0 * Engine.deltaTime) * 8.0)), 1.0f);
 
             NewRenderState();
-            matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
-            memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            if (entity->actCount > 1)
-                memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
+            MatrixScaleXYZF(&self->renderMatrix, self->scale, self->scale, 1.0);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
+            memcpy(&self->labelPtr->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            memcpy(&self->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            if (self->actCount > 1)
+                memcpy(&self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
 
-            entity->field_28 += Engine.deltaTime;
-            if (entity->field_28 > 0.5) {
-                entity->field_28    = 0.0;
-                entity->state       = RECORDSSCREEN_STATE_MAIN;
-                entity->buttonAlpha = 256;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.5) {
+                self->timer       = 0.0;
+                self->state       = RECORDSSCREEN_STATE_MAIN;
+                self->buttonAlpha = 256;
             }
             break;
         }
+
         case RECORDSSCREEN_STATE_MAIN: {
             CheckKeyDown(&inputDown);
             CheckKeyPress(&inputPress);
-            SetRenderMatrix(&entity->matrixTemp);
+            SetRenderMatrix(&self->matrixTemp);
             if (!usePhysicalControls) {
                 if (touches <= 0) {
-                    if (entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_SELECTED) {
-                        entity->state = RECORDSSCREEN_STATE_LOADSTAGE;
+                    if (self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_SELECTED) {
+                        self->state = RECORDSSCREEN_STATE_LOADSTAGE;
                         PlaySfxByName("Menu Select", false);
-                        entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
+                        self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                     }
-                    if (entity->actCount > 1 && entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == PUSHBUTTON_STATE_SELECTED) {
+                    if (self->actCount > 1 && self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == PUSHBUTTON_STATE_SELECTED) {
                         PlaySfxByName("Menu Move", false);
-                        entity->state                                        = RECORDSSCREEN_STATE_FLIP;
-                        entity->flipRight                                    = false;
-                        entity->actID                                        = (entity->actID + 1) % entity->actCount;
-                        entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
+                        self->state                                        = RECORDSSCREEN_STATE_FLIP;
+                        self->flipRight                                    = false;
+                        self->actID                                        = (self->actID + 1) % self->actCount;
+                        self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
                     }
                 }
                 else {
-                    entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state    = PUSHBUTTON_STATE_UNSELECTED;
-                    entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
-                    NativeEntity_PushButton *button                      = entity->buttons[RECORDSSCREEN_BUTTON_PLAY];
+                    self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state    = PUSHBUTTON_STATE_UNSELECTED;
+                    self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_UNSELECTED;
+                    NativeEntity_PushButton *button                      = self->buttons[RECORDSSCREEN_BUTTON_PLAY];
                     if (CheckTouchRect(-64.0, -58.0, ((64.0 * button->scale) + button->textWidth) * 0.8, 12.0) >= 0) {
-                        entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_SELECTED;
+                        self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_SELECTED;
                     }
-                    else if (entity->actCount > 1) {
-                        button = entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT];
+                    else if (self->actCount > 1) {
+                        button = self->buttons[RECORDSSCREEN_BUTTON_NEXTACT];
                         if (CheckTouchRect(64.0, -58.0, ((64.0 * button->scale) + button->textWidth) * 0.8, 12.0) >= 0) {
-                            entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_SELECTED;
+                            self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state = PUSHBUTTON_STATE_SELECTED;
                         }
                     }
                 }
 
-                if (touches > 0 && entity->state == RECORDSSCREEN_STATE_MAIN && entity->actCount > 1) {
-                    if (entity->field_190) {
-                        if (entity->field_18C - touchXF[0] > 16.0f) {
+                if (touches > 0 && self->state == RECORDSSCREEN_STATE_MAIN && self->actCount > 1) {
+                    if (self->selectionEnabled) {
+                        if (self->lastTouchX - touchXF[0] > 16.0f) {
                             PlaySfxByName("Menu Move", false);
-                            entity->state     = RECORDSSCREEN_STATE_FLIP;
-                            entity->flipRight = false;
-                            entity->field_190 = false;
-                            entity->actID     = (entity->actID + 1) % entity->actCount;
+                            self->state            = RECORDSSCREEN_STATE_FLIP;
+                            self->flipRight        = false;
+                            self->selectionEnabled = false;
+                            self->actID            = (self->actID + 1) % self->actCount;
                         }
-                        else if (entity->field_18C - touchXF[0] < -16.0f) {
+                        else if (self->lastTouchX - touchXF[0] < -16.0f) {
                             PlaySfxByName("Menu Move", false);
-                            if (--entity->actID < 0)
-                                entity->actID = entity->actCount - 1;
-                            entity->state     = RECORDSSCREEN_STATE_FLIP;
-                            entity->flipRight = true;
-                            entity->field_190 = false;
+                            if (--self->actID < 0)
+                                self->actID = self->actCount - 1;
+                            self->state            = RECORDSSCREEN_STATE_FLIP;
+                            self->flipRight        = true;
+                            self->selectionEnabled = false;
                         }
                     }
                     else {
-                        entity->field_190 = true;
+                        self->selectionEnabled = true;
                     }
-                    entity->field_18C = touchXF[0];
+                    self->lastTouchX = touchXF[0];
                 }
                 else {
-                    entity->field_190 = false;
+                    self->selectionEnabled = false;
                 }
 
                 if (touches <= 0) {
-                    if (entity->prevActPressed) {
+                    if (self->prevActPressed) {
                         PlaySfxByName("Menu Move", false);
-                        if (--entity->actID < 0)
-                            entity->actID = entity->actCount - 1;
-                        entity->state          = RECORDSSCREEN_STATE_FLIP;
-                        entity->prevActPressed = false;
-                        entity->flipRight      = true;
+                        if (--self->actID < 0)
+                            self->actID = self->actCount - 1;
+                        self->state          = RECORDSSCREEN_STATE_FLIP;
+                        self->prevActPressed = false;
+                        self->flipRight      = true;
                     }
-                    if (entity->nextActPressed) {
+                    if (self->nextActPressed) {
                         PlaySfxByName("Menu Move", false);
-                        entity->state          = RECORDSSCREEN_STATE_FLIP;
-                        entity->nextActPressed = false;
-                        entity->flipRight      = false;
-                        entity->actID          = (entity->actID + 1) % entity->actCount;
+                        self->state          = RECORDSSCREEN_STATE_FLIP;
+                        self->nextActPressed = false;
+                        self->flipRight      = false;
+                        self->actID          = (self->actID + 1) % self->actCount;
                     }
-                    if (entity->backPressed) {
+                    if (self->backPressed) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = false;
-                        entity->state       = RECORDSSCREEN_STATE_EXIT;
+                        self->backPressed = false;
+                        self->state       = RECORDSSCREEN_STATE_EXIT;
                     }
                 }
                 else {
-                    entity->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
-                    if (entity->actCount > 1) {
-                        entity->prevActPressed = CheckTouchRect(-162.0, 0.0, 32.0, 32.0) >= 0;
-                        entity->nextActPressed = CheckTouchRect(162.0, 0.0, 32.0, 32.0) >= 0;
+                    self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
+                    if (self->actCount > 1) {
+                        self->prevActPressed = CheckTouchRect(-162.0, 0.0, 32.0, 32.0) >= 0;
+                        self->nextActPressed = CheckTouchRect(162.0, 0.0, 32.0, 32.0) >= 0;
                     }
                 }
 
-                if (entity->state == RECORDSSCREEN_STATE_MAIN) {
+                if (self->state == RECORDSSCREEN_STATE_MAIN) {
                     if (inputDown.left) {
-                        entity->selectedButton = RECORDSSCREEN_BUTTON_NEXTACT;
+                        self->selectedButton = RECORDSSCREEN_BUTTON_NEXTACT;
                         usePhysicalControls    = true;
                     }
                     else {
                         if (inputDown.right) {
-                            entity->selectedButton = RECORDSSCREEN_BUTTON_PLAY;
+                            self->selectedButton = RECORDSSCREEN_BUTTON_PLAY;
                             usePhysicalControls    = true;
                         }
                         else if (inputPress.B) {
                             PlaySfxByName("Menu Back", false);
-                            entity->backPressed = false;
-                            entity->state       = RECORDSSCREEN_STATE_EXIT;
+                            self->backPressed = false;
+                            self->state       = RECORDSSCREEN_STATE_EXIT;
                         }
                     }
                 }
@@ -290,188 +292,192 @@ void RecordsScreen_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    entity->prevActPressed = false;
-                    entity->nextActPressed = false;
-                    entity->backPressed    = false;
+                    self->prevActPressed = false;
+                    self->nextActPressed = false;
+                    self->backPressed    = false;
 
-                    if (entity->actCount > 1) {
+                    if (self->actCount > 1) {
                         if (inputPress.left) {
                             PlaySfxByName("Menu Move", false);
-                            entity->selectedButton--;
-                            if (entity->selectedButton < 0) {
-                                entity->selectedButton = 1;
+                            self->selectedButton--;
+                            if (self->selectedButton < 0) {
+                                self->selectedButton = 1;
                                 PlaySfxByName("Menu Move", false);
-                                if (--entity->actID < 0)
-                                    entity->actID = entity->actCount - 1;
-                                entity->state     = RECORDSSCREEN_STATE_FLIP;
-                                entity->flipRight = true;
+                                if (--self->actID < 0)
+                                    self->actID = self->actCount - 1;
+                                self->state     = RECORDSSCREEN_STATE_FLIP;
+                                self->flipRight = true;
                             }
                         }
                         else if (inputPress.right) {
                             PlaySfxByName("Menu Move", false);
-                            entity->selectedButton++;
-                            if (entity->selectedButton >= 2) {
-                                entity->selectedButton = 0;
+                            self->selectedButton++;
+                            if (self->selectedButton >= 2) {
+                                self->selectedButton = 0;
                                 PlaySfxByName("Menu Move", false);
-                                entity->state     = RECORDSSCREEN_STATE_FLIP;
-                                entity->flipRight = false;
-                                entity->actID     = (entity->actID + 1) % entity->actCount;
+                                self->state     = RECORDSSCREEN_STATE_FLIP;
+                                self->flipRight = false;
+                                self->actID     = (self->actID + 1) % self->actCount;
                             }
                         }
-                        for (int i = 0; i < 2; ++i) entity->buttons[i]->state = PUSHBUTTON_STATE_UNSELECTED;
-                        entity->buttons[entity->selectedButton]->state = PUSHBUTTON_STATE_SELECTED;
+                        for (int i = 0; i < 2; ++i) self->buttons[i]->state = PUSHBUTTON_STATE_UNSELECTED;
+                        self->buttons[self->selectedButton]->state = PUSHBUTTON_STATE_SELECTED;
                     }
                     else {
-                        entity->buttons[entity->selectedButton]->state = PUSHBUTTON_STATE_SELECTED;
+                        self->buttons[self->selectedButton]->state = PUSHBUTTON_STATE_SELECTED;
                     }
 
                     if (inputPress.start || inputPress.A) {
-                        if (entity->selectedButton) {
+                        if (self->selectedButton) {
                             PlaySfxByName("Menu Move", false);
-                            entity->state     = RECORDSSCREEN_STATE_FLIP;
-                            entity->flipRight = 0;
-                            entity->actID     = (entity->actID + 1) % entity->actCount;
+                            self->state     = RECORDSSCREEN_STATE_FLIP;
+                            self->flipRight = 0;
+                            self->actID     = (self->actID + 1) % self->actCount;
                         }
                         else {
-                            entity->state = RECORDSSCREEN_STATE_LOADSTAGE;
+                            self->state = RECORDSSCREEN_STATE_LOADSTAGE;
                             PlaySfxByName("Menu Select", false);
-                            entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
+                            self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                         }
                     }
                     else if (inputPress.B) {
                         PlaySfxByName("Menu Back", false);
-                        entity->backPressed = false;
-                        entity->state       = RECORDSSCREEN_STATE_EXIT;
+                        self->backPressed = false;
+                        self->state       = RECORDSSCREEN_STATE_EXIT;
                     }
                 }
             }
             break;
         }
+
         case RECORDSSCREEN_STATE_FLIP: {
             int pos = 0;
             if (Engine.gameType == GAME_SONIC1) {
-                switch (entity->zoneID) {
-                    default: pos += timeAttack_ActCount * entity->zoneID; break;
+                switch (self->zoneID) {
+                    default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * entity->zoneID;
+                        pos += 6 * self->zoneID;
                         pos++;
                         break;
                 }
             }
             else {
-                if (entity->zoneID >= 8) {
+                if (self->zoneID >= 8) {
                     pos += timeAttack_ActCount * 8;
                     ++pos;
-                    pos += entity->zoneID - 8;
+                    pos += self->zoneID - 8;
                 }
                 else {
-                    pos += timeAttack_ActCount * entity->zoneID;
+                    pos += timeAttack_ActCount * self->zoneID;
                 }
             }
             pos *= 3;
 
-            if (!entity->flipRight) {
-                entity->rotationY -= (10.0 * Engine.deltaTime);
+            if (!self->flipRight) {
+                self->rotationY -= (10.0 * Engine.deltaTime);
             }
             else {
-                entity->rotationY += (10.0 * Engine.deltaTime);
+                self->rotationY += (10.0 * Engine.deltaTime);
             }
 
-            if (abs(entity->rotationY) > (M_PI * 0.5)) {
-                entity->state     = RECORDSSCREEN_STATE_FINISHFLIP;
-                entity->rotationY = entity->rotationY < 0.0f ? -(M_PI * 1.5) : (M_PI * 1.5);
+            if (abs(self->rotationY) > (M_PI * 0.5)) {
+                self->state     = RECORDSSCREEN_STATE_FINISHFLIP;
+                self->rotationY = self->rotationY < 0.0f ? -(M_PI * 1.5) : (M_PI * 1.5);
 
-                if (Engine.gameType == GAME_SONIC2 && entity->zoneID >= 9) {
-                    switch (entity->zoneID) {
+                if (Engine.gameType == GAME_SONIC2 && self->zoneID >= 9) {
+                    switch (self->zoneID) {
                         default: break;
                         case 9:
                         case 11:
-                            entity->timeAttackU = timeAttackU[0];
-                            entity->timeAttackV = timeAttackV[0];
+                            self->timeAttackU = timeAttackU[0];
+                            self->timeAttackV = timeAttackV[0];
                             break;
                         case 10:
-                            entity->timeAttackU = timeAttackU[1];
-                            entity->timeAttackV = timeAttackV[1];
+                            self->timeAttackU = timeAttackU[1];
+                            self->timeAttackV = timeAttackV[1];
                             break;
                     }
                 }
                 else {
-                    entity->timeAttackU = timeAttackU[(entity->recordOffset + entity->actID) % 6];
-                    entity->timeAttackV = timeAttackV[(entity->recordOffset + entity->actID) % 6];
+                    self->timeAttackU = timeAttackU[(self->recordOffset + self->actID) % 6];
+                    self->timeAttackV = timeAttackV[(self->recordOffset + self->actID) % 6];
                 }
-                int nameID = entity->recordOffset == (timeAttack_ActCount * 8) + 1 ? entity->recordOffset + 1 : entity->recordOffset;
-                SetStringToFont(entity->labelPtr->text, strSaveStageList[nameID + entity->actID], FONT_HEADING);
-                SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank1st, saveGame->records[pos + (3 * entity->actID)], FONT_LABEL);
-                SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank2nd, saveGame->records[pos + (3 * entity->actID) + 1], FONT_LABEL);
-                SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank3rd, saveGame->records[pos + (3 * entity->actID) + 2], FONT_LABEL);
+                int nameID = self->recordOffset == (timeAttack_ActCount * 8) + 1 ? self->recordOffset + 1 : self->recordOffset;
+                SetStringToFont(self->labelPtr->text, strSaveStageList[nameID + self->actID], FONT_HEADING);
+                SetStringToFont8(self->rank1st, "1.", FONT_LABEL);
+                AddTimeStringToFont(self->rank1st, saveGame->records[pos + (3 * self->actID)], FONT_LABEL);
+                SetStringToFont8(self->rank2nd, "2.", FONT_LABEL);
+                AddTimeStringToFont(self->rank2nd, saveGame->records[pos + (3 * self->actID) + 1], FONT_LABEL);
+                SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
+                AddTimeStringToFont(self->rank3rd, saveGame->records[pos + (3 * self->actID) + 2], FONT_LABEL);
             }
 
             NewRenderState();
-            matrixRotateYF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
+            MatrixRotateYF(&self->renderMatrix, self->rotationY);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
             break;
         }
+
         case RECORDSSCREEN_STATE_FINISHFLIP: {
-            if (!entity->flipRight) {
-                entity->rotationY -= (10.0 * Engine.deltaTime);
-                if (entity->rotationY < -(M_PI_2)) {
-                    entity->state     = RECORDSSCREEN_STATE_MAIN;
-                    entity->rotationY = 0.0;
+            if (!self->flipRight) {
+                self->rotationY -= (10.0 * Engine.deltaTime);
+                if (self->rotationY < -(M_PI_2)) {
+                    self->state     = RECORDSSCREEN_STATE_MAIN;
+                    self->rotationY = 0.0;
                 }
             }
             else {
-                entity->rotationY += (10.0 * Engine.deltaTime);
-                if (entity->rotationY > M_PI_2) {
-                    entity->state     = RECORDSSCREEN_STATE_MAIN;
-                    entity->rotationY = 0.0;
+                self->rotationY += (10.0 * Engine.deltaTime);
+                if (self->rotationY > M_PI_2) {
+                    self->state     = RECORDSSCREEN_STATE_MAIN;
+                    self->rotationY = 0.0;
                 }
             }
             NewRenderState();
-            matrixRotateYF(&entity->renderMatrix, entity->rotationY);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
+            MatrixRotateYF(&self->renderMatrix, self->rotationY);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
             break;
         }
-        case RECORDSSCREEN_STATE_EXIT: {
-            if (entity->buttonAlpha > 0)
-                entity->buttonAlpha -= 8;
 
-            if (entity->field_28 < 0.2)
-                entity->scale = fmaxf(entity->scale + ((1.5f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+        case RECORDSSCREEN_STATE_EXIT: {
+            if (self->buttonAlpha > 0)
+                self->buttonAlpha -= 8;
+
+            if (self->timer < 0.2)
+                self->scale = fmaxf(self->scale + ((1.5f - self->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
             else
-                entity->scale = fmaxf(entity->scale + ((-1.0f - entity->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
+                self->scale = fmaxf(self->scale + ((-1.0f - self->scale) / ((Engine.deltaTime * 60.0) * 8.0)), 0.0);
 
             NewRenderState();
-            matrixScaleXYZF(&entity->renderMatrix, entity->scale, entity->scale, 1.0);
-            matrixTranslateXYZF(&entity->matrixTemp, 0.0, -8.0, 160.0);
-            matrixMultiplyF(&entity->renderMatrix, &entity->matrixTemp);
-            SetRenderMatrix(&entity->renderMatrix);
+            MatrixScaleXYZF(&self->renderMatrix, self->scale, self->scale, 1.0);
+            MatrixTranslateXYZF(&self->matrixTemp, 0.0, -8.0, 160.0);
+            MatrixMultiplyF(&self->renderMatrix, &self->matrixTemp);
+            SetRenderMatrix(&self->renderMatrix);
 
-            memcpy(&entity->labelPtr->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
-            if (entity->actCount > 1)
-                memcpy(&entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &entity->renderMatrix, sizeof(MatrixF));
+            memcpy(&self->labelPtr->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            memcpy(&self->buttons[RECORDSSCREEN_BUTTON_PLAY]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
+            if (self->actCount > 1)
+                memcpy(&self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->renderMatrix, &self->renderMatrix, sizeof(MatrixF));
 
-            entity->field_28 += Engine.deltaTime;
-            if (entity->field_28 > 0.5) {
+            self->timer += Engine.deltaTime;
+            if (self->timer > 0.5) {
                 timeAttack->state = TIMEATTACK_STATE_EXITSUBMENU;
-                RemoveNativeObject(entity->buttons[RECORDSSCREEN_BUTTON_PLAY]);
-                RemoveNativeObject(entity->buttons[RECORDSSCREEN_BUTTON_NEXTACT]);
-                RemoveNativeObject(entity->labelPtr);
-                RemoveNativeObject(entity);
+                RemoveNativeObject(self->buttons[RECORDSSCREEN_BUTTON_PLAY]);
+                RemoveNativeObject(self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]);
+                RemoveNativeObject(self->labelPtr);
+                RemoveNativeObject(self);
                 return;
             }
             break;
         }
+
         case RECORDSSCREEN_STATE_LOADSTAGE: {
-            SetRenderMatrix(&entity->matrixTemp);
-            if (entity->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_UNSELECTED) {
+            SetRenderMatrix(&self->matrixTemp);
+            if (self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_UNSELECTED) {
                 SetGlobalVariableByName("options.saveSlot", 0);
                 SetGlobalVariableByName("options.gameMode", 2);
                 SetGlobalVariableByName("player.lives", 1);
@@ -485,21 +491,21 @@ void RecordsScreen_Main(void *objPtr)
                 SetGlobalVariableByName("starPostID", 0);
                 SetGlobalVariableByName("timeAttack.result", 0);
 
-                if (entity->zoneID >= 7 && Engine.gameType == GAME_SONIC1)
-                    InitStartingStage(STAGELIST_SPECIAL, entity->actID, 0);
-                else if (entity->zoneID >= 9 && Engine.gameType == GAME_SONIC2) {
-                    switch (entity->zoneID) {
+                if (self->zoneID >= 7 && Engine.gameType == GAME_SONIC1)
+                    InitStartingStage(STAGELIST_SPECIAL, self->actID, 0);
+                else if (self->zoneID >= 9 && Engine.gameType == GAME_SONIC2) {
+                    switch (self->zoneID) {
                         default: break;
                         case 9: InitStartingStage(STAGELIST_BONUS, 1, 0); break;
-                        case 10: InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount, 0); break;
+                        case 10: InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount, 0); break;
                         case 11: InitStartingStage(STAGELIST_BONUS, 0, 0); break;
                     }
                 }
                 else
-                    InitStartingStage(STAGELIST_REGULAR, entity->zoneID * timeAttack_ActCount + entity->actID, 0);
+                    InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount + self->actID, 0);
 
-                entity->state      = RECORDSSCREEN_STATE_SHOWRESULTS;
-                entity->taResultID = GetGlobalVariableID("timeAttack.result");
+                self->state      = RECORDSSCREEN_STATE_SHOWRESULTS;
+                self->taResultID = GetGlobalVariableID("timeAttack.result");
                 BackupNativeObjects();
                 CREATE_ENTITY(FadeScreen);
             }
@@ -508,51 +514,51 @@ void RecordsScreen_Main(void *objPtr)
         case RECORDSSCREEN_STATE_SHOWRESULTS: {
             int pos = 0;
             if (Engine.gameType == GAME_SONIC1) {
-                switch (entity->zoneID) {
-                    default: pos += timeAttack_ActCount * entity->zoneID; break;
+                switch (self->zoneID) {
+                    default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * entity->zoneID;
+                        pos += 6 * self->zoneID;
                         pos++;
                         break;
                 }
             }
             else {
-                if (entity->zoneID >= 8) {
+                if (self->zoneID >= 8) {
                     pos += timeAttack_ActCount * 8;
                     ++pos;
-                    pos += entity->zoneID - 8;
+                    pos += self->zoneID - 8;
                 }
                 else {
-                    pos += timeAttack_ActCount * entity->zoneID;
+                    pos += timeAttack_ActCount * self->zoneID;
                 }
             }
             pos *= 3;
 
-            SetRenderMatrix(&entity->matrixTemp);
-            entity->state = RECORDSSCREEN_STATE_MAIN;
-            SetMeshVertexColors(entity->meshPanel, 0, 0, 0, 0xC0);
-            if (globalVariables[entity->taResultID] > 0) {
-                int *records = &saveGame->records[pos + (3 * entity->actID)];
-                int time     = globalVariables[entity->taResultID];
+            SetRenderMatrix(&self->matrixTemp);
+            self->state = RECORDSSCREEN_STATE_MAIN;
+            SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
+            if (globalVariables[self->taResultID] > 0) {
+                int *records = &saveGame->records[pos + (3 * self->actID)];
+                int time     = globalVariables[self->taResultID];
 
                 for (int r = 0; r < 3; ++r) {
                     if (time < records[r]) {
                         for (int s = r + 1; s < 3; ++s) records[s + 1] = records[s];
                         records[r]   = time;
-                        entity->rank = r + 1;
+                        self->rank = r + 1;
                         break;
                     }
                 }
 
-                SetStringToFont8(entity->rank1st, "1.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank1st, records[0], FONT_LABEL);
-                SetStringToFont8(entity->rank2nd, "2.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank2nd, records[1], FONT_LABEL);
-                SetStringToFont8(entity->rank3rd, "3.", FONT_LABEL);
-                AddTimeStringToFont(entity->rank3rd, records[2], FONT_LABEL);
+                SetStringToFont8(self->rank1st, "1.", FONT_LABEL);
+                AddTimeStringToFont(self->rank1st, records[0], FONT_LABEL);
+                SetStringToFont8(self->rank2nd, "2.", FONT_LABEL);
+                AddTimeStringToFont(self->rank2nd, records[1], FONT_LABEL);
+                SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
+                AddTimeStringToFont(self->rank3rd, records[2], FONT_LABEL);
 
-                entity->field_28 = 0.0;
-                entity->state    = RECORDSSCREEN_STATE_EXITRESULTS;
+                self->timer = 0.0;
+                self->state = RECORDSSCREEN_STATE_EXITRESULTS;
                 PlaySfxByName("Event", false);
                 WriteSaveRAMData();
 
@@ -640,52 +646,53 @@ void RecordsScreen_Main(void *objPtr)
             break;
         }
         case RECORDSSCREEN_STATE_EXITRESULTS: {
-            SetRenderMatrix(&entity->matrixTemp);
-            entity->field_2C += Engine.deltaTime;
-            if (entity->field_2C > 0.1)
-                entity->field_2C -= 0.1;
+            SetRenderMatrix(&self->matrixTemp);
+            self->flashTimer += Engine.deltaTime;
+            if (self->flashTimer > 0.1)
+                self->flashTimer -= 0.1;
 
-            entity->field_28 += Engine.deltaTime;
-            if (entity->field_28 > 2.0) {
-                entity->field_28 = 0.0;
-                entity->field_2C = 0.0;
-                entity->state    = RECORDSSCREEN_STATE_MAIN;
-                entity->rank     = 0;
+            self->timer += Engine.deltaTime;
+            if (self->timer > 2.0) {
+                self->timer      = 0.0;
+                self->flashTimer = 0.0;
+                self->state      = RECORDSSCREEN_STATE_MAIN;
+                self->rank       = 0;
             }
             break;
         }
         default: break;
     }
 
-    RenderMesh(entity->meshPanel, MESH_COLOURS, false);
+    RenderMesh(self->meshPanel, MESH_COLORS, false);
     RenderRect(-124.0, 69.0, 0.0, 128.0, 98.0, 128, 128, 128, 255);
-    RenderImage(-60.0, 20.0, 0.0, 0.38, 0.38, 159.0, 119.0, 318.0, 238.0, entity->timeAttackU, entity->timeAttackV, 255, entity->textureTimeAttack);
-    RenderText(entity->textRecords, FONT_LABEL, 72.0 - entity->field_D4, 56.0, 0.0, 0.125, 255);
+    RenderImage(-60.0, 20.0, 0.0, 0.38, 0.38, 159.0, 119.0, 318.0, 238.0, self->timeAttackU, self->timeAttackV, 255, self->textureTimeAttack);
+    RenderText(self->textRecords, FONT_LABEL, 72.0 - self->recordTextWidth, 56.0, 0.0, 0.125, 255);
 
-    if (entity->field_2C < 0.05 || entity->rank != 1)
-        RenderText(entity->rank1st, FONT_LABEL, 24.0, 32.0, 0.0, 0.125, 255);
+    if (self->flashTimer < 0.05 || self->rank != 1)
+        RenderText(self->rank1st, FONT_LABEL, 24.0, 32.0, 0.0, 0.125, 255);
 
-    if (entity->field_2C < 0.05 || entity->rank != 2)
-        RenderText(entity->rank2nd, FONT_LABEL, 24.0, 8.0, 0.0, 0.125, 255);
+    if (self->flashTimer < 0.05 || self->rank != 2)
+        RenderText(self->rank2nd, FONT_LABEL, 24.0, 8.0, 0.0, 0.125, 255);
 
-    if (entity->field_2C < 0.05 || entity->rank != 3)
-        RenderText(entity->rank3rd, FONT_LABEL, 24.0, -16.0, 0.0, 0.125, 255);
+    if (self->flashTimer < 0.05 || self->rank != 3)
+        RenderText(self->rank3rd, FONT_LABEL, 24.0, -16.0, 0.0, 0.125, 255);
+
     NewRenderState();
     SetRenderMatrix(NULL);
-    if (entity->actCount > 1) {
-        if (entity->prevActPressed)
-            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->buttonAlpha, entity->textureArrows);
+    if (self->actCount > 1) {
+        if (self->prevActPressed)
+            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, self->buttonAlpha, self->textureArrows);
         else
-            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->buttonAlpha, entity->textureArrows);
+            RenderImageFlipH(-146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, self->buttonAlpha, self->textureArrows);
 
-        if (entity->nextActPressed)
-            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, entity->buttonAlpha, entity->textureArrows);
+        if (self->nextActPressed)
+            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 128.0, self->buttonAlpha, self->textureArrows);
         else
-            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, entity->buttonAlpha, entity->textureArrows);
+            RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, self->buttonAlpha, self->textureArrows);
     }
 
-    if (entity->backPressed)
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, entity->buttonAlpha, entity->textureArrows);
+    if (self->backPressed)
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, self->buttonAlpha, self->textureArrows);
     else
-        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, entity->buttonAlpha, entity->textureArrows);
+        RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, self->buttonAlpha, self->textureArrows);
 }

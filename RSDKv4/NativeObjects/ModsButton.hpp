@@ -3,10 +3,10 @@
 
 #if RETRO_USE_MOD_LOADER
 struct NativeEntity_ModsButton : NativeEntityBase {
-    int field_10;
+    int unused1;
     byte visible;
-    int field_18;
-    int field_1C;
+    int unused2;
+    int unused3;
     float x;
     float y;
     float z;

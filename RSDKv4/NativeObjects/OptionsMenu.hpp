@@ -23,7 +23,7 @@ enum OptionsMenuButtons {
 struct NativeEntity_OptionsMenu : NativeEntityBase {
     OptionsMenuStates state;
     float timer;
-    int field_18;
+    int unused1;
     NativeEntity_MenuControl *menuControl;
     NativeEntity_InstructionsScreen *instructionsScreen;
     NativeEntity_SettingsScreen *settingsScreen;
@@ -31,14 +31,14 @@ struct NativeEntity_OptionsMenu : NativeEntityBase {
     NativeEntity_StaffCredits *staffCredits;
     NativeEntity_TextLabel *labelPtr;
     float labelRotateY;
-    float float38;
-    float field_3C;
+    float targetLabelRotateY;
+    float labelRotateYVelocity;
     MatrixF matrix1;
     NativeEntity_SubMenuButton *buttons[OPTIONSMENU_BUTTON_COUNT];
     float buttonRotateY[OPTIONSMENU_BUTTON_COUNT];
     int selectedButton;
-    float field_A4[OPTIONSMENU_BUTTON_COUNT];
-    float field_B4[OPTIONSMENU_BUTTON_COUNT];
+    float targetButtonRotateY[OPTIONSMENU_BUTTON_COUNT];
+    float buttonRotateYVelocity[OPTIONSMENU_BUTTON_COUNT];
 };
 
 void OptionsMenu_Create(void *objPtr);

@@ -2,10 +2,10 @@
 #define NATIVE_OPTIONSBUTTON_H
 
 struct NativeEntity_OptionsButton : NativeEntityBase {
-    int field_10;
+    int unused1;
     byte visible;
-    int field_18;
-    int field_1C;
+    int unused2;
+    int unused3;
     float x;
     float y;
     float z;

@@ -10,8 +10,8 @@ struct NativeEntity_SegaIDButton : NativeEntityBase {
     float texX;
     SegaIDButtonStates state;
     int alpha;
-    int field_28;
-    int field_2C;
+    int unused1;
+    int unused2;
     byte textureID;
     byte useRenderMatrix;
     MatrixF renderMatrix;

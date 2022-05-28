@@ -16,7 +16,7 @@ struct NativeEntity_CreditText : NativeEntityBase {
     CreditTextStates state;
     byte useRenderMatrix;
     MatrixF renderMatrix;
-    uint colour;
+    uint color;
     byte textureID;
 };
 

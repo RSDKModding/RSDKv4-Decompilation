@@ -19,7 +19,7 @@ struct NativeEntity_TextLabel : NativeEntityBase {
     void (*alignPtr)(NativeEntity_TextLabel *, TextAlignments);
 
 #if !RETRO_USE_ORIGINAL_CODE
-    byte useColours;
+    byte useColors;
     byte r;
     byte g;
     byte b;

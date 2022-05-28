@@ -441,12 +441,12 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
     if (!nativeEntityCount) {
         memset(objectEntityBank, 0, sizeof(objectEntityBank));
         NativeEntity *entity = &objectEntityBank[0];
-        entity->createPtr    = create;
-        entity->mainPtr      = main;
+        entity->eventCreate    = create;
+        entity->eventMain      = main;
         activeEntityList[0]  = 0;
         nativeEntityCount++;
-        if (entity->createPtr)
-            entity->createPtr(entity);
+        if (entity->eventCreate)
+            entity->eventCreate(entity);
         return entity;
     }
     else if (nativeEntityCount >= NATIVEENTITY_COUNT) {
@@ -456,18 +456,18 @@ NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void
     else {
         int slot = 0;
         for (; slot < NATIVEENTITY_COUNT; ++slot) {
-            if (!objectEntityBank[slot].mainPtr)
+            if (!objectEntityBank[slot].eventMain)
                 break;
         }
         NativeEntity *entity = &objectEntityBank[slot];
         memset(entity, 0, sizeof(NativeEntity));
         entity->slotID                        = slot;
         entity->objectID                      = nativeEntityCount;
-        entity->createPtr                     = create;
-        entity->mainPtr                       = main;
+        entity->eventCreate                     = create;
+        entity->eventMain                       = main;
         activeEntityList[nativeEntityCount++] = slot;
-        if (entity->createPtr)
-            entity->createPtr(entity);
+        if (entity->eventCreate)
+            entity->eventCreate(entity);
         return entity;
     }
 }
@@ -478,7 +478,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
         return;
     memcpy(&activeEntityList[entity->objectID], &activeEntityList[entity->objectID + 1], sizeof(int) * (NATIVEENTITY_COUNT - (entity->objectID + 2)));
     --nativeEntityCount;
-    for (int i = entity->slotID; objectEntityBank[i].mainPtr; ++i) objectEntityBank[i].objectID--;
+    for (int i = entity->slotID; objectEntityBank[i].eventMain; ++i) objectEntityBank[i].objectID--;
 #else
     // this actually behaves COMPLETELY improperly, duplicating the deleted one instead
     // the above code is my attempt to make a proper version
@@ -511,8 +511,8 @@ void ResetNativeObject(NativeEntityBase *obj, void (*create)(void *objPtr), void
     int objID  = obj->objectID;
     memset(&objectEntityBank[slotID], 0, sizeof(NativeEntity));
     obj->slotID    = slotID;
-    obj->mainPtr   = main;
-    obj->createPtr = create;
+    obj->eventMain   = main;
+    obj->eventCreate = create;
     obj->objectID  = objID;
     if (create)
         create(obj);
@@ -522,7 +522,7 @@ void ProcessNativeObjects()
     ResetRenderStates();
     for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
         NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
-        entity->mainPtr(entity);
+        entity->eventMain(entity);
     }
     RenderScene();
 }

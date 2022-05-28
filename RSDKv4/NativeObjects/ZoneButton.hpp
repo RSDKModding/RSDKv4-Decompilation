@@ -14,12 +14,12 @@ struct NativeEntity_ZoneButton : NativeEntityBase {
     byte unlocked;
     float textWidth;
     ZoneButtonStates state;
-    float float38;
     float timer;
-    uint textColour;
-    uint textSelectedColour;
-    uint bgColour;
-    uint bgColourSelected;
+    float flashTimer;
+    uint textColor;
+    uint textSelectedColor;
+    uint bgColor;
+    uint bgColorSelected;
     byte textureIntro;
     byte textureSymbols;
     ushort zoneText[32];
