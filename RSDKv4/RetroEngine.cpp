@@ -48,12 +48,14 @@ bool processEvents()
                     }
                     case SDL_WINDOWEVENT_CLOSE: return false;
                     case SDL_WINDOWEVENT_FOCUS_LOST:
+						/*
                         if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                             Engine.gameMode = ENGINE_INITPAUSE;
 #if RETRO_REV00
                         if (!(disableFocusPause & 1))
                             Engine.message = MESSAGE_LOSTFOCUS;
 #endif
+						*/
                         Engine.hasFocus = false;
                         break;
                     case SDL_WINDOWEVENT_FOCUS_GAINED: Engine.hasFocus = true; break;
@@ -62,12 +64,14 @@ bool processEvents()
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
             case SDL_APP_WILLENTERBACKGROUND:
+				/*
                 if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                     Engine.gameMode = ENGINE_INITPAUSE;
 #if RETRO_REV00
                 if (!(disableFocusPause & 1))
                     Engine.message = MESSAGE_LOSTFOCUS;
 #endif
+				*/
                 Engine.hasFocus = false;
                 break;
             case SDL_APP_WILLENTERFOREGROUND: Engine.hasFocus = true; break;
@@ -504,6 +508,7 @@ void RetroEngine::Run()
         running = processEvents();
 
         // Focus Checks
+		/*
         if (!(disableFocusPause & 2)) {
             if (!Engine.hasFocus) {
                 if (!(Engine.focusState & 1))
@@ -515,6 +520,7 @@ void RetroEngine::Run()
                 Engine.focusState = 0;
             }
         }
+		*/
 
         if (!(Engine.focusState & 1) || vsPlaying) {
 #if !RETRO_USE_ORIGINAL_CODE
