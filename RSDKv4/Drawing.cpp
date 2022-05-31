@@ -10,12 +10,12 @@ ushort tintLookupTable[0x10000];
 
 bool windowCreated = false;
 
-int SCREEN_XSIZE_CONFIG = 426;
-int SCREEN_XSIZE        = 426;
-int SCREEN_CENTERX      = 426 / 2;
+int SCREEN_XSIZE_CONFIG = 424;
+int SCREEN_XSIZE        = 424;
+int SCREEN_CENTERX      = 424 / 2;
 
-float SCREEN_XSIZE_F   = 426;
-float SCREEN_CENTERX_F = 426 / 2;
+float SCREEN_XSIZE_F   = 424;
+float SCREEN_CENTERX_F = 424 / 2;
 
 float SCREEN_YSIZE_F   = SCREEN_YSIZE;
 float SCREEN_CENTERY_F = SCREEN_YSIZE / 2;

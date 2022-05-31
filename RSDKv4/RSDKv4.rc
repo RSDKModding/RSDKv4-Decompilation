@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "resource2.h"
+#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 1 TEXTINCLUDE 
 BEGIN
-    "resource2.h\0"
+    "resource.h\0"
 END
 
 2 TEXTINCLUDE 
@@ -44,6 +44,54 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+#endif    // English (United Kingdom) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "0c0904b0"
+        BEGIN
+            VALUE "CompanyName", "RSDKv4/Sonic 1/2 (2013) By Christian 'The Taxman' Whitehead & Simon 'Stealth' Thomley, Decompilation By Rubberduckycooly/RMGRich"
+            VALUE "FileDescription", "RSDKv4"
+            VALUE "FileVersion", "1.0.0"
+            VALUE "InternalName", "RSDKv4.exe"
+            VALUE "OriginalFilename", "RSDKv4.exe"
+            VALUE "ProductName", "RSDKv4"
+            VALUE "ProductVersion", "1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0xc09, 1200
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -52,9 +100,9 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "icons1f.ico"
+IDI_ICON1               ICON                    "RSDKv4 Decomp Icon.ico"
 
-#endif    // English (United Kingdom) resources
+#endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

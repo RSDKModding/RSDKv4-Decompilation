@@ -33,13 +33,12 @@ int sendCounter = 0;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-
-bool forceUseScripts          = true;
-bool forceUseScripts_Config   = true;
-bool skipStartMenu            = true;
-bool skipStartMenu_Config     = true;
-int disableFocusPause         = 3;
-int disableFocusPause_Config  = 3;
+bool forceUseScripts         = false;
+bool forceUseScripts_Config  = false;
+bool skipStartMenu           = false;
+bool skipStartMenu_Config    = false;
+int disableFocusPause        = 0;
+int disableFocusPause_Config = 0;
 
 bool useSGame = false;
 
@@ -282,10 +281,8 @@ void InitUserdata()
         Engine.startStage_Game = Engine.startStage;
 
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
-        ini.SetString("Dev", "DataFile", (char *)"ForceData.rsdk");
-        StrCopy(Engine.dataFile[0], "ForceData.rsdk");
-		
-		/*
+        ini.SetString("Dev", "DataFile", (char *)"Data.rsdk");
+        StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
             ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
             StrCopy(Engine.dataFile[1], "Data2.rsdk");
@@ -298,12 +295,11 @@ void InitUserdata()
             ini.SetString("Dev", "DataFile4", (char *)"Data4.rsdk");
             StrCopy(Engine.dataFile[3], "Data4.rsdk");
         }
-		*/
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
-        ini.SetBool("Game", "SkipStartMenu", skipStartMenu = true);
+        ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
         skipStartMenu_Config = skipStartMenu;
-        ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 3);
+        ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 0);
         disableFocusPause_Config = disableFocusPause;
 
 #if RETRO_USE_NETWORKING
@@ -331,14 +327,14 @@ void InitUserdata()
         ini.SetInteger("Keyboard 1", "Down", inputDevice[INPUT_DOWN].keyMappings = SDL_SCANCODE_DOWN);
         ini.SetInteger("Keyboard 1", "Left", inputDevice[INPUT_LEFT].keyMappings = SDL_SCANCODE_LEFT);
         ini.SetInteger("Keyboard 1", "Right", inputDevice[INPUT_RIGHT].keyMappings = SDL_SCANCODE_RIGHT);
-        ini.SetInteger("Keyboard 1", "A", inputDevice[INPUT_BUTTONA].keyMappings = SDL_SCANCODE_A);
-        ini.SetInteger("Keyboard 1", "B", inputDevice[INPUT_BUTTONB].keyMappings = SDL_SCANCODE_S);
-        ini.SetInteger("Keyboard 1", "C", inputDevice[INPUT_BUTTONC].keyMappings = SDL_SCANCODE_D);
-        ini.SetInteger("Keyboard 1", "X", inputDevice[INPUT_BUTTONX].keyMappings = SDL_SCANCODE_Q);
-        ini.SetInteger("Keyboard 1", "Y", inputDevice[INPUT_BUTTONY].keyMappings = SDL_SCANCODE_W);
-        ini.SetInteger("Keyboard 1", "Z", inputDevice[INPUT_BUTTONZ].keyMappings = SDL_SCANCODE_E);
-        ini.SetInteger("Keyboard 1", "L", inputDevice[INPUT_BUTTONL].keyMappings = SDL_SCANCODE_1);
-        ini.SetInteger("Keyboard 1", "R", inputDevice[INPUT_BUTTONR].keyMappings = SDL_SCANCODE_4);
+        ini.SetInteger("Keyboard 1", "A", inputDevice[INPUT_BUTTONA].keyMappings = SDL_SCANCODE_Z);
+        ini.SetInteger("Keyboard 1", "B", inputDevice[INPUT_BUTTONB].keyMappings = SDL_SCANCODE_X);
+        ini.SetInteger("Keyboard 1", "C", inputDevice[INPUT_BUTTONC].keyMappings = SDL_SCANCODE_C);
+        ini.SetInteger("Keyboard 1", "X", inputDevice[INPUT_BUTTONX].keyMappings = SDL_SCANCODE_A);
+        ini.SetInteger("Keyboard 1", "Y", inputDevice[INPUT_BUTTONY].keyMappings = SDL_SCANCODE_S);
+        ini.SetInteger("Keyboard 1", "Z", inputDevice[INPUT_BUTTONZ].keyMappings = SDL_SCANCODE_D);
+        ini.SetInteger("Keyboard 1", "L", inputDevice[INPUT_BUTTONL].keyMappings = SDL_SCANCODE_Q);
+        ini.SetInteger("Keyboard 1", "R", inputDevice[INPUT_BUTTONR].keyMappings = SDL_SCANCODE_E);
         ini.SetInteger("Keyboard 1", "Start", inputDevice[INPUT_START].keyMappings = SDL_SCANCODE_RETURN);
         ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings = SDL_SCANCODE_TAB);
 
@@ -349,11 +345,11 @@ void InitUserdata()
         ini.SetInteger("Controller 1", "A", inputDevice[INPUT_BUTTONA].contMappings = SDL_CONTROLLER_BUTTON_A);
         ini.SetInteger("Controller 1", "B", inputDevice[INPUT_BUTTONB].contMappings = SDL_CONTROLLER_BUTTON_B);
         ini.SetInteger("Controller 1", "C", inputDevice[INPUT_BUTTONC].contMappings = SDL_CONTROLLER_BUTTON_X);
-        ini.SetInteger("Controller 1", "X", inputDevice[INPUT_BUTTONX].contMappings = SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-        ini.SetInteger("Controller 1", "Y", inputDevice[INPUT_BUTTONY].contMappings = SDL_CONTROLLER_BUTTON_Y);
-        ini.SetInteger("Controller 1", "Z", inputDevice[INPUT_BUTTONZ].contMappings = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-        ini.SetInteger("Controller 1", "L", inputDevice[INPUT_BUTTONL].contMappings = SDL_CONTROLLER_BUTTON_ZL);
-        ini.SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings = SDL_CONTROLLER_BUTTON_ZR);
+        ini.SetInteger("Controller 1", "X", inputDevice[INPUT_BUTTONX].contMappings = SDL_CONTROLLER_BUTTON_Y);
+        ini.SetInteger("Controller 1", "Y", inputDevice[INPUT_BUTTONY].contMappings = SDL_CONTROLLER_BUTTON_ZL);
+        ini.SetInteger("Controller 1", "Z", inputDevice[INPUT_BUTTONZ].contMappings = SDL_CONTROLLER_BUTTON_ZR);
+        ini.SetInteger("Controller 1", "L", inputDevice[INPUT_BUTTONL].contMappings = SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+        ini.SetInteger("Controller 1", "R", inputDevice[INPUT_BUTTONR].contMappings = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
         ini.SetInteger("Controller 1", "Start", inputDevice[INPUT_START].contMappings = SDL_CONTROLLER_BUTTON_START);
         ini.SetInteger("Controller 1", "Select", inputDevice[INPUT_SELECT].contMappings = SDL_CONTROLLER_BUTTON_GUIDE);
 
@@ -411,7 +407,7 @@ void InitUserdata()
         if (!ini.GetBool("Dev", "EngineDebugMode", &engineDebugMode))
             engineDebugMode = false;
         if (!ini.GetBool("Dev", "TxtScripts", &forceUseScripts))
-            forceUseScripts = true;
+            forceUseScripts = false;
         forceUseScripts_Config = forceUseScripts;
         if (!ini.GetInteger("Dev", "StartingCategory", &Engine.startList))
             Engine.startList = 255;
@@ -429,10 +425,8 @@ void InitUserdata()
         Engine.startList_Game  = Engine.startList;
         Engine.startStage_Game = Engine.startStage;
 
-        //if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
-            StrCopy(Engine.dataFile[0], "ForceData.rsdk");
-		
-		/*
+        if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
+            StrCopy(Engine.dataFile[0], "Data.rsdk");
         if (!StrComp(Engine.dataFile[1], "")) {
             if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
                 StrCopy(Engine.dataFile[1], "");
@@ -445,14 +439,14 @@ void InitUserdata()
             if (!ini.GetString("Dev", "DataFile4", Engine.dataFile[3]))
                 StrCopy(Engine.dataFile[3], "");
         }
-		*/
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
-            skipStartMenu = true;
+            skipStartMenu = false;
         skipStartMenu_Config = skipStartMenu;
-        disableFocusPause = 3;
+        if (!ini.GetInteger("Game", "DisableFocusPause", &disableFocusPause))
+            disableFocusPause = false;
         disableFocusPause_Config = disableFocusPause;
 
 #if RETRO_USE_NETWORKING
@@ -475,7 +469,7 @@ void InitUserdata()
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE_CONFIG))
             SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE;
         SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
-        //if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
+        if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
             Engine.refreshRate = 60;
         if (!ini.GetInteger("Window", "DimLimit", &Engine.dimLimit))
             Engine.dimLimit = 300; // 5 mins
@@ -484,9 +478,9 @@ void InitUserdata()
 
         float bv = 0, sv = 0;
         if (!ini.GetFloat("Audio", "BGMVolume", &bv))
-            bv = 0.4f;
+            bv = 1.0f;
         if (!ini.GetFloat("Audio", "SFXVolume", &sv))
-            sv = 0.4f;
+            sv = 1.0f;
 
         bgmVolume = bv * MAX_VOLUME;
         sfxVolume = sv * MAX_VOLUME;
@@ -511,21 +505,21 @@ void InitUserdata()
         if (!ini.GetInteger("Keyboard 1", "Right", &inputDevice[INPUT_RIGHT].keyMappings))
             inputDevice[INPUT_RIGHT].keyMappings = SDL_SCANCODE_RIGHT;
         if (!ini.GetInteger("Keyboard 1", "A", &inputDevice[INPUT_BUTTONA].keyMappings))
-            inputDevice[INPUT_BUTTONA].keyMappings = SDL_SCANCODE_A;
+            inputDevice[INPUT_BUTTONA].keyMappings = SDL_SCANCODE_Z;
         if (!ini.GetInteger("Keyboard 1", "B", &inputDevice[INPUT_BUTTONB].keyMappings))
-            inputDevice[INPUT_BUTTONB].keyMappings = SDL_SCANCODE_S;
+            inputDevice[INPUT_BUTTONB].keyMappings = SDL_SCANCODE_X;
         if (!ini.GetInteger("Keyboard 1", "C", &inputDevice[INPUT_BUTTONC].keyMappings))
-            inputDevice[INPUT_BUTTONC].keyMappings = SDL_SCANCODE_D;
+            inputDevice[INPUT_BUTTONC].keyMappings = SDL_SCANCODE_C;
         if (!ini.GetInteger("Keyboard 1", "X", &inputDevice[INPUT_BUTTONX].keyMappings))
-            inputDevice[INPUT_BUTTONX].keyMappings = SDL_SCANCODE_Q;
+            inputDevice[INPUT_BUTTONX].keyMappings = SDL_SCANCODE_A;
         if (!ini.GetInteger("Keyboard 1", "Y", &inputDevice[INPUT_BUTTONY].keyMappings))
-            inputDevice[INPUT_BUTTONY].keyMappings = SDL_SCANCODE_W;
+            inputDevice[INPUT_BUTTONY].keyMappings = SDL_SCANCODE_S;
         if (!ini.GetInteger("Keyboard 1", "Z", &inputDevice[INPUT_BUTTONZ].keyMappings))
-            inputDevice[INPUT_BUTTONZ].keyMappings = SDL_SCANCODE_E;
+            inputDevice[INPUT_BUTTONZ].keyMappings = SDL_SCANCODE_D;
         if (!ini.GetInteger("Keyboard 1", "L", &inputDevice[INPUT_BUTTONL].keyMappings))
-            inputDevice[INPUT_BUTTONL].keyMappings = SDL_SCANCODE_1;
+            inputDevice[INPUT_BUTTONL].keyMappings = SDL_SCANCODE_Q;
         if (!ini.GetInteger("Keyboard 1", "R", &inputDevice[INPUT_BUTTONR].keyMappings))
-            inputDevice[INPUT_BUTTONR].keyMappings = SDL_SCANCODE_4;
+            inputDevice[INPUT_BUTTONR].keyMappings = SDL_SCANCODE_E;
         if (!ini.GetInteger("Keyboard 1", "Start", &inputDevice[INPUT_START].keyMappings))
             inputDevice[INPUT_START].keyMappings = SDL_SCANCODE_RETURN;
         if (!ini.GetInteger("Keyboard 1", "Select", &inputDevice[INPUT_SELECT].keyMappings))
@@ -546,15 +540,15 @@ void InitUserdata()
         if (!ini.GetInteger("Controller 1", "C", &inputDevice[INPUT_BUTTONC].contMappings))
             inputDevice[INPUT_BUTTONC].contMappings = SDL_CONTROLLER_BUTTON_X;
         if (!ini.GetInteger("Controller 1", "X", &inputDevice[INPUT_BUTTONX].contMappings))
-            inputDevice[INPUT_BUTTONX].contMappings = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+            inputDevice[INPUT_BUTTONX].contMappings = SDL_CONTROLLER_BUTTON_Y;
         if (!ini.GetInteger("Controller 1", "Y", &inputDevice[INPUT_BUTTONY].contMappings))
-            inputDevice[INPUT_BUTTONY].contMappings = SDL_CONTROLLER_BUTTON_Y;
+            inputDevice[INPUT_BUTTONY].contMappings = SDL_CONTROLLER_BUTTON_ZL;
         if (!ini.GetInteger("Controller 1", "Z", &inputDevice[INPUT_BUTTONZ].contMappings))
-            inputDevice[INPUT_BUTTONZ].contMappings = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+            inputDevice[INPUT_BUTTONZ].contMappings = SDL_CONTROLLER_BUTTON_ZR;
         if (!ini.GetInteger("Controller 1", "L", &inputDevice[INPUT_BUTTONL].contMappings))
-            inputDevice[INPUT_BUTTONL].contMappings = SDL_CONTROLLER_BUTTON_ZL;
+            inputDevice[INPUT_BUTTONL].contMappings = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
         if (!ini.GetInteger("Controller 1", "R", &inputDevice[INPUT_BUTTONR].contMappings))
-            inputDevice[INPUT_BUTTONR].contMappings = SDL_CONTROLLER_BUTTON_ZR;
+            inputDevice[INPUT_BUTTONR].contMappings = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
         if (!ini.GetInteger("Controller 1", "Start", &inputDevice[INPUT_START].contMappings))
             inputDevice[INPUT_START].contMappings = SDL_CONTROLLER_BUTTON_START;
         if (!ini.GetInteger("Controller 1", "Select", &inputDevice[INPUT_SELECT].contMappings))
@@ -712,8 +706,6 @@ void WriteSettings()
 
     ini.SetComment("Dev", "DataFileComment", "Determines where the first RSDK file will be loaded from");
     ini.SetString("Dev", "DataFile", Engine.dataFile[0]);
-	
-	/*
     if (!StrComp(Engine.dataFile[1], "")) {
         ini.SetComment("Dev", "DataFileComment2", "Determines where the second RSDK file will be loaded from");
         ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
@@ -726,13 +718,16 @@ void WriteSettings()
         ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth RSDK file will be loaded from (normally unused)");
         ini.SetString("Dev", "DataFile4", Engine.dataFile[3]);
     }
-	*/
 
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
     ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
+    ini.SetComment("Game", "DFPMenuComment",
+                   "Handles pausing behaviour when focus is lost\n; 0 = Game focus disabled, engine focus disabled\n; 1 = Game focus disabled, "
+                   "engine focus enabled\n; 2 = Game focus enabled, engine focus disabled\n; 3 = Game focus disabled, engine focus disabled");
+    ini.SetInteger("Game", "DisableFocusPause", disableFocusPause_Config);
 
 #if RETRO_USE_NETWORKING
     ini.SetComment("Network", "HostComment", "The host (IP address or \"URL\") that the game will try to connect to.");
@@ -754,8 +749,8 @@ void WriteSettings()
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
     ini.SetComment("Window", "SWComment", "How wide the base screen will be in pixels");
     ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG);
-    //ini.SetComment("Window", "RRComment", "Determines the target FPS");
-    //ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
+    ini.SetComment("Window", "RRComment", "Determines the target FPS");
+    ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
     ini.SetComment("Window", "DLComment", "Determines the dim timer in seconds, set to -1 to disable dimming");
     ini.SetInteger("Window", "DimLimit", Engine.dimLimit >= 0 ? Engine.dimLimit / Engine.refreshRate : -1);
 
