@@ -1137,11 +1137,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
-
 #if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);
 #endif
-
 #if RETRO_USE_MOD_LOADER
     AddNativeFunction("ExitGame", ExitGame);
     AddNativeFunction("FileExists", FileExists);
@@ -1153,9 +1151,13 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("GetAchievement", GetAchievement);
     AddNativeFunction("GetAchievementName", GetAchievementName);
     AddNativeFunction("GetAchievementDescription", GetAchievementDescription);
+    AddNativeFunction("GetScreenWidth", GetScreenWidth);
     AddNativeFunction("SetScreenWidth", SetScreenWidth);
+    AddNativeFunction("GetWindowScale", GetWindowScale);
     AddNativeFunction("SetWindowScale", SetWindowScale);
+    AddNativeFunction("GetWindowFullScreen", GetWindowFullScreen);
     AddNativeFunction("SetWindowFullScreen", SetWindowFullScreen);
+    AddNativeFunction("GetWindowBorderless", GetWindowBorderless);
     AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
     // AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
     AddNativeFunction("GetModCount", GetModCount);
