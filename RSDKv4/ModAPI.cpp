@@ -4,6 +4,9 @@
 char savePath[0x100];
 #endif
 
+char playerNames[PLAYER_COUNT][0x20];
+byte playerCount = 0;
+
 #if RETRO_USE_MOD_LOADER
 std::vector<ModInfo> modList;
 int activeMod = -1;
@@ -16,9 +19,6 @@ char modTypeNames[OBJECT_COUNT][0x40];
 char modScriptPaths[OBJECT_COUNT][0x40];
 byte modScriptFlags[OBJECT_COUNT];
 byte modObjCount = 0;
-
-char playerNames[PLAYER_COUNT][0x20];
-byte playerCount = 0;
 
 #include <filesystem>
 #include <locale>

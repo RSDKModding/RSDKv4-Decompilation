@@ -1068,7 +1068,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         for (byte p = 0; p < plrCount; ++p) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
-#if RETRO_USE_MOD_LOADER
+
+            // needed for PlayerName[] stuff in scripts
+#if !RETRO_USE_ORIGINAL_CODE
             strBuffer[fileBuffer] = 0;
             StrCopy(playerNames[p], strBuffer);
             playerCount++;

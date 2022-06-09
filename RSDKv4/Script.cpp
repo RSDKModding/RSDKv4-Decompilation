@@ -1739,7 +1739,7 @@ void ConvertFunctionText(char *text)
                 }
             }
 
-#if RETRO_USE_MOD_LOADER
+#if !RETRO_USE_ORIGINAL_CODE
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = 0;
@@ -2045,7 +2045,7 @@ void CheckCaseNumber(char *text)
             }
         }
 
-#if RETRO_USE_MOD_LOADER
+#if !RETRO_USE_ORIGINAL_CODE
         // Eg: temp0 = AchievementName[Ring King]
         if (StrComp(caseValue, "AchievementName")) {
             caseValue[0] = 0;
@@ -2283,7 +2283,7 @@ bool ReadSwitchCase(char *text)
                 }
             }
 
-#if RETRO_USE_MOD_LOADER
+#if !RETRO_USE_ORIGINAL_CODE
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(caseValue, "AchievementName")) {
                 caseValue[0] = 0;

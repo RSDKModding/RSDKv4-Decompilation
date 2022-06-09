@@ -1,13 +1,16 @@
 #ifndef MOD_API_H
 #define MOD_API_H
 
+#define PLAYER_COUNT (0x10)
+
+extern char playerNames[PLAYER_COUNT][0x20];
+extern byte playerCount;
+
 #if RETRO_USE_MOD_LOADER
 #include <string>
 #include <map>
 #include <unordered_map>
 #include <tinyxml2.h>
-
-#define PLAYER_COUNT (0x10)
 
 struct ModInfo {
     std::string name;
@@ -36,9 +39,6 @@ extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern byte modScriptFlags[OBJECT_COUNT];
 extern byte modObjCount;
-
-extern char playerNames[PLAYER_COUNT][0x20];
-extern byte playerCount;
 
 inline void SetActiveMod(int id) { activeMod = id; }
 
