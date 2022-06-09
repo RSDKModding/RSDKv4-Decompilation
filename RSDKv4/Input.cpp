@@ -269,6 +269,10 @@ void InitInputDevices()
 {
 #if RETRO_USING_SDL2
     PrintLog("Initializing gamepads...");
+
+    // fix for issue #334 on github, not sure what's going wrong, but it seems to not be initializing the gamepad api maybe?
+    SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+
     int joyStickCount = SDL_NumJoysticks();
     controllers.clear();
     int gamepadCount = 0;
