@@ -55,7 +55,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 ## Linux
 ### Decompilation
 * To setup your build enviroment and library dependecies, run the following commands:
-  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev`
+  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libdecor-0-dev`
     * If you're using Debian, add `libgbm-dev` and `libdrm-dev`.
   * Fedora Linux: `sudo dnf install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel`
   * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew`
