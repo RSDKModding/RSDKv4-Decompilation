@@ -181,6 +181,22 @@ typedef unsigned int uint;
 
 #define RETRO_USE_HAPTICS (1)
 
+// NOTE: This is only used for rev00 stuff, it was removed in rev01 and later builds
+#if RETRO_PLATFORM <= RETRO_WP7
+#define RETRO_GAMEPLATFORMID (RETRO_PLATFORM)
+#else
+
+// use *this* macro to determine what platform the game thinks its running on (since only the first 7 platforms are supported natively by scripts)
+#if RETRO_PLATFORM == RETRO_LINUX
+#define RETRO_GAMEPLATFORMID (RETRO_WIN)
+#elif RETRO_PLATFORM == RETRO_UWP
+#define RETRO_GAMEPLATFORMID (UAP_GetRetroGamePlatformId())
+#else
+#error Unspecified RETRO_GAMEPLATFORMID
+#endif
+
+#endif
+
 // Timeline:
 // 0 = S1 release RSDKv4 version
 // 1 = S2 release RSDKv4 version
@@ -346,8 +362,10 @@ public:
 
     bool trialMode        = false;
     bool onlineActive     = true;
-    bool hapticsEnabled   = true;
     bool useHighResAssets = false;
+#if RETRO_USE_HAPTICS
+    bool hapticsEnabled = true;
+#endif
 
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;

@@ -56,7 +56,7 @@ void LoadPalette(const char *filePath, int paletteID, int startPaletteIndex, int
 }
 
 #if RETRO_REV00
-void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort alpha, int startIndex, int endIndex)
+void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort blendAmount, int startIndex, int endIndex)
 {
     if (paletteID >= PALETTE_COUNT)
         return;
@@ -70,15 +70,15 @@ void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort alpha, int st
     if (startIndex >= endIndex)
         return;
 
-    uint alpha2 = 0xFF - alpha;
+    uint blendA = 0xFF - blendAmount;
     for (int i = startIndex; i < endIndex; ++i) {
-        PACK_RGB888(activePalette[i], (byte)((ushort)(R * alpha + alpha2 * activePalette32[i].r) >> 8),
-                    (byte)((ushort)(G * alpha + alpha2 * activePalette32[i].g) >> 8),
-                    (byte)((ushort)(B * alpha + alpha2 * activePalette32[i].b) >> 8));
+        PACK_RGB888(activePalette[i], (byte)((ushort)(R * blendAmount + blendA * activePalette32[i].r) >> 8),
+                    (byte)((ushort)(G * blendAmount + blendA * activePalette32[i].g) >> 8),
+                    (byte)((ushort)(B * blendAmount + blendA * activePalette32[i].b) >> 8));
 
-        activePalette32[i].r = (byte)((ushort)(R * alpha + alpha2 * activePalette32[i].r) >> 8);
-        activePalette32[i].g = (byte)((ushort)(G * alpha + alpha2 * activePalette32[i].g) >> 8);
-        activePalette32[i].b = (byte)((ushort)(B * alpha + alpha2 * activePalette32[i].b) >> 8);
+        activePalette32[i].r = (byte)((ushort)(R * blendAmount + blendA * activePalette32[i].r) >> 8);
+        activePalette32[i].g = (byte)((ushort)(G * blendAmount + blendA * activePalette32[i].g) >> 8);
+        activePalette32[i].b = (byte)((ushort)(B * blendAmount + blendA * activePalette32[i].b) >> 8);
     }
 }
 #else

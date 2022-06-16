@@ -548,6 +548,7 @@ void RetroEngine::Run()
             Engine.message = MESSAGE_NONE;
 #endif
 
+#if RETRO_USE_HAPTICS
             int hapticID = GetHapticEffectNum();
             if (hapticID >= 0) {
                 // playHaptics(hapticID);
@@ -555,6 +556,7 @@ void RetroEngine::Run()
             else if (hapticID == HAPTIC_STOP) {
                 // stopHaptics();
             }
+#endif
         }
     }
 

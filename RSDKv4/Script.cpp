@@ -342,8 +342,13 @@ const char variableNames[][0x20] = {
     "engine.onlineActive",
     "engine.sfxVolume",
     "engine.bgmVolume",
+#if RETRO_REV00
+    "engine.platformID",
+#endif
     "engine.trialMode",
+#if !RETRO_REV00
     "engine.deviceType",
+#endif
 #if RETRO_USE_HAPTICS
     "engine.hapticsEnabled",
 #endif
@@ -933,8 +938,13 @@ enum ScrVar {
     VAR_ENGINEONLINEACTIVE,
     VAR_ENGINESFXVOLUME,
     VAR_ENGINEBGMVOLUME,
+#if RETRO_REV00
+    VAR_ENGINEPLATFORMID, // v3-style device type aka Windows/Mac/Android/etc
+#endif
     VAR_ENGINETRIALMODE,
-    VAR_ENGINEDEVICETYPE,
+#if !RETRO_REV00
+    VAR_ENGINEDEVICETYPE, // v4-style device type aka Standard/Mobile/Etc
+#endif
 #if RETRO_USE_HAPTICS
     VAR_HAPTICSENABLED,
 #endif
@@ -3941,9 +3951,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_ENGINEONLINEACTIVE: scriptEng.operands[i] = Engine.onlineActive; break;
                     case VAR_ENGINESFXVOLUME: scriptEng.operands[i] = sfxVolume; break;
                     case VAR_ENGINEBGMVOLUME: scriptEng.operands[i] = bgmVolume; break;
+#if RETRO_REV00
+                    case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_GAMEPLATFORMID; break;
+#endif
                     case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
+#if !RETRO_REV00
                     case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
+#endif
+#if RETRO_USE_HAPTICS
                     case VAR_HAPTICSENABLED: scriptEng.operands[i] = Engine.hapticsEnabled; break;
+#endif
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -5880,8 +5897,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                         bgmVolume = scriptEng.operands[i];
                         SetGameVolumes(bgmVolume, sfxVolume);
                         break;
+#if RETRO_REV00
+                    case VAR_ENGINEPLATFORMID: break;
+#endif
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
-                    case VAR_ENGINEDEVICETYPE: Engine.hapticsEnabled = scriptEng.operands[i]; break;
+#if !RETRO_REV00
+                    case VAR_ENGINEDEVICETYPE: break;
+#endif
+#if RETRO_USE_HAPTICS
+                    case VAR_HAPTICSENABLED: Engine.hapticsEnabled = scriptEng.operands[i]; break;
+#endif
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
