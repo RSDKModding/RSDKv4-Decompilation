@@ -4,7 +4,11 @@
 #define SURFACE_COUNT (24)
 #define GFXDATA_SIZE  (0x800 * 0x800)
 
+#if RETRO_REV03
+#define DRAWLAYER_COUNT (8)
+#else
 #define DRAWLAYER_COUNT (7)
+#endif
 
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
 enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };

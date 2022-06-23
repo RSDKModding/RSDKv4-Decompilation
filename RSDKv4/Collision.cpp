@@ -47,7 +47,7 @@ int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int 
 }
 #endif
 
-inline Hitbox *getHitbox(Entity *entity)
+inline Hitbox *GetHitbox(Entity *entity)
 {
     AnimationFile *thisAnim = objectScriptList[entity->type].animFile;
     return &hitboxList[thisAnim->hitboxListOffset
@@ -711,7 +711,7 @@ void RWallCollision(Entity *player, CollisionSensor *sensor)
 
 void ProcessAirCollision(Entity *entity)
 {
-    Hitbox *playerHitbox = getHitbox(entity);
+    Hitbox *playerHitbox = GetHitbox(entity);
     collisionLeft        = playerHitbox->left[0];
     collisionTop         = playerHitbox->top[0];
     collisionRight       = playerHitbox->right[0];
@@ -1512,7 +1512,7 @@ void ProcessPathGrip(Entity *entity)
 
 void SetPathGripSensors(Entity *player)
 {
-    Hitbox *playerHitbox = getHitbox(player);
+    Hitbox *playerHitbox = GetHitbox(player);
 
     switch (player->collisionMode) {
         case CMODE_FLOOR: {
@@ -2150,8 +2150,8 @@ void ObjectRWallGrip(int xOffset, int yOffset, int cPath)
 void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                     int otherRight, int otherBottom)
 {
-    Hitbox *thisHitbox  = getHitbox(thisEntity);
-    Hitbox *otherHitbox = getHitbox(otherEntity);
+    Hitbox *thisHitbox  = GetHitbox(thisEntity);
+    Hitbox *otherHitbox = GetHitbox(otherEntity);
 
     if (thisLeft == 0x10000)
         thisLeft = thisHitbox->left[0];
@@ -2210,8 +2210,8 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
 void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                   int otherRight, int otherBottom)
 {
-    Hitbox *thisHitbox  = getHitbox(thisEntity);
-    Hitbox *otherHitbox = getHitbox(otherEntity);
+    Hitbox *thisHitbox  = GetHitbox(thisEntity);
+    Hitbox *otherHitbox = GetHitbox(otherEntity);
 
     if (thisLeft == 0x10000)
         thisLeft = thisHitbox->left[0];
@@ -2528,8 +2528,8 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
 void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                    int otherRight, int otherBottom)
 {
-    Hitbox *thisHitbox  = getHitbox(thisEntity);
-    Hitbox *otherHitbox = getHitbox(otherEntity);
+    Hitbox *thisHitbox  = GetHitbox(thisEntity);
+    Hitbox *otherHitbox = GetHitbox(otherEntity);
 
     if (thisLeft == 0x10000)
         thisLeft = thisHitbox->left[0];
@@ -2834,8 +2834,8 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
 {
     scriptEng.checkResult = false;
 
-    Hitbox *thisHitbox  = getHitbox(thisEntity);
-    Hitbox *otherHitbox = getHitbox(otherEntity);
+    Hitbox *thisHitbox  = GetHitbox(thisEntity);
+    Hitbox *otherHitbox = GetHitbox(otherEntity);
 
     if (thisLeft == 0x10000)
         thisLeft = thisHitbox->left[0];

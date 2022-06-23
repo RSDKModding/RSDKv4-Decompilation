@@ -65,7 +65,7 @@ struct FunctionInfo {
         opcodeSize = opSize;
     }
 
-    char name[0x20];
+    char name[RETRO_REV03 ? 0x30 : 0x20];
     int opcodeSize;
 };
 
@@ -349,6 +349,19 @@ const char variableNames[][0x20] = {
 #if !RETRO_REV00
     "engine.deviceType",
 #endif
+
+    // Extras
+#if RETRO_REV03
+    "screen.currentID",
+    "camera.enabled",
+    "camera.target",
+    "camera.style",
+    "camera.xpos",
+    "camera.ypos",
+    "camera.adjustY",
+#endif
+
+    // Haptics
 #if RETRO_USE_HAPTICS
     "engine.hapticsEnabled",
 #endif
@@ -538,6 +551,20 @@ const FunctionInfo functions[] = {
     FunctionInfo("CopyObject", 3),
 #endif
     FunctionInfo("Print", 3),
+        
+#if RETRO_REV03
+    // Extras
+    FunctionInfo("CheckCameraProximity", 4),
+    FunctionInfo("SetScreenCount", 1),
+    FunctionInfo("SetScreenVertices", 5),
+    FunctionInfo("GetInputDeviceID", 2),
+    FunctionInfo("GetFilteredInputDeviceID", 4),
+    FunctionInfo("GetInputDeviceType", 2),
+    FunctionInfo("IsInputDeviceAssigned", 1),
+    FunctionInfo("AssignInputSlotToDevice", 2),
+    FunctionInfo("IsInputSlotAssigned", 1),
+    FunctionInfo("ResetInputSlotAssignments", 0),
+#endif
 };
 
 #if RETRO_USE_COMPILER
@@ -945,6 +972,18 @@ enum ScrVar {
 #if !RETRO_REV00
     VAR_ENGINEDEVICETYPE, // v4-style device type aka Standard/Mobile/Etc
 #endif
+
+#if RETRO_REV03
+    // Extras
+    VAR_SCREENCURRENTID,
+    VAR_CAMERAENABLED,
+    VAR_CAMERATARGET,
+    VAR_CAMERASTYLE,
+    VAR_CAMERAXPOS,
+    VAR_CAMERAYPOS,
+    VAR_CAMERAADJUSTY,
+#endif
+
 #if RETRO_USE_HAPTICS
     VAR_HAPTICSENABLED,
 #endif
@@ -1101,6 +1140,20 @@ enum ScrFunc {
     FUNC_COPYOBJECT,
 #endif
     FUNC_PRINT,
+
+#if RETRO_REV03
+    // Extras
+    FUNC_CHECKCAMERAPROXIMITY,
+    FUNC_SETSCREENCOUNT,
+    FUNC_SETSCREENVERTICES,
+    FUNC_GETINPUTDEVICEID,
+    FUNC_GETFILTEREDINPUTDEVICEID,
+    FUNC_GETINPUTDEVICETYPE,
+    FUNC_ISINPUTDEVICEASSIGNED,
+    FUNC_ASSIGNINPUTSLOTTODEVICE,
+    FUNC_ISSLOTASSIGNED,
+    FUNC_RESETINPUTSLOTASSIGNMENTS,
+#endif
     FUNC_MAX_CNT
 };
 
@@ -3875,34 +3928,174 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
-                    case VAR_INPUTDOWNUP: scriptEng.operands[i] = inputDown.up; break;
-                    case VAR_INPUTDOWNDOWN: scriptEng.operands[i] = inputDown.down; break;
-                    case VAR_INPUTDOWNLEFT: scriptEng.operands[i] = inputDown.left; break;
-                    case VAR_INPUTDOWNRIGHT: scriptEng.operands[i] = inputDown.right; break;
-                    case VAR_INPUTDOWNBUTTONA: scriptEng.operands[i] = inputDown.A; break;
-                    case VAR_INPUTDOWNBUTTONB: scriptEng.operands[i] = inputDown.B; break;
-                    case VAR_INPUTDOWNBUTTONC: scriptEng.operands[i] = inputDown.C; break;
-                    case VAR_INPUTDOWNBUTTONX: scriptEng.operands[i] = inputDown.X; break;
-                    case VAR_INPUTDOWNBUTTONY: scriptEng.operands[i] = inputDown.Y; break;
-                    case VAR_INPUTDOWNBUTTONZ: scriptEng.operands[i] = inputDown.Z; break;
-                    case VAR_INPUTDOWNBUTTONL: scriptEng.operands[i] = inputDown.L; break;
-                    case VAR_INPUTDOWNBUTTONR: scriptEng.operands[i] = inputDown.R; break;
-                    case VAR_INPUTDOWNSTART: scriptEng.operands[i] = inputDown.start; break;
-                    case VAR_INPUTDOWNSELECT: scriptEng.operands[i] = inputDown.select; break;
-                    case VAR_INPUTPRESSUP: scriptEng.operands[i] = inputPress.up; break;
-                    case VAR_INPUTPRESSDOWN: scriptEng.operands[i] = inputPress.down; break;
-                    case VAR_INPUTPRESSLEFT: scriptEng.operands[i] = inputPress.left; break;
-                    case VAR_INPUTPRESSRIGHT: scriptEng.operands[i] = inputPress.right; break;
-                    case VAR_INPUTPRESSBUTTONA: scriptEng.operands[i] = inputPress.A; break;
-                    case VAR_INPUTPRESSBUTTONB: scriptEng.operands[i] = inputPress.B; break;
-                    case VAR_INPUTPRESSBUTTONC: scriptEng.operands[i] = inputPress.C; break;
-                    case VAR_INPUTPRESSBUTTONX: scriptEng.operands[i] = inputPress.X; break;
-                    case VAR_INPUTPRESSBUTTONY: scriptEng.operands[i] = inputPress.Y; break;
-                    case VAR_INPUTPRESSBUTTONZ: scriptEng.operands[i] = inputPress.Z; break;
-                    case VAR_INPUTPRESSBUTTONL: scriptEng.operands[i] = inputPress.L; break;
-                    case VAR_INPUTPRESSBUTTONR: scriptEng.operands[i] = inputPress.R; break;
-                    case VAR_INPUTPRESSSTART: scriptEng.operands[i] = inputPress.start; break;
-                    case VAR_INPUTPRESSSELECT: scriptEng.operands[i] = inputPress.select; break;
+                    case VAR_INPUTDOWNUP:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.up;
+                        break;
+                    case VAR_INPUTDOWNDOWN:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.down;
+                        break;
+                    case VAR_INPUTDOWNLEFT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.left;
+                        break;
+                    case VAR_INPUTDOWNRIGHT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.right;
+                        break;
+                    case VAR_INPUTDOWNBUTTONA:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.A;
+                        break;
+                    case VAR_INPUTDOWNBUTTONB:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.B;
+                        break;
+                    case VAR_INPUTDOWNBUTTONC:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.C;
+                        break;
+                    case VAR_INPUTDOWNBUTTONX:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.X;
+                        break;
+                    case VAR_INPUTDOWNBUTTONY:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.Y;
+                        break;
+                    case VAR_INPUTDOWNBUTTONZ:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.Z;
+                        break;
+                    case VAR_INPUTDOWNBUTTONL:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.L;
+                        break;
+                    case VAR_INPUTDOWNBUTTONR:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.R;
+                        break;
+                    case VAR_INPUTDOWNSTART:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.start;
+                        break;
+                    case VAR_INPUTDOWNSELECT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputDown.select;
+                        break;
+                    case VAR_INPUTPRESSUP:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.up;
+                        break;
+                    case VAR_INPUTPRESSDOWN:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.down;
+                        break;
+                    case VAR_INPUTPRESSLEFT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.left;
+                        break;
+                    case VAR_INPUTPRESSRIGHT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.right;
+                        break;
+                    case VAR_INPUTPRESSBUTTONA:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.A;
+                        break;
+                    case VAR_INPUTPRESSBUTTONB:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.B;
+                        break;
+                    case VAR_INPUTPRESSBUTTONC:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.C;
+                        break;
+                    case VAR_INPUTPRESSBUTTONX:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.X;
+                        break;
+                    case VAR_INPUTPRESSBUTTONY:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.Y;
+                        break;
+                    case VAR_INPUTPRESSBUTTONZ:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.Z;
+                        break;
+                    case VAR_INPUTPRESSBUTTONL:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.L;
+                        break;
+                    case VAR_INPUTPRESSBUTTONR:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.R;
+                        break;
+                    case VAR_INPUTPRESSSTART:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.start;
+                        break;
+                    case VAR_INPUTPRESSSELECT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            scriptEng.operands[i] = inputPress.select;
+                        break;
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
                     case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].xsize; break;
@@ -3958,6 +4151,20 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
 #if !RETRO_REV00
                     case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
 #endif
+                        
+
+#if RETRO_REV03
+                    // Origins Extras
+                    // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
+                    case VAR_SCREENCURRENTID: scriptEng.operands[i] = 0; break;
+                    case VAR_CAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
+                    case VAR_CAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
+                    case VAR_CAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
+                    case VAR_CAMERAXPOS: scriptEng.operands[i] = cameraXPos; break;
+                    case VAR_CAMERAYPOS: scriptEng.operands[i] = cameraYPos; break;
+                    case VAR_CAMERAADJUSTY: scriptEng.operands[i] = cameraAdjustY; break;
+#endif
+
 #if RETRO_USE_HAPTICS
                     case VAR_HAPTICSENABLED: scriptEng.operands[i] = Engine.hapticsEnabled; break;
 #endif
@@ -5202,6 +5409,17 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
             case FUNC_CHECKCURRENTSTAGEFOLDER:
                 opcodeSize            = 0;
                 scriptEng.checkResult = StrComp(stageList[activeStageList][stageListPosition].folder, scriptText);
+#if RETRO_REV03
+                // Mission Mode stuff
+                if (!scriptEng.checkResult) {
+                    int targetLength  = strlen(stageList[activeStageList][stageListPosition].folder);
+                    int currentLength = strlen(scriptText);
+                    if (targetLength > currentLength) {
+                        scriptEng.checkResult =
+                            StrComp(&stageList[activeStageList][stageListPosition].folder[targetLength - currentLength], scriptText);
+                    }
+                }
+#endif
                 break;
             case FUNC_ABS: {
                 scriptEng.operands[0] = abs(scriptEng.operands[0]);
@@ -5284,6 +5502,21 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                 endLine = true;
                 break;
             }
+
+#if RETRO_REV03
+                // Extras for origins 2PVS,
+                // these aren't (and won't be) implemented here because they rely on v5 tech that isn't part of the scope of this project
+            case FUNC_CHECKCAMERAPROXIMITY: break;
+            case FUNC_SETSCREENCOUNT: break;
+            case FUNC_SETSCREENVERTICES: break;
+            case FUNC_GETINPUTDEVICEID: break;
+            case FUNC_GETFILTEREDINPUTDEVICEID: break;
+            case FUNC_GETINPUTDEVICETYPE: break;
+            case FUNC_ISINPUTDEVICEASSIGNED: break;
+            case FUNC_ASSIGNINPUTSLOTTODEVICE: break;
+            case FUNC_ISSLOTASSIGNED: break;
+            case FUNC_RESETINPUTSLOTASSIGNMENTS: break;
+#endif
         }
 
         // Set Values
@@ -5809,34 +6042,173 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_MUSICPOSITION: break;
-                    case VAR_INPUTDOWNUP: inputDown.up = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNDOWN: inputDown.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNLEFT: inputDown.left = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNRIGHT: inputDown.right = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONA: inputDown.A = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONB: inputDown.B = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONC: inputDown.C = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONX: inputDown.X = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONY: inputDown.Y = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONZ: inputDown.Z = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONL: inputDown.L = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNBUTTONR: inputDown.R = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSTART: inputDown.start = scriptEng.operands[i]; break;
-                    case VAR_INPUTDOWNSELECT: inputDown.select = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSUP: inputPress.up = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSDOWN: inputPress.down = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSLEFT: inputPress.left = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSRIGHT: inputPress.right = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONA: inputPress.A = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONB: inputPress.B = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONC: inputPress.C = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONX: inputPress.X = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONY: inputPress.Y = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONZ: inputPress.Z = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONL: inputPress.L = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSBUTTONR: inputPress.R = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSTART: inputPress.start = scriptEng.operands[i]; break;
-                    case VAR_INPUTPRESSSELECT: inputPress.select = scriptEng.operands[i]; break;
+                    case VAR_INPUTDOWNUP:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.up = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNDOWN:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.down = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNLEFT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.left = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNRIGHT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.right = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONA:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.A = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONB:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.B = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONC:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.C = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONX:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.X = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONY:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.Y = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONZ:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.Z = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONL:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.L = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNBUTTONR:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.R = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNSTART:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.start = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTDOWNSELECT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputDown.select = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSUP:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.up = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSDOWN:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.down = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSLEFT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.left = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSRIGHT:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.right = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONA:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.A = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONB:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.B = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONC:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.C = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONX:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.X = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONY:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.Y = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONZ:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.Z = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONL:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.L = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSBUTTONR:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.R = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSSTART:
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.start = scriptEng.operands[i];
+                        break;
+                    case VAR_INPUTPRESSSELECT: 
+#if RETRO_REV03
+                        if (!arrayVal <= 1)
+#endif
+                            inputPress.select = scriptEng.operands[i]; break;
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].xsize = scriptEng.operands[i]; break;
@@ -5904,6 +6276,37 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
 #if !RETRO_REV00
                     case VAR_ENGINEDEVICETYPE: break;
 #endif
+
+#if RETRO_REV03
+                    // Origins Extras
+                    // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
+                    case VAR_SCREENCURRENTID: break;
+                    case VAR_CAMERAENABLED:
+                        if (arrayVal <= 1)
+                            scriptEng.operands[i] = cameraEnabled;
+                        break;
+                    case VAR_CAMERATARGET:
+                        if (arrayVal <= 1)
+                            cameraTarget = scriptEng.operands[i];
+                        break;
+                    case VAR_CAMERASTYLE:
+                        if (arrayVal <= 1)
+                            cameraStyle = scriptEng.operands[i];
+                        break;
+                    case VAR_CAMERAXPOS:
+                        if (arrayVal <= 1)
+                            cameraXPos = scriptEng.operands[i];
+                        break;
+                    case VAR_CAMERAYPOS:
+                        if (arrayVal <= 1)
+                            cameraYPos = scriptEng.operands[i];
+                        break;
+                    case VAR_CAMERAADJUSTY:
+                        if (arrayVal <= 1)
+                            cameraAdjustY = scriptEng.operands[i];
+                        break;
+#endif
+
 #if RETRO_USE_HAPTICS
                     case VAR_HAPTICSENABLED: Engine.hapticsEnabled = scriptEng.operands[i]; break;
 #endif
