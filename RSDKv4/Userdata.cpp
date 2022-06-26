@@ -233,8 +233,8 @@ void InitUserdata()
 
     mkdir(gamePath, 0777);
 #elif RETRO_PLATFORM == RETRO_LINUX
-    sprintf(gamePath, "%s", getXDGDataPath().c_str());
-    sprintf(modsPath, "%s", getXDGDataPath().c_str());
+    sprintf(gamePath, "%s/", getXDGDataPath().c_str());
+    sprintf(modsPath, "%s/", getXDGDataPath().c_str());
 
     mkdir(getXDGDataPath().c_str(), 0755);
 #elif RETRO_PLATFORM == RETRO_ANDROID
