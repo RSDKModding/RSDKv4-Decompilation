@@ -210,10 +210,10 @@ typedef unsigned int uint;
 // reverts opcode list back to how it was in earliest S2 builds, fixes bugs on some datafiles
 #define RETRO_REV01 (RSDK_REVISION == 1)
 
-// the default, uses the S3 POC opcode list, this is the most common opcode list
+// reverts opcode list back to how it was in the S3 POC, this is the most common opcode list
 #define RETRO_REV02 (RSDK_REVISION == 2)
 
-// the default, uses the Sonic origins opcode list, which is the latest version of RSDKv4
+// the default, uses the Sonic Origins opcode list, which is the latest version of RSDKv4
 #define RETRO_REV03 (RSDK_REVISION == 3)
 
 enum RetroLanguages {
