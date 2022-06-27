@@ -38,7 +38,7 @@ struct Entity {
     byte type;
     byte propertyValue;
     byte priority;
-    sbyte drawOrder;
+    byte drawOrder;
     byte direction;
     byte inkEffect;
     byte animation;

@@ -116,7 +116,7 @@ void ProcessObjects()
             if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
-            if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
+            if (entity->drawOrder < DRAWLAYER_COUNT)
                 drawListEntries[entity->drawOrder].entityRefs[drawListEntries[entity->drawOrder].listSize++] = objectEntityPos;
         }
     }
@@ -131,6 +131,7 @@ void ProcessObjects()
                 TypeGroupList *listCustom                      = &objectTypeGroupList[objectEntityList[objectEntityPos].groupID];
                 listCustom->entityRefs[listCustom->listSize++] = objectEntityPos;
             }
+
             // Type-Specific list
             TypeGroupList *listType                    = &objectTypeGroupList[objectEntityList[objectEntityPos].type];
             listType->entityRefs[listType->listSize++] = objectEntityPos;

@@ -16,6 +16,15 @@ struct ScriptPtr {
     int jumpTablePtr;
 };
 
+struct ScriptFunction {
+
+    byte access;
+#if RETRO_USE_COMPILER
+    char name[0x20];
+#endif
+    ScriptPtr ptr;
+};
+
 struct ObjectScript {
     int frameCount;
     int spriteSheetID;
@@ -33,70 +42,10 @@ struct ScriptEngine {
     int checkResult;
 };
 
-#if RETRO_USE_COMPILER
-#define TABLE_COUNT       (0x200)
-#define TABLE_ENTRY_COUNT (0x400)
-
-struct StaticInfo {
-    StaticInfo()
-    {
-        StrCopy(name, "");
-        value   = 0;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-    StaticInfo(const char *aliasName, int val)
-    {
-        StrCopy(name, aliasName);
-        value   = val;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-
-    char name[0x20];
-    int value;
-    int dataPos;
-};
-
-struct TableValue {
-    TableValue()
-    {
-        value   = 0;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-    TableValue(const char *aliasName, int val)
-    {
-        value   = val;
-        dataPos = SCRIPTDATA_COUNT - 1;
-    }
-
-    int value;
-    int dataPos;
-};
-
-struct TableInfo {
-    TableInfo()
-    {
-        StrCopy(name, "");
-        valueCount = 0;
-        dataPos    = SCRIPTDATA_COUNT - 1;
-    }
-    TableInfo(const char *aliasName, int valCnt)
-    {
-        StrCopy(name, aliasName);
-        valueCount = valCnt;
-        dataPos    = SCRIPTDATA_COUNT - 1;
-    }
-
-    char name[0x20];
-    int valueCount;
-    TableValue values[TABLE_ENTRY_COUNT];
-    int dataPos;
-};
-#endif
-
 enum ScriptSubs { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_SETUP = 2 };
 
 extern ObjectScript objectScriptList[OBJECT_COUNT];
-extern ScriptPtr functionScriptList[FUNCTION_COUNT];
+extern ScriptFunction scriptFunctionList[FUNCTION_COUNT];
 
 extern int scriptData[SCRIPTDATA_COUNT];
 extern int jumpTableData[JUMPTABLE_COUNT];
@@ -105,8 +54,10 @@ extern int jumpTableStack[JUMPSTACK_COUNT];
 extern int functionStack[FUNCSTACK_COUNT];
 extern int foreachStack[FORSTACK_COUNT];
 
-extern int scriptCodePos; // Bytecode reading offset
-extern int jumpTablePos;  // Bytecode reading offset
+extern int scriptDataPos;
+extern int scriptDataOffset;
+extern int jumpTableDataPos;
+extern int jumpTableDataOffset;
 extern int jumpTableStackPos;
 extern int functionStackPos;
 extern int foreachStackPos;
@@ -114,10 +65,7 @@ extern int foreachStackPos;
 extern ScriptEngine scriptEng;
 extern char scriptText[0x4000];
 
-extern int scriptDataPos;
-extern int scriptDataOffset;
-extern int jumpTableDataPos;
-extern int jumpTableDataOffset;
+
 
 bool ConvertStringToInteger(const char *text, int *value);
 
@@ -129,10 +77,9 @@ extern int lineID;
 
 void CheckAliasText(char *text);
 void CheckStaticText(char *text);
-TableInfo *CheckTableText(char *text);
+bool CheckTableText(char *text);
 void ConvertArithmaticSyntax(char *text);
-void ConvertIfWhileStatement(char *text);
-void ConvertForeachStatement(char *text);
+void ConvertConditionalStatement(char *text);
 bool ConvertSwitchStatement(char *text);
 void ConvertFunctionText(char *text);
 void CheckCaseNumber(char *text);
