@@ -121,7 +121,7 @@ AnimationFile *AddAnimationFile(char *filePath)
     StrCopy(path, "Data/Animations/");
     StrAdd(path, filePath);
 
-    for (int a = 0; a < 0x100; ++a) {
+    for (int a = 0; a < ANIFILE_COUNT; ++a) {
         if (StrLength(animationFileList[a].fileName) <= 0) {
             StrCopy(animationFileList[a].fileName, filePath);
             LoadAnimationFile(path);

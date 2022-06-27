@@ -25,12 +25,25 @@ int jumpTableDataPos    = 0;
 int jumpTableDataOffset = 0;
 
 #if RETRO_USE_COMPILER
+#if RETRO_USE_ORIGINAL_CODE
+
 #if !RETRO_REV00
-#define COMMONALIAS_COUNT (0x6B)
+#define COMMONALIAS_COUNT (34)
 #else
-#define COMMONALIAS_COUNT (0x6A)
+#define COMMONALIAS_COUNT (33)
 #endif
-#define ALIAS_COUNT_TRIM (0xE0)
+
+#else
+
+#if !RETRO_REV00
+#define COMMONALIAS_COUNT (116)
+#else
+#define COMMONALIAS_COUNT (115)
+#endif
+
+#endif
+
+#define ALIAS_COUNT_TRIM (0x1DF)
 #define ALIAS_COUNT      (COMMONALIAS_COUNT + ALIAS_COUNT_TRIM)
 int lineID = 0;
 
@@ -568,7 +581,10 @@ const FunctionInfo functions[] = {
 };
 
 #if RETRO_USE_COMPILER
+
 AliasInfo publicAliases[ALIAS_COUNT] = {
+    // ORIGINAL ALIASES
+    // These are in the official v4
     AliasInfo("true", "1"),
     AliasInfo("false", "0"),
     AliasInfo("FX_SCALE", "0"),
@@ -577,30 +593,54 @@ AliasInfo publicAliases[ALIAS_COUNT] = {
     AliasInfo("FX_INK", "3"),
     AliasInfo("PRESENTATION_STAGE", "0"),
     AliasInfo("REGULAR_STAGE", "1"),
-    AliasInfo("BONUS_STAGE", "2"),
-    AliasInfo("SPECIAL_STAGE", "3"),
+    AliasInfo("SPECIAL_STAGE", "2"),
+    AliasInfo("BONUS_STAGE", "3"),
     AliasInfo("MENU_1", "0"),
     AliasInfo("MENU_2", "1"),
     AliasInfo("C_TOUCH", "0"),
-    AliasInfo("C_BOX", "1"),
-    AliasInfo("C_BOX2", "2"),
+    AliasInfo("C_SOLID", "1"),
+    AliasInfo("C_SOLID2", "2"),
     AliasInfo("C_PLATFORM", "3"),
+#if RETRO_USE_ORIGINAL_CODE
+    AliasInfo("C_BOX", "65536"), // this clashes with C_BOX below, so its commented out, the scripts use a custom "HITBOX_AUTO" alias instead
+#endif
     AliasInfo("MAT_WORLD", "0"),
     AliasInfo("MAT_VIEW", "1"),
     AliasInfo("MAT_TEMP", "2"),
     AliasInfo("FX_FLIP", "5"),
     AliasInfo("FACING_LEFT", "1"),
     AliasInfo("FACING_RIGHT", "0"),
+#if !RETRO_REV00
+    AliasInfo("STAGE_2P_MODE", "4"),
+#endif
+    AliasInfo("STAGE_FROZEN", "3"),
+    AliasInfo("STAGE_PAUSED", "2"),
+    AliasInfo("STAGE_RUNNING", "1"),
+    AliasInfo("RESET_GAME", "2"),
+    AliasInfo("STANDARD", "0"),
+    AliasInfo("MOBILE", "1"),
+    AliasInfo("DEVICE_XBOX", "2"),
+    AliasInfo("DEVICE_PSN", "3"),
+    AliasInfo("DEVICE_IOS", "4"),
+    AliasInfo("DEVICE_ANDROID", "5"),
+
+#if !RETRO_USE_ORIGINAL_CODE
+    // Decomp renames
+    // Aliases that exist in official that I got the names wrong for, keeping these here for legacy purposes
+    AliasInfo("C_BOX", "1"),
+    AliasInfo("C_BOX2", "2"),
+#if !RETRO_REV00
+    AliasInfo("STAGE_2P", "4"),
+#endif
+    AliasInfo("RETRO_STANDARD", "0"),
+    AliasInfo("RETRO_MOBILE", "1"),
+
+    // Decomp custom aliases
+    // Aliases that do not exist in the official version in any form
     AliasInfo("FLIP_NONE", "0"),
     AliasInfo("FLIP_X", "1"),
     AliasInfo("FLIP_Y", "2"),
     AliasInfo("FLIP_XY", "3"),
-    AliasInfo("STAGE_RUNNING", "1"),
-    AliasInfo("STAGE_PAUSED", "2"),
-    AliasInfo("STAGE_FROZEN", "3"),
-#if !RETRO_REV00
-    AliasInfo("STAGE_2P", "4"),
-#endif
     AliasInfo("ENGINE_DEVMENU", "0"),
     AliasInfo("ENGINE_MAINGAME", "1"),
     AliasInfo("ENGINE_INITDEVMENU", "2"),
@@ -610,9 +650,6 @@ AliasInfo publicAliases[ALIAS_COUNT] = {
     AliasInfo("ENGINE_EXITPAUSE", "6"),
     AliasInfo("ENGINE_ENDGAME", "7"),
     AliasInfo("ENGINE_RESETGAME", "8"),
-    AliasInfo("RESET_GAME", "2"),
-    AliasInfo("RETRO_STANDARD", "0"),
-    AliasInfo("RETRO_MOBILE", "1"),
     AliasInfo("INK_NONE", "0"),
     AliasInfo("INK_BLEND", "1"),
     AliasInfo("INK_ALPHA", "2"),
@@ -678,6 +715,7 @@ AliasInfo publicAliases[ALIAS_COUNT] = {
     AliasInfo("TILELAYER_3DFLOOR", "3"),
     AliasInfo("TILELAYER_3DSKY", "4"),
     AliasInfo("GROUP_ALL", "0")
+#endif
 };
 AliasInfo privateAliases[ALIAS_COUNT_TRIM];
 int publicAliasCount  = 0;
@@ -3930,169 +3968,169 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
                     case VAR_INPUTDOWNUP:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.up;
                         break;
                     case VAR_INPUTDOWNDOWN:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.down;
                         break;
                     case VAR_INPUTDOWNLEFT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.left;
                         break;
                     case VAR_INPUTDOWNRIGHT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.right;
                         break;
                     case VAR_INPUTDOWNBUTTONA:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.A;
                         break;
                     case VAR_INPUTDOWNBUTTONB:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.B;
                         break;
                     case VAR_INPUTDOWNBUTTONC:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.C;
                         break;
                     case VAR_INPUTDOWNBUTTONX:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.X;
                         break;
                     case VAR_INPUTDOWNBUTTONY:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.Y;
                         break;
                     case VAR_INPUTDOWNBUTTONZ:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.Z;
                         break;
                     case VAR_INPUTDOWNBUTTONL:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.L;
                         break;
                     case VAR_INPUTDOWNBUTTONR:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.R;
                         break;
                     case VAR_INPUTDOWNSTART:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.start;
                         break;
                     case VAR_INPUTDOWNSELECT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputDown.select;
                         break;
                     case VAR_INPUTPRESSUP:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.up;
                         break;
                     case VAR_INPUTPRESSDOWN:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.down;
                         break;
                     case VAR_INPUTPRESSLEFT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.left;
                         break;
                     case VAR_INPUTPRESSRIGHT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.right;
                         break;
                     case VAR_INPUTPRESSBUTTONA:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.A;
                         break;
                     case VAR_INPUTPRESSBUTTONB:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.B;
                         break;
                     case VAR_INPUTPRESSBUTTONC:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.C;
                         break;
                     case VAR_INPUTPRESSBUTTONX:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.X;
                         break;
                     case VAR_INPUTPRESSBUTTONY:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.Y;
                         break;
                     case VAR_INPUTPRESSBUTTONZ:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.Z;
                         break;
                     case VAR_INPUTPRESSBUTTONL:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.L;
                         break;
                     case VAR_INPUTPRESSBUTTONR:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.R;
                         break;
                     case VAR_INPUTPRESSSTART:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.start;
                         break;
                     case VAR_INPUTPRESSSELECT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             scriptEng.operands[i] = inputPress.select;
                         break;
@@ -6044,169 +6082,169 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent)
                     case VAR_MUSICPOSITION: break;
                     case VAR_INPUTDOWNUP:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.up = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNDOWN:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.down = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNLEFT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.left = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNRIGHT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.right = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONA:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.A = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONB:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.B = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONC:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.C = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONX:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.X = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONY:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.Y = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONZ:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.Z = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONL:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.L = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNBUTTONR:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.R = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNSTART:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.start = scriptEng.operands[i];
                         break;
                     case VAR_INPUTDOWNSELECT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputDown.select = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSUP:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.up = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSDOWN:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.down = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSLEFT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.left = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSRIGHT:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.right = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONA:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.A = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONB:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.B = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONC:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.C = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONX:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.X = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONY:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.Y = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONZ:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.Z = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONL:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.L = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSBUTTONR:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.R = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSSTART:
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.start = scriptEng.operands[i];
                         break;
                     case VAR_INPUTPRESSSELECT: 
 #if RETRO_REV03
-                        if (!arrayVal <= 1)
+                        if (arrayVal <= 1)
 #endif
                             inputPress.select = scriptEng.operands[i]; break;
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;

@@ -8,7 +8,7 @@
 #define HITBOX_COUNT     (0x20)
 #define HITBOX_DIR_COUNT (0x8)
 
-enum AnimrotationFlags { ROTSTYLE_NONE, ROTSTYLE_FULL, ROTSTYLE_45DEG, ROTSTYLE_STATICFRAMES };
+enum AnimRotationFlags { ROTSTYLE_NONE, ROTSTYLE_FULL, ROTSTYLE_45DEG, ROTSTYLE_STATICFRAMES };
 
 struct AnimationFile {
     char fileName[0x20];
@@ -57,10 +57,10 @@ extern int animationCount;
 extern Hitbox hitboxList[HITBOX_COUNT];
 extern int hitboxCount;
 
-void LoadAnimationFile(char *FilePath);
+void LoadAnimationFile(char *filePath);
 void ClearAnimationData();
 
-AnimationFile *AddAnimationFile(char *FilePath);
+AnimationFile *AddAnimationFile(char *filePath);
 
 inline AnimationFile *GetDefaultAnimationRef() { return &animationFileList[0]; }
 
