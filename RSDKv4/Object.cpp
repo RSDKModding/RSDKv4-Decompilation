@@ -61,7 +61,7 @@ void ProcessStartupObjects()
         scriptInfo->spriteSheetID   = 0;
         entity->type                = i;
 
-        if (scriptData[scriptInfo->eventStartup.scriptCodePtr] > 0)
+        if (scriptCode[scriptInfo->eventStartup.scriptCodePtr] > 0)
             ProcessScript(scriptInfo->eventStartup.scriptCodePtr, scriptInfo->eventStartup.jumpTablePtr, EVENT_SETUP);
         scriptInfo->frameCount = scriptFrameCount - scriptInfo->frameListOffset;
     }
@@ -113,7 +113,7 @@ void ProcessObjects()
 
         if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+            if (scriptCode[scriptInfo->eventMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT)
@@ -151,7 +151,7 @@ void ProcessPausedObjects()
 
         if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+            if (scriptCode[scriptInfo->eventMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
@@ -204,7 +204,7 @@ void ProcessFrozenObjects()
 
         if (entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
+            if (scriptCode[scriptInfo->eventMain.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
                 ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
@@ -305,7 +305,7 @@ void Process2PObjects()
 
         if (processObjectFlag[objectEntityPos] && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptData[scriptInfo->eventMain.scriptCodePtr] > 0)
+            if (scriptCode[scriptInfo->eventMain.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->eventMain.scriptCodePtr, scriptInfo->eventMain.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)

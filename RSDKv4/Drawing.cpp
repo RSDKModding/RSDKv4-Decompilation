@@ -991,7 +991,7 @@ void DrawObjectList(int Layer)
         objectEntityPos = drawListEntries[Layer].entityRefs[i];
         int type        = objectEntityList[objectEntityPos].type;
         if (type) {
-            if (scriptData[objectScriptList[type].eventDraw.scriptCodePtr] > 0)
+            if (scriptCode[objectScriptList[type].eventDraw.scriptCodePtr] > 0)
                 ProcessScript(objectScriptList[type].eventDraw.scriptCodePtr, objectScriptList[type].eventDraw.jumpTablePtr, EVENT_DRAW);
         }
     }

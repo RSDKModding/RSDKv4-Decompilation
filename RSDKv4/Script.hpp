@@ -1,7 +1,7 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
-#define SCRIPTDATA_COUNT (0x40000)
+#define SCRIPTCODE_COUNT (0x40000)
 #define JUMPTABLE_COUNT  (0x4000)
 #define FUNCTION_COUNT   (0x200)
 
@@ -47,17 +47,17 @@ enum ScriptSubs { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_SETUP = 2 };
 extern ObjectScript objectScriptList[OBJECT_COUNT];
 extern ScriptFunction scriptFunctionList[FUNCTION_COUNT];
 
-extern int scriptData[SCRIPTDATA_COUNT];
-extern int jumpTableData[JUMPTABLE_COUNT];
+extern int scriptCode[SCRIPTCODE_COUNT];
+extern int jumpTable[JUMPTABLE_COUNT];
 
 extern int jumpTableStack[JUMPSTACK_COUNT];
 extern int functionStack[FUNCSTACK_COUNT];
 extern int foreachStack[FORSTACK_COUNT];
 
-extern int scriptDataPos;
-extern int scriptDataOffset;
-extern int jumpTableDataPos;
-extern int jumpTableDataOffset;
+extern int scriptCodePos;
+extern int scriptCodeOffset;
+extern int jumpTablePos;
+extern int jumpTableOffset;
 extern int jumpTableStackPos;
 extern int functionStackPos;
 extern int foreachStackPos;
