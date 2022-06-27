@@ -206,6 +206,10 @@ void ShowSegaIDPopup();
 void ShowOnlineSignIn();
 void ShowWebsite(int websiteID);
 
+#if RETRO_REV03
+void NotifyCallback(int *callback, int *param1, int *param2, int *param3);
+#endif
+
 void ExitGame();
 void FileExists(int *unused, const char *filePath);
 

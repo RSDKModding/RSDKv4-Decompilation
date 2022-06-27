@@ -1221,6 +1221,93 @@ void ShowWebsite(int websiteID)
     }
 }
 
+#if RETRO_REV03
+enum NotifyCallbackIDs {
+    NOTIFY_DEATH_EVENT        = 128,
+    NOTIFY_TOUCH_SIGNPOST     = 129,
+    NOTIFY_HUD_ENABLE         = 130,
+    NOTIFY_ADD_COIN           = 131,
+    NOTIFY_KILL_ENEMY         = 132,
+    NOTIFY_SAVESLOT_SELECT    = 133,
+    NOTIFY_FUTURE_PAST        = 134,
+    NOTIFY_GOTO_FUTURE_PAST   = 135,
+    NOTIFY_BOSS_END           = 136,
+    NOTIFY_SPECIAL_END        = 137,
+    NOTIFY_DEBUGPRINT         = 138,
+    NOTIFY_KILL_BOSS          = 139,
+    NOTIFY_TOUCH_EMERALD      = 140,
+    NOTIFY_STATS_ENEMY        = 141,
+    NOTIFY_STATS_CHARA_ACTION = 142,
+    NOTIFY_STATS_RING         = 143,
+    NOTIFY_STATS_MOVIE        = 144,
+    NOTIFY_STATS_PARAM_1      = 145,
+    NOTIFY_STATS_PARAM_2      = 146,
+    NOTIFY_CHARACTER_SELECT   = 147,
+    NOTIFY_SPECIAL_RETRY      = 148,
+    NOTIFY_TOUCH_CHECKPOINT   = 149,
+    NOTIFY_ACT_FINISH         = 150,
+    NOTIFY_1P_VS_SELECT       = 151,
+    NOTIFY_CONTROLLER_SUPPORT = 152,
+    NOTIFY_STAGE_RETRY        = 153,
+    NOTIFY_SOUND_TRACK        = 154,
+    NOTIFY_GOOD_ENDING        = 155,
+    NOTIFY_BACK_TO_MAINMENU   = 156,
+    NOTIFY_LEVEL_SELECT_MENU  = 157,
+    NOTIFY_PLAYER_SET         = 158,
+    NOTIFY_EXTRAS_MODE        = 159,
+    NOTIFY_SPIN_DASH_TYPE     = 160,
+    NOTIFY_TIME_OVER          = 161,
+};
+
+void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
+{
+    if (!callback || !param1)
+        return;
+
+    switch (*callback) {
+        default: PrintLog("NOTIFY: Unknown Callback -> %d", *param1); break;
+        case NOTIFY_DEATH_EVENT: PrintLog("NOTIFY: DeathEvent() -> %d", *param1); break;
+        case NOTIFY_TOUCH_SIGNPOST: PrintLog("NOTIFY: TouchSignPost() -> %d", *param1); break;
+        case NOTIFY_HUD_ENABLE: PrintLog("NOTIFY: HUDEnable() -> %d", *param1); break;
+        case NOTIFY_ADD_COIN: PrintLog("NOTIFY: AddCoin() -> %d", *param1); break;
+        case NOTIFY_KILL_ENEMY: PrintLog("NOTIFY: KillEnemy() -> %d", *param1); break;
+        case NOTIFY_SAVESLOT_SELECT: PrintLog("NOTIFY: SaveSlotSelect() -> %d", *param1); break;
+        case NOTIFY_FUTURE_PAST: PrintLog("NOTIFY: FuturePast() -> %d", *param1); break;
+        case NOTIFY_GOTO_FUTURE_PAST: PrintLog("NOTIFY: GotoFuturePast() -> %d", *param1); break;
+        case NOTIFY_BOSS_END: PrintLog("NOTIFY: BossEnd() -> %d", *param1); break;
+        case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
+        case NOTIFY_DEBUGPRINT: PrintLog("NOTIFY: DebugPrint() -> %d", *param1); break;
+        case NOTIFY_KILL_BOSS: PrintLog("NOTIFY: KillBoss() -> %d", *param1); break;
+        case NOTIFY_TOUCH_EMERALD: PrintLog("NOTIFY: TouchEmerald() -> %d", *param1); break;
+        case NOTIFY_STATS_ENEMY: PrintLog("NOTIFY: StatsEnemy() -> %d", *param1); break;
+        case NOTIFY_STATS_CHARA_ACTION: PrintLog("NOTIFY: StatsCharaAction() -> %d", *param1); break;
+        case NOTIFY_STATS_RING: PrintLog("NOTIFY: StatsRing() -> %d", *param1); break;
+        case NOTIFY_STATS_MOVIE: PrintLog("NOTIFY: StatsMovie() -> %d", *param1); break;
+        case NOTIFY_STATS_PARAM_1: PrintLog("NOTIFY: StatsParam1() -> %d", *param1); break;
+        case NOTIFY_STATS_PARAM_2: PrintLog("NOTIFY: StatsParam2() -> %d", *param1); break;
+        case NOTIFY_CHARACTER_SELECT:
+            PrintLog("NOTIFY: CharacterSelect() -> %d", *param1);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            SetGlobalVariableByName("game.continueFlag", 0);
+            break;
+        case NOTIFY_SPECIAL_RETRY: SetGlobalVariableByName("game.callbackResult", 1); break;
+        case NOTIFY_TOUCH_CHECKPOINT: PrintLog("NOTIFY: TouchCheckpoint() -> %d", *param1); break;
+        case NOTIFY_ACT_FINISH: PrintLog("NOTIFY: ActFinish() -> %d", *param1); break;
+        case NOTIFY_1P_VS_SELECT: PrintLog("NOTIFY: 1PVSSelect() -> %d", *param1); break;
+        case NOTIFY_CONTROLLER_SUPPORT: PrintLog("NOTIFY: ControllerSupport() -> %d", *param1); break;
+        case NOTIFY_STAGE_RETRY: PrintLog("NOTIFY: StageRetry() -> %d", *param1); break;
+        case NOTIFY_SOUND_TRACK: PrintLog("NOTIFY: SoundTrack() -> %d", *param1); break;
+        case NOTIFY_GOOD_ENDING: PrintLog("NOTIFY: GoodEnding() -> %d", *param1); break;
+        case NOTIFY_BACK_TO_MAINMENU: PrintLog("NOTIFY: BackToMainMenu() -> %d", *param1); break;
+        case NOTIFY_LEVEL_SELECT_MENU: PrintLog("NOTIFY: LevelSelectMenu() -> %d", *param1); break;
+        case NOTIFY_PLAYER_SET: PrintLog("NOTIFY: PlayerSet() -> %d", *param1); break;
+        case NOTIFY_EXTRAS_MODE: PrintLog("NOTIFY: ExtrasMode() -> %d", *param1); break;
+        case NOTIFY_SPIN_DASH_TYPE: PrintLog("NOTIFY: SpindashType() -> %d", *param1); break;
+        case NOTIFY_TIME_OVER: PrintLog("NOTIFY: TimeOver() -> %d", *param1); break;
+    }
+}
+#endif
+
 void ExitGame() { Engine.running = false; }
 
 void FileExists(int *unused, const char *filePath)

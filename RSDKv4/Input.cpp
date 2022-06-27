@@ -486,6 +486,11 @@ void CheckKeyPress(InputData *input)
     input->start  = inputDevice[INPUT_START].press;
     input->select = inputDevice[INPUT_SELECT].press;
 #endif
+
+#if RETRO_REV03
+    SetGlobalVariableByName("input.pressButton", input->up || input->down || input->left || input->right || input->A || input->B || input->C
+                                                     || input->X || input->Y || input->Z || input->L || input->R || input->start || input->select);
+#endif
 }
 
 void CheckKeyDown(InputData *input)
