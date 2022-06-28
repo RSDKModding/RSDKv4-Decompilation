@@ -28,7 +28,7 @@ struct ScriptFunction {
 struct ObjectScript {
     int frameCount;
     int spriteSheetID;
-    ScriptPtr eventMain;
+    ScriptPtr eventUpdate;
     ScriptPtr eventDraw;
     ScriptPtr eventStartup;
     int frameListOffset;

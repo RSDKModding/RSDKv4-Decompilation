@@ -2891,10 +2891,10 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         StrCopy(scriptText, "");
                     }
 
-                    if (StrComp(scriptText, "eventObjectMain")) {
+                    if (StrComp(scriptText, "eventObjectUpdate")) {
                         parseMode                                          = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].eventMain.scriptCodePtr = scriptCodePos;
-                        objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTablePos;
+                        objectScriptList[scriptID].eventUpdate.scriptCodePtr = scriptCodePos;
+                        objectScriptList[scriptID].eventUpdate.jumpTablePtr  = jumpTablePos;
                         scriptCodeOffset                                   = scriptCodePos;
                         jumpTableOffset                                    = jumpTablePos;
                     }
@@ -3275,13 +3275,13 @@ void LoadBytecode(int stageListID, int scriptID)
             ObjectScript *script = &objectScriptList[scriptID + s];
 
             FileRead(&fileBuffer, 1);
-            script->eventMain.scriptCodePtr = fileBuffer;
+            script->eventUpdate.scriptCodePtr = fileBuffer;
             FileRead(&fileBuffer, 1);
-            script->eventMain.scriptCodePtr |= fileBuffer << 8;
+            script->eventUpdate.scriptCodePtr |= fileBuffer << 8;
             FileRead(&fileBuffer, 1);
-            script->eventMain.scriptCodePtr |= fileBuffer << 16;
+            script->eventUpdate.scriptCodePtr |= fileBuffer << 16;
             FileRead(&fileBuffer, 1);
-            script->eventMain.scriptCodePtr |= fileBuffer << 24;
+            script->eventUpdate.scriptCodePtr |= fileBuffer << 24;
 
             FileRead(&fileBuffer, 1);
             script->eventDraw.scriptCodePtr = fileBuffer;
@@ -3306,13 +3306,13 @@ void LoadBytecode(int stageListID, int scriptID)
             ObjectScript *script = &objectScriptList[scriptID + s];
 
             FileRead(&fileBuffer, 1);
-            script->eventMain.jumpTablePtr = fileBuffer;
+            script->eventUpdate.jumpTablePtr = fileBuffer;
             FileRead(&fileBuffer, 1);
-            script->eventMain.jumpTablePtr |= fileBuffer << 8;
+            script->eventUpdate.jumpTablePtr |= fileBuffer << 8;
             FileRead(&fileBuffer, 1);
-            script->eventMain.jumpTablePtr |= fileBuffer << 16;
+            script->eventUpdate.jumpTablePtr |= fileBuffer << 16;
             FileRead(&fileBuffer, 1);
-            script->eventMain.jumpTablePtr |= fileBuffer << 24;
+            script->eventUpdate.jumpTablePtr |= fileBuffer << 24;
 
             FileRead(&fileBuffer, 1);
             script->eventDraw.jumpTablePtr = fileBuffer;
@@ -3404,8 +3404,8 @@ void ClearScriptData()
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
         ObjectScript *scriptInfo               = &objectScriptList[o];
-        scriptInfo->eventMain.scriptCodePtr    = SCRIPTCODE_COUNT - 1;
-        scriptInfo->eventMain.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->eventUpdate.scriptCodePtr    = SCRIPTCODE_COUNT - 1;
+        scriptInfo->eventUpdate.jumpTablePtr     = JUMPTABLE_COUNT - 1;
         scriptInfo->eventDraw.scriptCodePtr    = SCRIPTCODE_COUNT - 1;
         scriptInfo->eventDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
         scriptInfo->eventStartup.scriptCodePtr = SCRIPTCODE_COUNT - 1;
