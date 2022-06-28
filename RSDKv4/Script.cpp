@@ -13,9 +13,9 @@
 #else
 
 #if !RETRO_REV00
-#define COMMON_SCRIPT_VAR_COUNT (116)
+#define COMMON_SCRIPT_VAR_COUNT (110)
 #else
-#define COMMON_SCRIPT_VAR_COUNT (115)
+#define COMMON_SCRIPT_VAR_COUNT (109)
 #endif
 
 #endif
@@ -587,10 +587,7 @@ ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_SOLID", "1"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_SOLID2", "2"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_PLATFORM", "3"),
-#if RETRO_USE_ORIGINAL_CODE 
-    // this clashes with C_BOX below, so its commented out, the scripts use a custom "HITBOX_AUTO" alias instead
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_BOX", "65536"),
-#endif
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "MAT_WORLD", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "MAT_VIEW", "1"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "MAT_TEMP", "2"),
@@ -612,16 +609,6 @@ ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "DEVICE_ANDROID", "5"),
 
 #if !RETRO_USE_ORIGINAL_CODE
-    // Decomp renames
-    // Aliases that exist in official that I got the names wrong for, keeping these here for legacy purposes
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_BOX", "1"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_BOX2", "2"),
-#if !RETRO_REV00
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "STAGE_2P", "4"),
-#endif
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "RETRO_STANDARD", "0"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "RETRO_MOBILE", "1"),
-
     // Decomp custom aliases
     // Aliases that do not exist in the official version in any form
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FLIP_NONE", "0"),
@@ -666,7 +653,6 @@ ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_FADED", "4"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_TEXTURED_C", "5"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_TEXTURED_C_BLEND", "6"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_TEXTURED_D", "6"), // identical to "FACE_TEXTURED_C_BLEND", but kept here for backwards compat purposes
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FACE_SPRITE_3D", "7"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE_BOUNDS", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE", "1"),
@@ -676,7 +662,6 @@ ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_INACTIVE", "5"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_BOUNDS_SMALL", "6"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_ACTIVE_SMALL", "7"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRIORITY_UNKNOWN", "7"), // identical to "PRIORITY_ACTIVE_SMALL", but kept here for backwards compat purposes
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "CONTROLMODE_NONE", "-1"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "CONTROLMODE_NORMAL", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "CAMERASTYLE_FOLLOW", "0"),
@@ -1601,67 +1586,6 @@ void ConvertConditionalStatement(char *text)
             jumpTable[jumpTablePos++]       = scriptCodePos - scriptCodeOffset;
             jumpTable[jumpTablePos++]       = 0;
         }
-    }
-}
-void ConvertForeachStatement(char *text)
-{
-    if (FindStringToken(text, "foreach", 1) != 0)
-        return;
-
-    char dest[260];
-    int destStrPos = 0;
-
-    if (FindStringToken(text, "ACTIVE_ENTITIES", 1) > 0) { // foreach (just actively interacting entities)
-        StrCopy(dest, functions[FUNC_FOREACHACTIVE].name);
-        StrAdd(dest, "(");
-        AppendIntegerToString(dest, jumpTablePos - jumpTableOffset);
-        StrAdd(dest, ",");
-        destStrPos = StrLength(dest);
-        int cnt    = 0;
-        for (int i = 7; text[i]; ++i) {
-            if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
-                dest[destStrPos++] = text[i];
-            }
-            else if (text[i] == ',') {
-                if (!cnt)
-                    dest[destStrPos++] = text[i];
-                else
-                    break;
-                ++cnt;
-            }
-        }
-        dest[destStrPos] = 0;
-        StrAdd(dest, ")");
-        StrCopy(text, dest);
-        jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-        jumpTable[jumpTablePos++]       = scriptCodePos - scriptCodeOffset;
-        jumpTable[jumpTablePos++]       = 0;
-    }
-    else if (FindStringToken(text, "ALL_ENTITIES", 1) > 0) { // foreach (all entities)
-        StrCopy(dest, functions[FUNC_FOREACHALL].name);
-        StrAdd(dest, "(");
-        AppendIntegerToString(dest, jumpTablePos - jumpTableOffset);
-        StrAdd(dest, ",");
-        destStrPos = StrLength(dest);
-        int cnt    = 0;
-        for (int i = 7; text[i] && cnt < 2; ++i) {
-            if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
-                dest[destStrPos++] = text[i];
-            }
-            else if (text[i] == ',') {
-                if (!cnt)
-                    dest[destStrPos++] = text[i];
-                else
-                    break;
-                ++cnt;
-            }
-        }
-        dest[destStrPos] = 0;
-        StrAdd(dest, ")");
-        StrCopy(text, dest);
-        jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-        jumpTable[jumpTablePos++]       = scriptCodePos - scriptCodeOffset;
-        jumpTable[jumpTablePos++]       = 0;
     }
 }
 bool ConvertSwitchStatement(char *text)
@@ -3010,48 +2934,6 @@ void ParseScriptFile(char *scriptName, int scriptID)
                             parseMode        = PARSEMODE_FUNCTION;
                         }
                     }
-#if !RETRO_USE_ORIGINAL_CODE
-                    // didn't know functions had access modifiers so standlone "function" keyword is here for legacy purposes.
-                    // It's not in the original.
-                    else if (FindStringToken(scriptText, "function", 1) == 0) { // legacy public decl
-                        char funcName[0x40];
-                        for (textPos = 8; scriptText[textPos]; ++textPos) funcName[textPos - 8] = scriptText[textPos];
-
-                        funcName[textPos - 8] = 0;
-                        int funcID            = -1;
-                        for (int f = 0; f < scriptFunctionCount; ++f) {
-                            if (StrComp(funcName, scriptFunctionList[f].name))
-                                funcID = f;
-                        }
-
-                        if (funcID <= -1) {
-                            if (scriptFunctionCount >= FUNCTION_COUNT) {
-                                parseMode = PARSEMODE_SCOPELESS;
-                            }
-                            else {
-                                StrCopy(scriptFunctionList[scriptFunctionCount].name, funcName);
-                                scriptFunctionList[scriptFunctionCount].access            = ACCESS_PUBLIC;
-                                scriptFunctionList[scriptFunctionCount].ptr.scriptCodePtr = scriptCodePos;
-                                scriptFunctionList[scriptFunctionCount].ptr.jumpTablePtr  = jumpTablePos;
-
-                                scriptCodeOffset = scriptCodePos;
-                                jumpTableOffset  = jumpTablePos;
-                                parseMode        = PARSEMODE_FUNCTION;
-                                ++scriptFunctionCount;
-                            }
-                        }
-                        else {
-                            StrCopy(scriptFunctionList[funcID].name, funcName);
-                            scriptFunctionList[funcID].access            = ACCESS_PUBLIC;
-                            scriptFunctionList[funcID].ptr.scriptCodePtr = scriptCodePos;
-                            scriptFunctionList[funcID].ptr.jumpTablePtr  = jumpTablePos;
-
-                            scriptCodeOffset = scriptCodePos;
-                            jumpTableOffset  = jumpTablePos;
-                            parseMode        = PARSEMODE_FUNCTION;
-                        }
-                    }
-#endif
                     break;
 
                 case PARSEMODE_PLATFORMSKIP:
