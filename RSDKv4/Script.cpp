@@ -2592,10 +2592,12 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (text[charID] == '0') {
         if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
             base = 0x10;
+#if !RETRO_USE_ORIGINAL_CODE
         else if (text[charID + 1] == 'b' || text[charID + 1] == 'B')
             base = 0b10;
         else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
             base = 0010; // base 8
+#endif
 
         if (base != 10) {
             charID += 2;
@@ -2608,10 +2610,12 @@ bool ConvertStringToInteger(const char *text, int *value)
         if (!flag) {
             if (base == 0x10 && text[charID] > 'f')
                 flag = true;
+#if !RETRO_USE_ORIGINAL_CODE
             if (base == 0010 && text[charID] > '7')
                 flag = true;
             if (base == 0b10 && text[charID] > '1')
                 flag = true;
+#endif
         }
 
         if (flag) {
