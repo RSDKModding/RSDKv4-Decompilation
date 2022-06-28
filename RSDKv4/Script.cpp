@@ -2963,6 +2963,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
 #if RETRO_USE_HAPTICS
                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
+#if !RETRO_USE_ORIGINAL_CODE && RETRO_REV03
+                                && FindStringToken(scriptText, "USE_ORIGINS", 1) == -1 // general flag for new stuff origins added
+#endif
 #if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
 #endif
