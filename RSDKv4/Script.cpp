@@ -1176,6 +1176,9 @@ char scriptText[0x4000];
 void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -1207,12 +1210,15 @@ void CheckAliasText(char *text)
 
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
-                PrintLog("Warning: Variable Name '%s' has already been used!", variable->name);
+                PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -1244,7 +1250,7 @@ void CheckAliasText(char *text)
 
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
-                PrintLog("Warning: Variable Name '%s' has already been used!", variable->name);
+                PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
 
         ++scriptValueListCount;
@@ -1253,6 +1259,9 @@ void CheckAliasText(char *text)
 void CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -1288,12 +1297,15 @@ void CheckStaticText(char *text)
 
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
-                PrintLog("Warning: Variable Name '%s' has already been used!", variable->name);
+                PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -1329,7 +1341,7 @@ void CheckStaticText(char *text)
 
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
-                PrintLog("Warning: Variable Name '%s' has already been used!", variable->name);
+                PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
 
         ++scriptValueListCount;
@@ -1340,6 +1352,9 @@ bool CheckTableText(char *text)
     bool hasValues = false;
 
     if (FindStringToken(text, "publictable", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -1400,6 +1415,9 @@ bool CheckTableText(char *text)
         scriptValueListCount++;
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
+            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
 
@@ -2729,16 +2747,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
     // Try the original script folder
     StrCopy(scriptPath, "Data/Scripts/");
     StrAdd(scriptPath, scriptName);
-    bool loaded = LoadFile(scriptPath, &info);
-
-    if (!loaded) {
-        // if we didn't find it there, try in the modded/backup script folder
-        StrCopy(scriptPath, "Scripts/");
-        StrAdd(scriptPath, scriptName);
-        loaded = LoadFile(scriptPath, &info);
-    }
-
-    if (loaded) {
+    if (LoadFile(scriptPath, &info)) {
         int readMode   = READMODE_NORMAL;
         int parseMode  = PARSEMODE_SCOPELESS;
         char prevChar  = 0;
@@ -2860,9 +2869,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     else if (FindStringToken(scriptText, "publicfunction", 1) == 0) { // regular public decl
                         char funcName[0x40];
-                        for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
+                        for (textPos = 14; scriptText[textPos]; ++textPos) funcName[textPos - 14] = scriptText[textPos];
 
-                        funcName[textPos - 15] = 0;
+                        funcName[textPos - 14] = 0;
                         int funcID             = -1;
                         for (int f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionList[f].name))
@@ -2898,9 +2907,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
                     else if (FindStringToken(scriptText, "privatefunction", 1) == 0) { // regular private decl
                         char funcName[0x40];
-                        for (textPos = 16; scriptText[textPos]; ++textPos) funcName[textPos - 16] = scriptText[textPos];
+                        for (textPos = 15; scriptText[textPos]; ++textPos) funcName[textPos - 15] = scriptText[textPos];
 
-                        funcName[textPos - 16] = 0;
+                        funcName[textPos - 15] = 0;
                         int funcID             = -1;
                         for (int f = 0; f < scriptFunctionCount; ++f) {
                             if (StrComp(funcName, scriptFunctionList[f].name))
