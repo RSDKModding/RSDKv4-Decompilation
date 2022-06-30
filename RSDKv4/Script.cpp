@@ -579,8 +579,8 @@ ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FX_INK", "3"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "PRESENTATION_STAGE", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "REGULAR_STAGE", "1"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "SPECIAL_STAGE", "2"),
-    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "BONUS_STAGE", "3"),
+    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "BONUS_STAGE", "2"),
+    ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "SPECIAL_STAGE", "3"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "MENU_1", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "MENU_2", "1"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "C_TOUCH", "0"),
@@ -1176,8 +1176,10 @@ char scriptText[0x4000];
 void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1208,16 +1210,20 @@ void CheckAliasText(char *text)
 
         variable->access = ACCESS_PUBLIC;
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1248,10 +1254,12 @@ void CheckAliasText(char *text)
 
         variable->access = ACCESS_PRIVATE;
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
@@ -1259,8 +1267,10 @@ void CheckAliasText(char *text)
 void CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1295,16 +1305,20 @@ void CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1339,10 +1353,12 @@ void CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
+#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
+#endif
 
         ++scriptValueListCount;
     }
@@ -1352,8 +1368,10 @@ bool CheckTableText(char *text)
     bool hasValues = false;
 
     if (FindStringToken(text, "publictable", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1384,6 +1402,7 @@ bool CheckTableText(char *text)
         else {
             // no default values, just an array size
 
+            varStrPos = 0;
             while (text[textStrPos]) {
                 if (text[textStrPos] == '[' || text[textStrPos] == ']') {
                     variable->value[varStrPos] = 0;
@@ -1401,8 +1420,12 @@ bool CheckTableText(char *text)
                     StrCopy(variable->value, scriptValueList[v].value);
             }
 
-            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog("WARNING: Unable to parse table size!");
+#endif
+            }
 
             StrCopy(variable->value, "");
             AppendIntegerToString(variable->value, scriptCodePos);
@@ -1415,8 +1438,10 @@ bool CheckTableText(char *text)
         scriptValueListCount++;
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
+#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT)
             PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1447,6 +1472,7 @@ bool CheckTableText(char *text)
         else {
             // no default values, just an array size
 
+            varStrPos = 0;
             while (text[textStrPos]) {
                 if (text[textStrPos] == '[' || text[textStrPos] == ']') {
                     variable->value[varStrPos] = 0;
@@ -1464,8 +1490,12 @@ bool CheckTableText(char *text)
                     StrCopy(variable->value, scriptValueList[v].value);
             }
 
-            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog("WARNING: Unable to parse table size!");
+#endif
+            }
 
             StrCopy(variable->value, "");
             AppendIntegerToString(variable->value, scriptCodePos);
