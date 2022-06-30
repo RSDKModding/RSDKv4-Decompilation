@@ -25,9 +25,13 @@ enum CollisionSolidity {
 
 enum ObjectCollisionTypes {
     C_TOUCH    = 0,
-    C_BOX      = 1,
-    C_BOX2     = 2,
+    C_SOLID    = 1,
+    C_SOLID2   = 2,
     C_PLATFORM = 3,
+};
+
+enum ObjectCollisionFlags {
+    C_BOX = 0x10000,
 };
 
 struct CollisionSensor {

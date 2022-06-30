@@ -94,7 +94,7 @@ void ParseScriptFile(char *scriptName, int scriptID);
 #endif
 void LoadBytecode(int stageListID, int scriptID);
 
-void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
+void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent);
 
 void ClearScriptData(void);
 

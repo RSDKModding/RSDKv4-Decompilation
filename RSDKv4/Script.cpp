@@ -2489,8 +2489,12 @@ void ReadTableValues(char *text)
         while (text[textStrPos] == ',') {
             valueBuffer[valueBufferPos] = 0;
             ++scriptCode[scriptCodeOffset];
-            if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos]))
+            if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+                PrintLog("WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
+#endif
+            }
             scriptCodePos++;
             valueBufferPos = 0;
             textStrPos++;
@@ -2500,8 +2504,12 @@ void ReadTableValues(char *text)
     if (StrLength(valueBuffer)) {
         valueBuffer[valueBufferPos] = 0;
         ++scriptCode[scriptCodeOffset];
-        if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos]))
+        if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
             scriptCode[scriptCodePos] = 0;
+#if !RETRO_USE_ORIGINAL_CODE
+            PrintLog("WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
+#endif
+        }
         scriptCodePos++;
     }
 }
@@ -5019,12 +5027,12 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                                        scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
                                        scriptEng.operands[9], scriptEng.operands[10]);
                         break;
-                    case C_BOX:
+                    case C_SOLID:
                         BoxCollision(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                      scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
                                      scriptEng.operands[9], scriptEng.operands[10]);
                         break;
-                    case C_BOX2:
+                    case C_SOLID2:
                         BoxCollision2(&objectEntityList[scriptEng.operands[1]], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                       scriptEng.operands[5], &objectEntityList[scriptEng.operands[6]], scriptEng.operands[7], scriptEng.operands[8],
                                       scriptEng.operands[9], scriptEng.operands[10]);
@@ -6321,7 +6329,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_SCREENCURRENTID: break;
                     case VAR_CAMERAENABLED:
                         if (arrayVal <= 1)
-                            scriptEng.operands[i] = cameraEnabled;
+                            cameraEnabled = scriptEng.operands[i];
                         break;
                     case VAR_CAMERATARGET:
                         if (arrayVal <= 1)

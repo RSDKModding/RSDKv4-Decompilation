@@ -2525,8 +2525,8 @@ void Draw3DFloorLayer(int layerID)
     int layerZPos          = layer->zpos;
     int sinValue           = sinM7LookupTable[layer->angle];
     int cosValue           = cosM7LookupTable[layer->angle];
-    byte *gfxLineBufferPtr = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
-    ushort *frameBufferPtr = &Engine.frameBuffer[132 * GFX_LINESIZE];
+    byte *gfxLineBufferPtr = &gfxLineBuffer[(SCREEN_YSIZE / 2) + 12];
+    ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     int layerXPos          = layer->xpos >> 4;
     int ZBuffer            = layerZPos >> 4;
     for (int i = 4; i < 112; ++i) {
@@ -2580,7 +2580,7 @@ void Draw3DSkyLayer(int layerID)
     ushort *frameBufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     ushort *bufferPtr      = Engine.frameBuffer2x;
     if (!drawStageGFXHQ)
-        bufferPtr = &Engine.frameBuffer[(SCREEN_YSIZE / 2) + 12];
+        bufferPtr = &Engine.frameBuffer[((SCREEN_YSIZE / 2) + 12) * GFX_LINESIZE];
     byte *gfxLineBufferPtr = &gfxLineBuffer[((SCREEN_YSIZE / 2) + 12)];
     int layerXPos          = layer->xpos >> 4;
     int layerZPos          = layer->zpos >> 4;
