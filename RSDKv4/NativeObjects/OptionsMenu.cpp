@@ -71,8 +71,8 @@ void OptionsMenu_Main(void *objPtr)
             if (self->timer > 1.0) {
                 self->timer      = 0.0;
                 self->state      = OPTIONSMENU_STATE_MAIN;
-                inputPress.start = false;
-                inputPress.A     = false;
+                keyPress.start = false;
+                keyPress.A     = false;
             }
             break;
         }
@@ -85,13 +85,13 @@ void OptionsMenu_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (inputPress.up) {
+                    if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
                         self->selectedButton--;
                         if (self->selectedButton < 0)
                             self->selectedButton = OPTIONSMENU_BUTTON_COUNT - 1;
                     }
-                    else if (inputPress.down) {
+                    else if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
                         self->selectedButton++;
                         if (self->selectedButton >= OPTIONSMENU_BUTTON_COUNT)
@@ -100,7 +100,7 @@ void OptionsMenu_Main(void *objPtr)
                     for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) self->buttons[i]->b = 0xFF;
                     self->buttons[self->selectedButton]->b = 0x00;
 
-                    if (self->buttons[self->selectedButton]->g > 0x80 && (inputPress.start || inputPress.A)) {
+                    if (self->buttons[self->selectedButton]->g > 0x80 && (keyPress.start || keyPress.A)) {
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->selectedButton]->b     = 0xFF;
@@ -128,7 +128,7 @@ void OptionsMenu_Main(void *objPtr)
                     y -= 30.0;
                 }
 
-                if (self->state == OPTIONSMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
+                if (self->state == OPTIONSMENU_STATE_MAIN && (keyDown.up || keyDown.down)) {
                     self->selectedButton = 0;
                     usePhysicalControls  = true;
                 }

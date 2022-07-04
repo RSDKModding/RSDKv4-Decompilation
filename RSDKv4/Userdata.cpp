@@ -305,6 +305,7 @@ void InitUserdata()
         }
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
+        ini.SetInteger("Game", "GameType", Engine.gameTypeID);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
         skipStartMenu_Config = skipStartMenu;
         ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 0);
@@ -450,6 +451,10 @@ void InitUserdata()
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
+        if (!ini.GetInteger("Game", "GameType", &Engine.gameTypeID))
+            Engine.gameTypeID = 0;
+        Engine.releaseType = Engine.gameTypeID ? "USE_ORIGINS" : "USE_STANDALONE";
+
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
             skipStartMenu = false;
         skipStartMenu_Config = skipStartMenu;
@@ -730,6 +735,8 @@ void WriteSettings()
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
+    ini.SetComment("Game", "GameTypeComment", "Determines game type in scripts (0 = Standalone/Original releases, 1 = Origins release)");
+    ini.SetInteger("Game", "GameType", Engine.gameTypeID);
     ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
     ini.SetComment("Game", "DFPMenuComment",

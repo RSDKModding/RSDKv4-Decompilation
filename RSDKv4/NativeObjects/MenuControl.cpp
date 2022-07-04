@@ -81,8 +81,8 @@ void MenuControl_Main(void *objPtr)
 
     switch (self->state) {
         case MENUCONTROL_STATE_MAIN: {
-            CheckKeyDown(&inputDown);
-            CheckKeyPress(&inputPress);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
 
             if (segaIDButton->alpha < 0x100 && Engine.language != RETRO_JP && !(Engine.language == RETRO_ZH || Engine.language == RETRO_ZS)
                 && Engine.gameDeviceType == RETRO_MOBILE)
@@ -92,7 +92,7 @@ void MenuControl_Main(void *objPtr)
                 switch (self->stateInput) {
                     case MENUCONTROL_STATEINPUT_CHECKTOUCH: {
                         if (touches > 0) {
-                            if (!inputDown.left && !inputDown.right) {
+                            if (!keyDown.left && !keyDown.right) {
                                 segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                                 if (CheckTouchRect(0.0, 16.0, 56.0, 56.0) >= 0) {
                                     BackupNativeObjects();
@@ -125,7 +125,7 @@ void MenuControl_Main(void *objPtr)
                             PlaySfxByName("Menu Select", false);
                             ShowPromoPopup(0, "MoreGames");
                         }
-                        else if (inputDown.left || inputDown.right) {
+                        else if (keyDown.left || keyDown.right) {
                             segaIDButton->state              = SEGAIDBUTTON_STATE_IDLE;
                             usePhysicalControls              = true;
                             self->buttonID                   = ceilf(self->buttonMovePos / -self->buttonSpacing);
@@ -248,7 +248,7 @@ void MenuControl_Main(void *objPtr)
                 }
                 else {
                     if (touches <= 0) {
-                        if (inputPress.right && self->buttonMovePos > -(self->menuEndPos - self->buttonSpacing)) {
+                        if (keyPress.right && self->buttonMovePos > -(self->menuEndPos - self->buttonSpacing)) {
                             self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             self->targetButtonMovePos -= self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
@@ -257,7 +257,7 @@ void MenuControl_Main(void *objPtr)
                             if (self->buttonID >= self->buttonCount)
                                 self->buttonID = self->buttonCount - 1;
                         }
-                        else if (inputPress.left && self->buttonMovePos < 0.0) {
+                        else if (keyPress.left && self->buttonMovePos < 0.0) {
                             self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             self->targetButtonMovePos += self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
@@ -266,7 +266,7 @@ void MenuControl_Main(void *objPtr)
                             if (self->buttonID > self->buttonCount)
                                 self->buttonID = 0;
                         }
-                        else if ((inputPress.start || inputPress.A) && !Engine.nativeMenuFadeIn) {
+                        else if ((keyPress.start || keyPress.A) && !Engine.nativeMenuFadeIn) {
                             BackupNativeObjects();
                             self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
                             self->timer                                    = 0.0;
@@ -302,7 +302,7 @@ void MenuControl_Main(void *objPtr)
                 if (self->dialogTimer) {
                     self->dialogTimer--;
                 }
-                else if (inputPress.B && !Engine.nativeMenuFadeIn) {
+                else if (keyPress.B && !Engine.nativeMenuFadeIn) {
                     self->dialog = CREATE_ENTITY(DialogPanel);
                     SetStringToFont(self->dialog->text, strExitGame, FONT_TEXT);
                     self->state = MENUCONTROL_STATE_DIALOGWAIT;
@@ -461,8 +461,8 @@ void MenuControl_Main(void *objPtr)
         }
 
         case MENUCONTROL_STATE_SUBMENU: {
-            CheckKeyDown(&inputDown);
-            CheckKeyPress(&inputPress);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (touches <= 0) {
                 if (self->backButton->g == 0xC0) {
                     PlaySfxByName("Menu Back", false);
@@ -477,7 +477,7 @@ void MenuControl_Main(void *objPtr)
                 else
                     backButton->g = 0xC0;
             }
-            if (inputPress.B) {
+            if (keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 self->backButton->g = 0xFF;
                 self->state         = MENUCONTROL_STATE_EXITSUBMENU;

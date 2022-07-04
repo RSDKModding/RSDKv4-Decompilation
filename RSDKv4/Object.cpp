@@ -351,18 +351,18 @@ void SetObjectTypeName(const char *objectName, int objectID)
 void ProcessObjectControl(Entity *entity)
 {
     if (!entity->controlMode) {
-        entity->up   = inputDown.up;
-        entity->down = inputDown.down;
-        if (!inputDown.left || !inputDown.right) {
-            entity->left  = inputDown.left;
-            entity->right = inputDown.right;
+        entity->up   = keyDown.up;
+        entity->down = keyDown.down;
+        if (!keyDown.left || !keyDown.right) {
+            entity->left  = keyDown.left;
+            entity->right = keyDown.right;
         }
         else {
             entity->left  = false;
             entity->right = false;
         }
-        entity->jumpHold  = inputDown.C || inputDown.B || inputDown.A;
-        entity->jumpPress = inputPress.C || inputPress.B || inputPress.A;
+        entity->jumpHold  = keyDown.C || keyDown.B || keyDown.A;
+        entity->jumpPress = keyPress.C || keyPress.B || keyPress.A;
     }
 }
 

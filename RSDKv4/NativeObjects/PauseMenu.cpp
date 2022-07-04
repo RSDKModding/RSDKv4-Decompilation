@@ -205,20 +205,20 @@ void PauseMenu_Main(void *objPtr)
             break;
         }
         case PAUSEMENU_STATE_MAIN: {
-            CheckKeyDown(&inputDown);
-            CheckKeyPress(&inputPress);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             if (usePhysicalControls) {
                 if (touches > 0) {
                     usePhysicalControls = false;
                 }
                 else {
-                    if (inputPress.up) {
+                    if (keyPress.up) {
                         PlaySfxByName("Menu Move", false);
                         self->buttonSelected--;
                         if (self->buttonSelected < PMB_CONTINUE)
                             self->buttonSelected = pauseMenuButtonCount - 1;
                     }
-                    else if (inputPress.down) {
+                    else if (keyPress.down) {
                         PlaySfxByName("Menu Move", false);
                         self->buttonSelected++;
                         if (self->buttonSelected >= pauseMenuButtonCount)
@@ -226,7 +226,7 @@ void PauseMenu_Main(void *objPtr)
                     }
                     for (int i = 0; i < pauseMenuButtonCount; ++i) self->buttons[i]->b = self->buttons[i]->r;
                     self->buttons[self->buttonSelected]->b = 0;
-                    if (self->buttons[self->buttonSelected]->g > 0x80 && (inputPress.start || inputPress.A)) {
+                    if (self->buttons[self->buttonSelected]->g > 0x80 && (keyPress.start || keyPress.A)) {
                         PlaySfxByName("Menu Select", false);
                         self->buttons[self->buttonSelected]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->buttonSelected]->b     = 0xFF;
@@ -252,7 +252,7 @@ void PauseMenu_Main(void *objPtr)
                     }
                 }
 
-                if (self->state == PAUSEMENU_STATE_MAIN && (inputDown.up || inputDown.down)) {
+                if (self->state == PAUSEMENU_STATE_MAIN && (keyDown.up || keyDown.down)) {
                     self->buttonSelected = PMB_CONTINUE;
                     usePhysicalControls  = true;
                 }
