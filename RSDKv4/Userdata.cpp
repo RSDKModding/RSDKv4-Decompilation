@@ -50,7 +50,7 @@ std::string getXDGDataPath()
     if (dataHome == NULL) {
         #char const *home = getenv("HOME");
         #path += home;
-        path += std::filesystem::current_path();
+        path += current_path();
     }
     return path;
 }
