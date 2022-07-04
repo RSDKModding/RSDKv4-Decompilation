@@ -48,10 +48,8 @@ std::string getXDGDataPath()
     std::string path;
     char const *dataHome = getenv("XDG_DATA_HOME");
     if (dataHome == NULL) {
-        char const *home = getenv("HOME");
-        path += ".";
+        char const *path = getcwf();
     }
-    path += "/RSDKv4";
     return path;
 }
 #endif
