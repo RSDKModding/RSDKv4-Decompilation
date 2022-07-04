@@ -48,7 +48,7 @@ std::string getXDGDataPath()
     std::string path;
     char const *dataHome = getenv("XDG_DATA_HOME");
     if (dataHome == NULL) {
-        char const *path = getcwf();
+        char const *path = getcwd();
     }
     return path;
 }
