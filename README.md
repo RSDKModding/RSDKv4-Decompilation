@@ -4,6 +4,9 @@
 + For tutorials on how to find the game assets from your legally obtained copy of the game(s), see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
 
 + You can get the official releases of Sonic 1 & Sonic 2 from:
+  * Sonic 1 & 2 (Windows)
+    * Via Steam, from [Sonic Origins](https://store.steampowered.com/app/1794960)
+    * Via the Epic Games Store, from [Sonic Origins](https://store.epicgames.com/en-US/p/sonic-origins)
   * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
   * [Sonic 2 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
   * [Sonic 1 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic1px&hl=en_AU&gl=US)
