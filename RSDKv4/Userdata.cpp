@@ -1297,7 +1297,10 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
             SetGlobalVariableByName("game.callbackResult", 1);
             SetGlobalVariableByName("game.continueFlag", 0);
             break;
-        case NOTIFY_SPECIAL_RETRY: SetGlobalVariableByName("game.callbackResult", 1); break;
+        case NOTIFY_SPECIAL_RETRY:
+            PrintLog("NOTIFY: SpecialRetry() -> %d", *param1);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_TOUCH_CHECKPOINT: PrintLog("NOTIFY: TouchCheckpoint() -> %d", *param1); break;
         case NOTIFY_ACT_FINISH: PrintLog("NOTIFY: ActFinish() -> %d", *param1); break;
         case NOTIFY_1P_VS_SELECT: PrintLog("NOTIFY: 1PVSSelect() -> %d", *param1); break;
