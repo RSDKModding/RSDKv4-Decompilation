@@ -1279,6 +1279,7 @@ void CheckStaticText(char *text)
         int varStrPos  = 0;
         int parseMode  = 0;
 
+        StrCopy(variable->value, "0"); // default value is 0
         while (text[textStrPos]) {
             switch (parseMode) {
                 default: break;
@@ -1300,6 +1301,9 @@ void CheckStaticText(char *text)
         }
 
         variable->access = ACCESS_PUBLIC;
+
+        if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            scriptCode[scriptCodePos] = 0;
 
         StrCopy(variable->value, "local[");
         AppendIntegerToString(variable->value, scriptCodePos++);
@@ -1327,6 +1331,7 @@ void CheckStaticText(char *text)
         int varStrPos  = 0;
         int parseMode  = 0;
 
+        StrCopy(variable->value, "0"); // default value is 0
         while (text[textStrPos]) {
             switch (parseMode) {
                 default: break;
@@ -1348,6 +1353,9 @@ void CheckStaticText(char *text)
         }
 
         variable->access = ACCESS_PRIVATE;
+
+        if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos]))
+            scriptCode[scriptCodePos] = 0;
 
         StrCopy(variable->value, "local[");
         AppendIntegerToString(variable->value, scriptCodePos++);
