@@ -99,6 +99,12 @@ To use the server, open Command Prompt in the folder [Server.py](https://github.
 Note that the CPP server found in the Server folder in the repo has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
+### Q: I'm using an RSDK file from Sonic Origins and there's no audio, what's wrong?
+A: Sonic Origins doesn't have any music or sound effects stored in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from another version of the game.
+
+### Q: I'm using an RSDK file from Sonic Origins and the main menu and pause screen won't load, what's wrong?
+A: Similar issue to above, Origins removes some of the assets from the original mobile version's menus. Also similar to above, the fix is to insert those files from the original mobile version.
+
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
 
