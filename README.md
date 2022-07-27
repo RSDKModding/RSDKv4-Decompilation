@@ -100,10 +100,10 @@ Note that the CPP server found in the Server folder in the repo has been depreca
 
 # FAQ
 ### Q: I'm using an RSDK file from Sonic Origins and there's no audio, what's wrong?
-A: Sonic Origins doesn't have any music or sound effects stored in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from another version of the game.
+A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from the mobile versions of the games.
 
 ### Q: I'm using an RSDK file from Sonic Origins and the main menu and pause screen won't load, what's wrong?
-A: Similar issue to above, Origins removes some of the assets from the original mobile version's menus. Also similar to above, the fix is to insert those files from the original mobile version.
+A: Similar issue to above, Origins removes some of the assets from the original mobile versions' menus. Also similar to above, the fix is to insert those files from the mobile versions.
 
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
