@@ -1304,7 +1304,10 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_TOUCH_CHECKPOINT: PrintLog("NOTIFY: TouchCheckpoint() -> %d", *param1); break;
         case NOTIFY_ACT_FINISH: PrintLog("NOTIFY: ActFinish() -> %d", *param1); break;
         case NOTIFY_1P_VS_SELECT: PrintLog("NOTIFY: 1PVSSelect() -> %d", *param1); break;
-        case NOTIFY_CONTROLLER_SUPPORT: PrintLog("NOTIFY: ControllerSupport() -> %d", *param1); break;
+        case NOTIFY_CONTROLLER_SUPPORT:
+            PrintLog("NOTIFY: ControllerSupport() -> %d", *param1);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_STAGE_RETRY: PrintLog("NOTIFY: StageRetry() -> %d", *param1); break;
         case NOTIFY_SOUND_TRACK: PrintLog("NOTIFY: SoundTrack() -> %d", *param1); break;
         case NOTIFY_GOOD_ENDING: PrintLog("NOTIFY: GoodEnding() -> %d", *param1); break;
