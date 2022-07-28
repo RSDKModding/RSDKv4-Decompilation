@@ -4013,174 +4013,149 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
-                    case VAR_KEYDOWNUP:
 #if RETRO_REV03
+                    case VAR_KEYDOWNUP:
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.up;
                         break;
                     case VAR_KEYDOWNDOWN:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.down;
                         break;
                     case VAR_KEYDOWNLEFT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.left;
                         break;
                     case VAR_KEYDOWNRIGHT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.right;
                         break;
                     case VAR_KEYDOWNBUTTONA:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.A;
                         break;
                     case VAR_KEYDOWNBUTTONB:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.B;
                         break;
                     case VAR_KEYDOWNBUTTONC:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.C;
                         break;
                     case VAR_KEYDOWNBUTTONX:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.X;
                         break;
                     case VAR_KEYDOWNBUTTONY:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.Y;
                         break;
                     case VAR_KEYDOWNBUTTONZ:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.Z;
                         break;
                     case VAR_KEYDOWNBUTTONL:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.L;
                         break;
                     case VAR_KEYDOWNBUTTONR:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.R;
                         break;
                     case VAR_KEYDOWNSTART:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.start;
                         break;
                     case VAR_KEYDOWNSELECT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyDown.select;
                         break;
                     case VAR_KEYPRESSUP:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.up;
                         break;
                     case VAR_KEYPRESSDOWN:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.down;
                         break;
                     case VAR_KEYPRESSLEFT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.left;
                         break;
                     case VAR_KEYPRESSRIGHT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.right;
                         break;
                     case VAR_KEYPRESSBUTTONA:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.A;
                         break;
                     case VAR_KEYPRESSBUTTONB:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.B;
                         break;
                     case VAR_KEYPRESSBUTTONC:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.C;
                         break;
                     case VAR_KEYPRESSBUTTONX:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.X;
                         break;
                     case VAR_KEYPRESSBUTTONY:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.Y;
                         break;
                     case VAR_KEYPRESSBUTTONZ:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.Z;
                         break;
                     case VAR_KEYPRESSBUTTONL:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.L;
                         break;
                     case VAR_KEYPRESSBUTTONR:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.R;
                         break;
                     case VAR_KEYPRESSSTART:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.start;
                         break;
                     case VAR_KEYPRESSSELECT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             scriptEng.operands[i] = keyPress.select;
                         break;
+#else
+                    case VAR_KEYDOWNUP: scriptEng.operands[i] = keyDown.up; break;
+                    case VAR_KEYDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
+                    case VAR_KEYDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
+                    case VAR_KEYDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
+                    case VAR_KEYDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
+                    case VAR_KEYDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
+                    case VAR_KEYDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
+                    case VAR_KEYDOWNBUTTONX: scriptEng.operands[i] = keyDown.X; break;
+                    case VAR_KEYDOWNBUTTONY: scriptEng.operands[i] = keyDown.Y; break;
+                    case VAR_KEYDOWNBUTTONZ: scriptEng.operands[i] = keyDown.Z; break;
+                    case VAR_KEYDOWNBUTTONL: scriptEng.operands[i] = keyDown.L; break;
+                    case VAR_KEYDOWNBUTTONR: scriptEng.operands[i] = keyDown.R; break;
+                    case VAR_KEYDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
+                    case VAR_KEYDOWNSELECT: scriptEng.operands[i] = keyDown.select; break;
+                    case VAR_KEYPRESSUP: scriptEng.operands[i] = keyPress.up; break;
+                    case VAR_KEYPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
+                    case VAR_KEYPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
+                    case VAR_KEYPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
+                    case VAR_KEYPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
+                    case VAR_KEYPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
+                    case VAR_KEYPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
+                    case VAR_KEYPRESSBUTTONX: scriptEng.operands[i] = keyPress.X; break;
+                    case VAR_KEYPRESSBUTTONY: scriptEng.operands[i] = keyPress.Y; break;
+                    case VAR_KEYPRESSBUTTONZ: scriptEng.operands[i] = keyPress.Z; break;
+                    case VAR_KEYPRESSBUTTONL: scriptEng.operands[i] = keyPress.L; break;
+                    case VAR_KEYPRESSBUTTONR: scriptEng.operands[i] = keyPress.R; break;
+                    case VAR_KEYPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
+                    case VAR_KEYPRESSSELECT: scriptEng.operands[i] = keyPress.select; break;
+#endif
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
                     case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].xsize; break;
@@ -6125,174 +6100,149 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_MUSICPOSITION: break;
-                    case VAR_KEYDOWNUP:
 #if RETRO_REV03
+                    case VAR_KEYDOWNUP:
                         if (arrayVal <= 1)
-#endif
                             keyDown.up = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNDOWN:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.down = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNLEFT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.left = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNRIGHT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.right = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONA:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.A = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONB:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.B = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONC:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.C = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONX:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.X = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONY:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.Y = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONZ:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.Z = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONL:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.L = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNBUTTONR:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.R = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNSTART:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.start = scriptEng.operands[i];
                         break;
                     case VAR_KEYDOWNSELECT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyDown.select = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSUP:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.up = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSDOWN:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.down = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSLEFT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.left = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSRIGHT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.right = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONA:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.A = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONB:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.B = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONC:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.C = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONX:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.X = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONY:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.Y = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONZ:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.Z = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONL:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.L = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSBUTTONR:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.R = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSSTART:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.start = scriptEng.operands[i];
                         break;
                     case VAR_KEYPRESSSELECT:
-#if RETRO_REV03
                         if (arrayVal <= 1)
-#endif
                             keyPress.select = scriptEng.operands[i];
                         break;
+#else
+                    case VAR_KEYDOWNUP: keyDown.up = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONX: keyDown.X = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONY: keyDown.Y = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONZ: keyDown.Z = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONL: keyDown.L = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNBUTTONR: keyDown.R = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
+                    case VAR_KEYDOWNSELECT: keyDown.select = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSUP: keyPress.up = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONX: keyPress.X = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONY: keyPress.Y = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONZ: keyPress.Z = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONL: keyPress.L = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSBUTTONR: keyPress.R = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
+                    case VAR_KEYPRESSSELECT: keyPress.select = scriptEng.operands[i]; break;
+#endif
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].xsize = scriptEng.operands[i]; break;
