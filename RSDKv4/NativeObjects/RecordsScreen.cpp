@@ -125,7 +125,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos = timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos = 6 * self->zoneID;
+                        pos = timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
@@ -356,7 +356,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * self->zoneID;
+                        pos += timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
@@ -517,7 +517,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * self->zoneID;
+                        pos += timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
