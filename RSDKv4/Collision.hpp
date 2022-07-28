@@ -62,7 +62,7 @@ extern byte showHitboxes;
 extern int debugHitboxCount;
 extern DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_COUNT];
 
-int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom);
+int AddDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom);
 #endif
 
 extern int collisionLeft;

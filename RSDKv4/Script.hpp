@@ -65,8 +65,6 @@ extern int foreachStackPos;
 extern ScriptEngine scriptEng;
 extern char scriptText[0x4000];
 
-
-
 bool ConvertStringToInteger(const char *text, int *value);
 
 #if RETRO_USE_COMPILER

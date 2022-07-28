@@ -15,7 +15,7 @@ byte showHitboxes = 0;
 int debugHitboxCount = 0;
 DebugHitboxInfo debugHitboxList[DEBUG_HITBOX_COUNT];
 
-int addDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom)
+int AddDebugHitbox(byte type, Entity *entity, int left, int top, int right, int bottom)
 {
     int i = 0;
     for (; i < debugHitboxCount; ++i) {
@@ -2181,8 +2181,8 @@ void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight
     int thisHitboxID  = 0;
     int otherHitboxID = 0;
     if (showHitboxes) {
-        thisHitboxID  = addDebugHitbox(H_TYPE_TOUCH, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        otherHitboxID = addDebugHitbox(H_TYPE_TOUCH, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_TOUCH, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_TOUCH, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2241,8 +2241,8 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
     int thisHitboxID  = 0;
     int otherHitboxID = 0;
     if (showHitboxes) {
-        thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        otherHitboxID = addDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2559,8 +2559,8 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
     int thisHitboxID  = 0;
     int otherHitboxID = 0;
     if (showHitboxes) {
-        thisHitboxID  = addDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        otherHitboxID = addDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_BOX, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_BOX, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
@@ -2865,8 +2865,8 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
     int thisHitboxID  = 0;
     int otherHitboxID = 0;
     if (showHitboxes) {
-        thisHitboxID  = addDebugHitbox(H_TYPE_PLAT, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
-        otherHitboxID = addDebugHitbox(H_TYPE_PLAT, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
+        thisHitboxID  = AddDebugHitbox(H_TYPE_PLAT, thisEntity, thisLeft, thisTop, thisRight, thisBottom);
+        otherHitboxID = AddDebugHitbox(H_TYPE_PLAT, otherEntity, otherLeft, otherTop, otherRight, otherBottom);
     }
 #endif
 
