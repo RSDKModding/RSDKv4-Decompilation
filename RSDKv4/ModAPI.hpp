@@ -57,6 +57,7 @@ void GetModAuthor(int *textMenu, int *highlight, uint *id, int *unused);
 void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused);
 void GetModActive(uint *id, int *unused);
 void SetModActive(uint *id, int *active);
+void MoveMod(uint *id, int *up);
 
 #endif
 

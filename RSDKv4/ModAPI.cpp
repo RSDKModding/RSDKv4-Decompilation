@@ -524,6 +524,24 @@ void SetModActive(uint *id, int *active)
     modList[*id].active = *active;
 }
 
+void MoveMod(uint *id, int *up)
+{
+    if (!id)
+        return;
+
+    int preOption = *id;
+    int option    = preOption + (up ? -1 : 1);
+    if (option <= 0 || preOption <= 0)
+        return;
+
+    if (option >= (int)modList.size() || preOption >= (int)modList.size())
+        return;
+
+    ModInfo swap       = modList[preOption];
+    modList[preOption] = modList[option];
+    modList[option]    = swap;
+}
+
 #endif
 
 #if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE

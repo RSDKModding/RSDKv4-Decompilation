@@ -479,6 +479,46 @@ void RetroEngine::Init()
         Engine.gameMode = ENGINE_MAINGAME;
     else
         Engine.gameMode = ENGINE_WAIT;
+
+    // "error message"
+    if (!running) {
+        char rootDir[0x80];
+        char pathBuffer[0x80];
+
+#if RETRO_PLATFORM == RETRO_UWP
+        if (!usingCWD)
+            sprintf(rootDir, "%s/", getResourcesPath());
+        else
+            sprintf(rootDir, "%s", "");
+#elif RETRO_PLATFORM == RETRO_OSX
+        sprintf(rootDir, "%s/", gamePath);
+#else
+        sprintf(rootDir, "%s", "");
+#endif
+        sprintf(pathBuffer, "%s%s", rootDir, "usage.txt");
+
+        FileIO *f;
+        if ((f = fOpen(pathBuffer, "w")) == NULL) {
+            PrintLog("ERROR: Couldn't open file '%s' for writing!", "usage.txt");
+            return;
+        }
+
+        char textBuf[0x100];
+        sprintf(textBuf, "RETRO ENGINE v4 USAGE:\n");
+        fWrite(textBuf, 1, strlen(textBuf), f);
+
+        sprintf(textBuf, "- Open the asset directory '%s' in a file browser\n", !rootDir[0] ? "./" : rootDir);
+        fWrite(textBuf, 1, strlen(textBuf), f);
+
+        sprintf(textBuf, "- Place a data pack named '%s' in the asset directory\n", Engine.dataFile[0]);
+        fWrite(textBuf, 1, strlen(textBuf), f);
+
+        sprintf(textBuf, "- OR extract a data pack and place the \"Data\" & \"Bytecode\" folders in the asset directory\n");
+        fWrite(textBuf, 1, strlen(textBuf), f);
+
+        fClose(f);
+    }
+
 #endif
 }
 
@@ -1177,6 +1217,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("GetModVersion", GetModVersion);
     AddNativeFunction("GetModActive", GetModActive);
     AddNativeFunction("SetModActive", SetModActive);
+    AddNativeFunction("MoveMod", MoveMod);
     AddNativeFunction("RefreshEngine", RefreshEngine); // Reload engine after changing mod status
 #endif
 
