@@ -524,7 +524,7 @@ const FunctionInfo functions[] = {
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("LoadFontFile", 1),
 #endif
-    FunctionInfo("LoadTextFile", RETRO_REV02 ? 2 : 3),
+    FunctionInfo("LoadTextFile", (RETRO_REV00 || RETRO_REV01) ? 3 : 2),
     FunctionInfo("GetTextInfo", 5),
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("DrawText", 7),
@@ -5520,6 +5520,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 }
                 break;
             case FUNC_SETOBJECTRANGE: {
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = range
+
                 opcodeSize       = 0;
                 int offset       = (scriptEng.operands[0] >> 1) - SCREEN_CENTERX;
                 OBJECT_BORDER_X1 = offset + 0x80;
@@ -5530,18 +5533,32 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             }
 #if !RETRO_REV00 && !RETRO_REV01
             case FUNC_GETOBJECTVALUE: {
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = result
+                // scriptEng.operands[1] = valueID
+                // scriptEng.operands[2] = entitySlot
+
                 if (scriptEng.operands[1] < 48)
                     scriptEng.operands[0] = objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]];
                 break;
             }
             case FUNC_SETOBJECTVALUE: {
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = value
+                // scriptEng.operands[1] = valueID
+                // scriptEng.operands[2] = entitySlot
+
                 opcodeSize = 0;
                 if (scriptEng.operands[1] < 48)
                     objectEntityList[scriptEng.operands[2]].values[scriptEng.operands[1]] = scriptEng.operands[0];
                 break;
             }
             case FUNC_COPYOBJECT: {
-                // dstID, srcID, count
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = destSlot
+                // scriptEng.operands[1] = srcSlot
+                // scriptEng.operands[2] = count
+
                 Entity *dstList = &objectEntityList[scriptEng.operands[0]];
                 Entity *srcList = &objectEntityList[scriptEng.operands[1]];
                 for (int i = 0; i < scriptEng.operands[2]; ++i) memcpy(&dstList[i], &srcList[i], sizeof(Entity));
@@ -5549,6 +5566,11 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             }
 #endif
             case FUNC_PRINT: {
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = message (can be a regular value or a string depending on scriptEng.operands[1])
+                // scriptEng.operands[1] = isInt
+                // scriptEng.operands[2] = useEndLine
+
                 endLine = false;
                 if (scriptEng.operands[1])
                     PrintLog("%d", scriptEng.operands[0]);
@@ -5564,16 +5586,122 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
 #if RETRO_REV03
                 // Extras for origins 2PVS,
                 // these aren't (and won't be) implemented here because they rely on v5 tech that isn't part of the scope of this project
-            case FUNC_CHECKCAMERAPROXIMITY: break;
-            case FUNC_SETSCREENCOUNT: break;
-            case FUNC_SETSCREENVERTICES: break;
-            case FUNC_GETINPUTDEVICEID: break;
-            case FUNC_GETFILTEREDINPUTDEVICEID: break;
-            case FUNC_GETINPUTDEVICETYPE: break;
-            case FUNC_ISINPUTDEVICEASSIGNED: break;
-            case FUNC_ASSIGNINPUTSLOTTODEVICE: break;
-            case FUNC_ISSLOTASSIGNED: break;
-            case FUNC_RESETINPUTSLOTASSIGNMENTS: break;
+            case FUNC_CHECKCAMERAPROXIMITY:
+                scriptEng.checkResult = false;
+
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = pos.x
+                // scriptEng.operands[1] = pos.y
+                // scriptEng.operands[2] = range.x
+                // scriptEng.operands[3] = range.y
+                //
+                // FUNCTION NOTES:
+                // - Sets scriptEng.checkResult
+
+                if (scriptEng.operands[2] > 0 && scriptEng.operands[3] > 0) {
+                    int sx = abs(scriptEng.operands[0] - cameraXPos);
+                    int sy = abs(scriptEng.operands[1] - cameraYPos);
+
+                    if (sx < scriptEng.operands[2] && sy < scriptEng.operands[3]) {
+                        scriptEng.checkResult = true;
+                        break;
+                    }
+                }
+                else {
+                    if (scriptEng.operands[2] > 0) {
+                        int sx = abs(scriptEng.operands[0] - cameraXPos);
+
+                        if (sx < scriptEng.operands[2]) {
+                            scriptEng.checkResult = true;
+                            break;
+                        }
+                    }
+                    else if (scriptEng.operands[3] > 0) {
+                        int sy = abs(scriptEng.operands[1] - cameraYPos);
+
+                        if (sy < scriptEng.operands[3]) {
+                            scriptEng.checkResult = true;
+                            break;
+                        }
+                    }
+                }
+                break;
+
+            case FUNC_SETSCREENCOUNT:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = screenCount
+
+                break;
+
+            case FUNC_SETSCREENVERTICES:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = startVert2P_S1
+                // scriptEng.operands[1] = startVert2P_S2
+                // scriptEng.operands[2] = startVert3P_S1
+                // scriptEng.operands[3] = startVert3P_S2
+                // scriptEng.operands[4] = startVert3P_S3
+
+                break;
+
+            case FUNC_GETINPUTDEVICEID:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = deviceID
+                // scriptEng.operands[1] = inputSlot
+                //
+                // FUNCTION NOTES:
+                // - Assigns the device's id to scriptEng.operands[0]
+
+                break;
+
+            case FUNC_GETFILTEREDINPUTDEVICEID:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = deviceID
+                // scriptEng.operands[1] = confirmOnly
+                // scriptEng.operands[2] = unassignedOnly
+                // scriptEng.operands[3] = maxInactiveTimer
+                //
+                // FUNCTION NOTES:
+                // - Assigns the filtered device's id to scriptEng.operands[0]
+
+                break;
+
+            case FUNC_GETINPUTDEVICETYPE:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = deviceType
+                // scriptEng.operands[1] = deviceID
+                //
+                // FUNCTION NOTES:
+                // - Assigns the device's type to scriptEng.operands[0]
+
+                break;
+
+            case FUNC_ISINPUTDEVICEASSIGNED:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = deviceID
+
+                break;
+
+            case FUNC_ASSIGNINPUTSLOTTODEVICE:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = inputSlot
+                // scriptEng.operands[1] = deviceID
+
+                break;
+
+            case FUNC_ISSLOTASSIGNED:
+                // FUNCTION PARAMS:
+                // scriptEng.operands[0] = inputSlot
+                //
+                // FUNCTION NOTES:
+                // - Sets scriptEng.checkResult
+
+                break;
+
+            case FUNC_RESETINPUTSLOTASSIGNMENTS:
+                // FUNCTION PARAMS:
+                // None
+
+                break;
 #endif
         }
 
