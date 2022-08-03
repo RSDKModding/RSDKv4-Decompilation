@@ -1304,7 +1304,7 @@ void ProcessPathGrip(Entity *entity)
                 entity->floorSensors[0] = sensors[0].collided;
                 entity->floorSensors[1] = sensors[1].collided;
                 entity->floorSensors[2] = sensors[2].collided;
-#if RETRO_REV00
+#if !RETRO_REV00
                 entity->floorSensors[3] = sensors[5].collided;
                 entity->floorSensors[4] = sensors[6].collided;
 #endif
