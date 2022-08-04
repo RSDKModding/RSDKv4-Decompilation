@@ -1213,7 +1213,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
     AddNativeFunction("GetWindowVSync", GetWindowVSync);
     AddNativeFunction("SetWindowVSync", SetWindowVSync);
-    AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
+    AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); // Refresh window after changing window options
     AddNativeFunction("GetModCount", GetModCount);
     AddNativeFunction("GetModName", GetModName);
     AddNativeFunction("GetModDescription", GetModDescription);

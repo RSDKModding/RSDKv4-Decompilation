@@ -1341,13 +1341,14 @@ void GetWindowFullScreen() { scriptEng.checkResult = Engine.isFullScreen; }
 void GetWindowBorderless() { scriptEng.checkResult = Engine.borderless; }
 void GetWindowVSync() { scriptEng.checkResult = Engine.vsync; }
 
+bool changedScreenWidth = false;
 void SetScreenWidth(int *width, int *unused)
 {
     if (!width)
         return;
 
     SCREEN_XSIZE_CONFIG = *width;
-    SCREEN_XSIZE        = SCREEN_XSIZE_CONFIG;
+    changedScreenWidth  = SCREEN_XSIZE_CONFIG != SCREEN_XSIZE;
 }
 
 void SetWindowScale(int *scale, int *unused)
@@ -1411,6 +1412,10 @@ void ApplyWindowChanges()
             mesh->vertexCount = 0;
         }
     }
+
+    if (changedScreenWidth)
+        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
+    changedScreenWidth = false;
 
     ReleaseRenderDevice(true);
     InitRenderDevice();
