@@ -100,11 +100,9 @@ int InitRenderDevice()
 #endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
-    if (windowCreated == false) {
-        Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                         SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
-        windowCreated = true;
-    }
+    Engine.window  = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
+                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+
     if (!Engine.window) {
         PrintLog("ERROR: failed to create window!");
         return 0;
@@ -517,10 +515,12 @@ void FlipScreen()
 
 #endif
 }
-void ReleaseRenderDevice()
+void ReleaseRenderDevice(bool refresh)
 {
-    ClearMeshData();
-    ClearTextures(false);
+    if (!refresh) {
+        ClearMeshData();
+        ClearTextures(false);
+    }
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_SOFTWARE_RENDER

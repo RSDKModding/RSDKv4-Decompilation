@@ -1336,55 +1336,103 @@ void FileExists(int *unused, const char *filePath)
 #if RETRO_USE_MOD_LOADER
 void GetScreenWidth() { scriptEng.checkResult = SCREEN_XSIZE_CONFIG; }
 void GetWindowScale() { scriptEng.checkResult = Engine.windowScale; }
+void GetWindowScaleMode() { scriptEng.checkResult = Engine.scalingMode; }
 void GetWindowFullScreen() { scriptEng.checkResult = Engine.isFullScreen; }
 void GetWindowBorderless() { scriptEng.checkResult = Engine.borderless; }
+void GetWindowVSync() { scriptEng.checkResult = Engine.vsync; }
 
 void SetScreenWidth(int *width, int *unused)
 {
-    SCREEN_XSIZE_CONFIG = *width;
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#endif
-#if RETRO_USING_SDL2
-    InitRenderDevice();
-#endif
+    if (!width)
+        return;
 
-#if RETRO_USING_OPENGL
-    displaySettings.width   = SCREEN_XSIZE_CONFIG * Engine.windowScale;
-    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
-    displaySettings.offsetX = 0;
-    SetupViewport();
-#endif
+    SCREEN_XSIZE_CONFIG = *width;
+    SCREEN_XSIZE        = SCREEN_XSIZE_CONFIG;
 }
 
 void SetWindowScale(int *scale, int *unused)
 {
-    Engine.windowScale = *scale;
-#if RETRO_USING_SDL2
-    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#endif
+    if (!scale)
+        return;
 
-#if RETRO_USING_OPENGL
-    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
-    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
-    displaySettings.offsetX = 0;
-    SetupViewport();
-#endif
+    Engine.windowScale = *scale;
+}
+
+void SetWindowScaleMode(int *mode, int *unused)
+{
+    if (!mode)
+        return;
+
+    Engine.scalingMode = *mode;
 }
 
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
+    if (!fullscreen)
+        return;
+
     Engine.isFullScreen    = *fullscreen;
     Engine.startFullScreen = *fullscreen;
-    SetFullScreen(Engine.isFullScreen);
 }
 
 void SetWindowBorderless(int *borderless, int *unused)
 {
+    if (!borderless)
+        return;
+
     Engine.borderless = *borderless;
-#if RETRO_USING_SDL2
-    SDL_RestoreWindow(Engine.window);
-    SDL_SetWindowBordered(Engine.window, Engine.borderless ? SDL_FALSE : SDL_TRUE);
-#endif
+}
+
+void SetWindowVSync(int *enabled, int *unused)
+{
+    if (!enabled)
+        return;
+
+    Engine.vsync = *enabled;
+}
+void ApplyWindowChanges()
+{
+    for (int i = 0; i < TEXTURE_COUNT; ++i) {
+        glDeleteTextures(1, &textureList[i].id);
+    }
+
+    for (int i = 0; i < MESH_COUNT; ++i) {
+        MeshInfo *mesh = &meshList[i];
+        if (StrLength(mesh->fileName)) {
+            if (mesh->frameCount > 1)
+                free(mesh->frames);
+            if (mesh->indexCount)
+                free(mesh->indices);
+            if (mesh->vertexCount)
+                free(mesh->vertices);
+
+            mesh->frameCount  = 0;
+            mesh->indexCount  = 0;
+            mesh->vertexCount = 0;
+        }
+    }
+
+    ReleaseRenderDevice(true);
+    InitRenderDevice();
+
+    for (int i = 1; i < TEXTURE_COUNT; ++i) {
+        if (StrLength(textureList[i].fileName)) {
+            char fileName[64];
+            StrCopy(fileName, textureList[i].fileName);
+            textureList[i].fileName[0] = 0;
+
+            LoadTexture(fileName, textureList[i].format);
+        }
+    }
+
+    for (int i = 0; i < MESH_COUNT; ++i) {
+        if (StrLength(meshList[i].fileName)) {
+            char fileName[64];
+            StrCopy(fileName, meshList[i].fileName);
+            meshList[i].fileName[0] = 0;
+
+            LoadMesh(fileName, meshList[i].textureID);
+        }
+    }
 }
 #endif

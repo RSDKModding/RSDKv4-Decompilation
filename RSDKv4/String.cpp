@@ -252,10 +252,7 @@ int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopI
     return -1;
 }
 
-void ConvertIntegerToString(char *text, int value)
-{
-    sprintf(text, "%d", value); // Vary lazy ik
-}
+void ConvertIntegerToString(char *text, int value) { sprintf(text, "%d", value); }
 
 // Buffer is expected to be at least 16 bytes long
 void GenerateMD5FromString(const char *string, int len, byte *buffer)

@@ -1205,11 +1205,15 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("SetScreenWidth", SetScreenWidth);
     AddNativeFunction("GetWindowScale", GetWindowScale);
     AddNativeFunction("SetWindowScale", SetWindowScale);
+    AddNativeFunction("GetWindowScaleMode", GetWindowScaleMode);
+    AddNativeFunction("SetWindowScaleMode", SetWindowScaleMode);
     AddNativeFunction("GetWindowFullScreen", GetWindowFullScreen);
     AddNativeFunction("SetWindowFullScreen", SetWindowFullScreen);
     AddNativeFunction("GetWindowBorderless", GetWindowBorderless);
     AddNativeFunction("SetWindowBorderless", SetWindowBorderless);
-    // AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
+    AddNativeFunction("GetWindowVSync", GetWindowVSync);
+    AddNativeFunction("SetWindowVSync", SetWindowVSync);
+    AddNativeFunction("ApplyWindowChanges", ApplyWindowChanges); //todo: this prolly tbh
     AddNativeFunction("GetModCount", GetModCount);
     AddNativeFunction("GetModName", GetModName);
     AddNativeFunction("GetModDescription", GetModDescription);

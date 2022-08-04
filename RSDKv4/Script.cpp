@@ -1386,7 +1386,6 @@ bool CheckTableText(char *text)
 
         int textStrPos = 11;
         int varStrPos  = 0;
-        int parseMode  = 0;
 
         while (text[textStrPos]) {
             if (text[textStrPos] == '[' || text[textStrPos] == ']') {
@@ -1456,7 +1455,6 @@ bool CheckTableText(char *text)
 
         int textStrPos = 12;
         int varStrPos  = 0;
-        int parseMode  = 0;
 
         while (text[textStrPos]) {
             if (text[textStrPos] == '[' || text[textStrPos] == ']') {
@@ -2100,18 +2098,14 @@ void CheckCaseNumber(char *text)
         return;
 
     char caseString[128];
+    char caseChar = text[4];
+
+    int textPos    = 5;
     int caseStrPos = 0;
-    char caseChar  = text[4];
-    if (text[4]) {
-        int textPos = 5;
-        do {
-            if (caseChar != ':')
-                caseString[caseStrPos++] = caseChar;
-            caseChar = text[textPos++];
-        } while (caseChar);
-    }
-    else {
-        caseStrPos = 0;
+    while (caseChar) {
+        if (caseChar != ':')
+            caseString[caseStrPos++] = caseChar;
+        caseChar = text[textPos++];
     }
     caseString[caseStrPos] = 0;
 
@@ -3395,24 +3389,28 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 int arrayVal = 0;
                 switch (scriptCode[scriptCodePtr++]) {
                     case VARARR_NONE: arrayVal = objectEntityPos; break;
+
                     case VARARR_ARRAY:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
                             arrayVal = scriptCode[scriptCodePtr++];
                         break;
+
                     case VARARR_ENTNOPLUS1:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = scriptEng.arrayPosition[scriptCode[scriptCodePtr++]] + objectEntityPos;
                         else
                             arrayVal = scriptCode[scriptCodePtr++] + objectEntityPos;
                         break;
+
                     case VARARR_ENTNOMINUS1:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = objectEntityPos - scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
                             arrayVal = objectEntityPos - scriptCode[scriptCodePtr++];
                         break;
+
                     default: break;
                 }
 
@@ -4237,22 +4235,22 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptText[strLen] = 0;
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        case 0: {
+                        case 0: 
                             scriptText[c] = scriptCode[scriptCodePtr] >> 24;
                             break;
-                        }
-                        case 1: {
+
+                        case 1: 
                             scriptText[c] = (0xFFFFFF & scriptCode[scriptCodePtr]) >> 16;
                             break;
-                        }
-                        case 2: {
+
+                        case 2: 
                             scriptText[c] = (0xFFFF & scriptCode[scriptCodePtr]) >> 8;
                             break;
-                        }
-                        case 3: {
+
+                        case 3: 
                             scriptText[c] = scriptCode[scriptCodePtr++];
                             break;
-                        }
+
                         default: break;
                     }
                 }
@@ -5714,24 +5712,28 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 int arrayVal = 0;
                 switch (scriptCode[scriptCodePtr++]) { // variable
                     case VARARR_NONE: arrayVal = objectEntityPos; break;
+
                     case VARARR_ARRAY:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
                             arrayVal = scriptCode[scriptCodePtr++];
                         break;
+
                     case VARARR_ENTNOPLUS1:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = objectEntityPos + scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
                             arrayVal = objectEntityPos + scriptCode[scriptCodePtr++];
                         break;
+
                     case VARARR_ENTNOMINUS1:
                         if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal = objectEntityPos - scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
                             arrayVal = objectEntityPos - scriptCode[scriptCodePtr++];
                         break;
+
                     default: break;
                 }
 

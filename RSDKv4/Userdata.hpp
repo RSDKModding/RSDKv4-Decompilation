@@ -218,10 +218,16 @@ void GetScreenWidth();
 void SetScreenWidth(int *width, int *unused);
 void GetWindowScale();
 void SetWindowScale(int *scale, int *unused);
+void GetWindowScaleMode();
+void SetWindowScaleMode(int *mode, int *unused);
 void GetWindowFullScreen();
 void SetWindowFullScreen(int *fullscreen, int *unused);
 void GetWindowBorderless();
 void SetWindowBorderless(int *borderless, int *unused);
+void GetWindowVSync();
+void SetWindowVSync(int *enabled, int *unused);
+void ApplyWindowChanges();
+
 #endif
 
 #endif //! USERDATA_H
