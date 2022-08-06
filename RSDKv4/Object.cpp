@@ -81,20 +81,20 @@ void ProcessObjects()
         y              = entity->ypos >> 16;
 
         switch (entity->priority) {
-            case PRIORITY_ACTIVE_BOUNDS:
+            case PRIORITY_BOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                      && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
 
             case PRIORITY_ACTIVE:
-            case PRIORITY_ACTIVE_PAUSED:
+            case PRIORITY_ALWAYS:
             case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
 
-            case PRIORITY_ACTIVE_XBOUNDS:
+            case PRIORITY_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
 
-            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+            case PRIORITY_XBOUNDS_DESTROY:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = false;
@@ -103,7 +103,7 @@ void ProcessObjects()
                 break;
 
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
-            case PRIORITY_ACTIVE_BOUNDS_SMALL:
+            case PRIORITY_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                      && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
@@ -149,7 +149,7 @@ void ProcessPausedObjects()
     for (objectEntityPos = 0; objectEntityPos < ENTITY_COUNT; ++objectEntityPos) {
         Entity *entity = &objectEntityList[objectEntityPos];
 
-        if (entity->priority == PRIORITY_ACTIVE_PAUSED && entity->type > OBJ_TYPE_BLANKOBJECT) {
+        if (entity->priority == PRIORITY_ALWAYS && entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
             if (scriptCode[scriptInfo->eventUpdate.scriptCodePtr] > 0)
                 ProcessScript(scriptInfo->eventUpdate.scriptCodePtr, scriptInfo->eventUpdate.jumpTablePtr, EVENT_MAIN);
@@ -171,20 +171,20 @@ void ProcessFrozenObjects()
         y              = entity->ypos >> 16;
 
         switch (entity->priority) {
-            case PRIORITY_ACTIVE_BOUNDS:
+            case PRIORITY_BOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2
                                                      && y > yScrollOffset - OBJECT_BORDER_Y1 && y < yScrollOffset + OBJECT_BORDER_Y2;
                 break;
 
             case PRIORITY_ACTIVE:
-            case PRIORITY_ACTIVE_PAUSED:
+            case PRIORITY_ALWAYS:
             case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
 
-            case PRIORITY_ACTIVE_XBOUNDS:
+            case PRIORITY_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < OBJECT_BORDER_X2 + xScrollOffset;
                 break;
 
-            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+            case PRIORITY_XBOUNDS_DESTROY:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X1 && x < xScrollOffset + OBJECT_BORDER_X2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = false;
@@ -194,7 +194,7 @@ void ProcessFrozenObjects()
 
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
 
-            case PRIORITY_ACTIVE_BOUNDS_SMALL:
+            case PRIORITY_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > xScrollOffset - OBJECT_BORDER_X3 && x < OBJECT_BORDER_X4 + xScrollOffset
                                                      && y > yScrollOffset - OBJECT_BORDER_Y3 && y < yScrollOffset + OBJECT_BORDER_Y4;
                 break;
@@ -204,7 +204,7 @@ void ProcessFrozenObjects()
 
         if (entity->type > OBJ_TYPE_BLANKOBJECT) {
             ObjectScript *scriptInfo = &objectScriptList[entity->type];
-            if (scriptCode[scriptInfo->eventUpdate.scriptCodePtr] > 0 && entity->priority == PRIORITY_ACTIVE_PAUSED)
+            if (scriptCode[scriptInfo->eventUpdate.scriptCodePtr] > 0 && entity->priority == PRIORITY_ALWAYS)
                 ProcessScript(scriptInfo->eventUpdate.scriptCodePtr, scriptInfo->eventUpdate.jumpTablePtr, EVENT_MAIN);
 
             if (entity->drawOrder < DRAWLAYER_COUNT && entity->drawOrder >= 0)
@@ -264,7 +264,7 @@ void Process2PObjects()
         int YPosP2       = entityP2->ypos;
 
         switch (entity->priority) {
-            case PRIORITY_ACTIVE_BOUNDS:
+            case PRIORITY_BOUNDS:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2 && y > YPosP1 + boundY1 && y < YPosP1 + boundY2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2 && y > YPosP2 + boundY1 && y < YPosP2 + boundY2;
@@ -272,17 +272,17 @@ void Process2PObjects()
                 break;
 
             case PRIORITY_ACTIVE:
-            case PRIORITY_ACTIVE_PAUSED:
+            case PRIORITY_ALWAYS:
             case PRIORITY_ACTIVE_SMALL: processObjectFlag[objectEntityPos] = true; break;
 
-            case PRIORITY_ACTIVE_XBOUNDS:
+            case PRIORITY_XBOUNDS:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2;
                 }
                 break;
 
-            case PRIORITY_ACTIVE_XBOUNDS_REMOVE:
+            case PRIORITY_XBOUNDS_DESTROY:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX1 && x < XPosP1 + boundX2;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX1 && x < XPosP2 + boundX2;
@@ -293,7 +293,7 @@ void Process2PObjects()
                 break;
 
             case PRIORITY_INACTIVE: processObjectFlag[objectEntityPos] = false; break;
-            case PRIORITY_ACTIVE_BOUNDS_SMALL:
+            case PRIORITY_BOUNDS_SMALL:
                 processObjectFlag[objectEntityPos] = x > XPosP1 + boundX3 && x < XPosP1 + boundX4 && y > YPosP1 + boundY3 && y < YPosP1 + boundY4;
                 if (!processObjectFlag[objectEntityPos]) {
                     processObjectFlag[objectEntityPos] = x > XPosP2 + boundX3 && x < XPosP2 + boundX4 && y > YPosP2 + boundY3 && y < YPosP2 + boundY4;
