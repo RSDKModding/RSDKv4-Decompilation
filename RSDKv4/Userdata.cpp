@@ -981,7 +981,13 @@ void SetAchievement(int *achievementID, int *status)
 }
 #if RETRO_USE_MOD_LOADER
 void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[achievementCount++].name, name); }
-void SetAchievementDescription(int *id, const char *desc) { StrCopy(achievements[*id].desc, desc); }
+void SetAchievementDescription(uint *id, const char *desc)
+{
+    if (*id >= achievementCount)
+        return;
+
+    StrCopy(achievements[*id].desc, desc);
+}
 void ClearAchievements() { achievementCount = 0; }
 void GetAchievementCount() { scriptEng.checkResult = achievementCount; }
 void GetAchievementName(uint *id, int *textMenu)

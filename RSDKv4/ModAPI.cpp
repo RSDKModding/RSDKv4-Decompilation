@@ -513,6 +513,7 @@ void GetModActive(uint *id, int *unused)
     scriptEng.checkResult = false;
     if (*id >= modList.size())
         return;
+
     scriptEng.checkResult = modList[*id].active;
 }
 

@@ -165,7 +165,7 @@ void SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
 #if RETRO_USE_MOD_LOADER
 void AddGameAchievement(int *unused, const char *name);
-void SetAchievementDescription(int *id, const char *desc);
+void SetAchievementDescription(uint *id, const char *desc);
 void ClearAchievements();
 void GetAchievementCount();
 void GetAchievementName(uint *id, int *textMenu);

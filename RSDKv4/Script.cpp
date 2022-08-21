@@ -1837,6 +1837,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int o = 0;
                 for (; o < OBJECT_COUNT; ++o) {
@@ -1855,6 +1856,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
@@ -1872,6 +1874,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = VarName[player.lives]
             if (StrComp(funcName, "VarName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int v = 0;
                 for (; v < globalVariablesCount; ++v) {
@@ -1889,6 +1892,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int a = 0;
                 for (; a < achievementCount; ++a) {
@@ -1917,6 +1921,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int p = 0;
                 for (; p < PLAYER_COUNT; ++p) {
@@ -1945,6 +1950,7 @@ void ConvertFunctionText(char *text)
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int s = -1;
                 if (StrLength(arrayStr) >= 2) {
@@ -2141,6 +2147,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = TypeName[Player Object]
         if (StrComp(caseValue, "TypeName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int o = 0;
             for (; o < OBJECT_COUNT; ++o) {
@@ -2158,6 +2165,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = SfxName[Jump]
         if (StrComp(caseValue, "SfxName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int s = 0;
             for (; s < SFX_COUNT; ++s) {
@@ -2176,6 +2184,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = VarName[player.lives]
         if (StrComp(caseValue, "VarName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int v = 0;
             for (; v < globalVariablesCount; ++v) {
@@ -2194,6 +2203,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = AchievementName[Ring King]
         if (StrComp(caseValue, "AchievementName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int a = 0;
             for (; a < achievementCount; ++a) {
@@ -2223,6 +2233,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = PlayerName[SONIC]
         if (StrComp(caseValue, "PlayerName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int p = 0;
             for (; p < PLAYER_COUNT; ++p) {
@@ -2252,6 +2263,7 @@ void CheckCaseNumber(char *text)
         // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
         if (StrComp(caseValue, "StageName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int s = -1;
             if (StrLength(arrayStr) >= 2) {
@@ -2341,6 +2353,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(caseValue, "TypeName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int o = 0;
                 for (; o < OBJECT_COUNT; ++o) {
@@ -2358,6 +2371,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = SfxName[Jump]
             if (StrComp(caseValue, "SfxName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
@@ -2376,6 +2390,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = VarName[player.lives]
             if (StrComp(caseValue, "VarName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int v = 0;
                 for (; v < globalVariablesCount; ++v) {
@@ -2393,6 +2408,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(caseValue, "AchievementName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int a = 0;
                 for (; a < achievementCount; ++a) {
@@ -2421,6 +2437,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(caseValue, "PlayerName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int p = 0;
                 for (; p < PLAYER_COUNT; ++p) {
@@ -2449,6 +2466,7 @@ bool ReadSwitchCase(char *text)
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(caseValue, "StageName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int s = -1;
                 if (StrLength(arrayStr) >= 2) {
