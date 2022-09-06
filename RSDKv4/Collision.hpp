@@ -1,7 +1,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 
-enum CollisionSidess {
+enum CollisionSides {
     CSIDE_FLOOR = 0,
     CSIDE_LWALL = 1,
     CSIDE_RWALL = 2,
