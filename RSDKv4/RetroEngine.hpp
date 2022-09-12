@@ -272,21 +272,12 @@ enum RetroGameType {
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
-#if RETRO_USING_SDL2
 #include <SDL.h>
-#elif RETRO_USING_SDL1
-#include <SDL.h>
-#endif
 #include <vorbis/vorbisfile.h>
 #elif RETRO_PLATFORM == RETRO_OSX
 #include <SDL2/SDL.h>
 #include <Vorbis/vorbisfile.h>
-
 #include "cocoaHelpers.hpp"
-
-#elif RETRO_USING_SDL2
-#include <SDL2/SDL.h>
-#include <vorbis/vorbisfile.h>
 #else
 
 #endif

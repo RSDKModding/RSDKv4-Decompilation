@@ -1,8 +1,10 @@
-SDL2: https://www.libsdl.org/download-2.0.php
+SDL2: https://github.com/libsdl-org/SDL/releases
 download the appropriate development library for your compiler and unzip it in "./SDL2/"
 
-SDL1 (optional, use SDL2 if you're unsure): https://libsdl.org/download-1.2.php
-download the appropriate development library for your compiler and unzip it in "./SDL1/"
+SDL1 (optional, use SDL2 if you're unsure): https://github.com/wolfysdl/SDL-Archive
+Look for SDL 1.2.15(devel) and download the appropriate development library for your compiler and unzip it in "./SDL1/"
+Warning this link above is deprecated use the other instead of this one: 
+https://libsdl.org/download-1.2.php
 
 libogg: https://xiph.org/downloads/ (libogg)
 download libogg and unzip it in "./libogg/", then build the static library
