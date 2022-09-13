@@ -38,7 +38,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 
 # How to build
 ## Windows
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution.
+* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution.
 * Alternatively, you can grab a prebuilt executable from the releases section.
 
 ## Windows via MSYS2 (64-bit Only)
@@ -53,7 +53,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Windows UWP (Phone, Xbox, etc.)
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
+* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) and [dependencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
 * Copy your `Data.rsdk` file into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `RSDKv4.UWP.sln`.
 * You may also need to generate visual assets. To do so, open the Package.appxmanifest file in the designer. Under the Visual Assets tab, select an image of your choice, and click generate.
 
@@ -71,11 +71,11 @@ If you want to transfer your save(s) from the official mobile version(s), the **
     * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Mac
-* Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
+* Clone the repo, follow the instructions in the [dependencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
 * A Mac build of v1.3.0 by [Sappharad](https://github.com/Sappharad) can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac).
 
 ## Android
-* Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
+* Clone the repo, then follow the instructions in the [dependencies readme for Android](./dependencies/android/dependencies.txt).
 * Ensure the symbolic links in `android/app/jni` are correct. If not, fix them with the following on Windows:
   * `mklink /D src ..\..\..`
   * `mklink /D SDL ..\..\..\dependencies\android\SDL`
