@@ -3,12 +3,13 @@
     "runtime": "org.freedesktop.Platform",
     "runtime-version": "21.08",
     "sdk": "org.freedesktop.Sdk",
-    "command": "RSDKv4",
+    "command": "run.sh",
     "finish-args": [
         "--share=ipc",
         "--socket=x11",
         "--socket=wayland",
         "--socket=pulseaudio",
+        "--persist=.",
         "--device=all"
     ],
     "modules": [
@@ -18,15 +19,14 @@
             "name": "sonic1",
             "no-autogen": true,
             "make-args": [
-                "prefix=/app",
-                "BASE_PATH=/app/share/sonic1/"
+                "prefix=/app"
             ],
             "make-install-args": [
-                "prefix=/app",
-                "BASE_PATH=/app/share/sonic1/"
+                "prefix=/app"
             ],
             "post-install": [
                 "install -Dp -m 644 Sonic1u.rsdk /app/share/sonic1/Data.rsdk",
+                "install -Dp -m 744 run.sh /app/bin/run.sh",
                 "install -Dp -m 644 com.sega.Sonic1.desktop /app/share/applications/com.sega.Sonic1.desktop",
                 "install -Dp -m 644 com.sega.Sonic1.svg /app/share/icons/hicolor/256x256/apps/com.sega.Sonic1.svg",
                 "install -Dp -m 644 com.sega.Sonic1.appdata.xml /app/share/appdata/com.sega.Sonic1.appdata.xml"
@@ -40,6 +40,10 @@
                 {
                     "type": "file",
                     "path": "Sonic1u.rsdk"
+                },
+                {
+                    "type": "file",
+                    "path": "run.sh"
                 },
                 {
                     "type": "file",
