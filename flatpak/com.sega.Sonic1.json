@@ -1,7 +1,7 @@
 {
     "app-id": "com.sega.Sonic1",
     "runtime": "org.freedesktop.Platform",
-    "runtime-version": "21.08",
+    "runtime-version": "22.08",
     "sdk": "org.freedesktop.Sdk",
     "command": "run.sh",
     "finish-args": [
@@ -35,8 +35,8 @@
             "sources": [
                 {
                     "type": "git",
-                    "url": "https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git",
-                    "branch": "main"
+                    "url": "https://github.com/wof8317/Sonic-1-2-2013-Decompilation.git",
+                    "branch": "experiment"
                 },
                 {
                     "type": "file",
