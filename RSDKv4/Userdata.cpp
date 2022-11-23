@@ -774,7 +774,7 @@ void WriteSettings()
 
 #if RETRO_USING_SDL2
     ini.SetComment("Keyboard 1", "IK1Comment",
-                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
+                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL2/SDLScancodeLookup.mediawiki)");
 #endif
 #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
@@ -796,7 +796,7 @@ void WriteSettings()
 
 #if RETRO_USING_SDL2
     ini.SetComment("Controller 1", "IC1Comment",
-                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL_GameControllerButton.mediawiki)");
+                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL2/SDL_GameControllerButton.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
     ini.SetComment("Controller 1", "IC1Comment3", "CONTROLLER_BUTTON_ZL             = 16");
     ini.SetComment("Controller 1", "IC1Comment4", "CONTROLLER_BUTTON_ZR             = 17");
