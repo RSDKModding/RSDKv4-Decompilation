@@ -29,9 +29,9 @@ ChannelInfo sfxChannels[CHANNEL_COUNT];
 
 int currentMusicTrack = -1;
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
 SDL_AudioDeviceID audioDevice;
 #endif
 SDL_AudioSpec audioDeviceFormat;
@@ -49,7 +49,7 @@ int InitAudioPlayback()
     StopAllSfx(); //"init"
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_AudioSpec want;
     want.freq     = AUDIO_FREQUENCY;
     want.format   = AUDIO_FORMAT;
@@ -57,7 +57,18 @@ int InitAudioPlayback()
     want.channels = AUDIO_CHANNELS;
     want.callback = ProcessAudioPlayback;
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL3
+    if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
+        audioEnabled = true;
+        SDL_PauseAudioDevice(audioDevice, 0);
+    }
+    else {
+        PrintLog("Unable to open audio device: %s", SDL_GetError());
+        audioEnabled = false;
+        return true;
+    }
+
+#elif RETRO_USING_SDL2
     if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
         audioEnabled = true;
         SDL_PauseAudioDevice(audioDevice, 0);
@@ -208,6 +219,38 @@ void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted)
     switch (musicStatus) {
         case MUSIC_READY:
         case MUSIC_PLAYING: {
+#if RETRO_USING_SDL3
+            while (musicStatus == MUSIC_PLAYING && streamInfoPtr->stream && SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
+                // We need more samples: get some
+                long bytes_read = ov_read(&streamInfoPtr->vorbisFile, (char *)streamInfoPtr->buffer, sizeof(streamInfoPtr->buffer), 0, 2, 1,
+                                          &streamInfoPtr->vorbBitstream);
+
+                if (bytes_read == 0) {
+                    // We've reached the end of the file
+                    if (streamInfoPtr->trackLoop) {
+                        ov_pcm_seek(&streamInfoPtr->vorbisFile, streamInfoPtr->loopPoint);
+                        continue;
+                    }
+                    else {
+                        musicStatus = MUSIC_STOPPED;
+                        break;
+                    }
+                }
+
+                if (musicStatus != MUSIC_PLAYING
+                    || (streamInfoPtr->stream && SDL_AudioStreamPut(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_read) == -1))
+                    return;
+            }
+
+            // Now that we know there are enough samples, read them and mix them
+            int bytes_done = SDL_AudioStreamGet(streamInfoPtr->stream, streamInfoPtr->buffer, (int)bytes_wanted);
+            if (bytes_done == -1) {
+                return;
+            }
+            if (bytes_done != 0)
+                ProcessAudioMixing(stream, streamInfoPtr->buffer, bytes_done / sizeof(Sint16), (bgmVolume * masterVolume) / MAX_VOLUME, 0);
+#endif
+
 #if RETRO_USING_SDL2
             while (musicStatus == MUSIC_PLAYING && streamInfoPtr->stream && SDL_AudioStreamAvailable(streamInfoPtr->stream) < bytes_wanted) {
                 // We need more samples: get some
@@ -367,7 +410,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
                     }
                 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
                 ProcessAudioMixing(mix_buffer, buffer, (int)samples_done, sfxVolume, sfx->pan);
 #endif
             }
@@ -392,7 +435,7 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
     }
 }
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
 void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sbyte pan)
 {
     if (volume == 0)
@@ -474,7 +517,7 @@ void LoadMusic(void *userdata)
 
             samples = (unsigned long long)ov_pcm_total(&strmInfo->vorbisFile, -1);
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
             strmInfo->stream = SDL_NewAudioStream(AUDIO_S16, strmInfo->vorbisFile.vi->channels, (int)strmInfo->vorbisFile.vi->rate,
                                                   audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
             if (!strmInfo->stream)

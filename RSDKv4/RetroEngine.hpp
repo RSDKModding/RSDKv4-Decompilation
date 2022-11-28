@@ -93,10 +93,12 @@ typedef unsigned int uint;
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_UWP                       \
     || RETRO_PLATFORM == RETRO_ANDROID
 #define RETRO_USING_SDL1 (0)
-#define RETRO_USING_SDL2 (1)
+#define RETRO_USING_SDL2 (0)
+#define RETRO_USING_SDL3 (1) // Experimental
 #else // Since its an else & not an elif these platforms probably aren't supported yet
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (0)
+#define RETRO_USING_SDL3 (0)
 #endif
 
 #if RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_WP7
@@ -276,6 +278,8 @@ enum RetroGameType {
 #include <SDL.h>
 #elif RETRO_USING_SDL1
 #include <SDL.h>
+#elif RETRO_USING_SDL3
+#include <SDL3/SDL.h>
 #endif
 #include <vorbis/vorbisfile.h>
 #elif RETRO_PLATFORM == RETRO_OSX
@@ -286,6 +290,10 @@ enum RetroGameType {
 
 #elif RETRO_USING_SDL2
 #include <SDL2/SDL.h>
+#include <vorbis/vorbisfile.h>
+
+#elif RETRO_USING_SDL3
+#include <SDL3/SDL.h>
 #include <vorbis/vorbisfile.h>
 #else
 
@@ -465,7 +473,7 @@ public:
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_Window *window = nullptr;
 #if !RETRO_USING_OPENGL
     SDL_Renderer *renderer = nullptr;
