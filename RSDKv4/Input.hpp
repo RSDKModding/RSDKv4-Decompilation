@@ -88,7 +88,7 @@ extern int lastMouseY;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
 // Easier this way
 enum ExtraSDLButtons {
     SDL_CONTROLLER_BUTTON_ZL = SDL_CONTROLLER_BUTTON_MAX + 1,

@@ -57,7 +57,7 @@ int InitRenderDevice()
     sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile_Config ? "" : " (Using Data Folder)");
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_DisableScreenSaver();
@@ -317,7 +317,7 @@ void FlipScreen()
     }
 
 #if RETRO_SOFTWARE_RENDER && !RETRO_USING_OPENGL
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
@@ -528,7 +528,7 @@ void ReleaseRenderDevice()
         delete[] Engine.frameBuffer;
     if (Engine.frameBuffer2x)
         delete[] Engine.frameBuffer2x;
-#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
+#if (RETRO_USING_SDL2 || RETRO_USING_SDL3) && !RETRO_USING_OPENGL
     SDL_DestroyTexture(Engine.screenBuffer);
     Engine.screenBuffer = NULL;
 #endif
@@ -545,7 +545,7 @@ void ReleaseRenderDevice()
         SDL_GL_DeleteContext(Engine.glContext);
 #endif
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
 #if !RETRO_USING_OPENGL
     SDL_DestroyRenderer(Engine.renderer);
 #endif
@@ -929,7 +929,7 @@ void SetFullScreen(bool fs)
         Engine.windowSurface =
             SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE | SDL_FULLSCREEN);
         SDL_ShowCursor(SDL_FALSE);
-#elif RETRO_USING_SDL2
+#elif RETRO_USING_SDL2 || RETRO_USING_SDL3
         SDL_RestoreWindow(Engine.window);
         SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_FALSE);
@@ -968,7 +968,7 @@ void SetFullScreen(bool fs)
 #if RETRO_USING_SDL1
         Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE);
         SDL_ShowCursor(SDL_TRUE);
-#elif RETRO_USING_SDL2
+#elif RETRO_USING_SDL2 || RETRO_USING_SDL3
         SDL_SetWindowFullscreen(Engine.window, false);
         SDL_ShowCursor(SDL_TRUE);
         SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);

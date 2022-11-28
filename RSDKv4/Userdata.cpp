@@ -289,7 +289,7 @@ void InitUserdata()
         ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
         ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
         ini.SetInteger("Keyboard 1", "Up", inputDevice[INPUT_UP].keyMappings = SDL_SCANCODE_UP);
         ini.SetInteger("Keyboard 1", "Down", inputDevice[INPUT_DOWN].keyMappings = SDL_SCANCODE_DOWN);
         ini.SetInteger("Keyboard 1", "Left", inputDevice[INPUT_LEFT].keyMappings = SDL_SCANCODE_LEFT);
@@ -462,7 +462,7 @@ void InitUserdata()
         if (sfxVolume < 0)
             sfxVolume = 0;
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
         if (!ini.GetInteger("Keyboard 1", "Up", &inputDevice[INPUT_UP].keyMappings))
             inputDevice[INPUT_UP].keyMappings = SDL_SCANCODE_UP;
         if (!ini.GetInteger("Keyboard 1", "Down", &inputDevice[INPUT_DOWN].keyMappings))
@@ -601,7 +601,7 @@ void InitUserdata()
 #endif
     }
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     // Support for extra controller types SDL doesn't recognise
 #if RETRO_PLATFORM == RETRO_UWP
     if (!usingCWD)
@@ -722,7 +722,7 @@ void WriteSettings()
     ini.SetFloat("Audio", "BGMVolume", bgmVolume / (float)MAX_VOLUME);
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     ini.SetComment("Keyboard 1", "IK1Comment",
                    "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
 #endif
@@ -744,7 +744,7 @@ void WriteSettings()
     ini.SetInteger("Keyboard 1", "Start", inputDevice[INPUT_START].keyMappings);
     ini.SetInteger("Keyboard 1", "Select", inputDevice[INPUT_SELECT].keyMappings);
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     ini.SetComment("Controller 1", "IC1Comment",
                    "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL_GameControllerButton.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
@@ -1279,7 +1279,7 @@ void SetScreenWidth(int *width, int *unused)
 #if RETRO_PLATFORM != RETRO_ANDROID
     SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 #endif
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     InitRenderDevice();
 #endif
 
@@ -1294,7 +1294,7 @@ void SetScreenWidth(int *width, int *unused)
 void SetWindowScale(int *scale, int *unused)
 {
     Engine.windowScale = *scale;
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 #endif
 
@@ -1316,7 +1316,7 @@ void SetWindowFullScreen(int *fullscreen, int *unused)
 void SetWindowBorderless(int *borderless, int *unused)
 {
     Engine.borderless = *borderless;
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_RestoreWindow(Engine.window);
     SDL_SetWindowBordered(Engine.window, Engine.borderless ? SDL_FALSE : SDL_TRUE);
 #endif

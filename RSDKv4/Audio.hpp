@@ -16,7 +16,7 @@
 
 #define MIX_BUFFER_SAMPLES (256)
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
 
 #define LockAudioDevice()   SDL_LockAudio()
 #define UnlockAudioDevice() SDL_UnlockAudio()
@@ -38,7 +38,7 @@ struct StreamInfo {
 #if RETRO_USING_SDL1
     SDL_AudioSpec spec;
 #endif
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_AudioStream *stream;
 #endif
     Sint16 buffer[MIX_BUFFER_SAMPLES];
@@ -103,14 +103,14 @@ extern char sfxNames[SFX_COUNT][0x40];
 
 extern ChannelInfo sfxChannels[CHANNEL_COUNT];
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
 extern SDL_AudioSpec audioDeviceFormat;
 #endif
 
 int InitAudioPlayback();
 void LoadGlobalSfx();
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
 #if !RETRO_USE_ORIGINAL_CODE
 // These functions did exist, but with different signatures
 void ProcessMusicStream(Sint32 *stream, size_t bytes_wanted);
@@ -123,7 +123,7 @@ inline void freeMusInfo()
 {
     LockAudioDevice();
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     if (streamInfo[currentStreamIndex].stream)
         SDL_FreeAudioStream(streamInfo[currentStreamIndex].stream);
     streamInfo[currentStreamIndex].stream = NULL;
@@ -131,7 +131,7 @@ inline void freeMusInfo()
 
     ov_clear(&streamInfo[currentStreamIndex].vorbisFile);
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     streamInfo[currentStreamIndex].stream = nullptr;
 #endif
 

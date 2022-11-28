@@ -32,11 +32,11 @@ inline int getLowerRate(int intendRate, int targetRate)
 bool processEvents()
 {
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
     while (SDL_PollEvent(&Engine.sdlEvents)) {
         // Main Events
         switch (Engine.sdlEvents.type) {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
             case SDL_WINDOWEVENT:
                 switch (Engine.sdlEvents.window.event) {
                     case SDL_WINDOWEVENT_MAXIMIZED: {
@@ -74,7 +74,7 @@ bool processEvents()
             case SDL_APP_TERMINATING: return false;
 #endif
 
-#if RETRO_USING_SDL2 && defined(RETRO_USING_MOUSE)
+#if (RETRO_USING_SDL2 || RETRO_USING_SDL3) && defined(RETRO_USING_MOUSE)
             case SDL_MOUSEMOTION:
                 if (touches <= 1) { // Touch always takes priority over mouse
                     uint state = SDL_GetMouseState(&touchX[0], &touchY[0]);
@@ -107,7 +107,7 @@ bool processEvents()
                 break;
 #endif
 
-#if defined(RETRO_USING_TOUCH) && RETRO_USING_SDL2
+#if defined(RETRO_USING_TOUCH) && (RETRO_USING_SDL2 || RETRO_USING_SDL3)
             case SDL_FINGERMOTION:
             case SDL_FINGERDOWN:
             case SDL_FINGERUP: {
@@ -537,7 +537,7 @@ void RetroEngine::Run()
                 FlipScreen();
 
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_OPENGL && RETRO_USING_SDL2
+#if RETRO_USING_OPENGL && (RETRO_USING_SDL2 || RETRO_USING_SDL3)
                 SDL_GL_SwapWindow(Engine.window);
 #endif
                 frameStep = false;
@@ -573,7 +573,7 @@ void RetroEngine::Run()
 #endif
 #endif
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_Quit();
 #endif
 }

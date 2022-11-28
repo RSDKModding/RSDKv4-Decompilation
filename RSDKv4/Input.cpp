@@ -31,7 +31,7 @@ int lastMouseX     = 0;
 int lastMouseY     = 0;
 
 struct InputDevice {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_GameController *devicePtr;
     SDL_Haptic *hapticPtr;
 #endif
@@ -49,7 +49,7 @@ byte keyState[SDLK_LAST];
 
 #define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
 bool getControllerButton(byte buttonID)
 {
     bool pressed = false;
@@ -204,7 +204,7 @@ bool getControllerButton(byte buttonID)
 
     return pressed;
 }
-#endif //! RETRO_USING_SDL2
+#endif //! RETRO_USING_SDL2 or RETRO_USING_SDL3
 
 void controllerInit(byte controllerID)
 {
@@ -214,7 +214,7 @@ void controllerInit(byte controllerID)
         }
     }
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         InputDevice device;
@@ -241,7 +241,7 @@ void controllerInit(byte controllerID)
 
 void controllerClose(byte controllerID)
 {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
@@ -249,7 +249,7 @@ void controllerClose(byte controllerID)
         for (int i = 0; i < controllers.size(); ++i) {
             if (controllers[i].id == controllerID) {
                 controllers.erase(controllers.begin() + controllerID);
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
                 if (controllers[i].hapticPtr) {
                     SDL_HapticClose(controllers[i].hapticPtr);
                 }
@@ -257,7 +257,7 @@ void controllerClose(byte controllerID)
                 break;
             }
         }
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     }
 #endif
 
@@ -267,7 +267,7 @@ void controllerClose(byte controllerID)
 
 void InitInputDevices()
 {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     PrintLog("Initializing gamepads...");
 
     // fix for issue #334 on github, not sure what's going wrong, but it seems to not be initializing the gamepad api maybe?
@@ -303,7 +303,7 @@ void InitInputDevices()
 void ReleaseInputDevices()
 {
     for (int i = 0; i < controllers.size(); i++) {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
         if (controllers[i].devicePtr)
             SDL_GameControllerClose(controllers[i].devicePtr);
         if (controllers[i].hapticPtr)
@@ -315,7 +315,7 @@ void ReleaseInputDevices()
 
 void ProcessInput()
 {
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     int length           = 0;
     const byte *keyState = SDL_GetKeyboardState(&length);
 

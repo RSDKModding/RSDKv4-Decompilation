@@ -413,7 +413,7 @@ void RefreshEngine()
 {
     // Reload entire engine
     Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 || RETRO_USING_SDL3
     if (Engine.window) {
         char gameTitle[0x40];
         sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile_Config ? "" : " (Using Data Folder)");
