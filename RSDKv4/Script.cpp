@@ -2,20 +2,11 @@
 #include <cmath>
 
 #if RETRO_USE_COMPILER
-#if RETRO_USE_ORIGINAL_CODE
 
 #if !RETRO_REV00
 #define COMMON_SCRIPT_VAR_COUNT (34)
 #else
 #define COMMON_SCRIPT_VAR_COUNT (33)
-#endif
-
-#else
-
-#if !RETRO_REV00
-#define COMMON_SCRIPT_VAR_COUNT (110)
-#else
-#define COMMON_SCRIPT_VAR_COUNT (109)
 #endif
 
 #endif
