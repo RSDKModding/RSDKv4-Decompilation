@@ -2,13 +2,11 @@
 #include <cmath>
 
 #if RETRO_USE_COMPILER
-
 #if !RETRO_REV00
 #define COMMON_SCRIPT_VAR_COUNT (34)
 #else
 #define COMMON_SCRIPT_VAR_COUNT (33)
 #endif
-
 #endif
 
 #define SCRIPT_VAR_COUNT (COMMON_SCRIPT_VAR_COUNT + 0x1DF)
@@ -39,7 +37,6 @@ struct ScriptVariableInfo {
     char name[0x20];
     char value[0x20];
 };
-#endif
 
 struct FunctionInfo {
     FunctionInfo()
