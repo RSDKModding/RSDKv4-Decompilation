@@ -177,7 +177,7 @@ void PlayerSelectScreen_Main(void *objPtr)
             }
             break;
 
-        case 2:
+        case PLAYERSELECTSCREEN_STATE_ACTION:
             SetRenderMatrix(&self->matrixTemp);
 
             self->timer2 += Engine.deltaTime;

@@ -115,9 +115,12 @@ void PauseMenu_Create(void *objPtr)
         default: break;
     }
 #endif
+
     pauseMenuButtonCount = PMB_COUNT;
-    if (PMB_COUNT == 5 && !Engine.devMenu)
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!Engine.devMenu)
         pauseMenuButtonCount--;
+#endif
 
     self->retroGameLoop = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
     self->label         = CREATE_ENTITY(TextLabel);
@@ -158,8 +161,9 @@ void PauseMenu_Create(void *objPtr)
     SetStringToFont(self->buttons[PMB_RESTART]->text, strRestart, FONT_LABEL);
     SetStringToFont(self->buttons[PMB_SETTINGS]->text, strSettings, FONT_LABEL);
     SetStringToFont(self->buttons[PMB_EXIT]->text, strExit, FONT_LABEL);
-    if (pauseMenuButtonCount == 5)
-        SetStringToFont(self->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
+#if !RETRO_USE_ORIGINAL_CODE
+    SetStringToFont(self->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
+#endif
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     self->rotationY     = 0.0;
     self->rotYOff       = DegreesToRad(-16.0);

@@ -2,7 +2,7 @@
 
 byte timeAttackTex;
 
-int timeAttack_ZoneCount   = 12;
+int timeAttack_ZoneCount   = 11;
 int timeAttack_ActCount    = 2;
 int timeAttack_ExZoneCount = 2;
 
@@ -22,7 +22,14 @@ void TimeAttack_Create(void *objPtr)
         actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 1;
     }
     else {
-        timeAttack_ZoneCount   = 12;
+        timeAttack_ZoneCount   = 11;
+#if !RETRO_USE_ORIGINAL_CODE
+        FileInfo info;
+        if (LoadFile("Data/Stages/ZoneM/StageConfig.bin", &info)) {
+            timeAttack_ZoneCount++;
+            CloseFile();
+        }
+#endif
         timeAttack_ActCount    = 2;
         timeAttack_ExZoneCount = 0;
         actCount               = timeAttack_ZoneCount * timeAttack_ActCount;
