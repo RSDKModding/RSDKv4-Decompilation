@@ -22,7 +22,7 @@ void TimeAttack_Create(void *objPtr)
         actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 1;
     }
     else {
-        timeAttack_ZoneCount   = 11;
+        timeAttack_ZoneCount = 11;
 #if !RETRO_USE_ORIGINAL_CODE
         FileInfo info;
         if (LoadFile("Data/Stages/ZoneM/StageConfig.bin", &info)) {

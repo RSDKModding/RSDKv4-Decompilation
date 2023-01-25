@@ -626,7 +626,12 @@ void RecordsScreen_Main(void *objPtr)
                     }
                     else {
                         if (z < 9) {
+#if !RETRO_USE_ORIGINAL_CODE
+                            if (z < 11)
+                                for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#else
                             for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#endif
                             pos += timeAttack_ActCount;
                         }
                         else {
