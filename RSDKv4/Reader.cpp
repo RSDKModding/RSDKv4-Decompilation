@@ -228,6 +228,8 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
             fileInfo->usingDataPack     = true;
             PrintLog("Loaded Data File '%s'", filePath);
 
+            Engine.usingDataFile = true;
+
             return true;
         }
 #else
