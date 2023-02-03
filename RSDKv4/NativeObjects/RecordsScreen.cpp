@@ -95,7 +95,9 @@ void RecordsScreen_Main(void *objPtr)
                         case 8: self->recordOffset = (timeAttack_ActCount * 8) + 1; break;
                         case 9: self->recordOffset = 22; break;
                         case 10: self->recordOffset = 20; break;
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11: self->recordOffset = 23; break;
+#endif
                     }
                 }
             }
@@ -105,10 +107,12 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: break;
                     case 9:
+#if !RETRO_USE_ORIGINAL_CODE
                     case 11:
                         self->timeAttackU = timeAttackU[0];
                         self->timeAttackV = timeAttackV[0];
                         break;
+#endif
                     case 10:
                         self->timeAttackU = timeAttackU[1];
                         self->timeAttackV = timeAttackV[1];
@@ -388,10 +392,12 @@ void RecordsScreen_Main(void *objPtr)
                     switch (self->zoneID) {
                         default: break;
                         case 9:
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11:
                             self->timeAttackU = timeAttackU[0];
                             self->timeAttackV = timeAttackV[0];
                             break;
+#endif
                         case 10:
                             self->timeAttackU = timeAttackU[1];
                             self->timeAttackV = timeAttackV[1];
@@ -498,7 +504,9 @@ void RecordsScreen_Main(void *objPtr)
                         default: break;
                         case 9: InitStartingStage(STAGELIST_BONUS, 1, 0); break;
                         case 10: InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount, 0); break;
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11: InitStartingStage(STAGELIST_BONUS, 0, 0); break;
+#endif
                     }
                 }
                 else
@@ -618,7 +626,12 @@ void RecordsScreen_Main(void *objPtr)
                     }
                     else {
                         if (z < 9) {
+#if !RETRO_USE_ORIGINAL_CODE
+                            if (z < 11)
+                                for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#else
                             for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#endif
                             pos += timeAttack_ActCount;
                         }
                         else {

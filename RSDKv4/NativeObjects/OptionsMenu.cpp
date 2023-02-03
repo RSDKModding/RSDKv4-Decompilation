@@ -105,6 +105,10 @@ void OptionsMenu_Main(void *objPtr)
                         self->buttons[self->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->selectedButton]->b     = 0xFF;
                         self->state                                = OPTIONSMENU_STATE_ACTION;
+#if !RETRO_USE_ORIGINAL_CODE
+                        if (Engine.devMenu && self->selectedButton == OPTIONSMENU_BUTTON_INSTRUCTIONS)
+                            StopMusic(true);
+#endif
                     }
                 }
             }
@@ -152,16 +156,27 @@ void OptionsMenu_Main(void *objPtr)
         case OPTIONSMENU_STATE_ACTION: {
             self->menuControl->state = MENUCONTROL_STATE_NONE;
             if (!self->buttons[self->selectedButton]->state) {
-                self->state = OPTIONSMENU_STATE_ENTERSUBMENU;
+#if !RETRO_USE_ORIGINAL_CODE
+                if (!Engine.devMenu || self->selectedButton != OPTIONSMENU_BUTTON_INSTRUCTIONS) {
+#endif
+                    self->state = OPTIONSMENU_STATE_ENTERSUBMENU;
 
-                self->labelRotateYVelocity = 0.0;
-                self->targetLabelRotateY   = DegreesToRad(-90.0);
-                for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) self->targetButtonRotateY[i] = DegreesToRad(-90.0);
-                float val = 0.02;
-                for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) {
-                    self->buttonRotateYVelocity[i] = val;
-                    val += 0.02;
+                    self->labelRotateYVelocity = 0.0;
+                    self->targetLabelRotateY   = DegreesToRad(-90.0);
+                    for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) self->targetButtonRotateY[i] = DegreesToRad(-90.0);
+                    float val = 0.02;
+                    for (int i = 0; i < OPTIONSMENU_BUTTON_COUNT; ++i) {
+                        self->buttonRotateYVelocity[i] = val;
+                        val += 0.02;
+                    }
+#if !RETRO_USE_ORIGINAL_CODE
                 }
+                else {
+                    self->state = OPTIONSMENU_STATE_SUBMENU;
+                    CREATE_ENTITY(FadeScreen);
+                    Engine.gameMode = ENGINE_INITDEVMENU;
+                }
+#endif
             }
             break;
         }
@@ -203,19 +218,8 @@ void OptionsMenu_Main(void *objPtr)
                 switch (self->selectedButton) {
                     default: break;
                     case OPTIONSMENU_BUTTON_INSTRUCTIONS:
-#if !RETRO_USE_ORIGINAL_CODE
-                        if (!Engine.devMenu) {
-                            self->instructionsScreen              = CREATE_ENTITY(InstructionsScreen);
-                            self->instructionsScreen->optionsMenu = self;
-                        }
-                        else {
-                            CREATE_ENTITY(FadeScreen);
-                            Engine.gameMode = ENGINE_INITDEVMENU;
-                        }
-#else
                         self->instructionsScreen              = CREATE_ENTITY(InstructionsScreen);
                         self->instructionsScreen->optionsMenu = self;
-#endif
                         break;
                     case OPTIONSMENU_BUTTON_SETTINGS:
                         self->settingsScreen              = CREATE_ENTITY(SettingsScreen);
