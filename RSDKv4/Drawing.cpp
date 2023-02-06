@@ -605,9 +605,9 @@ void SetScreenDimensions(int width, int height)
     // if (val > displaySettings.maxWidth)
     //    val = displaySettings.maxWidth;
 #if !RETRO_USE_ORIGINAL_CODE
-    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
-#else
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
+#else
+    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
 #endif
 
     int width2 = 0;
@@ -751,9 +751,9 @@ void SetupViewport()
 #endif
     int displayWidth = aspect * SCREEN_YSIZE;
 #if !RETRO_USE_ORIGINAL_CODE
-    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
-#else
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
+#else
+    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
 #endif
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
