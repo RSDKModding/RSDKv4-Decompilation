@@ -165,7 +165,7 @@ void SetAchievement(int *achievementID, int *status);
 void AwardAchievement(int id, int status);
 #if RETRO_USE_MOD_LOADER
 void AddGameAchievement(int *unused, const char *name);
-void SetAchievementDescription(int *id, const char *desc);
+void SetAchievementDescription(uint *id, const char *desc);
 void ClearAchievements();
 void GetAchievementCount();
 void GetAchievementName(uint *id, int *textMenu);
@@ -218,10 +218,16 @@ void GetScreenWidth();
 void SetScreenWidth(int *width, int *unused);
 void GetWindowScale();
 void SetWindowScale(int *scale, int *unused);
+void GetWindowScaleMode();
+void SetWindowScaleMode(int *mode, int *unused);
 void GetWindowFullScreen();
 void SetWindowFullScreen(int *fullscreen, int *unused);
 void GetWindowBorderless();
 void SetWindowBorderless(int *borderless, int *unused);
+void GetWindowVSync();
+void SetWindowVSync(int *enabled, int *unused);
+void ApplyWindowChanges();
+
 #endif
 
 #endif //! USERDATA_H

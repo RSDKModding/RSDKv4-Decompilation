@@ -292,54 +292,6 @@ void ScanModFolder(ModInfo *info)
         }
     }
 
-    // Check for Scripts/ replacements
-    fs::path scriptPath = resolvePath(modDir + "/Scripts");
-
-    if (fs::exists(scriptPath) && fs::is_directory(scriptPath)) {
-        try {
-            auto data_rdi = fs::recursive_directory_iterator(scriptPath);
-            for (auto &data_de : data_rdi) {
-                if (data_de.is_regular_file()) {
-                    char modBuf[0x100];
-                    StrCopy(modBuf, data_de.path().string().c_str());
-                    char folderTest[4][0x10] = {
-                        "Scripts/",
-                        "Scripts\\",
-                        "scripts/",
-                        "scripts\\",
-                    };
-                    int tokenPos = -1;
-                    for (int i = 0; i < 4; ++i) {
-                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
-                        if (tokenPos >= 0)
-                            break;
-                    }
-
-                    if (tokenPos >= 0) {
-                        char buffer[0x80];
-                        for (int i = StrLength(modBuf); i >= tokenPos; --i) {
-                            buffer[i - tokenPos] = modBuf[i] == '\\' ? '/' : modBuf[i];
-                        }
-
-                        // PrintLog(modBuf);
-                        std::string path(buffer);
-                        std::string modPath(modBuf);
-                        char pathLower[0x100];
-                        memset(pathLower, 0, sizeof(char) * 0x100);
-                        for (int c = 0; c < path.size(); ++c) {
-                            pathLower[c] = tolower(path.c_str()[c]);
-                        }
-
-                        info->fileMap.insert(std::pair<std::string, std::string>(pathLower, modBuf));
-                    }
-                }
-            }
-        } catch (fs::filesystem_error fe) {
-            PrintLog("Script Folder Scanning Error: ");
-            PrintLog(fe.what());
-        }
-    }
-
     // Check for Bytecode/ replacements
     fs::path bytecodePath = resolvePath(modDir + "/Bytecode");
 
@@ -561,6 +513,7 @@ void GetModActive(uint *id, int *unused)
     scriptEng.checkResult = false;
     if (*id >= modList.size())
         return;
+
     scriptEng.checkResult = modList[*id].active;
 }
 
@@ -570,6 +523,24 @@ void SetModActive(uint *id, int *active)
         return;
 
     modList[*id].active = *active;
+}
+
+void MoveMod(uint *id, int *up)
+{
+    if (!id || !up)
+        return;
+
+    int preOption = *id;
+    int option    = preOption + (*up ? -1 : 1);
+    if (option < 0 || preOption < 0)
+        return;
+
+    if (option >= (int)modList.size() || preOption >= (int)modList.size())
+        return;
+
+    ModInfo swap       = modList[preOption];
+    modList[preOption] = modList[option];
+    modList[option]    = swap;
 }
 
 #endif

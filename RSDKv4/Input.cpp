@@ -1,7 +1,7 @@
 #include "RetroEngine.hpp"
 
-InputData inputPress = InputData();
-InputData inputDown  = InputData();
+InputData keyPress = InputData();
+InputData keyDown  = InputData();
 
 int touchDown[8];
 int touchX[8];
@@ -488,8 +488,8 @@ void CheckKeyPress(InputData *input)
 #endif
 
 #if RETRO_REV03
-    SetGlobalVariableByName("input.pressButton", input->up || input->down || input->left || input->right || input->A || input->B || input->C
-                                                     || input->X || input->Y || input->Z || input->L || input->R || input->start || input->select);
+    SetGlobalVariableByName("input.pressButton", input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
+                                                     || input->start || input->select);
 #endif
 }
 

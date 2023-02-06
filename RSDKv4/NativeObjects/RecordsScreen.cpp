@@ -95,7 +95,9 @@ void RecordsScreen_Main(void *objPtr)
                         case 8: self->recordOffset = (timeAttack_ActCount * 8) + 1; break;
                         case 9: self->recordOffset = 22; break;
                         case 10: self->recordOffset = 20; break;
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11: self->recordOffset = 23; break;
+#endif
                     }
                 }
             }
@@ -105,10 +107,12 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: break;
                     case 9:
+#if !RETRO_USE_ORIGINAL_CODE
                     case 11:
                         self->timeAttackU = timeAttackU[0];
                         self->timeAttackV = timeAttackV[0];
                         break;
+#endif
                     case 10:
                         self->timeAttackU = timeAttackU[1];
                         self->timeAttackV = timeAttackV[1];
@@ -125,7 +129,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos = timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos = 6 * self->zoneID;
+                        pos = timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
@@ -179,8 +183,8 @@ void RecordsScreen_Main(void *objPtr)
         }
 
         case RECORDSSCREEN_STATE_MAIN: {
-            CheckKeyDown(&inputDown);
-            CheckKeyPress(&inputPress);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             SetRenderMatrix(&self->matrixTemp);
             if (!usePhysicalControls) {
                 if (touches <= 0) {
@@ -270,16 +274,16 @@ void RecordsScreen_Main(void *objPtr)
                 }
 
                 if (self->state == RECORDSSCREEN_STATE_MAIN) {
-                    if (inputDown.left) {
+                    if (keyDown.left) {
                         self->selectedButton = RECORDSSCREEN_BUTTON_NEXTACT;
                         usePhysicalControls  = true;
                     }
                     else {
-                        if (inputDown.right) {
+                        if (keyDown.right) {
                             self->selectedButton = RECORDSSCREEN_BUTTON_PLAY;
                             usePhysicalControls  = true;
                         }
-                        else if (inputPress.B) {
+                        else if (keyPress.B) {
                             PlaySfxByName("Menu Back", false);
                             self->backPressed = false;
                             self->state       = RECORDSSCREEN_STATE_EXIT;
@@ -297,7 +301,7 @@ void RecordsScreen_Main(void *objPtr)
                     self->backPressed    = false;
 
                     if (self->actCount > 1) {
-                        if (inputPress.left) {
+                        if (keyPress.left) {
                             PlaySfxByName("Menu Move", false);
                             self->selectedButton--;
                             if (self->selectedButton < 0) {
@@ -309,7 +313,7 @@ void RecordsScreen_Main(void *objPtr)
                                 self->flipRight = true;
                             }
                         }
-                        else if (inputPress.right) {
+                        else if (keyPress.right) {
                             PlaySfxByName("Menu Move", false);
                             self->selectedButton++;
                             if (self->selectedButton >= 2) {
@@ -327,7 +331,7 @@ void RecordsScreen_Main(void *objPtr)
                         self->buttons[self->selectedButton]->state = PUSHBUTTON_STATE_SELECTED;
                     }
 
-                    if (inputPress.start || inputPress.A) {
+                    if (keyPress.start || keyPress.A) {
                         if (self->selectedButton) {
                             PlaySfxByName("Menu Move", false);
                             self->state     = RECORDSSCREEN_STATE_FLIP;
@@ -340,7 +344,7 @@ void RecordsScreen_Main(void *objPtr)
                             self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                         }
                     }
-                    else if (inputPress.B) {
+                    else if (keyPress.B) {
                         PlaySfxByName("Menu Back", false);
                         self->backPressed = false;
                         self->state       = RECORDSSCREEN_STATE_EXIT;
@@ -356,7 +360,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * self->zoneID;
+                        pos += timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
@@ -388,10 +392,12 @@ void RecordsScreen_Main(void *objPtr)
                     switch (self->zoneID) {
                         default: break;
                         case 9:
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11:
                             self->timeAttackU = timeAttackU[0];
                             self->timeAttackV = timeAttackV[0];
                             break;
+#endif
                         case 10:
                             self->timeAttackU = timeAttackU[1];
                             self->timeAttackV = timeAttackV[1];
@@ -498,7 +504,9 @@ void RecordsScreen_Main(void *objPtr)
                         default: break;
                         case 9: InitStartingStage(STAGELIST_BONUS, 1, 0); break;
                         case 10: InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount, 0); break;
+#if !RETRO_USE_ORIGINAL_CODE
                         case 11: InitStartingStage(STAGELIST_BONUS, 0, 0); break;
+#endif
                     }
                 }
                 else
@@ -517,7 +525,7 @@ void RecordsScreen_Main(void *objPtr)
                 switch (self->zoneID) {
                     default: pos += timeAttack_ActCount * self->zoneID; break;
                     case 7: // special stage
-                        pos += 6 * self->zoneID;
+                        pos += timeAttack_ActCount * 6;
                         pos++;
                         break;
                 }
@@ -618,7 +626,12 @@ void RecordsScreen_Main(void *objPtr)
                     }
                     else {
                         if (z < 9) {
+#if !RETRO_USE_ORIGINAL_CODE
+                            if (z < 11)
+                                for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#else
                             for (int a = 0; a < timeAttack_ActCount; ++a) timeAttack->totalTime += saveGame->records[3 * (pos + a)];
+#endif
                             pos += timeAttack_ActCount;
                         }
                         else {

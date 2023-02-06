@@ -119,7 +119,7 @@ void ProcessAudioMixing(Sint32 *dst, const Sint16 *src, int len, int volume, sby
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
-inline void freeMusInfo()
+inline void FreeMusInfo()
 {
     LockAudioDevice();
 
@@ -144,7 +144,7 @@ void ProcessAudioPlayback() {}
 void ProcessAudioMixing() {}
 
 #if !RETRO_USE_ORIGINAL_CODE
-inline void freeMusInfo() { ov_clear(&streamInfo[currentStreamIndex].vorbisFile); }
+inline void FreeMusInfo() { ov_clear(&streamInfo[currentStreamIndex].vorbisFile); }
 #endif
 #endif
 
@@ -160,7 +160,7 @@ inline void StopMusic(bool setStatus)
 
 #if !RETRO_USE_ORIGINAL_CODE
     LockAudioDevice();
-    freeMusInfo();
+    FreeMusInfo();
     UnlockAudioDevice();
 #endif
 }

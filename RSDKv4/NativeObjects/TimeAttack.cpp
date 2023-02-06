@@ -2,8 +2,9 @@
 
 byte timeAttackTex;
 
-int timeAttack_ZoneCount = 12;
-int timeAttack_ActCount  = 2;
+int timeAttack_ZoneCount   = 11;
+int timeAttack_ActCount    = 2;
+int timeAttack_ExZoneCount = 2;
 
 void TimeAttack_Create(void *objPtr)
 {
@@ -14,18 +15,28 @@ void TimeAttack_Create(void *objPtr)
 
     int actCount = 0;
     if (Engine.gameType == GAME_SONIC1) {
-        timeAttack_ZoneCount = 8;
-        timeAttack_ActCount  = 3;
-        // GHZ-SBZ + FZ & 6 SS
-        actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 7;
+        timeAttack_ZoneCount   = 6;
+        timeAttack_ActCount    = 3;
+        timeAttack_ExZoneCount = 2;
+        // GHZ-SBZ + FZ
+        actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 1;
     }
     else {
-        timeAttack_ZoneCount = 12;
-        timeAttack_ActCount  = 2;
-        actCount             = timeAttack_ZoneCount * timeAttack_ActCount;
+        timeAttack_ZoneCount = 11;
+#if !RETRO_USE_ORIGINAL_CODE
+        FileInfo info;
+        if (LoadFile("Data/Stages/ZoneM/StageConfig.bin", &info)) {
+            timeAttack_ZoneCount++;
+            CloseFile();
+        }
+#endif
+        timeAttack_ActCount    = 2;
+        timeAttack_ExZoneCount = 0;
+        actCount               = timeAttack_ZoneCount * timeAttack_ActCount;
     }
 
     bool saveRAMUpdated = false;
+    // Regular Stages
     for (int i = 0; i < actCount * 3; i += 3) {
         // 1st
         if (!saveGame->records[i]) {
@@ -45,6 +56,33 @@ void TimeAttack_Create(void *objPtr)
             saveRAMUpdated           = true;
         }
     }
+
+    // Special Stages (S1 Only)
+    if (Engine.gameType == GAME_SONIC1) {
+        int offset            = actCount * 3;
+
+        int specialStageCount = 6;
+        for (int i = 0; i < specialStageCount * 3; i += 3) {
+            // 1st
+            if (!saveGame->records[offset + i]) {
+                saveGame->records[offset + i] = 30000;
+                saveRAMUpdated       = true;
+            }
+
+            // 2nd
+            if (!saveGame->records[offset + i + 1]) {
+                saveGame->records[offset + i + 1] = 30000;
+                saveRAMUpdated           = true;
+            }
+
+            // 3rd
+            if (!saveGame->records[offset + i + 2]) {
+                saveGame->records[offset + i + 2] = 30000;
+                saveRAMUpdated           = true;
+            }
+        }
+    }
+
     if (saveRAMUpdated)
         WriteSaveRAMData();
 
@@ -58,20 +96,9 @@ void TimeAttack_Create(void *objPtr)
 
         self->totalTime = 0;
         if (Engine.gameType == GAME_SONIC1) {
-            switch (z) {
-                default:
-                    for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += timeAttack_ActCount;
-                    break;
-                case 6: // final zone
-                    self->totalTime += saveGame->records[3 * pos];
-                    pos++;
-                    break;
-                case 7: // special stage
-                    for (int a = 0; a < 6; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += 6;
-                    break;
-            }
+            // Regular Stages (GHZ-SBZ)
+            for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
+            pos += timeAttack_ActCount;
         }
         else {
             if (z == 7) { // metropolis
@@ -97,24 +124,48 @@ void TimeAttack_Create(void *objPtr)
             x += 144.0;
     }
 
+    if (Engine.gameType == GAME_SONIC1) {
+        // final zone
+        int z                               = 6;
+        NativeEntity_ZoneButton *zoneButton = CREATE_ENTITY(ZoneButton);
+        self->zoneButtons[z]                = zoneButton;
+        zoneButton->x                       = x;
+        SetStringToFont(zoneButton->zoneText, strStageList[z], FONT_TEXT);
+
+        self->totalTime = 0;
+        self->totalTime += saveGame->records[3 * pos];
+        pos++;
+        SetStringToFont8(self->zoneButtons[z]->timeText, "", FONT_TEXT);
+        AddTimeStringToFont(self->zoneButtons[z]->timeText, self->totalTime, FONT_TEXT);
+        self->zoneButtons[z]->textWidth = GetTextWidth(self->zoneButtons[z]->zoneText, FONT_TEXT, 0.25) * 0.5;
+
+        if (!((z + 1) % 3))
+            x += 432.0;
+        else
+            x += 144.0;
+
+        // special stages
+        z                = 7;
+        zoneButton           = CREATE_ENTITY(ZoneButton);
+        self->zoneButtons[z] = zoneButton;
+        zoneButton->x        = x;
+        SetStringToFont(zoneButton->zoneText, strStageList[z], FONT_TEXT);
+
+        self->totalTime = 0;
+        for (int a = 0; a < 6; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
+        pos += 6;
+        SetStringToFont8(self->zoneButtons[z]->timeText, "", FONT_TEXT);
+        AddTimeStringToFont(self->zoneButtons[z]->timeText, self->totalTime, FONT_TEXT);
+        self->zoneButtons[z]->textWidth = GetTextWidth(self->zoneButtons[z]->zoneText, FONT_TEXT, 0.25) * 0.5;
+    }
+
     self->totalTime = 0;
     pos             = 0;
     for (int z = 0; z < timeAttack_ZoneCount; ++z) {
         if (Engine.gameType == GAME_SONIC1) {
-            switch (z) {
-                default:
-                    for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += timeAttack_ActCount;
-                    break;
-                case 6: // final zone
-                    self->totalTime += saveGame->records[3 * pos];
-                    pos++;
-                    break;
-                case 7: // special stage
-                    for (int a = 0; a < 6; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
-                    pos += 6;
-                    break;
-            }
+            // Regular Stages (GHZ-SBZ)
+            for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
+            pos += timeAttack_ActCount;
         }
         else {
             if (z == 7) { // metropolis
@@ -130,6 +181,16 @@ void TimeAttack_Create(void *objPtr)
                 pos++;
             }
         }
+    }
+
+    if (Engine.gameType == GAME_SONIC1) {
+        // final zone
+        self->totalTime += saveGame->records[3 * pos];
+        pos++;
+
+        // special stages
+        for (int a = 0; a < 6; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
+        pos += 6;
     }
 
     int zone = saveGame->unlockedActs;
@@ -155,15 +216,9 @@ void TimeAttack_Create(void *objPtr)
                 tx += 320.0f;
                 ty += 240.0f;
 
-                self->zoneButtons[i + 1]->texX = tx;
-                self->zoneButtons[i + 1]->texY = ty;
-
-                self->zoneButtons[i + 1]->unlocked = false;
-                if (zone > (timeAttack_ActCount * (i + 1)) + 1) {
-                    self->zoneButtons[i + 1]->unlocked = true;
-                }
-
                 ++i;
+                self->zoneButtons[i]->texX = tx;
+                self->zoneButtons[i]->texY = ty;
 
                 tx -= 320.0f;
                 tx -= 320.0f;
@@ -194,11 +249,27 @@ void TimeAttack_Create(void *objPtr)
                 }
             }
             else {
-                if (i == 11)
+                if (i == 11) // Boss Attack
                     self->zoneButtons[i]->unlocked = self->zoneButtons[i - 1]->unlocked;
-                if (i == 10)
+                if (i == 10) // HPZ
                     self->zoneButtons[i]->unlocked = saveGame->unlockedHPZ;
             }
+        }
+    }
+
+    if (Engine.gameType == GAME_SONIC1) {
+        // final zone
+        self->zoneButtons[6]->unlocked = false;
+        if (zone > timeAttack_ActCount * 6) { // if listPos == final zone OR complete
+            self->zoneButtons[6]->unlocked = true;
+        }
+
+        // special stages
+        self->zoneButtons[7]->texX     = tx;
+        self->zoneButtons[7]->texY     = ty;
+        self->zoneButtons[7]->unlocked = false;
+        if (zone > (timeAttack_ActCount * 6) + 1) { // if listPos == complete
+            self->zoneButtons[7]->unlocked = true;
         }
     }
 
@@ -272,15 +343,15 @@ void TimeAttack_Main(void *objPtr)
             if (self->timer > 1.0) {
                 self->timer      = 0.0;
                 self->state      = TIMEATTACK_STATE_MAIN;
-                inputPress.start = false;
-                inputPress.A     = false;
+                keyPress.start = false;
+                keyPress.A     = false;
             }
             break;
         }
 
         case TIMEATTACK_STATE_MAIN: {
             bool canPrev = 3 * (self->pageID - 1) >= 0;
-            bool canNext = 3 * (self->pageID + 1) < timeAttack_ZoneCount;
+            bool canNext = 3 * (self->pageID + 1) < (timeAttack_ZoneCount + timeAttack_ExZoneCount);
 
             if (!canNext) {
                 if (self->pagePrevAlpha < 0x100)
@@ -303,7 +374,7 @@ void TimeAttack_Main(void *objPtr)
 
             if (!usePhysicalControls) {
                 if (touches <= 0) {
-                    for (int i = 0; i < timeAttack_ZoneCount; ++i) {
+                    for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i) {
                         if (self->zoneButtons[i]->state == ZONEBUTTON_STATE_SELECTED) {
                             PlaySfxByName("Menu Select", false);
                             self->zoneButtons[i]->state = ZONEBUTTON_STATE_FLASHING;
@@ -331,7 +402,8 @@ void TimeAttack_Main(void *objPtr)
                     }
                 }
                 else {
-                    for (int i = 0; i < timeAttack_ZoneCount; ++i) self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
+                    for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i)
+                        self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
 
                     if (CheckTouchRectMatrix(&self->matrixTouch, 0.0, self->zoneButtons[0]->y + 16.0, 512.0, 40.0) >= 0) {
                         int offset = self->pageID * 3;
@@ -339,12 +411,12 @@ void TimeAttack_Main(void *objPtr)
                         if (self->zoneButtons[offset]->unlocked && CheckTouchRect(-78.0, 0.0, 48.0, 120.0) >= 0)
                             self->zoneButtons[offset]->state = ZONEBUTTON_STATE_SELECTED;
 
-                        if (offset + 1 < timeAttack_ZoneCount) {
+                        if (offset + 1 < (timeAttack_ZoneCount + timeAttack_ExZoneCount)) {
                             if (self->zoneButtons[offset + 1]->unlocked && CheckTouchRect(22.0, 0.0, 38.0, 120.0) >= 0)
                                 self->zoneButtons[offset + 1]->state = ZONEBUTTON_STATE_SELECTED;
                         }
 
-                        if (offset + 2 < timeAttack_ZoneCount) {
+                        if (offset + 2 < (timeAttack_ZoneCount + timeAttack_ExZoneCount)) {
                             if (self->zoneButtons[offset + 2]->unlocked && CheckTouchRect(100.0, 0.0, 30.0, 120.0) >= 0)
                                 self->zoneButtons[offset + 2]->state = ZONEBUTTON_STATE_SELECTED;
                         }
@@ -370,7 +442,8 @@ void TimeAttack_Main(void *objPtr)
                             self->zoneID           = (3 * self->pageID) + 2;
                             self->selectionEnabled = false;
 
-                            for (int i = 0; i < timeAttack_ZoneCount; ++i) self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
+                            for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i)
+                                self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
                         }
                         else if ((self->lastTouchX - touchXF[0]) > 16.0f && canNext) {
                             PlaySfxByName("Menu Move", false);
@@ -379,7 +452,8 @@ void TimeAttack_Main(void *objPtr)
                             self->zoneButtonVel    = -72.0f - (720.0f * self->pageID);
                             self->zoneID           = (3 * self->pageID);
                             self->selectionEnabled = false;
-                            for (int i = 0; i < timeAttack_ZoneCount; ++i) self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
+                            for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i)
+                                self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
                         }
                     }
                     else {
@@ -393,11 +467,11 @@ void TimeAttack_Main(void *objPtr)
                 }
 
                 if (self->state == TIMEATTACK_STATE_MAIN) {
-                    if (inputDown.left) {
+                    if (keyDown.left) {
                         usePhysicalControls = true;
                         self->zoneID        = (3 * self->pageID);
                     }
-                    if (inputDown.right) {
+                    if (keyDown.right) {
                         usePhysicalControls = true;
                         self->zoneID        = (3 * self->pageID) + 2;
                     }
@@ -408,7 +482,7 @@ void TimeAttack_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (inputPress.left && self->zoneID > 0) {
+                    if (keyPress.left && self->zoneID > 0) {
                         PlaySfxByName("Menu Move", false);
                         self->zoneID--;
                         if (self->zoneID < (self->pageID * 3) && self->zoneID > 0) {
@@ -419,7 +493,7 @@ void TimeAttack_Main(void *objPtr)
                             self->zoneID        = (3 * self->pageID) + 2;
                         }
                     }
-                    else if (inputPress.right && self->zoneID < timeAttack_ZoneCount - 1) {
+                    else if (keyPress.right && self->zoneID < (timeAttack_ZoneCount + timeAttack_ExZoneCount) - 1) {
                         PlaySfxByName("Menu Move", false);
                         ++self->zoneID;
                         if (self->zoneID >= ((self->pageID + 1) * 3)) {
@@ -431,10 +505,11 @@ void TimeAttack_Main(void *objPtr)
                         }
                     }
 
-                    for (int i = 0; i < timeAttack_ZoneCount; ++i) self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
+                    for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i)
+                        self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
                     if (self->state == TIMEATTACK_STATE_MAIN) {
                         self->zoneButtons[self->zoneID]->state = ZONEBUTTON_STATE_SELECTED;
-                        if (self->zoneButtons[self->zoneID]->unlocked && (inputPress.start || inputPress.A)) {
+                        if (self->zoneButtons[self->zoneID]->unlocked && (keyPress.start || keyPress.A)) {
                             PlaySfxByName("Menu Select", false);
                             self->zoneButtons[self->zoneID]->state = ZONEBUTTON_STATE_FLASHING;
                             self->state                            = TIMEATTACK_STATE_ACTION;
@@ -463,7 +538,7 @@ void TimeAttack_Main(void *objPtr)
             }
 
             float x = self->zoneButtons[0]->x + 144.0;
-            for (int i = 1; i < timeAttack_ZoneCount; ++i) {
+            for (int i = 1; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i) {
                 self->zoneButtons[i]->x = x;
                 if (!((i + 1) % 3))
                     x += 432.0;
@@ -602,7 +677,7 @@ void TimeAttack_Main(void *objPtr)
                 self->timer = 0.0;
                 RemoveNativeObject(self->button);
                 RemoveNativeObject(self->labelPtr);
-                for (int i = 0; i < timeAttack_ZoneCount; ++i) RemoveNativeObject(self->zoneButtons[i]);
+                for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i) RemoveNativeObject(self->zoneButtons[i]);
                 RemoveNativeObject(self);
             }
             break;

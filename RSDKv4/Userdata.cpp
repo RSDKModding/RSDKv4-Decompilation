@@ -264,6 +264,7 @@ void InitUserdata()
         }
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
+        ini.SetInteger("Game", "GameType", Engine.gameTypeID = 0);
         ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
         skipStartMenu_Config = skipStartMenu;
         ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 0);
@@ -409,6 +410,10 @@ void InitUserdata()
 
         if (!ini.GetInteger("Game", "Language", &Engine.language))
             Engine.language = RETRO_EN;
+        if (!ini.GetInteger("Game", "GameType", &Engine.gameTypeID))
+            Engine.gameTypeID = 0;
+        Engine.releaseType = Engine.gameTypeID ? "USE_ORIGINS" : "USE_STANDALONE";
+
         if (!ini.GetBool("Game", "SkipStartMenu", &skipStartMenu))
             skipStartMenu = false;
         skipStartMenu_Config = skipStartMenu;
@@ -687,10 +692,12 @@ void WriteSettings()
     ini.SetComment("Game", "LangComment",
                    "Sets the game language (0 = EN, 1 = FR, 2 = IT, 3 = DE, 4 = ES, 5 = JP, 6 = PT, 7 = RU, 8 = KO, 9 = ZH, 10 = ZS)");
     ini.SetInteger("Game", "Language", Engine.language);
+    ini.SetComment("Game", "GameTypeComment", "Determines game type in scripts (0 = Standalone/Original releases, 1 = Origins release)");
+    ini.SetInteger("Game", "GameType", Engine.gameTypeID);
     ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
     ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
     ini.SetComment("Game", "DFPMenuComment",
-                   "Handles pausing behaviour when focus is lost\n; 0 = Game focus disabled, engine focus disabled\n; 1 = Game focus disabled, "
+                   "Handles pausing behaviour when focus is lost\n; 0 = Game focus enabled, engine focus enabled\n; 1 = Game focus disabled, "
                    "engine focus enabled\n; 2 = Game focus enabled, engine focus disabled\n; 3 = Game focus disabled, engine focus disabled");
     ini.SetInteger("Game", "DisableFocusPause", disableFocusPause_Config);
 
@@ -724,7 +731,7 @@ void WriteSettings()
 
 #if RETRO_USING_SDL2
     ini.SetComment("Keyboard 1", "IK1Comment",
-                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDLScancodeLookup.mediawiki)");
+                   "Keyboard Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL2/SDLScancodeLookup.mediawiki)");
 #endif
 #if RETRO_USING_SDL1
     ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDLKeycodeLookup)");
@@ -746,7 +753,7 @@ void WriteSettings()
 
 #if RETRO_USING_SDL2
     ini.SetComment("Controller 1", "IC1Comment",
-                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL_GameControllerButton.mediawiki)");
+                   "Controller Mappings for P1 (Based on: https://github.com/libsdl-org/sdlwiki/blob/main/SDL2/SDL_GameControllerButton.mediawiki)");
     ini.SetComment("Controller 1", "IC1Comment2", "Extra buttons can be mapped with the following IDs:");
     ini.SetComment("Controller 1", "IC1Comment3", "CONTROLLER_BUTTON_ZL             = 16");
     ini.SetComment("Controller 1", "IC1Comment4", "CONTROLLER_BUTTON_ZR             = 17");
@@ -921,7 +928,13 @@ void SetAchievement(int *achievementID, int *status)
 }
 #if RETRO_USE_MOD_LOADER
 void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[achievementCount++].name, name); }
-void SetAchievementDescription(int *id, const char *desc) { StrCopy(achievements[*id].desc, desc); }
+void SetAchievementDescription(uint *id, const char *desc)
+{
+    if (*id >= achievementCount)
+        return;
+
+    StrCopy(achievements[*id].desc, desc);
+}
 void ClearAchievements() { achievementCount = 0; }
 void GetAchievementCount() { scriptEng.checkResult = achievementCount; }
 void GetAchievementName(uint *id, int *textMenu)
@@ -1223,25 +1236,31 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_GOTO_FUTURE_PAST: PrintLog("NOTIFY: GotoFuturePast() -> %d", *param1); break;
         case NOTIFY_BOSS_END: PrintLog("NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
-        case NOTIFY_DEBUGPRINT: PrintLog("NOTIFY: DebugPrint() -> %d", *param1); break;
+        case NOTIFY_DEBUGPRINT: PrintLog("NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_KILL_BOSS: PrintLog("NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog("NOTIFY: TouchEmerald() -> %d", *param1); break;
-        case NOTIFY_STATS_ENEMY: PrintLog("NOTIFY: StatsEnemy() -> %d", *param1); break;
-        case NOTIFY_STATS_CHARA_ACTION: PrintLog("NOTIFY: StatsCharaAction() -> %d", *param1); break;
+        case NOTIFY_STATS_ENEMY: PrintLog("NOTIFY: StatsEnemy() -> %d, %d, %d", *param1, *param2, *param3); break;
+        case NOTIFY_STATS_CHARA_ACTION: PrintLog("NOTIFY: StatsCharaAction() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_RING: PrintLog("NOTIFY: StatsRing() -> %d", *param1); break;
         case NOTIFY_STATS_MOVIE: PrintLog("NOTIFY: StatsMovie() -> %d", *param1); break;
-        case NOTIFY_STATS_PARAM_1: PrintLog("NOTIFY: StatsParam1() -> %d", *param1); break;
+        case NOTIFY_STATS_PARAM_1: PrintLog("NOTIFY: StatsParam1() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_PARAM_2: PrintLog("NOTIFY: StatsParam2() -> %d", *param1); break;
         case NOTIFY_CHARACTER_SELECT:
             PrintLog("NOTIFY: CharacterSelect() -> %d", *param1);
             SetGlobalVariableByName("game.callbackResult", 1);
             SetGlobalVariableByName("game.continueFlag", 0);
             break;
-        case NOTIFY_SPECIAL_RETRY: SetGlobalVariableByName("game.callbackResult", 1); break;
+        case NOTIFY_SPECIAL_RETRY:
+            PrintLog("NOTIFY: SpecialRetry() -> %d, %d, %d", *param1, *param2, *param3);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_TOUCH_CHECKPOINT: PrintLog("NOTIFY: TouchCheckpoint() -> %d", *param1); break;
         case NOTIFY_ACT_FINISH: PrintLog("NOTIFY: ActFinish() -> %d", *param1); break;
         case NOTIFY_1P_VS_SELECT: PrintLog("NOTIFY: 1PVSSelect() -> %d", *param1); break;
-        case NOTIFY_CONTROLLER_SUPPORT: PrintLog("NOTIFY: ControllerSupport() -> %d", *param1); break;
+        case NOTIFY_CONTROLLER_SUPPORT:
+            PrintLog("NOTIFY: ControllerSupport() -> %d", *param1);
+            SetGlobalVariableByName("game.callbackResult", 1);
+            break;
         case NOTIFY_STAGE_RETRY: PrintLog("NOTIFY: StageRetry() -> %d", *param1); break;
         case NOTIFY_SOUND_TRACK: PrintLog("NOTIFY: SoundTrack() -> %d", *param1); break;
         case NOTIFY_GOOD_ENDING: PrintLog("NOTIFY: GoodEnding() -> %d", *param1); break;
@@ -1270,55 +1289,108 @@ void FileExists(int *unused, const char *filePath)
 #if RETRO_USE_MOD_LOADER
 void GetScreenWidth() { scriptEng.checkResult = SCREEN_XSIZE_CONFIG; }
 void GetWindowScale() { scriptEng.checkResult = Engine.windowScale; }
+void GetWindowScaleMode() { scriptEng.checkResult = Engine.scalingMode; }
 void GetWindowFullScreen() { scriptEng.checkResult = Engine.isFullScreen; }
 void GetWindowBorderless() { scriptEng.checkResult = Engine.borderless; }
+void GetWindowVSync() { scriptEng.checkResult = Engine.vsync; }
 
+bool changedScreenWidth = false;
 void SetScreenWidth(int *width, int *unused)
 {
-    SCREEN_XSIZE_CONFIG = *width;
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#endif
-#if RETRO_USING_SDL2
-    InitRenderDevice();
-#endif
+    if (!width)
+        return;
 
-#if RETRO_USING_OPENGL
-    displaySettings.width   = SCREEN_XSIZE_CONFIG * Engine.windowScale;
-    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
-    displaySettings.offsetX = 0;
-    SetupViewport();
-#endif
+    SCREEN_XSIZE_CONFIG = *width;
+    changedScreenWidth  = SCREEN_XSIZE_CONFIG != SCREEN_XSIZE;
 }
 
 void SetWindowScale(int *scale, int *unused)
 {
-    Engine.windowScale = *scale;
-#if RETRO_USING_SDL2
-    SDL_SetWindowSize(Engine.window, SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
-#endif
+    if (!scale)
+        return;
 
-#if RETRO_USING_OPENGL
-    displaySettings.width   = SCREEN_XSIZE * Engine.windowScale;
-    displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
-    displaySettings.offsetX = 0;
-    SetupViewport();
-#endif
+    Engine.windowScale = *scale;
+}
+
+void SetWindowScaleMode(int *mode, int *unused)
+{
+    if (!mode)
+        return;
+
+    Engine.scalingMode = *mode;
 }
 
 void SetWindowFullScreen(int *fullscreen, int *unused)
 {
+    if (!fullscreen)
+        return;
+
     Engine.isFullScreen    = *fullscreen;
     Engine.startFullScreen = *fullscreen;
-    SetFullScreen(Engine.isFullScreen);
 }
 
 void SetWindowBorderless(int *borderless, int *unused)
 {
+    if (!borderless)
+        return;
+
     Engine.borderless = *borderless;
-#if RETRO_USING_SDL2
-    SDL_RestoreWindow(Engine.window);
-    SDL_SetWindowBordered(Engine.window, Engine.borderless ? SDL_FALSE : SDL_TRUE);
-#endif
+}
+
+void SetWindowVSync(int *enabled, int *unused)
+{
+    if (!enabled)
+        return;
+
+    Engine.vsync = *enabled;
+}
+void ApplyWindowChanges()
+{
+    for (int i = 0; i < TEXTURE_COUNT; ++i) {
+        glDeleteTextures(1, &textureList[i].id);
+    }
+
+    for (int i = 0; i < MESH_COUNT; ++i) {
+        MeshInfo *mesh = &meshList[i];
+        if (StrLength(mesh->fileName)) {
+            if (mesh->frameCount > 1)
+                free(mesh->frames);
+            if (mesh->indexCount)
+                free(mesh->indices);
+            if (mesh->vertexCount)
+                free(mesh->vertices);
+
+            mesh->frameCount  = 0;
+            mesh->indexCount  = 0;
+            mesh->vertexCount = 0;
+        }
+    }
+
+    if (changedScreenWidth)
+        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
+    changedScreenWidth = false;
+
+    ReleaseRenderDevice(true);
+    InitRenderDevice();
+
+    for (int i = 1; i < TEXTURE_COUNT; ++i) {
+        if (StrLength(textureList[i].fileName)) {
+            char fileName[64];
+            StrCopy(fileName, textureList[i].fileName);
+            textureList[i].fileName[0] = 0;
+
+            LoadTexture(fileName, textureList[i].format);
+        }
+    }
+
+    for (int i = 0; i < MESH_COUNT; ++i) {
+        if (StrLength(meshList[i].fileName)) {
+            char fileName[64];
+            StrCopy(fileName, meshList[i].fileName);
+            meshList[i].fileName[0] = 0;
+
+            LoadMesh(fileName, meshList[i].textureID);
+        }
+    }
 }
 #endif

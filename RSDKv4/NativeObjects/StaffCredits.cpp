@@ -87,8 +87,8 @@ void StaffCredits_Main(void *objPtr)
             }
             break;
         case STAFFCREDITS_STATE_SCROLL:
-            CheckKeyDown(&inputDown);
-            CheckKeyPress(&inputPress);
+            CheckKeyDown(&keyDown);
+            CheckKeyPress(&keyPress);
             SetRenderMatrix(&self->renderMatrix);
             if (touches <= 0) {
                 if (self->useRenderMatrix) {
@@ -100,7 +100,7 @@ void StaffCredits_Main(void *objPtr)
             else {
                 self->useRenderMatrix = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
             }
-            if (inputPress.B) {
+            if (keyPress.B) {
                 PlaySfxByName("Menu Back", false);
                 self->useRenderMatrix = false;
                 self->state           = STAFFCREDITS_STATE_EXIT;
@@ -141,7 +141,7 @@ void StaffCredits_Main(void *objPtr)
         NativeEntity_CreditText *creditText = self->creditText[i];
 
         creditText->textY += 0.75;
-        if (touches > 0 || inputDown.A || inputDown.C) {
+        if (touches > 0 || keyDown.A || keyDown.C) {
             creditText->textY += 0.75;
         }
 
