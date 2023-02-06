@@ -604,7 +604,7 @@ void SetScreenDimensions(int width, int height)
     int displayWidth        = aspect * SCREEN_YSIZE;
     // if (val > displaySettings.maxWidth)
     //    val = displaySettings.maxWidth;
-    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
+    SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
 
     int width2 = 0;
     int wBuf   = GFX_LINESIZE - 1;
@@ -746,7 +746,7 @@ void SetupViewport()
     glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
 #endif
     int displayWidth = aspect * SCREEN_YSIZE;
-    SetScreenSize(displayWidth, (displayWidth + 9) & -0x10);
+    SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
 
