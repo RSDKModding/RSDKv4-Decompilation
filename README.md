@@ -22,9 +22,10 @@ Even if your platform isn't supported by the official releases, you **must** buy
 If you want to transfer your save(s) from the official mobile version(s), the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file into the decompilation's folder with the name `SData.bin`.
 
 # Additional Tweaks
-* Added a built in script compiler. Similar to the one found in RSDKv3, but tweaked up to match the new syntax for the scripts used in RSDKv4.
+* Added the built in script compiler from RSDKv5U.
 * Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
 * Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
+  * Servers may be unreliable; this feature is more or less a proof of concept.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * The dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
 * The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
