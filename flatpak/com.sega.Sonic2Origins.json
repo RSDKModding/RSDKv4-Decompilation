@@ -1,5 +1,5 @@
 {
-    "app-id": "com.sega.Sonic1",
+    "app-id": "com.sega.Sonic2",
     "runtime": "org.freedesktop.Platform",
     "runtime-version": "21.08",
     "sdk": "org.freedesktop.Sdk",
@@ -16,7 +16,7 @@
         "shared-modules/glew/glew.json",
         "shared-modules/glu/glu-9.json",
         {
-            "name": "sonic1",
+            "name": "sonic2",
             "no-autogen": true,
             "make-args": [
                 "prefix=/app"
@@ -25,12 +25,11 @@
                 "prefix=/app"
             ],
             "post-install": [
-                "unzip -j sonic1.apk assets/Data.rsdk.xmf",
-                "install -Dp -m 644 Data.rsdk.xmf /app/share/sonic1/Data.rsdk",
+                "install -Dp -m 644 Sonic2u.rsdk /app/share/sonic2/Data.rsdk",
                 "install -Dp -m 744 run.sh /app/bin/run.sh",
-                "install -Dp -m 644 com.sega.Sonic1.desktop /app/share/applications/com.sega.Sonic1.desktop",
-                "install -Dp -m 644 com.sega.Sonic1.svg /app/share/icons/hicolor/256x256/apps/com.sega.Sonic1.svg",
-                "install -Dp -m 644 com.sega.Sonic1.appdata.xml /app/share/appdata/com.sega.Sonic1.appdata.xml"
+                "install -Dp -m 644 com.sega.Sonic2.desktop /app/share/applications/com.sega.Sonic2.desktop",
+                "install -Dp -m 644 com.sega.Sonic2.svg /app/share/icons/hicolor/256x256/apps/com.sega.Sonic2.svg",
+                "install -Dp -m 644 com.sega.Sonic2.appdata.xml /app/share/appdata/com.sega.Sonic2.appdata.xml"
             ],
             "sources": [
                 {
@@ -40,7 +39,7 @@
                 },
                 {
                     "type": "file",
-                    "path": "sonic1.apk"
+                    "path": "Sonic2u.rsdk"
                 },
                 {
                     "type": "file",
@@ -48,15 +47,15 @@
                 },
                 {
                     "type": "file",
-                    "path": "com.sega.Sonic1.desktop"
+                    "path": "com.sega.Sonic2.desktop"
                 },
                 {
                     "type": "file",
-                    "path": "com.sega.Sonic1.svg"
+                    "path": "com.sega.Sonic2.svg"
                 },
                 {
                     "type": "file",
-                    "path": "com.sega.Sonic1.appdata.xml"
+                    "path": "com.sega.Sonic2.appdata.xml"
                 }
             ]
         }

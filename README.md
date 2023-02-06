@@ -1,15 +1,20 @@
 ![](header.png?raw=true)
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
-+ For tutorials on how to find the game assets from your legally obtained copy of the game(s), see [this tutorial for Android](https://gamebanana.com/tuts/14492) or [this tutorial for iOS](https://gamebanana.com/tuts/14491).
 
-+ You can get the official releases of Sonic 1 & Sonic 2 from:
-  * [Sonic 1 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
-  * [Sonic 2 (iOS, Via the App Store)](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
-  * [Sonic 1 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic1px&hl=en_AU&gl=US)
-  * [Sonic 2 (Android, Via Google Play)](https://play.google.com/store/apps/details?id=com.sega.sonic2.runner&hl=en_AU&gl=US)
-  * [Sonic 1 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
-  * [Sonic 2 (Android, Via Amazon)](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
++ You can get official releases of Sonic 1 & Sonic 2 from:
+  * Windows
+    * Via Steam, from [Sonic Origins](https://store.steampowered.com/app/1794960)
+    * Via the Epic Games Store, from [Sonic Origins](https://store.epicgames.com/en-US/p/sonic-origins)
+  * iOS
+    * [Sonic 1, Via the App Store](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
+    * [Sonic 2, Via the App Store](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
+    * A tutorial for finding the game assets from the iOS versions can be found [here](https://gamebanana.com/tuts/14491).
+  * Android
+    * [Sonic 1, Via Google Play](https://play.google.com/store/apps/details?id=com.sega.sonic1px)
+    * [Sonic 2, Via Google Play](https://play.google.com/store/apps/details?id=com.sega.sonic2.runner)
+    * [Sonic 1, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
+    * [Sonic 2, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
     * A tutorial for finding the game assets from the Android versions can be found [here](https://gamebanana.com/tuts/14492).
 
 Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets).
@@ -33,7 +38,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 
 # How to build
 ## Windows
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution.
+* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution.
 * Alternatively, you can grab a prebuilt executable from the releases section.
 
 ## Windows via MSYS2 (64-bit Only)
@@ -48,7 +53,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Windows UWP (Phone, Xbox, etc.)
-* Clone the repo, then follow the instructions in the [depencencies readme for Windows](./dependencies/windows/dependencies.txt) and [depencencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
+* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) and [dependencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
 * Copy your `Data.rsdk` file into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `RSDKv4.UWP.sln`.
 * You may also need to generate visual assets. To do so, open the Package.appxmanifest file in the designer. Under the Visual Assets tab, select an image of your choice, and click generate.
 
@@ -66,11 +71,11 @@ If you want to transfer your save(s) from the official mobile version(s), the **
     * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
 
 ## Mac
-* Clone the repo, follow the instructions in the [depencencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
+* Clone the repo, follow the instructions in the [dependencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
 * A Mac build of v1.3.0 by [Sappharad](https://github.com/Sappharad) can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/tag/1.3.0mac).
 
 ## Android
-* Clone the repo, then follow the instructions in the [depencencies readme for Android](./dependencies/android/dependencies.txt).
+* Clone the repo, then follow the instructions in the [dependencies readme for Android](./dependencies/android/dependencies.txt).
 * Ensure the symbolic links in `android/app/jni` are correct. If not, fix them with the following on Windows:
   * `mklink /D src ..\..\..`
   * `mklink /D SDL ..\..\..\dependencies\android\SDL`
@@ -96,6 +101,12 @@ To use the server, open Command Prompt in the folder [Server.py](https://github.
 Note that the CPP server found in the Server folder in the repo has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
+### Q: I'm using an RSDK file from Sonic Origins and there's no audio, what's wrong?
+A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from the mobile versions of the games.
+
+### Q: I'm using an RSDK file from Sonic Origins and the main menu and pause screen won't load, what's wrong?
+A: Similar issue to above, Origins removes some of the assets from the original mobile versions' menus. Also similar to above, the fix is to insert those files from the mobile versions.
+
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
 
@@ -106,7 +117,7 @@ A: Submit an issue in the issues tab and we _might_ fix it in the main branch. D
 A: I already have! You can find it [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation).
 
 ### Q: Will you do a decompilation for Sonic Mania?
-A: No. Sonic Mania is much bigger and requires that I'd decompile not only how the (far more complex) RSDKv5 works, but also all _600+_ objects work.
+A: I already have! You can find the source code for Sonic Mania [here](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation) and RSDKv5 which is used to run it [here](https://github.com/Rubberduckycooly/RSDKv5-Decompilation).
 
 # Special Thanks
 * [Chuli](https://github.com/MGRich) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
