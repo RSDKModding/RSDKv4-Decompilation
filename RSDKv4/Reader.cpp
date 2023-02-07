@@ -104,7 +104,7 @@ bool CheckRSDKFile(const char *filePath)
 int CheckFileInfo(const char *filepath)
 {
     char pathBuf[0x100];
-    StringLowerCase(pathBuf, filepath);
+    StrCopy(pathBuf, filepath);
     byte buffer[0x10];
     int len = StrLength(pathBuf);
     GenerateMD5FromString(pathBuf, len, buffer);
@@ -202,10 +202,57 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
     cFileHandle = NULL;
 #if !RETRO_USE_ORIGINAL_CODE
-    if (CheckFileInfo(filePath) != -1 && !forceFolder) {
+    StringLowerCase(fileInfo->fileName, filePath);
+    StrCopy(fileName, fileInfo->fileName);
+
+    int fileIndex = CheckFileInfo(fileName);
+    if (fileIndex != -1 && !forceFolder) {
+        packID      = file->packID;
+        cFileHandle = fOpen(rsdkContainer.packNames[file->packID], "rb");
+        if (cFileHandle) {
+            fSeek(cFileHandle, 0, SEEK_END);
+            fileSize = (int)fTell(cFileHandle);
+
+            vFileSize         = file->filesize;
+            virtualFileOffset = file->offset;
+            readPos           = file->offset;
+            readSize          = 0;
+            bufferPosition    = 0;
+            fSeek(cFileHandle, virtualFileOffset, SEEK_SET);
+
+            useEncryption = file->encrypted;
+            memset(fileInfo->encryptionStringA, 0, 0x10 * sizeof(byte));
+            memset(fileInfo->encryptionStringB, 0, 0x10 * sizeof(byte));
+            if (useEncryption) {
+                GenerateELoadKeys(vFileSize, (vFileSize >> 1) + 1);
+                eStringNo   = (vFileSize & 0x1FC) >> 2;
+                eStringPosA = 0;
+                eStringPosB = 8;
+                eNybbleSwap = 0;
+                memcpy(fileInfo->encryptionStringA, encryptionStringA, 0x10 * sizeof(byte));
+                memcpy(fileInfo->encryptionStringB, encryptionStringB, 0x10 * sizeof(byte));
+            }
+
+            fileInfo->readPos           = readPos;
+            fileInfo->fileSize          = fileSize;
+            fileInfo->vfileSize         = vFileSize;
+            fileInfo->virtualFileOffset = virtualFileOffset;
+            fileInfo->eStringNo         = eStringNo;
+            fileInfo->eStringPosB       = eStringPosB;
+            fileInfo->eStringPosA       = eStringPosA;
+            fileInfo->eNybbleSwap       = eNybbleSwap;
+            fileInfo->bufferPosition    = bufferPosition;
+            fileInfo->useEncryption     = useEncryption;
+            fileInfo->packID            = packID;
+            fileInfo->usingDataPack     = true;
+            PrintLog("Loaded Data File '%s'", filePath);
+
+            Engine.usingDataFile = true;
+
+            return true;
+        }
 #else
     if (Engine.usingDataFile) {
-#endif
         StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
         byte buffer[0x10];
@@ -265,16 +312,13 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 fileInfo->usingDataPack     = true;
                 PrintLog("Loaded Data File '%s'", filePath);
 
-#if !RETRO_USE_ORIGINAL_CODE
-                Engine.usingDataFile = true;
-#endif
-
                 return true;
             }
             else {
                 break;
             }
         }
+#endif
         PrintLog("Couldn't load file '%s'", filePath);
         return false;
     }
