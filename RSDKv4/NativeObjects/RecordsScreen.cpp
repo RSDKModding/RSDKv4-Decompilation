@@ -117,9 +117,18 @@ void RecordsScreen_Main(void *objPtr)
                         break;
                 }
             }
-            if (Engine.gameType == GAME_SONIC1 && self->zoneID == 6) { // dumber stupider dumber
-                self->timeAttackU = timeAttackU[6];
-                self->timeAttackV = timeAttackV[6];
+            else if (Engine.gameType == GAME_SONIC1 && self->zoneID >= 6) {
+                switch (self->zoneID) {
+                    default: break;
+                    case 6: // dumber stupider dumber
+                        self->timeAttackU = timeAttackU[6];
+                        self->timeAttackV = timeAttackV[6];
+                        break;
+                    case 7:
+                        self->timeAttackU = timeAttackU[(self->recordOffset - 1) % 6];
+                        self->timeAttackV = timeAttackV[(self->recordOffset - 1) % 6];
+                        break;
+                }
             }
             else {
                 self->timeAttackU = timeAttackU[self->recordOffset % 6];
@@ -403,6 +412,19 @@ void RecordsScreen_Main(void *objPtr)
                         case 10:
                             self->timeAttackU = timeAttackU[1];
                             self->timeAttackV = timeAttackV[1];
+                            break;
+                    }
+                }
+                else if (Engine.gameType == GAME_SONIC1 && self->zoneID >= 6) {
+                    switch (self->zoneID) {
+                        default: break;
+                        case 6: // dumber stupider dumber
+                            self->timeAttackU = timeAttackU[6];
+                            self->timeAttackV = timeAttackV[6];
+                            break;
+                        case 7:
+                            self->timeAttackU = timeAttackU[(self->recordOffset + self->actID - 1) % 6];
+                            self->timeAttackV = timeAttackV[(self->recordOffset + self->actID - 1) % 6];
                             break;
                     }
                 }
