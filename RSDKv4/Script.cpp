@@ -49,8 +49,12 @@ struct FunctionInfo {
         StrCopy(name, functionName);
         opcodeSize = opSize;
     }
-
-    char name[RETRO_REV03 ? 0x30 : 0x20];
+    
+#if RETRO_REV03
+    char name[0x30];
+#else
+    char name[0x20];
+#endif
     int opcodeSize;
 };
 
@@ -426,7 +430,11 @@ const FunctionInfo functions[] = {
     FunctionInfo("RotatePalette", 4),
     FunctionInfo("SetScreenFade", 4),
     FunctionInfo("SetActivePalette", 3),
-    FunctionInfo("SetPaletteFade", RETRO_REV00 ? 7 : 6),
+#if RETRO_REV00
+    FunctionInfo("SetPaletteFade", 7),
+#else
+    FunctionInfo("SetPaletteFade", 6),
+#endif
     FunctionInfo("SetPaletteEntry", 3),
     FunctionInfo("GetPaletteEntry", 3),
     FunctionInfo("CopyPalette", 5),
@@ -511,8 +519,10 @@ const FunctionInfo functions[] = {
 
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("LoadFontFile", 1),
+    FunctionInfo("LoadTextFile", 3),
+#else
+    FunctionInfo("LoadTextFile", 2),
 #endif
-    FunctionInfo("LoadTextFile", (RETRO_REV00 || RETRO_REV01) ? 3 : 2),
     FunctionInfo("GetTextInfo", 5),
 #if RETRO_REV00 || RETRO_REV01
     FunctionInfo("DrawText", 7),
@@ -530,7 +540,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("CallNativeFunction4", 5),
 
     FunctionInfo("SetObjectRange", 1),
-#if !RETRO_REV00 || !RETRO_REV01
+#if !RETRO_REV00 && !RETRO_REV01
     FunctionInfo("GetObjectValue", 3),
     FunctionInfo("SetObjectValue", 3),
     FunctionInfo("CopyObject", 3),
@@ -2942,7 +2952,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_REV03
-                                && FindStringToken(scriptText, Engine.releaseType, 1) == -1 // general flag for standalone/origins contnet switching
+                                && FindStringToken(scriptText, Engine.releaseType, 1) == -1 // general flag for standalone/origins content switching
 #endif
 #if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
@@ -5508,7 +5518,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
 
 #if RETRO_REV03
                 // Extras for origins 2PVS,
-                // these aren't (and won't be) implemented here because they rely on v5 tech that isn't part of the scope of this project
+                // most of these aren't (and won't be) implemented here because they rely on v5 tech that isn't part of the scope of this project
             case FUNC_CHECKCAMERAPROXIMITY:
                 scriptEng.checkResult = false;
 
