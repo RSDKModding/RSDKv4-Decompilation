@@ -2602,7 +2602,7 @@ void BoxCollision2(Entity *thisEntity, int thisLeft, int thisTop, int thisRight,
         sensors[0].ypos = ry + otherBottom;
 
         if (otherEntity->yvel >= 0) {
-            // this should prolly be using all 5 sensors, but this was unused in S2 so it was prolly forgotten about
+            // this should prolly be using all 5 sensors, but this was barely used in S2 so it was prolly forgotten about
             for (int i = 0; i < 3; ++i) {
                 if (thisLeft < sensors[i].xpos && thisRight > sensors[i].xpos && thisTop <= sensors[0].ypos && thisEntity->ypos > sensors[0].ypos) {
                     sensors[i].collided          = true;
