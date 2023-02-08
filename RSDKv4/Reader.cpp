@@ -207,6 +207,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
     int fileIndex = CheckFileInfo(fileName);
     if (fileIndex != -1 && !forceFolder) {
+        RSDKFileInfo *file = &rsdkContainer.files[fileIndex];
         packID      = file->packID;
         cFileHandle = fOpen(rsdkContainer.packNames[file->packID], "rb");
         if (cFileHandle) {
