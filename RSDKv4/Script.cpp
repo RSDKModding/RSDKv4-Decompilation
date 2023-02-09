@@ -3277,8 +3277,8 @@ void ClearScriptData()
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
         ObjectScript *scriptInfo               = &objectScriptList[o];
-        scriptInfo->eventUpdate.scriptCodePtr    = SCRIPTCODE_COUNT - 1;
-        scriptInfo->eventUpdate.jumpTablePtr     = JUMPTABLE_COUNT - 1;
+        scriptInfo->eventUpdate.scriptCodePtr  = SCRIPTCODE_COUNT - 1;
+        scriptInfo->eventUpdate.jumpTablePtr   = JUMPTABLE_COUNT - 1;
         scriptInfo->eventDraw.scriptCodePtr    = SCRIPTCODE_COUNT - 1;
         scriptInfo->eventDraw.jumpTablePtr     = JUMPTABLE_COUNT - 1;
         scriptInfo->eventStartup.scriptCodePtr = SCRIPTCODE_COUNT - 1;

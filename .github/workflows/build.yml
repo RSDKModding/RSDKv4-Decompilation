@@ -6,8 +6,6 @@ on:
       - main
       - win-actions
       - linux-actions
-      - MainMenuRewrite
-      - NewSyntax
 
 jobs:
   v4-windows:

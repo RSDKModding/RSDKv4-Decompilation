@@ -2,7 +2,7 @@ SDL2: https://www.libsdl.org/download-2.0.php
 Download the source code and unzip it in "./SDL/".
 
 libogg: https://xiph.org/downloads/ (libogg)
-Download libogg and unzip it in "./libogg/".
+Download libogg and unzip it in "./libogg/". Then, copy "config_types.h" from here and paste it in "./libogg/include/ogg/".
 
 libvorbis: https://xiph.org/downloads/ (libvorbis)
 Download libvorbis and unzip it in "./libvorbis/".
