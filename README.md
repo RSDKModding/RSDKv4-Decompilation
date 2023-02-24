@@ -1,4 +1,7 @@
 ![](header.png?raw=true)
+
+A complete decompilation of Retro Engine v4 and the menus from Sonic 1 and 2 (2013).
+
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without assets from the official releases, this decompilation will not run.
 
@@ -26,6 +29,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 * Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
 * Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
   * Servers may be unreliable; this feature is more or less a proof of concept.
+* Egg Gauntlet Zone is playable in the Time Attack menu in Sonic 2, if you're using a version of the game that includes it.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * The dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
 * The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
@@ -98,31 +102,15 @@ If you're able to, you can clone this repo and port it to a platform not on the 
 
 # Server
 The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
-To use the server, open Command Prompt in the folder [Server.py](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/Server/Server.py) is located in, then run the command `py -3 Server.py [local IPv4 address] [port] debug`. You can find your local IPv4 address using the command `ipconfig`.
-Note that the CPP server found in the Server folder in the repo has been deprecated and no longer works. It has been kept in the repo for reference purposes.
+To use the server, open Command Prompt in the folder [Server.py](./Server/Server.py) is located in, then run the command `py -3 Server.py [local IPv4 address] [port] debug`. You can find your local IPv4 address using the command `ipconfig`.
+Note that the C++ server found in the `Server` folder has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
-### Q: I'm using an RSDK file from Sonic Origins and there's no audio, what's wrong?
-A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from the mobile versions of the games.
-
-### Q: I'm using an RSDK file from Sonic Origins and the main menu and pause screen won't load, what's wrong?
-A: Similar issue to above, Origins removes some of the assets from the original mobile versions' menus. Also similar to above, the fix is to insert those files from the mobile versions.
-
-### Q: The screen is tearing, how do I fix it?
-A: Try turning on VSync in settings.ini.
-
-### Q: I found a bug!
-A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any future releases, however.
-
-### Q: Will you do a decompilation for Sonic CD (2011)?
-A: I already have! You can find it [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation).
-
-### Q: Will you do a decompilation for Sonic Mania?
-A: I already have! You can find the source code for Sonic Mania [here](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation) and RSDKv5 which is used to run it [here](https://github.com/Rubberduckycooly/RSDKv5-Decompilation).
+You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
-* [Chuli](https://github.com/MGRich) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
-* The Weigman for creating the header you see up here along with similar assets.
+* [st×tic](https://github.com/stxticOVFL) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
+* [The Weigman](https://github.com/TheWeigman) for creating the header you see up here along with similar assets.
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found.
 
 # Contact:
