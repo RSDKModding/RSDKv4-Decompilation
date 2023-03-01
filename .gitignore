@@ -59,8 +59,19 @@ cmake/
 **/BundleArtifacts
 **/AppPackages
 
-# safety
+# Safety
 *.rsdk
+
+# Visual Studio Debugging
+RSDKv4/[Bb]yte[Cc]ode/
+RSDKv4/[Dd]ata/
+RSDKv4/[Mm]ods/
+RSDKv4/[Ss]cripts/
+RSDKv4/log.txt
+RSDKv4/usage.txt
+RSDKv4/[Ss]ettings.ini
+RSDKv4/[Ss][Dd]ata.bin
+RSDKv4/[Uu][Dd]ata.bin
 
 #OSX files
 *.DS_Store
