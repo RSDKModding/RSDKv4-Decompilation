@@ -154,23 +154,15 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     }
 
     bool addPath = true;
-    if (activeMod != -1) {
-        char buf[0x100];
-        sprintf(buf, "%s", filePathBuf);
-        sprintf(filePathBuf, "%smods/%s/%s", modsPath, modList[activeMod].folder.c_str(), buf);
-        forceFolder = true;
-        addPath     = false;
-    }
-    else {
-        for (int m = 0; m < modList.size(); ++m) {
-            if (modList[m].active) {
-                std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
-                if (iter != modList[m].fileMap.cend()) {
-                    StrCopy(filePathBuf, iter->second.c_str());
-                    forceFolder = true;
-                    addPath     = false;
-                    break;
-                }
+    int m = activeMod != -1 ? activeMod : 0; 
+    for (int m = 0; m < modList.size(); ++m) {
+        if (modList[m].active) {
+            std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
+            if (iter != modList[m].fileMap.cend()) {
+                StrCopy(filePathBuf, iter->second.c_str());
+                forceFolder = true;
+                addPath     = false;
+                break;
             }
         }
     }
