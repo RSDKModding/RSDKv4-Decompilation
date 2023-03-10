@@ -1163,6 +1163,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         SetGlobalVariableByName("options.devMenuFlag", false);
         if (Engine.devMenu)
             SetGlobalVariableByName("options.devMenuFlag", true);
+        SetGlobalVariableByName("engine.standalone", true);
 #endif
     }
 
