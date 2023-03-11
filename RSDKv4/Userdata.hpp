@@ -47,8 +47,8 @@ struct SaveGame {
     int knuxUnlocked;    // Value 44
     int unlockedActs;    // Value 45
     int unlockedHPZ;     // Value 46
-    int unused[17];      // Value 47
-    int records[0x80];   // Values 48-176
+    int unused[17];      // Values 47-63
+    int records[0x80];   // Values 64-192
 };
 
 enum OnlineMenuTypes {
