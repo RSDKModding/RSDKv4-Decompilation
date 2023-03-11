@@ -379,7 +379,7 @@ void RecordsScreen_Main(void *objPtr)
             else {
                 if (self->zoneID >= 8) {
                     pos += timeAttack_ActCount * 8;
-                    ++pos;
+                    ++pos; // metropolis moment
                     pos += self->zoneID - 8;
                 }
                 else {

@@ -20,35 +20,35 @@
 #define unused(x) (void)x
 
 struct SaveFile {
-    int characterID;
-    int lives;
-    int score;
-    int scoreBonus;
-    int stageID;
-    int emeralds;
-    int specialStageID;
-    int unused;
+    int characterID;    // Value 0/8/16/24
+    int lives;          // Value 1/9/17/25
+    int score;          // Value 2/10/18/26
+    int scoreBonus;     // Value 3/11/19/27
+    int stageID;        // Value 4/12/20/28
+    int emeralds;       // Value 5/13/21/29
+    int specialStageID; // Value 6/14/22/30
+    int unused;         // Value 7/15/23/31
 };
 
 struct SaveGame {
-    SaveFile files[4];
-    int saveInitialized;
-    int musVolume;
-    int sfxVolume;
-    int spindashEnabled;
-    int boxRegion;
-    int vDPadSize;
-    int vDPadOpacity;
-    int vDPadX_Move;
-    int vDPadY_Move;
-    int vDPadX_Jump;
-    int vDPadY_Jump;
-    int tailsUnlocked;
-    int knuxUnlocked;
-    int unlockedActs;
-    int unlockedHPZ;
-    int unused[17];
-    int records[0x80];
+    SaveFile files[4];   // Values 0-31
+    int saveInitialized; // Value 32
+    int musVolume;       // Value 33
+    int sfxVolume;       // Value 34
+    int spindashEnabled; // Value 35
+    int boxRegion;       // Value 36
+    int vDPadSize;       // Value 37
+    int vDPadOpacity;    // Value 38
+    int vDPadX_Move;     // Value 39
+    int vDPadY_Move;     // Value 40
+    int vDPadX_Jump;     // Value 41
+    int vDPadY_Jump;     // Value 42
+    int tailsUnlocked;   // Value 43
+    int knuxUnlocked;    // Value 44
+    int unlockedActs;    // Value 45
+    int unlockedHPZ;     // Value 46
+    int unused[17];      // Value 47
+    int records[0x80];   // Values 48-176
 };
 
 enum OnlineMenuTypes {
