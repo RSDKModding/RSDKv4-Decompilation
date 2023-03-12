@@ -402,16 +402,16 @@ void InitNativeObjectSystem()
         saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1;
         saveGame->unlockedActs    = 0;
         WriteSaveRAMData();
-#if !RETRO_USE_ORIGINAL_CODE
     }
+#if !RETRO_USE_ORIGINAL_CODE
     else if (Engine.gameType == GAME_SONIC2) {
         // ensure tails and knuckles are unlocked in sonic 2
         // they weren't automatically unlocked in older versions of the decomp
         saveGame->tailsUnlocked = true;
         saveGame->knuxUnlocked  = true;
         WriteSaveRAMData();
-#endif
     }
+#endif
     saveGame->musVolume = bgmVolume;
     saveGame->sfxVolume = sfxVolume;
 
