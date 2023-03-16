@@ -1229,6 +1229,9 @@ void DrawStageGFX()
         }
 
         DrawObjectList(5);
+#if RETRO_REV03
+        DrawObjectList(7);
+#endif
         DrawObjectList(6);
     }
 
