@@ -290,6 +290,9 @@ void ProcessStage(void)
             DrawObjectList(3);
             DrawObjectList(4);
             DrawObjectList(5);
+#if RETRO_REV03
+			DrawObjectList(7);
+#endif
             DrawObjectList(6);
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -466,6 +469,9 @@ void ProcessStage(void)
                 DrawObjectList(3);
                 DrawObjectList(4);
                 DrawObjectList(5);
+#if RETRO_REV03
+				DrawObjectList(7);
+#endif
                 DrawObjectList(6);
 
 #if !RETRO_USE_ORIGINAL_CODE
