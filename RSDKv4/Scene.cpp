@@ -291,7 +291,7 @@ void ProcessStage(void)
             DrawObjectList(4);
             DrawObjectList(5);
 #if RETRO_REV03
-	    DrawObjectList(7);
+            DrawObjectList(7);
 #endif
             DrawObjectList(6);
 
@@ -470,7 +470,7 @@ void ProcessStage(void)
                 DrawObjectList(4);
                 DrawObjectList(5);
 #if RETRO_REV03
-		DrawObjectList(7);
+                DrawObjectList(7);
 #endif
                 DrawObjectList(6);
 
