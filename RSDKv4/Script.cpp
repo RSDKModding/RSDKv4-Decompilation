@@ -4065,12 +4065,42 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     // Origins Extras
                     // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
                     case VAR_SCREENCURRENTID: scriptEng.operands[i] = 0; break;
-                    case VAR_CAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
-                    case VAR_CAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
-                    case VAR_CAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
-                    case VAR_CAMERAXPOS: scriptEng.operands[i] = cameraXPos; break;
-                    case VAR_CAMERAYPOS: scriptEng.operands[i] = cameraYPos; break;
-                    case VAR_CAMERAADJUSTY: scriptEng.operands[i] = cameraAdjustY; break;
+                    case VAR_CAMERAENABLED:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraEnabled;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
+                    case VAR_CAMERATARGET:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraTarget;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
+                    case VAR_CAMERASTYLE:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraStyle;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
+                    case VAR_CAMERAXPOS:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraXPos;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
+                    case VAR_CAMERAYPOS:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraYPos;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
+                    case VAR_CAMERAADJUSTY:
+                        if (arrayVal == 0)
+                            scriptEng.operands[i] = cameraAdjustY;
+                        else
+                            scriptEng.operands[i] = 0;
+                        break;
 #endif
 
 #if RETRO_USE_HAPTICS
@@ -6297,27 +6327,27 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
                     case VAR_SCREENCURRENTID: break;
                     case VAR_CAMERAENABLED:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraEnabled = scriptEng.operands[i];
                         break;
                     case VAR_CAMERATARGET:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraTarget = scriptEng.operands[i];
                         break;
                     case VAR_CAMERASTYLE:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraStyle = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAXPOS:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraXPos = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAYPOS:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraYPos = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAADJUSTY:
-                        if (arrayVal <= 1)
+                        if (arrayVal == 0)
                             cameraAdjustY = scriptEng.operands[i];
                         break;
 #endif
