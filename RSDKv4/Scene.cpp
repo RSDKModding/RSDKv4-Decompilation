@@ -291,7 +291,11 @@ void ProcessStage(void)
             DrawObjectList(4);
             DrawObjectList(5);
 #if RETRO_REV03
-            DrawObjectList(7);
+#if !RETRO_USE_ORIGINAL_CODE
+            // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
+            if (!Engine.usingBytecode || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
+#endif
+                DrawObjectList(7);
 #endif
             DrawObjectList(6);
 
@@ -470,7 +474,11 @@ void ProcessStage(void)
                 DrawObjectList(4);
                 DrawObjectList(5);
 #if RETRO_REV03
-                DrawObjectList(7);
+#if !RETRO_USE_ORIGINAL_CODE
+                // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
+                if (!Engine.usingBytecode || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
+#endif
+                    DrawObjectList(7);
 #endif
                 DrawObjectList(6);
 
