@@ -293,7 +293,7 @@ void ProcessStage(void)
 #if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
             // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
-            if (!Engine.usingBytecode || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
+            if (forceUseScripts || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
 #endif
                 DrawObjectList(7);
 #endif
@@ -476,7 +476,7 @@ void ProcessStage(void)
 #if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
                 // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
-                if (!Engine.usingBytecode || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
+                if (forceUseScripts || GetGlobalVariableByName("NOTIFY_1P_VS_SELECT") != 0)
 #endif
                     DrawObjectList(7);
 #endif
