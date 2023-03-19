@@ -162,7 +162,8 @@ void PauseMenu_Create(void *objPtr)
     SetStringToFont(self->buttons[PMB_SETTINGS]->text, strSettings, FONT_LABEL);
     SetStringToFont(self->buttons[PMB_EXIT]->text, strExit, FONT_LABEL);
 #if !RETRO_USE_ORIGINAL_CODE
-    SetStringToFont(self->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
+    if (Engine.devMenu)
+        SetStringToFont(self->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
 #endif
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
     self->rotationY     = 0.0;
