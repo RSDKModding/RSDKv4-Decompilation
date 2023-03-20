@@ -155,7 +155,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 
     bool addPath = true;
     int m = activeMod != -1 ? activeMod : 0; 
-    for (int m = 0; m < modList.size(); ++m) {
+    for (; m < modList.size(); ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
