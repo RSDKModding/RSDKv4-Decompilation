@@ -567,8 +567,6 @@ const FunctionInfo functions[] = {
 int scriptValueListCount = 0;
 // clang-format off
 ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT] = {
-    // ORIGINAL ALIASES
-    // These are in the official v4
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "true", "1"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "false", "0"),
     ScriptVariableInfo(VAR_ALIAS, ACCESS_PUBLIC, "FX_SCALE", "0"),
