@@ -206,6 +206,9 @@ void ShowSegaIDPopup();
 void ShowOnlineSignIn();
 void ShowWebsite(int websiteID);
 
+void NativePlayerWaitingAds();
+void NativeWaterPlayerWaitingAds();
+
 #if RETRO_REV03
 void NotifyCallback(int *callback, int *param1, int *param2, int *param3);
 #endif

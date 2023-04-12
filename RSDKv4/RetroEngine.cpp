@@ -1183,6 +1183,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
 
+    // Introduced in the Sega Forever versions of S1 (3.9.0) and S2 (1.7.0)
+    AddNativeFunction("NativePlayerWaitingAds", NativePlayerWaitingAds);
+    AddNativeFunction("NativeWaterPlayerWaitingAds", NativeWaterPlayerWaitingAds);
+
 #if RETRO_REV03
     AddNativeFunction("NotifyCallback", NotifyCallback);
 #endif
