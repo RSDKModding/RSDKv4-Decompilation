@@ -6,15 +6,18 @@ A: You can find a tutorial for setting up both the game and mods [here](https://
 A: Try turning on VSync in settings.ini.
 
 ### Q: I found a bug!
-A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any future releases, however.
+A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any major future releases, however.
 
 # Using Mobile RSDK Files
 ### Q: Why does pressing B pause the game during gameplay?
-A: This is a known script issue with most Sega Forever versions of the games. Using mods or the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
+A: This is a known script issue with most Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
+
+### Q: Why is the default life count 1 instead of 3?
+A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
 
 # Using Origins RSDK Files
 ### Q: Why doesn't using the datafile work?
-A: The RSDK files from Sonic Origins are formatted in the RSDKv5 datapack format, not the RSDKv4 format. Repacking the files in the correct format or using Data Folder Mode will fix the issue.
+A: The RSDK files from Sonic Origins are encrypted in the RSDKv5 datapack format, not the RSDKv4 format. Repacking the files in the correct format or using Data Folder Mode will fix the issue.
 
 ### Q: Why is there no audio?
 A: Sonic Origins doesn't have any music or sound effects contained in the games' data files, instead storing and handling all in-game audio itself through Hedgehog Engine 2. You can fix this by simply inserting the audio files from the mobile versions of the games.
