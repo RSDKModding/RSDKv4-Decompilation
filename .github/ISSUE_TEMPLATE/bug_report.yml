@@ -65,7 +65,7 @@ body:
   - type: dropdown
     id: gameversion
     validations:
-      required: false
+      required: true
     attributes:
       label: "Game Version"
       description: What version of the game is being played?
@@ -78,7 +78,7 @@ body:
     validations:
       required: false
     attributes:
-      label: Game Version
+      label: Game Revision
       description: If you know the specific version number of the game, provide it here.
   - type: input
     validations:
