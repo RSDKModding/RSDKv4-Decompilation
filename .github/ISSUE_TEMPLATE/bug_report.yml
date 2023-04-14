@@ -86,7 +86,7 @@ body:
     attributes:
       label: Platform
       description: The platform/OS you're running the decompilation on.
-  - type: textbox
+  - type: textarea
     validations:
       required: false
     attributes:
