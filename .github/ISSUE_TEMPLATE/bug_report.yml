@@ -1,0 +1,94 @@
+name: Bug Report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening an issue, please read the following:
+        - Check the [FAQ](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/FAQ.md) to see if your issue is addressed there.
+        - Check if your bug has already been reported. Duplicates will be closed.
+        - Do not request support for making mods.
+        - If your bug does not seem to be related to any mods you're using, test if it occurs without any mods enabled.
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Expected Behavior
+      description: What behavior is supposed to occur?
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Steps to Reproduce
+      description: How can you reproduce the bug? Please give clear instructions.
+      placeholder: |
+        1. Do this
+        2. Do that
+        3. This happens
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Screenshots
+      description: Provide screenshots if applicable.
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Log File
+      description: If EngineDebugMode is enabled in settings.ini, the decompilation will write to a log file named log.txt. You can provide it here if you believe it will be helpful.
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Decompilation Version
+      description: The decompilation version. If you built it manually or are using an autobuild, please specify the commit if possible.
+  - type: dropdown
+    id: game
+    validations:
+      required: true
+    attributes:
+      label: "Game"
+      description: What game is being played?
+      multiple: false
+      options:
+        - Sonic 1
+        - Sonic 2
+        - This bug is not game-specific
+  - type: dropdown
+    id: gameversion
+    validations:
+      required: false
+    attributes:
+      label: "Game Version"
+      description: What version of the game is being played?
+      multiple: false
+      options:
+        - Mobile (Pre-Sega Forever)
+        - Mobile (Sega Forever)
+        - Sonic Origins
+  - type: input
+    validations:
+      required: false
+    attributes:
+      label: Game Version
+      description: If you know the specific version number of the game, provide it here.
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Platform
+      description: The platform/OS you're running the decompilation on.
+  - type: textbox
+    validations:
+      required: false
+    attributes:
+      label: Additional Comments
+      description: Provide any additional information if needed.
