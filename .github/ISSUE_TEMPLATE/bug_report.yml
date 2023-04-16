@@ -61,7 +61,6 @@ body:
       options:
         - Sonic 1
         - Sonic 2
-        - This bug is not game-specific
   - type: dropdown
     id: gameversion
     validations:
