@@ -1234,7 +1234,10 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_DEATH_EVENT: PrintLog("NOTIFY: DeathEvent() -> %d", *param1); break;
         case NOTIFY_TOUCH_SIGNPOST: PrintLog("NOTIFY: TouchSignPost() -> %d", *param1); break;
         case NOTIFY_HUD_ENABLE: PrintLog("NOTIFY: HUDEnable() -> %d", *param1); break;
-        case NOTIFY_ADD_COIN: PrintLog("NOTIFY: AddCoin() -> %d", *param1); break;
+        case NOTIFY_ADD_COIN:
+            PrintLog("NOTIFY: AddCoin() -> %d", *param1);
+            SetGlobalVariableByName("game.coinCount", GetGlobalVariableByName("game.coinCount") + *param1);
+            break;
         case NOTIFY_KILL_ENEMY: PrintLog("NOTIFY: KillEnemy() -> %d", *param1); break;
         case NOTIFY_SAVESLOT_SELECT: PrintLog("NOTIFY: SaveSlotSelect() -> %d", *param1); break;
         case NOTIFY_FUTURE_PAST: PrintLog("NOTIFY: FuturePast() -> %d", *param1); break;
