@@ -10,7 +10,7 @@ body:
         - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
         - Do not ask for help for making mods.
         - Do not report bugs for unofficial branches of the decompilation.
-        - If your bug does not seem to be related to any mods you're using, test if it occurs without any mods enabled.body:
+        - If your bug does not seem to be related to any mods you're using, test if it occurs without any mods enabled.
   - type: input
     validations:
       required: true
