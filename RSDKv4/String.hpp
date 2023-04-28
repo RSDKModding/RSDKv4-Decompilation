@@ -140,6 +140,7 @@ inline int StrLength(const char *string)
 #endif
 }
 int FindStringToken(const char *string, const char *token, char stopID);
+int FindLastStringToken(const char *string, const char *token);
 
 inline void StrCopyW(ushort *dest, const ushort *src)
 {
