@@ -80,12 +80,12 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (keyPress.left) {
                         if (saveGame->knuxUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            if (--self->playerID < 0)
+                            if (--self->playerID < SAVESEL_SONIC)
                                 self->playerID = SAVESEL_KNUX;
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            if (--self->playerID > 0)
+                            if (--self->playerID > SAVESEL_SONIC)
                                 self->playerID = SAVESEL_TAILS;
                         }
                     }
