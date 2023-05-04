@@ -1181,11 +1181,6 @@ void ShowWebsite(int websiteID)
     }
 }
 
-// In the Sega Forever versions of S1 & S2, there's a feature where you can choose to watch an ad to continue from a Game Over
-// We obviously can't do that here, so let's just take the L
-void NativePlayerWaitingAds() { SetGlobalVariableByName("waitingAds.result", 2); }
-void NativeWaterPlayerWaitingAds() { SetGlobalVariableByName("waitingAds.water", 2); }
-
 #if RETRO_REV03
 enum NotifyCallbackIDs {
     NOTIFY_DEATH_EVENT        = 128,
