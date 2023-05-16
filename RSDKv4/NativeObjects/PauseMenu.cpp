@@ -1,515 +1,240 @@
 #include "RetroEngine.hpp"
+#if !RETRO_USE_ORIGINAL_CODE
+#include <algorithm>
 
-int pauseMenuButtonCount;
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+
+ushort *fbcopy;
+ushort *displayed;
+ushort *lookup = new ushort[0xFFFF];
 
 void PauseMenu_Create(void *objPtr)
 {
-    RSDK_THIS(PauseMenu);
+    NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
+    pauseMenu->state                  = 0;
+    pauseMenu->timer                  = 0;
+    pauseMenu->triTimer               = 0;
+    pauseMenu->barTimer               = 0;
+    pauseMenu->direction              = false;
+    pauseMenu->selectedOption         = 0;
+    pauseMenu->barPos                 = SCREEN_XSIZE + 67;
+    pauseMenu->slowTimer              = 0;
 
-    // code has been here from TitleScreen_Create due to the possibility of opening the dev menu before this loads :(
-#if !RETRO_USE_ORIGINAL_CODE
-    int heading = -1, labelTex = -1, textTex = -1;
+    fbcopy    = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
+    displayed = new ushort[SCREEN_XSIZE * SCREEN_YSIZE];
 
-    if (fontList[FONT_HEADING].count <= 2) {
-        if (Engine.useHighResAssets)
-            heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
-        else
-            heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
-        LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
-    }
+    LoadPalette("Menu/Pause/PauseMenu.act", 7, 0, 0, 56, true);
 
-    if (fontList[FONT_LABEL].count <= 2) {
-        if (Engine.useHighResAssets)
-            labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
-        else
-            labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
-        LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
-    }
+    SetPaletteEntry(7, 8, 0xca, 0x51, 0);
+    SetPaletteEntry(7, 9, 0xca, 0x51, 0);
 
-    if (fontList[FONT_TEXT].count <= 2) {
-        textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
-        LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
-    }
-
-    switch (Engine.language) {
-        case RETRO_JP:
-            if (heading >= 0) {
-                heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
-            }
-
-            if (labelTex >= 0) {
-                labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
-            }
-
-            if (textTex >= 0) {
-                textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
-            }
-            break;
-        case RETRO_RU:
-            if (heading >= 0) {
-                if (Engine.useHighResAssets)
-                    heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
-                else
-                    heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
-            }
-
-            if (labelTex >= 0) {
-                if (Engine.useHighResAssets)
-                    labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
-                else
-                    labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
-            }
-            break;
-        case RETRO_KO:
-            if (heading >= 0) {
-                heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
-            }
-
-            if (labelTex >= 0) {
-                labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
-            }
-
-            if (textTex >= 0) {
-                textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
-            }
-            break;
-        case RETRO_ZH:
-            if (heading >= 0) {
-                heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
-            }
-
-            if (labelTex >= 0) {
-                labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
-            }
-
-            if (textTex >= 0) {
-                textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
-            }
-            break;
-        case RETRO_ZS:
-            if (heading >= 0) {
-                heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
-            }
-
-            if (labelTex >= 0) {
-                labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
-            }
-
-            if (textTex >= 0) {
-                textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
-                LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
-            }
-            break;
-        default: break;
-    }
+#if RETRO_SOFTWARE_RENDER
+    memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 #endif
+}
 
-    pauseMenuButtonCount = PMB_COUNT;
-#if !RETRO_USE_ORIGINAL_CODE
-    if (!Engine.devMenu)
-        pauseMenuButtonCount--;
-#endif
+inline int lerp(float a, float b, float amount) { return a + amount * (b - a); }
 
-    self->retroGameLoop = (NativeEntity_RetroGameLoop *)GetNativeObject(0);
-    self->label         = CREATE_ENTITY(TextLabel);
-    self->label->state  = TEXTLABEL_STATE_IDLE;
-    self->label->z      = 0.0;
-    self->label->scale  = 0.2;
-    self->label->alpha  = 0;
-    self->label->fontID = FONT_HEADING;
-    SetStringToFont(self->label->text, strPause, FONT_HEADING);
-    self->label->alignOffset = 512.0;
-    self->renderRot          = DegreesToRad(22.5);
-    MatrixRotateYF(&self->label->renderMatrix, DegreesToRad(22.5));
-    MatrixTranslateXYZF(&self->matrix, -128.0, 80.0, 160.0);
-    MatrixMultiplyF(&self->label->renderMatrix, &self->matrix);
-    self->label->useRenderMatrix = true;
-    self->buttonX                = ((SCREEN_CENTERX_F + -160.0) * -0.5) + -128.0;
-    for (int i = 0; i < pauseMenuButtonCount; ++i) {
-        NativeEntity_SubMenuButton *button = CREATE_ENTITY(SubMenuButton);
-        self->buttons[i]                   = button;
-        button->scale                      = 0.1;
-        button->matZ                       = 0.0;
-        button->matXOff                    = 512.0;
-        button->textY                      = -4.0;
-        self->buttonRot[i]                 = DegreesToRad(16.0);
-        MatrixRotateYF(&button->matrix, DegreesToRad(16.0));
-        MatrixTranslateXYZF(&self->matrix, self->buttonX, 48.0 - i * 30, 160.0);
-        MatrixMultiplyF(&self->buttons[i]->matrix, &self->matrix);
-        button->symbol    = 1;
-        button->useMatrix = true;
-    }
-    if ((GetGlobalVariableByName("player.lives") <= 1 && GetGlobalVariableByName("options.gameMode") <= 1) || !activeStageList
-        || GetGlobalVariableByName("options.attractMode") == 1 || GetGlobalVariableByName("options.vsMode") == 1) {
-        self->buttons[PMB_RESTART]->r = 0x80;
-        self->buttons[PMB_RESTART]->g = 0x80;
-        self->buttons[PMB_RESTART]->b = 0x80;
-    }
-    SetStringToFont(self->buttons[PMB_CONTINUE]->text, strContinue, FONT_LABEL);
-    SetStringToFont(self->buttons[PMB_RESTART]->text, strRestart, FONT_LABEL);
-    SetStringToFont(self->buttons[PMB_SETTINGS]->text, strSettings, FONT_LABEL);
-    SetStringToFont(self->buttons[PMB_EXIT]->text, strExit, FONT_LABEL);
-#if !RETRO_USE_ORIGINAL_CODE
-    if (Engine.devMenu)
-        SetStringToFont(self->buttons[PMB_DEVMENU]->text, strDevMenu, FONT_LABEL);
+void PauseMenu_Destroy(NativeEntity_PauseMenu *pauseMenu)
+{
+    RemoveNativeObject(pauseMenu);
+    pauseMenu = nullptr;
+#if RETRO_DEVICETYPE == RETRO_STANDARD && (RETRO_USING_SDL1 || RETRO_USING_SDL2)
+    if (Engine.isFullScreen)
+        SDL_ShowCursor(SDL_FALSE);
 #endif
-    self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
-    self->rotationY     = 0.0;
-    self->rotYOff       = DegreesToRad(-16.0);
-    self->matrixX       = 0.0;
-    self->matrixY       = 0.0;
-    self->matrixZ       = 160.0;
-    self->width         = (1.75 * SCREEN_CENTERX_F) - ((SCREEN_CENTERX_F - 160) * 2);
-    if (Engine.gameDeviceType == RETRO_MOBILE)
-        self->textureDPad = LoadTexture("Data/Game/Menu/VirtualDPad.png", TEXFMT_RGBA8888);
-    self->dpadY             = 104.0;
-    self->state             = PAUSEMENU_STATE_ENTER;
-    self->miniPauseDisabled = true;
-    self->dpadX             = SCREEN_CENTERX_F - 76.0;
-    self->dpadXSpecial      = SCREEN_CENTERX_F - 52.0;
+    delete[] fbcopy;
+    delete[] displayed;
 }
 void PauseMenu_Main(void *objPtr)
 {
-    RSDK_THIS(PauseMenu);
-    switch (self->state) {
-        case PAUSEMENU_STATE_SETUP: {
-            self->timer += Engine.deltaTime;
-            if (self->timer > 1.0) {
-                self->timer = 0.0;
-                self->state = PAUSEMENU_STATE_ENTER;
-            }
-            break;
-        }
-        case PAUSEMENU_STATE_ENTER: {
-            if (self->unusedAlpha < 0x100)
-                self->unusedAlpha += 8;
-            self->timer += Engine.deltaTime * 2;
-            self->label->alignOffset = self->label->alignOffset / (1.125 * (60.0 * Engine.deltaTime));
-            self->label->alpha       = (256.0 * self->timer);
-            for (int i = 0; i < pauseMenuButtonCount; ++i)
-                self->buttons[i]->matXOff += ((-176.0 - self->buttons[i]->matXOff) / (16.0 * (60.0 * Engine.deltaTime)));
-            self->matrixX += ((self->width - self->matrixX) / ((60.0 * Engine.deltaTime) * 12.0));
-            self->matrixZ += ((512.0 - self->matrixZ) / ((60.0 * Engine.deltaTime) * 12.0));
-            self->rotationY += ((self->rotYOff - self->rotationY) / (16.0 * (60.0 * Engine.deltaTime)));
-            if (self->timer > 1.0) {
-                self->timer = 0.0;
-                self->state = PAUSEMENU_STATE_MAIN;
-            }
-            break;
-        }
-        case PAUSEMENU_STATE_MAIN: {
-            CheckKeyDown(&keyDown);
-            CheckKeyPress(&keyPress);
-            if (usePhysicalControls) {
-                if (touches > 0) {
-                    usePhysicalControls = false;
-                }
-                else {
-                    if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
-                        self->buttonSelected--;
-                        if (self->buttonSelected < PMB_CONTINUE)
-                            self->buttonSelected = pauseMenuButtonCount - 1;
-                    }
-                    else if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
-                        self->buttonSelected++;
-                        if (self->buttonSelected >= pauseMenuButtonCount)
-                            self->buttonSelected = PMB_CONTINUE;
-                    }
-                    for (int i = 0; i < pauseMenuButtonCount; ++i) self->buttons[i]->b = self->buttons[i]->r;
-                    self->buttons[self->buttonSelected]->b = 0;
-                    if (self->buttons[self->buttonSelected]->g > 0x80 && (keyPress.start || keyPress.A)) {
-                        PlaySfxByName("Menu Select", false);
-                        self->buttons[self->buttonSelected]->state = SUBMENUBUTTON_STATE_FLASHING2;
-                        self->buttons[self->buttonSelected]->b     = 0xFF;
-                        self->state                                = PAUSEMENU_STATE_ACTION;
-                    }
-                }
-            }
-            else {
-                for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                    if (touches > 0) {
-                        if (self->buttons[i]->g > 0x80)
-                            self->buttons[i]->b = (CheckTouchRect(-80.0, 48.0 - i * 30, 112.0, 12.0) < 0) * 0xFF;
-                        else
-                            self->buttons[i]->b = 0x80;
-                    }
-                    else if (!self->buttons[i]->b) {
-                        self->buttonSelected = i;
-                        PlaySfxByName("Menu Select", false);
-                        self->buttons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
-                        self->buttons[i]->b     = 0xFF;
-                        self->state             = PAUSEMENU_STATE_ACTION;
-                        break;
-                    }
-                }
+    CheckKeyDown(&keyDown);
+    CheckKeyPress(&keyPress);
 
-                if (self->state == PAUSEMENU_STATE_MAIN && (keyDown.up || keyDown.down)) {
-                    self->buttonSelected = PMB_CONTINUE;
-                    usePhysicalControls  = true;
-                }
-            }
-            if (touches > 0) {
-                if (!self->miniPauseDisabled && CheckTouchRect(SCREEN_CENTERX_F, SCREEN_CENTERY_F, 112.0, 24.0) >= 0) {
-                    self->buttonSelected = PMB_CONTINUE;
-                    PlaySfxByName("Resume", false);
-                    self->state = PAUSEMENU_STATE_ACTION;
-                }
-            }
-            else {
-                self->miniPauseDisabled = false;
-                if (self->makeSound) {
-                    PlaySfxByName("Menu Select", false);
-                    self->makeSound = false;
-                }
-            }
-            break;
-        }
-        case PAUSEMENU_STATE_CONTINUE: {
-            self->label->alignOffset += 10.0 * (60.0 * Engine.deltaTime);
-            self->timer += Engine.deltaTime * 2;
-            for (int i = 0; i < pauseMenuButtonCount; ++i) self->buttons[i]->matXOff += ((12.0 + i) * (60.0 * Engine.deltaTime));
-            self->matrixX += ((-self->matrixX) / (5.0 * (60.0 * Engine.deltaTime)));
-            self->matrixZ += ((160.0 - self->matrixZ) / (5.0 * (60.0 * Engine.deltaTime)));
-            self->rotationY += ((self->rotYOff - self->rotationY) / ((60.0 * Engine.deltaTime) * 6.0));
+    NativeEntity_PauseMenu *pauseMenu = (NativeEntity_PauseMenu *)objPtr;
 
-            if (self->timer > 0.9) {
-                mixFiltersOnJekyll = true;
-                RenderRetroBuffer(64, 160.0);
-                if (Engine.gameDeviceType == RETRO_MOBILE) {
-                    if (activeStageList == STAGELIST_SPECIAL)
-                        RenderImage(self->dpadXSpecial, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
-                    else
-                        RenderImage(self->dpadX, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
-                }
-                self->timer = 0.0;
-                ClearNativeObjects();
-                CREATE_ENTITY(RetroGameLoop);
-                if (Engine.gameDeviceType == RETRO_MOBILE)
-                    CREATE_ENTITY(VirtualDPad)->pauseAlpha = 255;
-                ResumeSound();
-                Engine.gameMode = ENGINE_MAINGAME;
-                return;
-            }
-            break;
-        }
-        case PAUSEMENU_STATE_ACTION: {
-            if (!self->buttons[self->buttonSelected]->state) {
-                switch (self->buttonSelected) {
-                    case PMB_CONTINUE:
-                        self->state   = PAUSEMENU_STATE_CONTINUE;
-                        self->rotYOff = 0.0;
-                        break;
-                    case PMB_RESTART:
-                        self->dialog = CREATE_ENTITY(DialogPanel);
-                        SetStringToFont(self->dialog->text, GetGlobalVariableByName("options.gameMode") ? strRestartMessage : strNSRestartMessage,
-                                        FONT_TEXT);
-                        self->state = PAUSEMENU_STATE_RESTART;
-                        break;
-                    case PMB_SETTINGS:
-                        self->state        = PAUSEMENU_STATE_ENTERSUBMENU;
-                        self->rotInc       = 0.0;
-                        self->renderRotMax = DegreesToRad(-90.0);
-                        for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                            self->rotMax[i]     = DegreesToRad(-90.0);
-                            self->buttonRotY[i] = 0.02 * (i + 1);
-                        }
+    int amount = (pauseMenu->direction ? 20 - (pauseMenu->barTimer * 1.5f) : pauseMenu->barTimer) * 17.5f;
+    if (amount < 0)
+        amount = 0;
+    if (amount > 0xFF)
+        amount = 0xFF;
 
-                        break;
-                    case PMB_EXIT:
-                        self->dialog = CREATE_ENTITY(DialogPanel);
-                        SetStringToFont(self->dialog->text, GetGlobalVariableByName("options.gameMode") ? strExitMessage : strNSExitMessage,
-                                        FONT_TEXT);
-                        self->state = PAUSEMENU_STATE_EXIT;
-                        if (Engine.gameType == GAME_SONIC1)
-                            SetGlobalVariableByName("timeAttack.result", 1000000);
-                        break;
-#if !RETRO_USE_ORIGINAL_CODE
-                    case PMB_DEVMENU:
-                        self->state = PAUSEMENU_STATE_DEVMENU;
-                        self->timer = 0.0;
-                        break;
+#if RETRO_SOFTWARE_RENDER
+    if (pauseMenu->direction) // we copy to ensure it gets sepia'd
+        memcpy(fbcopy, Engine.frameBuffer, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
 #endif
-                    default: break;
-                }
+
+    switch (pauseMenu->state) {
+        case 0:
+            // wait
+            pauseMenu->barPos -= cos256(pauseMenu->timer * 3) / 21;
+            if (++pauseMenu->timer > 21) {
+                pauseMenu->state++;
+                pauseMenu->timer = 0;
             }
             break;
-        }
-        case PAUSEMENU_STATE_ENTERSUBMENU: {
-            if (self->renderRot > self->renderRotMax) {
-                self->rotInc -= 0.0025 * (Engine.deltaTime * 60.0);
-                self->renderRot += (Engine.deltaTime * 60.0) * self->rotInc;
-                self->rotInc -= 0.0025 * (Engine.deltaTime * 60.0);
-                MatrixRotateYF(&self->label->renderMatrix, self->renderRot);
-                MatrixTranslateXYZF(&self->matrix, self->buttonX, 80.0, 160.0);
-                MatrixMultiplyF(&self->label->renderMatrix, &self->matrix);
+        case 1:
+            if (keyPress.up || keyPress.down) {
+                pauseMenu->selectedOption = (pauseMenu->selectedOption + (keyPress.up ? -1 : 1)) % (3 + (int)Engine.devMenu);
+                if (pauseMenu->selectedOption < 0)
+                    pauseMenu->selectedOption = (2 + (int)Engine.devMenu);
+                PlaySFXByName("MenuMove", 0);
             }
-            for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                if (self->buttonRot[i] > self->rotMax[i]) {
-                    self->buttonRotY[i] -= 0.0025 * (60.0 * Engine.deltaTime);
-                    if (self->buttonRotY[i] < 0.0) {
-                        self->buttonRot[i] += ((60.0 * Engine.deltaTime) * self->buttonRotY[i]);
+
+            if (keyPress.A || keyPress.start) {
+                switch (pauseMenu->selectedOption) {
+                    case 0: {
+                        Engine.gameMode     = ENGINE_EXITPAUSE;
+                        pauseMenu->state    = 2;
+                        pauseMenu->barTimer = 1;
+                        break;
                     }
-                    self->buttonRotY[i] -= 0.0025 * (60.0 * Engine.deltaTime); // do it again ????
-                    MatrixRotateYF(&self->buttons[i]->matrix, self->buttonRot[i]);
-                    MatrixTranslateXYZF(&self->matrix, self->buttonX, 48.0 - i * 30, 160.0);
-                    MatrixMultiplyF(&self->buttons[i]->matrix, &self->matrix);
+                    case 1:
+                    case 2:
+                    case 3: pauseMenu->state = pauseMenu->selectedOption + 2; break;
                 }
+                PlaySFXByName("MenuSelect", 0);
             }
-            if (self->rotMax[pauseMenuButtonCount - 1] >= self->buttonRot[pauseMenuButtonCount - 1]) {
-                self->state = PAUSEMENU_STATE_SUBMENU;
-
-                self->rotInc       = 0.0;
-                self->renderRotMax = DegreesToRad(22.5);
-                for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                    self->rotMax[i]     = DegreesToRad(16.0);
-                    self->buttonRotY[i] = -0.02 * (i + 1);
-                }
-                if (self->buttonSelected == 2) {
-                    self->settingsScreen              = CREATE_ENTITY(SettingsScreen);
-                    self->settingsScreen->optionsMenu = (NativeEntity_OptionsMenu *)self;
-                    self->settingsScreen->isPauseMenu = 1;
-                }
-            }
-            self->matrixX += ((1024.0 - self->matrixX) / ((60.0 * Engine.deltaTime) * 16.0));
-            break;
-        }
-        case PAUSEMENU_STATE_SUBMENU: break;
-        case PAUSEMENU_STATE_EXITSUBMENU: {
-            if (self->renderRotMax > self->renderRot) {
-                self->rotInc += 0.0025 * (Engine.deltaTime * 60.0);
-                self->renderRot += (Engine.deltaTime * 60.0) * self->rotInc;
-                self->rotInc += 0.0025 * (Engine.deltaTime * 60.0);
-                MatrixRotateYF(&self->label->renderMatrix, self->renderRot);
-                MatrixTranslateXYZF(&self->matrix, self->buttonX, 80.0, 160.0);
-                MatrixMultiplyF(&self->label->renderMatrix, &self->matrix);
-            }
-
-            for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                if (self->rotMax[i] > self->buttonRot[i]) {
-                    self->buttonRotY[i] += 0.0025 * (60.0 * Engine.deltaTime);
-                    if (self->buttonRotY[i] > 0.0)
-                        self->buttonRot[i] += ((60.0 * Engine.deltaTime) * self->buttonRotY[i]);
-                    self->buttonRotY[i] += 0.0025 * (60.0 * Engine.deltaTime);
-                    if (self->buttonRot[i] > self->rotMax[i])
-                        self->buttonRot[i] = self->rotMax[i];
-                    MatrixRotateYF(&self->buttons[i]->matrix, self->buttonRot[i]);
-                    MatrixTranslateXYZF(&self->matrix, self->buttonX, 48.0 - i * 30, 160.0);
-                    MatrixMultiplyF(&self->buttons[i]->matrix, &self->matrix);
-                }
-            }
-
-            float div = (60.0 * Engine.deltaTime) * 16.0;
-            self->matrixX += (((self->width - 32.0) - self->matrixX) / div);
-            if (self->width - 16.0 > self->matrixX) {
-                self->matrixX = self->width - 16.0;
-                self->state   = PAUSEMENU_STATE_MAIN;
-            }
-            break;
-        }
-        case PAUSEMENU_STATE_RESTART: {
-            if (self->dialog->selection == DLG_YES) {
-                self->state     = PAUSEMENU_STATE_SUBMENU;
+            else if (keyPress.B) {
                 Engine.gameMode = ENGINE_EXITPAUSE;
-                stageMode       = STAGEMODE_LOAD;
-                if (GetGlobalVariableByName("options.gameMode") <= 1) {
-                    SetGlobalVariableByName("player.lives", GetGlobalVariableByName("player.lives") - 1);
-                }
-                if (activeStageList != STAGELIST_SPECIAL) {
-                    SetGlobalVariableByName("lampPostID", 0);
-                    SetGlobalVariableByName("starPostID", 0);
-                }
-                self->dialog->state = DIALOGPANEL_STATE_IDLE;
-                StopMusic(true);
-                CREATE_ENTITY(FadeScreen);
-                break;
-            }
-            if (self->dialog->selection == DLG_NO)
-                self->state = PAUSEMENU_STATE_MAIN;
-            break;
-        }
-        case PAUSEMENU_STATE_EXIT: {
-            if (self->dialog->selection == DLG_YES) {
-                self->state = PAUSEMENU_STATE_SUBMENU;
-#if !RETRO_USE_ORIGINAL_CODE
-                if (skipStartMenu) {
-                    Engine.gameMode                  = ENGINE_MAINGAME;
-                    self->dialog->state              = DIALOGPANEL_STATE_IDLE;
-                    NativeEntity_FadeScreen *fadeout = CREATE_ENTITY(FadeScreen);
-                    fadeout->state                   = FADESCREEN_STATE_GAMEFADEOUT;
-                    activeStageList                  = STAGELIST_PRESENTATION;
-                    stageListPosition                = 0;
-                    stageMode                        = STAGEMODE_LOAD;
-                }
-                else {
-#endif
-                    Engine.gameMode     = (GetGlobalVariableByName("options.gameMode") > 1) + ENGINE_ENDGAME;
-                    self->dialog->state = DIALOGPANEL_STATE_IDLE;
-                    CREATE_ENTITY(FadeScreen);
-#if !RETRO_USE_ORIGINAL_CODE
-                }
-#endif
-            }
-            else {
-                if (self->dialog->selection == DLG_YES || self->dialog->selection == DLG_NO || self->dialog->selection == DLG_OK) {
-                    self->state   = PAUSEMENU_STATE_MAIN;
-                    self->unused2 = 50;
-                }
+                PlaySFXByName("MenuBack", 0);
+                pauseMenu->barTimer = 1;
+                pauseMenu->state    = 6;
             }
             break;
-        }
-#if !RETRO_USE_ORIGINAL_CODE
-        case PAUSEMENU_STATE_DEVMENU:
-            self->timer += Engine.deltaTime;
-            if (self->timer > 0.5) {
-                if (!self->devMenuFade) {
-                    self->devMenuFade        = CREATE_ENTITY(FadeScreen);
-                    self->devMenuFade->state = FADESCREEN_STATE_FADEOUT;
-                }
-                if (!self->devMenuFade->delay || self->devMenuFade->timer >= self->devMenuFade->delay) {
-                    ClearNativeObjects();
-                    RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 255);
-                    CREATE_ENTITY(RetroGameLoop);
-                    if (Engine.gameDeviceType == RETRO_MOBILE)
-                        CREATE_ENTITY(VirtualDPad);
-                    Engine.gameMode = ENGINE_INITDEVMENU;
-                    return;
-                }
+        case 2: pauseMenu->revokeTimer++;
+        case 6:
+            if (pauseMenu->state != 2 || pauseMenu->revokeTimer >= 8) {
+                pauseMenu->barPos += sin256(pauseMenu->timer * 3) / 21;
+                if (++pauseMenu->timer > 21)
+                    return PauseMenu_Destroy(pauseMenu);
             }
             break;
-#endif
-        default: break;
+        case 3:
+        case 4:
+        case 5:
+            // wait (again)
+            if (pauseMenu->revokeTimer++ >= 12)
+                pauseMenu->barPos -= pow(pauseMenu->timer++, 2) / 10;
+
+            if (pauseMenu->barPos + 128 < 0 && pauseMenu->slowTimer++ > 7) {
+
+                switch (pauseMenu->state) {
+                    case 3:
+                        stageMode       = STAGEMODE_LOAD;
+                        Engine.gameMode = ENGINE_MAINGAME;
+                        break;
+                    case 4: initStartMenu(2); break;
+                    case 5:
+                        Engine.gameMode = ENGINE_DEVMENU;
+                        initDevMenu();
+                        break;
+                }
+                return PauseMenu_Destroy(pauseMenu);
+            }
+            break;
     }
 
-    SetRenderBlendMode(RENDER_BLEND_NONE);
-    NewRenderState();
-    MatrixRotateYF(&self->matrixTemp, self->rotationY);
-    MatrixTranslateXYZF(&self->matrix, self->matrixX, self->matrixY, self->matrixZ);
-    MatrixMultiplyF(&self->matrixTemp, &self->matrix);
-    SetRenderMatrix(&self->matrixTemp);
-    RenderRect(-SCREEN_CENTERX_F - 4.0, SCREEN_CENTERY_F + 4.0, 0.0, SCREEN_XSIZE_F + 8.0, SCREEN_YSIZE_F + 8.0, 0, 0, 0, 255);
-    RenderRetroBuffer(64, 0.0);
-    NewRenderState();
-    SetRenderMatrix(NULL);
-    if (Engine.gameDeviceType == RETRO_MOBILE && self->state != PAUSEMENU_STATE_SUBMENU) {
-        if (activeStageList == STAGELIST_SPECIAL)
-            RenderImage(self->dpadXSpecial, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
-        else
-            RenderImage(self->dpadX, self->dpadY, 160.0, 0.25, 0.25, 32.0, 32.0, 64.0, 64.0, 160.0, 258.0, 255, self->textureDPad);
+    if (amount) {
+        memset(lookup, 0, 0xFFFF * sizeof(ushort));
+        float famount = (float)amount / 0xFF;
+
+        for (int i = 0; i < SCREEN_XSIZE * SCREEN_YSIZE; ++i) {
+            ushort color = fbcopy[i];
+            if (!color) {
+                displayed[i] = 0;
+                continue;
+            }
+            if (lookup[color]) {
+                displayed[i] = lookup[color];
+                continue;
+            }
+            int r = ((color >> 11) * 527 + 23) >> 6;
+            int g = (((color >> 5) & 0b111111) * 259 + 33) >> 6;
+            int b = ((color & 0b11111) * 527 + 23) >> 6;
+
+            int tr, tg, tb;
+            tr = 0.393 * r + 0.769 * g + 0.189 * b + 10;
+            tg = 0.349 * r + 0.686 * g + 0.168 * b - 9;
+            tb = 0.272 * r + 0.534 * g + 0.131 * b - 30;
+            if (tg < 0)
+                tg = 0;
+            if (tb < 0)
+                tb = 0;
+
+            // lerp
+            int fr, fg, fb;
+            if (amount < 0xFF) {
+                fr = lerp(r, tr, famount);
+                fg = lerp(g, tg, famount);
+                fb = lerp(b, tb, famount);
+            }
+            else {
+                fr = tr;
+                fg = tg;
+                fb = tb;
+            }
+            fr = MIN(255, fr);
+            fg = MIN(255, fg);
+            fb = MIN(255, fb);
+
+            lookup[color] = PACK_RGB888(fr, fg, fb);
+            displayed[i]  = lookup[color];
+        }
+#if RETRO_SOFTWARE_RENDER
+        memcpy(Engine.frameBuffer, displayed, (SCREEN_XSIZE * SCREEN_YSIZE) * sizeof(ushort));
+#endif
+        pauseMenu->direction = pauseMenu->state == 2 || pauseMenu->state == 6;
     }
-    SetRenderBlendMode(RENDER_BLEND_ALPHA);
-    NewRenderState();
+
+    SetActivePalette(7, 0, SCREEN_YSIZE);
+
+    // EXTRA BARS + PAUSED TEXT
+    if (!pauseMenu->direction) {
+        DrawRectangle(14, 0, 22, pauseMenu->barTimer * SCREEN_YSIZE / 14, 0, 0, 0, 255);
+        DrawRectangle(0, SCREEN_YSIZE - 38, pauseMenu->barTimer * SCREEN_XSIZE / 14, 13, 0, 0, 0, 255);
+        DrawRectangle(0, SCREEN_YSIZE - 19, pauseMenu->barTimer * SCREEN_XSIZE / 14, 6, 0, 0, 0, 255);
+
+        DrawSprite(pauseMenu->barTimer * SCREEN_XSIZE / 14 - SCREEN_XSIZE, SCREEN_YSIZE - 38 - 14, 89, 22, 0, 0, SURFACE_MAX - 1);
+    }
+    else {
+        DrawRectangle(14, pauseMenu->barTimer * SCREEN_YSIZE / 14, 22, SCREEN_YSIZE, 0, 0, 0, 255);
+        DrawRectangle(pauseMenu->barTimer * SCREEN_XSIZE / 14, SCREEN_YSIZE - 38, SCREEN_XSIZE, 13, 0, 0, 0, 255);
+        DrawRectangle(pauseMenu->barTimer * SCREEN_XSIZE / 14, SCREEN_YSIZE - 19, SCREEN_XSIZE, 6, 0, 0, 0, 255);
+
+        DrawSprite((15 - pauseMenu->barTimer) * SCREEN_XSIZE / 14 - SCREEN_XSIZE, SCREEN_YSIZE - 38 - 14, 89, 22, 0, 0, SURFACE_MAX - 1);
+    }
+
+    // RIGHT BAR
+    DrawRectangle(pauseMenu->barPos, 0, SCREEN_XSIZE - pauseMenu->barPos, SCREEN_YSIZE, 0, 0, 0, 0xFF);
+    for (int i = 0; i < SCREEN_YSIZE / 20 + 2; i++) {
+        DrawSprite(pauseMenu->barPos - 11, i * 20 + (pauseMenu->triTimer / 2) - 20, 11, 20, 97, 37, SURFACE_MAX - 1);
+    }
+
+    // DOODLES
+    if (pauseMenu->pressTimer--) {
+        // DrawSprite(pauseMenu->barPos)
+    }
+    // OPTIONS
+    int margins[4][3] = { { 0, 46, 65 }, { 0, 58, 55 }, { 66, 46, 30 }, { 56, 58, 64 } };
+    int optionCount = (Engine.devMenu ? 4 : 3);
+
+    for (int i = 0; i < optionCount; i++) {
+        if (i == pauseMenu->selectedOption) {
+            DrawSprite(pauseMenu->barPos + 10, i * 32 + 52, 78, 4, 0, 94, SURFACE_MAX - 1);
+            if (pauseMenu->revokeTimer % 6 > 2)
+                continue;
+        }
+
+        DrawSprite(pauseMenu->barPos + 12, i * 32 + 38, margins[i][2], 11, margins[i][0], margins[i][1] + (pauseMenu->selectedOption == i) * 24,
+                   SURFACE_MAX - 1);
+    }
+
+    if (pauseMenu->barTimer < 15)
+        pauseMenu->barTimer++;
+
+    pauseMenu->triTimer = (pauseMenu->triTimer + 1) % 40;
+
+    SetActivePalette(0, 0, SCREEN_YSIZE);
 }
+#endif
