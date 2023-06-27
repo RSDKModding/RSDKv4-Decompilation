@@ -1285,9 +1285,9 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_SPIN_DASH_TYPE: PrintLog("NOTIFY: SpindashType() -> %d", *param1); break;
         case NOTIFY_TIME_OVER: PrintLog("NOTIFY: TimeOver() -> %d", *param1); break;
         case NOTIFY_TIMEATTACK_MODE: PrintLog("NOTIFY: TimeAttackMode() -> %d", *param1); break;
-        case NOTIFY_STATS_BREAK_OBJECT: PrintLog("NOTIFY: StatsBreakObject() -> %d", *param1); break;
+        case NOTIFY_STATS_BREAK_OBJECT: PrintLog("NOTIFY: StatsBreakObject() -> %d, %d", *param1, *param2); break;
         case NOTIFY_STATS_SAVE_FUTURE: PrintLog("NOTIFY: StatsSaveFuture() -> %d", *param1); break;
-        case NOTIFY_STATS_CHARA_ACTION2: PrintLog("NOTIFY: StatsCharaAction2() -> %d", *param1); break;
+        case NOTIFY_STATS_CHARA_ACTION2: PrintLog("NOTIFY: StatsCharaAction2() -> %d, %d, %d", *param1, *param2, *param3); break;
     }
 }
 #endif
