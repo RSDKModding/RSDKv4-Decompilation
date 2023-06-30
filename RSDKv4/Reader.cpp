@@ -165,6 +165,8 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
                 break;
             }
         }
+        if (activeMod != -1)
+            break;
     }
 
     if (forceUseScripts && !forceFolder) {
