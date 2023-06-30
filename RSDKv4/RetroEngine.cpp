@@ -974,7 +974,7 @@ void RetroEngine::LoadXMLStages(TextMenu *menu, int listNo)
 
                                 const tinyxml2::XMLAttribute *folderAttr = FindXMLAttribute(stgElement, "folder");
                                 const char *stgFolder                    = "unknownStageFolder";
-                                if (nameAttr)
+                                if (folderAttr)
                                     stgFolder = GetXMLAttributeValueString(folderAttr);
 
                                 const tinyxml2::XMLAttribute *idAttr = FindXMLAttribute(stgElement, "id");
