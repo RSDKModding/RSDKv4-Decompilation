@@ -717,7 +717,7 @@ void RetroEngine::LoadXMLPalettes()
 
             if (success) {
                 const tinyxml2::XMLElement *gameElement    = FirstXMLChildElement(doc, nullptr, "game");
-                const tinyxml2::XMLElement *paletteElement = gameElement->FirstChildElement("palette");
+                const tinyxml2::XMLElement *paletteElement = FirstXMLChildElement(doc, gameElement, "palette");
                 if (paletteElement) {
                     for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
                          clrElement = clrElement->NextSiblingElement("color")) {
