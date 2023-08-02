@@ -1092,8 +1092,15 @@ void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1136,8 +1143,15 @@ void CheckAliasText(char *text)
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1183,8 +1197,15 @@ void CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1235,8 +1256,15 @@ void CheckStaticText(char *text)
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1292,8 +1320,15 @@ bool CheckTableText(char *text)
 
     if (FindStringToken(text, "publictable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
@@ -1361,8 +1396,15 @@ bool CheckTableText(char *text)
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
 #if !RETRO_USE_ORIGINAL_CODE
-        if (scriptValueListCount >= SCRIPT_VAR_COUNT)
-            PrintLog("WARNING: SCRIPT VALUE COUNT ABOVE MAXIMUM");
+        if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
+            SetupTextMenu(&gameMenu[0], 0);
+            AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "TOO MANY ALIASES, STATIC");
+            AddTextMenuEntry(&gameMenu[0], "VALUES, AND TABLES");
+            Engine.gameMode = ENGINE_SCRIPTERROR;
+            return false;
+        }
 #endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
