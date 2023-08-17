@@ -108,5 +108,7 @@ void ObjectFloorGrip(int xOffset, int yOffset, int cPath);
 void ObjectLWallGrip(int xOffset, int yOffset, int cPath);
 void ObjectRoofGrip(int xOffset, int yOffset, int cPath);
 void ObjectRWallGrip(int xOffset, int yOffset, int cPath);
+void ObjectLEntityGrip(int xOffset, int yOffset, int cPath);
+void ObjectREntityGrip(int xOffset, int yOffset, int cPath);
 
 #endif // !COLLISION_H

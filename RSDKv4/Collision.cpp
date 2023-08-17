@@ -2147,6 +2147,140 @@ void ObjectRWallGrip(int xOffset, int yOffset, int cPath)
     }
 }
 
+
+void ObjectLEntityGrip(int xOffset, int yOffset, int cPath)
+{
+    scriptEng.checkResult = false;
+    Entity *entity        = &objectEntityList[objectEntityPos];
+    int mBlockID          = entity->values[44];
+    int XPos              = (entity->xpos >> 16) + xOffset - 16;
+    int YPos              = (entity->ypos >> 16) + yOffset;
+    int check             = 0;
+    if (mBlockID > 0 && objectTypeGroupList[mBlockID].listSize > 0) {
+        TypeGroupList *mBlockGroupList = &objectTypeGroupList[mBlockID];
+        for (int i = 0; i < objectTypeGroupList[mBlockID].listSize; i++) {
+            short entRef        = mBlockGroupList->entityRefs[i];
+            Entity *otherEntity = &objectEntityList[entRef];
+            int XPos2           = otherEntity->xpos >> 16;
+            int YPos2           = otherEntity->ypos >> 16;
+            if (((((XPos2 - 16) <= XPos) && (XPos <= (XPos2 + 16))) && ((YPos2 - 16) <= YPos)) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+            if ((((XPos2 - 16) <= (XPos + 16) && ((XPos + 16) <= (XPos2 + 16))) && (YPos2 - 16) <= YPos) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (((XPos2 <= (XPos + 32)) && ((XPos + 32) <= (XPos2 + 16))) && (((YPos2 - 16) <= YPos && YPos <= (YPos2 + 16)))) {
+                entity->xpos = otherEntity->xpos - (xOffset << 16) - 0x100000;
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (check != 0) {
+                return;
+            }
+        }
+    }
+    ObjectLWallGrip(xOffset, yOffset, cPath);
+}
+
+void ObjectREntityGrip(int xOffset, int yOffset, int cPath)
+{
+    scriptEng.checkResult = false;
+    Entity *entity        = &objectEntityList[objectEntityPos];
+    int mBlockID          = entity->values[44];
+    int XPos              = (entity->xpos >> 16) + xOffset + 16;
+    int YPos              = (entity->ypos >> 16) + yOffset;
+    int check             = 0;
+    if (mBlockID > 0 && objectTypeGroupList[mBlockID].listSize > 0) {
+        TypeGroupList *mBlockGroupList = &objectTypeGroupList[mBlockID];
+        for (int i = 0; i < objectTypeGroupList[mBlockID].listSize; i++) {
+            short entRef        = mBlockGroupList->entityRefs[i];
+            Entity *otherEntity = &objectEntityList[entRef];
+            int XPos2           = otherEntity->xpos >> 16;
+            int YPos2           = otherEntity->ypos >> 16;
+            if (((((XPos2 - 16) <= XPos) && (XPos <= (XPos2 + 16))) && ((YPos2 - 16) <= YPos)) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+            if ((((XPos2 - 16) <= (XPos + 16) && ((XPos - 16) <= (XPos2 + 16))) && (YPos2 - 16) <= YPos) && (YPos <= (YPos2 + 16))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (((XPos2 <= (XPos - 32)) && ((XPos - 32) <= (XPos2 + 16))) && (((YPos2 - 16) <= YPos && YPos <= (YPos2 + 16)))) {
+                entity->xpos = otherEntity->xpos + ((16 - xOffset) << 16);
+                if (otherEntity->values[0] == 0) {
+                    check                 = 2;
+                    scriptEng.checkResult = check;
+                }
+                else {
+                    scriptEng.checkResult = check;
+                    if (check != 2) {
+                        check                 = 1;
+                        scriptEng.checkResult = check;
+                    }
+                }
+            }
+
+            if (check != 0) {
+                return;
+            }
+        }
+    }
+    ObjectRWallGrip(xOffset, yOffset, cPath);
+}
+
+
 void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                     int otherRight, int otherBottom)
 {
