@@ -2146,8 +2146,7 @@ void ObjectRWallGrip(int xOffset, int yOffset, int cPath)
         scriptEng.checkResult = false;
     }
 }
-
-
+#if RETRO_REV03
 void ObjectLEntityGrip(int xOffset, int yOffset, int cPath)
 {
     scriptEng.checkResult = false;
@@ -2213,7 +2212,6 @@ void ObjectLEntityGrip(int xOffset, int yOffset, int cPath)
     }
     ObjectLWallGrip(xOffset, yOffset, cPath);
 }
-
 void ObjectREntityGrip(int xOffset, int yOffset, int cPath)
 {
     scriptEng.checkResult = false;
@@ -2279,8 +2277,7 @@ void ObjectREntityGrip(int xOffset, int yOffset, int cPath)
     }
     ObjectRWallGrip(xOffset, yOffset, cPath);
 }
-
-
+#endif
 void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                     int otherRight, int otherBottom)
 {
