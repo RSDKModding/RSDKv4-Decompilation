@@ -16,7 +16,7 @@ A: Submit an issue in the issues tab and we _might_ fix it in the main branch. D
 A: This is a known script issue with most Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
 
 ### Q: Why is the default life count 1 instead of 3?
-A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
+A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it in most instances.
 
 # Using Origins RSDK Files
 ### Q: Why doesn't using the datafile work?
