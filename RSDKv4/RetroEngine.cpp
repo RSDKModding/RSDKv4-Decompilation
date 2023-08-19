@@ -647,6 +647,44 @@ int GetXMLAttributeValueInt(const tinyxml2::XMLAttribute *attributePtr) { return
 bool GetXMLAttributeValueBool(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->BoolValue(); }
 const char *GetXMLAttributeValueString(const tinyxml2::XMLAttribute *attributePtr) { return attributePtr->Value(); }
 
+void RetroEngine::LoadXMLWindowText()
+{
+    FileInfo info;
+    for (int m = 0; m < (int)modList.size(); ++m) {
+        if (!modList[m].active)
+            continue;
+
+        SetActiveMod(m);
+        if (LoadFile("Data/Game/Game.xml", &info)) {
+            tinyxml2::XMLDocument *doc = new tinyxml2::XMLDocument;
+
+            char *xmlData = new char[info.fileSize + 1];
+            FileRead(xmlData, info.fileSize);
+            xmlData[info.fileSize] = 0;
+
+            bool success = doc->Parse(xmlData) == tinyxml2::XML_SUCCESS;
+
+            if (success) {
+                const tinyxml2::XMLElement *gameElement  = FirstXMLChildElement(doc, nullptr, "game");
+                const tinyxml2::XMLElement *titleElement = FirstXMLChildElement(doc, gameElement, "title");
+                if (titleElement) {
+                    const tinyxml2::XMLAttribute *nameAttr = FindXMLAttribute(titleElement, "name");
+                    const char *windowText                 = "Retro-Engine";
+                    if (nameAttr)
+                        windowText = GetXMLAttributeValueString(nameAttr);
+
+                    StrCopy(gameWindowText, windowText);
+                }
+            }
+
+            delete[] xmlData;
+            delete doc;
+
+            CloseFile();
+        }
+    }
+    SetActiveMod(-1);
+}
 void RetroEngine::LoadXMLVariables()
 {
     FileInfo info;
@@ -1191,6 +1229,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 
         CloseFile();
 #if RETRO_USE_MOD_LOADER
+        LoadXMLWindowText();
         LoadXMLVariables();
         LoadXMLPalettes();
         LoadXMLObjects();
