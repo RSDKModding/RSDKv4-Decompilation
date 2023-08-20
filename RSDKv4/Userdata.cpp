@@ -1264,7 +1264,7 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
             stageMode         = STAGEMODE_LOAD;
             Engine.gameMode   = ENGINE_MAINGAME;
             stageListPosition = 0;
-			break;
+            break;
         case NOTIFY_STATS_PARAM_1: PrintLog("NOTIFY: StatsParam1() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_PARAM_2: PrintLog("NOTIFY: StatsParam2() -> %d", *param1); break;
         case NOTIFY_CHARACTER_SELECT:
