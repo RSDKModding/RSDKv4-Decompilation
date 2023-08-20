@@ -1256,7 +1256,15 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_STATS_ENEMY: PrintLog("NOTIFY: StatsEnemy() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_CHARA_ACTION: PrintLog("NOTIFY: StatsCharaAction() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_RING: PrintLog("NOTIFY: StatsRing() -> %d", *param1); break;
-        case NOTIFY_STATS_MOVIE: PrintLog("NOTIFY: StatsMovie() -> %d", *param1); break;
+        case NOTIFY_STATS_MOVIE:
+            PrintLog("NOTIFY: StatsMovie() -> %d", *param1);
+            ClearGraphicsData();
+            ClearAnimationData();
+            activeStageList   = 0;
+            stageMode         = STAGEMODE_LOAD;
+            Engine.gameMode   = ENGINE_MAINGAME;
+            stageListPosition = 0;
+			break;
         case NOTIFY_STATS_PARAM_1: PrintLog("NOTIFY: StatsParam1() -> %d, %d, %d", *param1, *param2, *param3); break;
         case NOTIFY_STATS_PARAM_2: PrintLog("NOTIFY: StatsParam2() -> %d", *param1); break;
         case NOTIFY_CHARACTER_SELECT:
