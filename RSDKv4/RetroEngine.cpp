@@ -669,11 +669,8 @@ void RetroEngine::LoadXMLWindowText()
                 const tinyxml2::XMLElement *titleElement = FirstXMLChildElement(doc, gameElement, "title");
                 if (titleElement) {
                     const tinyxml2::XMLAttribute *nameAttr = FindXMLAttribute(titleElement, "name");
-                    const char *windowText                 = "Retro-Engine";
                     if (nameAttr)
-                        windowText = GetXMLAttributeValueString(nameAttr);
-
-                    StrCopy(gameWindowText, windowText);
+                        StrCopy(gameWindowText, GetXMLAttributeValueString(nameAttr));
                 }
             }
 
