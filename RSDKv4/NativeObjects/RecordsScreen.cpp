@@ -575,7 +575,7 @@ void RecordsScreen_Main(void *objPtr)
 
                 for (int r = 0; r < 3; ++r) {
                     if (time < records[r]) {
-                        for (int s = r + 1; s < 3; ++s) records[s + 1] = records[s];
+                        for (int s = 2; s > r; --s) records[s] = records[s - 1];
                         records[r] = time;
                         self->rank = r + 1;
                         break;
