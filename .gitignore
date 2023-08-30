@@ -70,7 +70,6 @@ RSDKv4/[Ss]cripts/
 RSDKv4/*.txt
 RSDKv4/*.ini
 RSDKv4/*.bin
-RSDKv4/*.bin
 
 #OSX files
 *.DS_Store
