@@ -5,7 +5,7 @@
 
 * GLEW: [Download the binaries](http://glew.sourceforge.net/) and unzip it in `dependencies/android/glew`.
 
-* libogg: [Download](https://xiph.org/downloads/) and unzip it in `dependencies/android/libogg`.
+* libogg: [Download](https://xiph.org/downloads/) and unzip it in `dependencies/android/libogg`. Then, copy "config_types.h" from here and paste it in "./libogg/include/ogg/".
 
 * libvorbis: [Download](https://xiph.org/downloads/) and unzip it in `dependencies/android/libvorbis`.
 
