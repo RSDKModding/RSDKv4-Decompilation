@@ -1372,9 +1372,11 @@ void SetWindowVSync(int *enabled, int *unused)
 }
 void ApplyWindowChanges()
 {
+#if RETRO_USING_OPENGL
     for (int i = 0; i < TEXTURE_COUNT; ++i) {
         glDeleteTextures(1, &textureList[i].id);
     }
+#endif
 
     for (int i = 0; i < MESH_COUNT; ++i) {
         MeshInfo *mesh = &meshList[i];

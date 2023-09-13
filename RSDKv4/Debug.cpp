@@ -510,7 +510,11 @@ void SetTextMenu(int sm)
             StrAdd(version, " Version");
             AddTextMenuEntry(&gameMenu[0], version);
             AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
+#ifdef RETRO_DEV_EXTRA
+            AddTextMenuEntry(&gameMenu[0], RETRO_DEV_EXTRA);
+#else
             AddTextMenuEntry(&gameMenu[0], " ");
+#endif
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");

@@ -20,11 +20,11 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{BD4A4266-8ED9-491E-B4CC-3F63F0D39C1B}</ProjectGuid>
+    <ProjectGuid>{BE23CA4F-FD2A-4860-A334-92D318F92F6C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RSDKv4</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>RSDKv4-ogl</ProjectName>
+    <ProjectName>RSDKv4-sdl2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -73,27 +73,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\SDL2\</OutDir>
     <TargetName>RSDKv4</TargetName>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\OGL\</IntDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\SDL2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\SDL2\</OutDir>
     <TargetName>RSDKv4_64</TargetName>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\OGL\</IntDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\SDL2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\SDL2\</OutDir>
     <TargetName>RSDKv4</TargetName>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\OGL\</IntDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\SDL2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\OGL\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\SDL2\</OutDir>
     <TargetName>RSDKv4_64</TargetName>
-    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\OGL\</IntDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\Intermediate\SDL2\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>false</VcpkgUseStatic>
@@ -112,7 +112,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RETRO_USING_OPENGL;RETRO_USE_SDL2;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RETRO_USE_SDL2;RETRO_USING_OPENGL=0;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/asio/asio/include/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -136,7 +136,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RETRO_USING_OPENGL;RETRO_USE_SDL2;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RETRO_USE_SDL2;RETRO_USING_OPENGL=0;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/asio/asio/include/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -162,7 +162,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RETRO_USING_OPENGL;RETRO_USE_SDL2;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RETRO_USE_SDL2;RETRO_USING_OPENGL=0;_CRT_SECURE_NO_WARNINGS;USE_SW_REN;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/asio/asio/include/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -190,7 +190,7 @@ copy /Y "$(SolutionDir)dependencies\windows\glew\bin\Release\$(Platform)\glew32.
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>RETRO_USING_OPENGL;RETRO_USE_SDL2;USE_SW_REN;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RETRO_USE_SDL2;RETRO_USING_OPENGL=0;USE_SW_REN;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RSDKv4/;$(SolutionDir)RSDKv4/NativeObjects/;$(SolutionDir)dependencies/all/asio/asio/include/;$(SolutionDir)dependencies/all/stb-image/;$(SolutionDir)dependencies/all/tinyxml2/;$(SolutionDir)dependencies/windows/SDL2/include/;$(SolutionDir)dependencies/windows/libogg/include/;$(SolutionDir)dependencies/windows/libvorbis/include/;$(SolutionDir)dependencies/windows/glew/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>

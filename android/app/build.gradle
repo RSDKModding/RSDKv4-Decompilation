@@ -7,6 +7,8 @@ else {
     apply plugin: 'com.android.library'
 }
 
+def autobuildFlag = false
+
 android {
     ndkVersion "22.1.7171670"
     compileSdkVersion 29
@@ -17,18 +19,14 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.3.1"
+        if(project.hasProperty("RETRO_DISABLE_PLUS"))
+            autobuildFlag = true
         externalNativeBuild {
-            ndkBuild {
-                arguments "APP_PLATFORM=android-23"
-                abiFilters = []
-                abiFilters.addAll(ABIFILTERS.split(';').collect{it as String})
+            cmake {
+                arguments "-DAPP_PLATFORM=android-16", "-DANDROID_STL=c++_static", "-DPLATFORM=Android", "-DRETRO_DISABLE_PLUS=$autobuildFlag"
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
             }
-            //cmake {
-            //    arguments "-DANDROID_APP_PLATFORM=android-16", "-DANDROID_STL=c++_static"
-            //    // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-            //    abiFilters 'arm64-v8a'
-            //}
         }
     }
     buildTypes {
@@ -42,12 +40,9 @@ android {
             jniLibs.srcDir 'libs'
         }
         externalNativeBuild {
-            ndkBuild {
-                path 'jni/Android.mk'
+            cmake {
+                path 'jni/CMakeLists.txt'
             }
-            //cmake {
-            //    path 'jni/CMakeLists.txt'
-            //}
         }
        
     }

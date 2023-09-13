@@ -2,10 +2,8 @@ name: Build RSDKv4
 on:
   push:
     branches:
-      - master
       - main
-      - win-actions
-      - linux-actions
+      - continuous-delivery
 
 jobs:
   v4-windows:
@@ -32,21 +30,21 @@ jobs:
           Rename-Item ./dependencies/windows/glew-2.2.0 glew
       - name: Download SDL2
         run: |
-          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-devel-2.0.14-VC.zip" -OutFile "SDL2.zip"
+          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-devel-2.28.3-VC.zip" -OutFile "SDL2.zip"
           Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/windows/
-          Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
+          Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
           vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
-          move ./build/Win32/Release/*.dll ./artifacts 
-          move ./build/Win32/Release/*.exe ./artifacts
+          move ./build/Win32/Release/OGL/*.dll ./artifacts
+          move ./build/Win32/Release/OGL/*.exe ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
@@ -76,21 +74,21 @@ jobs:
           Rename-Item ./dependencies/windows/glew-2.2.0 glew
       - name: Download SDL2
         run: |
-          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-devel-2.0.14-VC.zip" -OutFile "SDL2.zip"
+          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-devel-2.28.3-VC.zip" -OutFile "SDL2.zip"
           Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/windows/
-          Rename-Item ./dependencies/windows/SDL2-2.0.14 SDL2
+          Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
           vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md
           vcpkg integrate install
       - name: Build RSDKv4
         run: |
-          msbuild RSDKv4.sln /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
-          move ./build/x64/Release/*.dll ./artifacts 
-          move ./build/x64/Release/*.exe ./artifacts
+          move ./build/x64/Release/OGL/*.dll ./artifacts
+          move ./build/x64/Release/OGL/*.exe ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
@@ -124,9 +122,9 @@ jobs:
           Rename-Item ./dependencies/android/glew-2.2.0 glew
       - name: Download SDL2
         run: |
-          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-2.0.16.zip" -OutFile "SDL2.zip"
-          Expand-Archive -Path SDL2.zip -DestinationPath ./dependencies/android/
-          Rename-Item ./dependencies/android/SDL2-2.0.16 SDL
+          Invoke-WebRequest -Uri "https://libsdl.org/release/SDL2-2.28.3.zip" -OutFile "SDL2.zip"
+          Expand-Archive -Path SDL2.zip -DestinationPath ./android/app/jni/
+          Rename-Item ./android/app/jni/SDL2-2.28.3 SDL
       - name: Move & Copy stuff
         run: |
           Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android\* -Destination ./dependencies/
@@ -140,7 +138,7 @@ jobs:
       - name: Build RSDKv4 Android
         working-directory: ./android
         run: |
-          ./gradlew.bat Build --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
+          ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
@@ -156,10 +154,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl1.2-dev libsdl2-dev libglew-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev libtheora-dev
           ls ./dependencies/all
       - name: Build RSDKv4
-        run: make
+        run: make RETRO_DISABLE_PLUS=1
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

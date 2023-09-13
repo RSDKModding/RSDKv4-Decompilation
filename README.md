@@ -41,50 +41,56 @@ If you want to transfer your save(s) from the official mobile version(s), the **
   * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 * Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
 
-# How to build
-## Windows
-* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) to setup dependencies, then build via the visual studio solution.
-* Alternatively, you can grab a prebuilt executable from the releases section.
+# How to Build
 
-## Windows via MSYS2 (64-bit Only)
-### Decompilation
-* Download the newest version of the MSYS2 installer from [here](https://www.msys2.org/) and install it.
-* Run the MINGW64 prompt (from the windows Start Menu/MSYS2 64-bit/MSYS2 MinGW 64-bit), when the program starts enter `pacman -Syuu` in the prompt and hit Enter.
-* Press `Y` when it asks if you want to update packages. If it asks you to close the prompt, do so, then restart it and run the same command again. This updates the packages to their latest versions.
-* Install the dependencies with the following command: `pacman -S pkg-config make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libogg mingw-w64-x86_64-libvorbis mingw-w64-x86_64-glew`
-* Clone the repo with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
-* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
-* Run `make -f Makefile.msys2 CXX=x86_64-w64-mingw32-g++ CXXFLAGS=-static -j4`.
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
+## Get the source code
 
-## Windows UWP (Phone, Xbox, etc.)
-* Clone the repo, then follow the instructions in the [dependencies readme for Windows](./dependencies/windows/dependencies.txt) and [dependencies readme for UWP](./dependencies/windows-uwp/dependencies.txt) to setup dependencies.
-* Copy your `Data.rsdk` file into `Sonic1Decomp.UWP` or `Sonic2Decomp.UWP` depending on the game, then build and deploy via `RSDKv4.UWP.sln`.
-* You may also need to generate visual assets. To do so, open the Package.appxmanifest file in the designer. Under the Visual Assets tab, select an image of your choice, and click generate.
+Clone the repo **recursively**, using:
+`git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation`
 
-## Linux
-### Decompilation
-* To setup your build enviroment and library dependecies, run the following commands:
-  * Ubuntu (Mint, Pop!_OS, etc...): `sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libglew-dev libdecor-0-dev`
-    * If you're using Debian, add `libgbm-dev` and `libdrm-dev`.
-  * Fedora Linux: `sudo dnf install g++ SDL2-devel libvorbis-devel libogg-devel glew-devel`
-  * Arch Linux: `sudo pacman -S base-devel git sdl2 libvorbis libogg glew`
-* Clone the repo and its other dependencies with the following command: `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation.git`
-* Go into the repo you just cloned with `cd Sonic-1-2-2013-Decompilation`.
-* Run `make -j5`.
-    * If your distro is using gcc 8.x.x, then add the argument `LIBS=-lstdc++fs`.
-    * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9).
+If you've already cloned the repo, run this command inside of the repository:
+```git submodule update --init```
 
-## Mac
-* Clone the repo, follow the instructions in the [dependencies readme for Mac](./dependencies/mac/dependencies.txt) to setup dependencies, then build via the Xcode project.
-* Alternatively, a Mac build by [Sappharad](https://github.com/Sappharad) can be found [here](https://github.com/Sappharad/Sonic-1-2-2013-Decompilation/releases/latest).
+## Follow the build steps
+
+### Windows
+[Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following:
+- `[vcpkg root]\vcpkg.exe install glew sdl2 libogg libvorbis --triplet=x64-windows-static` (the triplet can be whatever preferred)
+
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCKPG_TARGET_TRIPLET=[chosen triplet] -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/[chosen triplet]/` as arguments for `cmake -Bbuild`.
+
+### Linux
+Install the following dependencies: then follow the [compilation steps below](#compiling):
+- **pacman (Arch):** `sudo pacman -S base-devel cmake glew sdl2 libogg libvorbis`
+- **apt (Debian/Ubuntu):** `sudo apt install build-essential cmake libglew-dev libglfw3-dev sdl2-dev libogg-dev libvorbis-dev`
+- **rpm (Fedora):** `sudo dnf install make gcc cmake glew-devel glfw-devel sdl2-devel libogg-devel libvorbis-devel zlib-devel`
+- Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/fork)
 
 ## Android
-* Clone the repo, then follow the instructions in the [dependencies readme for Android](./dependencies/android/dependencies.txt).
-* Ensure the symbolic links in `android/app/jni` are correct. If not, fix them with the following on Windows:
-  * `mklink /D src ..\..\..`
-  * `mklink /D SDL ..\..\..\dependencies\android\SDL`
-* Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
+Follow the android build instructions [here.](./dependencies/android/README.md)
+
+### Compiling
+
+Compiling is as simple as typing the following:
+```
+cmake -Bbuild # add additional flags here
+cmake --build build
+```
+
+The resulting build will be located somewhere in `build/` depending on your system.
+
+The following cmake arguments are available when compiling:
+- Use these on the first `cmake -Bbuild` step like so: `cmake -Bbuild -DRETRO_DISABLE_PLUS=on`
+
+### RSDKv4 flags
+- `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins).
+- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`.
+- `RETRO_FORCE_CASE_INSENSITIVE`: Forces case insensivity when loading files. Takes a boolean, defaults to `off`.
+- `RETRO_MOD_LOADER`: Enables or disables the mod loader. Takes a boolean, defaults to `on`.
+- `RETRO_NETWORKING`: Enables or disables networking features used for Sonic 2's 2P VS mode. Takes a boolean, defaults to `on`.
+- `RETRO_USE_HW_RENDER`: Enables the Hardware Renderer used by the main menu and touch controls UI. Takes a boolean, defaults to `on`.
+- `RETRO_ORIGINAL_CODE`: Removes any custom code. *A playable game will not be built with this enabled.* Takes a boolean, defaults to `off`.
+- `RETRO_SDL_VERSION`: *Only change this if you know what you're doing.* Switches between using SDL1 or SDL2. Takes an integer of either `1` or `2`, defaults to `2`.
 
 ## Unofficial Branches
 Follow the installation instructions in the readme of each branch.

@@ -2,6 +2,9 @@
 ### Q: How do I set this up?
 A: You can find a tutorial for setting up both the game and mods [here](https://gamebanana.com/tuts/14066). Alternatively, opening the decompilation without any game assets present will generate a TXT file containing a brief guide to setting them up.
 
+### Q: Why is the DLC disabled in release builds and autobuilds?
+A: Long story short, it's to minimize piracy and ensure an extra layer of legal protection for Sonic Origins Plus. Giving players paid content for free is not the goal of this project.
+
 ### Q: The screen is tearing, how do I fix it?
 A: Try turning on VSync in settings.ini.
 
@@ -33,6 +36,7 @@ A: By default, the game mode is set to Classic Mode, which disables the Drop Das
 
 ### Q: How do I play as Amy?
 A: Sonic Team implemented Amy in a way where she isn't playable on the decomp out of the box. This can be fixed via mods. **Do not ask about this in an issue, as we will not be able to help you.**
+There are also checks implemented in the engine to prevent playing as Amy on release builds and autobuilds.
 
 ### Q: Why doesn't local 2P VS work in Sonic 2?
 A: In the version of the Retro Engine that Origins uses (RSDKv5U), certain features that local multiplayer uses, such as splitscreen and multiple controller support, rely on tech found in RSDKv5. This is a decompilation of standalone RSDKv4, and recreating this tech is outside of the scope of the project.

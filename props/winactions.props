@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <ItemDefinitionGroup>
+        <CLCompile>
+            <PreprocessorDefinitions>%(PreprocessorDefinitions);RSDK_AUTOBUILD;RSDK_REVISION=3</PreprocessorDefinitions>
+        </CLCompile>
         <Link>
             <AdditionalLibraryDirectories>C:/vcpkg/installed/x86-windows-static-md/lib/;$(SolutionDir)dependencies/windows/SDL2/lib/$(PlatformTargetAsMSBuildArchitecture)/;$(SolutionDir)dependencies/windows/glew/lib/Release/$(Platform)/</AdditionalLibraryDirectories>
             <AdditionalDependencies>SDL2.lib;SDL2main.lib;ogg.lib;vorbis.lib;vorbisfile.lib;Opengl32.lib;glu32.lib;glew32.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
