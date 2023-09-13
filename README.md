@@ -71,7 +71,7 @@ Follow the android build instructions [here.](./dependencies/android/README.md)
 
 ### Compiling
 
-Compiling is as simple as typing the following:
+Compiling is as simple as typing the following in the root repository directory:
 ```
 cmake -Bbuild # add additional flags here
 cmake --build build
