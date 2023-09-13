@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 
 project(RetroEngine)
 
-set(DECOMP_VERSION 1.3.1)
+set(DECOMP_VERSION 1.3.2)
 
 set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to Origins = 3")
 option(RETRO_FORCE_CASE_INSENSITIVE "Forces case insensivity." OFF)

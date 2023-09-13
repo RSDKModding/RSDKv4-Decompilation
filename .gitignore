@@ -284,6 +284,7 @@ objects/
 .gradle/
 .idea/
 android/key/
+android/app/.cxx
 android/local.properties
 
 # Linux

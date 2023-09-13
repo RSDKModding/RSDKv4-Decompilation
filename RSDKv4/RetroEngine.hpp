@@ -445,7 +445,7 @@ public:
 #ifdef DECOMP_VERSION
     const char *gameVersion = DECOMP_VERSION;
 #else
-    const char *gameVersion  = "1.3.1";
+    const char *gameVersion  = "1.3.2";
 #endif
     const char *gamePlatform = nullptr;
 
