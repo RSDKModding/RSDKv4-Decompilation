@@ -43,6 +43,8 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 
 # How to Build
 
+This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/).
+
 ## Get the source code
 
 Clone the repo **recursively**, using:
@@ -54,7 +56,7 @@ If you've already cloned the repo, run this command inside of the repository:
 ## Follow the build steps
 
 ### Windows
-[Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following:
+[Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following in Command Prompt:
 - `[vcpkg root]\vcpkg.exe install glew sdl2 libogg libvorbis --triplet=x64-windows-static` (the triplet can be whatever preferred)
 
 Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=[chosen triplet] -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/[chosen triplet]/` as arguments for `cmake -Bbuild`.
