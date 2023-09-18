@@ -78,7 +78,7 @@ Follow the android build instructions [here.](./dependencies/android/README.md)
 Compiling is as simple as typing the following in the root repository directory:
 ```
 cmake -Bbuild # add additional flags here
-cmake --build build
+cmake --build build --config release
 ```
 
 The resulting build will be located somewhere in `build/` depending on your system.
