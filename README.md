@@ -47,6 +47,8 @@ This project uses [CMake](https://cmake.org/), a versatile building system that 
 
 ## Get the source code
 
+In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
+
 Clone the repo **recursively**, using:
 `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation`
 
