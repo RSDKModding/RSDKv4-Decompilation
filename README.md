@@ -43,7 +43,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
 
 # How to Build
 
-This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/).
+This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
 
 ## Get the source code
 
@@ -61,7 +61,7 @@ If you've already cloned the repo, run this command inside of the repository:
 [Install vcpkg](https://github.com/microsoft/vcpkg#quick-start-windows), then run the following in Command Prompt:
 - `[vcpkg root]\vcpkg.exe install glew sdl2 libogg libvorbis --triplet=x64-windows-static` (the triplet can be whatever preferred)
 
-Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=[chosen triplet] -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/[chosen triplet]/` as arguments for `cmake -Bbuild`.
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=[chosen triplet] -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/[chosen triplet]/` as arguments for `cmake -B build`.
 
 ### Linux
 Install the following dependencies: then follow the [compilation steps below](#compiling):
@@ -77,14 +77,14 @@ Follow the android build instructions [here.](./dependencies/android/README.md)
 
 Compiling is as simple as typing the following in the root repository directory:
 ```
-cmake -Bbuild # add additional flags here
+cmake -B build
 cmake --build build --config release
 ```
 
 The resulting build will be located somewhere in `build/` depending on your system.
 
 The following cmake arguments are available when compiling:
-- Use these on the first `cmake -Bbuild` step like so: `cmake -Bbuild -DRETRO_DISABLE_PLUS=on`
+- Use these on the first `cmake -B build` step like so: `cmake -B build -DRETRO_DISABLE_PLUS=on`
 
 ### RSDKv4 flags
 - `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins).
