@@ -63,9 +63,9 @@ To handle dependencies, you'll need to install [Visual Studio Community](https:/
 After installing those, run the following in Command Prompt (make sure to replace `[vcpkg root]` with the path to the vcpkg installation!):
 - `[vcpkg root]\vcpkg.exe install glew sdl2 libogg libvorbis --triplet=x64-windows-static` (If you're compiling a 32-bit build, replace `x64-windows-static` with `x86-windows-static`.)
 
-Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=[chosen triplet] -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/x64-windows-static/` as arguments for `cmake -B build`.
-  - Make sure to replace `[vcpkg root]` with the path to the vcpkg installation!
-  - If you're compiling a 32-bit build, replace `x64-windows-static` with `x86-windows-static`.
+Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_PREFIX_PATH=[vcpkg root]/installed/x64-windows-static/` as arguments for `cmake -B build`.
+  - Make sure to replace each instance of `[vcpkg root]` with the path to the vcpkg installation!
+  - If you're compiling a 32-bit build, replace each instance of `x64-windows-static` with `x86-windows-static`.
 
 ### Linux
 Install the following dependencies: then follow the [compilation steps below](#compiling):
