@@ -152,7 +152,7 @@ void SetObjectTypeName(const char *objectName, int objectID);
 
 extern int playerListPos;
 
-void ProcessObjectControl(Entity *player);
+void ProcessObjectControl(Entity *entity);
 
 void InitNativeObjectSystem();
 NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));

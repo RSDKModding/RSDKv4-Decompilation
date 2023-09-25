@@ -350,7 +350,7 @@ void SetObjectTypeName(const char *objectName, int objectID)
 
 void ProcessObjectControl(Entity *entity)
 {
-    if (!entity->controlMode) {
+    if (entity->controlMode == 0) {
         entity->up   = keyDown.up;
         entity->down = keyDown.down;
         if (!keyDown.left || !keyDown.right) {
