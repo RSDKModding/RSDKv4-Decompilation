@@ -70,7 +70,7 @@ Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHA
 ### Linux
 Install the following dependencies: then follow the [compilation steps below](#compiling):
 - **pacman (Arch):** `sudo pacman -S base-devel cmake glew sdl2 libogg libvorbis`
-- **apt (Debian/Ubuntu):** `sudo apt install build-essential cmake libglew-dev libglfw3-dev sdl2-dev libogg-dev libvorbis-dev`
+- **apt (Debian/Ubuntu):** `sudo apt install build-essential cmake libglew-dev libglfw3-dev libsdl2-dev libogg-dev libvorbis-dev`
 - **rpm (Fedora):** `sudo dnf install make gcc cmake glew-devel glfw-devel sdl2-devel libogg-devel libvorbis-devel zlib-devel`
 - Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/fork)
 
