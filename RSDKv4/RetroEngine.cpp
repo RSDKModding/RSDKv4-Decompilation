@@ -310,7 +310,9 @@ void RetroEngine::Init()
 #elif RETRO_PLATFORM == RETRO_ANDROID
     StrCopy(dest, gamePath);
     StrAdd(dest, Engine.dataFile[0]);
+#if !RETRO_USE_MOD_LOADER
     disableFocusPause = 0; // focus pause is ALWAYS enabled.
+#endif
 #else
 
     StrCopy(dest, BASE_PATH);
