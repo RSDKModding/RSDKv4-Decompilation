@@ -9,7 +9,7 @@ A: Long story short, it's to minimize piracy and ensure an extra layer of legal 
 A: Try turning on VSync in settings.ini.
 
 ### Q: I'm on Windows and experiencing issues such as mods not appearing in the mod menu, what's wrong?
-A: A likely reason for this is that you put the decomp in a directory that's managed by OneDrive (Desktop, Downloads, etc). These directories are known to cause issues, so move your decomp installation elsewhere, such as the root of the C drive or another drive.
+A: A likely reason for this is that you put the decomp in a directory that's managed by OneDrive (Desktop, Downloads, etc). These directories are known to cause issues, so move your decomp installation elsewhere, such as the root of the C drive or another drive. If it's still not working, try redownloading and reinstalling the decomp.
 
 ### Q: I found a bug!
 A: Submit an issue in the issues tab and we _might_ fix it in the main branch. Don't expect any major future releases, however.
