@@ -1245,11 +1245,11 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
         case NOTIFY_DEBUGPRINT:
             // This callback can be called with either CallNativeFunction2 or CallNativeFunction4
-            // todo: find a better way to check for which one was used
-            if (*param2 == 264865096)
-                PrintLog("NOTIFY: DebugPrint() -> %d", *param1);
-            else
+            try {
                 PrintLog("NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3);
+            } catch (...) {
+                PrintLog("NOTIFY: DebugPrint() -> %d", *param1);
+            }
             break;
         case NOTIFY_KILL_BOSS: PrintLog("NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog("NOTIFY: TouchEmerald() -> %d", *param1); break;
