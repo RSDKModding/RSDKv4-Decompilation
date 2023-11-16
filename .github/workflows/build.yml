@@ -138,7 +138,7 @@ jobs:
       - name: Build RSDKv4 Android
         working-directory: ./android
         run: |
-          ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS
+          ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a"
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
@@ -157,7 +157,7 @@ jobs:
           sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev libtheora-dev
           ls ./dependencies/all
       - name: Build RSDKv4
-        run: make RETRO_DISABLE_PLUS=1
+        run: make
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
