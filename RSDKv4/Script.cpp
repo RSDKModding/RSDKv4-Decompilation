@@ -4577,7 +4577,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                         while (titleCardText[charID] != 0 && titleCardText[charID] != '-') {
                             int character = titleCardText[charID];
                             if (character == ' ')
-                                character = 0;
+                                character = -1;
                             if (character == '-')
                                 character = 0;
                             if (character > '/' && character < ':')
