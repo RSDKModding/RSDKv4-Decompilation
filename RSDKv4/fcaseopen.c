@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <errno.h>
 #include <unistd.h>
 
-// r must have strlen(path) + 2 bytes
+// r must have strlen(path) + 3 bytes
 static int casepath(char const *path, char *r)
 {
     size_t l = strlen(path);
@@ -109,7 +109,7 @@ FILE *fcaseopen(char const *path, char const *mode)
 #if !defined(_WIN32)
     if (!f)
     {	    
-        char *r = (char*)alloca(strlen(path) + 2);
+        char *r = (char*)alloca(strlen(path) + 3);
         if (casepath(path, r))
         {
             f = fopen(r, mode);
@@ -122,7 +122,7 @@ FILE *fcaseopen(char const *path, char const *mode)
 void casechdir(char const *path)
 {
 #if !defined(_WIN32)
-    char *r = (char*)alloca(strlen(path) + 2);
+    char *r = (char*)alloca(strlen(path) + 3);
     if (casepath(path, r))
     {
         chdir(r);
