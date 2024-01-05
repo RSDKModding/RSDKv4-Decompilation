@@ -537,6 +537,7 @@ void RecordsScreen_Main(void *objPtr)
                     InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount + self->actID, 0);
 
                 self->state      = RECORDSSCREEN_STATE_SHOWRESULTS;
+                self->flashTimer = 0.0;
                 self->taResultID = GetGlobalVariableID("timeAttack.result");
                 BackupNativeObjects();
                 CREATE_ENTITY(FadeScreen);
@@ -582,17 +583,19 @@ void RecordsScreen_Main(void *objPtr)
                     }
                 }
 
-                SetStringToFont8(self->rank1st, "1.", FONT_LABEL);
-                AddTimeStringToFont(self->rank1st, records[0], FONT_LABEL);
-                SetStringToFont8(self->rank2nd, "2.", FONT_LABEL);
-                AddTimeStringToFont(self->rank2nd, records[1], FONT_LABEL);
-                SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
-                AddTimeStringToFont(self->rank3rd, records[2], FONT_LABEL);
+                if (self->rank) {
+                    SetStringToFont8(self->rank1st, "1.", FONT_LABEL);
+                    AddTimeStringToFont(self->rank1st, records[0], FONT_LABEL);
+                    SetStringToFont8(self->rank2nd, "2.", FONT_LABEL);
+                    AddTimeStringToFont(self->rank2nd, records[1], FONT_LABEL);
+                    SetStringToFont8(self->rank3rd, "3.", FONT_LABEL);
+                    AddTimeStringToFont(self->rank3rd, records[2], FONT_LABEL);
 
-                self->timer = 0.0;
-                self->state = RECORDSSCREEN_STATE_EXITRESULTS;
-                PlaySfxByName("Event", false);
-                WriteSaveRAMData();
+                    self->timer = 0.0;
+                    self->state = RECORDSSCREEN_STATE_EXITRESULTS;
+                    PlaySfxByName("Event", false);
+                    WriteSaveRAMData();
+                }
 
                 int pos = 0;
                 for (int i = 0; i < timeAttack_ZoneCount; ++i) {
