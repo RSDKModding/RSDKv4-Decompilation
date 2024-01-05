@@ -516,8 +516,14 @@ void RecordsScreen_Main(void *objPtr)
                 SetGlobalVariableByName("specialStage.listPos", 0);
                 SetGlobalVariableByName("specialStage.emeralds", 0);
                 SetGlobalVariableByName("specialStage.nextZone", 0);
-                SetGlobalVariableByName("specialStage.nextZone", 0);
+                SetGlobalVariableByName("specialStage.nextZone", 0); // We gotta make extra sure it's reset, I guess
+#if !RETRO_USE_ORIGINAL_CODE
                 SetGlobalVariableByName("lampPostID", 0);
+#endif
+                // Bug Details:
+                // Despite using the variable "lampPostID" for checkpoints, Sonic 1 still tries to set "starPostID", which only exists in Sonic 2
+                // As a result, the checkpoint variable doesn't get reset in Sonic 1, allowing you to start an act further into the level if exploited
+                // (This is fixed in the decomp with the above line)
                 SetGlobalVariableByName("starPostID", 0);
                 SetGlobalVariableByName("timeAttack.result", 0);
 
