@@ -106,7 +106,8 @@ void OptionsMenu_Main(void *objPtr)
                         self->buttons[self->selectedButton]->b     = 0xFF;
                         self->state                                = OPTIONSMENU_STATE_ACTION;
 #if !RETRO_USE_ORIGINAL_CODE
-                        if (Engine.devMenu && self->selectedButton == OPTIONSMENU_BUTTON_INSTRUCTIONS)
+                        self->unused1 = Engine.devMenu && self->selectedButton == OPTIONSMENU_BUTTON_INSTRUCTIONS && !keyDown.X;
+                        if (self->unused1)
                             StopMusic(true);
 #endif
                     }
@@ -157,7 +158,7 @@ void OptionsMenu_Main(void *objPtr)
             self->menuControl->state = MENUCONTROL_STATE_NONE;
             if (!self->buttons[self->selectedButton]->state) {
 #if !RETRO_USE_ORIGINAL_CODE
-                if (!Engine.devMenu || self->selectedButton != OPTIONSMENU_BUTTON_INSTRUCTIONS) {
+                if (!self->unused1) {
 #endif
                     self->state = OPTIONSMENU_STATE_ENTERSUBMENU;
 
