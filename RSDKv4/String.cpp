@@ -225,6 +225,34 @@ int FindStringToken(const char *string, const char *token, char stopID)
     return -1;
 }
 
+int FindLastStringToken(const char *string, const char *token)
+{
+    int tokenCharID  = 0;
+    bool tokenMatch  = true;
+    int stringCharID = 0;
+    int foundTokenID = 0;
+    int lastResult = -1;
+
+    while (string[stringCharID]) {
+        tokenCharID = 0;
+        tokenMatch  = true;
+        while (token[tokenCharID]) {
+            if (!string[tokenCharID + stringCharID])
+                return lastResult;
+
+            if (string[tokenCharID + stringCharID] != token[tokenCharID])
+                tokenMatch = false;
+
+            ++tokenCharID;
+        }
+        if (tokenMatch)
+            lastResult = stringCharID;
+
+        ++stringCharID;
+    }
+    return lastResult;
+}
+
 int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopID)
 {
     int tokenCharID  = 0;
