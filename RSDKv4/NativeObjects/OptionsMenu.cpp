@@ -128,6 +128,11 @@ void OptionsMenu_Main(void *objPtr)
                         self->buttons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[i]->b     = 0xFF;
                         self->state             = OPTIONSMENU_STATE_ACTION;
+#if !RETRO_USE_ORIGINAL_CODE
+                        self->unused1 = Engine.devMenu && self->selectedButton == OPTIONSMENU_BUTTON_INSTRUCTIONS;
+                        if (self->unused1)
+                            StopMusic(true);
+#endif
                         break;
                     }
                     y -= 30.0;

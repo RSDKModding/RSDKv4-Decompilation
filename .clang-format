@@ -12,7 +12,7 @@ AllowShortLoopsOnASingleLine: true
 BinPackArguments: true
 BinPackParameters: true
 SpaceAfterCStyleCast: false
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Custom
 BreakBeforeTernaryOperators: true
 BreakBeforeBinaryOperators: NonAssignment
 Cpp11BracedListStyle: false
@@ -23,7 +23,6 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 UseTab: Never
-BreakBeforeBraces: Custom
 BraceWrapping:
     AfterClass:      true
     AfterControlStatement: false
