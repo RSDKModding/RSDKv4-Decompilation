@@ -93,7 +93,7 @@ inline uint GetPaletteEntryPacked(byte paletteIndex, byte index)
     return (clr.r << 16) | (clr.g << 8) | (clr.b);
 }
 
-inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinationPalette, byte destPaletteStart, ushort count)
+inline void CopyPalette(byte sourcePalette, byte srcPaletteStart, byte destinationPalette, byte destPaletteStart, byte count)
 {
     if (sourcePalette < PALETTE_COUNT && destinationPalette < PALETTE_COUNT) {
         for (int i = 0; i < count; ++i) {
