@@ -517,14 +517,14 @@ const FunctionInfo functions[] = {
     FunctionInfo("ReadSaveRAM", 0),
     FunctionInfo("WriteSaveRAM", 0),
 
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
     FunctionInfo("LoadFontFile", 1),
     FunctionInfo("LoadTextFile", 3),
 #else
     FunctionInfo("LoadTextFile", 2),
 #endif
     FunctionInfo("GetTextInfo", 5),
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
     FunctionInfo("DrawText", 7),
 #endif
     FunctionInfo("GetVersionNumber", 2),
@@ -540,7 +540,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("CallNativeFunction4", 5),
 
     FunctionInfo("SetObjectRange", 1),
-#if !RETRO_REV00 && !RETRO_REV01
+#if RETRO_REV02
     FunctionInfo("GetObjectValue", 3),
     FunctionInfo("SetObjectValue", 3),
     FunctionInfo("CopyObject", 3),
@@ -1024,12 +1024,12 @@ enum ScrFunc {
     FUNC_GETANIMATIONBYNAME,
     FUNC_READSAVERAM,
     FUNC_WRITESAVERAM,
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
     FUNC_LOADTEXTFONT,
 #endif
     FUNC_LOADTEXTFILE,
     FUNC_GETTEXTINFO,
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
     FUNC_DRAWTEXT,
 #endif
     FUNC_GETVERSIONNUMBER,
@@ -1041,7 +1041,7 @@ enum ScrFunc {
     FUNC_CALLNATIVEFUNCTION2,
     FUNC_CALLNATIVEFUNCTION4,
     FUNC_SETOBJECTRANGE,
-#if !RETRO_REV00 && !RETRO_REV01
+#if RETRO_REV02
     FUNC_GETOBJECTVALUE,
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
@@ -5333,7 +5333,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize            = 0;
                 scriptEng.checkResult = WriteSaveRAMData();
                 break;
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
             case FUNC_LOADTEXTFONT: {
                 opcodeSize = 0;
                 LoadFontFile(scriptText);
@@ -5343,7 +5343,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_LOADTEXTFILE: {
                 opcodeSize     = 0;
                 TextMenu *menu = &gameMenu[scriptEng.operands[0]];
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
                 LoadTextFile(menu, scriptText, scriptEng.operands[2] != 0);
 #else
                 LoadTextFile(menu, scriptText, false);
@@ -5361,7 +5361,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 }
                 break;
             }
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
             case FUNC_DRAWTEXT: {
                 opcodeSize        = 0;
                 textMenuSurfaceNo = scriptInfo->spriteSheetID;
@@ -5466,7 +5466,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 OBJECT_BORDER_X4 = scriptEng.operands[0] + 0x20 - offset;
                 break;
             }
-#if !RETRO_REV00 && !RETRO_REV01
+#if RETRO_REV02
             case FUNC_GETOBJECTVALUE: {
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = result
