@@ -4344,7 +4344,7 @@ void DrawTexturedFaceBlended(void *v, byte sheetID)
             }
             ushort *fbPtr = &frameBufferPtr[startX];
             frameBufferPtr += GFX_LINESIZE;
-            int counter = posDifference + 1;
+            int counter = posDifference;
             while (counter--) {
                 if (UPos < 0)
                     UPos = 0;
