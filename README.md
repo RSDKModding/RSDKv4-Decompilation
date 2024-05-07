@@ -53,7 +53,7 @@ Clone the repo **recursively**, using:
 `git clone --recursive https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation`
 
 If you've already cloned the repo, run this command inside of the repository:
-```git submodule update --init```
+```git submodule update --init --recursive```
 
 ## Follow the build steps
 

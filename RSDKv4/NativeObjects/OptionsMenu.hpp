@@ -23,7 +23,7 @@ enum OptionsMenuButtons {
 struct NativeEntity_OptionsMenu : NativeEntityBase {
     OptionsMenuStates state;
     float timer;
-    int unused1;
+    int unused1; // Used for checking if the dev menu should be entered in the decomp
     NativeEntity_MenuControl *menuControl;
     NativeEntity_InstructionsScreen *instructionsScreen;
     NativeEntity_SettingsScreen *settingsScreen;

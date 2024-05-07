@@ -7,7 +7,7 @@ char playerListText[0x80][0x20];
 
 BitmapFont fontList[FONTLIST_COUNT];
 
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
 FontCharacter fontCharacterList[FONTCHAR_COUNT];
 
 void LoadFontFile(const char *filePath)
@@ -99,7 +99,7 @@ void LoadTextFile(TextMenu *menu, const char *filePath, byte mapCode)
         menu->entryStart[menu->rowCount] = menu->textDataPos;
         menu->entrySize[menu->rowCount]  = 0;
 
-#if RETRO_REV00 || RETRO_REV01
+#if !RETRO_REV02
         bool flag = false;
         FileRead(&fileBuffer, 1);
         if (fileBuffer == 0xFF) {

@@ -262,7 +262,7 @@ void ScanModFolder(ModInfo *info)
                     };
                     int tokenPos = -1;
                     for (int i = 0; i < 4; ++i) {
-                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                        tokenPos = FindLastStringToken(modBuf, folderTest[i]);
                         if (tokenPos >= 0)
                             break;
                     }
@@ -310,7 +310,7 @@ void ScanModFolder(ModInfo *info)
                     };
                     int tokenPos = -1;
                     for (int i = 0; i < 4; ++i) {
-                        tokenPos = FindStringToken(modBuf, folderTest[i], 1);
+                        tokenPos = FindLastStringToken(modBuf, folderTest[i]);
                         if (tokenPos >= 0)
                             break;
                     }
