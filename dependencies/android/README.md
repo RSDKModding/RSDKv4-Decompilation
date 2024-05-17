@@ -2,8 +2,11 @@
 
 ## Install dependencies
 * SDL2: [Download the source code](https://github.com/libsdl-org/SDL/tree/SDL2) and go to the `Tags` section and find `2.28.2`, download the `Source Code (zip)` and unzip it in `dependencies/android/SDL`.
+
 ![image](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/assets/66157074/4aec8fe4-cd69-48da-a2d7-b00e7649e06a)
+
 ![image](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/assets/66157074/2881ff87-8af7-494a-9ed4-0af69c4ebb54)
+
 ![image](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/assets/66157074/906d27e4-aa52-4fc4-962e-70fca20abef1)
 
 * GLEW: [Download the binaries](http://glew.sourceforge.net/) and unzip it in `dependencies/android/glew`.
