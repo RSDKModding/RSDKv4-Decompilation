@@ -1,7 +1,7 @@
 # Android
 
 ## Install dependencies
-* SDL2: [Download the source code](https://github.com/libsdl-org/SDL/tree/SDL2) and unzip it in `dependencies/android/SDL`.
+* SDL2: [Download the source code of 2.28.3](https://libsdl.org/release/SDL2-2.28.3.zip) and unzip it in `dependencies/android/SDL`.
 
 * GLEW: [Download the binaries](http://glew.sourceforge.net/) and unzip it in `dependencies/android/glew`.
 
