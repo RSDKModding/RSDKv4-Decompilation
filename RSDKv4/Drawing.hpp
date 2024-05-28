@@ -112,7 +112,7 @@ void Draw3DSkyLayer(int layerID);
 // Shape Drawing
 void DrawRectangle(int XPos, int YPos, int width, int height, int R, int G, int B, int A);
 void SetFadeHQ(int R, int G, int B, int A);
-void DrawTintRectangle(uint XPos, uint YPos, int width, int height);
+void DrawTintRectangle(int XPos, int YPos, int width, int height);
 void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                         int sheetID);
 

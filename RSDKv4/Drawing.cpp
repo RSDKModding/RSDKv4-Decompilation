@@ -2756,7 +2756,7 @@ void SetFadeHQ(int R, int G, int B, int A)
 #endif
 }
 
-void DrawTintRectangle(uint XPos, uint YPos, int width, int height)
+void DrawTintRectangle(int XPos, int YPos, int width, int height)
 {
 #if RETRO_SOFTWARE_RENDER
     if (width + XPos > GFX_LINESIZE)
