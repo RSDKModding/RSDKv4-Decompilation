@@ -71,7 +71,7 @@ void SetLimitedFade(byte paletteID, byte R, byte G, byte B, ushort blendAmount, 
         return;
 
     uint blendA = 0xFF - blendAmount;
-    for (int i = startIndex; i < endIndex; ++i) {
+    for (int i = startIndex; i <= endIndex; ++i) {
         PACK_RGB888(activePalette[i], (byte)((ushort)(R * blendAmount + blendA * activePalette32[i].r) >> 8),
                     (byte)((ushort)(G * blendAmount + blendA * activePalette32[i].g) >> 8),
                     (byte)((ushort)(B * blendAmount + blendA * activePalette32[i].b) >> 8));
@@ -96,7 +96,7 @@ void SetPaletteFade(byte destPaletteID, byte srcPaletteA, byte srcPaletteB, usho
     uint blendA         = 0xFF - blendAmount;
     ushort *dst         = &fullPalette[destPaletteID][startIndex];
     PaletteEntry *dst32 = &fullPalette32[destPaletteID][startIndex];
-    for (int l = startIndex; l < endIndex; ++l) {
+    for (int l = startIndex; l <= endIndex; ++l) {
         *dst     = PACK_RGB888((byte)((ushort)(fullPalette32[srcPaletteB][l].r * blendAmount + blendA * fullPalette32[srcPaletteA][l].r) >> 8),
                            (byte)((ushort)(fullPalette32[srcPaletteB][l].g * blendAmount + blendA * fullPalette32[srcPaletteA][l].g) >> 8),
                            (byte)((ushort)(fullPalette32[srcPaletteB][l].b * blendAmount + blendA * fullPalette32[srcPaletteA][l].b) >> 8));
