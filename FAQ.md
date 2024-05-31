@@ -14,12 +14,14 @@ A: A likely reason for this is that you put the decomp in a directory in your us
 ### Q: I found a bug!
 A: Submit an issue in the Issues tab and we might fix it. Keep in mind that this is a decompilation, so bugs that exist in official releases will most likely not be fixed here.
 
+
 # Using Mobile RSDK Files
 ### Q: Why does pressing B pause the game during gameplay?
 A: This is a known script issue with most Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
 
 ### Q: Why is the default life count 1 instead of 3?
 A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it in most instances.
+
 
 # Using Origins RSDK Files
 You can find a guide for fixing most of these issues [here](https://gamebanana.com/tuts/16686).
@@ -44,6 +46,7 @@ A: Long story short, it's to minimize piracy and ensure an extra layer of legal 
 
 ### Q: Why doesn't local 2P VS work in Sonic 2?
 A: In the version of the Retro Engine that Origins uses (RSDKv5U), certain features that local multiplayer uses, such as splitscreen and multiple controller support, rely on tech found in RSDKv5. This is a decompilation of standalone RSDKv4, and recreating this tech is outside of the scope of the project.
+
 
 # Miscellaneous
 ### Q: Will you do a decompilation for Sonic CD (2011)?
