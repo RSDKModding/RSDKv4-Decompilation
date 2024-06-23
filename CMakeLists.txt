@@ -166,10 +166,15 @@ endif()
 target_include_directories(RetroEngine PRIVATE
     RSDKv4/
     RSDKv4/NativeObjects/
-    dependencies/all/asio/asio/include/
     dependencies/all/stb-image/
     dependencies/all/tinyxml2/
 )
+
+if(RETRO_NETWORKING)
+    target_include_directories(RetroEngine PRIVATE
+        dependencies/all/asio/asio/include/
+    )
+endif()
 
 if(DEFINED DEP_PATH)
     target_include_directories(RetroEngine PRIVATE
