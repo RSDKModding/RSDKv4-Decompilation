@@ -59,7 +59,7 @@ struct FileInfo {
 };
 
 struct RSDKFileInfo {
-    byte hash[0x10];
+    uint hash[4];
     int offset;
     int filesize;
     bool encrypted;
