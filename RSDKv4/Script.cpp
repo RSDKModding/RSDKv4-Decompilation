@@ -3392,7 +3392,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
 #if RETRO_REV03 && !RETRO_USE_ORIGINAL_CODE
                 bool inputCheck = true; // Default to true for mobile bytecode
                 // If we're using the scripts or an Origins datafile, check the array value
-                if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
+                if (forceUseScripts || Engine.usingOrigins)
                     inputCheck = arrayVal <= 1;
 #endif
 
@@ -5677,7 +5677,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
 #if RETRO_REV03 && !RETRO_USE_ORIGINAL_CODE
                 bool inputCheck = true; // Default to true for mobile bytecode
                 // If we're using the scripts or an Origins datafile, check the array value
-                if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
+                if (forceUseScripts || Engine.usingOrigins)
                     inputCheck = arrayVal <= 1;
 #endif
 
