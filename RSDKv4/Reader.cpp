@@ -52,18 +52,19 @@ bool CheckRSDKFile(const char *filePath)
 
         StrCopy(rsdkContainer.packNames[rsdkContainer.packCount], filePathBuffer);
 
-        ushort fileCount = 0;
-        fRead(&fileCount, 2, 1, cFileHandle);
+        byte b[4];
+        fRead(&b, 2, 1, cFileHandle);
+        ushort fileCount = (b[1] << 8) | (b[0] << 0);
         for (int f = 0; f < fileCount; ++f) {
-            for (int y = 0; y < 16; y += 4) {
-                fRead(&rsdkContainer.files[f].hash[y + 3], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 2], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 1], 1, 1, cFileHandle);
-                fRead(&rsdkContainer.files[f].hash[y + 0], 1, 1, cFileHandle);
+            for (int y = 0; y < 4; ++y) {
+                fRead(b, 1, 4, cFileHandle);
+                rsdkContainer.files[f].hash[y] = (b[0] << 24) | (b[1] << 16) | (b[2] << 8) | (b[3] << 0);
             }
 
-            fRead(&rsdkContainer.files[f].offset, 4, 1, cFileHandle);
-            fRead(&rsdkContainer.files[f].filesize, 4, 1, cFileHandle);
+            fRead(b, 4, 1, cFileHandle);
+            rsdkContainer.files[f].offset = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | (b[0] << 0);
+            fRead(b, 4, 1, cFileHandle);
+            rsdkContainer.files[f].filesize = (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | (b[0] << 0);
 
             rsdkContainer.files[f].encrypted = (rsdkContainer.files[f].filesize & 0x80000000);
             rsdkContainer.files[f].filesize &= 0x7FFFFFFF;
@@ -105,16 +106,16 @@ int CheckFileInfo(const char *filepath)
 {
     char pathBuf[0x100];
     StrCopy(pathBuf, filepath);
-    byte buffer[0x10];
+    uint hash[4];
     int len = StrLength(pathBuf);
-    GenerateMD5FromString(pathBuf, len, buffer);
+    GenerateMD5FromString(pathBuf, len, &hash[0], &hash[1], &hash[2], &hash[3]);
 
     for (int f = 0; f < rsdkContainer.fileCount; ++f) {
         RSDKFileInfo *file = &rsdkContainer.files[f];
 
         bool match = true;
-        for (int h = 0; h < 0x10; ++h) {
-            if (buffer[h] != file->hash[h]) {
+        for (int h = 0; h < 4; ++h) {
+            if (hash[h] != file->hash[h]) {
                 match = false;
                 break;
             }
@@ -250,16 +251,16 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     if (Engine.usingDataFile) {
         StringLowerCase(fileInfo->fileName, filePath);
         StrCopy(fileName, fileInfo->fileName);
-        byte buffer[0x10];
+        uint hash[4];
         int len = StrLength(fileInfo->fileName);
-        GenerateMD5FromString(fileInfo->fileName, len, buffer);
+        GenerateMD5FromString(fileInfo->fileName, len, &hash[0], &hash[1], &hash[2], &hash[3]);
 
         for (int f = 0; f < rsdkContainer.fileCount; ++f) {
             RSDKFileInfo *file = &rsdkContainer.files[f];
 
             bool match = true;
-            for (int h = 0; h < 0x10; ++h) {
-                if (buffer[h] != file->hash[h]) {
+            for (int h = 0; h < 4; ++h) {
+                if (hash[h] != file->hash[h]) {
                     match = false;
                     break;
                 }
@@ -351,31 +352,41 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
 void GenerateELoadKeys(uint key1, uint key2)
 {
     char buffer[0x20];
-    byte hash[0x10];
+    uint hash[0x4];
 
     // StringA
     ConvertIntegerToString(buffer, key1);
     int len = StrLength(buffer);
-    GenerateMD5FromString(buffer, len, hash);
+    GenerateMD5FromString(buffer, len, &hash[0], &hash[1], &hash[2], &hash[3]);
 
+#if !RETRO_USE_ORIGINAL_CODE
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j) encryptionStringA[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
+#else
     for (int y = 0; y < 0x10; y += 4) {
         encryptionStringA[y + 3] = hash[y + 0];
         encryptionStringA[y + 2] = hash[y + 1];
         encryptionStringA[y + 1] = hash[y + 2];
         encryptionStringA[y + 0] = hash[y + 3];
     }
+#endif
 
     // StringB
     ConvertIntegerToString(buffer, key2);
     len = StrLength(buffer);
-    GenerateMD5FromString(buffer, len, hash);
+    GenerateMD5FromString(buffer, len, &hash[0], &hash[1], &hash[2], &hash[3]);
 
+#if !RETRO_USE_ORIGINAL_CODE
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j) encryptionStringB[i * 4 + j] = (hash[i] >> (8 * (j ^ 3))) & 0xFF;
+#else
     for (int y = 0; y < 0x10; y += 4) {
         encryptionStringB[y + 3] = hash[y + 0];
         encryptionStringB[y + 2] = hash[y + 1];
         encryptionStringB[y + 1] = hash[y + 2];
         encryptionStringB[y + 0] = hash[y + 3];
     }
+#endif
 }
 
 const uint ENC_KEY_2 = 0x24924925;

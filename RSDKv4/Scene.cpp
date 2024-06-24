@@ -359,39 +359,37 @@ void ProcessStage(void)
                 PauseSound();
             }
 
-            if (!waitForVerify) {
-                if (timeEnabled) {
-                    if (++frameCounter == 60) {
-                        frameCounter = 0;
-                        if (++stageSeconds > 59) {
-                            stageSeconds = 0;
-                            if (++stageMinutes > 59)
-                                stageMinutes = 0;
-                        }
+            if (timeEnabled) {
+                if (++frameCounter == 60) {
+                    frameCounter = 0;
+                    if (++stageSeconds > 59) {
+                        stageSeconds = 0;
+                        if (++stageMinutes > 59)
+                            stageMinutes = 0;
                     }
-                    stageMilliseconds = 100 * frameCounter / 60;
+                }
+                stageMilliseconds = 100 * frameCounter / 60;
+            }
+            else {
+                frameCounter = 60 * stageMilliseconds / 100;
+            }
+
+            // Update
+            Process2PObjects();
+
+            if (cameraTarget > -1) {
+                if (cameraEnabled == 1) {
+                    switch (cameraStyle) {
+                        case CAMERASTYLE_FOLLOW: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
+                        case CAMERASTYLE_EXTENDED:
+                        case CAMERASTYLE_EXTENDED_OFFSET_L:
+                        case CAMERASTYLE_EXTENDED_OFFSET_R: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
+                        case CAMERASTYLE_HLOCKED: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
+                        default: break;
+                    }
                 }
                 else {
-                    frameCounter = 60 * stageMilliseconds / 100;
-                }
-
-                // Update
-                Process2PObjects();
-
-                if (cameraTarget > -1) {
-                    if (cameraEnabled == 1) {
-                        switch (cameraStyle) {
-                            case CAMERASTYLE_FOLLOW: SetPlayerScreenPosition(&objectEntityList[cameraTarget]); break;
-                            case CAMERASTYLE_EXTENDED:
-                            case CAMERASTYLE_EXTENDED_OFFSET_L:
-                            case CAMERASTYLE_EXTENDED_OFFSET_R: SetPlayerScreenPositionCDStyle(&objectEntityList[cameraTarget]); break;
-                            case CAMERASTYLE_HLOCKED: SetPlayerHLockedScreenPosition(&objectEntityList[cameraTarget]); break;
-                            default: break;
-                        }
-                    }
-                    else {
-                        SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
-                    }
+                    SetPlayerLockedScreenPosition(&objectEntityList[cameraTarget]);
                 }
             }
 

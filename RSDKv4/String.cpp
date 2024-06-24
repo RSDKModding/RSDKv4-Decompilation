@@ -71,132 +71,7 @@ ushort *strCreditsList[CREDITS_LIST_COUNT];
 byte creditsType[CREDITS_LIST_COUNT];
 float creditsAdvanceY[CREDITS_LIST_COUNT];
 
-// From here: https://rosettacode.org/wiki/MD5#C
-
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <math.h>
-
-typedef union uwb {
-    unsigned w;
-    unsigned char b[4];
-} WBunion;
-
-typedef unsigned digest[4];
-
-unsigned f0(unsigned abcd[]) { return (abcd[1] & abcd[2]) | (~abcd[1] & abcd[3]); }
-
-unsigned f1(unsigned abcd[]) { return (abcd[3] & abcd[1]) | (~abcd[3] & abcd[2]); }
-
-unsigned f2(unsigned abcd[]) { return abcd[1] ^ abcd[2] ^ abcd[3]; }
-
-unsigned f3(unsigned abcd[]) { return abcd[2] ^ (abcd[1] | ~abcd[3]); }
-
-typedef unsigned (*DgstFctn)(unsigned a[]);
-
-unsigned *calcKs(unsigned *k)
-{
-    double s, pwr;
-    int i;
-
-    pwr = pow(2, 32);
-    for (i = 0; i < 64; i++) {
-        s    = fabs(sin(1 + i));
-        k[i] = (unsigned)(s * pwr);
-    }
-    return k;
-}
-
-// ROtate v Left by amt bits
-unsigned rol(unsigned v, short amt)
-{
-    unsigned msk1 = (1 << amt) - 1;
-    return ((v >> (32 - amt)) & msk1) | ((v << amt) & ~msk1);
-}
-
-unsigned *md5(const char *msg, int mlen)
-{
-    static digest h0 = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
-    //    static Digest h0 = { 0x01234567, 0x89ABCDEF, 0xFEDCBA98, 0x76543210 };
-    static DgstFctn ff[] = { &f0, &f1, &f2, &f3 };
-    static short M[]     = { 1, 5, 3, 7 };
-    static short O[]     = { 0, 1, 5, 0 };
-    static short rot0[]  = { 7, 12, 17, 22 };
-    static short rot1[]  = { 5, 9, 14, 20 };
-    static short rot2[]  = { 4, 11, 16, 23 };
-    static short rot3[]  = { 6, 10, 15, 21 };
-    static short *rots[] = { rot0, rot1, rot2, rot3 };
-    static unsigned kspace[64];
-    static unsigned *k;
-
-    static digest h;
-    digest abcd;
-    DgstFctn fctn;
-    short m, o, g;
-    unsigned f;
-    short *rotn;
-    union {
-        unsigned w[16];
-        char b[64];
-    } mm;
-    int os = 0;
-    int grp, grps, q, p;
-    unsigned char *msg2;
-
-    if (k == NULL)
-        k = calcKs(kspace);
-
-    for (q = 0; q < 4; q++) h[q] = h0[q]; // initialize
-
-    {
-        grps = 1 + (mlen + 8) / 64;
-        msg2 = (unsigned char *)malloc(64 * grps);
-        memcpy(msg2, msg, mlen);
-        msg2[mlen] = (unsigned char)0x80;
-        q          = mlen + 1;
-        while (q < 64 * grps) {
-            msg2[q] = 0;
-            q++;
-        }
-        {
-            //            unsigned char t;
-            WBunion u;
-            u.w = 8 * mlen;
-            //            t = u.b[0]; u.b[0] = u.b[3]; u.b[3] = t;
-            //            t = u.b[1]; u.b[1] = u.b[2]; u.b[2] = t;
-            q -= 8;
-            memcpy(msg2 + q, &u.w, 4);
-        }
-    }
-
-    for (grp = 0; grp < grps; grp++) {
-        memcpy(mm.b, msg2 + os, 64);
-        for (q = 0; q < 4; q++) abcd[q] = h[q];
-        for (p = 0; p < 4; p++) {
-            fctn = ff[p];
-            rotn = rots[p];
-            m    = M[p];
-            o    = O[p];
-            for (q = 0; q < 16; q++) {
-                g = (m * q + o) % 16;
-                f = abcd[1] + rol(abcd[0] + fctn(abcd) + k[q + 16 * p] + mm.w[g], rotn[q % 4]);
-
-                abcd[0] = abcd[3];
-                abcd[3] = abcd[2];
-                abcd[2] = abcd[1];
-                abcd[1] = f;
-            }
-        }
-        for (p = 0; p < 4; p++) h[p] += abcd[p];
-        os += 64;
-    }
-
-    if (msg2)
-        free(msg2);
-
-    return h;
-}
 
 int FindStringToken(const char *string, const char *token, char stopID)
 {
@@ -282,15 +157,85 @@ int FindStringTokenUnicode(const ushort *string, const ushort *token, char stopI
 
 void ConvertIntegerToString(char *text, int value) { sprintf(text, "%d", value); }
 
-// Buffer is expected to be at least 16 bytes long
-void GenerateMD5FromString(const char *string, int len, byte *buffer)
+void GenerateMD5FromString(const char *string, int len, uint *hash0, uint *hash1, uint *hash2, uint *hash3)
 {
-    unsigned *d = md5(string, len);
-    WBunion u;
+    #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 
-    for (int i = 0; i < 4; ++i) {
-        u.w = d[i];
-        for (int c = 0; c < 4; ++c) buffer[(i << 2) + c] = u.b[c];
+    static const uint K[64] = {
+        0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a,
+        0xa8304613, 0xfd469501, 0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
+        0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821, 0xf61e2562, 0xc040b340,
+        0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8,
+        0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8,
+        0x676f02d9, 0x8d2a4c8a, 0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c,
+        0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70, 0x289b7ec6, 0xeaa127fa,
+        0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8, 0xc4ac5665,
+        0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92,
+        0xffeff47d, 0x85845dd1, 0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
+        0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
+
+    static const uint S[64] = {
+        7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+        5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20, 5, 9,  14, 20,
+        4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+        6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+
+    static byte hashStream[0x400];
+
+    *hash0 = 0x67452301;
+    *hash1 = 0xefcdab89;
+    *hash2 = 0x98badcfe;
+    *hash3 = 0x10325476;
+    memset(hashStream, 0, 0x400);
+
+    uint length_bits = len * 8;
+    int padded_length = length_bits + 1;
+    while (padded_length % 512 != 448) {
+        padded_length++;
+    }
+
+    memcpy(hashStream, string, len);
+
+    padded_length /= 8;
+    // Padding (only 0x80 is needed since memset(0) has been called on hashStream)
+    hashStream[len] = 0x80;
+    // Write length in little endian order
+    for (int p = 0; p < 3; ++p) hashStream[padded_length + p] = (length_bits >> (8 * p));
+
+    // Process blocks
+    for (int block = 0; block < padded_length; block += 64) {
+        uint A = *hash0;
+        uint B = *hash1;
+        uint C = *hash2;
+        uint D = *hash3;
+        for (int i = 0; i < 64; ++i) {
+            uint res, idx;
+            if (i < 0x10) {
+                res = (B & C) | ((~B) & D);
+                idx = i;
+            } else if (i < 0x20) {
+                res = (D & B) | ((~D) & C);
+                idx = ((5 * i) + 1) % 16;
+            } else if (i < 0x30) {
+                res = B ^ C ^ D;
+                idx = ((3 * i) + 5) % 16;
+            } else {
+                res = C ^ (B | (~D));
+                idx = (7 * i) % 16;
+            }
+            uint streamVal = 0;
+            // Convert to little endian
+            for (int p = 0; p < 4; ++p) streamVal |= (hashStream[block + (idx * 4) + p]) << (8 * p);
+            uint temp = D;
+            D = C;
+            C = B;
+            B = B + ROTATE_LEFT((A + res + K[i] + streamVal), S[i]);
+            A = temp;
+        }
+        *hash0 += A;
+        *hash1 += B;
+        *hash2 += C;
+        *hash3 += D;
     }
 }
 
