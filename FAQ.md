@@ -12,15 +12,15 @@ A: The Retro Engine has all of its engine and game logic tied to the framerate, 
 A: A likely reason for this is that you put the decomp in a directory in your user folder (Desktop, Downloads, Documents, etc). These directories are known to cause issues, so move your decomp installation elsewhere, such as the root of the C drive or another drive. If it's still not working, try redownloading and reinstalling the decomp.
 
 ### Q: I found a bug!
-A: Submit an issue in the Issues tab and we might fix it. Keep in mind that this is a decompilation, so bugs that exist in official releases will most likely not be fixed here.
+A: Submit an issue in the Issues tab and we might look into it. Keep in mind that this is a decompilation, so bugs that exist in official releases will most likely not be fixed here.
 
 
 # Using Mobile RSDK Files
 ### Q: Why does pressing B pause the game during gameplay?
-A: This is a known script issue with most Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it.
+A: This is a known script issue with most Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/RSDKModding/RSDKv4-Script-Decompilation) should fix it.
 
 ### Q: Why is the default life count 1 instead of 3?
-A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/Rubberduckycooly/Sonic-1-Sonic-2-2013-Script-Decompilation) should fix it in most instances.
+A: This is due to a change made in recent Sega Forever versions of the games. Using the [decompiled scripts](https://github.com/RSDKModding/RSDKv4-Script-Decompilation) should fix it in most instances.
 
 
 # Using Origins RSDK Files
@@ -50,7 +50,7 @@ A: In the version of the Retro Engine that Origins uses (RSDKv5U), certain featu
 
 # Miscellaneous
 ### Q: Will you do a decompilation for Sonic CD (2011)?
-A: I already have! You can find it [here](https://github.com/Rubberduckycooly/Sonic-CD-11-Decompilation).
+A: I already have! You can find it [here](https://github.com/RSDKModding/RSDKv3).
 
-### Q: Will you do a decompilation for Sonic Mania?
-A: I already have! You can find the source code for Sonic Mania [here](https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation) and RSDKv5 which is used to run it [here](https://github.com/Rubberduckycooly/RSDKv5-Decompilation).
+### Q: Will you do a decompilation for RSDKv5/Sonic Mania?
+A: I already have! You can find Sonic Mania [here](https://github.com/RSDKModding/Sonic-Mania-Decompilation) and RSDKv5 [here](https://github.com/RSDKModding/RSDKv5-Decompilation).
