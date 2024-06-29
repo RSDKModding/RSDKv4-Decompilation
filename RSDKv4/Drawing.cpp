@@ -1232,7 +1232,7 @@ void DrawStageGFX()
 #if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
         // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
-        if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
+        if (forceUseScripts || Engine.usingOrigins)
 #endif
             DrawObjectList(7);
 #endif

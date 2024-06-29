@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Before opening an issue, please read the following:
-        - Check the [FAQ](https://github.com/Rubberduckycooly/Sonic-1-2-2013-Decompilation/blob/main/FAQ.md) to see if your issue is addressed there.
+        - Check the [FAQ](https://github.com/RSDKModding/RSDKv4-Decompilation/blob/main/FAQ.md) to see if your issue is addressed there.
         - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
         - Do not ask for help for making mods.
         - Do not report bugs for unofficial branches of the decompilation.

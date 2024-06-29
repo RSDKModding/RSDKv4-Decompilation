@@ -287,7 +287,7 @@ inline void StringUpperCase(char *dest, const char *src)
 
 void ConvertIntegerToString(char *text, int value);
 
-void GenerateMD5FromString(const char *string, int len, byte *buffer);
+void GenerateMD5FromString(const char *string, int len, uint *hash0, uint *hash1, uint *hash2, uint *hash3);
 
 void InitLocalizedStrings();
 ushort *ReadLocalizedString(const char *stringName, const char *language, const char *filePath);

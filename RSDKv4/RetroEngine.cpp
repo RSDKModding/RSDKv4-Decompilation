@@ -1315,6 +1315,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         startList_Game  = STAGELIST_BONUS;
         startStage_Game = 0xFE;
     }
+
+#if RETRO_REV03
+    Engine.usingOrigins = GetGlobalVariableID("game.playMode") != 0xFF;
+#endif
 #endif
 
     return loaded;

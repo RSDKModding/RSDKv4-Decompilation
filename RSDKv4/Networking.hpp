@@ -13,7 +13,6 @@ extern int networkPort;
 extern float lastPing;
 extern int dcError;
 extern bool waitingForPing;
-extern bool waitForVerify;
 
 struct MultiplayerData {
     int type;

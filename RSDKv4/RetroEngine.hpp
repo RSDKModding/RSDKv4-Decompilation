@@ -92,7 +92,7 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 //#error "No Platform was defined"
-#define RETRO_PLATFORM   (RETRO_WIN)
+#define RETRO_PLATFORM   (RETRO_LINUX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
@@ -366,6 +366,9 @@ public:
 #endif
     bool usingDataFile = false;
     bool usingBytecode = false;
+#if RETRO_REV03 && !RETRO_USE_ORIGINAL_CODE
+    bool usingOrigins = false;
+#endif
 
     char dataFile[RETRO_PACKFILE_COUNT][0x80];
 
