@@ -200,7 +200,7 @@ void GenerateMD5FromString(const char *string, int len, uint *hash0, uint *hash1
     // Padding (only 0x80 is needed since memset(0) has been called on hashStream)
     hashStream[len] = 0x80;
     // Write length in little endian order
-    for (int p = 0; p < 3; ++p) hashStream[padded_length + p] = (length_bits >> (8 * p));
+    for (int p = 0; p < 4; ++p) hashStream[padded_length + p] = (length_bits >> (8 * p));
 
     // Process blocks
     for (int block = 0; block < padded_length; block += 64) {
@@ -225,7 +225,7 @@ void GenerateMD5FromString(const char *string, int len, uint *hash0, uint *hash1
             }
             uint streamVal = 0;
             // Convert to little endian
-            for (int p = 0; p < 4; ++p) streamVal |= (hashStream[block + (idx * 4) + p]) << (8 * p);
+            for (int p = 0; p < 4; ++p) streamVal |= (hashStream[block + (idx * 4) + p] & 0xFF) << (8 * p);
             uint temp = D;
             D = C;
             C = B;
