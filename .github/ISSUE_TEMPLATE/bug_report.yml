@@ -2,28 +2,37 @@ name: Bug Report
 description: Something isn't working
 labels: [bug]
 body:
-  - type: markdown
+  - id: validation
+    type: checkboxes
     attributes:
-      value: |
-        Before opening an issue, please read the following:
-        - Check the [FAQ](https://github.com/RSDKModding/RSDKv4-Decompilation/blob/main/FAQ.md) to see if your issue is addressed there.
-        - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
-        - Do not ask for help for making mods.
-        - Do not report bugs for unofficial branches of the decompilation.
-        - If your bug does not seem to be related to any mods you're using, test if it occurs without any mods enabled.
-  - type: input
+      label: Before opening this issue, I ensure that...
+      options:
+      - label: I have read the [FAQ](https://github.com/RSDKModding/RSDKv4-Decompilation/blob/main/FAQ.md) and confirmed my issue is not mentioned in it.
+        required: true
+      - label: I have checked **both open and closed** issues and confirmed this bug has not already been reported.
+        required: true
+      - label: I am not asking for tech support (e.g. game closing on startup, error when trying to build, etc).
+        required: true
+      - label: I am not asking for modding support or reporting a bug in a specific mod; this bug either occurs without mods enabled or is directly related to the mod loader.
+        required: true
+      - label: This bug is not related to any unofficial fork/port of the decompilation, and any issues with those should be kept in the appropriate repository.
+        required: true
+  - id: expected-behavior
+    type: input
     validations:
       required: true
     attributes:
       label: Expected Behavior
       description: What behavior is supposed to occur?
-  - type: input
+  - id: actual-behavior
+    type: input
     validations:
       required: true
     attributes:
       label: Actual Behavior
       description: What actually happens?
-  - type: textarea
+  - id: repro-steps
+    type: textarea
     validations:
       required: true
     attributes:
@@ -33,26 +42,29 @@ body:
         1. Do this
         2. Do that
         3. This happens
-  - type: textarea
+  - id: screenshots
+    type: textarea
     validations:
       required: false
     attributes:
       label: Screenshots
       description: Provide screenshots if applicable.
-  - type: textarea
+  - id: log-file
+    type: textarea
     validations:
       required: false
     attributes:
       label: Log File
       description: If EngineDebugMode is enabled in settings.ini, the decompilation will write to a log file named log.txt. You can provide it here if you believe it will be helpful.
-  - type: input
+  - id: decomp-version
+    type: input
     validations:
       required: true
     attributes:
       label: Decompilation Version
       description: The decompilation version. If you built it manually or are using an autobuild, please specify the commit if possible.
-  - type: dropdown
-    id: game
+  - id: game
+    type: dropdown
     validations:
       required: true
     attributes:
@@ -62,8 +74,8 @@ body:
       options:
         - Sonic 1
         - Sonic 2
-  - type: dropdown
-    id: gameversion
+  - id: gameversion
+    type: dropdown
     validations:
       required: true
     attributes:
@@ -74,19 +86,22 @@ body:
         - Mobile (Sega Forever)
         - Mobile (Pre-Sega Forever)
         - Sonic Origins
-  - type: input
+  - id: gamerevision
+    type: input
     validations:
       required: false
     attributes:
       label: Game Revision
       description: If you know the specific version number of the game, provide it here.
-  - type: input
+  - id: platform
+    type: input
     validations:
       required: true
     attributes:
       label: Platform
       description: The platform/OS you're running the decompilation on.
-  - type: textarea
+  - id: comments
+    type: textarea
     validations:
       required: false
     attributes:
