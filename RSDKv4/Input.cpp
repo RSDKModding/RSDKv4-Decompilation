@@ -32,6 +32,8 @@ int lastMouseY     = 0;
 
 struct InputDevice {
 #if RETRO_USING_SDL2
+    // we need the controller index reported from SDL2's controller added event
+    int index;
     SDL_GameController *devicePtr;
     SDL_Haptic *hapticPtr;
 #endif
@@ -206,7 +208,7 @@ bool getControllerButton(byte buttonID)
 }
 #endif //! RETRO_USING_SDL2
 
-void controllerInit(byte controllerID)
+void controllerInit(int controllerID)
 {
     for (int i = 0; i < controllers.size(); ++i) {
         if (controllers[i].id == controllerID) {
@@ -218,7 +220,8 @@ void controllerInit(byte controllerID)
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         InputDevice device;
-        device.id        = 0;
+        device.id        = controllerID;
+        device.index     = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
         device.devicePtr = controller;
         device.hapticPtr = SDL_HapticOpenFromJoystick(SDL_GameControllerGetJoystick(controller));
         if (device.hapticPtr == NULL) {
@@ -239,22 +242,26 @@ void controllerInit(byte controllerID)
 #endif
 }
 
-void controllerClose(byte controllerID)
+void controllerClose(int controllerID)
 {
 #if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
 #endif
-        for (int i = 0; i < controllers.size(); ++i) {
-            if (controllers[i].id == controllerID) {
-                controllers.erase(controllers.begin() + controllerID);
+        if (controllers.size() == 1) {
+            controllers.clear();
+        } else {
+            for (int i = 0; i < controllers.size(); ++i) {
+                if (controllers[i].index == controllerID) {
+                    controllers.erase(controllers.begin() + i);
 #if RETRO_USING_SDL2
-                if (controllers[i].hapticPtr) {
-                    SDL_HapticClose(controllers[i].hapticPtr);
-                }
+                    if (controllers[i].hapticPtr) {
+                        SDL_HapticClose(controllers[i].hapticPtr);
+                    }
 #endif
-                break;
+                    break;
+                }
             }
         }
 #if RETRO_USING_SDL2
@@ -287,6 +294,7 @@ void InitInputDevices()
         SDL_GameController *gamepad = SDL_GameControllerOpen(i);
         InputDevice device;
         device.id        = 0;
+        device.index     = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(gamepad));
         device.devicePtr = gamepad;
 
         if (SDL_GameControllerGetAttached(gamepad))
