@@ -226,13 +226,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                 SetGlobalVariableByName("starPostID", 0);
                 debugMode = false;
 
+                int charID = 0;
                 switch (self->playerID) {
-                    case SAVESEL_SONIC: saveGame->files[saveSel->selectedButton - 1].characterID = 0; break;
-                    case SAVESEL_TAILS: saveGame->files[saveSel->selectedButton - 1].characterID = 1; break;
-                    case SAVESEL_KNUX: saveGame->files[saveSel->selectedButton - 1].characterID = 2; break;
-                    case SAVESEL_ST: saveGame->files[saveSel->selectedButton - 1].characterID = 3; break;
+                    case SAVESEL_SONIC: charID = 0; break;
+                    case SAVESEL_TAILS: charID = 1; break;
+                    case SAVESEL_KNUX: charID = 2; break;
+                    case SAVESEL_ST: charID = 3; break;
                 }
-                InitStartingStage(STAGELIST_PRESENTATION, 0, saveGame->files[saveSel->selectedButton - 1].characterID);
+                InitStartingStage(STAGELIST_PRESENTATION, 0, charID);
 
                 CREATE_ENTITY(FadeScreen);
             }
