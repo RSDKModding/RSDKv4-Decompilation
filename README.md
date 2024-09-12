@@ -55,7 +55,7 @@ Clone the repo **recursively**, using:
 If you've already cloned the repo, run this command inside of the repository:
 ```git submodule update --init --recursive```
 
-## Follow the build steps
+## Getting dependencies
 
 ### Windows
 To handle dependencies, you'll need to install [Visual Studio Community](https://visualstudio.microsoft.com/downloads/) (make sure to install the `Desktop development with C++` package during the installation) and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-cmd#1---set-up-vcpkg) (You only need to follow `1 - Set up vcpkg`).
@@ -75,10 +75,10 @@ Install the following dependencies: then follow the [compilation steps below](#c
 - **apk (Alpine/PostmarketOS)** `sudo apk add build-base cmake glew-dev glfw-dev sdl2-dev libogg-dev libvorbis-dev`
 - Your favorite package manager here, [make a pull request](https://github.com/RSDKModding/RSDKv4-Decompilation/fork)
 
-## Android
+### Android
 Follow the android build instructions [here.](./dependencies/android/README.md)
 
-### Compiling
+## Compiling
 
 Compiling is as simple as typing the following in the root repository directory:
 ```
