@@ -185,7 +185,9 @@ void ProcessStageSelect()
                     else {
 #endif
                         CREATE_ENTITY(SegaSplash);
+#if !RETRO_USE_ORIGINAL_CODE
                     }
+#endif
                 }
 #if RETRO_USE_MOD_LOADER
                 else if (gameMenu[0].selection2 == 15) {
@@ -197,7 +199,7 @@ void ProcessStageSelect()
 #if RETRO_USE_MOD_LOADER
                     ExitGame();
 #else
-                Engine.running = false;
+                    Engine.running = false;
 #endif
                 }
             }
