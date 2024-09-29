@@ -2878,6 +2878,27 @@ void ParseScriptFile(char *scriptName, int scriptID)
                         }
 
                         if (scriptFunctionCount < FUNCTION_COUNT && funcID == -1) {
+#if !RETRO_USE_ORIGINAL_CODE
+                            if (StrLength(funcName) >= FUNCTION_NAME_LIMIT) {
+                                SetupTextMenu(&gameMenu[0], 0);
+                                AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+                                AddTextMenuEntry(&gameMenu[0], " ");
+                                AddTextMenuEntry(&gameMenu[0], "FUNCTION NAME TOO LONG");
+                                AddTextMenuEntry(&gameMenu[0], funcName);
+                                AddTextMenuEntry(&gameMenu[0], " ");
+                                AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
+                                char buffer[0x10];
+                                buffer[0] = 0;
+                                AppendIntegerToString(buffer, lineID);
+                                AddTextMenuEntry(&gameMenu[0], buffer);
+                                AddTextMenuEntry(&gameMenu[0], " ");
+                                AddTextMenuEntry(&gameMenu[0], "ERROR IN");
+                                AddTextMenuEntry(&gameMenu[0], scriptName);
+                                Engine.gameMode = ENGINE_SCRIPTERROR;
+                                return;
+                            }
+#endif
+
                             StrCopy(scriptFunctionList[scriptFunctionCount++].name, funcName);
                         }
                         else {
@@ -2902,6 +2923,27 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
+#if !RETRO_USE_ORIGINAL_CODE
+                                if (StrLength(funcName) >= FUNCTION_NAME_LIMIT) {
+                                    SetupTextMenu(&gameMenu[0], 0);
+                                    AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "FUNCTION NAME TOO LONG");
+                                    AddTextMenuEntry(&gameMenu[0], funcName);
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
+                                    char buffer[0x10];
+                                    buffer[0] = 0;
+                                    AppendIntegerToString(buffer, lineID);
+                                    AddTextMenuEntry(&gameMenu[0], buffer);
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "ERROR IN");
+                                    AddTextMenuEntry(&gameMenu[0], scriptName);
+                                    Engine.gameMode = ENGINE_SCRIPTERROR;
+                                    return;
+                                }
+#endif
+
                                 StrCopy(scriptFunctionList[scriptFunctionCount].name, funcName);
                                 scriptFunctionList[scriptFunctionCount].access            = ACCESS_PUBLIC;
                                 scriptFunctionList[scriptFunctionCount].ptr.scriptCodePtr = scriptCodePos;
@@ -2940,6 +2982,27 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
+#if !RETRO_USE_ORIGINAL_CODE
+                                if (StrLength(funcName) >= FUNCTION_NAME_LIMIT) {
+                                    SetupTextMenu(&gameMenu[0], 0);
+                                    AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "FUNCTION NAME TOO LONG");
+                                    AddTextMenuEntry(&gameMenu[0], funcName);
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
+                                    char buffer[0x10];
+                                    buffer[0] = 0;
+                                    AppendIntegerToString(buffer, lineID);
+                                    AddTextMenuEntry(&gameMenu[0], buffer);
+                                    AddTextMenuEntry(&gameMenu[0], " ");
+                                    AddTextMenuEntry(&gameMenu[0], "ERROR IN");
+                                    AddTextMenuEntry(&gameMenu[0], scriptName);
+                                    Engine.gameMode = ENGINE_SCRIPTERROR;
+                                    return;
+                                }
+#endif
+
                                 StrCopy(scriptFunctionList[scriptFunctionCount].name, funcName);
                                 scriptFunctionList[scriptFunctionCount].access            = ACCESS_PRIVATE;
                                 scriptFunctionList[scriptFunctionCount].ptr.scriptCodePtr = scriptCodePos;

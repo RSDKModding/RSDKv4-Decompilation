@@ -9,6 +9,8 @@
 #define FUNCSTACK_COUNT (0x400)
 #define FORSTACK_COUNT  (0x400)
 
+#define FUNCTION_NAME_LIMIT (0x20)
+
 #define RETRO_USE_COMPILER (1)
 
 struct ScriptPtr {
@@ -20,7 +22,7 @@ struct ScriptFunction {
 
     byte access;
 #if RETRO_USE_COMPILER
-    char name[0x20];
+    char name[FUNCTION_NAME_LIMIT];
 #endif
     ScriptPtr ptr;
 };
