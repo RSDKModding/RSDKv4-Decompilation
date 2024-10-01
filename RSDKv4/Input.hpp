@@ -104,8 +104,8 @@ enum ExtraSDLButtons {
     SDL_CONTROLLER_BUTTON_MAX_EXTRA,
 };
 
-void controllerInit(byte controllerID);
-void controllerClose(byte controllerID);
+void controllerInit(int controllerID);
+void controllerClose(int controllerID);
 #endif
 
 #if RETRO_USING_SDL1
