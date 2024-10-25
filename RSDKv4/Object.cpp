@@ -477,7 +477,7 @@ void RemoveNativeObject(NativeEntityBase *entity)
 #if !RETRO_USE_ORIGINAL_CODE
     if (!entity)
         return;
-    memcpy(&activeEntityList[entity->objectID], &activeEntityList[entity->objectID + 1], sizeof(int) * (NATIVEENTITY_COUNT - (entity->objectID + 2)));
+    memmove(&activeEntityList[entity->objectID], &activeEntityList[entity->objectID + 1], sizeof(int) * (NATIVEENTITY_COUNT - (entity->objectID + 2)));
     --nativeEntityCount;
     for (int i = entity->slotID; objectEntityBank[i].eventMain; ++i) objectEntityBank[i].objectID--;
 #else
