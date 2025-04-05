@@ -6106,7 +6106,26 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                         break;
                     }
                     case VAR_STAGESTATE: stageMode = scriptEng.operands[i]; break;
-                    case VAR_STAGEACTIVELIST: activeStageList = scriptEng.operands[i]; break;
+                    case VAR_STAGEACTIVELIST:
+#if RETRO_REV03 && !RETRO_USE_ORIGINAL_CODE
+                        // BONUS_STAGE and SPECIAL_STAGE are swapped on Origins bytecode, so correct it here
+                        if (Engine.usingOrigins && !forceUseScripts) {
+                            int listSlots[] = { 0, 1, 3, 2 };
+
+                            int listID = scriptEng.operands[i];
+                            if (listID <= 3)
+                                listID = listSlots[listID];
+                            else
+                                listID = 2; // BONUS_STAGE
+
+                            activeStageList = listID;
+                        }
+                        else
+                            activeStageList = scriptEng.operands[i];
+#else
+                        activeStageList = scriptEng.operands[i];
+#endif
+                        break;
                     case VAR_STAGELISTPOS: stageListPosition = scriptEng.operands[i]; break;
                     case VAR_STAGETIMEENABLED: timeEnabled = scriptEng.operands[i]; break;
                     case VAR_STAGEMILLISECONDS: stageMilliseconds = scriptEng.operands[i]; break;
