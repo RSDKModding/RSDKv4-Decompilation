@@ -4,12 +4,6 @@ add_executable(RetroEngine ${RETRO_FILES})
 
 set(DEP_PATH windows)
 
-if(RETRO_FORCE_CASE_SENSITIVE)
-    add_executable(RetroEngine ${RETRO_FILES}
-        RSDKv3/fcaseopen.c
-    )
-endif()
-
 find_package(Ogg CONFIG)
 
 if(NOT ${Ogg_FOUND})
