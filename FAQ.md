@@ -11,6 +11,9 @@ A: The Retro Engine has all of its engine and game logic tied to the framerate, 
 ### Q: I'm on Windows and experiencing issues such as crashes or mods not appearing in the mod menu, what's wrong?
 A: A likely reason for this is that you put the decomp in a directory in your user folder (Desktop, Downloads, Documents, etc). These directories are known to cause issues, so move your decomp installation elsewhere, such as the root of the C drive or another drive. If it's still not working, try redownloading and reinstalling the decomp.
 
+### Q: Why does my character softlock or die at the end of some acts in Sonic 1/2?
+A: This happens when the screen is too wide. The games weren't fully optimized for ultrawide, so script issues like these will occur. Using the [decompiled scripts](https://github.com/RSDKModding/RSDKv4-Script-Decompilation) should fix this.
+
 ### Q: I found a bug!
 A: Submit an issue in the Issues tab and we might look into it. Keep in mind that this is a decompilation, so bugs that exist in official releases will most likely not be fixed here.
 
