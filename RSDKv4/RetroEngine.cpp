@@ -352,7 +352,7 @@ void RetroEngine::Init()
                     InitStartingStage(startList_Game == 0xFF ? STAGELIST_PRESENTATION : startList_Game, startStage_Game == 0xFF ? 0 : startStage_Game,
                                       startPlayer == 0xFF ? 0 : startPlayer);
                 }
-                else if (startSave != 0xFF && startSave < 4) {
+                else if (startSave != 0xFF && startSave <= 4) {
                     if (startSave == 0) {
                         SetGlobalVariableByName("options.saveSlot", 0);
                         SetGlobalVariableByName("options.gameMode", 0);
