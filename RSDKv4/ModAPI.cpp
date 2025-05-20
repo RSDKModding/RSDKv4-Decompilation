@@ -23,11 +23,10 @@ byte modObjCount = 0;
 #include <filesystem>
 #include <locale>
 
-int OpenModMenu()
+void OpenModMenu()
 {
     Engine.gameMode      = ENGINE_INITMODMENU;
     Engine.modMenuCalled = true;
-    return 1;
 }
 
 #if RETRO_PLATFORM == RETRO_ANDROID

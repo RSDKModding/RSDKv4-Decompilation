@@ -47,7 +47,7 @@ bool LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
 void ScanModFolder(ModInfo *info);
 void SaveMods();
 
-int OpenModMenu();
+void OpenModMenu();
 
 void RefreshEngine();
 void GetModCount();
