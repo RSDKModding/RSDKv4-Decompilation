@@ -68,16 +68,42 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_ENDGAME:
             ClearScreen(1);
             TransferRetroBuffer();
+#if !RETRO_USE_ORIGINAL_CODE
+            if (skipStartMenu) {
+                activeStageList   = 0;
+                stageListPosition = 0;
+                stageMode         = STAGEMODE_LOAD;
+                Engine.gameMode   = ENGINE_MAINGAME;
+            }
+            else {
+                RestoreNativeObjects();
+                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
+                activeStageList   = 0;
+                stageListPosition = 0;
+            }
+#else
             RestoreNativeObjects();
             Engine.LoadGameConfig("Data/Game/GameConfig.bin");
             activeStageList   = 0;
             stageListPosition = 0;
+#endif
             break;
 
         case ENGINE_RESETGAME: // Also called when 2P VS disconnects
             ClearScreen(1);
             TransferRetroBuffer();
+#if !RETRO_USE_ORIGINAL_CODE
+            if (skipStartMenu) {
+                activeStageList   = 0;
+                stageListPosition = 0;
+                stageMode         = STAGEMODE_LOAD;
+                Engine.gameMode   = ENGINE_MAINGAME;
+            }
+            else
+                RestoreNativeObjects();
+#else
             RestoreNativeObjects();
+#endif
             break;
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
