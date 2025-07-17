@@ -47,7 +47,9 @@ This project uses [CMake](https://cmake.org/), a versatile building system that 
 
 ## Get the source code
 
-In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
+**DO NOT** download the source code ZIP archive from GitHub, as they do not include the submodules required to build the decompilation.
+
+Instead, you will need to clone the repository using Git, which you can get [here](https://git-scm.com/downloads).
 
 Clone the repo **recursively**, using:
 `git clone --recursive https://github.com/RSDKModding/RSDKv4-Decompilation`
