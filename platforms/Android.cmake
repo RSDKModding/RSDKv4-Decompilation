@@ -18,7 +18,7 @@ target_link_libraries(RetroEngine
     log
     z
     jnigraphics
-    openslES
+    OpenSLES
     SDL2
 )
 
