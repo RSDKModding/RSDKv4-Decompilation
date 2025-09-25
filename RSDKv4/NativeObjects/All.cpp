@@ -1,4 +1,5 @@
 #include "RetroEngine.hpp"
+#include "Profiles.hpp"
 
 #include "MenuBG.cpp"
 #include "TextLabel.cpp"
