@@ -1309,6 +1309,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("GetModDescription", GetModDescription);
     AddNativeFunction("GetModAuthor", GetModAuthor);
     AddNativeFunction("GetModVersion", GetModVersion);
+    AddNativeFunction("GetModID", GetModID);
     AddNativeFunction("GetModActive", GetModActive);
     AddNativeFunction("SetModActive", SetModActive);
     AddNativeFunction("MoveMod", MoveMod);

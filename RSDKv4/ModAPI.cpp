@@ -507,6 +507,18 @@ void GetModVersion(int *textMenu, int *highlight, uint *id, int *unused)
     AddTextMenuEntry(menu, modList[*id].version.c_str());
 }
 
+void GetModID(int *unused, const char *modName)
+{
+    scriptEng.checkResult = -1;
+
+    for (int n = 0; n < (int)modList.size(); ++n) {
+        if (modList[n].name == modName) {
+            scriptEng.checkResult = n;
+            return;
+        }
+    }
+}
+
 void GetModActive(uint *id, int *unused)
 {
     scriptEng.checkResult = false;
