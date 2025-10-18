@@ -991,7 +991,9 @@ void RetroEngine::LoadXMLPlayers(TextMenu *menu)
                             if (nameAttr)
                                 plrName = GetXMLAttributeValueString(nameAttr);
 
-                            if (menu)
+                            if (playerCount >= PLAYER_COUNT)
+                                PrintLog("Failed to add dev menu character '%s' (max limit reached)", plrName);
+                            else if (menu)
                                 AddTextMenuEntry(menu, plrName);
                             else
                                 StrCopy(playerNames[playerCount++], plrName);
@@ -1179,6 +1181,13 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         // Read Player Names
         byte plrCount = 0;
         FileRead(&plrCount, 1);
+#if RETRO_USE_MOD_LOADER
+        // Check for max player limit
+        if (plrCount >= PLAYER_COUNT) {
+            PrintLog("WARNING: GameConfig attempted to exceed the player limit, truncating to supported limit");
+            plrCount = PLAYER_COUNT;
+        }
+#endif
         for (byte p = 0; p < plrCount; ++p) {
             FileRead(&fileBuffer, 1);
             FileRead(&strBuffer, fileBuffer);
