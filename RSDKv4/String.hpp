@@ -324,36 +324,44 @@ inline void ReadStringLine(char *text)
 
 inline void ReadStringLineUnicode(ushort *text)
 {
-    int curChar = 0;
+    bool lineEnding;
+    ushort curChar = 0;
     byte fileBuffer[2];
 
     int textPos = 0;
     while (true) {
         FileRead(fileBuffer, 2);
         curChar = fileBuffer[0] + (fileBuffer[1] << 8);
-        if (curChar != ' ' && curChar != '\t') {
-            if (curChar == '\r') {
-                int pos = (int)GetFilePosition();
-                FileRead(fileBuffer, 2);
-                curChar = fileBuffer[0] + (fileBuffer[1] << 8);
-                if (curChar == '\n')
-                    break;
-                SetFilePosition(pos);
-            }
-            if (curChar != ';')
+        lineEnding = false;
+
+        switch (curChar) {
+            case '\t':
+            case ' ':
+                break;
+
+            case '\n':
+            case '\r':
+                lineEnding = true;
+                text[textPos] = 0;
+                break;
+
+            case ';':
+                break;
+
+            default:
                 text[textPos++] = curChar;
+                break;
         }
-        else if (curChar == '\n' || curChar == '\r')
-            break;
 
         if (ReachedEndOfFile()) {
             text[textPos] = 0;
             return;
         }
+
+        if (lineEnding) {
+            return;
+        }
     }
-    text[textPos] = 0;
-    if (ReachedEndOfFile())
-        text[textPos] = 0;
 }
 
 void ReadCreditsList(const char *filePath);
