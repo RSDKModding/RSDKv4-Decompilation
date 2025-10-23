@@ -2,6 +2,9 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <endian.h>
+#endif
 
 float retroVertexList[40];
 float screenBufferVertexList[40];
@@ -443,6 +446,7 @@ void RenderScene()
             if (!prevColors)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
+
 #endif
             prevColors = true;
         }
@@ -688,7 +692,11 @@ int LoadTexture(const char *filePath, int format)
                     }
 
 #if RETRO_USING_OPENGL
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
+#else
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+#endif
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glBindTexture(GL_TEXTURE_2D, 0);
@@ -798,7 +806,11 @@ void ReplaceTexture(const char *filePath, int texID)
                     }
 
 #if RETRO_USING_OPENGL
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
+#else
                     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+#endif
                     glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 
@@ -1069,7 +1081,11 @@ void TransferRetroBuffer()
             frameBufferPtr += GFX_LINESIZE;
         }
 
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, Engine.texBuffer);
+#else
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_BYTE, Engine.texBuffer);
+#endif
     }
     else {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, Engine.frameBuffer);
