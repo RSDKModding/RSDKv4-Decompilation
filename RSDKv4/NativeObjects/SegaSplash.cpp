@@ -8,15 +8,15 @@ void SegaSplash_Create(void *objPtr)
     self->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", TEXFMT_RGBA8888);
     if (Engine.useHighResAssets) {
         if (Engine.language == RETRO_JP)
-            self->textureID = LoadTexture("Data/Game/Menu/SegaJP@2x.png", TEXFMT_RGBA5551);
+            self->textureID = LoadTexture("Data/Game/Menu/SegaJP@2x.png", TEXFMT_RGBA8888);
         else
-            self->textureID = LoadTexture("Data/Game/Menu/Sega@2x.png", TEXFMT_RGBA5551);
+            self->textureID = LoadTexture("Data/Game/Menu/Sega@2x.png", TEXFMT_RGBA8888);
     }
     else {
         if (Engine.language == RETRO_JP)
-            self->textureID = LoadTexture("Data/Game/Menu/SegaJP.png", TEXFMT_RGBA5551);
+            self->textureID = LoadTexture("Data/Game/Menu/SegaJP.png", TEXFMT_RGBA8888);
         else
-            self->textureID = LoadTexture("Data/Game/Menu/Sega.png", TEXFMT_RGBA5551);
+            self->textureID = LoadTexture("Data/Game/Menu/Sega.png", TEXFMT_RGBA8888);
     }
 
     // code has been here from TitleScreen_Create due to the possibility of opening the dev menu before this loads :(
