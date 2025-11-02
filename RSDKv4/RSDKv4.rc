@@ -77,7 +77,7 @@ BEGIN
     BEGIN
         BLOCK "0c0904b0"
         BEGIN
-            VALUE "CompanyName", "RSDKv4/Sonic 1/2 (2013) By Christian 'The Taxman' Whitehead & Simon 'Stealth' Thomley, Decompilation By Rubberduckycooly/RMGRich"
+            VALUE "CompanyName", "RSDKv4/Sonic 1/2 (2013) By Christian 'The Taxman' Whitehead & Simon 'Stealth' Thomley, Decompilation By Rubberduckycooly/stxtic"
             VALUE "FileDescription", "RSDKv4"
             VALUE "FileVersion", "1.0.0"
             VALUE "InternalName", "RSDKv4.exe"
