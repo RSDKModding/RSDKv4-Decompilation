@@ -1,7 +1,4 @@
 #include "RetroEngine.hpp"
-#if defined(__linux__) || defined(__FreeBSD__)
-#include <endian.h>
-#endif
 
 ushort blendLookupTable[0x20 * 0x100];
 ushort subtractLookupTable[0x20 * 0x100];
@@ -910,18 +907,10 @@ void SetupViewport()
 #if RETRO_USING_OPENGL
     if (displaySettings.height > 720) {
         convertTo32Bit = true;
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, 0);
-#else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-#endif
     }
     else if (convertTo32Bit)
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, 0);
-#else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-#endif
     else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
 
