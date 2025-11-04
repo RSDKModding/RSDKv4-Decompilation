@@ -2,6 +2,10 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <endian.h>
+#endif
+#include <SDL2/SDL.h>
 
 float retroVertexList[40];
 float screenBufferVertexList[40];
@@ -443,6 +447,7 @@ void RenderScene()
             if (!prevColors)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
+
 #endif
             prevColors = true;
         }
@@ -683,7 +688,9 @@ int LoadTexture(const char *filePath, int format)
                             int g                   = data[id++];
                             int b                   = data[id++];
                             int a                   = data[id++];
-                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            int pixel = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            pixel = SDL_SwapLE32(pixel);
+                            pixels[x + (y * width)] = pixel;
                         }
                     }
 
@@ -793,7 +800,9 @@ void ReplaceTexture(const char *filePath, int texID)
                             int g                   = data[id++];
                             int b                   = data[id++];
                             int a                   = data[id++];
-                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            int pixel = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            pixel = SDL_SwapLE32(pixel);
+                            pixels[x + (y * width)] = pixel;
                         }
                     }
 
@@ -853,10 +862,10 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
             for (int v = 0; v < mesh->vertexCount; ++v) {
                 float buf = 0;
                 FileRead(&buf, sizeof(float));
-                mesh->vertices[v].texCoordX = buf;
+                mesh->vertices[v].texCoordX = SDL_SwapFloatLE(buf);
 
                 FileRead(&buf, sizeof(float));
-                mesh->vertices[v].texCoordY = buf;
+                mesh->vertices[v].texCoordY = SDL_SwapFloatLE(buf);
 
                 mesh->vertices[v].r = 0xFF;
                 mesh->vertices[v].g = 0xFF;
@@ -889,22 +898,22 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
                 for (int v = 0; v < mesh->vertexCount; ++v) {
                     float buf = 0;
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertX = buf;
+                    mesh->vertices[v].vertX = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertY = buf;
+                    mesh->vertices[v].vertY = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertZ = buf;
+                    mesh->vertices[v].vertZ = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalX = buf;
+                    mesh->vertices[v].normalX = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalY = buf;
+                    mesh->vertices[v].normalY = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalZ = buf;
+                    mesh->vertices[v].normalZ = SDL_SwapFloatLE(buf);
                 }
             }
             else {
@@ -914,22 +923,22 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
                     for (int v = 0; v < mesh->vertexCount; ++v) {
                         float buf = 0;
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertX = buf;
+                        mesh->frames[frameOff + v].vertX = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertY = buf;
+                        mesh->frames[frameOff + v].vertY = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertZ = buf;
+                        mesh->frames[frameOff + v].vertZ = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalX = buf;
+                        mesh->frames[frameOff + v].normalX = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalY = buf;
+                        mesh->frames[frameOff + v].normalY = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalZ = buf;
+                        mesh->frames[frameOff + v].normalZ = SDL_SwapFloatLE(buf);
                     }
                 }
             }
@@ -1069,7 +1078,11 @@ void TransferRetroBuffer()
             frameBufferPtr += GFX_LINESIZE;
         }
 
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, Engine.texBuffer);
+#else
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_BYTE, Engine.texBuffer);
+#endif
     }
     else {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, Engine.frameBuffer);
