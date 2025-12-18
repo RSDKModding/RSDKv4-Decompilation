@@ -127,7 +127,7 @@ You can find the FAQ [here](./FAQ.md).
 
 # Special Thanks
 * [st×tic](https://github.com/stxticOVFL) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
-* [The Weigman](https://github.com/TheWeigman) for creating the header you see up here along with similar assets.
+* [biscuitball425](https://github.com/biscuitball425): for creating the header logo along with similar assets.
 * Everyone in the [Retro Engine Modding Server](https://dc.railgun.works/retroengine) for being supportive of me and for giving me a place to show off these things that I've found.
 
 # Contact:
