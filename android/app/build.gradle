@@ -19,7 +19,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.3.2"
+        versionName "1.3.3"
         if(project.hasProperty("RETRO_DISABLE_PLUS"))
             autobuildFlag = true
         externalNativeBuild {

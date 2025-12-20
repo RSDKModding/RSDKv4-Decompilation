@@ -539,6 +539,12 @@ void RecordsScreen_Main(void *objPtr)
 #endif
                     }
                 }
+#if !RETRO_USE_ORIGINAL_CODE
+                // There's a bit of a bug in the code that makes Wing Fortress go to Metropolis 3, even though the records save perfectly fine.
+                // So, if you are in Sonic 2 and the zone selected is Wing Fortress, load Stage 18 (this is always Wing Fortress under normal circumstances).
+                else if (Engine.gameType == GAME_SONIC2 && self->zoneID == 8)
+                    InitStartingStage(STAGELIST_REGULAR, 18, 0);
+#endif
                 else
                     InitStartingStage(STAGELIST_REGULAR, self->zoneID * timeAttack_ActCount + self->actID, 0);
 
