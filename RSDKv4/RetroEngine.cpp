@@ -716,10 +716,13 @@ void RetroEngine::LoadXMLVariables()
                             if (valAttr)
                                 varValue = GetXMLAttributeValueInt(valAttr);
 
-                            StrCopy(globalVariableNames[globalVariablesCount], varName);
-                            globalVariables[globalVariablesCount] = varValue;
-                            globalVariablesCount++;
-
+                            if (globalVariablesCount >= GLOBALVAR_COUNT)
+                                PrintLog("Failed to add global variable '%s' (max limit reached)", varName);
+                            else if (GetGlobalVariableID(varName) == 0xFF) {
+                                StrCopy(globalVariableNames[globalVariablesCount], varName);
+                                globalVariables[globalVariablesCount] = varValue;
+                                globalVariablesCount++;
+                            }
                         } while ((varElement = NextXMLSiblingElement(doc, varElement, "variable")));
                     }
                 }

@@ -129,6 +129,7 @@ inline void SetGlobalVariableByName(const char *name, int value)
         }
     }
 }
+
 inline int GetGlobalVariableID(const char *name)
 {
     for (int v = 0; v < globalVariablesCount; ++v) {
