@@ -123,6 +123,27 @@ void InitStartingStage(int list, int stage, int player)
     stageListPosition = stage;
 }
 
+void InitStartingStageMode(int list, int stage)
+{
+    //top 5 most useless functions
+    xScrollOffset = 0;
+    yScrollOffset = 0;
+    StopMusic(true);
+    StopAllSfx();
+    ReleaseStageSfx();
+    fadeMode      = 0;
+    ClearGraphicsData();
+    ClearAnimationData();
+    ResetCurrentStageFolder();
+    activeStageList   = list;
+    activePalette     = fullPalette[0];
+    activePalette32   = fullPalette32[0];
+    stageMode         = STAGEMODE_LOAD;
+    Engine.gameMode   = ENGINE_MAINGAME;
+    stageListPosition = stage;
+
+}
+
 void ProcessStage(void)
 {
 #if !RETRO_USE_ORIGINAL_CODE

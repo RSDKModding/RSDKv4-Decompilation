@@ -1173,6 +1173,14 @@ void ShowWebsite(int websiteID)
     }
 }
 
+#if RETRO_USE_V6
+void PlayVideo(int unused, const char *videoName)
+{
+    PrintLog("Loaded Video: \"%s\"", videoName);
+    // The day S3KO gets decompiled I'll make an mp4 video player
+}
+#endif
+
 #if RETRO_REV03
 enum NotifyCallbackIDs {
     NOTIFY_DEATH_EVENT         = 128,

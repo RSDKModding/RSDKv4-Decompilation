@@ -213,6 +213,9 @@ extern bool drawStageGFXHQ;
 
 void InitFirstStage();
 void InitStartingStage(int list, int stage, int player);
+#if RETRO_USE_V6
+void InitStartingStageMode(int list, int stage); //It's the same fuckass thing, just without the player param
+#endif
 void ProcessStage();
 
 void ProcessParallaxAutoScroll();

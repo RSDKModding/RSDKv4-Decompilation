@@ -1,5 +1,6 @@
 #include "RetroEngine.hpp"
 
+#if !RETRO_USE_V6
 void InitPauseMenu()
 {
     PauseSound();
@@ -7,6 +8,78 @@ void InitPauseMenu()
     CREATE_ENTITY(MenuBG);
     CREATE_ENTITY(PauseMenu);
 }
+#else
+void InitPauseMenu()
+{
+    Engine.gameMode = ENGINE_INITJAVAPAUSE;
+}
+#endif
+
+#if RETRO_USE_V6
+//redefining because my compiler hates me
+int tempGlobalVar = 0;
+const char* checkpointName = nullptr;
+
+void showPauseScreenJava()
+{
+    //it's Java sided, i'm not even gonna bother with this
+    PrintLog("Showing the Java Pause Menu");
+}
+
+void eventPauseMenuVisible(bool paused, int state)
+{
+    if (paused){
+        mixFiltersOnJekyll = false;
+        PauseSound();
+        ClearNativeObjects();
+        return;
+    }
+    if (state == 3){
+        tempGlobalVar = GetGlobalVariableByName("options.gameMode");
+        Engine.gameMode = ENGINE_RESETGAME; // wonder what Hunter was thinking when porting the HW Menu to V6
+        if (tempGlobalVar < 2){
+            Engine.gameMode = 7;
+        }
+        SetGlobalVariableByName("timeAttack.result", 1000000);
+    }
+    else{
+        if (state != 1){
+            if (state == 0){
+                mixFiltersOnJekyll = true;
+                RenderRetroBuffer(0x40,0x43200000);
+                ClearNativeObjects();
+                CreateNativeObject(RetroGameLoop_Create, RetroGameLoop_Main);
+                ResumeSound();
+                Engine.gameMode = 1;
+                return;
+            }
+        return;
+        }
+        stageMode = 0;
+        Engine.gameMode = 6;
+        tempGlobalVar = GetGlobalVariableByName("options.gameMode");
+        if (tempGlobalVar < 2){
+            tempGlobalVar = GetGlobalVariableByName("player.lives");
+            SetGlobalVariableByName("player.lives", tempGlobalVar - 1); //the decompiler output tempGlobalVar + -1, which is the exact thing
+        }
+        if (activeStageList == 1){
+            if (Engine.gameType == GAME_SONICCD){
+                checkpointName = "lampPostID";
+            }
+            else{
+                checkpointName = "lampPostID";
+                if (Engine.gameType != GAME_SONIC2){
+                    checkpointName = "starPostID";
+                }
+            }
+        SetGlobalVariableByName(checkpointName, 0);
+        }
+    ResetCurrentStageFolder();
+    }
+    CreateNativeObject(FadeScreen_Create, FadeScreen_Main);
+    return;
+}
+#endif
 
 void RetroGameLoop_Create(void *objPtr) { mixFiltersOnJekyll = Engine.useHighResAssets; }
 void RetroGameLoop_Main(void *objPtr)
@@ -105,6 +178,14 @@ void RetroGameLoop_Main(void *objPtr)
             RestoreNativeObjects();
 #endif
             break;
+        
+#if RETRO_USE_V6
+        case ENGINE_INITJAVAPAUSE: //new gameMode state in RSDKv6
+        eventPauseMenuVisible(true, 0);
+        showPauseScreenJava();
+        Engine.gameMode = 5; 
+        return;
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
         case ENGINE_CONNECT2PVS: {

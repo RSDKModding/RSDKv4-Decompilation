@@ -20,6 +20,7 @@ void RecordsScreen_Create(void *objPtr)
     SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
 
     self->textureArrows = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA5551);
+
     SetStringToFont(self->textRecords, strRecords, FONT_LABEL);
 
     self->recordTextWidth = GetTextWidth(self->textRecords, FONT_LABEL, 0.125) * 0.5;
@@ -743,8 +744,14 @@ void RecordsScreen_Main(void *objPtr)
             RenderImage(146.0, 0.0, 160.0, 0.2, 0.3, 64.0, 64.0, 128.0, 128.0, 0.0, 0.0, self->buttonAlpha, self->textureArrows);
     }
 
-    if (self->backPressed)
+    if (self->backPressed){
+    #if !RETRO_USE_V6
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, self->buttonAlpha, self->textureArrows);
-    else
+    #endif
+    }
+    else{
+    #if !RETRO_USE_V6
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, self->buttonAlpha, self->textureArrows);
+    #endif
+    }
 }

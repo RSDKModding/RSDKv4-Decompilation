@@ -3,7 +3,11 @@
 void SegaSplash_Create(void *objPtr)
 {
     RSDK_THIS(SegaSplash);
+ //   #if RETRO_USE_V6
+ //   self->state     = SEGAPLASH_STATE_SPAWNCWSPLASH;
+//    #else
     self->state     = SEGAPLASH_STATE_ENTER;
+ //   #endif
     self->rectAlpha = 320.0;
     self->textureID = LoadTexture("Data/Game/Menu/CWLogo.png", TEXFMT_RGBA8888);
     if (Engine.useHighResAssets) {

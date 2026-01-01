@@ -12,4 +12,9 @@ struct NativeEntity_CWSplash : NativeEntityBase {
 void CWSplash_Create(void *objPtr);
 void CWSplash_Main(void *objPtr);
 
+#if RETRO_USE_V6
+// actual function in v6 btw, very needed with the way it skips title screen
+void loadTextureAll();
+#endif
+
 #endif // !NATIVE_CWSPLASH_H

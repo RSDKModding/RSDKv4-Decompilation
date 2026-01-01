@@ -21,7 +21,11 @@ struct NativeEntity_StartGameButton : NativeEntityBase {
     NativeEntity_TextLabel *labelPtr;
     byte prevRegion;
 };
-
+#if RETRO_USE_V6
+void loadCartridgeValue(void *objPtr);
+//took 2 parameters, but one is used as a handle for the mesh
+//while the other is the region value, so we can just use the region directly
+#endif
 void StartGameButton_Create(void *objPtr);
 void StartGameButton_Main(void *objPtr);
 

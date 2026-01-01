@@ -26,8 +26,9 @@ void PlayerSelectScreen_Create(void *objPtr)
 
     self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
-
+#if !RETRO_USE_V6
     self->textureArrows    = LoadTexture("Data/Game/Menu/ArrowButtons.png", TEXFMT_RGBA4444);
+#endif
     self->texturePlayerSel = LoadTexture("Data/Game/Menu/PlayerSelect.png", TEXFMT_RGBA8888);
     self->backPressed      = false;
     self->flag             = true;
@@ -80,11 +81,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                     if (keyPress.left) {
                         if (saveGame->knuxUnlocked) {
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
+
                             if (--self->playerID < SAVESEL_SONIC)
                                 self->playerID = SAVESEL_KNUX;
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
                             if (--self->playerID > SAVESEL_SONIC)
                                 self->playerID = SAVESEL_TAILS;
                         }
@@ -92,12 +96,14 @@ void PlayerSelectScreen_Main(void *objPtr)
                     else if (keyPress.right) {
                         if (saveGame->knuxUnlocked) {
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
 
                             if (++self->playerID > SAVESEL_KNUX)
                                 self->playerID = SAVESEL_SONIC;
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
 
                             if (++self->playerID > SAVESEL_TAILS)
                                 self->playerID = SAVESEL_SONIC;
@@ -108,6 +114,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                     }
                     if (keyPress.start || keyPress.A) {
                         PlaySfxByName("Menu Select", false);
+                        PlaySfxByName("Select", false);
                         StopMusic(true);
                         self->state = PLAYERSELECTSCREEN_STATE_ACTION;
                     }
@@ -161,6 +168,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                 else {
                     if (self->playerID > 0) {
                         PlaySfxByName("Menu Select", false);
+                        PlaySfxByName("Select", false);
                         StopMusic(true);
                         self->state = PLAYERSELECTSCREEN_STATE_ACTION;
                     }
@@ -224,6 +232,9 @@ void PlayerSelectScreen_Main(void *objPtr)
                 SetGlobalVariableByName("timeAttack.result", 0);
                 SetGlobalVariableByName("lampPostID", 0);
                 SetGlobalVariableByName("starPostID", 0);
+#if RETRO_USE_V6
+                SetGlobalVariableByName("specialStage.timeStones", 0);
+#endif
                 debugMode = false;
 
                 int charID = 0;
@@ -379,8 +390,14 @@ void PlayerSelectScreen_Main(void *objPtr)
     NewRenderState();
     SetRenderMatrix(NULL);
     SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-    if (self->backPressed)
+    if (self->backPressed){
+        #if !RETRO_USE_V6
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 128.0, self->alpha, self->textureArrows);
-    else
+        #endif
+    }
+    else{
+        #if !RETRO_USE_V6
         RenderImage(128.0, -92.0, 160.0, 0.3, 0.3, 64.0, 64.0, 128.0, 128.0, 128.0, 0.0, self->alpha, self->textureArrows);
+        #endif
+    }
 }

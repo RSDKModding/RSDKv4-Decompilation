@@ -269,7 +269,13 @@ void ProcessStageSelect()
                     }
                     else {
 #endif
+
+#if !RETRO_USE_V6
                         CREATE_ENTITY(SegaSplash);
+#else
+                        CREATE_ENTITY(CWSplash);
+#endif
+
 #if !RETRO_USE_ORIGINAL_CODE
                     }
 #endif

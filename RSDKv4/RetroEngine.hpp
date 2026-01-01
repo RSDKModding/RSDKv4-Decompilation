@@ -237,6 +237,11 @@ typedef unsigned int uint;
 // Revision included as part of RSDKv5U (Sonic Origins)
 #define RETRO_REV03 (RSDK_REVISION >= 3)
 
+// Whether or not the HW Menus will use the version used in SEGA Classics (2018) application for Amazon Fire TV
+#ifndef RETRO_USE_V6
+#define RETRO_USE_V6 (0)
+#endif
+
 enum RetroLanguages {
     RETRO_EN = 0,
     RETRO_FR = 1,
@@ -272,6 +277,10 @@ enum RetroStates {
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
 
+#if RETRO_USE_V6
+    // New engine state in RSDKv6
+    ENGINE_INITJAVAPAUSE = 9, // The pause menu for SEGA Classics uses a Java interface.
+#endif
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
     ENGINE_CONNECT2PVS = 0x80,
@@ -283,11 +292,23 @@ enum RetroStates {
 };
 
 enum RetroGameType {
+#if !RETRO_USE_V6
     GAME_UNKNOWN = 0,
     GAME_SONIC1  = 1,
     GAME_SONIC2  = 2,
+#else
+    // GetSonic() and sonicType enum in SonicBaseActivity.java
+    GAME_SONIC1  = 0, 
+    GAME_SONIC2  = 1, 
+    GAME_SONICCD = 2, 
+    GAME_UNKNOWN = 3, // kept for compatibility with the decompilation
+#endif
 };
 
+#if RETRO_USE_V6
+// in SonicBaseActivity.java, inside InitActivity(), RetroEngine.setDeviceType(0) is called
+#define RETRO_GAMEPLATFORM (RETRO_STANDARD)
+#endif
 // General Defines
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
@@ -420,6 +441,7 @@ public:
 
     bool showPaletteOverlay = false;
     bool useHQModes         = true;
+
 
     bool hasFocus  = true;
     int focusState = 0;

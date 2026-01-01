@@ -1,10 +1,60 @@
 #include "RetroEngine.hpp"
 
+#if RETRO_USE_V6
+void loadCartridgeValue(void *objPtr)
+{
+    RSDK_THIS(StartGameButton);
+    int package = 0;
+    if (Engine.gameType == GAME_SONICCD) {
+        switch (Engine.globalBoxRegion) {
+            case REGION_JP:
+                package        = LoadTexture("Data/Game/Models/DiscJP.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+
+            case REGION_US:
+            //DiscJP_Transparent goes unused as you can't change the region in v6
+            //according to the original code, it loads the transparent disc texture for US and EU regions
+            //so imma just follow that logic here
+                package        = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+
+            case REGION_EU:
+                package        = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+        }
+        self->prevRegion = Engine.globalBoxRegion;
+    }
+    else{ //Sonic 1 and Sonic 2
+        switch (Engine.globalBoxRegion) {
+            case REGION_JP:
+                package        = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
+                break;
+
+            case REGION_US:
+                package        = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
+                break;
+
+            case REGION_EU:
+                package        = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+                self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
+                break;
+        }
+        self->prevRegion = Engine.globalBoxRegion;
+    }
+}
+#endif
 void StartGameButton_Create(void *objPtr)
 {
     RSDK_THIS(StartGameButton);
     self->textureCircle = LoadTexture("Data/Game/Menu/Circle.png", TEXFMT_RGBA4444);
-
+#if RETRO_USE_V6
+    loadCartridgeValue(objPtr);
+#else
     int package = 0;
     switch (Engine.globalBoxRegion) {
         case REGION_JP:
@@ -22,7 +72,7 @@ void StartGameButton_Create(void *objPtr)
             self->meshCart = LoadMesh("Data/Game/Models/Cartridge.bin", package);
             break;
     }
-
+#endif
     self->prevRegion       = Engine.globalBoxRegion;
     self->x                = 0.0;
     self->y                = 16.0;

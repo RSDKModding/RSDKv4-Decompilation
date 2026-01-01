@@ -435,7 +435,11 @@ void InitNativeObjectSystem()
     }
     else
 #endif
+#if !RETRO_USE_V6
         CREATE_ENTITY(SegaSplash);
+#else
+        CREATE_ENTITY(CWSplash);
+#endif
 }
 NativeEntity *CreateNativeObject(void (*create)(void *objPtr), void (*main)(void *objPtr))
 {

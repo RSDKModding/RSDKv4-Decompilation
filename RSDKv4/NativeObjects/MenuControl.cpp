@@ -15,7 +15,7 @@ void MenuControl_Create(void *objPtr)
     self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(TimeAttackButton);
     self->buttonFlags[self->buttonCount] = BUTTON_TIMEATTACK;
     self->buttonCount++;
-
+#if !RETRO_USE_V6
 #if RETRO_USE_MOD_LOADER
     int vsID = GetSceneID(STAGELIST_PRESENTATION, "2P VS");
     if (vsID != -1) {
@@ -40,9 +40,14 @@ void MenuControl_Create(void *objPtr)
     self->buttons[self->buttonCount]     = (NativeEntity_AchievementsButton *)CREATE_ENTITY(OptionsButton);
     self->buttonFlags[self->buttonCount] = BUTTON_OPTIONS;
     self->buttonCount++;
+#endif
 
     self->backButton          = CREATE_ENTITY(BackButton);
+    #if RETRO_USE_V6
     self->backButton->visible = false;
+    #else
+    self->backButton->visible = true;
+    #endif
     self->backButton->x       = 240.0;
     self->backButton->y       = -160.0;
     self->backButton->z       = 0.0;
@@ -72,6 +77,9 @@ void MenuControl_Create(void *objPtr)
     if (Engine.gameDeviceType == RETRO_STANDARD)
         usePhysicalControls = true;
     BackupNativeObjects();
+    #if RETRO_USE_V6 //I had to do this because resetting to this native object wasnt fully replicating the behavior
+    self->state = MENUCONTROL_STATE_ACTION;
+    #endif
 }
 void MenuControl_Main(void *objPtr)
 {
@@ -123,6 +131,7 @@ void MenuControl_Main(void *objPtr)
                         else if (segaIDButton->state == SEGAIDBUTTON_STATE_PRESSED) {
                             segaIDButton->state = SEGAIDBUTTON_STATE_IDLE;
                             PlaySfxByName("Menu Select", false);
+                            PlaySfxByName("Select", false);
                             ShowPromoPopup(0, "MoreGames");
                         }
                         else if (keyDown.left || keyDown.right) {
@@ -226,6 +235,7 @@ void MenuControl_Main(void *objPtr)
                                 self->timer                                    = 0.0;
                                 self->state                                    = MENUCONTROL_STATE_ACTION;
                                 PlaySfxByName("Menu Select", false);
+                                PlaySfxByName("Select", false);
                             }
                             self->buttons[self->buttonID]->g = 0xFF;
                             self->stateInput                 = MENUCONTROL_STATEINPUT_CHECKTOUCH;
@@ -252,6 +262,7 @@ void MenuControl_Main(void *objPtr)
                             self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             self->targetButtonMovePos -= self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
                             self->buttonMoveVelocity = -0.01;
                             self->buttonID++;
                             if (self->buttonID >= self->buttonCount)
@@ -261,6 +272,7 @@ void MenuControl_Main(void *objPtr)
                             self->stateInput = MENUCONTROL_STATEINPUT_HANDLEDRAG;
                             self->targetButtonMovePos += self->buttonSpacing;
                             PlaySfxByName("Menu Move", false);
+                            PlaySfxByName("MenuButton", false);
                             self->buttonMoveVelocity = 0.01;
                             self->buttonID--;
                             if (self->buttonID > self->buttonCount)
@@ -272,6 +284,7 @@ void MenuControl_Main(void *objPtr)
                             self->timer                                    = 0.0;
                             self->state                                    = MENUCONTROL_STATE_ACTION;
                             PlaySfxByName("Menu Select", false);
+                            PlaySfxByName("Select", false);
                         }
 
                         for (int i = 0; i < self->buttonCount; ++i) {
@@ -323,18 +336,60 @@ void MenuControl_Main(void *objPtr)
                         self->autoButtonMoveVelocity                   = 0.0;
                         button->g                                      = 0xFF;
                         self->buttons[self->buttonID]->labelPtr->state = TEXTLABEL_STATE_NONE;
-                        self->backButton->visible                      = true;
+                        #if RETRO_USE_V6
+                        self->backButton->visible     = false;
+                        #else
+                        self->backButton->visible    = true;
+                        #endif
                         SetGlobalVariableByName("options.vsMode", false);
                         CREATE_ENTITY(SaveSelect);
                         break;
 
                     case BUTTON_TIMEATTACK:
+                    #if !RETRO_USE_V6
                         self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
                         self->autoButtonMoveVelocity = 0.0;
                         button->g                    = 0xFF;
                         button->labelPtr->state      = TEXTLABEL_STATE_NONE;
                         self->backButton->visible    = true;
                         CREATE_ENTITY(TimeAttack);
+                    #else
+                        
+                        if (Engine.gameType == GAME_SONICCD){
+                            //it also sets these variables
+                            SetGlobalVariableByName("options.gameMode",2);
+                            SetGlobalVariableByName("options.saveSlot",0);
+                            SetGlobalVariableByName("player.lives",1);
+                            SetGlobalVariableByName("player.score",0);
+                            SetGlobalVariableByName("player.scoreBonus",50000);
+                            SetGlobalVariableByName("specialStage.listPos",0);
+                            SetGlobalVariableByName("specialStage.emeralds",0);
+                            SetGlobalVariableByName("specialStage.timeStones",0);
+                            SetGlobalVariableByName("specialStage.nextZone",0);
+                            SetGlobalVariableByName("timeAttack.round",0xffffffff);
+                            SetGlobalVariableByName("timeAttack.result",0);
+                            SetGlobalVariableByName("timeAttack.zone",0);
+                            SetGlobalVariableByName("lampPostID",0);
+                            SetGlobalVariableByName("starPostID",0);
+                            SetGlobalVariableByName("goodFuture.list",0);
+                            SetGlobalVariableByName("metalSonic.list",0);
+                            //the v6 engine uses this function, which ive neatly ported
+                            InitStartingStageMode(STAGELIST_PRESENTATION, 2);
+                            CreateNativeObject(FadeScreen_Create, FadeScreen_Main);
+                        }
+                        else{
+                            CREATE_ENTITY(TimeAttack);
+                            self->state                  = MENUCONTROL_STATE_ENTERSUBMENU;
+                            self->autoButtonMoveVelocity = 0.0;
+                            button->g                    = 0xFF;
+                            button->labelPtr->state      = TEXTLABEL_STATE_NONE;
+                            #if RETRO_USE_V6
+                            self->backButton->visible    = false;
+                            #else
+                            self->backButton->visible    = true;
+                            #endif
+                        }
+                    #endif
                         break;
 
                     case BUTTON_MULTIPLAYER:
@@ -405,7 +460,11 @@ void MenuControl_Main(void *objPtr)
                         self->autoButtonMoveVelocity = 0.0;
                         button->g                    = 0xFF;
                         button->labelPtr->state      = TEXTLABEL_STATE_NONE;
+                        #if RETRO_USE_V6
+                        self->backButton->visible    = false;
+                        #else
                         self->backButton->visible    = true;
+                        #endif
                         CREATE_ENTITY(OptionsMenu);
                         break;
 

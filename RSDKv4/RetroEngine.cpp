@@ -419,6 +419,12 @@ void RetroEngine::Init()
 
 #if !RETRO_USE_ORIGINAL_CODE
     gameType = GAME_SONIC2;
+
+#if RETRO_USE_V6
+    if (strstr(gameWindowText, "Sonic CD")) {
+        gameType = GAME_SONICCD;
+    } else
+#endif
 #if RETRO_USE_MOD_LOADER
     if (strstr(gameWindowText, "Sonic 1") || forceSonic1) {
 #else
@@ -427,6 +433,7 @@ void RetroEngine::Init()
         gameType = GAME_SONIC1;
     }
 #endif
+
 
 #if !RETRO_USE_ORIGINAL_CODE
     bool skipStore = skipStartMenu;
@@ -1259,7 +1266,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     nativeFunctionCount = 0;
     AddNativeFunction("SetAchievement", SetAchievement);
     AddNativeFunction("SetLeaderboard", SetLeaderboard);
-#if RETRO_USE_HAPTICS
+#if RETRO_USE_HAPTICS || !RETRO_USE_V6
     AddNativeFunction("HapticEffect", HapticEffect);
 #endif
     AddNativeFunction("Connect2PVS", Connect2PVS);
@@ -1270,6 +1277,10 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
+
+#if RETRO_USE_V6
+    AddNativeFunction("PlayVideo", PlayVideo);
+#endif
 
     // Introduced in the Sega Forever versions of S1 (3.9.0) and S2 (1.7.0)
     AddNativeFunction("NativePlayerWaitingAds", NativePlayerWaitingAds);
