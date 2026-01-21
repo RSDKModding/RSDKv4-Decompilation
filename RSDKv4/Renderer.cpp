@@ -2,7 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include <SDL2/SDL.h>
+#include <SDL2/SDL.h> // Used to correct vertex explosions in the main menu on big-endian devices.
 
 float retroVertexList[40];
 float screenBufferVertexList[40];
