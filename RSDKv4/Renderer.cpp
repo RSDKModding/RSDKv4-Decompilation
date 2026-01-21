@@ -444,7 +444,6 @@ void RenderScene()
             if (!prevColors)
                 glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(DrawVertex), &state->vertPtr->r);
-
 #endif
             prevColors = true;
         }
