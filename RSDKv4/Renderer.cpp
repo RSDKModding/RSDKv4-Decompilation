@@ -2,9 +2,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#if defined(__linux__) || defined(__FreeBSD__)
-#include <endian.h>
-#endif
 #include <SDL2/SDL.h>
 
 float retroVertexList[40];
@@ -1078,11 +1075,7 @@ void TransferRetroBuffer()
             frameBufferPtr += GFX_LINESIZE;
         }
 
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER == __BIG_ENDIAN)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, Engine.texBuffer);
-#else
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_BYTE, Engine.texBuffer);
-#endif
     }
     else {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GFX_LINESIZE, SCREEN_YSIZE, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, Engine.frameBuffer);
