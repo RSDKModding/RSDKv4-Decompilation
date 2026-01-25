@@ -52,7 +52,7 @@ version="1.0" encoding="utf-8"?>
              An example Java class can be found in README-android.md
         -->
         <application
-        android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="true" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:requestLegacyExternalStorage="true"> <!-- Example of setting SDL hints from AndroidManifest.xml:
+        android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="true" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:requestLegacyExternalStorage="true" android:appCategory="game"> <!-- Example of setting SDL hints from AndroidManifest.xml:
                     <meta-data android:name="SDL_ENV.SDL_ACCELEROMETER_AS_JOYSTICK" android:value="0"/>
                      -->
 
