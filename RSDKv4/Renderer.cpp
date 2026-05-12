@@ -2,6 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <SDL2/SDL.h> // Used to correct vertex explosions in the main menu on big-endian devices.
 
 float retroVertexList[40];
 float screenBufferVertexList[40];
@@ -683,7 +684,9 @@ int LoadTexture(const char *filePath, int format)
                             int g                   = data[id++];
                             int b                   = data[id++];
                             int a                   = data[id++];
-                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            int pixel = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            pixel = SDL_SwapLE32(pixel);
+                            pixels[x + (y * width)] = pixel;
                         }
                     }
 
@@ -793,7 +796,9 @@ void ReplaceTexture(const char *filePath, int texID)
                             int g                   = data[id++];
                             int b                   = data[id++];
                             int a                   = data[id++];
-                            pixels[x + (y * width)] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            int pixel = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+                            pixel = SDL_SwapLE32(pixel);
+                            pixels[x + (y * width)] = pixel;
                         }
                     }
 
@@ -853,10 +858,10 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
             for (int v = 0; v < mesh->vertexCount; ++v) {
                 float buf = 0;
                 FileRead(&buf, sizeof(float));
-                mesh->vertices[v].texCoordX = buf;
+                mesh->vertices[v].texCoordX = SDL_SwapFloatLE(buf);
 
                 FileRead(&buf, sizeof(float));
-                mesh->vertices[v].texCoordY = buf;
+                mesh->vertices[v].texCoordY = SDL_SwapFloatLE(buf);
 
                 mesh->vertices[v].r = 0xFF;
                 mesh->vertices[v].g = 0xFF;
@@ -889,22 +894,22 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
                 for (int v = 0; v < mesh->vertexCount; ++v) {
                     float buf = 0;
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertX = buf;
+                    mesh->vertices[v].vertX = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertY = buf;
+                    mesh->vertices[v].vertY = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].vertZ = buf;
+                    mesh->vertices[v].vertZ = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalX = buf;
+                    mesh->vertices[v].normalX = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalY = buf;
+                    mesh->vertices[v].normalY = SDL_SwapFloatLE(buf);
 
                     FileRead(&buf, sizeof(float));
-                    mesh->vertices[v].normalZ = buf;
+                    mesh->vertices[v].normalZ = SDL_SwapFloatLE(buf);
                 }
             }
             else {
@@ -914,22 +919,22 @@ MeshInfo *LoadMesh(const char *filePath, byte textureID)
                     for (int v = 0; v < mesh->vertexCount; ++v) {
                         float buf = 0;
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertX = buf;
+                        mesh->frames[frameOff + v].vertX = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertY = buf;
+                        mesh->frames[frameOff + v].vertY = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].vertZ = buf;
+                        mesh->frames[frameOff + v].vertZ = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalX = buf;
+                        mesh->frames[frameOff + v].normalX = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalY = buf;
+                        mesh->frames[frameOff + v].normalY = SDL_SwapFloatLE(buf);
 
                         FileRead(&buf, sizeof(float));
-                        mesh->frames[frameOff + v].normalZ = buf;
+                        mesh->frames[frameOff + v].normalZ = SDL_SwapFloatLE(buf);
                     }
                 }
             }
