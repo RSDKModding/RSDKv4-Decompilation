@@ -9,26 +9,19 @@ A complete decompilation of Retro Engine v4 and the menus from Sonic 1 and 2 (20
   * Windows
     * Via Steam, from [Sonic Origins](https://store.steampowered.com/app/1794960)
     * Via the Epic Games Store, from [Sonic Origins](https://store.epicgames.com/en-US/p/sonic-origins)
-  * iOS
-    * [Sonic 1, Via the App Store](https://apps.apple.com/au/app/sonic-the-hedgehog-classic/id316050001)
-    * [Sonic 2, Via the App Store](https://apps.apple.com/au/app/sonic-the-hedgehog-2-classic/id347415188)
-    * A tutorial for finding the game assets from the iOS versions can be found [here](https://gamebanana.com/tuts/14491).
-  * Android
-    * [Sonic 1, Via Google Play](https://play.google.com/store/apps/details?id=com.sega.sonic1px)
-    * [Sonic 2, Via Google Play](https://play.google.com/store/apps/details?id=com.sega.sonic2.runner)
-    * [Sonic 1, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00D74DVKM)
-    * [Sonic 2, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
-    * A tutorial for finding the game assets from the Android versions can be found [here](https://gamebanana.com/tuts/14492).
+  * Nintendo Switch, from [Sonic Origins on the eShop](https://www.nintendo.com/games/detail/sonic-origins-switch/)
+  * iOS, Via the App Store
+  * Android, Via Google Play or Amazon
+    * Note that the mobile releases have been delisted. However, if you have downloaded one of these releases in the past, you can redownload it at any time in your device or store account's purchase history.
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets).
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). See [here](https://rsdkmodding.com/Guides/Games/Sonic1-2/Datapack/) for a guide on how to find the required assets from your legally obtained copy/copies of the game(s).
 
 If you want to transfer your save(s) from the official mobile version(s), the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file into the decompilation's folder with the name `SData.bin`.
 
 # Additional Tweaks
 * Added the built in script compiler from RSDKv5U.
 * Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
-* Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
-  * Servers may be unreliable; this feature is more or less a proof of concept.
+* [Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.](#server)
 * Egg Gauntlet Zone is playable in the Time Attack menu in Sonic 2, if you're using a version of the game that includes it.
 * There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
 * The dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
@@ -119,8 +112,16 @@ If you're able to, you can clone this repo and port it to a platform not on the 
 
 # Server
 The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
-To use the server, open Command Prompt in the folder [Server.py](./Server/Server.py) is located in, then run the command `py -3 Server.py [local IPv4 address] [port] debug`. You can find your local IPv4 address using the command `ipconfig`.
-Note that the C++ server found in the `Server` folder has been deprecated and no longer works. It has been kept in the repo for reference purposes.
+
+Before opening the server, all players need to edit the decompilation's `settings.ini` file to set `Host` and `Port` in the `Network` category to your local IPv4 address and the target port number, respectively. If you don't know what your local IPv4 address is, look up how to find it online. If you don't know what port number to use, use `8000`.
+
+To use the server, open your console/shell in the folder [Server.py](./Server/Server.py) is located in, then run the command `py -3 Server.py [host ip] [port] debug`. You should see a "starting" line in the console if the server starts. To get a room code, open the Multiplayer menu (in Sonic 2, this is done after selecting a character in the 2P VS menu), then choose Host. To close the server, press CTRL+C in the console window.
+
+> [!WARNING]
+> The server is more-so a proof-of-concept and is known to be very unstable. Don't expect reliable connects to opponents.
+
+> [!NOTE]
+> The C++ server found in the `Server` folder has been deprecated and no longer works. It has been kept in the repo for reference purposes.
 
 # FAQ
 You can find the FAQ [here](./FAQ.md).

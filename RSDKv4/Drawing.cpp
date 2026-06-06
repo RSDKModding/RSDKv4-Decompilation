@@ -58,6 +58,11 @@ int InitRenderDevice()
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    setenv("SDL_AUDIODRIVER", "openslES", 1);   // This is a workaround to eliminate audio delay, since we use SDL 2.28 (as of this commit this is coming from.)
+                                                // This could be resolved by properly updating SDL to 2.32.10, but that'd involve updating a lot of app related files.
+#endif
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_DisableScreenSaver();
@@ -4214,11 +4219,9 @@ void DrawTexturedFace(void *v, byte sheetID)
             }
             ushort *fbPtr = &frameBufferPtr[startX];
             frameBufferPtr += GFX_LINESIZE;
-#if RETRO_REV02
-            int counter = posDifference;
-#else
+
             int counter = posDifference + 1;
-#endif
+
             while (counter--) {
                 if (UPos < 0)
                     UPos = 0;
