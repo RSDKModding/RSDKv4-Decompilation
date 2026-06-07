@@ -207,7 +207,9 @@ void TimeAttack_Create(void *objPtr)
         self->zoneButtons[i]->texY     = ty;
         self->zoneButtons[i]->unlocked = false;
         if (zone > timeAttack_ActCount * (i + 1)) {
-            self->zoneButtons[i]->unlocked = true;
+            if (zone < 0x80){
+                self->zoneButtons[i]->unlocked = true;
+            }
         }
 
         if (Engine.gameType == GAME_SONIC1) {
@@ -261,7 +263,9 @@ void TimeAttack_Create(void *objPtr)
         // final zone
         self->zoneButtons[6]->unlocked = false;
         if (zone > timeAttack_ActCount * 6) { // if listPos == final zone OR complete
-            self->zoneButtons[6]->unlocked = true;
+            if (zone < 0x80){
+                self->zoneButtons[6]->unlocked = true;
+            }
         }
 
         // special stages
@@ -269,7 +273,9 @@ void TimeAttack_Create(void *objPtr)
         self->zoneButtons[7]->texY     = ty;
         self->zoneButtons[7]->unlocked = false;
         if (zone > (timeAttack_ActCount * 6) + 1) { // if listPos == complete
-            self->zoneButtons[7]->unlocked = true;
+            if (zone < 0x80){
+                self->zoneButtons[7]->unlocked = true;
+            }
         }
     }
 

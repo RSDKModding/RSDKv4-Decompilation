@@ -208,7 +208,7 @@ void PlayerSelectScreen_Main(void *objPtr)
 
                     saveGame->files[saveSel->selectedButton - 1].lives          = 3;
                     saveGame->files[saveSel->selectedButton - 1].score          = 0;
-                    saveGame->files[saveSel->selectedButton - 1].scoreBonus     = 500000;
+                    saveGame->files[saveSel->selectedButton - 1].scoreBonus     = 50000;
                     saveGame->files[saveSel->selectedButton - 1].stageID        = 1;
                     saveGame->files[saveSel->selectedButton - 1].emeralds       = 0;
                     saveGame->files[saveSel->selectedButton - 1].specialStageID = 0;
