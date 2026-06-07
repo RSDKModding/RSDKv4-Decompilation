@@ -521,7 +521,7 @@ void SaveSelect_Main(void *objPtr)
                 saveGame->files[self->selectedButton - 1].characterID    = 0;
                 saveGame->files[self->selectedButton - 1].lives          = 3;
                 saveGame->files[self->selectedButton - 1].score          = 0;
-                saveGame->files[self->selectedButton - 1].scoreBonus     = 500000;
+                saveGame->files[self->selectedButton - 1].scoreBonus     = 50000;
                 saveGame->files[self->selectedButton - 1].stageID        = 0;
                 saveGame->files[self->selectedButton - 1].emeralds       = 0;
                 saveGame->files[self->selectedButton - 1].specialStageID = 0;
