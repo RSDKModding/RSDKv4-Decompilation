@@ -32,6 +32,6 @@ void CWSplash_Main(void *objPtr)
             RenderImage(0.0, 0.0, 160.0, 0.25, 0.25, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, self->textureID);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, self->rectAlpha);
             break;
-        case CWSPLASH_STATE_SPAWNTITLE: ResetNativeObject(self, TitleScreen_Create, TitleScreen_Main); break;
+        case CWSPLASH_STATE_SPAWNTITLE: ResetNativeObject(self, MenuControl_Create, MenuControl_Main); break;
     }
 }

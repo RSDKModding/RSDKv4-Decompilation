@@ -201,11 +201,17 @@ void RecordsScreen_Main(void *objPtr)
                 if (touches <= 0) {
                     if (self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state == PUSHBUTTON_STATE_SELECTED) {
                         self->state = RECORDSSCREEN_STATE_LOADSTAGE;
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                     }
                     if (self->actCount > 1 && self->buttons[RECORDSSCREEN_BUTTON_NEXTACT]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state                                        = RECORDSSCREEN_STATE_FLIP;
                         self->flipRight                                    = false;
                         self->actID                                        = (self->actID + 1) % self->actCount;
@@ -230,14 +236,20 @@ void RecordsScreen_Main(void *objPtr)
                 if (touches > 0 && self->state == RECORDSSCREEN_STATE_MAIN && self->actCount > 1) {
                     if (self->selectionEnabled) {
                         if (self->lastTouchX - touchXF[0] > 16.0f) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->state            = RECORDSSCREEN_STATE_FLIP;
                             self->flipRight        = false;
                             self->selectionEnabled = false;
                             self->actID            = (self->actID + 1) % self->actCount;
                         }
                         else if (self->lastTouchX - touchXF[0] < -16.0f) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             if (--self->actID < 0)
                                 self->actID = self->actCount - 1;
                             self->state            = RECORDSSCREEN_STATE_FLIP;
@@ -256,7 +268,10 @@ void RecordsScreen_Main(void *objPtr)
 
                 if (touches <= 0) {
                     if (self->prevActPressed) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         if (--self->actID < 0)
                             self->actID = self->actCount - 1;
                         self->state          = RECORDSSCREEN_STATE_FLIP;
@@ -264,7 +279,10 @@ void RecordsScreen_Main(void *objPtr)
                         self->flipRight      = true;
                     }
                     if (self->nextActPressed) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state          = RECORDSSCREEN_STATE_FLIP;
                         self->nextActPressed = false;
                         self->flipRight      = false;
@@ -313,11 +331,17 @@ void RecordsScreen_Main(void *objPtr)
 
                     if (self->actCount > 1) {
                         if (keyPress.left) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->selectedButton--;
                             if (self->selectedButton < 0) {
                                 self->selectedButton = 1;
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (--self->actID < 0)
                                     self->actID = self->actCount - 1;
                                 self->state     = RECORDSSCREEN_STATE_FLIP;
@@ -325,11 +349,17 @@ void RecordsScreen_Main(void *objPtr)
                             }
                         }
                         else if (keyPress.right) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->selectedButton++;
                             if (self->selectedButton >= 2) {
                                 self->selectedButton = 0;
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 self->state     = RECORDSSCREEN_STATE_FLIP;
                                 self->flipRight = false;
                                 self->actID     = (self->actID + 1) % self->actCount;
@@ -344,14 +374,20 @@ void RecordsScreen_Main(void *objPtr)
 
                     if (keyPress.start || keyPress.A) {
                         if (self->selectedButton) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->state     = RECORDSSCREEN_STATE_FLIP;
                             self->flipRight = 0;
                             self->actID     = (self->actID + 1) % self->actCount;
                         }
                         else {
                             self->state = RECORDSSCREEN_STATE_LOADSTAGE;
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->buttons[RECORDSSCREEN_BUTTON_PLAY]->state = PUSHBUTTON_STATE_FLASHING;
                         }
                     }

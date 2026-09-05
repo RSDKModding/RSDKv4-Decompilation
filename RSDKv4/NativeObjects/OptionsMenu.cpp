@@ -69,8 +69,8 @@ void OptionsMenu_Main(void *objPtr)
             self->timer += (Engine.deltaTime + Engine.deltaTime);
             self->labelPtr->alpha = (256.0 * self->timer);
             if (self->timer > 1.0) {
-                self->timer      = 0.0;
-                self->state      = OPTIONSMENU_STATE_MAIN;
+                self->timer    = 0.0;
+                self->state    = OPTIONSMENU_STATE_MAIN;
                 keyPress.start = false;
                 keyPress.A     = false;
             }
@@ -86,13 +86,19 @@ void OptionsMenu_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton--;
                         if (self->selectedButton < 0)
                             self->selectedButton = OPTIONSMENU_BUTTON_COUNT - 1;
                     }
                     else if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton++;
                         if (self->selectedButton >= OPTIONSMENU_BUTTON_COUNT)
                             self->selectedButton = 0;
@@ -101,7 +107,10 @@ void OptionsMenu_Main(void *objPtr)
                     self->buttons[self->selectedButton]->b = 0x00;
 
                     if (self->buttons[self->selectedButton]->g > 0x80 && (keyPress.start || keyPress.A)) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[self->selectedButton]->b     = 0xFF;
                         self->state                                = OPTIONSMENU_STATE_ACTION;
@@ -124,7 +133,10 @@ void OptionsMenu_Main(void *objPtr)
                     }
                     else if (!self->buttons[i]->b) {
                         self->selectedButton = i;
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[i]->state = SUBMENUBUTTON_STATE_FLASHING2;
                         self->buttons[i]->b     = 0xFF;
                         self->state             = OPTIONSMENU_STATE_ACTION;

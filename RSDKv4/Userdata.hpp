@@ -154,6 +154,7 @@ void InitUserdata();
 void WriteSettings();
 void ReadUserdata();
 void WriteUserdata();
+int GET_IDX_SO(int param_1);
 
 inline void AddAchievement(const char *name, const char *description)
 {

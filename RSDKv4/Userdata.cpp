@@ -185,6 +185,87 @@ bool WriteSaveRAMData()
     return true;
 }
 
+int GET_IDX_SO(int offset)
+{
+    switch (offset) {
+        case 0: // characterID
+        case 1: // lives
+        case 2: // score
+            return offset;
+        case 3: // scoreBonus
+            offset = 3;
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 6; // would be specialStageID
+            }
+            return offset;
+        case 4: // stageID
+            offset = 4;
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 3; // would be scoreBonus
+            }
+            return offset;
+        case 5: // emeralds -> timeStones in CD
+            offset = 5;
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 4; // would be stageID
+            }
+            return offset;
+        case 6: // specialStageID
+            offset = 6;
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 5; // would be emeralds
+            }
+            return offset;
+        case 7:            // unused gets used :pog:
+            offset = 0x2d; // 45 -> regularly unlockedActs
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 0x27; // 39 -> for CD becomes vDadX_Move?
+            }
+            return offset;
+        case 0x13:    // 19, used in files[4]
+            return 7; // returns 7
+    }
+
+    if (offset - 8 < 7) {
+        offset += 0x1c; // offset + 28 (inside of files[4])
+        if (Engine.gameType == GAME_SONICCD) {
+            offset = 1000; // becomes unused by the save file
+        }
+        return offset;
+    }
+
+    switch (offset - 0xf) { // offset - 15
+        case 0:
+            offset = 1000; // unused by save file
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 0x26; // 38 -> for CD becomes vDPadOpacity
+            }
+            return offset;
+        case 1:
+            offset = 0x2b; // 43 -> usually tailsUnlocked
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 0x24; // 36 -> for CD becomes boxRegion
+            }
+            return offset;
+
+        case 2:
+            offset = 0x2c; // 44 -> usually knuxUnlocked
+            if (Engine.gameType == GAME_SONICCD) {
+                offset = 1000; // becomes unused by the save file, knuckles doesn't exist in CD
+            }
+            return offset;
+
+        case 3:
+            offset = 1000;
+            if (Engine.gameType == GAME_SONIC2) {
+                offset = 0x2e; // 46 -> for S2 becomes unlockedHPZ
+            }
+            return offset;
+
+        default: return offset - 0xf; // offset - 15
+    } // weirdass function
+}
+
 void InitUserdata()
 {
     // userdata files are loaded from this directory
@@ -730,11 +811,11 @@ void WriteSettings()
     ini.SetFloat("Audio", "SFXVolume", sfxVolume / (float)MAX_VOLUME);
 
 #if RETRO_USING_SDL2
-    ini.SetComment("Keyboard 1", "IK1Comment",
-                   "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL2/SDL_Scancode)");
+    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://wiki.libsdl.org/SDL2/SDLScancodeLookup)");
 #endif
 #if RETRO_USING_SDL1
-    ini.SetComment("Keyboard 1", "IK1Comment", "Keyboard Mappings for P1 (Based on: https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlkey.html)");
+    ini.SetComment("Keyboard 1", "IK1Comment",
+                   "Keyboard Mappings for P1 (Based on: https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlkey.html)");
 #endif
     ini.SetInteger("Keyboard 1", "Up", inputDevice[INPUT_UP].keyMappings);
     ini.SetInteger("Keyboard 1", "Down", inputDevice[INPUT_DOWN].keyMappings);
@@ -755,8 +836,7 @@ void WriteSettings()
     ini.SetComment("Controller 1", "IC1Comment",
                    "Controller Mappings for P1 (Based on: https://rsdkmodding.com/RSDKv4/Decompilation/SettingsINI/#controller-buttons)");
 #else
-    ini.SetComment("Controller 1", "IC1Comment",
-                   "Controller Mappings for P1");
+    ini.SetComment("Controller 1", "IC1Comment", "Controller Mappings for P1");
 #endif
     ini.SetInteger("Controller 1", "Up", inputDevice[INPUT_UP].contMappings);
     ini.SetInteger("Controller 1", "Down", inputDevice[INPUT_DOWN].contMappings);
@@ -1236,8 +1316,8 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_BOSS_END: PrintLog("NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
         case NOTIFY_DEBUGPRINT:
-            // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no way we can tell which one was used here to handle possible errors
-            // Due to this, we'll only print param1 regardless of the opcode used
+            // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no
+            // way we can tell which one was used here to handle possible errors Due to this, we'll only print param1 regardless of the opcode used
             PrintLog("NOTIFY: DebugPrint() -> %d", *param1);
             break;
         case NOTIFY_KILL_BOSS: PrintLog("NOTIFY: KillBoss() -> %d", *param1); break;

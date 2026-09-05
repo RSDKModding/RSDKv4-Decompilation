@@ -172,7 +172,10 @@ void SettingsScreen_Main(void *objPtr)
             if (usePhysicalControls) {
                 if (touches <= 0) {
                     if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selected--;
                         if ((Engine.gameType != GAME_SONIC1 || self->isPauseMenu) && self->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             self->selected = SETTINGSSCREEN_SEL_SFXVOL;
@@ -180,7 +183,10 @@ void SettingsScreen_Main(void *objPtr)
                             self->selected = SETTINGSSCREEN_SEL_CONTROLS;
                     }
                     if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selected++;
                         if ((Engine.gameType != GAME_SONIC1 || self->isPauseMenu) && self->selected == SETTINGSSCREEN_SEL_SPINDASH)
                             self->selected = SETTINGSSCREEN_SEL_REGION;
@@ -194,7 +200,10 @@ void SettingsScreen_Main(void *objPtr)
                             self->buttons[SETTINGSSCREEN_BTN_MUSUP]->state   = keyDown.left == true;
                             self->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = keyDown.right == true;
                             if (keyPress.left) {
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (saveGame->musVolume > 0)
                                     saveGame->musVolume -= (MAX_VOLUME / 5);
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
@@ -202,7 +211,10 @@ void SettingsScreen_Main(void *objPtr)
                                     musicEnabled = false;
                             }
                             else if (keyPress.right) {
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (saveGame->musVolume < MAX_VOLUME)
                                     saveGame->musVolume += (MAX_VOLUME / 5);
                                 if (!musicEnabled) {
@@ -217,13 +229,19 @@ void SettingsScreen_Main(void *objPtr)
                             self->buttons[SETTINGSSCREEN_BTN_SFXUP]->state   = keyDown.left == true;
                             self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = keyDown.right == true;
                             if (keyPress.left) {
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (saveGame->sfxVolume > 0)
                                     saveGame->sfxVolume -= (MAX_VOLUME / 5);
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
                             }
                             else if (keyPress.right) {
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (saveGame->sfxVolume < MAX_VOLUME)
                                     saveGame->sfxVolume += (MAX_VOLUME / 5);
                                 SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
@@ -235,7 +253,10 @@ void SettingsScreen_Main(void *objPtr)
                             else
                                 self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state = PUSHBUTTON_STATE_SELECTED;
                             if (keyPress.left || keyPress.right) {
-                                PlaySfxByName("Menu Move", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Menu Button", false);
+                                else
+                                    PlaySfxByName("Menu Move", false);
                                 if (saveGame->spindashEnabled) {
                                     self->buttons[SETTINGSSCREEN_BTN_SDON]->state            = PUSHBUTTON_STATE_UNSELECTED;
                                     self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state           = PUSHBUTTON_STATE_SELECTED;
@@ -259,12 +280,18 @@ void SettingsScreen_Main(void *objPtr)
                         case SETTINGSSCREEN_SEL_REGION:
                             if (keyPress.left || keyPress.right) {
                                 if (keyPress.left) {
-                                    PlaySfxByName("Menu Move", false);
+                                    if (Engine.gameType == GAME_SONICCD)
+                                        PlaySfxByName("Menu Button", false);
+                                    else
+                                        PlaySfxByName("Menu Move", false);
                                     if (saveGame->boxRegion - 1 >= 0)
                                         saveGame->boxRegion--;
                                 }
                                 else {
-                                    PlaySfxByName("Menu Move", false);
+                                    if (Engine.gameType == GAME_SONICCD)
+                                        PlaySfxByName("Menu Button", false);
+                                    else
+                                        PlaySfxByName("Menu Move", false);
                                     if (saveGame->boxRegion + 1 < 3)
                                         saveGame->boxRegion++;
                                 }
@@ -283,7 +310,10 @@ void SettingsScreen_Main(void *objPtr)
                         case SETTINGSSCREEN_SEL_CONTROLS:
                             self->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_SELECTED;
                             if (keyPress.start || keyPress.A) {
-                                PlaySfxByName("Menu Select", false);
+                                if (Engine.gameType == GAME_SONICCD)
+                                    PlaySfxByName("Select", false);
+                                else
+                                    PlaySfxByName("Menu Select", false);
                                 self->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_FLASHING;
                                 self->state                                    = SETTINGSSCREEN_STATE_ENTERCTRLS;
                             }
@@ -304,7 +334,10 @@ void SettingsScreen_Main(void *objPtr)
             else {
                 if (touches <= 0) {
                     if (self->buttons[SETTINGSSCREEN_BTN_MUSUP]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_MUSUP]->state = PUSHBUTTON_STATE_UNSELECTED;
                         if (saveGame->musVolume > 0) {
                             saveGame->musVolume -= (MAX_VOLUME / 5);
@@ -315,7 +348,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_MUSDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                         if (saveGame->musVolume < MAX_VOLUME) {
                             saveGame->musVolume += (MAX_VOLUME / 5);
@@ -328,7 +364,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SFXUP]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_SFXUP]->state = PUSHBUTTON_STATE_UNSELECTED;
                         sfxVolume                                      = saveGame->sfxVolume;
                         if (sfxVolume > 0) {
@@ -339,7 +378,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_SFXDOWN]->state = PUSHBUTTON_STATE_UNSELECTED;
                         sfxVolume                                        = saveGame->sfxVolume;
                         if (sfxVolume < MAX_VOLUME) {
@@ -350,7 +392,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SDON]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         saveGame->spindashEnabled                                = true;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->state            = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x00A048;
@@ -360,7 +405,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         saveGame->spindashEnabled                                = false;
                         self->buttons[SETTINGSSCREEN_BTN_SDOFF]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_SDON]->bgColor          = 0x006020;
@@ -370,7 +418,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_JP]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_JP]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x00A048;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
@@ -382,7 +433,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_US]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_US]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
@@ -394,7 +448,10 @@ void SettingsScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[SETTINGSSCREEN_BTN_EU]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->buttons[SETTINGSSCREEN_BTN_EU]->state           = PUSHBUTTON_STATE_UNSELECTED;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColor         = 0x006020;
                         self->buttons[SETTINGSSCREEN_BTN_JP]->bgColorSelected = 0x00C060;
@@ -405,7 +462,10 @@ void SettingsScreen_Main(void *objPtr)
                         saveGame->boxRegion                                   = REGION_EU;
                     }
                     if (self->buttons[SETTINGSSCREEN_BTN_CTRLS]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[SETTINGSSCREEN_BTN_CTRLS]->state = PUSHBUTTON_STATE_FLASHING;
                         self->state                                    = SETTINGSSCREEN_STATE_ENTERCTRLS;
                     }

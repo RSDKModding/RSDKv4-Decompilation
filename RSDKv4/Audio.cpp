@@ -33,6 +33,7 @@ int currentMusicTrack = -1;
 
 #if RETRO_USING_SDL2
 SDL_AudioDeviceID audioDevice;
+SDL_AudioStream *ogv_stream;
 #endif
 SDL_AudioSpec audioDeviceFormat;
 
@@ -64,6 +65,19 @@ int InitAudioPlayback()
     }
     else {
         PrintLog("Unable to open audio device: %s", SDL_GetError());
+        audioEnabled = false;
+        return true; // no audio but game wont crash now
+    }
+
+    // Init video sound stuff
+    // TODO: Unfortunately, we're assuming that video sound is stereo at 48000Hz.
+    // This is true of every .ogv file in the game (the Steam version, at least),
+    // but it would be nice to make this dynamic. Unfortunately, THEORAPLAY's API
+    // makes this awkward.
+    ogv_stream = SDL_NewAudioStream(AUDIO_F32SYS, 2, 48000, audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
+    if (!ogv_stream) {
+        PrintLog("Failed to create stream: %s", SDL_GetError());
+        SDL_CloseAudioDevice(audioDevice);
         audioEnabled = false;
         return true; // no audio but game wont crash now
     }
@@ -332,6 +346,93 @@ void ProcessAudioPlayback(void *userdata, Uint8 *stream, int len)
 
         // Mix music
         ProcessMusicStream(mix_buffer, samples_to_do * sizeof(Sint16));
+
+#if RETRO_USING_SDL2
+        // Process music being played by a ogv video
+        if (Engine.Video.state == Video::VIDEO_PLAYING_OGV) {
+            // Fetch THEORAPLAY audio packets, and shove them into the SDL Audio Stream
+            const size_t bytes_to_do = samples_to_do * sizeof(Sint16);
+
+            const THEORAPLAY_AudioPacket *packet;
+
+            while ((packet = THEORAPLAY_getAudio(Engine.Video.decoder)) != NULL) {
+                SDL_AudioStreamPut(ogv_stream, packet->samples, packet->frames * sizeof(float) * 2); // 2 for stereo
+                THEORAPLAY_freeAudio(packet);
+            }
+
+            Sint16 buffer[MIX_BUFFER_SAMPLES];
+
+            // If we need more samples, assume we've reached the end of the file,
+            // and flush the audio stream so we can get more. If we were wrong, and
+            // there's still more file left, then there will be a gap in the audio. Sorry.
+            if (SDL_AudioStreamAvailable(ogv_stream) < bytes_to_do)
+                SDL_AudioStreamFlush(ogv_stream);
+
+            // Fetch the converted audio data, which is ready for mixing.
+            int get = SDL_AudioStreamGet(ogv_stream, buffer, (int)bytes_to_do);
+
+            // Mix the converted audio data into the final output
+            if (get != -1)
+                ProcessAudioMixing(mix_buffer, buffer, get / sizeof(Sint16), bgmVolume, 0);
+        }
+        else {
+            SDL_AudioStreamClear(ogv_stream); // Prevent leftover audio from playing at the start of the next video
+        }
+#endif
+
+#if RETRO_USING_SDL1
+        // Process music being played by a video
+        // TODO: SDL1.2 lacks SDL_AudioStream so until someone finds good way to replicate that, I'm gonna leave this commented out
+        /*if (Engine.Video.state) {
+            // Fetch THEORAPLAY audio packets
+            const size_t bytes_to_do = samples_to_do * sizeof(Sint16);
+            size_t bytes_done        = 0;
+
+            byte *vid_buffer             = (byte *)malloc(bytes_to_do);
+            memset(vid_buffer, 0, bytes_to_do);
+
+            const THEORAPLAY_AudioPacket *packet;
+
+            while ((packet = THEORAPLAY_getAudio(Engine.Video.decoder)) != NULL) {
+                int data_size = packet->frames * sizeof(float) * 2;
+                if (bytes_done < bytes_to_do) {
+                    memcpy(vid_buffer + bytes_done, packet->samples, data_size >= bytes_to_do ? bytes_to_do : data_size); // 2 for stereo
+                    bytes_done += data_size >= bytes_to_do ? bytes_to_do : data_size;
+                }
+                THEORAPLAY_freeAudio(packet);
+            }
+
+            Sint16 convBuffer[MIX_BUFFER_SAMPLES];
+
+            // If we need more samples, assume we've reached the end of the file,
+            // and flush the audio stream so we can get more. If we were wrong, and
+            // there's still more file left, then there will be a gap in the audio. Sorry.
+            if (bytes_done < bytes_to_do) {
+                memset(vid_buffer, 0, bytes_to_do);
+            }
+
+            if (bytes_done > 0) {
+                SDL_AudioCVT convert;
+                MEM_ZERO(convert);
+                int cvtResult =
+                    SDL_BuildAudioCVT(&convert, AUDIO_S16SYS, 2, 48000, audioDeviceFormat.format, audioDeviceFormat.channels, audioDeviceFormat.freq);
+                if (cvtResult == 0) {
+                    if (convert.len_mult > 0) {
+                        convert.buf = (byte *)malloc(bytes_done * convert.len_mult);
+                        convert.len = bytes_done;
+                        memcpy(convert.buf, vid_buffer, bytes_done);
+                        SDL_ConvertAudio(&convert);
+                    }
+                }
+
+                if (cvtResult == 0)
+                    ProcessAudioMixing(mix_buffer, (const Sint16 *)convert.buf, bytes_done / sizeof(Sint16), MAX_VOLUME, 0);
+
+                if (convert.len > 0 && convert.buf)
+                    free(convert.buf);
+            }
+        }*/
+#endif
 
         // Mix SFX
         for (byte i = 0; i < CHANNEL_COUNT; ++i) {

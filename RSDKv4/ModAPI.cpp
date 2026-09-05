@@ -428,7 +428,10 @@ void RefreshEngine()
     if (strstr(Engine.gameWindowText, "Sonic 1") || Engine.forceSonic1) {
         Engine.gameType = GAME_SONIC1;
     }
-
+    else if (strstr(Engine.gameWindowText, "Sonic CD")){
+        Engine.gameType = GAME_SONICCD;
+    }
+    
     achievementCount = 0;
     if (Engine.gameType == GAME_SONIC1) {
         AddAchievement("Ramp Ring Acrobatics",

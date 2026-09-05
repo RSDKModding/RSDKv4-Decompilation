@@ -300,13 +300,19 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton--;
                         if (self->selectedButton < MULTIPLAYERSCREEN_BUTTON_HOST)
                             self->selectedButton = MULTIPLAYERSCREEN_BUTTON_JOIN;
                     }
                     else if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton++;
                         if (self->selectedButton > MULTIPLAYERSCREEN_BUTTON_JOIN)
                             self->selectedButton = MULTIPLAYERSCREEN_BUTTON_HOST;
@@ -317,7 +323,10 @@ void MultiplayerScreen_Main(void *objPtr)
                     self->buttons[self->selectedButton]->state          = PUSHBUTTON_STATE_SELECTED;
 
                     if (keyPress.start || keyPress.A) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = PUSHBUTTON_STATE_FLASHING;
                         self->state                                = MULTIPLAYERSCREEN_STATE_ACTION;
                     }
@@ -353,7 +362,10 @@ void MultiplayerScreen_Main(void *objPtr)
                 else {
                     for (int i = 0; i < 2; ++i) {
                         if (self->buttons[i]->state == PUSHBUTTON_STATE_SELECTED) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->buttons[i]->state = PUSHBUTTON_STATE_FLASHING;
                             self->selectedButton    = i;
                             self->state             = MULTIPLAYERSCREEN_STATE_ACTION;
@@ -551,7 +563,10 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.A || keyPress.start) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         char buffer[0x30];
                         int code = GetRoomCode();
                         sprintf(buffer, "%08X", code);
@@ -582,7 +597,10 @@ void MultiplayerScreen_Main(void *objPtr)
                         self->buttons[MULTIPLAYERSCREEN_BUTTON_COPY]->state = PUSHBUTTON_STATE_UNSELECTED;
                         if (keyPress.A || keyPress.start)
                             usePhysicalControls = true;
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         char buffer[0x30];
                         int code = GetRoomCode();
                         sprintf(buffer, "%08X", code);
@@ -612,13 +630,19 @@ void MultiplayerScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.left) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton--;
                         if (self->selectedButton < 3)
                             self->selectedButton = 12;
                     }
                     else if (keyPress.right) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton++;
                         if (self->selectedButton > 12)
                             self->selectedButton = 3;
@@ -635,11 +659,17 @@ void MultiplayerScreen_Main(void *objPtr)
                         int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
                         if (keyPress.up) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
                         }
                         else if (keyPress.down) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
@@ -670,7 +700,10 @@ void MultiplayerScreen_Main(void *objPtr)
 
                     if (keyPress.start || keyPress.A) {
                         if (self->selectedButton == MULTIPLAYERSCREEN_BUTTON_JOINROOM) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_UNSELECTED;
                             self->selectedButton                                    = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                             self->state                                             = MULTIPLAYERSCREEN_STATE_ACTION;
@@ -770,11 +803,17 @@ void MultiplayerScreen_Main(void *objPtr)
                         int nybbles[] = { u.bytes[n >> 1] & 0xF, ((u.bytes[n >> 1] & 0xF0) >> 4) & 0xF };
 
                         if (self->touchedUpID >= 0) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] + 1) & 0xF;
                         }
                         else if (self->touchedDownID >= 0) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             nybbles[n & 1] = (nybbles[n & 1] - 1) & 0xF;
                         }
 
@@ -807,7 +846,10 @@ void MultiplayerScreen_Main(void *objPtr)
                     }
 
                     if (self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state == PUSHBUTTON_STATE_SELECTED) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[MULTIPLAYERSCREEN_BUTTON_JOINROOM]->state = PUSHBUTTON_STATE_UNSELECTED;
                         self->selectedButton                                    = MULTIPLAYERSCREEN_BUTTON_JOINROOM;
                         self->state                                             = MULTIPLAYERSCREEN_STATE_ACTION;

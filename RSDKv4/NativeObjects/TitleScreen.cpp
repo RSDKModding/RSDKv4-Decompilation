@@ -141,6 +141,11 @@ void TitleScreen_Create(void *objPtr)
             break;
     }
 
+    if (Engine.gameType == GAME_SONICCD) {
+        package        = LoadTexture("Data/Game/Models/DiscJP.png", TEXFMT_RGBA5551);
+        self->cartMesh = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+    }
+
     SetMeshAnimation(self->boxMesh, &self->meshAnimator, 16, 16, 0.0);
     AnimateMesh(self->boxMesh, &self->meshAnimator);
     SetMeshAnimation(self->introMesh, &self->meshAnimator, 0, 36, 0.09);
@@ -303,7 +308,10 @@ void TitleScreen_Main(void *objPtr)
                     CheckKeyPress(&keyPress);
                     if (keyPress.start || touches > 0 || keyPress.A) {
                         if (!self->selectionDisabled) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             StopMusic(true);
                             self->labelPtr->state = TEXTLABEL_STATE_BLINK_FAST;
                             self->introRectAlpha  = 0.0;

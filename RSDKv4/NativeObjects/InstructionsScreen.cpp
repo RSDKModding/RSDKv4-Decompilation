@@ -91,7 +91,10 @@ void InstructionsScreen_Main(void *objPtr)
                     }
 
                     if (keyDown.left) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                         self->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         self->touchedPrev = false;
@@ -100,7 +103,10 @@ void InstructionsScreen_Main(void *objPtr)
                             self->pageID = 4;
                     }
                     else if (keyDown.right) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                         self->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         self->touchedNext = false;
@@ -194,7 +200,10 @@ void InstructionsScreen_Main(void *objPtr)
                 }
 
                 if (self->touchedPrev) {
-                    PlaySfxByName("Menu Move", false);
+                    if (Engine.gameType == GAME_SONICCD)
+                        PlaySfxByName("Menu Button", false);
+                    else
+                        PlaySfxByName("Menu Move", false);
                     self->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                     self->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                     self->touchedPrev = false;
@@ -205,7 +214,10 @@ void InstructionsScreen_Main(void *objPtr)
                 }
 
                 if (self->touchedNext) {
-                    PlaySfxByName("Menu Move", false);
+                    if (Engine.gameType == GAME_SONICCD)
+                        PlaySfxByName("Menu Button", false);
+                    else
+                        PlaySfxByName("Menu Move", false);
                     self->state       = INSTRUCTIONSCREEN_STATE_FLIP;
                     self->stateInput  = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                     self->touchedNext = false;
@@ -220,7 +232,10 @@ void InstructionsScreen_Main(void *objPtr)
 
                 if (self->selectionEnabled) {
                     if (self->lastTouchX - touchXF[0] > 16.0f) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state            = INSTRUCTIONSCREEN_STATE_FLIP;
                         self->stateInput       = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         self->flipRight        = false;
@@ -228,7 +243,10 @@ void InstructionsScreen_Main(void *objPtr)
                         self->pageID           = (self->pageID + 1) % 5;
                     }
                     else if (self->lastTouchX - touchXF[0] < -16.0f) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state            = INSTRUCTIONSCREEN_STATE_FLIP;
                         self->stateInput       = INSTRUCTIONSCREEN_STATEINPUT_CHECKPRESS;
                         self->flipRight        = true;

@@ -15,6 +15,26 @@ else()
     target_link_libraries(RetroEngine libogg)
 endif()
 
+find_package(unofficial-theora CONFIG)
+
+if(NOT unofficial-theora_FOUND)
+    message(NOTICE "could not find libtheora from unofficial-theora, attempting to find through Theora")
+    find_package(Theora CONFIG)
+
+    if(NOT Theora_FOUND)
+        message("could not find libtheora, attempting to build manually")
+        set(COMPILE_THEORA TRUE)
+    else()
+        message("found libtheora")
+        add_library(libtheora ALIAS Theora::theora)
+        target_link_libraries(RetroEngine libtheora)
+    endif()
+else()
+    message("found libtheora")
+    add_library(libtheora ALIAS unofficial::theora::theora)
+    target_link_libraries(RetroEngine libtheora)
+endif()
+
 find_package(Vorbis CONFIG)
 
 if(NOT ${Vorbis_FOUND})
@@ -74,6 +94,6 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(RetroEngine PRIVATE -Wno-microsoft-cast -Wno-microsoft-exception-spec)
 endif()
-    
+
 target_sources(RetroEngine PRIVATE ${RETRO_NAME}/${RETRO_NAME}.rc)
 target_link_options(RetroEngine PRIVATE /subsystem:windows)

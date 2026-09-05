@@ -39,6 +39,7 @@ bool mixFiltersOnJekyll = false;
 GLint defaultFramebuffer = -1;
 GLuint framebufferHiRes  = -1;
 GLuint renderbufferHiRes = -1;
+GLuint videoBuffer       = -1;
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -58,10 +59,11 @@ int InitRenderDevice()
 
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
-
 #if RETRO_PLATFORM == RETRO_ANDROID
-    setenv("SDL_AUDIODRIVER", "openslES", 1);   // This is a workaround to eliminate audio delay, since we use SDL 2.28 (as of this commit this is coming from.)
-                                                // This could be resolved by properly updating SDL to 2.32.10, but that'd involve updating a lot of app related files.
+    // This is a workaround to eliminate audio delay, since we use SDL 2.28 (as of this commit this is coming from.)
+    // This could be resolved by properly updating SDL to 2.32.10, but that'd involve updating a lot of app related files.
+    setenv("SDL_AUDIODRIVER", "openslES", 1);
+
 #endif
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -103,7 +105,7 @@ int InitRenderDevice()
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
     Engine.window  = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+                                      SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
 
     if (!Engine.window) {
         PrintLog("ERROR: failed to create window!");
@@ -316,7 +318,10 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if RETRO_SOFTWARE_RENDER && !RETRO_USING_OPENGL
+#if RETRO_USING_OPENGL
+    if (Engine.gameMode == ENGINE_VIDEOWAIT)
+        FlipScreenVideo();
+#elif RETRO_SOFTWARE_RENDER
 #if RETRO_USING_SDL2
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
@@ -349,7 +354,30 @@ void FlipScreen()
         screenysize *= 2;
     }
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
+    SDL_Rect *destScreenPos = NULL;
+    SDL_Rect destScreenPosRect;
+
+    if (Engine.gameMode == ENGINE_VIDEOWAIT) {
+        float screenAR = float(SCREEN_XSIZE) / float(SCREEN_YSIZE);
+        if (screenAR > Engine.Video.aspect) {                       // If the screen is wider than the video. (Pillarboxed)
+            uint videoW = uint(SCREEN_YSIZE * Engine.Video.aspect); // This is to force Pillarboxed mode if the screen is wider than the video.
+            destScreenPosRect.x = (SCREEN_XSIZE - videoW) / 2;      // Centers the video horizontally.
+            destScreenPosRect.w = videoW;
+
+            destScreenPosRect.y = 0;
+            destScreenPosRect.h = SCREEN_YSIZE;
+        }
+        else {
+            uint videoH = uint(float(SCREEN_XSIZE) / Engine.Video.aspect); // This is to force letterbox mode if the video is wider than the screen.
+            destScreenPosRect.y = (SCREEN_YSIZE - videoH) / 2;             // Centers the video vertically.
+            destScreenPosRect.h = videoH;
+
+            destScreenPosRect.x = 0;
+            destScreenPosRect.w = SCREEN_XSIZE;
+        }
+        destScreenPos = &destScreenPosRect;
+    }
+    else if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
         // before you make a texture that's larger than the window itself. This texture will then be scaled
         // up to the actual screen size using linear interpolation. This makes even window/screen scales
@@ -389,61 +417,66 @@ void FlipScreen()
     SDL_RenderClear(Engine.renderer);
 
     ushort *pixels = NULL;
-    if (!drawStageGFXHQ) {
-        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-        ushort *frameBufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
-            frameBufferPtr += GFX_LINESIZE;
-            pixels += pitch / sizeof(ushort);
-        }
-        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
-        SDL_UnlockTexture(Engine.screenBuffer);
+    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
+        if (!drawStageGFXHQ) {
+            SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
+            ushort *frameBufferPtr = Engine.frameBuffer;
+            for (int y = 0; y < SCREEN_YSIZE; ++y) {
+                memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
+                frameBufferPtr += GFX_LINESIZE;
+                pixels += pitch / sizeof(ushort);
+            }
+            // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
+            SDL_UnlockTexture(Engine.screenBuffer);
 
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
+            SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
+        }
+        else {
+            int w = 0, h = 0;
+            SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
+            SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
+
+            ushort *framebufferPtr = Engine.frameBuffer;
+            for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+                for (int x = 0; x < GFX_LINESIZE; ++x) {
+                    *pixels = *framebufferPtr;
+                    pixels++;
+                    *pixels = *framebufferPtr;
+                    pixels++;
+                    framebufferPtr++;
+                }
+
+                framebufferPtr -= GFX_LINESIZE;
+                for (int x = 0; x < GFX_LINESIZE; ++x) {
+                    *pixels = *framebufferPtr;
+                    pixels++;
+                    *pixels = *framebufferPtr;
+                    pixels++;
+                    framebufferPtr++;
+                }
+            }
+
+            framebufferPtr = Engine.frameBuffer2x;
+            for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+                for (int x = 0; x < GFX_LINESIZE; ++x) {
+                    *pixels = *framebufferPtr;
+                    framebufferPtr++;
+                    pixels++;
+
+                    *pixels = *framebufferPtr;
+                    framebufferPtr++;
+                    pixels++;
+                }
+            }
+            SDL_UnlockTexture(Engine.screenBuffer2x);
+            SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+        }
     }
     else {
-        int w = 0, h = 0;
-        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
-        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
-
-        ushort *framebufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                pixels++;
-                *pixels = *framebufferPtr;
-                pixels++;
-                framebufferPtr++;
-            }
-
-            framebufferPtr -= GFX_LINESIZE;
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                pixels++;
-                *pixels = *framebufferPtr;
-                pixels++;
-                framebufferPtr++;
-            }
-        }
-
-        framebufferPtr = Engine.frameBuffer2x;
-        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                framebufferPtr++;
-                pixels++;
-
-                *pixels = *framebufferPtr;
-                framebufferPtr++;
-                pixels++;
-            }
-        }
-        SDL_UnlockTexture(Engine.screenBuffer2x);
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+        SDL_RenderCopy(Engine.renderer, Engine.videoBuffer, NULL, destScreenPos);
     }
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
+    if (Engine.scalingMode != 0 && !disableEnhancedScaling && Engine.gameMode != ENGINE_VIDEOWAIT) {
         // set render target back to the screen.
         SDL_SetRenderTarget(Engine.renderer, NULL);
         // clear the screen itself now, for same reason as above
@@ -464,12 +497,21 @@ void FlipScreen()
     }
     else {
         // Apply dimming
-        SDL_SetRenderDrawColor(Engine.renderer, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
-        if (dimAmount < 1.0)
+        if (Engine.gameMode == ENGINE_VIDEOWAIT) {
+            SDL_SetRenderDrawColor(Engine.renderer, 0, 0, 0, fadeMode);
             SDL_RenderFillRect(Engine.renderer, NULL);
+        }
+        else {
+            SDL_SetRenderDrawColor(Engine.renderer, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
+
+            if (dimAmount < 1.0)
+                SDL_RenderFillRect(Engine.renderer, NULL);
+        }
+
         // no change here
         SDL_RenderPresent(Engine.renderer);
     }
+
     SDL_ShowWindow(Engine.window);
 #endif
 
@@ -512,11 +554,131 @@ void FlipScreen()
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
-
 #endif // !RETRO_SOFTWARE_RENDER
-
 #endif
 }
+
+void FlipScreenVideo()
+{
+#if RETRO_USING_OPENGL && (RETRO_USING_SDL1 || RETRO_USING_SDL2)
+    if (videoBuffer <= 0)
+        return;
+
+    SDL_Rect destScreenPosRect = {};
+
+    if (float(SCREEN_XSIZE) / float(SCREEN_YSIZE) > Engine.Video.aspect) { // If the screen is wider than the video. (Pillarboxed)
+        uint videoW         = uint(SCREEN_YSIZE * Engine.Video.aspect);    // This is to force Pillarboxed mode if the screen is wider than the video.
+        destScreenPosRect.x = (SCREEN_XSIZE - videoW) / 2;                 // Centers the video horizontally.
+        destScreenPosRect.w = videoW;
+
+        destScreenPosRect.y = 0;
+        destScreenPosRect.h = SCREEN_YSIZE;
+    }
+    else {
+        uint videoH = uint(float(SCREEN_XSIZE) / Engine.Video.aspect); // This is to force letterbox mode if the video is wider than the screen.
+        destScreenPosRect.y = (SCREEN_YSIZE - videoH) / 2;             // Centers the video vertically.
+        destScreenPosRect.h = videoH;
+
+        destScreenPosRect.x = 0;
+        destScreenPosRect.w = SCREEN_XSIZE;
+    }
+
+    GLint viewport[4] = {};
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+#if RETRO_PLATFORM == RETRO_ANDROID
+    glOrthof(0.0f, (float)SCREEN_XSIZE, (float)SCREEN_YSIZE, 0.0f, -1.0f, 1.0f);
+#else
+    glOrtho(0.0, (double)SCREEN_XSIZE, (double)SCREEN_YSIZE, 0.0, -1.0, 1.0);
+#endif
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DITHER);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    DrawVertex screenVerts[4] = {};
+
+    ushort indices[] = { 0, 1, 2, 1, 3, 2 };
+
+    float left   = static_cast<float>(destScreenPosRect.x);
+    float top    = static_cast<float>(destScreenPosRect.y);
+    float right  = static_cast<float>(destScreenPosRect.x + destScreenPosRect.w);
+    float bottom = static_cast<float>(destScreenPosRect.y + destScreenPosRect.h);
+
+    screenVerts[0].vertX     = left;
+    screenVerts[0].vertY     = top;
+    screenVerts[0].vertZ     = 0.0f;
+    screenVerts[0].texCoordX = 0.0f;
+    screenVerts[0].texCoordY = 0.0f;
+
+    screenVerts[1].vertX     = right;
+    screenVerts[1].vertY     = top;
+    screenVerts[1].vertZ     = 0.0f;
+    screenVerts[1].texCoordX = 1.0f;
+    screenVerts[1].texCoordY = 0.0f;
+
+    screenVerts[2].vertX     = left;
+    screenVerts[2].vertY     = bottom;
+    screenVerts[2].vertZ     = 0.0f;
+    screenVerts[2].texCoordX = 0.0f;
+    screenVerts[2].texCoordY = 1.0f;
+
+    screenVerts[3].vertX     = right;
+    screenVerts[3].vertY     = bottom;
+    screenVerts[3].vertZ     = 0.0f;
+    screenVerts[3].texCoordX = 1.0f;
+    screenVerts[3].texCoordY = 1.0f;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, videoBuffer);
+    glDisable(GL_BLEND);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0].vertX);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0].texCoordX);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
+
+    if (fadeMode > 0) {
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.0f, 0.0f, 0.0f, fadeMode / 255.0f);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
+        glDisable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    glDisable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+#endif
+}
+
 void ReleaseRenderDevice(bool refresh)
 {
     if (!refresh) {
@@ -1037,11 +1199,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(0);
+                    // Draw3DSkyLayer(0);
+                    Draw3DFloorLayer(0);
 #endif
                     break;
 
@@ -1067,11 +1230,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(1);
+                    // Draw3DSkyLayer(1);
+                    Draw3DFloorLayer(1);
 #endif
                     break;
 
@@ -1099,11 +1263,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(2);
+                    // Draw3DSkyLayer(2);
+                    Draw3DFloorLayer(2);
 #endif
                     break;
 
@@ -1130,11 +1295,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(0);
+                    // Draw3DSkyLayer(0);
+                    Draw3DFloorLayer(0);
 #endif
                     break;
 
@@ -1160,11 +1326,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(1);
+                    // Draw3DSkyLayer(1);
+                    Draw3DFloorLayer(1);
 #endif
                     break;
 
@@ -1184,14 +1351,16 @@ void DrawStageGFX()
 #endif
                     Draw3DFloorLayer(2);
                     break;
+
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(2);
+                    // Draw3DSkyLayer(2);
+                    Draw3DFloorLayer(2);
 #endif
                     break;
                 default: break;
@@ -1219,11 +1388,12 @@ void DrawStageGFX()
                 case LAYER_3DSKY:
 #if RETRO_SOFTWARE_RENDER
 #if !RETRO_USE_ORIGINAL_CODE
-                    if (Engine.useHQModes)
+                    // if (Engine.useHQModes)
 #endif
-                        drawStageGFXHQ = true;
+                    // drawStageGFXHQ = true;
 
-                    Draw3DSkyLayer(3);
+                    // Draw3DSkyLayer(3);
+                    Draw3DFloorLayer(3);
 #endif
                     break;
                 default: break;
@@ -2774,10 +2944,10 @@ void DrawTintRectangle(int XPos, int YPos, int width, int height)
         height += YPos;
         YPos = 0;
     }
-	
+
     if (width < 0 || height < 0)
         return;
-	
+
     int yOffset = GFX_LINESIZE - width;
     for (ushort *frameBufferPtr = &Engine.frameBuffer[XPos + GFX_LINESIZE * YPos];; frameBufferPtr += yOffset) {
         height--;

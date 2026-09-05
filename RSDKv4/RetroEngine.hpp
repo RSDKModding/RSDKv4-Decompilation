@@ -271,6 +271,7 @@ enum RetroStates {
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
+    ENGINE_VIDEOWAIT   = 9,
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
@@ -283,9 +284,10 @@ enum RetroStates {
 };
 
 enum RetroGameType {
-    GAME_UNKNOWN = 0,
-    GAME_SONIC1  = 1,
-    GAME_SONIC2  = 2,
+    GAME_SONIC1  = 0,
+    GAME_SONIC2  = 1,
+    GAME_SONICCD = 2,
+    GAME_UNKNOWN = 3, // The decomp relies on this... ough.
 };
 
 // General Defines
@@ -341,6 +343,7 @@ extern bool engineDebugMode;
 #include "Renderer.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
+#include "Video.hpp"
 #include "ModAPI.hpp"
 
 // Native Entities
@@ -439,6 +442,8 @@ public:
     void LoadXMLStages(TextMenu *menu, int listNo);
 #endif
 
+    byte GetSonic();
+
     char gameWindowText[0x40];
     char gameDescriptionText[0x100];
 #ifdef DECOMP_VERSION
@@ -496,6 +501,8 @@ public:
     int windowYSize; // height of window/screen in the previous frame
 #endif
 
+    ::Video Video;
+
 #if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
     SDL_Window *window = nullptr;
@@ -504,6 +511,7 @@ public:
 #if RETRO_SOFTWARE_RENDER
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
+    SDL_Texture *videoBuffer    = nullptr;
 #endif // RETRO_SOFTWARE_RENDERER
 #endif
 

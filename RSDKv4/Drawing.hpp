@@ -72,10 +72,12 @@ extern bool mixFiltersOnJekyll;
 extern GLint defaultFramebuffer;
 extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
+extern GLuint videoBuffer;
 #endif
 
 int InitRenderDevice();
 void FlipScreen();
+void FlipScreenVideo();
 void ReleaseRenderDevice(bool refresh = false);
 
 void GenerateBlendLookupTable();

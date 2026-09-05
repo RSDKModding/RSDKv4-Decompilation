@@ -18,7 +18,7 @@ void BackButton_Main(void *objPtr)
 {
     RSDK_THIS(BackButton);
 
-    if (self->visible) {
+    if (self->visible && Engine.gameDeviceType != RETRO_STANDARD) {
         if (self->scale < 0.2) {
             self->scale += ((0.25 - self->scale) / ((60.0 * Engine.deltaTime) * 16.0));
             if (self->scale > 0.2)

@@ -59,26 +59,26 @@ void TimeAttack_Create(void *objPtr)
 
     // Special Stages (S1 Only)
     if (Engine.gameType == GAME_SONIC1) {
-        int offset            = actCount * 3;
+        int offset = actCount * 3;
 
         int specialStageCount = 6;
         for (int i = 0; i < specialStageCount * 3; i += 3) {
             // 1st
             if (!saveGame->records[offset + i]) {
                 saveGame->records[offset + i] = 30000;
-                saveRAMUpdated       = true;
+                saveRAMUpdated                = true;
             }
 
             // 2nd
             if (!saveGame->records[offset + i + 1]) {
                 saveGame->records[offset + i + 1] = 30000;
-                saveRAMUpdated           = true;
+                saveRAMUpdated                    = true;
             }
 
             // 3rd
             if (!saveGame->records[offset + i + 2]) {
                 saveGame->records[offset + i + 2] = 30000;
-                saveRAMUpdated           = true;
+                saveRAMUpdated                    = true;
             }
         }
     }
@@ -145,7 +145,7 @@ void TimeAttack_Create(void *objPtr)
             x += 144.0;
 
         // special stages
-        z                = 7;
+        z                    = 7;
         zoneButton           = CREATE_ENTITY(ZoneButton);
         self->zoneButtons[z] = zoneButton;
         zoneButton->x        = x;
@@ -207,9 +207,7 @@ void TimeAttack_Create(void *objPtr)
         self->zoneButtons[i]->texY     = ty;
         self->zoneButtons[i]->unlocked = false;
         if (zone > timeAttack_ActCount * (i + 1)) {
-            if (zone < 0x80){
-                self->zoneButtons[i]->unlocked = true;
-            }
+            self->zoneButtons[i]->unlocked = true;
         }
 
         if (Engine.gameType == GAME_SONIC1) {
@@ -263,7 +261,7 @@ void TimeAttack_Create(void *objPtr)
         // final zone
         self->zoneButtons[6]->unlocked = false;
         if (zone > timeAttack_ActCount * 6) { // if listPos == final zone OR complete
-            if (zone < 0x80){
+            if (zone < 0x80) {
                 self->zoneButtons[6]->unlocked = true;
             }
         }
@@ -273,7 +271,7 @@ void TimeAttack_Create(void *objPtr)
         self->zoneButtons[7]->texY     = ty;
         self->zoneButtons[7]->unlocked = false;
         if (zone > (timeAttack_ActCount * 6) + 1) { // if listPos == complete
-            if (zone < 0x80){
+            if (zone < 0x80) {
                 self->zoneButtons[7]->unlocked = true;
             }
         }
@@ -347,8 +345,8 @@ void TimeAttack_Main(void *objPtr)
             MatrixMultiplyF(&self->matRender, &self->matrixTemp);
 
             if (self->timer > 1.0) {
-                self->timer      = 0.0;
-                self->state      = TIMEATTACK_STATE_MAIN;
+                self->timer    = 0.0;
+                self->state    = TIMEATTACK_STATE_MAIN;
                 keyPress.start = false;
                 keyPress.A     = false;
             }
@@ -382,7 +380,10 @@ void TimeAttack_Main(void *objPtr)
                 if (touches <= 0) {
                     for (int i = 0; i < (timeAttack_ZoneCount + timeAttack_ExZoneCount); ++i) {
                         if (self->zoneButtons[i]->state == ZONEBUTTON_STATE_SELECTED) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->zoneButtons[i]->state = ZONEBUTTON_STATE_FLASHING;
                             self->zoneID                = i;
                             self->state                 = TIMEATTACK_STATE_ACTION;
@@ -391,7 +392,10 @@ void TimeAttack_Main(void *objPtr)
 
                     if (self->pagePrevPressed && canPrev) {
                         self->pagePrevPressed = false;
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state = TIMEATTACK_STATE_PAGECHANGE;
                         self->pageID--;
                         self->zoneButtonVel = -72.0f - (720.0f * self->pageID);
@@ -399,7 +403,10 @@ void TimeAttack_Main(void *objPtr)
                     }
                     if (self->pageNextPressed && canNext) {
                         self->pageNextPressed = false;
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->state = TIMEATTACK_STATE_PAGECHANGE;
                         self->pageID++;
                         self->zoneButtonVel    = -72.0f - (720.0f * self->pageID);
@@ -441,7 +448,10 @@ void TimeAttack_Main(void *objPtr)
                 if (touches > 0 && self->state == TIMEATTACK_STATE_MAIN) {
                     if (self->selectionEnabled) {
                         if ((self->lastTouchX - touchXF[0]) < -16.0f && canPrev) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->state = TIMEATTACK_STATE_PAGECHANGE;
                             self->pageID--;
                             self->zoneButtonVel    = -72.0f - (720.0f * self->pageID);
@@ -452,7 +462,10 @@ void TimeAttack_Main(void *objPtr)
                                 self->zoneButtons[i]->state = ZONEBUTTON_STATE_UNSELECTED;
                         }
                         else if ((self->lastTouchX - touchXF[0]) > 16.0f && canNext) {
-                            PlaySfxByName("Menu Move", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Menu Button", false);
+                            else
+                                PlaySfxByName("Menu Move", false);
                             self->state = TIMEATTACK_STATE_PAGECHANGE;
                             self->pageID++;
                             self->zoneButtonVel    = -72.0f - (720.0f * self->pageID);
@@ -489,7 +502,10 @@ void TimeAttack_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.left && self->zoneID > 0) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->zoneID--;
                         if (self->zoneID < (self->pageID * 3) && self->zoneID > 0) {
                             self->pageID--;
@@ -500,7 +516,10 @@ void TimeAttack_Main(void *objPtr)
                         }
                     }
                     else if (keyPress.right && self->zoneID < (timeAttack_ZoneCount + timeAttack_ExZoneCount) - 1) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         ++self->zoneID;
                         if (self->zoneID >= ((self->pageID + 1) * 3)) {
                             self->pageID++;
@@ -516,7 +535,10 @@ void TimeAttack_Main(void *objPtr)
                     if (self->state == TIMEATTACK_STATE_MAIN) {
                         self->zoneButtons[self->zoneID]->state = ZONEBUTTON_STATE_SELECTED;
                         if (self->zoneButtons[self->zoneID]->unlocked && (keyPress.start || keyPress.A)) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->zoneButtons[self->zoneID]->state = ZONEBUTTON_STATE_FLASHING;
                             self->state                            = TIMEATTACK_STATE_ACTION;
                         }

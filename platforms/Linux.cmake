@@ -17,6 +17,18 @@ else()
     target_compile_options(RetroEngine PRIVATE ${OGG_STATIC_CFLAGS})
 endif()
 
+pkg_check_modules(THEORA theora theoradec)
+
+if(NOT THEORA_FOUND)
+    message("could not find libtheora, attempting to build manually")
+    set(COMPILE_THEORA TRUE)
+else()
+    message("found libtheora")
+    target_link_libraries(RetroEngine ${THEORA_STATIC_LIBRARIES})
+    target_link_options(RetroEngine PRIVATE ${THEORA_STATIC_LDLIBS_OTHER})
+    target_compile_options(RetroEngine PRIVATE ${THEORA_STATIC_CFLAGS})
+endif()
+
 pkg_check_modules(VORBIS vorbis vorbisfile) #idk what the names are
 
 if(NOT VORBIS_FOUND)

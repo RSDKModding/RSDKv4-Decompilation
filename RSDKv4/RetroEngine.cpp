@@ -27,6 +27,26 @@ inline int GetLowerRate(int intendRate, int targetRate)
     }
     return result;
 }
+
+byte RetroEngine::GetSonic()
+{
+#if RETRO_USE_MOD_LOADER
+    if (strstr(gameWindowText, "Sonic 1") || forceSonic1) {
+#else
+    if (strstr(gameWindowText, "Sonic 1")) {
+#endif
+        return GAME_SONIC1;
+    }
+
+    if (strstr(gameWindowText, "Sonic 2"))
+        return GAME_SONIC2;
+
+    if (strstr(gameWindowText, "Sonic CD"))
+        return GAME_SONICCD;
+
+    return GAME_UNKNOWN;
+}
+
 #endif
 
 bool ProcessEvents()
@@ -418,14 +438,7 @@ void RetroEngine::Init()
     }
 
 #if !RETRO_USE_ORIGINAL_CODE
-    gameType = GAME_SONIC2;
-#if RETRO_USE_MOD_LOADER
-    if (strstr(gameWindowText, "Sonic 1") || forceSonic1) {
-#else
-    if (strstr(gameWindowText, "Sonic 1")) {
-#endif
-        gameType = GAME_SONIC1;
-    }
+    gameType = GetSonic();
 #endif
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -601,6 +614,7 @@ void RetroEngine::Run()
     }
 
     ReleaseAudioDevice();
+    Engine.Video.StopPlayback();
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
@@ -1133,7 +1147,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             SetPaletteEntry(-1, c, buf[0], buf[1], buf[2]);
         }
 
-        // Read Obect Names
+        // Read Object Names
         byte objectCount = 0;
         FileRead(&objectCount, 1);
         for (byte o = 0; o < objectCount; ++o) {
@@ -1270,6 +1284,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("ReceiveValue", ReceiveValue);
     AddNativeFunction("TransmitGlobal", TransmitGlobal);
     AddNativeFunction("ShowPromoPopup", ShowPromoPopup);
+    AddNativeFunction("PlayVideo", Video::NativePlayVideo);
 
     // Introduced in the Sega Forever versions of S1 (3.9.0) and S2 (1.7.0)
     AddNativeFunction("NativePlayerWaitingAds", NativePlayerWaitingAds);

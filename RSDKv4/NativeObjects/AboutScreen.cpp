@@ -112,13 +112,19 @@ void AboutScreen_Main(void *objPtr)
                 }
                 else {
                     if (keyPress.up) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton--;
                         if (self->selectedButton < 0)
                             self->selectedButton = 1;
                     }
                     else if (keyPress.down) {
-                        PlaySfxByName("Menu Move", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Menu Button", false);
+                        else
+                            PlaySfxByName("Menu Move", false);
                         self->selectedButton++;
                         if (self->selectedButton >= 2)
                             self->selectedButton = 0;
@@ -128,7 +134,10 @@ void AboutScreen_Main(void *objPtr)
                     self->buttons[self->selectedButton]->state = 1;
 
                     if (keyPress.start || keyPress.A) {
-                        PlaySfxByName("Menu Select", false);
+                        if (Engine.gameType == GAME_SONICCD)
+                            PlaySfxByName("Select", false);
+                        else
+                            PlaySfxByName("Menu Select", false);
                         self->buttons[self->selectedButton]->state = 2;
                         self->state                                = ABOUT_STATE_ACTION;
                     }
@@ -163,7 +172,10 @@ void AboutScreen_Main(void *objPtr)
                 else {
                     for (int i = 0; i < ABOUT_BTN_COUNT; ++i) {
                         if (self->buttons[i]->state == 1) {
-                            PlaySfxByName("Menu Select", false);
+                            if (Engine.gameType == GAME_SONICCD)
+                                PlaySfxByName("Select", false);
+                            else
+                                PlaySfxByName("Menu Select", false);
                             self->buttons[i]->state = 2;
                             self->selectedButton    = i;
                             self->state             = ABOUT_STATE_ACTION;

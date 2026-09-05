@@ -65,9 +65,7 @@ void RetroGameLoop_Main(void *objPtr)
             TransferRetroBuffer();
             break;
 
-        case ENGINE_ENDGAME:
-            ClearScreen(1);
-            TransferRetroBuffer();
+        case ENGINE_ENDGAME: ClearScreen(1); TransferRetroBuffer();
 #if !RETRO_USE_ORIGINAL_CODE
             if (skipStartMenu) {
                 activeStageList   = 0;
@@ -104,6 +102,15 @@ void RetroGameLoop_Main(void *objPtr)
 #else
             RestoreNativeObjects();
 #endif
+            break;
+
+        case ENGINE_VIDEOWAIT:
+            ClearScreen(1);
+
+            if (Engine.Video.Process() == 1)
+                Engine.gameMode = ENGINE_MAINGAME;
+
+            FlipScreen();
             break;
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING

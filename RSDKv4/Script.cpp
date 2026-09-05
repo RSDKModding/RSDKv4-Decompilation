@@ -49,7 +49,7 @@ struct FunctionInfo {
         StrCopy(name, functionName);
         opcodeSize = opSize;
     }
-    
+
 #if RETRO_REV03
     char name[0x30];
 #else
@@ -4163,19 +4163,19 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptText[strLen] = 0;
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        case 0: 
+                        case 0:
                             scriptText[c] = scriptCode[scriptCodePtr] >> 24;
                             break;
 
-                        case 1: 
+                        case 1:
                             scriptText[c] = (0xFFFFFF & scriptCode[scriptCodePtr]) >> 16;
                             break;
 
-                        case 2: 
+                        case 2:
                             scriptText[c] = (0xFFFF & scriptCode[scriptCodePtr]) >> 8;
                             break;
 
-                        case 3: 
+                        case 3:
                             scriptText[c] = scriptCode[scriptCodePtr++];
                             break;
 
