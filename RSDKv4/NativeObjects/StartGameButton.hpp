@@ -16,6 +16,7 @@ struct NativeEntity_StartGameButton : NativeEntityBase {
     byte r;
     byte g;
     byte b;
+    byte alpha;
     MatrixF renderMatrix;
     MatrixF matrixTemp;
     NativeEntity_TextLabel *labelPtr;

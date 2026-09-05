@@ -94,6 +94,11 @@ void SegaSplash_Create(void *objPtr)
         default: break;
     }
 #endif
+
+    // Better than creating CWSplash directly from InitNativeObjectSystem
+    // because otherwise no textures would be loaded and the main menu would crash...
+    // The original binary fixes this with a brand new function that won't be added to this decompilation for the sake of simplicity
+    ResetNativeObject(self, CWSplash_Create, CWSplash_Main);
 }
 void SegaSplash_Main(void *objPtr)
 {

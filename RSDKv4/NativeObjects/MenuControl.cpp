@@ -240,8 +240,10 @@ void MenuControl_Main(void *objPtr)
 
                         for (int i = 0; i < self->buttonCount; ++i) {
                             self->buttons[i]->g = 0xFF;
+                            self->buttons[i]->alpha = 100;
                         }
                         self->buttons[self->buttonID]->g = 0xC0;
+                        self->buttons[self->buttonID]->alpha = 0xFF;
                     }
                     else {
                         usePhysicalControls = false;
@@ -521,6 +523,18 @@ void MenuControl_Main(void *objPtr)
                 self->dialogTimer = 50;
                 self->state       = MENUCONTROL_STATE_MAIN;
             }
+            break;
+        }
+
+        // Father, I yearn for accuracy
+        case MENUCONTROL_STATE_AUTOMAIN: {
+            self->state     = MENUCONTROL_STATE_MAIN;
+            break;
+        }
+
+        case MENUCONTROL_STATE_AUTOACTION: {
+            self->state      = MENUCONTROL_STATE_ACTION;
+            self->stateInput = MENUCONTROL_STATEINPUT_CHECKTOUCH;
             break;
         }
 
