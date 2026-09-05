@@ -79,5 +79,8 @@ The following cmake arguments are available when compiling:
 Currently the only supported platforms are the ones listed above, however the backend uses libogg, libtheora, libvorbis & SDL2 to power it (as well as tinyxml2 for the mod API and asio for networking), so the codebase is very multiplatform.
 If you're able to, you can clone this repo and port it to a platform not on the list.
 
+# Special Thanks
+* [RifiGD](https://github.com/RifiGD) for various changes, such as Zone name fixes for CD, Time Stone colors for the Save Menu, and initial Save Data handling.
+
 # Contact:
 Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any extra questions you may need to know about the decompilation or modding it.
