@@ -335,14 +335,20 @@ void PauseMenu_Main(void *objPtr)
                         self->state = PAUSEMENU_STATE_RESTART;
                         break;
                     case PMB_SETTINGS:
-                        self->state        = PAUSEMENU_STATE_ENTERSUBMENU;
-                        self->rotInc       = 0.0;
-                        self->renderRotMax = DegreesToRad(-90.0);
-                        for (int i = 0; i < pauseMenuButtonCount; ++i) {
-                            self->rotMax[i]     = DegreesToRad(-90.0);
-                            self->buttonRotY[i] = 0.02 * (i + 1);
+                        if (Engine.gameType != GAME_SONICCD){
+                            self->state        = PAUSEMENU_STATE_ENTERSUBMENU;
+                            self->rotInc       = 0.0;
+                            self->renderRotMax = DegreesToRad(-90.0);
+                            for (int i = 0; i < pauseMenuButtonCount; ++i) {
+                                self->rotMax[i]     = DegreesToRad(-90.0);
+                                self->buttonRotY[i] = 0.02 * (i + 1);
+                            }                            
                         }
-
+                        else {
+                            // You can mess up some of the save file values for CD18 with the settings screen.
+                            // It's been disabled for this decompilation, both Pause Menu and Settings go unused in the original release either way.
+                            self->state = PAUSEMENU_STATE_MAIN;
+                        }
                         break;
                     case PMB_EXIT:
                         self->dialog = CREATE_ENTITY(DialogPanel);

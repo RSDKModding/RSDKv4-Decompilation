@@ -521,7 +521,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("LoadFontFile", 1),
     FunctionInfo("LoadTextFile", 3),
 #else
-    FunctionInfo("LoadTextFile", 2),
+    FunctionInfo("LoadTextFile", 3), // fixing CD18
 #endif
     FunctionInfo("GetTextInfo", 5),
 #if !RETRO_REV02
@@ -5346,7 +5346,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
 #if !RETRO_REV02
                 LoadTextFile(menu, scriptText, scriptEng.operands[2] != 0);
 #else
-                LoadTextFile(menu, scriptText, false);
+                LoadTextFile(menu, scriptText, scriptEng.operands[2]);
 #endif
                 break;
             }
