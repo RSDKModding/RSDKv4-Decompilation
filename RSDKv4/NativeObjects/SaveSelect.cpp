@@ -219,6 +219,7 @@ void SaveSelect_Main(void *objPtr)
                                 }
                             }
                             else {
+                                PlaySfxByName("Menu Select", false);
                                 PlaySfxByName("Select", false);
 
                                 self->saveButtons[self->selectedButton]->state = SUBMENUBUTTON_STATE_FLASHING2;
