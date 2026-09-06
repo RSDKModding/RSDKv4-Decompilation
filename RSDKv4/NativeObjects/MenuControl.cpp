@@ -527,6 +527,7 @@ void MenuControl_Main(void *objPtr)
         }
 
         // Father, I yearn for accuracy
+        // These only exist in the SEGA Classics binary
         case MENUCONTROL_STATE_AUTOMAIN: {
             self->state     = MENUCONTROL_STATE_MAIN;
             break;

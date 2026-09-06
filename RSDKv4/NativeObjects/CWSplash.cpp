@@ -32,6 +32,12 @@ void CWSplash_Main(void *objPtr)
             RenderImage(0.0, 0.0, 160.0, 0.25, 0.25, 512.0, 256.0, 1024.0, 512.0, 0.0, 0.0, 255, self->textureID);
             RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, self->rectAlpha);
             break;
-        case CWSPLASH_STATE_SPAWNTITLE: ResetNativeObject(self, MenuControl_Create, MenuControl_Main); self->state = CWSPLASH_STATE_MENUCONTROL_ACTION; break;
+        case CWSPLASH_STATE_SPAWNTITLE: ResetNativeObject(self, MenuControl_Create, MenuControl_Main); 
+        #if RETRO_USE_ORIGINAL_CODE
+            // I realized that the player going directly into SaveSelect might be annoying...
+            // Decided to keep it here, but under Original Code
+            self->state = CWSPLASH_STATE_MENUCONTROL_ACTION; 
+        #endif
+        break;
     }
 }

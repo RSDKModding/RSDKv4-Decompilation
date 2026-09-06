@@ -15,20 +15,13 @@ void PlayerSelectScreen_Create(void *objPtr)
     SetStringToFont(self->labelPtr->text, strPlayerSelect, FONT_HEADING);
 
     SetStringToFont(self->textSonic, strSonic, FONT_TEXT);
-
     self->sonicX = (GetTextWidth(self->textSonic, FONT_TEXT, 0.2) * -0.5) - 88.0;
 
-    if (Engine.gameType != GAME_SONICCD) {
-        SetStringToFont(self->textTails, strTails, FONT_TEXT);
-        self->tailsX = GetTextWidth(self->textTails, FONT_TEXT, 0.2) * -0.5;
+    SetStringToFont(self->textTails, strTails, FONT_TEXT);
+    self->tailsX = GetTextWidth(self->textTails, FONT_TEXT, 0.2) * -0.5;
 
-        SetStringToFont(self->textKnux, strKnuckles, FONT_TEXT);
-        self->knuxX = (GetTextWidth(self->textKnux, FONT_TEXT, 0.2) * -0.5) + 88.0;
-    }
-    else {
-        SetStringToFont(self->textTails, strTails, FONT_TEXT);
-        self->tailsX = (GetTextWidth(self->textTails, FONT_TEXT, 0.2) * -0.5) + 88.0;
-    }
+    SetStringToFont(self->textKnux, strKnuckles, FONT_TEXT);
+    self->knuxX = (GetTextWidth(self->textKnux, FONT_TEXT, 0.2) * -0.5) + 88.0;
 
     self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
@@ -492,7 +485,10 @@ void PlayerSelectScreen_Main(void *objPtr)
         else {
             SetRenderVertexColor(0xA0, 0xA0, 0xA0);
         }
-        RenderText(self->textTails, FONT_TEXT, 76.0, -22.0, 8.0, 0.2, 0xFF);
+        // So uhh Cosmic told me that I could misalign the Tails string like the original binary
+        // as compensation for removing the thing where MenuControl would launch you directly into SaveSelect
+        // thank you Cosmic!! -RifiGD
+        RenderText(self->textTails, FONT_TEXT, self->knuxX, -22.0, 8.0, 0.2, 0xFF);
     }
 
     if (Engine.gameType != GAME_SONICCD) {
