@@ -13,6 +13,7 @@ void OptionsButton_Create(void *objPtr)
     self->r                = 0xFF;
     self->g                = 0xFF;
     self->b                = 0x00;
+    self->alpha            = 0xFF;
     self->labelPtr         = CREATE_ENTITY(TextLabel);
     self->labelPtr->fontID = FONT_HEADING;
     self->labelPtr->scale  = 0.15;
@@ -33,7 +34,7 @@ void OptionsButton_Main(void *objPtr)
         }
         SetRenderBlendMode(RENDER_BLEND_ALPHA);
         SetRenderVertexColor(self->r, self->g, self->b);
-        RenderImage(self->x, self->y, self->z, self->scale, self->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, 255, self->textureCircle);
+        RenderImage(self->x, self->y, self->z, self->scale, self->scale, 256.0, 256.0, 512.0, 512.0, 0.0, 0.0, self->alpha, self->textureCircle);
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
         SetRenderBlendMode(RENDER_BLEND_NONE);
 

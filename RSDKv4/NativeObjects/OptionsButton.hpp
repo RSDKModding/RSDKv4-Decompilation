@@ -16,6 +16,7 @@ struct NativeEntity_OptionsButton : NativeEntityBase {
     byte r;
     byte g;
     byte b;
+    byte alpha;
     MatrixF renderMatrix;
     MatrixF matrix2;
     NativeEntity_TextLabel *labelPtr;

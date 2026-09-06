@@ -391,15 +391,40 @@ void InitNativeObjectSystem()
         saveGame->musVolume       = MAX_VOLUME;
         saveGame->sfxVolume       = MAX_VOLUME;
         saveGame->spindashEnabled = true;
-        saveGame->boxRegion       = 0;
-        saveGame->vDPadSize       = 64;
-        saveGame->vDPadOpacity    = 160;
-        saveGame->vDPadX_Move     = 56;
-        saveGame->vDPadY_Move     = 184;
-        saveGame->vDPadX_Jump     = -56;
-        saveGame->vDPadY_Jump     = 188;
-        saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
-        saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
+        
+        if (Engine.gameType != GAME_SONICCD)
+        {
+            saveGame->boxRegion       = 0;
+            saveGame->vDPadSize       = 64;
+            saveGame->vDPadOpacity    = 160;
+            saveGame->vDPadX_Move     = 56;
+            saveGame->vDPadY_Move     = 184;
+            saveGame->vDPadX_Jump     = -56;
+            saveGame->vDPadY_Jump     = 188;
+        }
+        else
+        {
+        // this is... weird but it's from the binary i guess
+        // the offsets are all set to 4000 if it is sonic cd
+            saveRAM[4000]    = 0;
+            saveRAM[4000]    = 64;
+            saveRAM[4000]    = 160;
+            saveRAM[4000]    = 56;
+            saveRAM[4000]    = 184;
+            saveRAM[4000]    = -56;
+            saveRAM[4000]    = 188;            
+        }
+
+        if (Engine.gameType != GAME_SONICCD)
+        {
+            saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
+            saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
+        }
+        else
+        {
+            saveGame->boxRegion = false; // tailsUnlocked for 2018
+            saveRAM[4000]       = false; // Rest in 4000 peace...
+        }
         saveGame->unlockedActs    = 0;
         WriteSaveRAMData();
     }
@@ -418,12 +443,26 @@ void InitNativeObjectSystem()
     if (!saveGame->musVolume)
         musicEnabled = false;
 
-    if (!saveGame->vDPadX_Move) {
-        saveGame->vDPadX_Move = 60;
-        saveGame->vDPadY_Move = 176;
-        saveGame->vDPadX_Jump = -56;
-        saveGame->vDPadY_Jump = 180;
+    if (Engine.gameType != GAME_SONICCD)
+    {
+        if (!saveGame->vDPadX_Move) {
+            saveGame->vDPadX_Move = 60;
+            saveGame->vDPadY_Move = 176;
+            saveGame->vDPadX_Jump = -56;
+            saveGame->vDPadY_Jump = 180;
+        }
     }
+    else
+    {
+        if (!saveRAM[4000]) {
+            saveRAM[4000] = 60;
+            saveRAM[4000] = 176;
+            saveRAM[4000] = -56;
+            saveRAM[4000] = 180;
+        }
+    }
+
+
 
     Engine.globalBoxRegion = saveGame->boxRegion;
     SetGameVolumes(saveGame->musVolume, saveGame->sfxVolume);
