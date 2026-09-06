@@ -19,6 +19,35 @@
 
 #define unused(x) (void)x
 
+int GET_IDX_SO(int offset);
+// Small macro, should prolly just rename the function but wtv
+#define GetIndexSaveOffset(x) GET_IDX_SO(x)
+
+// to be used inside the saveRAM array
+inline int SaveSelectOffset(int saveSlot, int offset)
+{
+    return (saveSlot * 8) + GetIndexSaveOffset(offset);
+}
+
+// The two enums below are the values used with GET_IDX_SO on the original release
+enum SAVEFILE_OFFSETS{
+    SAVEFILE_CHARACTERID,
+    SAVEFILE_LIVES,
+    SAVEFILE_SCORE,
+    SAVEFILE_SCOREBONUS,
+    SAVEFILE_STAGEID,
+    SAVEFILE_EMERALDS,
+    SAVEFILE_SPECIALSTAGEID,
+    SAVEFILE_UNUSED,
+};
+
+enum SAVEGAME_OFFSETS {
+    OFFSET_UNKNOWN_0     = 15,
+    OFFSET_TAILSUNLOCKED = 16,
+    OFFSET_KNUXUNLOCKED  = 17,
+    OFFSET_UNKNOWN_1     = 18,
+};
+
 struct SaveFile {
     int characterID;    // Value 0/8/16/24
     int lives;          // Value 1/9/17/25
@@ -154,7 +183,6 @@ void InitUserdata();
 void WriteSettings();
 void ReadUserdata();
 void WriteUserdata();
-int GET_IDX_SO(int param_1);
 
 inline void AddAchievement(const char *name, const char *description)
 {
