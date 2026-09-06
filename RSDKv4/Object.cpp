@@ -417,8 +417,8 @@ void InitNativeObjectSystem()
 
         if (Engine.gameType != GAME_SONICCD)
         {
-            saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
-            saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1 && Engine.gameType != GAME_SONICCD;
+            saveGame->tailsUnlocked   = Engine.gameType != GAME_SONIC1;
+            saveGame->knuxUnlocked    = Engine.gameType != GAME_SONIC1;
         }
         else
         {
