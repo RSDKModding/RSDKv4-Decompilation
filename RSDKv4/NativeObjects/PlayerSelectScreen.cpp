@@ -85,7 +85,7 @@ void PlayerSelectScreen_Main(void *objPtr)
                         }
                         else if (saveGame->tailsUnlocked) {
                             PlaySfxByName("Menu Move", false);
-                            if (--self->playerID > SAVESEL_SONIC)
+                            if (--self->playerID < SAVESEL_SONIC)
                                 self->playerID = SAVESEL_TAILS;
                         }
                     }
