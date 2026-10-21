@@ -430,11 +430,12 @@ public:
 
     bool LoadGameConfig(const char *filepath);
 #if RETRO_USE_MOD_LOADER
+    bool StageXMLUseGlobalObjects(bool &loadGlobalScripts);
     void LoadXMLWindowText();
     void LoadXMLVariables();
-    void LoadXMLPalettes();
-    void LoadXMLObjects();
-    void LoadXMLSoundFX();
+    void LoadXMLPalettes(bool stage = false);
+    void LoadXMLObjects(bool stage = false);
+    void LoadXMLSoundFX(bool stage = false);
     void LoadXMLPlayers(TextMenu *menu);
     void LoadXMLStages(TextMenu *menu, int listNo);
 #endif
