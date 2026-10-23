@@ -774,6 +774,8 @@ void LoadStageFiles(void)
             }
 
 #if RETRO_USE_MOD_LOADER && RETRO_USE_COMPILER
+            if (!loadGlobalScripts)
+                modObjCount = modObjCountStore;
             GetFileInfo(&info);
             CloseFile();
             Engine.LoadXMLObjects(true);
