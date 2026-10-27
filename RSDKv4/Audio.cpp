@@ -877,11 +877,24 @@ void LoadSfx(char *filePath, byte sfxID)
 void PlaySfx(int sfx, bool loop)
 {
     LockAudioDevice();
+
     int sfxChannelID = -1;
+
+    // Check if the sfx is already playing on a channel
     for (int c = 0; c < CHANNEL_COUNT; ++c) {
-        if (sfxChannels[c].sfxID == sfx || sfxChannels[c].sfxID == -1) {
+        if (sfxChannels[c].sfxID == sfx) {
             sfxChannelID = c;
             break;
+        }
+    }
+
+    // If there's not one already playing, find an unused/free channel
+    if (sfxChannelID == -1) {
+        for (int c = 0; c < CHANNEL_COUNT; ++c) {
+            if (sfxChannels[c].sfxID == -1) {
+                sfxChannelID = c;
+                break;
+            }
         }
     }
 
@@ -891,6 +904,7 @@ void PlaySfx(int sfx, bool loop)
     sfxInfo->sampleLength = sfxList[sfx].length;
     sfxInfo->loopSFX      = loop;
     sfxInfo->pan          = 0;
+
     UnlockAudioDevice();
 }
 void SetSfxAttributes(int sfx, int loopCount, sbyte pan)
