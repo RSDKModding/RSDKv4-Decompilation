@@ -39,6 +39,7 @@ extern char modTypeNames[OBJECT_COUNT][0x40];
 extern char modScriptPaths[OBJECT_COUNT][0x40];
 extern byte modScriptFlags[OBJECT_COUNT];
 extern byte modObjCount;
+extern byte modObjCountStore;
 
 inline void SetActiveMod(int id) { activeMod = id; }
 

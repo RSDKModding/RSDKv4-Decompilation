@@ -18,7 +18,8 @@ bool redirectSave = false;
 char modTypeNames[OBJECT_COUNT][0x40];
 char modScriptPaths[OBJECT_COUNT][0x40];
 byte modScriptFlags[OBJECT_COUNT];
-byte modObjCount = 0;
+byte modObjCount      = 0;
+byte modObjCountStore = 0;
 
 #include <filesystem>
 #include <locale>
