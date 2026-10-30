@@ -92,14 +92,9 @@ set(RETRO_FILES
 )
 
 if(NOT PLATFORM)
-    if(WIN32) # THIS ASSUMES VCPKG OR SOURCES !!!!!!!
-        set(PLATFORM "Windows" CACHE STRING "The platform to compile for.")
-    elseif(ANDROID)
-        set(PLATFORM "Android" CACHE STRING "The platform to compile for.")
-    else()
         set(PLATFORM ${CMAKE_SYSTEM_NAME} CACHE STRING "The platform to compile for.")
-    endif()
 endif()
+# info: https://cmake.org/cmake/help/latest/variable/CMAKE_SYSTEM_NAME.html
 
 include(platforms/${PLATFORM}.cmake)
 
@@ -107,9 +102,7 @@ set_target_properties(RetroEngine PROPERTIES OUTPUT_NAME ${RETRO_OUTPUT_NAME})
 
 if(COMPILE_OGG)
     set(OGG_DIR dependencies/${DEP_PATH}/libogg)
-    add_library(
-        libogg
-        STATIC
+    add_library( libogg STATIC
         ${OGG_DIR}/src/bitwise.c
         ${OGG_DIR}/src/framing.c
     )
@@ -124,7 +117,7 @@ endif()
 if(COMPILE_VORBIS)
     set(VORBIS_DIR dependencies/${DEP_PATH}/libvorbis)
     set(OGG_DIR dependencies/${DEP_PATH}/libogg)
-    add_library(libvorbis STATIC
+    add_library ( libvorbis STATIC
         ${VORBIS_DIR}/lib/analysis.c
         ${VORBIS_DIR}/lib/barkmel.c
         ${VORBIS_DIR}/lib/bitrate.c
@@ -167,8 +160,13 @@ target_include_directories(RetroEngine PRIVATE
     RSDKv4/
     RSDKv4/NativeObjects/
     dependencies/all/stb-image/
-    dependencies/all/tinyxml2/
 )
+
+if(RETRO_MOD_LOADER)
+    target_include_directories(RetroEngine PRIVATE
+           dependencies/all/tinyxml2/
+)
+endif()
 
 if(RETRO_NETWORKING)
     target_include_directories(RetroEngine PRIVATE

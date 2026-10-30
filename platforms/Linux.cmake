@@ -1,15 +1,13 @@
-# PKG-CONFIG IS USED AS THE MAIN DRIVER
-# bc cmake is inconsistent as fuuuckkk
+add_executable(RetroEngine ${RETRO_FILES})
 
 find_package(PkgConfig REQUIRED)
-
-add_executable(RetroEngine ${RETRO_FILES})
+# PKG-CONFIG IS USED AS THE MAIN DRIVER
+# bc cmake is inconsistent as fuuuckkk
 
 pkg_check_modules(OGG ogg)
 
 if(NOT OGG_FOUND)
-    set(COMPILE_OGG TRUE)
-    message(NOTICE "libogg not found, attempting to build from source")
+    message(NOTICE "libogg not found")
 else()
     message("found libogg")
     target_link_libraries(RetroEngine ${OGG_STATIC_LIBRARIES})
@@ -20,8 +18,7 @@ endif()
 pkg_check_modules(VORBIS vorbis vorbisfile) #idk what the names are
 
 if(NOT VORBIS_FOUND)
-    set(COMPILE_VORBIS TRUE)
-    message(NOTICE "libvorbis not found, attempting to build from source")
+    message(NOTICE "libvorbis not found")
 else()
     message("found libvorbis")
     target_link_libraries(RetroEngine ${VORBIS_STATIC_LIBRARIES})
@@ -33,7 +30,7 @@ if(RETRO_USE_HW_RENDER)
     pkg_check_modules(GLEW glew)
 
     if(NOT GLEW_FOUND)
-        message(NOTICE "could not find glew, attempting to build from source")
+        message(NOTICE "could not find glew")
 
     else()
         message("found GLEW")

@@ -1,14 +1,9 @@
-project(RetroEngine)
-
 add_executable(RetroEngine ${RETRO_FILES})
-
-set(DEP_PATH windows)
 
 find_package(Ogg CONFIG)
 
 if(NOT ${Ogg_FOUND})
-    set(COMPILE_OGG TRUE)
-    message(NOTICE "libogg not found, attempting to build from source")
+    message(NOTICE "libogg not found")
 else()
     message("found libogg")
     add_library(libogg ALIAS Ogg::ogg)
@@ -18,8 +13,7 @@ endif()
 find_package(Vorbis CONFIG)
 
 if(NOT ${Vorbis_FOUND})
-    set(COMPILE_VORBIS TRUE)
-    message(NOTICE "libvorbis not found, attempting to build from source")
+    message(NOTICE "libvorbis not found")
 else()
     message("found libvorbis")
     add_library(libvorbis ALIAS Vorbis::vorbisfile)
@@ -30,7 +24,7 @@ if(RETRO_USE_HW_RENDER)
     find_package(GLEW CONFIG)
 
     if(NOT GLEW_FOUND)
-        message(NOTICE "could not find glew, attempting to build from source")
+        message(NOTICE "could not find glew")
 
     else()
         message("found GLEW")
